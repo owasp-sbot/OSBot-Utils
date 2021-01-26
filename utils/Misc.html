@@ -42,6 +42,9 @@ from time import sleep
 
 from dotenv     import load_dotenv
 
+def append_random_string(target, length=6, prefix=&#39;-&#39;):
+    return f&#39;{target}{random_string(length, prefix)}&#39;
+
 def array_add(array : list, value):
     if value is not None:
         array.append(value)
@@ -251,8 +254,8 @@ def random_password(length=24, prefix=&#39;&#39;):
         password = password.replace(item, &#39;_&#39;)
     return password
 
-def random_string(length=6,prefix=&#39;&#39;):
-    return prefix + &#39;&#39;.join(random.choices(string.ascii_uppercase, k=length))
+def random_string(length=8,prefix=&#39;&#39;):
+    return prefix + &#39;&#39;.join(random.choices(string.ascii_uppercase, k=length)).lower()
 
 def random_string_and_numbers(length=6,prefix=&#39;&#39;):
     return prefix + &#39;&#39;.join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -332,7 +335,9 @@ def word_wrap_escaped(text,length = 40):
 bytes_to_string  = bytes_to_str
 convert_to_float = convert_to_number
 new_guid         = random_uuid
-str_lines        = split_lines</code></pre>
+str_lines        = split_lines
+
+random_id        = random_string</code></pre>
 </details>
 </section>
 <section>
@@ -342,6 +347,19 @@ str_lines        = split_lines</code></pre>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="osbot_utils.utils.Misc.append_random_string"><code class="name flex">
+<span>def <span class="ident">append_random_string</span></span>(<span>target, length=6, prefix='-')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append_random_string(target, length=6, prefix=&#39;-&#39;):
+    return f&#39;{target}{random_string(length, prefix)}&#39;</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Misc.array_add"><code class="name flex">
 <span>def <span class="ident">array_add</span></span>(<span>array: list, value)</span>
 </code></dt>
@@ -899,6 +917,19 @@ str_lines        = split_lines</code></pre>
     return &#39;{0}{1}&#39;.format(&#39;&#39;.join(random.choices(string.ascii_lowercase + string.digits, k=length)) ,  extension)</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Misc.random_id"><code class="name flex">
+<span>def <span class="ident">random_id</span></span>(<span>length=8, prefix='')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def random_string(length=8,prefix=&#39;&#39;):
+    return prefix + &#39;&#39;.join(random.choices(string.ascii_uppercase, k=length)).lower()</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Misc.random_number"><code class="name flex">
 <span>def <span class="ident">random_number</span></span>(<span>min=1, max=65000)</span>
 </code></dt>
@@ -948,7 +979,7 @@ str_lines        = split_lines</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Misc.random_string"><code class="name flex">
-<span>def <span class="ident">random_string</span></span>(<span>length=6, prefix='')</span>
+<span>def <span class="ident">random_string</span></span>(<span>length=8, prefix='')</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -956,8 +987,8 @@ str_lines        = split_lines</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def random_string(length=6,prefix=&#39;&#39;):
-    return prefix + &#39;&#39;.join(random.choices(string.ascii_uppercase, k=length))</code></pre>
+<pre><code class="python">def random_string(length=8,prefix=&#39;&#39;):
+    return prefix + &#39;&#39;.join(random.choices(string.ascii_uppercase, k=length)).lower()</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Misc.random_string_and_numbers"><code class="name flex">
@@ -1297,6 +1328,7 @@ str_lines        = split_lines</code></pre>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="osbot_utils.utils.Misc.append_random_string" href="#osbot_utils.utils.Misc.append_random_string">append_random_string</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.array_add" href="#osbot_utils.utils.Misc.array_add">array_add</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.array_find" href="#osbot_utils.utils.Misc.array_find">array_find</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.array_get" href="#osbot_utils.utils.Misc.array_get">array_get</a></code></li>
@@ -1333,6 +1365,7 @@ str_lines        = split_lines</code></pre>
 <li><code><a title="osbot_utils.utils.Misc.none_or_empty" href="#osbot_utils.utils.Misc.none_or_empty">none_or_empty</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.random_bytes" href="#osbot_utils.utils.Misc.random_bytes">random_bytes</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.random_filename" href="#osbot_utils.utils.Misc.random_filename">random_filename</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.random_id" href="#osbot_utils.utils.Misc.random_id">random_id</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.random_number" href="#osbot_utils.utils.Misc.random_number">random_number</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.random_password" href="#osbot_utils.utils.Misc.random_password">random_password</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.random_port" href="#osbot_utils.utils.Misc.random_port">random_port</a></code></li>
