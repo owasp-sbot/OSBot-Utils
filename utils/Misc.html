@@ -228,6 +228,11 @@ def str_sha256(text: str):
         #return hashlib.sha256(&#39;{0}&#39;.format(text).encode()).hexdigest()
     return None
 
+def to_string(target):
+    if target:
+        return str(target)
+    return &#39;&#39;
+
 def random_bytes(length=24):
     return token_bytes(length)
 
@@ -1227,6 +1232,21 @@ random_id        = random_string</code></pre>
         return default</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Misc.to_string"><code class="name flex">
+<span>def <span class="ident">to_string</span></span>(<span>target)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_string(target):
+    if target:
+        return str(target)
+    return &#39;&#39;</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Misc.trim"><code class="name flex">
 <span>def <span class="ident">trim</span></span>(<span>target)</span>
 </code></dt>
@@ -1387,6 +1407,7 @@ random_id        = random_string</code></pre>
 <li><code><a title="osbot_utils.utils.Misc.str_to_bytes" href="#osbot_utils.utils.Misc.str_to_bytes">str_to_bytes</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.str_to_date" href="#osbot_utils.utils.Misc.str_to_date">str_to_date</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.to_int" href="#osbot_utils.utils.Misc.to_int">to_int</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.to_string" href="#osbot_utils.utils.Misc.to_string">to_string</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.trim" href="#osbot_utils.utils.Misc.trim">trim</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.under_debugger" href="#osbot_utils.utils.Misc.under_debugger">under_debugger</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.upper" href="#osbot_utils.utils.Misc.upper">upper</a></code></li>
