@@ -215,7 +215,8 @@ Takes into account the request params to create the file name used for caching</
     cache_key            = self.get_cache_in_tmp_key(self_obj, function_obj, params)
     cache_path           = path_combine(self.cache_folder,cache_key)
     self.last_cache_path = cache_path
-    return cache_path</code></pre>
+    return cache_path
+    #return &#39;/tmp/cache_in_tmp_{0}.gz&#39;.format(cache_key)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.decorators.methods.cache_on_tmp.cache_on_tmp.save_cache_in_tmp_data"><code class="name flex">

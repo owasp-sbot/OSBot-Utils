@@ -27,7 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import json
-import pprint
+import pprint as original_pprint
 
 class Dev:
     @staticmethod
@@ -42,22 +42,29 @@ class Dev:
 
     @staticmethod
     def pformat(data):
-        return pprint.pformat(data, indent=2)  # use a pprint to format
+        return original_pprint.pformat(data, indent=2)  # use a pprint to format
 
     @staticmethod
     def pprint(*args):
         print()                                # add a line before
         for arg in args:
-            pprint.pprint(arg, indent=2)       # use a pprint to format
+            original_pprint.pprint(arg, indent=2)       # use a pprint to format
         if len(args) == 1:
             return args[0]
         return args
 
     @staticmethod
-    def print(data):
+    def nprint(data):
         print()                                # add a line before
         print(data)
-        return data</code></pre>
+        return data
+
+
+jformat = Dev.jformat
+jprint  = Dev.jprint
+pformat = Dev.pformat
+pprint  = Dev.pprint
+nprint  = Dev.nprint</code></pre>
 </details>
 </section>
 <section>
@@ -65,6 +72,88 @@ class Dev:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="osbot_utils.utils.Dev.jformat"><code class="name flex">
+<span>def <span class="ident">jformat</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def jformat(data):
+    return json.dumps(data, indent=4)       # use json.dumps to format</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Dev.jprint"><code class="name flex">
+<span>def <span class="ident">jprint</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def jprint(data):
+    print()                                 # add a line before
+    print(json.dumps(data, indent=4))       # use json.dumps to format
+    return data</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Dev.nprint"><code class="name flex">
+<span>def <span class="ident">nprint</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def nprint(data):
+    print()                                # add a line before
+    print(data)
+    return data</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Dev.pformat"><code class="name flex">
+<span>def <span class="ident">pformat</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def pformat(data):
+    return original_pprint.pformat(data, indent=2)  # use a pprint to format</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Dev.pprint"><code class="name flex">
+<span>def <span class="ident">pprint</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def pprint(*args):
+    print()                                # add a line before
+    for arg in args:
+        original_pprint.pprint(arg, indent=2)       # use a pprint to format
+    if len(args) == 1:
+        return args[0]
+    return args</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -91,19 +180,19 @@ class Dev:
 
     @staticmethod
     def pformat(data):
-        return pprint.pformat(data, indent=2)  # use a pprint to format
+        return original_pprint.pformat(data, indent=2)  # use a pprint to format
 
     @staticmethod
     def pprint(*args):
         print()                                # add a line before
         for arg in args:
-            pprint.pprint(arg, indent=2)       # use a pprint to format
+            original_pprint.pprint(arg, indent=2)       # use a pprint to format
         if len(args) == 1:
             return args[0]
         return args
 
     @staticmethod
-    def print(data):
+    def nprint(data):
         print()                                # add a line before
         print(data)
         return data</code></pre>
@@ -140,6 +229,22 @@ def jprint(data):
     return data</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Dev.Dev.nprint"><code class="name flex">
+<span>def <span class="ident">nprint</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def nprint(data):
+    print()                                # add a line before
+    print(data)
+    return data</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Dev.Dev.pformat"><code class="name flex">
 <span>def <span class="ident">pformat</span></span>(<span>data)</span>
 </code></dt>
@@ -151,7 +256,7 @@ def jprint(data):
 </summary>
 <pre><code class="python">@staticmethod
 def pformat(data):
-    return pprint.pformat(data, indent=2)  # use a pprint to format</code></pre>
+    return original_pprint.pformat(data, indent=2)  # use a pprint to format</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Dev.Dev.pprint"><code class="name flex">
@@ -167,26 +272,10 @@ def pformat(data):
 def pprint(*args):
     print()                                # add a line before
     for arg in args:
-        pprint.pprint(arg, indent=2)       # use a pprint to format
+        original_pprint.pprint(arg, indent=2)       # use a pprint to format
     if len(args) == 1:
         return args[0]
     return args</code></pre>
-</details>
-</dd>
-<dt id="osbot_utils.utils.Dev.Dev.print"><code class="name flex">
-<span>def <span class="ident">print</span></span>(<span>data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def print(data):
-    print()                                # add a line before
-    print(data)
-    return data</code></pre>
 </details>
 </dd>
 </dl>
@@ -205,6 +294,15 @@ def print(data):
 <li><code><a title="osbot_utils.utils" href="index.html">osbot_utils.utils</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="osbot_utils.utils.Dev.jformat" href="#osbot_utils.utils.Dev.jformat">jformat</a></code></li>
+<li><code><a title="osbot_utils.utils.Dev.jprint" href="#osbot_utils.utils.Dev.jprint">jprint</a></code></li>
+<li><code><a title="osbot_utils.utils.Dev.nprint" href="#osbot_utils.utils.Dev.nprint">nprint</a></code></li>
+<li><code><a title="osbot_utils.utils.Dev.pformat" href="#osbot_utils.utils.Dev.pformat">pformat</a></code></li>
+<li><code><a title="osbot_utils.utils.Dev.pprint" href="#osbot_utils.utils.Dev.pprint">pprint</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
@@ -212,9 +310,9 @@ def print(data):
 <ul class="">
 <li><code><a title="osbot_utils.utils.Dev.Dev.jformat" href="#osbot_utils.utils.Dev.Dev.jformat">jformat</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.Dev.jprint" href="#osbot_utils.utils.Dev.Dev.jprint">jprint</a></code></li>
+<li><code><a title="osbot_utils.utils.Dev.Dev.nprint" href="#osbot_utils.utils.Dev.Dev.nprint">nprint</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.Dev.pformat" href="#osbot_utils.utils.Dev.Dev.pformat">pformat</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.Dev.pprint" href="#osbot_utils.utils.Dev.Dev.pprint">pprint</a></code></li>
-<li><code><a title="osbot_utils.utils.Dev.Dev.print" href="#osbot_utils.utils.Dev.Dev.print">print</a></code></li>
 </ul>
 </li>
 </ul>
