@@ -31,6 +31,8 @@ import gzip
 import logging
 import os
 
+from osbot_utils.utils.Misc import str_lines
+
 logger_json = logging.getLogger()   # todo: start using this API for capturing error messages from methods bellow
 
 from osbot_utils.utils.Files import file_exists, temp_file, file_create_gz, file_create, load_file_gz, file_contents
@@ -92,6 +94,12 @@ class Json:
         return {}
 
     @staticmethod
+    def loads_json_lines(json_lines):
+        json_data = &#39;[&#39; + &#39;,&#39;.join(str_lines(json_lines.strip())) + &#39;]&#39;
+        return json_loads(json_data)
+
+
+    @staticmethod
     def round_trip(data):
         return json.loads(json.dumps(data))
 
@@ -126,14 +134,18 @@ json_load_file_gz            = Json.load_file_gz
 json_load_file_gz_and_delete = Json.load_file_gz_and_delete
 json_from_string             = Json.loads
 json_loads                   = Json.loads
+json_lines_loads             = Json.loads_json_lines
 json_parse                   = Json.loads
+json_lines_parse             = Json.loads_json_lines
+json_to_str                  = Json.dumps
 json_round_trip              = Json.round_trip
 json_save                    = Json.save_file
 json_save_file               = Json.save_file
 json_save_file_pretty        = Json.save_file_pretty
 json_save_file_gz            = Json.save_file_gz
 json_save_file_pretty_gz     = Json.save_file_pretty_gz
-json_save_tmp_file           = Json.json_save_tmp_file</code></pre>
+json_save_tmp_file           = Json.json_save_tmp_file
+str_to_json                  = Json.loads</code></pre>
 </details>
 </section>
 <section>
@@ -207,6 +219,36 @@ def loads(json_data):
         except:
             logger_json.exception(&#39;Error in load_json&#39;)
     return {}</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Json.json_lines_loads"><code class="name flex">
+<span>def <span class="ident">json_lines_loads</span></span>(<span>json_lines)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def loads_json_lines(json_lines):
+    json_data = &#39;[&#39; + &#39;,&#39;.join(str_lines(json_lines.strip())) + &#39;]&#39;
+    return json_loads(json_data)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Json.json_lines_parse"><code class="name flex">
+<span>def <span class="ident">json_lines_parse</span></span>(<span>json_lines)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def loads_json_lines(json_lines):
+    json_data = &#39;[&#39; + &#39;,&#39;.join(str_lines(json_lines.strip())) + &#39;]&#39;
+    return json_loads(json_data)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Json.json_load_file"><code class="name flex">
@@ -433,6 +475,52 @@ def json_save_tmp_file(python_object, pretty=True):
     return Json.save_file(python_object=python_object, pretty=pretty, path=None)</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Json.json_to_str"><code class="name flex">
+<span>def <span class="ident">json_to_str</span></span>(<span>python_object, indent=4, pretty=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def dumps(python_object, indent=4, pretty=True):
+    if python_object:
+        try:
+            if pretty:
+                return json.dumps(python_object, indent=indent)
+            return json.dumps(python_object)
+        except:
+            logger_json.exception(&#39;Error in load_json&#39;)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Json.str_to_json"><code class="name flex">
+<span>def <span class="ident">str_to_json</span></span>(<span>json_data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Loads json data from string
+Note: will not throw errors and will return {} as default
+errors are logged to Json.log</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def loads(json_data):
+    &#34;&#34;&#34;
+    Loads json data from string
+    Note: will not throw errors and will return {} as default
+    errors are logged to Json.log
+    &#34;&#34;&#34;
+    if json_data:
+        try:
+            return json.loads(json_data)
+        except:
+            logger_json.exception(&#39;Error in load_json&#39;)
+    return {}</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -501,6 +589,12 @@ def json_save_tmp_file(python_object, pretty=True):
             except:
                 logger_json.exception(&#39;Error in load_json&#39;)
         return {}
+
+    @staticmethod
+    def loads_json_lines(json_lines):
+        json_data = &#39;[&#39; + &#39;,&#39;.join(str_lines(json_lines.strip())) + &#39;]&#39;
+        return json_loads(json_data)
+
 
     @staticmethod
     def round_trip(data):
@@ -662,6 +756,21 @@ def loads(json_data):
     return {}</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Json.Json.loads_json_lines"><code class="name flex">
+<span>def <span class="ident">loads_json_lines</span></span>(<span>json_lines)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def loads_json_lines(json_lines):
+    json_data = &#39;[&#39; + &#39;,&#39;.join(str_lines(json_lines.strip())) + &#39;]&#39;
+    return json_loads(json_data)</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Json.Json.round_trip"><code class="name flex">
 <span>def <span class="ident">round_trip</span></span>(<span>data)</span>
 </code></dt>
@@ -755,6 +864,8 @@ def save_file_pretty_gz(python_object, path=None):
 <li><code><a title="osbot_utils.utils.Json.json_dumps" href="#osbot_utils.utils.Json.json_dumps">json_dumps</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.json_format" href="#osbot_utils.utils.Json.json_format">json_format</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.json_from_string" href="#osbot_utils.utils.Json.json_from_string">json_from_string</a></code></li>
+<li><code><a title="osbot_utils.utils.Json.json_lines_loads" href="#osbot_utils.utils.Json.json_lines_loads">json_lines_loads</a></code></li>
+<li><code><a title="osbot_utils.utils.Json.json_lines_parse" href="#osbot_utils.utils.Json.json_lines_parse">json_lines_parse</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.json_load_file" href="#osbot_utils.utils.Json.json_load_file">json_load_file</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.json_load_file_and_delete" href="#osbot_utils.utils.Json.json_load_file_and_delete">json_load_file_and_delete</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.json_load_file_gz" href="#osbot_utils.utils.Json.json_load_file_gz">json_load_file_gz</a></code></li>
@@ -768,6 +879,8 @@ def save_file_pretty_gz(python_object, path=None):
 <li><code><a title="osbot_utils.utils.Json.json_save_file_pretty" href="#osbot_utils.utils.Json.json_save_file_pretty">json_save_file_pretty</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.json_save_file_pretty_gz" href="#osbot_utils.utils.Json.json_save_file_pretty_gz">json_save_file_pretty_gz</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.json_save_tmp_file" href="#osbot_utils.utils.Json.json_save_tmp_file">json_save_tmp_file</a></code></li>
+<li><code><a title="osbot_utils.utils.Json.json_to_str" href="#osbot_utils.utils.Json.json_to_str">json_to_str</a></code></li>
+<li><code><a title="osbot_utils.utils.Json.str_to_json" href="#osbot_utils.utils.Json.str_to_json">str_to_json</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
@@ -782,6 +895,7 @@ def save_file_pretty_gz(python_object, path=None):
 <li><code><a title="osbot_utils.utils.Json.Json.load_file_gz" href="#osbot_utils.utils.Json.Json.load_file_gz">load_file_gz</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.Json.load_file_gz_and_delete" href="#osbot_utils.utils.Json.Json.load_file_gz_and_delete">load_file_gz_and_delete</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.Json.loads" href="#osbot_utils.utils.Json.Json.loads">loads</a></code></li>
+<li><code><a title="osbot_utils.utils.Json.Json.loads_json_lines" href="#osbot_utils.utils.Json.Json.loads_json_lines">loads_json_lines</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.Json.round_trip" href="#osbot_utils.utils.Json.Json.round_trip">round_trip</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.Json.save_file" href="#osbot_utils.utils.Json.Json.save_file">save_file</a></code></li>
 <li><code><a title="osbot_utils.utils.Json.Json.save_file_gz" href="#osbot_utils.utils.Json.Json.save_file_gz">save_file_gz</a></code></li>

@@ -29,6 +29,9 @@
 <pre><code class="python">import json
 import pprint as original_pprint
 
+from osbot_utils.utils.Misc import date_time_now
+
+
 class Dev:
     @staticmethod
     def jformat(data):
@@ -59,12 +62,18 @@ class Dev:
         print(data)
         return data
 
+    @staticmethod
+    def print_now():
+        print(date_time_now())
 
-jformat = Dev.jformat
-jprint  = Dev.jprint
-pformat = Dev.pformat
-pprint  = Dev.pprint
-nprint  = Dev.nprint</code></pre>
+
+jformat   = Dev.jformat
+jprint    = Dev.jprint
+pformat   = Dev.pformat
+pprint    = Dev.pprint
+nprint    = Dev.nprint
+
+print_now = Dev.print_now</code></pre>
 </details>
 </section>
 <section>
@@ -153,6 +162,20 @@ def pprint(*args):
     return args</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Dev.print_now"><code class="name flex">
+<span>def <span class="ident">print_now</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def print_now():
+    print(date_time_now())</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -195,7 +218,11 @@ def pprint(*args):
     def nprint(data):
         print()                                # add a line before
         print(data)
-        return data</code></pre>
+        return data
+
+    @staticmethod
+    def print_now():
+        print(date_time_now())</code></pre>
 </details>
 <h3>Static methods</h3>
 <dl>
@@ -278,6 +305,20 @@ def pprint(*args):
     return args</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Dev.Dev.print_now"><code class="name flex">
+<span>def <span class="ident">print_now</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def print_now():
+    print(date_time_now())</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -295,24 +336,26 @@ def pprint(*args):
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="osbot_utils.utils.Dev.jformat" href="#osbot_utils.utils.Dev.jformat">jformat</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.jprint" href="#osbot_utils.utils.Dev.jprint">jprint</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.nprint" href="#osbot_utils.utils.Dev.nprint">nprint</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.pformat" href="#osbot_utils.utils.Dev.pformat">pformat</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.pprint" href="#osbot_utils.utils.Dev.pprint">pprint</a></code></li>
+<li><code><a title="osbot_utils.utils.Dev.print_now" href="#osbot_utils.utils.Dev.print_now">print_now</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
 <h4><code><a title="osbot_utils.utils.Dev.Dev" href="#osbot_utils.utils.Dev.Dev">Dev</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="osbot_utils.utils.Dev.Dev.jformat" href="#osbot_utils.utils.Dev.Dev.jformat">jformat</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.Dev.jprint" href="#osbot_utils.utils.Dev.Dev.jprint">jprint</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.Dev.nprint" href="#osbot_utils.utils.Dev.Dev.nprint">nprint</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.Dev.pformat" href="#osbot_utils.utils.Dev.Dev.pformat">pformat</a></code></li>
 <li><code><a title="osbot_utils.utils.Dev.Dev.pprint" href="#osbot_utils.utils.Dev.Dev.pprint">pprint</a></code></li>
+<li><code><a title="osbot_utils.utils.Dev.Dev.print_now" href="#osbot_utils.utils.Dev.Dev.print_now">print_now</a></code></li>
 </ul>
 </li>
 </ul>

@@ -45,39 +45,6 @@ from dotenv     import load_dotenv
 def append_random_string(target, length=6, prefix=&#39;-&#39;):
     return f&#39;{target}{random_string(length, prefix)}&#39;
 
-def array_add(array : list, value):
-    if value is not None:
-        array.append(value)
-    return value
-
-def array_find(array:list, item):
-    if item in array:
-        return array.index(item)
-    return -1
-
-def array_get(array, position=None, default=None):
-    if type(array) is list:
-        if type(position) is int and position &gt;=0 :
-            if  len(array) &gt; position:
-                return array[position]
-    return default
-
-def array_pop(array:list, position=None, default=None):
-    if array:
-        if len(array) &gt;0:
-            if type(position) is int:
-                if len(array) &gt; position:
-                    return array.pop(position)
-            else:
-                return array.pop()
-    return default
-
-def array_pop_and_trim(array, position=None):
-    value = array_pop(array,position)
-    if type(value) is str:
-        return trim(value)
-    return value
-
 def bytes_md5(bytes : bytes):
     return hashlib.md5(bytes).hexdigest()
 
@@ -119,8 +86,35 @@ def convert_to_number(value):
     else:
         return 0
 
-def date_now():
-    return str(datetime.now())
+def date_now(use_utc=True, return_str=True):
+    value = date_time_now(use_utc=use_utc, return_str=False)
+    if return_str:
+        return date_to_str(date=value)
+    return value
+
+def date_time_now(use_utc=True, return_str=True, milliseconds_numbers=0):
+    if use_utc:
+        value = datetime.utcnow()
+    else:
+        value = datetime.now()
+    if return_str:
+        return date_time_to_str(value, milliseconds_numbers=milliseconds_numbers)
+    return value
+
+def date_time_to_str(date_time, date_time_format=&#39;%Y-%m-%d %H:%M:%S.%f&#39;, milliseconds_numbers=3):
+    date_time_str = date_time.strftime(date_time_format)
+    return time_str_milliseconds(datetime_str=date_time_str, datetime_format=date_time_format, milliseconds_numbers=milliseconds_numbers)
+
+def date_to_str(date, date_format=&#39;%Y-%m-%d&#39;):
+    return date.strftime(date_format)
+
+def time_str_milliseconds(datetime_str, datetime_format, milliseconds_numbers=0):
+    if &#39;.%f&#39; in datetime_format and -1 &lt; milliseconds_numbers &lt; 6:
+        chars_to_remove = milliseconds_numbers-6
+        if milliseconds_numbers == 0:
+            chars_to_remove -= 1
+        return datetime_str[:chars_to_remove]
+    return datetime_str
 
 def env_value(var_name):
     return env_vars().get(var_name, None)
@@ -188,8 +182,15 @@ def last_letter(text):
     if text and (type(text) is str) and len(text) &gt; 0:
         return text[-1]
 
-def list_set(target):
-    return sorted(list(set(target)))
+def list_add(array : list, value):
+    if value is not None:
+        array.append(value)
+    return value
+
+def list_find(array:list, item):
+    if item in array:
+        return array.index(item)
+    return -1
 
 def list_index_by(values, index_by):
     from osbot_utils.fluent.Fluent_Dict import Fluent_Dict
@@ -206,10 +207,42 @@ def list_group_by(values, group_by):
         results[value].append(item)
     return results
 
+def list_get(array, position=None, default=None):
+    if type(array) is list:
+        if type(position) is int and position &gt;=0 :
+            if  len(array) &gt; position:
+                return array[position]
+    return default
+
+def list_pop(array:list, position=None, default=None):
+    if array:
+        if len(array) &gt;0:
+            if type(position) is int:
+                if len(array) &gt; position:
+                    return array.pop(position)
+            else:
+                return array.pop()
+    return default
+
+def list_pop_and_trim(array, position=None):
+    value = array_pop(array,position)
+    if type(value) is str:
+        return trim(value)
+    return value
+
+def list_set(target):
+    return sorted(list(set(target)))
+
 def lower(target : str):
     if target:
         return target.lower()
     return &#34;&#34;
+
+def str_index(target:str, source:str):
+    try:
+        return target.index(source)
+    except:
+        return -1
 
 def str_md5(text : str):
     if text:
@@ -222,11 +255,34 @@ def none_or_empty(target,field):
         return (value is None) or value == &#39;&#39;
     return True
 
+def print_date_now(use_utc=True):
+    print(date_time_now(use_utc=use_utc))
+
+def print_time_now(use_utc=True):
+    print(time_now(use_utc=use_utc))
+
 def str_sha256(text: str):
     if text:
         return bytes_sha256(text.encode())
         #return hashlib.sha256(&#39;{0}&#39;.format(text).encode()).hexdigest()
     return None
+
+def time_delta_to_str(time_delta):
+    microseconds  = time_delta.microseconds
+    milliseconds  = int(microseconds / 1000)
+    total_seconds = int(time_delta.total_seconds())
+    return f&#39;{total_seconds}s {milliseconds}ms&#39;
+
+def time_now(use_utc=True, milliseconds_numbers=1):
+    if use_utc:
+        datetime_now = datetime.utcnow()
+    else:
+        datetime_now = datetime.now()
+    return time_to_str(datetime_value=datetime_now,milliseconds_numbers=milliseconds_numbers)
+
+def time_to_str(datetime_value, time_format=&#39;%H:%M:%S.%f&#39;, milliseconds_numbers=3):
+    time_str = datetime_value.strftime(time_format)
+    return time_str_milliseconds(datetime_str=time_str, datetime_format=time_format, milliseconds_numbers=milliseconds_numbers)
 
 def to_string(target):
     if target:
@@ -337,12 +393,19 @@ def word_wrap_escaped(text,length = 40):
     if text:
         return &#39;\\n&#39;.join(textwrap.wrap(text, length))
 
-bytes_to_string  = bytes_to_str
-convert_to_float = convert_to_number
-new_guid         = random_uuid
-str_lines        = split_lines
-random_id        = random_string
-wait_for         = wait</code></pre>
+
+array_find          = list_find
+array_get           = list_get
+array_pop           = list_pop
+array_pop_and_trim  = list_pop_and_trim
+array_add           = list_add
+bytes_to_string     = bytes_to_str
+convert_to_float    = convert_to_number
+datetime_now        = date_time_now
+new_guid            = random_uuid
+str_lines           = split_lines
+random_id           = random_string
+wait_for            = wait</code></pre>
 </details>
 </section>
 <section>
@@ -374,7 +437,7 @@ wait_for         = wait</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def array_add(array : list, value):
+<pre><code class="python">def list_add(array : list, value):
     if value is not None:
         array.append(value)
     return value</code></pre>
@@ -389,7 +452,7 @@ wait_for         = wait</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def array_find(array:list, item):
+<pre><code class="python">def list_find(array:list, item):
     if item in array:
         return array.index(item)
     return -1</code></pre>
@@ -404,7 +467,7 @@ wait_for         = wait</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def array_get(array, position=None, default=None):
+<pre><code class="python">def list_get(array, position=None, default=None):
     if type(array) is list:
         if type(position) is int and position &gt;=0 :
             if  len(array) &gt; position:
@@ -421,7 +484,7 @@ wait_for         = wait</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def array_pop(array:list, position=None, default=None):
+<pre><code class="python">def list_pop(array:list, position=None, default=None):
     if array:
         if len(array) &gt;0:
             if type(position) is int:
@@ -441,7 +504,7 @@ wait_for         = wait</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def array_pop_and_trim(array, position=None):
+<pre><code class="python">def list_pop_and_trim(array, position=None):
     value = array_pop(array,position)
     if type(value) is str:
         return trim(value)
@@ -615,7 +678,7 @@ wait_for         = wait</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Misc.date_now"><code class="name flex">
-<span>def <span class="ident">date_now</span></span>(<span>)</span>
+<span>def <span class="ident">date_now</span></span>(<span>use_utc=True, return_str=True)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -623,8 +686,76 @@ wait_for         = wait</code></pre>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def date_now():
-    return str(datetime.now())</code></pre>
+<pre><code class="python">def date_now(use_utc=True, return_str=True):
+    value = date_time_now(use_utc=use_utc, return_str=False)
+    if return_str:
+        return date_to_str(date=value)
+    return value</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.date_time_now"><code class="name flex">
+<span>def <span class="ident">date_time_now</span></span>(<span>use_utc=True, return_str=True, milliseconds_numbers=0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def date_time_now(use_utc=True, return_str=True, milliseconds_numbers=0):
+    if use_utc:
+        value = datetime.utcnow()
+    else:
+        value = datetime.now()
+    if return_str:
+        return date_time_to_str(value, milliseconds_numbers=milliseconds_numbers)
+    return value</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.date_time_to_str"><code class="name flex">
+<span>def <span class="ident">date_time_to_str</span></span>(<span>date_time, date_time_format='%Y-%m-%d %H:%M:%S.%f', milliseconds_numbers=3)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def date_time_to_str(date_time, date_time_format=&#39;%Y-%m-%d %H:%M:%S.%f&#39;, milliseconds_numbers=3):
+    date_time_str = date_time.strftime(date_time_format)
+    return time_str_milliseconds(datetime_str=date_time_str, datetime_format=date_time_format, milliseconds_numbers=milliseconds_numbers)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.date_to_str"><code class="name flex">
+<span>def <span class="ident">date_to_str</span></span>(<span>date, date_format='%Y-%m-%d')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def date_to_str(date, date_format=&#39;%Y-%m-%d&#39;):
+    return date.strftime(date_format)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.datetime_now"><code class="name flex">
+<span>def <span class="ident">datetime_now</span></span>(<span>use_utc=True, return_str=True, milliseconds_numbers=0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def date_time_now(use_utc=True, return_str=True, milliseconds_numbers=0):
+    if use_utc:
+        value = datetime.utcnow()
+    else:
+        value = datetime.now()
+    if return_str:
+        return date_time_to_str(value, milliseconds_numbers=milliseconds_numbers)
+    return value</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Misc.env_value"><code class="name flex">
@@ -802,6 +933,53 @@ wait_for         = wait</code></pre>
         return text[-1]</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Misc.list_add"><code class="name flex">
+<span>def <span class="ident">list_add</span></span>(<span>array: list, value)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_add(array : list, value):
+    if value is not None:
+        array.append(value)
+    return value</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.list_find"><code class="name flex">
+<span>def <span class="ident">list_find</span></span>(<span>array: list, item)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_find(array:list, item):
+    if item in array:
+        return array.index(item)
+    return -1</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.list_get"><code class="name flex">
+<span>def <span class="ident">list_get</span></span>(<span>array, position=None, default=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_get(array, position=None, default=None):
+    if type(array) is list:
+        if type(position) is int and position &gt;=0 :
+            if  len(array) &gt; position:
+                return array[position]
+    return default</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Misc.list_group_by"><code class="name flex">
 <span>def <span class="ident">list_group_by</span></span>(<span>values, group_by)</span>
 </code></dt>
@@ -835,6 +1013,42 @@ wait_for         = wait</code></pre>
     for item in values:
         results[item.get(index_by)] = item
     return Fluent_Dict(results)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.list_pop"><code class="name flex">
+<span>def <span class="ident">list_pop</span></span>(<span>array: list, position=None, default=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_pop(array:list, position=None, default=None):
+    if array:
+        if len(array) &gt;0:
+            if type(position) is int:
+                if len(array) &gt; position:
+                    return array.pop(position)
+            else:
+                return array.pop()
+    return default</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.list_pop_and_trim"><code class="name flex">
+<span>def <span class="ident">list_pop_and_trim</span></span>(<span>array, position=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_pop_and_trim(array, position=None):
+    value = array_pop(array,position)
+    if type(value) is str:
+        return trim(value)
+    return value</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Misc.list_set"><code class="name flex">
@@ -892,6 +1106,32 @@ wait_for         = wait</code></pre>
         value = target.get(field)
         return (value is None) or value == &#39;&#39;
     return True</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.print_date_now"><code class="name flex">
+<span>def <span class="ident">print_date_now</span></span>(<span>use_utc=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_date_now(use_utc=True):
+    print(date_time_now(use_utc=use_utc))</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.print_time_now"><code class="name flex">
+<span>def <span class="ident">print_time_now</span></span>(<span>use_utc=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_time_now(use_utc=True):
+    print(time_now(use_utc=use_utc))</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Misc.random_bytes"><code class="name flex">
@@ -1133,6 +1373,22 @@ wait_for         = wait</code></pre>
     return remove_multiple_spaces(target).split(&#39; &#39;)</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Misc.str_index"><code class="name flex">
+<span>def <span class="ident">str_index</span></span>(<span>target: str, source: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def str_index(target:str, source:str):
+    try:
+        return target.index(source)
+    except:
+        return -1</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Misc.str_lines"><code class="name flex">
 <span>def <span class="ident">str_lines</span></span>(<span>text)</span>
 </code></dt>
@@ -1214,6 +1470,71 @@ wait_for         = wait</code></pre>
 </summary>
 <pre><code class="python">def str_to_date(str_date, format=&#39;%Y-%m-%d %H:%M:%S.%f&#39;):
     return datetime.strptime(str_date,format)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.time_delta_to_str"><code class="name flex">
+<span>def <span class="ident">time_delta_to_str</span></span>(<span>time_delta)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_delta_to_str(time_delta):
+    microseconds  = time_delta.microseconds
+    milliseconds  = int(microseconds / 1000)
+    total_seconds = int(time_delta.total_seconds())
+    return f&#39;{total_seconds}s {milliseconds}ms&#39;</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.time_now"><code class="name flex">
+<span>def <span class="ident">time_now</span></span>(<span>use_utc=True, milliseconds_numbers=1)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_now(use_utc=True, milliseconds_numbers=1):
+    if use_utc:
+        datetime_now = datetime.utcnow()
+    else:
+        datetime_now = datetime.now()
+    return time_to_str(datetime_value=datetime_now,milliseconds_numbers=milliseconds_numbers)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.time_str_milliseconds"><code class="name flex">
+<span>def <span class="ident">time_str_milliseconds</span></span>(<span>datetime_str, datetime_format, milliseconds_numbers=0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_str_milliseconds(datetime_str, datetime_format, milliseconds_numbers=0):
+    if &#39;.%f&#39; in datetime_format and -1 &lt; milliseconds_numbers &lt; 6:
+        chars_to_remove = milliseconds_numbers-6
+        if milliseconds_numbers == 0:
+            chars_to_remove -= 1
+        return datetime_str[:chars_to_remove]
+    return datetime_str</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.time_to_str"><code class="name flex">
+<span>def <span class="ident">time_to_str</span></span>(<span>datetime_value, time_format='%H:%M:%S.%f', milliseconds_numbers=3)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def time_to_str(datetime_value, time_format=&#39;%H:%M:%S.%f&#39;, milliseconds_numbers=3):
+    time_str = datetime_value.strftime(time_format)
+    return time_str_milliseconds(datetime_str=time_str, datetime_format=time_format, milliseconds_numbers=milliseconds_numbers)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Misc.to_int"><code class="name flex">
@@ -1379,6 +1700,10 @@ wait_for         = wait</code></pre>
 <li><code><a title="osbot_utils.utils.Misc.convert_to_float" href="#osbot_utils.utils.Misc.convert_to_float">convert_to_float</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.convert_to_number" href="#osbot_utils.utils.Misc.convert_to_number">convert_to_number</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.date_now" href="#osbot_utils.utils.Misc.date_now">date_now</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.date_time_now" href="#osbot_utils.utils.Misc.date_time_now">date_time_now</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.date_time_to_str" href="#osbot_utils.utils.Misc.date_time_to_str">date_time_to_str</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.date_to_str" href="#osbot_utils.utils.Misc.date_to_str">date_to_str</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.datetime_now" href="#osbot_utils.utils.Misc.datetime_now">datetime_now</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.env_value" href="#osbot_utils.utils.Misc.env_value">env_value</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.env_vars" href="#osbot_utils.utils.Misc.env_vars">env_vars</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.env_vars_list" href="#osbot_utils.utils.Misc.env_vars_list">env_vars_list</a></code></li>
@@ -1390,12 +1715,19 @@ wait_for         = wait</code></pre>
 <li><code><a title="osbot_utils.utils.Misc.ignore_warning__unclosed_ssl" href="#osbot_utils.utils.Misc.ignore_warning__unclosed_ssl">ignore_warning__unclosed_ssl</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.is_number" href="#osbot_utils.utils.Misc.is_number">is_number</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.last_letter" href="#osbot_utils.utils.Misc.last_letter">last_letter</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.list_add" href="#osbot_utils.utils.Misc.list_add">list_add</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.list_find" href="#osbot_utils.utils.Misc.list_find">list_find</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.list_get" href="#osbot_utils.utils.Misc.list_get">list_get</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.list_group_by" href="#osbot_utils.utils.Misc.list_group_by">list_group_by</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.list_index_by" href="#osbot_utils.utils.Misc.list_index_by">list_index_by</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.list_pop" href="#osbot_utils.utils.Misc.list_pop">list_pop</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.list_pop_and_trim" href="#osbot_utils.utils.Misc.list_pop_and_trim">list_pop_and_trim</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.list_set" href="#osbot_utils.utils.Misc.list_set">list_set</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.lower" href="#osbot_utils.utils.Misc.lower">lower</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.new_guid" href="#osbot_utils.utils.Misc.new_guid">new_guid</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.none_or_empty" href="#osbot_utils.utils.Misc.none_or_empty">none_or_empty</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.print_date_now" href="#osbot_utils.utils.Misc.print_date_now">print_date_now</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.print_time_now" href="#osbot_utils.utils.Misc.print_time_now">print_time_now</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.random_bytes" href="#osbot_utils.utils.Misc.random_bytes">random_bytes</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.random_filename" href="#osbot_utils.utils.Misc.random_filename">random_filename</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.random_id" href="#osbot_utils.utils.Misc.random_id">random_id</a></code></li>
@@ -1413,12 +1745,17 @@ wait_for         = wait</code></pre>
 <li><code><a title="osbot_utils.utils.Misc.sorted_set" href="#osbot_utils.utils.Misc.sorted_set">sorted_set</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.split_lines" href="#osbot_utils.utils.Misc.split_lines">split_lines</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.split_spaces" href="#osbot_utils.utils.Misc.split_spaces">split_spaces</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.str_index" href="#osbot_utils.utils.Misc.str_index">str_index</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.str_lines" href="#osbot_utils.utils.Misc.str_lines">str_lines</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.str_md5" href="#osbot_utils.utils.Misc.str_md5">str_md5</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.str_sha256" href="#osbot_utils.utils.Misc.str_sha256">str_sha256</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.str_to_base64" href="#osbot_utils.utils.Misc.str_to_base64">str_to_base64</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.str_to_bytes" href="#osbot_utils.utils.Misc.str_to_bytes">str_to_bytes</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.str_to_date" href="#osbot_utils.utils.Misc.str_to_date">str_to_date</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.time_delta_to_str" href="#osbot_utils.utils.Misc.time_delta_to_str">time_delta_to_str</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.time_now" href="#osbot_utils.utils.Misc.time_now">time_now</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.time_str_milliseconds" href="#osbot_utils.utils.Misc.time_str_milliseconds">time_str_milliseconds</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.time_to_str" href="#osbot_utils.utils.Misc.time_to_str">time_to_str</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.to_int" href="#osbot_utils.utils.Misc.to_int">to_int</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.to_string" href="#osbot_utils.utils.Misc.to_string">to_string</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.trim" href="#osbot_utils.utils.Misc.trim">trim</a></code></li>

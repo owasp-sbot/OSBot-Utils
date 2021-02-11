@@ -27,8 +27,8 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import re
-
-from osbot_utils.utils.Misc import class_name
+import datetime
+from   osbot_utils.utils.Misc import class_name
 
 class Assert:
     def __init__(self ,target):
@@ -63,6 +63,10 @@ class Assert:
 
     def is_equal(self, to):
         assert self.target == to
+
+    def is_today(self):
+        assert type(self._assert.target) == datetime.datetime
+        assert str(self._assert.target.date())  == str(datetime.datetime.utcnow().date())
 
     def match_regex(self, regex):
         assert re.compile(regex).match(self.target) is not None
@@ -126,6 +130,10 @@ class Assert:
 
     def is_equal(self, to):
         assert self.target == to
+
+    def is_today(self):
+        assert type(self._assert.target) == datetime.datetime
+        assert str(self._assert.target.date())  == str(datetime.datetime.utcnow().date())
 
     def match_regex(self, regex):
         assert re.compile(regex).match(self.target) is not None
@@ -228,6 +236,20 @@ class Assert:
     return self</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Assert.Assert.is_today"><code class="name flex">
+<span>def <span class="ident">is_today</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_today(self):
+    assert type(self._assert.target) == datetime.datetime
+    assert str(self._assert.target.date())  == str(datetime.datetime.utcnow().date())</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Assert.Assert.match_regex"><code class="name flex">
 <span>def <span class="ident">match_regex</span></span>(<span>self, regex)</span>
 </code></dt>
@@ -294,6 +316,7 @@ class Assert:
 <li><code><a title="osbot_utils.utils.Assert.Assert.is_class" href="#osbot_utils.utils.Assert.Assert.is_class">is_class</a></code></li>
 <li><code><a title="osbot_utils.utils.Assert.Assert.is_equal" href="#osbot_utils.utils.Assert.Assert.is_equal">is_equal</a></code></li>
 <li><code><a title="osbot_utils.utils.Assert.Assert.is_smaller_than" href="#osbot_utils.utils.Assert.Assert.is_smaller_than">is_smaller_than</a></code></li>
+<li><code><a title="osbot_utils.utils.Assert.Assert.is_today" href="#osbot_utils.utils.Assert.Assert.is_today">is_today</a></code></li>
 <li><code><a title="osbot_utils.utils.Assert.Assert.match_regex" href="#osbot_utils.utils.Assert.Assert.match_regex">match_regex</a></code></li>
 <li><code><a title="osbot_utils.utils.Assert.Assert.regex_not_match" href="#osbot_utils.utils.Assert.Assert.regex_not_match">regex_not_match</a></code></li>
 <li><code><a title="osbot_utils.utils.Assert.Assert.size_is" href="#osbot_utils.utils.Assert.Assert.size_is">size_is</a></code></li>

@@ -343,6 +343,7 @@ file_write                  = Files.write
 file_write_bytes            = Files.write_bytes
 file_write_gz               = Files.write_gz
 file_unzip                  = Files.unzip_file
+files_list                  = Files.files
 
 folder_create               = Files.folder_create
 folder_create_in_parent     = Files.folder_create_in_parent
@@ -950,6 +951,23 @@ def write_gz(path=None, contents=None):
     with gzip.open(path, &#34;w&#34;) as file:
         file.write(contents)
     return path</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Files.files_list"><code class="name flex">
+<span>def <span class="ident">files_list</span></span>(<span>path, pattern='*.*')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def files(path, pattern= &#39;*.*&#39;):                        # todo: check behaviour and improve ability to detect file (vs folders)
+    result = []
+    for file in Path(path).rglob(pattern):
+        result.append(str(file))                        # todo: see if there is a better way to do this conversion to string
+    return sorted(result)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Files.folder_copy"><code class="name flex">
@@ -2481,6 +2499,7 @@ def zip_folder(root_dir, format=&#39;zip&#39;):
 <li><code><a title="osbot_utils.utils.Files.file_write" href="#osbot_utils.utils.Files.file_write">file_write</a></code></li>
 <li><code><a title="osbot_utils.utils.Files.file_write_bytes" href="#osbot_utils.utils.Files.file_write_bytes">file_write_bytes</a></code></li>
 <li><code><a title="osbot_utils.utils.Files.file_write_gz" href="#osbot_utils.utils.Files.file_write_gz">file_write_gz</a></code></li>
+<li><code><a title="osbot_utils.utils.Files.files_list" href="#osbot_utils.utils.Files.files_list">files_list</a></code></li>
 <li><code><a title="osbot_utils.utils.Files.folder_copy" href="#osbot_utils.utils.Files.folder_copy">folder_copy</a></code></li>
 <li><code><a title="osbot_utils.utils.Files.folder_copy_except" href="#osbot_utils.utils.Files.folder_copy_except">folder_copy_except</a></code></li>
 <li><code><a title="osbot_utils.utils.Files.folder_create" href="#osbot_utils.utils.Files.folder_create">folder_create</a></code></li>
