@@ -50,7 +50,7 @@ def save_png_base64_to_file(png_data, png_file=None):
             try:
                 with open(png_file, &#34;wb&#34;) as fh:
                     fh.write(base64.decodebytes(png_data.encode()))
-                logger_png.info(f&#39;Png data with size {len(png_data)} saved to {png_file}&#39;)
+                logger_png.error(f&#39;Png data with size {len(png_data)} saved to {png_file}&#39;)  # note: this is currently set to error because nothing else seems to be picked up by logging.getLogger().addHandler(logging.StreamHandler())
                 return png_file
             except Exception as error:
                 logger_png.error(f&#39;png save error: {error}&#39;)
@@ -83,7 +83,7 @@ def save_png_base64_to_file(png_data, png_file=None):
             try:
                 with open(png_file, &#34;wb&#34;) as fh:
                     fh.write(base64.decodebytes(png_data.encode()))
-                logger_png.info(f&#39;Png data with size {len(png_data)} saved to {png_file}&#39;)
+                logger_png.error(f&#39;Png data with size {len(png_data)} saved to {png_file}&#39;)  # note: this is currently set to error because nothing else seems to be picked up by logging.getLogger().addHandler(logging.StreamHandler())
                 return png_file
             except Exception as error:
                 logger_png.error(f&#39;png save error: {error}&#39;)
