@@ -129,7 +129,7 @@ class Files:
     def folder_exists(path):          # todo: add check to see if it is a folder
         return Files.exists(path)
 
-    staticmethod
+    @staticmethod
     def folder_copy(source, destination, ignore_pattern=None):
         if ignore_pattern:
             ignore = shutil.ignore_patterns(ignore_pattern)
@@ -979,7 +979,8 @@ def files(path, pattern= &#39;*.*&#39;):                        # todo: check be
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def folder_copy(source, destination, ignore_pattern=None):
+<pre><code class="python">@staticmethod
+def folder_copy(source, destination, ignore_pattern=None):
     if ignore_pattern:
         ignore = shutil.ignore_patterns(ignore_pattern)
     else:
@@ -996,7 +997,8 @@ def files(path, pattern= &#39;*.*&#39;):                        # todo: check be
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def folder_copy(source, destination, ignore_pattern=None):
+<pre><code class="python">@staticmethod
+def folder_copy(source, destination, ignore_pattern=None):
     if ignore_pattern:
         ignore = shutil.ignore_patterns(ignore_pattern)
     else:
@@ -1547,7 +1549,7 @@ def zip_folder(root_dir, format=&#39;zip&#39;):
     def folder_exists(path):          # todo: add check to see if it is a folder
         return Files.exists(path)
 
-    staticmethod
+    @staticmethod
     def folder_copy(source, destination, ignore_pattern=None):
         if ignore_pattern:
             ignore = shutil.ignore_patterns(ignore_pattern)
@@ -1966,6 +1968,24 @@ def files(path, pattern= &#39;*.*&#39;):                        # todo: check be
 <pre><code class="python">@staticmethod
 def find(path_pattern, recursive=True):
     return glob.glob(path_pattern, recursive=recursive)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Files.Files.folder_copy"><code class="name flex">
+<span>def <span class="ident">folder_copy</span></span>(<span>source, destination, ignore_pattern=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def folder_copy(source, destination, ignore_pattern=None):
+    if ignore_pattern:
+        ignore = shutil.ignore_patterns(ignore_pattern)
+    else:
+        ignore = None
+    return shutil.copytree(src=source, dst=destination, ignore=ignore)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Files.Files.folder_create"><code class="name flex">
@@ -2423,26 +2443,6 @@ def zip_files(base_folder, file_pattern=&#34;*.*&#34;, target_file=None):
 <pre><code class="python">@staticmethod
 def zip_folder(root_dir, format=&#39;zip&#39;):
     return shutil.make_archive(base_name=root_dir, format=format, root_dir=root_dir)</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="osbot_utils.utils.Files.Files.folder_copy"><code class="name flex">
-<span>def <span class="ident">folder_copy</span></span>(<span>source, destination, ignore_pattern=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def folder_copy(source, destination, ignore_pattern=None):
-    if ignore_pattern:
-        ignore = shutil.ignore_patterns(ignore_pattern)
-    else:
-        ignore = None
-    return shutil.copytree(src=source, dst=destination, ignore=ignore)</code></pre>
 </details>
 </dd>
 </dl>
