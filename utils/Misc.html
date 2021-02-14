@@ -233,6 +233,15 @@ def list_pop_and_trim(array, position=None):
 def list_set(target):
     return sorted(list(set(target)))
 
+def list_filter(target_list, filter_function):
+    return list(filter(filter_function, target_list))
+
+def list_filter_starts_with(target_list, prefix):
+    return list_filter(target_list, lambda x: x.startswith(prefix))
+
+def list_filter_contains(target_list, value):
+    return list_filter(target_list, lambda x: x.find(value) &gt; -1)
+
 def lower(target : str):
     if target:
         return target.lower()
@@ -283,6 +292,13 @@ def time_now(use_utc=True, milliseconds_numbers=1):
 def time_to_str(datetime_value, time_format=&#39;%H:%M:%S.%f&#39;, milliseconds_numbers=3):
     time_str = datetime_value.strftime(time_format)
     return time_str_milliseconds(datetime_str=time_str, datetime_format=time_format, milliseconds_numbers=milliseconds_numbers)
+
+def timestamp_utc_now():
+    return int(datetime.utcnow().timestamp() * 1000)
+    return int(datetime.utcnow().strftime(&#39;%s&#39;)) * 1000
+
+def timestamp_to_datetime(timestamp):
+    return datetime.fromtimestamp(timestamp/1000)
 
 def to_string(target):
     if target:
@@ -402,6 +418,7 @@ array_add           = list_add
 bytes_to_string     = bytes_to_str
 convert_to_float    = convert_to_number
 datetime_now        = date_time_now
+list_contains       = list_filter_contains
 new_guid            = random_uuid
 str_lines           = split_lines
 random_id           = random_string
@@ -946,6 +963,58 @@ wait_for            = wait</code></pre>
     if value is not None:
         array.append(value)
     return value</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.list_contains"><code class="name flex">
+<span>def <span class="ident">list_contains</span></span>(<span>target_list, value)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_filter_contains(target_list, value):
+    return list_filter(target_list, lambda x: x.find(value) &gt; -1)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.list_filter"><code class="name flex">
+<span>def <span class="ident">list_filter</span></span>(<span>target_list, filter_function)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_filter(target_list, filter_function):
+    return list(filter(filter_function, target_list))</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.list_filter_contains"><code class="name flex">
+<span>def <span class="ident">list_filter_contains</span></span>(<span>target_list, value)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_filter_contains(target_list, value):
+    return list_filter(target_list, lambda x: x.find(value) &gt; -1)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.list_filter_starts_with"><code class="name flex">
+<span>def <span class="ident">list_filter_starts_with</span></span>(<span>target_list, prefix)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_filter_starts_with(target_list, prefix):
+    return list_filter(target_list, lambda x: x.startswith(prefix))</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Misc.list_find"><code class="name flex">
@@ -1537,6 +1606,33 @@ wait_for            = wait</code></pre>
     return time_str_milliseconds(datetime_str=time_str, datetime_format=time_format, milliseconds_numbers=milliseconds_numbers)</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Misc.timestamp_to_datetime"><code class="name flex">
+<span>def <span class="ident">timestamp_to_datetime</span></span>(<span>timestamp)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def timestamp_to_datetime(timestamp):
+    return datetime.fromtimestamp(timestamp/1000)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.timestamp_utc_now"><code class="name flex">
+<span>def <span class="ident">timestamp_utc_now</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def timestamp_utc_now():
+    return int(datetime.utcnow().timestamp() * 1000)
+    return int(datetime.utcnow().strftime(&#39;%s&#39;)) * 1000</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Misc.to_int"><code class="name flex">
 <span>def <span class="ident">to_int</span></span>(<span>value, default=0)</span>
 </code></dt>
@@ -1716,6 +1812,10 @@ wait_for            = wait</code></pre>
 <li><code><a title="osbot_utils.utils.Misc.is_number" href="#osbot_utils.utils.Misc.is_number">is_number</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.last_letter" href="#osbot_utils.utils.Misc.last_letter">last_letter</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.list_add" href="#osbot_utils.utils.Misc.list_add">list_add</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.list_contains" href="#osbot_utils.utils.Misc.list_contains">list_contains</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.list_filter" href="#osbot_utils.utils.Misc.list_filter">list_filter</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.list_filter_contains" href="#osbot_utils.utils.Misc.list_filter_contains">list_filter_contains</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.list_filter_starts_with" href="#osbot_utils.utils.Misc.list_filter_starts_with">list_filter_starts_with</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.list_find" href="#osbot_utils.utils.Misc.list_find">list_find</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.list_get" href="#osbot_utils.utils.Misc.list_get">list_get</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.list_group_by" href="#osbot_utils.utils.Misc.list_group_by">list_group_by</a></code></li>
@@ -1756,6 +1856,8 @@ wait_for            = wait</code></pre>
 <li><code><a title="osbot_utils.utils.Misc.time_now" href="#osbot_utils.utils.Misc.time_now">time_now</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.time_str_milliseconds" href="#osbot_utils.utils.Misc.time_str_milliseconds">time_str_milliseconds</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.time_to_str" href="#osbot_utils.utils.Misc.time_to_str">time_to_str</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.timestamp_to_datetime" href="#osbot_utils.utils.Misc.timestamp_to_datetime">timestamp_to_datetime</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.timestamp_utc_now" href="#osbot_utils.utils.Misc.timestamp_utc_now">timestamp_utc_now</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.to_int" href="#osbot_utils.utils.Misc.to_int">to_int</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.to_string" href="#osbot_utils.utils.Misc.to_string">to_string</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.trim" href="#osbot_utils.utils.Misc.trim">trim</a></code></li>
