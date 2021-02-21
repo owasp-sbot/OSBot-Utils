@@ -28,6 +28,7 @@
 </summary>
 <pre><code class="python">import base64
 import hashlib
+import logging
 import os
 import random
 import string
@@ -241,6 +242,46 @@ def list_filter_starts_with(target_list, prefix):
 
 def list_filter_contains(target_list, value):
     return list_filter(target_list, lambda x: x.find(value) &gt; -1)
+
+def log_critical(message): logger().critical(message) # level 50
+def log_debug   (message): logger().debug   (message) # level 10
+def log_error   (message): logger().error   (message) # level 40
+def log_info    (message): logger().info    (message) # level 20
+def log_warning (message): logger().warning (message) # level 30
+
+def log_to_console(level=&#34;INFO&#34;):
+    logger_set_level(level)
+    logger_add_handler__console()
+    print()                             # add extra print so that in pytest the first line is not hidden
+
+def log_to_file(level=&#34;INFO&#34;):
+    logger_set_level(level)
+    return logger_add_handler__file()
+
+def logger():
+    return logging.getLogger()
+
+def logger_add_handler(handler):
+    logger().addHandler(handler)
+
+def logger_add_handler__console():
+    logger_add_handler(logging.StreamHandler())
+
+def logger_add_handler__file(log_file=None):
+    from osbot_utils.utils.Files import temp_file
+    log_file = log_file or temp_file(extension=&#34;.log&#34;)
+    logger_add_handler(logging.FileHandler(filename=log_file))
+    return log_file
+    #logging.basicConfig(level=logging.DEBUG, filename=&#39;myapp.log&#39;, format=&#39;%(asctime)s %(levelname)s:%(message)s&#39;)
+
+def logger_set_level(level):
+    logger().setLevel(level)
+
+def logger_set_level_critical(): logger_set_level(&#39;CRITICAL&#39;) # level 50
+def logger_set_level_debug   (): logger_set_level(&#39;DEBUG&#39;   ) # level 10
+def logger_set_level_error   (): logger_set_level(&#39;ERROR&#39;   ) # level 40
+def logger_set_level_info    (): logger_set_level(&#39;INFO&#39;    ) # level 20
+def logger_set_level_warning (): logger_set_level(&#39;WARNING&#39; ) # level 30
 
 def lower(target : str):
     if target:
@@ -1133,6 +1174,224 @@ wait_for            = wait</code></pre>
     return sorted(list(set(target)))</code></pre>
 </details>
 </dd>
+<dt id="osbot_utils.utils.Misc.log_critical"><code class="name flex">
+<span>def <span class="ident">log_critical</span></span>(<span>message)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_critical(message): logger().critical(message) # level 50</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.log_debug"><code class="name flex">
+<span>def <span class="ident">log_debug</span></span>(<span>message)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_debug   (message): logger().debug   (message) # level 10</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.log_error"><code class="name flex">
+<span>def <span class="ident">log_error</span></span>(<span>message)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_error   (message): logger().error   (message) # level 40</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.log_info"><code class="name flex">
+<span>def <span class="ident">log_info</span></span>(<span>message)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_info    (message): logger().info    (message) # level 20</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.log_to_console"><code class="name flex">
+<span>def <span class="ident">log_to_console</span></span>(<span>level='INFO')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_to_console(level=&#34;INFO&#34;):
+    logger_set_level(level)
+    logger_add_handler__console()
+    print()                             # add extra print so that in pytest the first line is not hidden</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.log_to_file"><code class="name flex">
+<span>def <span class="ident">log_to_file</span></span>(<span>level='INFO')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_to_file(level=&#34;INFO&#34;):
+    logger_set_level(level)
+    return logger_add_handler__file()</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.log_warning"><code class="name flex">
+<span>def <span class="ident">log_warning</span></span>(<span>message)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log_warning (message): logger().warning (message) # level 30</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger"><code class="name flex">
+<span>def <span class="ident">logger</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger():
+    return logging.getLogger()</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger_add_handler"><code class="name flex">
+<span>def <span class="ident">logger_add_handler</span></span>(<span>handler)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger_add_handler(handler):
+    logger().addHandler(handler)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger_add_handler__console"><code class="name flex">
+<span>def <span class="ident">logger_add_handler__console</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger_add_handler__console():
+    logger_add_handler(logging.StreamHandler())</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger_add_handler__file"><code class="name flex">
+<span>def <span class="ident">logger_add_handler__file</span></span>(<span>log_file=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger_add_handler__file(log_file=None):
+    from osbot_utils.utils.Files import temp_file
+    log_file = log_file or temp_file(extension=&#34;.log&#34;)
+    logger_add_handler(logging.FileHandler(filename=log_file))
+    return log_file
+    #logging.basicConfig(level=logging.DEBUG, filename=&#39;myapp.log&#39;, format=&#39;%(asctime)s %(levelname)s:%(message)s&#39;)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger_set_level"><code class="name flex">
+<span>def <span class="ident">logger_set_level</span></span>(<span>level)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger_set_level(level):
+    logger().setLevel(level)</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger_set_level_critical"><code class="name flex">
+<span>def <span class="ident">logger_set_level_critical</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger_set_level_critical(): logger_set_level(&#39;CRITICAL&#39;) # level 50</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger_set_level_debug"><code class="name flex">
+<span>def <span class="ident">logger_set_level_debug</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger_set_level_debug   (): logger_set_level(&#39;DEBUG&#39;   ) # level 10</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger_set_level_error"><code class="name flex">
+<span>def <span class="ident">logger_set_level_error</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger_set_level_error   (): logger_set_level(&#39;ERROR&#39;   ) # level 40</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger_set_level_info"><code class="name flex">
+<span>def <span class="ident">logger_set_level_info</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger_set_level_info    (): logger_set_level(&#39;INFO&#39;    ) # level 20</code></pre>
+</details>
+</dd>
+<dt id="osbot_utils.utils.Misc.logger_set_level_warning"><code class="name flex">
+<span>def <span class="ident">logger_set_level_warning</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def logger_set_level_warning (): logger_set_level(&#39;WARNING&#39; ) # level 30</code></pre>
+</details>
+</dd>
 <dt id="osbot_utils.utils.Misc.lower"><code class="name flex">
 <span>def <span class="ident">lower</span></span>(<span>target: str)</span>
 </code></dt>
@@ -1823,6 +2082,23 @@ wait_for            = wait</code></pre>
 <li><code><a title="osbot_utils.utils.Misc.list_pop" href="#osbot_utils.utils.Misc.list_pop">list_pop</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.list_pop_and_trim" href="#osbot_utils.utils.Misc.list_pop_and_trim">list_pop_and_trim</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.list_set" href="#osbot_utils.utils.Misc.list_set">list_set</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.log_critical" href="#osbot_utils.utils.Misc.log_critical">log_critical</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.log_debug" href="#osbot_utils.utils.Misc.log_debug">log_debug</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.log_error" href="#osbot_utils.utils.Misc.log_error">log_error</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.log_info" href="#osbot_utils.utils.Misc.log_info">log_info</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.log_to_console" href="#osbot_utils.utils.Misc.log_to_console">log_to_console</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.log_to_file" href="#osbot_utils.utils.Misc.log_to_file">log_to_file</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.log_warning" href="#osbot_utils.utils.Misc.log_warning">log_warning</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger" href="#osbot_utils.utils.Misc.logger">logger</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger_add_handler" href="#osbot_utils.utils.Misc.logger_add_handler">logger_add_handler</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger_add_handler__console" href="#osbot_utils.utils.Misc.logger_add_handler__console">logger_add_handler__console</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger_add_handler__file" href="#osbot_utils.utils.Misc.logger_add_handler__file">logger_add_handler__file</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger_set_level" href="#osbot_utils.utils.Misc.logger_set_level">logger_set_level</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger_set_level_critical" href="#osbot_utils.utils.Misc.logger_set_level_critical">logger_set_level_critical</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger_set_level_debug" href="#osbot_utils.utils.Misc.logger_set_level_debug">logger_set_level_debug</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger_set_level_error" href="#osbot_utils.utils.Misc.logger_set_level_error">logger_set_level_error</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger_set_level_info" href="#osbot_utils.utils.Misc.logger_set_level_info">logger_set_level_info</a></code></li>
+<li><code><a title="osbot_utils.utils.Misc.logger_set_level_warning" href="#osbot_utils.utils.Misc.logger_set_level_warning">logger_set_level_warning</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.lower" href="#osbot_utils.utils.Misc.lower">lower</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.new_guid" href="#osbot_utils.utils.Misc.new_guid">new_guid</a></code></li>
 <li><code><a title="osbot_utils.utils.Misc.none_or_empty" href="#osbot_utils.utils.Misc.none_or_empty">none_or_empty</a></code></li>

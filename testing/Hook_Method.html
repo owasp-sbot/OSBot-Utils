@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># previous name was Wrap_Method
+<pre><code class="python">from osbot_utils.testing.Duration import Duration
+
 class Hook_Method:
     def __init__(self, target_module, target_method):
         self.target_module   = target_module
@@ -99,18 +100,20 @@ class Hook_Method:
     def wrap(self):
 
         def wrapper_method(*args, **kwargs):
-
-            if self.mock_call:
-                return_value = self.mock_call(*args,**kwargs)
-            else:
-                (args, kwargs) = self.before_call(*args, **kwargs)
-                return_value   = self.target(*args, **kwargs)
-                return_value   = self.after_call(return_value, args, kwargs)
+            with Duration(print_result=False) as duration:
+                if self.mock_call:
+                    return_value = self.mock_call(*args,**kwargs)
+                else:
+                    (args, kwargs) = self.before_call(*args, **kwargs)
+                    return_value   = self.target(*args, **kwargs)
+                    return_value   = self.after_call(return_value, args, kwargs)
 
             call = {
                         &#39;args&#39;        : args,
                         &#39;kwargs&#39;      : kwargs,
-                        &#39;return_value&#39;: return_value
+                        &#39;return_value&#39;: return_value,
+                        &#39;index&#39;       : len(self.calls),
+                        &#39;duration&#39;    : int(duration.seconds()*1000)
                     }
             self.calls.append(call)
             return call[&#39;return_value&#39;]
@@ -214,18 +217,20 @@ class Hook_Method:
     def wrap(self):
 
         def wrapper_method(*args, **kwargs):
-
-            if self.mock_call:
-                return_value = self.mock_call(*args,**kwargs)
-            else:
-                (args, kwargs) = self.before_call(*args, **kwargs)
-                return_value   = self.target(*args, **kwargs)
-                return_value   = self.after_call(return_value, args, kwargs)
+            with Duration(print_result=False) as duration:
+                if self.mock_call:
+                    return_value = self.mock_call(*args,**kwargs)
+                else:
+                    (args, kwargs) = self.before_call(*args, **kwargs)
+                    return_value   = self.target(*args, **kwargs)
+                    return_value   = self.after_call(return_value, args, kwargs)
 
             call = {
                         &#39;args&#39;        : args,
                         &#39;kwargs&#39;      : kwargs,
-                        &#39;return_value&#39;: return_value
+                        &#39;return_value&#39;: return_value,
+                        &#39;index&#39;       : len(self.calls),
+                        &#39;duration&#39;    : int(duration.seconds()*1000)
                     }
             self.calls.append(call)
             return call[&#39;return_value&#39;]
@@ -392,18 +397,20 @@ return value is expected to be args and kwargs on each on_after_call which will 
 <pre><code class="python">def wrap(self):
 
     def wrapper_method(*args, **kwargs):
-
-        if self.mock_call:
-            return_value = self.mock_call(*args,**kwargs)
-        else:
-            (args, kwargs) = self.before_call(*args, **kwargs)
-            return_value   = self.target(*args, **kwargs)
-            return_value   = self.after_call(return_value, args, kwargs)
+        with Duration(print_result=False) as duration:
+            if self.mock_call:
+                return_value = self.mock_call(*args,**kwargs)
+            else:
+                (args, kwargs) = self.before_call(*args, **kwargs)
+                return_value   = self.target(*args, **kwargs)
+                return_value   = self.after_call(return_value, args, kwargs)
 
         call = {
                     &#39;args&#39;        : args,
                     &#39;kwargs&#39;      : kwargs,
-                    &#39;return_value&#39;: return_value
+                    &#39;return_value&#39;: return_value,
+                    &#39;index&#39;       : len(self.calls),
+                    &#39;duration&#39;    : int(duration.seconds()*1000)
                 }
         self.calls.append(call)
         return call[&#39;return_value&#39;]
