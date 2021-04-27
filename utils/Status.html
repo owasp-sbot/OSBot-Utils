@@ -39,12 +39,12 @@ def status_message(status, message:str=None, data=None, error=None):
                &#39;status&#39; : status
             }
 
-def status_error  (message:str=None, data=None,error=None): logger.error  (&#39;[osbot] [error] &#39;   + message); return status_message(&#39;error&#39;  , message=message, data=data, error=error)
-def status_debug  (message:str=None, data=None,error=None): logger.debug  (&#39;[osbot] [debug] &#39;   + message); return status_message(&#39;debug&#39;  , message=message, data=data, error=error)
-def status_fatal  (message:str=None, data=None,error=None): logger.fatal  (&#39;[osbot] [fatal] &#39;   + message); return status_message(&#39;fatal&#39;  , message=message, data=data, error=error)
-def status_info   (message:str=None, data=None,error=None): logger.info   (&#39;[osbot] [info] &#39;    + message); return status_message(&#39;info&#39;   , message=message, data=data, error=error)
-def status_ok     (message:str=None, data=None,error=None): logger.info   (&#39;[osbot] [ok] &#39;      + message); return status_message(&#39;ok&#39;     , message=message, data=data, error=error)
-def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;[osbot] [warning] &#39; + message); return status_message(&#39;warning&#39;, message=message, data=data, error=error)
+def status_error  (message:str=&#39;&#39;, data=None,error=None): logger.error  (&#39;[osbot] [error] &#39;   + message); return status_message(&#39;error&#39;  , message=message, data=data, error=error)
+def status_debug  (message:str=&#39;&#39;, data=None,error=None): logger.debug  (&#39;[osbot] [debug] &#39;   + message); return status_message(&#39;debug&#39;  , message=message, data=data, error=error)
+def status_fatal  (message:str=&#39;&#39;, data=None,error=None): logger.fatal  (&#39;[osbot] [fatal] &#39;   + message); return status_message(&#39;fatal&#39;  , message=message, data=data, error=error)
+def status_info   (message:str=&#39;&#39;, data=None,error=None): logger.info   (&#39;[osbot] [info] &#39;    + message); return status_message(&#39;info&#39;   , message=message, data=data, error=error)
+def status_ok     (message:str=&#39;&#39;, data=None,error=None): logger.info   (&#39;[osbot] [ok] &#39;      + message); return status_message(&#39;ok&#39;     , message=message, data=data, error=error)
+def status_warning(message:str=&#39;&#39;, data=None,error=None): logger.warning(&#39;[osbot] [warning] &#39; + message); return status_message(&#39;warning&#39;, message=message, data=data, error=error)
 
 #todo: add logging hook that automatically picks up the caller (class and method) from the stack trace
 #todo: add status_exception that automatically picks up the exception from the stack trace</code></pre>
@@ -58,7 +58,7 @@ def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="osbot_utils.utils.Status.status_debug"><code class="name flex">
-<span>def <span class="ident">status_debug</span></span>(<span>message: str = None, data=None, error=None)</span>
+<span>def <span class="ident">status_debug</span></span>(<span>message: str = '', data=None, error=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -66,11 +66,11 @@ def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def status_debug  (message:str=None, data=None,error=None): logger.debug  (&#39;[osbot] [debug] &#39;   + message); return status_message(&#39;debug&#39;  , message=message, data=data, error=error)</code></pre>
+<pre><code class="python">def status_debug  (message:str=&#39;&#39;, data=None,error=None): logger.debug  (&#39;[osbot] [debug] &#39;   + message); return status_message(&#39;debug&#39;  , message=message, data=data, error=error)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Status.status_error"><code class="name flex">
-<span>def <span class="ident">status_error</span></span>(<span>message: str = None, data=None, error=None)</span>
+<span>def <span class="ident">status_error</span></span>(<span>message: str = '', data=None, error=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -78,11 +78,11 @@ def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def status_error  (message:str=None, data=None,error=None): logger.error  (&#39;[osbot] [error] &#39;   + message); return status_message(&#39;error&#39;  , message=message, data=data, error=error)</code></pre>
+<pre><code class="python">def status_error  (message:str=&#39;&#39;, data=None,error=None): logger.error  (&#39;[osbot] [error] &#39;   + message); return status_message(&#39;error&#39;  , message=message, data=data, error=error)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Status.status_fatal"><code class="name flex">
-<span>def <span class="ident">status_fatal</span></span>(<span>message: str = None, data=None, error=None)</span>
+<span>def <span class="ident">status_fatal</span></span>(<span>message: str = '', data=None, error=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -90,11 +90,11 @@ def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def status_fatal  (message:str=None, data=None,error=None): logger.fatal  (&#39;[osbot] [fatal] &#39;   + message); return status_message(&#39;fatal&#39;  , message=message, data=data, error=error)</code></pre>
+<pre><code class="python">def status_fatal  (message:str=&#39;&#39;, data=None,error=None): logger.fatal  (&#39;[osbot] [fatal] &#39;   + message); return status_message(&#39;fatal&#39;  , message=message, data=data, error=error)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Status.status_info"><code class="name flex">
-<span>def <span class="ident">status_info</span></span>(<span>message: str = None, data=None, error=None)</span>
+<span>def <span class="ident">status_info</span></span>(<span>message: str = '', data=None, error=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -102,7 +102,7 @@ def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def status_info   (message:str=None, data=None,error=None): logger.info   (&#39;[osbot] [info] &#39;    + message); return status_message(&#39;info&#39;   , message=message, data=data, error=error)</code></pre>
+<pre><code class="python">def status_info   (message:str=&#39;&#39;, data=None,error=None): logger.info   (&#39;[osbot] [info] &#39;    + message); return status_message(&#39;info&#39;   , message=message, data=data, error=error)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Status.status_message"><code class="name flex">
@@ -123,7 +123,7 @@ def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;
 </details>
 </dd>
 <dt id="osbot_utils.utils.Status.status_ok"><code class="name flex">
-<span>def <span class="ident">status_ok</span></span>(<span>message: str = None, data=None, error=None)</span>
+<span>def <span class="ident">status_ok</span></span>(<span>message: str = '', data=None, error=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -131,11 +131,11 @@ def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def status_ok     (message:str=None, data=None,error=None): logger.info   (&#39;[osbot] [ok] &#39;      + message); return status_message(&#39;ok&#39;     , message=message, data=data, error=error)</code></pre>
+<pre><code class="python">def status_ok     (message:str=&#39;&#39;, data=None,error=None): logger.info   (&#39;[osbot] [ok] &#39;      + message); return status_message(&#39;ok&#39;     , message=message, data=data, error=error)</code></pre>
 </details>
 </dd>
 <dt id="osbot_utils.utils.Status.status_warning"><code class="name flex">
-<span>def <span class="ident">status_warning</span></span>(<span>message: str = None, data=None, error=None)</span>
+<span>def <span class="ident">status_warning</span></span>(<span>message: str = '', data=None, error=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -143,7 +143,7 @@ def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def status_warning(message:str=None, data=None,error=None): logger.warning(&#39;[osbot] [warning] &#39; + message); return status_message(&#39;warning&#39;, message=message, data=data, error=error)</code></pre>
+<pre><code class="python">def status_warning(message:str=&#39;&#39;, data=None,error=None): logger.warning(&#39;[osbot] [warning] &#39; + message); return status_message(&#39;warning&#39;, message=message, data=data, error=error)</code></pre>
 </details>
 </dd>
 </dl>
