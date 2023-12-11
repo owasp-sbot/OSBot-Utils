@@ -105,7 +105,9 @@ def date_now(use_utc=True, return_str=True):
 
 def date_time_now(use_utc=True, return_str=True, milliseconds_numbers=0, date_time_format='%Y-%m-%d %H:%M:%S.%f'):
     if use_utc:
-        value = datetime.utcnow()
+        value = datetime.utcnow()        # todo: this has been marked for depreciation in python 11
+        # value = datetime.now(UTC)      #       but this doesn't seem to work in python 10.x : E   ImportError: cannot import name 'UTC' from 'datetime' (/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/datetime.py)
+
     else:
         value = datetime.now()
     if return_str:
