@@ -67,6 +67,16 @@ def Http_Request(url, data=None, headers=None, method='GET', encoding = 'utf-8',
 def port_is_not_open(port, host='0.0.0.0', timeout=1.0):
     return port_is_open(port, host,timeout) is False
 
+def wait_for_http(url, max_attempts=20, wait_for=0.1):
+    for i in range(max_attempts):
+        try:
+            if GET(url):
+                return True
+        except:
+            pass
+        sleep(wait_for)
+    return False
+
 def wait_for_ssh(host, max_attempts=120, wait_for=0.5):
     return wait_for_port(host=host, port=22, max_attempts=max_attempts, wait_for=wait_for)
 
