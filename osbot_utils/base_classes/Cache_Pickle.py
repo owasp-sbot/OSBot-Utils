@@ -80,7 +80,9 @@ class Cache_Pickle:
     def _cache_path(self):
         class_name  = self.__class__.__name__
         module_name = self.__class__.__module__
-        folder_name = f'{self._cache__FOLDER_CACHE_ROOT_FOLDER}/{module_name.replace(".", "/")}/{class_name}'
+        folder_name = f'{self._cache__FOLDER_CACHE_ROOT_FOLDER}/{module_name.replace(".", "/")}'
+        if not module_name.endswith(class_name):
+            folder_name += f'/{class_name}'
         return path_combine(temp_folder_current(), folder_name)
 
     def _cache_files(self):

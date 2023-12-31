@@ -1,11 +1,9 @@
 import types
 from unittest import TestCase
-
 from osbot_utils.base_classes.Cache_Pickle import Cache_Pickle
 from osbot_utils.decorators.methods.context import context
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, current_temp_folder, pickle_load_from_file
-from osbot_utils.utils.Misc import date_time_now, date_now, str_md5
+
 
 
 class test_Cache_Pickle(TestCase):
@@ -29,8 +27,6 @@ class test_Cache_Pickle(TestCase):
         class An_Class(Cache_Pickle):
             def return_42(self):
                 return 42
-
-
 
         an_class = An_Class()
         assert isinstance(an_class , An_Class    )

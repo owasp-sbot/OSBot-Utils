@@ -22,6 +22,76 @@ class test_context(TestCase):
         before_mock.assert_called_once()
         after_mock.assert_called_once()
 
+    def test_context__with_args(self):
+        def the_answer(value):
+            assert value == 42
+            return "it's 42"
+        def exec_before(value):
+            assert value == 'before_and_after'
+        def exec_after(value):
+            assert value == 'before_and_after'
+
+        with context(the_answer, 'before_and_after', exec_before=exec_before, exec_after=exec_after) as target:     # value can be passed as a param
+            assert target(42) == "it's 42"
+        args = ['before_and_after']
+        with context(the_answer, *args, exec_before=exec_before, exec_after=exec_after) as target:  # or as an *args object at the start
+            assert target(42) == "it's 42"
+        with context(the_answer, exec_before=exec_before, exec_after=exec_after, *args) as target: # or as an *args object at the end
+            assert target(42) == "it's 42"
+
+    def test_context__with_kwargs(self):
+        value_before_and_after = {'before_and_after': 42}
+        value_target           = {'target': 42}
+        return_value           = "value was value_target"
+
+        def an_dict(value):
+            assert value == value_target
+            return return_value
+        def exec_before(value):
+            assert value == value_before_and_after
+        def exec_after(value):
+            assert value == value_before_and_after
+
+        with context(an_dict, value_before_and_after, exec_before=exec_before, exec_after=exec_after) as target:     # value can be passed as a param
+            assert target(value_target) == return_value
+
+        an_dict = {'answer': 42}
+
+        def target(value):
+            assert value == an_dict
+            return context
+
+        def exec_before(value):
+            assert value == an_dict
+
+        def exec_after(value):
+            assert value == an_dict
+
+        with context(target, an_dict, exec_before=exec_before, exec_after=exec_after) as target:  # value can be passed as a param
+            assert target(an_dict) == context
+
+    def test_context__with_kwargs_as_locals(self):
+        """
+        shows an example of how to use the kwargs to pass data to the target function
+        """
+        def target(data):
+            assert data == {'in_exec_before': 2, 'raw_data': 1}
+            data['in_target'] = 3
+            return data
+
+        def exec_before(data):
+            assert data == {'raw_data': 1}
+            data['in_exec_before']  = 2
+
+        def exec_after(data):
+            assert data == {'in_exec_before': 2, 'in_target': 3, 'raw_data': 1}
+            data['in_exec_after'] = 4
+
+        raw_data = {'raw_data': 1}
+        with context(target, raw_data, exec_before=exec_before, exec_after=exec_after) as target:
+            assert target(raw_data) == {'in_exec_before': 2, 'in_target': 3, 'raw_data': 1}
+        assert raw_data ==  {'in_exec_before': 2, 'in_target': 3, 'in_exec_after': 4, 'raw_data': 1}
+
     def test_exec_before_and_after_called(self):
         before_mock = MagicMock()
         after_mock = MagicMock()
