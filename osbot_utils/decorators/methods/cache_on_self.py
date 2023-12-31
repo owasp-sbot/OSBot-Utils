@@ -2,8 +2,8 @@ import inspect
 from functools import wraps
 
 from osbot_utils.utils.Misc import str_md5
+from typing import Any, Callable, TypeVar
 
-#from osbot_utils.utils.Dev import pprint
 
 CACHE_ON_SELF_KEY_PREFIX = 'cache_on_self'
 CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
@@ -14,7 +14,11 @@ CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
 # - memoryview                          : returns unique memory location value
 
 
-def cache_on_self(function):
+
+
+T = TypeVar('T', bound=Callable[..., Any])      # so that we have type hinting when using this class
+
+def cache_on_self(function: T) -> T:
     """
     Use this for cases where we want the cache to be tied to the Class instance (i.e. not global for all executions)
     """

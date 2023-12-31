@@ -1,8 +1,11 @@
 from functools import wraps
+from typing import Any, Callable, TypeVar
+
+T = TypeVar('T', bound=Callable[..., Any])
 
 # todo: create signature based on request params so that we don't cache when the params are different
 # todo: add capability to reset or change the cache value currently stored in the cache_id value
-def cache(function):
+def cache(function: T) -> T:
     """
     Use this decorator when wanting to cache a value for all executions of the current process
     """
