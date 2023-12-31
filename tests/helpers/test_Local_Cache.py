@@ -24,6 +24,15 @@ class test_Local_Cache(TestCase):
     def test__init__(self):
         assert self.cache.cache_name == self.cache_name
 
+    def test_add_data(self):
+        assert self.cache.data()                     == {}
+        assert self.cache.add_data({'a':1, 'b':2   }) is self.cache
+        assert self.cache.data    ()                  == {'a': 1, 'b': 2}
+        assert self.cache.add_data({'c': 3, 'd': 4 }) is self.cache
+        assert self.cache.data    ()                  == {'a': 1, 'b': 2, 'c': 3, 'd': 4}
+        assert self.cache.set_data({'e': 5         }) is self.cache
+        assert self.cache.data    ()                  == {'e': 5 }
+
     def test_path_root_folder(self):
         root_folder = self.cache.path_root_folder()
         assert folder_exists(root_folder)

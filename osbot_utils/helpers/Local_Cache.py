@@ -17,6 +17,13 @@ class Local_Cache:
         self.save()
         return self
 
+    def add_data(self, items):
+        data = self.data()
+        for key, value in items.items():
+            data[key] = value
+        self.save()
+        return self
+
     def cache_delete(self):
         return file_delete(self.path_cache_file())
 
@@ -60,10 +67,14 @@ class Local_Cache:
     def path_cache_file(self):
         return path_combine(self.path_root_folder(), f"{self.cache_name}.json")
 
+    def set_data(self, data):
+        self._data = data
+        self.save()
+        return self
+
     def setup(self):
         self.create()
         return self
-
 
     def remove(self, key):
         if key in self.keys():
