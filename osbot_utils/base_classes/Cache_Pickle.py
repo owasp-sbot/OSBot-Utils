@@ -68,7 +68,7 @@ class Cache_Pickle:
                 data = func(*args, **kwargs)
                 if data and use_cache is True:
                     caller_name = func.__name__
-                    print(f"Saving cache file data for: {caller_name}")
+                    #print(f"Saving cache file data for: {caller_name}")
                     pickle_save_to_file(data, path_file)
                 return data
         return wrapper

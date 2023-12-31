@@ -7,8 +7,9 @@ from osbot_utils.decorators.lists.group_by import group_by
 from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.decorators.methods.cache_on_function import cache_on_function
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-from osbot_utils.utils.Misc import random_string, obj_dict
+from osbot_utils.utils.Misc import random_string
 from osbot_utils.utils.Files import temp_file
+from osbot_utils.utils.Objects import obj_dict
 
 DEFAULT_LOG_LEVEL         = logging.DEBUG
 DEFAULT_LOG_FORMAT        = '%(asctime)s\t|\t%(name)s\t|\t%(levelname)s\t|\t%(message)s'

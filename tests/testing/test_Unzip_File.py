@@ -1,12 +1,9 @@
-from pprint import pprint
 from unittest import TestCase
-
-from osbot_utils.utils.Misc import obj_info, print_obj_data_as_dict, obj_data
-
 from osbot_utils.testing.Temp_Folder import Temp_Folder
 from osbot_utils.testing.Temp_Zip import Temp_Zip
 from osbot_utils.testing.Unzip_File import Unzip_File
 from osbot_utils.utils.Files import Files, parent_folder, folder_exists, file_name, files_list, path_combine
+from osbot_utils.utils.Objects import obj_data
 
 
 class test_Unzip_File(TestCase):

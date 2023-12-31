@@ -6,13 +6,12 @@ from logging.handlers import MemoryHandler
 from unittest import TestCase
 from unittest.mock import patch
 
-import pytest
-
-from osbot_utils.utils.Json import json_load_file
 from osbot_utils.utils.Files import file_lines, file_exists, file_contents, file_delete
+from osbot_utils.utils.Lists import list_set_dict
+from osbot_utils.utils.Objects import obj_dict, obj_items
 from osbot_utils.utils.Python_Logger import Python_Logger, Python_Logger_Config, DEFAULT_LOG_LEVEL, \
     MEMORY_LOGGER_CAPACITY, MEMORY_LOGGER_FLUSH_LEVEL
-from osbot_utils.utils.Misc import len_list, list_set, obj_dict, obj_items, size, list_set_dict
+from osbot_utils.utils.Misc import list_set, size
 
 
 class test_Python_Logger_Config(TestCase):
