@@ -1,0 +1,18 @@
+name: Increment Tag - Main branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  increment-tag-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Increment Tag - Main
+        uses: ./.github/actions/increment-tag-main
+        with:
+          package_name: ${{ secrets.PACKAGE_NAME          }}
+
+

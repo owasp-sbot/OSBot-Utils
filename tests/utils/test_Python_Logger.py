@@ -74,7 +74,8 @@ class test_Python_Logger(TestCase):
         assert self.logger.add_console_logger() is True
         console_handler = self.logger.log_handler_console()
         obj_data = obj_dict(console_handler)
-        assert obj_data == { '_name'        : None                      ,
+        assert obj_data == {  '_closed'     : False                     ,
+                              '_name'       : None                      ,
                               'filters'     : []                        ,
                               'formatter'   : obj_data.get('formatter') ,
                               'level'       : DEFAULT_LOG_LEVEL         ,
@@ -93,12 +94,15 @@ class test_Python_Logger(TestCase):
     def test_add_file_logger(self):
         assert self.logger.add_file_logger() is True
         file_handler = self.logger.log_handler_file()
-        log_file = file_handler.baseFilename
-        obj_data = obj_dict(file_handler)
-        assert obj_data== {'_name'          : None                        ,
+        log_file     = file_handler.baseFilename
+        obj_data     = obj_dict(file_handler)
+        del obj_data['_builtin_open']
+        assert obj_data== { '_closed'       : False                       ,
+                            '_name'         : None                        ,
                             'baseFilename'  : obj_data.get('baseFilename'),
                             'delay'         : False                       ,
-                            'encoding'      : None                        ,
+                            'encoding'      : 'locale'                    ,
+                            'errors'        : None                        ,
                             'filters'       : []                          ,
                             'formatter'     : obj_data.get('formatter')   ,
                             'level'         : DEFAULT_LOG_LEVEL           ,
@@ -140,7 +144,8 @@ class test_Python_Logger(TestCase):
         obj_data = obj_dict(mem_handler)
         assert type(obj_data['lock'])   is RLock
 
-        assert obj_data == {  '_name'       : None                      ,
+        assert obj_data == {  '_closed'     : False                     ,
+                              '_name'       : None                      ,
                               'buffer'      : []                        ,
                               'capacity'    : MEMORY_LOGGER_CAPACITY    ,
                               'filters'     : []                        ,

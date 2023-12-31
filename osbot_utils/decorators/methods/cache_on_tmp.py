@@ -4,6 +4,8 @@ from osbot_utils.utils.Files import temp_folder_current, path_combine, folder_cr
 
 from osbot_utils.utils.Json import json_load_file_gz, json_save_file_gz
 
+#todo: add feature to only cache for some time (for example 2 minutes or 2 hours)
+#      this will solve a number of probs with the current usability of this data
 
 class cache_on_tmp:
     """
@@ -17,11 +19,17 @@ class cache_on_tmp:
         self.return_cache_key  = return_cache_key
         self.reload_data       = reload_data
         folder_create(self.cache_folder)
+        print(self.last_cache_path)
 
-    def __call__(self, function):
+    def __call__(self, function, target_self=None):
         def wrapper(*args,**kwargs):
             params     = list(args)
-            self_obj   = params.pop(0)       # todo: add support for methods without this
+            if target_self:
+                self_obj = self
+            elif len(params) > 0:
+                self_obj   = params.pop(0)
+            else:
+                self_obj = self                  # has the side effect that the cache key is only locked to the method name
             cache_path = self.get_cache_in_tmp_path(self_obj, function, params)
             if self.return_cache_key:
                 return cache_path

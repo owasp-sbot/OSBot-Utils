@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import importlib
 import inspect
 import logging
 import os
@@ -8,17 +9,26 @@ import string
 import sys
 import textwrap
 import re
+import types
 import uuid
 import warnings
-from datetime   import datetime
+from datetime import datetime, timedelta
 from secrets    import token_bytes
 from time import sleep
+from typing import List
 from urllib.parse import urlencode, quote_plus, unquote_plus
 
+#from dateutil import parser
 from dotenv     import load_dotenv
 
 def append_random_string(target, length=6, prefix='-'):
     return f'{target}{random_string(length, prefix)}'
+
+def attr_value_from_module_name(module_name, attr_name, default_value=None):
+    module = importlib.import_module(module_name)
+    if hasattr(module, attr_name):
+        return getattr(module, attr_name)
+    return default_value
 
 def bytes_md5(bytes : bytes):
     return hashlib.md5(bytes).hexdigest()
@@ -31,8 +41,8 @@ def base64_to_bytes(bytes_base64):
         bytes_base64 = bytes_base64.encode()
     return base64.decodebytes(bytes_base64)
 
-def base64_to_str(target):
-    return bytes_to_str(base64_to_bytes(target))
+def base64_to_str(target, encoding='ascii'):
+    return bytes_to_str(base64_to_bytes(target), encoding=encoding)
 
 def bytes_to_base64(bytes):
     return base64.b64encode(bytes).decode()
@@ -70,27 +80,77 @@ def convert_to_number(value):
     else:
         return 0
 
+def date_time_from_to_str(date_time_str, format_from, format_to, print_conversion_error=False):
+    try:
+        date_time = datetime.strptime(date_time_str, format_from)
+        return date_time.strftime(format_to)
+    except ValueError as value_error:
+        if print_conversion_error:
+            print(f"[date_time_from_to_str]: Error: {value_error}")          # todo: use log handler
+        return None
+
+
+def date_time_to_str(date_time, date_time_format='%Y-%m-%d %H:%M:%S.%f', milliseconds_numbers=3):
+    if date_time:
+        date_time_str = date_time.strftime(date_time_format)
+        return time_str_milliseconds(datetime_str=date_time_str, datetime_format=date_time_format, milliseconds_numbers=milliseconds_numbers)
+    else:
+        return ''
+
 def date_now(use_utc=True, return_str=True):
     value = date_time_now(use_utc=use_utc, return_str=False)
     if return_str:
         return date_to_str(date=value)
     return value
 
-def date_time_now(use_utc=True, return_str=True, milliseconds_numbers=0):
+def date_time_now(use_utc=True, return_str=True, milliseconds_numbers=0, date_time_format='%Y-%m-%d %H:%M:%S.%f'):
     if use_utc:
-        value = datetime.utcnow()
+        value = datetime.utcnow()        # todo: this has been marked for depreciation in python 11
+        # value = datetime.now(UTC)      #       but this doesn't seem to work in python 10.x : E   ImportError: cannot import name 'UTC' from 'datetime' (/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/datetime.py)
+
     else:
         value = datetime.now()
     if return_str:
-        return date_time_to_str(value, milliseconds_numbers=milliseconds_numbers)
+        return date_time_to_str(value, milliseconds_numbers=milliseconds_numbers, date_time_format=date_time_format)
     return value
 
-def date_time_to_str(date_time, date_time_format='%Y-%m-%d %H:%M:%S.%f', milliseconds_numbers=3):
-    date_time_str = date_time.strftime(date_time_format)
-    return time_str_milliseconds(datetime_str=date_time_str, datetime_format=date_time_format, milliseconds_numbers=milliseconds_numbers)
+# def date_time_parse(value):
+#     if type(value) is datetime:
+#         return value
+#     return parser.parse(value)
+
+def date_time_less_time_delta(date_time, days=0, hours=0, minutes=0, seconds=0, date_time_format='%Y-%m-%d %H:%M:%S' , return_str=True):
+    new_date_time = date_time - timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+    if return_str:
+        return date_time_to_str(new_date_time, date_time_format=date_time_format)
+    return new_date_time
+
+def date_time_now_less_time_delta(days=0,hours=0, minutes=0, seconds=0, date_time_format='%Y-%m-%d %H:%M:%S', return_str=True):
+    return date_time_less_time_delta(datetime.utcnow(),days=days, hours=hours, minutes=minutes, seconds=seconds,date_time_format=date_time_format, return_str=return_str)
 
 def date_to_str(date, date_format='%Y-%m-%d'):
     return date.strftime(date_format)
+
+def dict_insert_field(target_dict, new_key, insert_at, new_value=None):
+    if type(target_dict) is dict:
+        new_dict = {}
+        for i, (key, value) in enumerate(target_dict.items()):
+            if i == insert_at:
+                new_dict[new_key] = new_value
+            new_dict[key] = value
+        return new_dict
+
+def dict_remove(data, target):
+    if type(data) is dict:
+        if type(target) is list:
+            for key in list(data.keys()):
+                if key in target:
+                    del data[key]
+        else:
+            if target in data:
+                del data[target]
+    return data
+
 
 def time_str_milliseconds(datetime_str, datetime_format, milliseconds_numbers=0):
     if '.%f' in datetime_format and -1 < milliseconds_numbers < 6:
@@ -103,11 +163,13 @@ def time_str_milliseconds(datetime_str, datetime_format, milliseconds_numbers=0)
 def env_value(var_name):
     return env_vars().get(var_name, None)
 
-def env_vars():
+def env_vars(reload_vars=False):
     """
-    reload data from .env file and return dictionary with current environment variables
+    if reload_vars reload data from .env file
+    then return dictionary with current environment variables
     """
-    load_dotenv()
+    if reload_vars:
+        load_dotenv()
     vars = os.environ
     data = {}
     for key in vars:
@@ -151,6 +213,9 @@ def get_missing_fields(target,field):
             missing_fields.append(field)
     return missing_fields
 
+def is_debugging():
+    return sys.gettrace() is not None
+
 def is_number(value):
     try:
         if type(value) is int or type(value) is float :
@@ -159,6 +224,21 @@ def is_number(value):
     except:
         pass
     return False
+
+def is_int(value):
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
+
+def is_float(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
 
 def ignore_warning__unclosed_ssl():
     warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
@@ -180,10 +260,16 @@ def list_contains_list(array : list, values):
     if array is not None:
         if type(values) is list:
             for item in values:
-                if item in array is False:
+                if (item in array) is False:
                     return False
             return True
     return False
+
+def list_remove_list(source: list, target: list):
+    if type(source) is list and type(target) is list:
+        for item in target:
+            if item in source:
+                source.remove(item)
 
 def list_find(array:list, item):
     if item in array:
@@ -204,7 +290,7 @@ def list_index_by(values, index_by):
 def list_group_by(values, group_by):
     results = {}
     for item in values:
-        value = item.get(group_by)
+        value = str(item.get(group_by))
         if results.get(value) is None: results[value] = []
         results[value].append(item)
     return results
@@ -215,6 +301,20 @@ def list_get(array, position=None, default=None):
             if  len(array) > position:
                 return array[position]
     return default
+
+def list_order_by(urls: List[dict], key: str, reverse: bool=False) -> List[dict]:
+    """
+    Sorts a list of dictionaries containing URLs by a specified key.
+
+    Args:
+        urls (List[dict]): A list of dictionaries containing URLs.
+        key (str): The key to sort the URLs by.
+        reverse (bool): Whether to sort the URLs in reverse order.
+
+    Returns:
+        List[dict]: The sorted list of URLs.
+    """
+    return sorted(urls, key=lambda x: x[key], reverse=reverse)
 
 def list_pop(array:list, position=None, default=None):
     if array:
@@ -232,8 +332,22 @@ def list_pop_and_trim(array, position=None):
         return trim(value)
     return value
 
+def list_remove(array, item):
+    if type(item) is list:
+        result = []
+        for element in array:
+            if element not in item:
+                result.append(element)
+        return result
+
+    return [element for element in array if element != item]
+
+
+def list_remove_empty(array):
+    return [element for element in array if element]
+
 def list_set(target):
-    if target:
+    if hasattr(target, '__iter__'):
         return sorted(list(set(target)))
     return []
 
@@ -318,11 +432,18 @@ def obj_items(target=None):
 def obj_keys(target=None):
     return sorted(list(obj_dict(target).keys()))
 
+def obj_full_name(target):
+    module = target.__class__.__module__
+    name   = target.__class__.__qualname__
+    return f"{module}.{name}"
+
 def obj_get_value(target=None, key=None, default=None):
     return get_field(target=target, field=key, default=default)
 
 def obj_values(target=None):
     return list(obj_dict(target).values())
+
+
 
 
 def size(target=None):
@@ -336,13 +457,16 @@ def str_index(target:str, source:str):
     except:
         return -1
 
+def str_max_width(target, value):
+    return str(target)[:value]
+
 def sys_path_python(python_folder='lib/python'):
     return list_contains(sys.path, python_folder)
 
 def str_md5(text : str):
     if text:
         return bytes_md5(text.encode())
-    return None
+    return ''
 
 def none_or_empty(target,field):
     if target and field:
@@ -353,16 +477,65 @@ def none_or_empty(target,field):
 def print_date_now(use_utc=True):
     print(date_time_now(use_utc=use_utc))
 
-def print_object_members(target, max_width=120, show_internals=False):
-    print()
-    print(f"Members for object: {target}"[:max_width])
-    print()
-    print(f"{'field':<20} | value")
-    print(f"{'-' * max_width}")
-    for name, val in inspect.getmembers(target):
+def print_object_methods(target, name_width=30, value_width=100, show_private=False, show_internals=False):
+    print_object_members(target, name_width=name_width, value_width=value_width,show_private=show_private,show_internals=show_internals, only_show_methods=True)
+
+def print_obj_data_as_dict(target, **kwargs):
+    data = obj_data(target, **kwargs)
+    max_key_length = max(len(k) for k in data.keys())                                 # Find the maximum key length
+    items          = [f"{k:<{max_key_length}} = {v!r:6}," for k, v in data.items()]   # Format each key-value pair
+    items[-1]      = items[-1][:-2]                                                   # Remove comma from the last item
+    indented_items = '\n     '.join(items)                                            # Join the items with newline and four-space indentation
+    print("dict(" + indented_items + " )")
+    return data
+
+def obj_data(target, name_width=30, value_width=100, show_private=False, show_internals=False, show_value_class=False, show_methods=False, only_show_methods=False):
+    result = {}
+    for name, value in inspect.getmembers(target):
+        if show_methods is False and type(value) is types.MethodType:
+            continue
+        if only_show_methods and type(value) is not types.MethodType:
+            continue
+        if not show_private and name.startswith("_"):
+            continue
         if not show_internals and name.startswith("__"):
             continue
-        print(f"{name:<20} | {val}"[:max_width])
+        if only_show_methods:
+            value = inspect.signature(value)
+        if value !=None and type(value) not in [bool, int, float]:
+            value       = str(value).encode('unicode_escape').decode("utf-8")
+            value       = str_unicode_escape(value)
+            value       = str_max_width(value, value_width)
+            name        = str_max_width(name, name_width)
+        result[name] = value
+    return result
+
+
+# todo: add option to not show class methods that are not bultin types
+def print_object_members(target, name_width=30, value_width=100, show_private=False, show_internals=False, show_value_class=False, show_methods=False, only_show_methods=False):
+    max_width = name_width + value_width
+    print()
+    print(f"Members for object:\n\t {target} of type:{type(target)}")
+    print(f"Settings:\n\t name_width: {name_width} | value_width: {value_width} | show_private: {show_private} | show_internals: {show_internals}")
+    print()
+    if only_show_methods:
+        print(f"{'method':<{name_width}} (params)")
+    else:
+        if show_value_class:
+            print(f"{'field':<{name_width}} | {'type':<{name_width}} |value")
+        else:
+            print(f"{'field':<{name_width}} | value")
+
+    print(f"{'-' * max_width}")
+    for name, value in obj_data(target, name_width=name_width, value_width=value_width, show_private=show_private, show_internals=show_internals, show_value_class=show_value_class, show_methods=show_methods, only_show_methods=only_show_methods).items():
+        if only_show_methods:
+            print(f"{name:<{name_width}} {value}"[:max_width])
+        else:
+            if show_value_class:
+                value_class = obj_full_name(value)
+                print(f"{name:<{name_width}} | {value_class:{name_width}} | {value}"[:max_width])
+            else:
+                print(f"{name:<{name_width}} | {value}"[:max_width])
 
 def print_time_now(use_utc=True):
     print(time_now(use_utc=use_utc))
@@ -379,6 +552,21 @@ def time_delta_to_str(time_delta):
     total_seconds = int(time_delta.total_seconds())
     return f'{total_seconds}s {milliseconds}ms'
 
+def time_delta_in_days_hours_or_minutes(time_delta):
+    total_seconds = int(time_delta.total_seconds())
+    days   , seconds = divmod(total_seconds, 86400)
+    hours  , seconds = divmod(seconds      , 3600 )
+    minutes, seconds = divmod(seconds      , 60   )
+    if days > 0:
+        return f"{days}d {hours}h {minutes}m"
+    elif hours > 0:
+        return f"{hours:4}h {minutes}m"
+    elif minutes >0:
+        return f"{minutes}m"
+    elif seconds >0:
+        return f"{seconds}s"
+
+
 def time_now(use_utc=True, milliseconds_numbers=1):
     if use_utc:
         datetime_now = datetime.utcnow()
@@ -392,10 +580,21 @@ def time_to_str(datetime_value, time_format='%H:%M:%S.%f', milliseconds_numbers=
 
 def timestamp_utc_now():
     return int(datetime.utcnow().timestamp() * 1000)
-    return int(datetime.utcnow().strftime('%s')) * 1000
+    #return int(datetime.utcnow().strftime('%s')) * 1000
+
+def timestamp_utc_now_less_delta(days=0,hours=0, minutes=0, seconds=0):
+    date_time = date_time_now_less_time_delta(days=days,hours=hours, minutes=minutes, seconds=seconds, return_str=False)
+    return datetime_to_timestamp(date_time)
+
+def datetime_to_timestamp(datetime):
+    return int(datetime.timestamp() * 1000)
 
 def timestamp_to_datetime(timestamp):
     return datetime.fromtimestamp(timestamp/1000)
+
+def timestamp_to_str(timestamp):
+    date_time = timestamp_to_datetime(timestamp)
+    return datetime_to_str(date_time)
 
 def to_string(target):
     if target:
@@ -428,8 +627,13 @@ def random_password(length=24, prefix=''):
         password = password.replace(item, '_')
     return password
 
-def random_string(length:int=8,prefix:str=''):
-    return prefix + ''.join(random.choices(string.ascii_uppercase, k=length)).lower()
+def random_string(length:int=8, prefix:str='', postfix:str=''):
+    if is_int(length):
+        length -= 1                                                 # so that we get the exact length when the value is provided
+    else:
+        length = 7                                                  # default length
+    value   = '_' + ''.join(random.choices(string.ascii_uppercase, k=length)).lower()
+    return f"{prefix}{value}{postfix}"
 
 def random_string_and_numbers(length:int=6,prefix:str=''):
     return prefix + ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -477,6 +681,15 @@ def str_to_bytes(target):
 def str_to_date(str_date, format='%Y-%m-%d %H:%M:%S.%f'):
     return datetime.strptime(str_date,format)
 
+def str_to_date_time(str_date, format='%Y-%m-%d %H:%M:%S'):
+    return datetime.strptime(str_date,format)
+
+def str_to_int(str_data):
+    return int(float(str_data))
+
+def str_unicode_escape(target):
+    return str(target).encode('unicode_escape').decode("utf-8")
+
 def to_int(value, default=0):
     try:
         return int(value)
@@ -502,16 +715,22 @@ def url_decode(data):
     if type(data) is str:
         return unquote_plus(data)
 
+def utc_now():
+    return datetime.utcnow()
+
 def upper(target : str):
     if target:
         return target.upper()
     return ""
 
 def wait(seconds):
-    sleep(seconds)
+    if seconds and seconds > 0:
+        sleep(seconds)
 
 def word_wrap(text,length = 40):
-    return '\n'.join(textwrap.wrap(text, length))
+    if text:
+        return '\n'.join(textwrap.wrap(text, length))
+    return ''
 
 def word_wrap_escaped(text,length = 40):
     if text:
@@ -523,14 +742,32 @@ array_get           = list_get
 array_pop           = list_pop
 array_pop_and_trim  = list_pop_and_trim
 array_add           = list_add
+
 bytes_to_string     = bytes_to_str
+
 convert_to_float    = convert_to_number
-datetime_now        = date_time_now
-list_contains       = list_filter_contains
+
+datetime_now               = date_time_now
+datetime_to_str            = date_time_to_str
+datetime_from_timestamp    = timestamp_to_datetime
+date_time_to_timestamp     = datetime_to_timestamp
+date_time_from_timestamp   = timestamp_to_datetime
+date_time_from_time_stamp  = timestamp_to_datetime
+
+list_contains           = list_filter_contains
+list_sort_by            = list_sorted
+
 new_guid            = random_uuid
+
 obj_list_set        = obj_keys
+obj_info            = print_object_members
+obj_methods         = print_object_methods
+
 str_lines           = split_lines
 str_remove          = remove
+
 random_id           = random_string
+random_guid         = random_uuid
+
 wait_for            = wait
 

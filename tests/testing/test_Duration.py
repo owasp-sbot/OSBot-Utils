@@ -15,5 +15,5 @@ class test_Duration(TestCase):
         with Duration() as duration:
             wait(0.2)
         duration_srt     = time_delta_to_str(duration.duration)
-        expected_output = f'\nDuration: {duration_srt}\n'
+        expected_output = f'\nDuration: {duration_srt}'
         assert builtins_print.mock_calls == [call(expected_output)]

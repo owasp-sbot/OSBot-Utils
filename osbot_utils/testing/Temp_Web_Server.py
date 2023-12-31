@@ -23,20 +23,11 @@ class Temp_Web_Server:
         self.http_handler = http_handler or SimpleHTTPRequestHandler
 
     def __enter__(self):
-        #params        = (self.host, self.port), partial(SimpleHTTPRequestHandler, directory=self.root_folder)
-        if self.http_handler is  SimpleHTTPRequestHandler:
-            handler_config = partial(self.http_handler, directory=self.root_folder)
-        else:
-            handler_config = partial(self.http_handler)
-        self.server   = ThreadingHTTPServer((self.host, self.port), handler_config)
-        self.server_thread = Thread(target=self.server.serve_forever, name=self.server_name)
-        self.server_thread.start()
+        self.start()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.server.server_close()
-        self.server.shutdown()
-        self.server_thread.join()
+        self.stop()
 
     def add_file(self, relative_file_path=None, file_contents=None):
         if relative_file_path is None:
@@ -48,14 +39,8 @@ class Temp_Web_Server:
         file_create(path=full_path, contents=file_contents)
         return full_path
 
-    def url(self):
-        return f"http://{self.host}:{self.port}"
-
-    def server_port_open(self):
-        return port_is_open(host=self.host, port=self.port)
-
     def GET(self, path=''):
-        url = urljoin(self.url(), path)
+        url = self.url(path)
         try:
             return GET(url)
         except Exception as error:
@@ -71,10 +56,24 @@ class Temp_Web_Server:
             return True
         return content in page_html
 
-    # @contextmanager
-    # def http_server(self, host: str, port: int, directory: str):
-    #
-    #
-    #     try:
-    #         yield
-    #     finally:
+    def server_port_open(self):
+        return port_is_open(host=self.host, port=self.port)
+
+    def stop(self):
+        self.server.server_close()
+        self.server.shutdown()
+        self.server_thread.join()
+
+    def start(self):
+        if self.http_handler is  SimpleHTTPRequestHandler:
+            handler_config = partial(self.http_handler, directory=self.root_folder)
+        else:
+            handler_config = partial(self.http_handler)
+        self.server        = ThreadingHTTPServer((self.host, self.port), handler_config)
+        self.server_thread = Thread(target=self.server.serve_forever, name=self.server_name)
+        self.server_thread.start()
+
+    def url(self,path=''):
+        base_url = f"http://{self.host}:{self.port}"
+        url      = urljoin(base_url, path)
+        return url

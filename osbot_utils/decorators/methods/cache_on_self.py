@@ -2,8 +2,8 @@ import inspect
 from functools import wraps
 
 from osbot_utils.utils.Misc import str_md5
+from typing import Any, Callable, TypeVar
 
-#from osbot_utils.utils.Dev import pprint
 
 CACHE_ON_SELF_KEY_PREFIX = 'cache_on_self'
 CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
@@ -14,7 +14,11 @@ CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
 # - memoryview                          : returns unique memory location value
 
 
-def cache_on_self(function):
+
+
+T = TypeVar('T', bound=Callable[..., Any])      # so that we have type hinting when using this class
+
+def cache_on_self(function: T) -> T:
     """
     Use this for cases where we want the cache to be tied to the Class instance (i.e. not global for all executions)
     """
@@ -22,12 +26,17 @@ def cache_on_self(function):
     def wrapper(*args, **kwargs):
         if len(args) == 0 or inspect.isclass(type(args[0])) is False:
             raise Exception("In Method_Wrappers.cache_on_self could not find self")
-
-        self = args[0]                                              # get self
+        if 'reload_cache' in kwargs:                                        # if the reload parameter is set to True
+            reload_cache = True                                             # set reload to True
+            del kwargs['reload_cache']                                      # remove the reload parameter from the kwargs
+        else:
+            reload_cache = False                                            # otherwise set reload to False
+        self = args[0]                                                      # get self
         cache_id = cache_on_self__get_cache_in_key(function, args, kwargs)
-        if hasattr(self, cache_id) is False:                        # check if return_value has been set
-            setattr(self, cache_id, function(*args, **kwargs))      # invoke function and capture the return value
-        return getattr(self, cache_id)                              # return the return value
+        if reload_cache is True or hasattr(self, cache_id) is False:        # check if return_value has been set or if reload is True
+            return_value = function(*args, **kwargs)                        # invoke function and capture the return value
+            setattr(self, cache_id,return_value)                            # set the return value
+        return getattr(self, cache_id)                                      # return the return value
     return wrapper
 
 def cache_on_self__args_to_str(args):

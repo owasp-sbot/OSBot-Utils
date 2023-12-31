@@ -10,7 +10,8 @@ def index_by(function):                                 # returns the list provi
         if key:
             results = {}
             for item in values:
-                results[item.get(key)] = item
+                if type(item) is dict:
+                    results[item.get(key)] = item
             return Fluent_Dict(results)
         return values
 

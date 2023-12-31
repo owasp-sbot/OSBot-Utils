@@ -99,7 +99,7 @@ class test_Hook_Method(TestCase):
         assert self.wrap_method.calls[2]['kwargs'      ] == {'allow_redirects': False}
         assert self.wrap_method.calls[2]['return_value'].status_code == 200
         assert self.wrap_method.calls[3]['args'        ] == ('get', 'https://www.google.com/404')
-        assert self.wrap_method.calls[3]['kwargs'      ] == {'allow_redirects': True, 'params': None}
+        assert self.wrap_method.calls[3]['kwargs'      ] == {'params': None}
         assert self.wrap_method.calls[3]['return_value'].status_code == 404
 
         self.wrap_method.unwrap()

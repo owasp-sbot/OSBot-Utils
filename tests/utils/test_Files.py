@@ -1,15 +1,19 @@
 from unittest                import TestCase
 
+from osbot_utils.testing.Temp_File import Temp_File
+from osbot_utils.testing.Temp_Folder import Temp_Folder
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import Files, path_combine, parent_folder, path_current, save_bytes_as_file, file_bytes, \
     temp_file, file_create, file_delete, file_exists, file_contents, file_copy, file_contents_as_bytes, file_name, \
     folder_name, folder_files, file_not_exists, temp_folder, folder_copy, path_append, folder_exists, folder_create, \
-    folder_delete_all, folder_not_exists, temp_folder_with_temp_file, folder_zip, file_unzip, file_extension, \
-    zip_file_list, zip_files, save_string_as_file, file_write_gz, file_contents_gz, file_size, file_write, file_find, \
+    folder_delete_all, folder_not_exists, temp_folder_with_temp_file, file_extension, \
+    save_string_as_file, file_write_gz, file_contents_gz, file_size, file_write, \
     file_lines, file_create_gz, file_lines_gz, parent_folder_combine, file_write_bytes, file_open_bytes, \
     file_contents_md5, \
-    file_contents_sha256, create_folder_in_parent, sub_folders
+    file_contents_sha256, create_folder_in_parent, sub_folders, safe_file_name, files_find, is_file, is_folder, \
+    temp_filename, current_folder, folder_delete
 from osbot_utils.utils.Misc   import random_bytes, random_string, remove, bytes_md5, str_to_bytes, bytes_sha256
+from osbot_utils.utils.Zip import zip_files, zip_file_list, unzip_file
 
 
 class test_Files(TestCase):
@@ -52,7 +56,7 @@ class test_Files(TestCase):
         target    = temp_file()
         text      = random_string()
 
-        assert file_delete(target) is True
+        assert file_delete(target) is False
         assert file_exists(target) is False
         assert file_create(target, text) == target
 
@@ -79,6 +83,11 @@ class test_Files(TestCase):
         assert file_exists(random_string()) == False
         assert file_exists({}             ) == False
         assert file_exists(None           ) == False
+        with Temp_File() as _:
+            assert file_exists  (_.path()) is True
+            assert is_file      (_.path()) is True
+            assert folder_exists(_.path()) is False
+            assert is_folder    (_.path()) is False
 
     def test_file_lines(self):
         contents = """1st line
@@ -100,7 +109,8 @@ class test_Files(TestCase):
 
     def test_file_name(self):
         target = temp_file()
-        assert path_combine(folder_name(target) , file_name(target)) == target
+        assert path_combine(parent_folder(target) , file_name(target,check_if_exists=False)) == target
+        assert file_not_exists(target)
 
     def test_file_not_exists(self):
         target = temp_file()
@@ -126,11 +136,11 @@ class test_Files(TestCase):
 
     def test_folder_copy(self):
         folder_a = temp_folder(prefix='folder_a_')
-        folder_b = temp_folder(prefix='folder_b_', parent_folder=folder_a)
-        folder_c = temp_folder(prefix='folder_c_', parent_folder=folder_a)
-        file_a   = temp_file(parent_folder=folder_a , contents='abc')
-        file_b   = temp_file(parent_folder=folder_b , contents='abc')
-        file_c   = temp_file(parent_folder=folder_c , contents='abc')
+        folder_b = temp_folder(prefix='folder_b_', target_folder=folder_a)
+        folder_c = temp_folder(prefix='folder_c_', target_folder=folder_a)
+        file_a   = temp_file  (contents='abc'    , target_folder=folder_a)
+        file_b   = temp_file  (contents='abc'    , target_folder=folder_b)
+        file_c   = temp_file  (contents='abc'    , target_folder=folder_c)
 
         target_a = path_combine(folder_a, 'target_a')
 
@@ -155,7 +165,7 @@ class test_Files(TestCase):
                                                       remove(file_c, folder_a + '/')])
 
         path_pattern = f'{folder_a}/**/*.*'
-        assert len(file_find(path_pattern)) == 8
+        assert len(files_find(path_pattern)) == 8
 
     def test_folder_create(self):
         tmp_folder = '_tmp_folder'
@@ -172,28 +182,6 @@ class test_Files(TestCase):
         assert path_combine(folder, 'test_Files.py') in folder_files(folder)
         assert path_combine(folder, 'test_Json.py' ) in folder_files(folder)
 
-    def test_folder_zip(self):
-        folder = temp_folder_with_temp_file(file_contents=random_string())
-        print()
-
-        zip_file = folder_zip(folder)
-
-        assert file_exists(zip_file)
-        assert file_extension(zip_file) == '.zip'
-
-        unziped_folder = Files.unzip_file(zip_file)
-
-        source_files  = folder_files(folder)
-        target_files  = folder_files(unziped_folder)
-
-        assert len(source_files) == 1
-        assert len(target_files) == 1
-        assert source_files[0]   != target_files[0]
-
-        assert file_contents(source_files[0]) == file_contents(target_files[0])
-
-        assert zip_file_list(zip_file)        == ['temp_file.txt']
-
 
     def test_path_combine(self):
         assert path_combine('a', 'b') == f"{path_current()}/a/b"       # todo: add more use cases
@@ -205,6 +193,18 @@ class test_Files(TestCase):
         pickle_data = Files.pickle_load_from_file(pickled_file)
         assert pickle_data == an_object
 
+    def test_safe_file_name(self):
+        assert safe_file_name('aaaabbb') == 'aaaabbb'
+        assert safe_file_name('aaa_bbb') == 'aaa_bbb'
+        assert safe_file_name('aaa.bbb') == 'aaa.bbb'
+        assert safe_file_name('AAA.bbb') == 'AAA.bbb'
+        assert safe_file_name('Abb.123') == 'Abb.123'
+        assert safe_file_name('aaa bbb') == 'aaa_bbb'
+        assert safe_file_name('a!@£$b' ) == 'a____b'
+        assert safe_file_name('aaa/../') == 'aaa_.._'
+        assert safe_file_name('a\n\t\r') == 'a___'
+
+
     def test_save_string_as_file(self):
         data      = random_string()
         temp_file = save_string_as_file(data)
@@ -214,9 +214,24 @@ class test_Files(TestCase):
     def test_sub_folders(self):
         assert '/usr/bin' in sub_folders('/usr')
 
+    def test_temp_filename(self):
+        path_file = temp_filename()
+        assert path_file.startswith('tmp')
+        assert file_extension(path_file) == '.tmp'
+        assert len(path_file) == 15
+
     def test_temp_folder(self):
-        assert Files.exists(Files.temp_folder())
-        assert 'aa_'  in Files.temp_folder('_bb','aa_','/tmp')
+        folder = temp_folder()
+        assert folder_exists(folder) is True
+        assert folder_delete(folder) is True
+        with Temp_Folder() as folder_2:
+            kwargs = dict(prefix        = '_bb'          ,
+                          suffix        = 'aa_'          ,
+                          target_folder = folder_2.path())
+            folder_3 = temp_folder(**kwargs)
+            pprint(folder_name(folder_3))
+            assert 'aa_'  in folder_3
+            assert folder_delete(folder_3) is True
 
     def test_file_content_md5(self):
         contents  = random_string()
@@ -229,6 +244,11 @@ class test_Files(TestCase):
         file_path = file_create(contents=contents)
 
         assert file_contents_sha256(file_path) == bytes_sha256(str_to_bytes(contents))
+
+    def test_file_exists(self):
+        assert file_exists(current_folder()) is False
+        assert file_exists('aaaa_bbb_ccc'  ) is False
+        assert file_exists(None            ) is False
 
     def test_folder_create_in_parent(self):
         tmp_folder   = '_tmp_folder'

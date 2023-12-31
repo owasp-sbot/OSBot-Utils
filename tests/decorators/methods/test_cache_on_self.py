@@ -59,17 +59,17 @@ class test_cache_on_self(TestCase):
         assert an_class_3.echo(555) == 555
         assert an_class_3.echo(666) == 666                                                  # config, new value has been set
 
-        assert obj_data(an_class_1) == {'cache_on_self_an_function__': 12,
-                                        'cache_on_self_echo_698d51a19d8a121ce581499d7b701668_': 111,
+        assert obj_data(an_class_1) == {'cache_on_self_an_function__'                         : 12  ,
+                                        'cache_on_self_echo_698d51a19d8a121ce581499d7b701668_': 111 ,
                                         'cache_on_self_echo_bcbe3365e6ac95ea2c0343a2395834dd_': 222 }
 
-        assert obj_data(an_class_2) == {'cache_on_self_an_function__': 42,
-                                        'cache_on_self_echo_310dcbbf4cce62f762a2aaa148d556bd_': 333,
-                                        'cache_on_self_echo_550a141f12de6341fba65b0ad0433500_': 444}
+        assert obj_data(an_class_2) == {'cache_on_self_an_function__'                         : 42  ,
+                                        'cache_on_self_echo_310dcbbf4cce62f762a2aaa148d556bd_': 333 ,
+                                        'cache_on_self_echo_550a141f12de6341fba65b0ad0433500_': 444 }
 
-        assert obj_data(an_class_3) == {'cache_on_self_an_function__': 42,
-                                        'cache_on_self_echo_15de21c670ae7c3f6f3f1f37029303c9_': 555,
-                                        'cache_on_self_echo_fae0b27c451c728867a567e8c1bb4e53_': 666}
+        assert obj_data(an_class_3) == {'cache_on_self_an_function__'                         : 42  ,
+                                        'cache_on_self_echo_15de21c670ae7c3f6f3f1f37029303c9_': 555 ,
+                                        'cache_on_self_echo_fae0b27c451c728867a567e8c1bb4e53_': 666 }
 
         # testing function that returns dynamic value (with kargs)
         assert an_class_1.echo(value=111) == 111                                                    # confirm returns echo value

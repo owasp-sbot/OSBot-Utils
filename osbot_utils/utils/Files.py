@@ -1,14 +1,14 @@
 import gzip
+
 import os
 import glob
 import pickle
+import re
 import shutil
 import tempfile
-import zipfile
-from   os.path import abspath, join
-from pathlib import Path
-
-from osbot_utils.utils.Misc import bytes_to_base64, base64_to_bytes
+from   os.path              import abspath, join
+from pathlib import Path, PosixPath
+from osbot_utils.utils.Misc import bytes_to_base64, base64_to_bytes, random_string
 
 
 class Files:
@@ -20,8 +20,8 @@ class Files:
     @staticmethod
     def copy(source:str, destination:str) -> str:
         if file_exists(source):                                     # make sure source file exists
-            parent_folder = Files.folder_name(destination)          # get target parent folder
-            folder_create(parent_folder)                            # ensure targer folder exists
+            destination_parent_folder = parent_folder(destination)  # get target parent folder
+            folder_create(destination_parent_folder)                # ensure targer folder exists       # todo: check if this is still needed (we should be using a copy method that creates the required fodlers)
             return shutil.copy(source, destination)                 # copy file and returns file destination
 
     @staticmethod
@@ -64,13 +64,15 @@ class Files:
     def delete(path):
         if Files.exists(path):
             os.remove(path)
-        return Files.exists(path) is False
+            return Files.exists(path) is False
+        return False
 
     @staticmethod
-    def exists(path):                           # todo: add check to see if it is a file (vs being a folder)_
-        if path:
-            return os.path.exists(path)
-        return False
+    def exists(path):
+        return is_file(path)
+        # if path and is_file(path):
+        #     return os.path.exists(path)
+        # return False
 
     @staticmethod
     def find(path_pattern, recursive=True):
@@ -84,15 +86,26 @@ class Files:
         return sorted(result)
 
     @staticmethod
-    def file_create_all_parent_folders(file_path):
-        parent_path = parent_folder(file_path)
-        path = Path(parent_path)
-        path.mkdir(parents=True, exist_ok=True)
-        return parent_path
+    def files_names(files : list):
+        result = []
+        for file in files:
+            if is_file(file):
+                result.append(file_name(file))
+        return result
 
     @staticmethod
-    def file_name(path):
-        return os.path.basename(path)
+    def file_create_all_parent_folders(file_path):
+        if file_path:
+            parent_path = parent_folder(file_path)
+            if parent_path:
+                path        = Path(parent_path)
+                path.mkdir(parents=True, exist_ok=True)
+                return parent_path
+
+    @staticmethod
+    def file_name(path, check_if_exists=True):
+        if is_file(path) or check_if_exists is False:
+            return os.path.basename(path)
 
     @staticmethod
     def file_extension(path):
@@ -126,13 +139,39 @@ class Files:
         return os.stat(path)
 
     @staticmethod
-    def folder_exists(path):          # todo: add check to see if it is a folder
-        return Files.exists(path)
+    def filter_parent_folder(items, folder):
+        all_relative_items = []
+        for item in items:
+            all_relative_items.append(item.replace(folder, '')[1:])
+        return sorted(all_relative_items)
+
+    @staticmethod
+    def files_recursive(parent_dir, include_folders=False):
+        all_files = []
+        if os.path.isdir(parent_dir):
+            for item in os.listdir(parent_dir):
+                item_path = os.path.join(parent_dir, item)
+                if os.path.isfile(item_path):
+                    all_files.append(item_path)
+                elif os.path.isdir(item_path):
+                    if include_folders:
+                        all_files.append(item_path + '/')
+                    all_files.extend(files_recursive(item_path,include_folders=include_folders))
+
+
+        return sorted(all_files)
+
+
+    @staticmethod
+    def folder_exists(path):
+        return is_folder(path)
 
     @staticmethod
     def folder_copy(source, destination, ignore_pattern=None):
         if ignore_pattern:
-            ignore = shutil.ignore_patterns(ignore_pattern)
+            if type(ignore_pattern) is str:
+                ignore_pattern = [ignore_pattern]
+            ignore = shutil.ignore_patterns(*ignore_pattern)            # for example ignore_pattern = ['*.pyc','.DS_Store']
         else:
             ignore = None
         return shutil.copytree(src=source, dst=destination, ignore=ignore)
@@ -151,14 +190,26 @@ class Files:
         return folder_create(folder_path)
 
     @staticmethod
+    def folder_delete(target_folder):
+        if folder_exists(target_folder):
+            try:
+                os.rmdir(target_folder)
+                return True
+            except OSError:
+                pass
+        return False
+
+    @staticmethod
     def folder_delete_all(path):                # this will remove recursively
         if folder_exists(path):
             shutil.rmtree(path)
-        return folder_exists(path) is False
+            return folder_exists(path) is False
+        return False
 
     @staticmethod
     def folder_name(path):
-        return os.path.dirname(path)
+        if path:
+            return os.path.basename(path)
 
     @staticmethod
     def folder_not_exists(path):
@@ -178,9 +229,9 @@ class Files:
     def folders_names(folders : list):
         result = []
         for folder in folders:
-            if Files.is_folder(folder):
-                result.append(Files.file_name(folder))
-        return result
+            if folder:
+                result.append(folder_name(folder))
+        return sorted(result)
 
     @staticmethod
     def folders_sub_folders(folders : list):
@@ -190,12 +241,32 @@ class Files:
         return result
 
     @staticmethod
+    def folders_recursive(parent_dir):
+        subdirectories = []
+        for item in os.listdir(parent_dir):
+            item_path = os.path.join(parent_dir, item)
+            if os.path.isdir(item_path):
+                subdirectories.append(item_path)
+                subdirectories.extend(folders_recursive(item_path))
+
+        return sorted(subdirectories)
+
+
+    @staticmethod
     def is_file(target):
-        return os.path.isfile(target)
+        if isinstance(target, Path):
+            return target.is_file()
+        if type(target) is str:
+            return os.path.isfile(target)
+        return False
 
     @staticmethod
     def is_folder(target):
-        return os.path.isdir(target)
+        if isinstance(target, Path):
+            return target.is_dir()
+        if type(target) is str:
+            return os.path.isdir(target)
+        return False
 
     @staticmethod
     def lines(path):
@@ -227,11 +298,13 @@ class Files:
 
     @staticmethod
     def path_combine(path1, path2):
-        return abspath(join(path1, path2))
+        if type(path1) in [str, Path] and type(path2) in [str, Path]:
+            return abspath(join(str(path1), str(path2)))
 
     @staticmethod
     def parent_folder(path):
-        return os.path.dirname(path)
+        if path:
+            return os.path.dirname(path)
 
     @staticmethod
     def parent_folder_combine(file, path):
@@ -251,6 +324,12 @@ class Files:
         loaded_object = pickle.load(file_to_read)
         file_to_read.close()
         return loaded_object
+
+    @staticmethod
+    def safe_file_name(file_name):
+        if type(file_name) is not str:
+            file_name = f"{file_name}"
+        return re.sub(r'[^a-zA-Z0-9_.]', '_',file_name or '')
 
     @staticmethod
     def save(contents, path=None, extension=None):
@@ -275,25 +354,34 @@ class Files:
         return path
 
     @staticmethod
-    def temp_file(extension = '.tmp', contents=None, parent_folder=None):
+    def temp_file(extension = '.tmp', contents=None, target_folder=None):
         extension = file_extension_fix(extension)
-        if parent_folder is None:
+        if target_folder is None:
             (fd, tmp_file) = tempfile.mkstemp(extension)
             file_delete(tmp_file)
         else:
-            tmp_file = path_combine(parent_folder, temp_filename(extension))
+            tmp_file = path_combine(target_folder, temp_filename(extension))
 
         if contents:
             file_create(tmp_file, contents)
         return tmp_file
 
     @staticmethod
-    def temp_filename(extension='.tmp'):
-        return Files.file_name(Files.temp_file(extension))
+    def temp_file_in_folder(target_folder, prefix="temp_file_", postfix='.txt'):
+        if is_folder(target_folder):
+            path_to_file = path_combine(target_folder, random_string(prefix=prefix, postfix=postfix))
+            file_create(path_to_file, random_string())
+            return path_to_file
+
+        
 
     @staticmethod
-    def temp_folder(prefix=None, suffix=None,parent_folder=None):
-        return tempfile.mkdtemp(suffix, prefix, parent_folder)
+    def temp_filename(extension='.tmp'):
+        return file_name(temp_file(extension), check_if_exists=False)
+
+    @staticmethod
+    def temp_folder(prefix=None, suffix=None,target_folder=None):
+        return tempfile.mkdtemp(suffix, prefix, target_folder)
 
     @staticmethod
     def temp_folder_current():
@@ -327,34 +415,6 @@ class Files:
             file.write(contents)
         return path
 
-    @staticmethod
-    def unzip_file(zip_file, target_folder=None, format='zip'):
-        target_folder = target_folder or temp_folder()
-        shutil.unpack_archive(zip_file, extract_dir=target_folder, format=format)
-        return target_folder
-
-    @staticmethod
-    def zip_folder(root_dir, format='zip'):
-        return shutil.make_archive(base_name=root_dir, format=format, root_dir=root_dir)
-
-    @staticmethod
-    def zip_file_list(path):
-        with zipfile.ZipFile(path) as zip_file:
-            return sorted(zip_file.namelist())
-
-    @staticmethod
-    def zip_files(base_folder, file_pattern="*.*", target_file=None):
-        base_folder = abspath(base_folder)
-        file_list   = folder_files(base_folder, file_pattern)
-
-        if len(file_list):                                                  # if there were files found
-            target_file = target_file or temp_file(extension='zip')
-            with zipfile.ZipFile(target_file,'w') as zip:
-                for file_name in file_list:
-                    zip_file_path = file_name.replace(base_folder,'')
-                    zip.write(file_name, zip_file_path)
-
-            return target_file
 
 
 
@@ -384,7 +444,6 @@ file_create_gz                 = Files.write_gz
 file_exists                    = Files.exists
 file_extension                 = Files.file_extension
 file_extension_fix             = Files.file_extension_fix
-file_find                      = Files.find
 file_lines                     = Files.lines
 file_lines_gz                  = Files.lines_gz
 file_md5                       = Files.contents_md5
@@ -402,23 +461,33 @@ file_stats                     = Files.file_stats
 file_write                     = Files.write
 file_write_bytes               = Files.write_bytes
 file_write_gz                  = Files.write_gz
-file_unzip                     = Files.unzip_file
+filter_parent_folder           = Files.filter_parent_folder
+files_find                     = Files.find
+files_recursive                = Files.files_recursive
 files_list                     = Files.files
+files_names                    = Files.files_names
+
+find_files                     = Files.files
 
 folder_create                  = Files.folder_create
 folder_create_in_parent        = Files.folder_create_in_parent
 folder_create_temp             = Files.temp_folder
 folder_copy                    = Files.folder_copy
 folder_copy_except             = Files.folder_copy
+folder_delete                  = Files.folder_delete
 folder_delete_all              = Files.folder_delete_all
+folder_delete_recursively      = Files.folder_delete_all
 folder_exists                  = Files.folder_exists
 folder_not_exists              = Files.folder_not_exists
 folder_name                    = Files.folder_name
 folder_temp                    = Files.temp_folder
 folder_files                   = Files.files
-folder_zip                     = Files.zip_folder
+folder_sub_folders             = Files.folder_sub_folders
 
-folders_names               = Files.folders_names
+folders_in_folder              = Files.folder_sub_folders
+folders_names                  = Files.folders_names
+folders_recursive              = Files.folders_recursive
+folders_sub_folders            = Files.folders_sub_folders
 
 is_file                     = Files.is_file
 is_folder                   = Files.is_folder
@@ -434,17 +503,15 @@ parent_folder_combine       = Files.parent_folder_combine
 pickle_load_from_file       = Files.pickle_load_from_file
 pickle_save_to_file         = Files.pickle_save_to_file
 
+safe_file_name              = Files.safe_file_name
 save_bytes_as_file          = Files.save_bytes_as_file
 save_string_as_file         = Files.save
 sub_folders                 = Files.sub_folders
 
 temp_file                   = Files.temp_file
+temp_file_in_folder         = Files.temp_file_in_folder
 temp_filename               = Files.temp_filename
 temp_folder                 = Files.temp_folder
 temp_folder_current         = Files.temp_folder_current
 temp_folder_with_temp_file  = Files.temp_folder_with_temp_file
 
-zip_files                   = Files.zip_files
-zip_folder                  = Files.zip_folder
-zip_file_list               = Files.zip_file_list
-unzip_file                  = Files.unzip_file

@@ -5,6 +5,8 @@ from logging.handlers import MemoryHandler
 
 from osbot_utils.decorators.lists.group_by import group_by
 from osbot_utils.decorators.lists.index_by import index_by
+from osbot_utils.decorators.methods.cache_on_function import cache_on_function
+from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.utils.Misc import random_string, obj_dict
 from osbot_utils.utils.Files import temp_file
 
@@ -195,3 +197,13 @@ class Python_Logger:
     #         log_method(msg, *args, **kwargs)
     #         return True
     #     return False
+
+@cache_on_function
+def logger_info():
+    python_logger = Python_Logger().setup()
+    return python_logger.logger.info
+
+@cache_on_function
+def logger_error():
+    python_logger = Python_Logger().setup()
+    return python_logger.logger.error

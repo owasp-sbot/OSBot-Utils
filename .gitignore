@@ -3,3 +3,4 @@ __pycache__
 docs
 venv
 .idea
+osbot_utils.egg-info

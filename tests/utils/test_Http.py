@@ -62,11 +62,11 @@ class test_Http(TestCase):
         del response['headers']['X-Amzn-Trace-Id']
         del response['origin']
 
-        assert response == {    'args'   : { 'ddd': '1', 'eee': '2'}                ,
-                                'headers': { 'Accept'         : 'application/json' ,
-                                             'Accept-Encoding': 'identity'         ,
-                                             'Host'           : 'httpbin.org'      ,
-                                             'User-Agent'     : 'Python-urllib/3.8'},
+        assert response == {    'args'   : { 'ddd': '1', 'eee': '2'}                   ,
+                                'headers': { 'Accept'         : 'application/json'   ,
+                                             'Accept-Encoding': 'identity'           ,
+                                             'Host'           : 'httpbin.org'        ,
+                                             'User-Agent'     : 'Python-urllib/3.10' } ,
                                 'url'    : 'https://httpbin.org/get?ddd=1&eee=2'
                             }
 
@@ -82,17 +82,17 @@ class test_Http(TestCase):
         del response['headers']['X-Amzn-Trace-Id']
         del response['origin']
 
-        assert response == {    'args'   : { 'ddd': '1', 'eee': '2'}                                 ,
-                                'data'   : ''                                                        ,
-                                'files'  : {}                                                        ,
-                                'form'   : { 'aaa': '42', 'bbb': '123'}                              ,
+        assert response == {    'args'   : { 'ddd': '1', 'eee': '2'}                                  ,
+                                'data'   : ''                                                         ,
+                                'files'  : {}                                                         ,
+                                'form'   : { 'aaa': '42', 'bbb': '123'}                               ,
                                 'headers': { 'Accept'         : 'application/json'                  ,
                                              'Accept-Encoding': 'identity'                          ,
-                                             'Content-Length' : '14',
+                                             'Content-Length' : '14'                                ,
                                              'Content-Type'   : 'application/x-www-form-urlencoded' ,
                                              'Host'           : 'httpbin.org'                       ,
-                                             'User-Agent'     : 'Python-urllib/3.8' }                ,
-                                'json'   : None                                                      ,
+                                             'User-Agent'     : 'Python-urllib/3.10'                } ,
+                                'json'   : None                                                       ,
                                 'url'    : 'https://httpbin.org/post?ddd=1&eee=2'
                             }
 
@@ -104,8 +104,8 @@ class test_Http(TestCase):
 
         assert response['headers']['Content-Type'] == self.headers['Content-Type']
         assert response['json'   ]                 == self.data
-        print()
-        pprint(response)
+        #print()
+        #pprint(response)
 
     def test_PUT_json(self):
         url      = self.url_template.format(method="put")
