@@ -2,7 +2,22 @@
 
 Multiple Python util methods to simplify common tasks.
 
-[![Coverage Status](https://coveralls.io/repos/github/owasp-sbot/OSBot-Utils/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/owasp-sbot/OSBot-Utils?branch=master)
+[![codecov](https://codecov.io/gh/owasp-sbot/OSBot-Utils/graph/badge.svg?token=GNVW0COX1N)](https://codecov.io/gh/owasp-sbot/OSBot-Utils)
+
+## Install - Release 1.x
+
+**for main branch**: add to requirements.txt
+
+```
+git+https://github.com/owasp-sbot/OSBot-Utils.git@main
+```
+
+**for dev branch**: add to requirements.txt
+
+```
+git+https://github.com/owasp-sbot/OSBot-Utils.git@dev
+```
+
 
 ## Documentation
 
