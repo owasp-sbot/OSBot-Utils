@@ -1,3 +1,4 @@
+import textwrap
 from html import escape, unescape
 
 from osbot_utils.utils.Files import safe_file_name
@@ -8,6 +9,9 @@ def html_escape(value):
 
 def html_unescape(value):
     return unescape(value)
+
+def str_dedent(value):
+    return textwrap.dedent(value).strip()
 
 def str_join(delimiter, values):
     return delimiter.join(values)

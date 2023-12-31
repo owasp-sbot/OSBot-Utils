@@ -40,7 +40,7 @@ class Temp_Web_Server:
         return full_path
 
     def GET(self, path=''):
-        url = urljoin(self.url(), path)
+        url = self.url(path)
         try:
             return GET(url)
         except Exception as error:
@@ -73,5 +73,7 @@ class Temp_Web_Server:
         self.server_thread = Thread(target=self.server.serve_forever, name=self.server_name)
         self.server_thread.start()
 
-    def url(self):
-        return f"http://{self.host}:{self.port}"
+    def url(self,path=''):
+        base_url = f"http://{self.host}:{self.port}"
+        url      = urljoin(base_url, path)
+        return url

@@ -7,19 +7,25 @@ from osbot_utils.testing.Log_To_String import Log_To_String
 from osbot_utils.utils.Files import file_exists, load_file_gz, file_lines_gz, file_contents
 from osbot_utils.utils.Json import json_save_tmp_file, json_parse, json_loads, json_dumps, json_format, \
     json_load_file, json_load_file_and_delete, json_save_file_gz, json_save_file_pretty_gz, json_load_file_gz, \
-    json_round_trip, Json, logger_json, json_load_file_gz_and_delete, json_save_file_pretty, json_save_file
+    json_round_trip, Json, logger_json, json_load_file_gz_and_delete, json_save_file_pretty, json_save_file, json_load
+from osbot_utils.utils.Misc import list_set
 
 
 class test_Json(TestCase):
 
-    @pytest.mark.skip("todo: check if this has changed in python 3.10+")
     def test_dumps__bad_object(self):
+        serializer       = None                             # need to set this since json_dumps uses default=str for the default json serializer
         bad_obj          = { "date": datetime.now() }
         expected_message = "TypeError: Object of type datetime is not JSON serializable"
 
         with Log_To_String(logger_json) as log_to_string:
-            assert json_dumps(bad_obj) == None
+            assert json_dumps(bad_obj, default=serializer) is None
             assert expected_message in log_to_string.contents()
+
+        # confirm that we get a string in date object with default json_dumps
+        round_trip = json_load(json_dumps(bad_obj))
+        assert list_set(round_trip.keys())  == ['date']
+        assert type(round_trip.get('date')) is str
 
     def test_json_parse__json_format__json_dumps__json_loads(self):
         data = {'answer': 42 }
