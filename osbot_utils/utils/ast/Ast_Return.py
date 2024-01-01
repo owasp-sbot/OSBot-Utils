@@ -9,4 +9,6 @@ class Ast_Return(Ast_Node):
         return {'Ast_Return': {'value': self.value()}}
 
     def value(self):
-        return self.ast_node(self.node.value)
+        return_node = self.ast_node(self.node.value)
+        return return_node.info()
+

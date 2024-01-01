@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Dev import pprint, jprint
 from osbot_utils.utils.ast.Ast import Ast
 from osbot_utils.utils.ast.Ast_Argument import Ast_Argument
 from osbot_utils.utils.ast.Ast_Arguments import Ast_Arguments
@@ -37,16 +37,19 @@ class test_Ast_Module(TestCase):
         for node in nodes:
             nodes_types.append(type(node))
         assert nodes_types == expected_nodes_types
+        #
+        # pprint(nodes_types)
+        # print()
+        # print()
+        # for node in nodes:
+        #     print('----------------------------------------')
+        #     print(node, node.info())
 
-        pprint(nodes_types)
-        print()
-        print()
-        for node in nodes:
-            print('----------------------------------------')
-            print(node, node.info())
 
-            #print(type(node).__name__, node.type)
-        #print()
+    def test_info(self):
+        info = self.ast_module.info()
+
+        jprint(info)
 
         # pass
         # code_2       = self.ast.source_code(test_Ast_Module)

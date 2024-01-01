@@ -26,5 +26,9 @@ class Ast_Module(Ast_Node):
             nodes.append(node)
         return nodes
 
-    def info(self):
-        return {'Ast_Module': {'body': self.node.body } }     # todo: add parser to self.node.body
+    def info(self):                             # todo: see if .info() is the best name for this
+        body_nodes = []
+        for body_node in self.module.body:
+            body_node = self.ast_node(body_node)
+            body_nodes.append(body_node.info())
+        return {'Ast_Module': {'body':body_nodes  } }

@@ -27,6 +27,10 @@ class Ast_Node:
     def info(self):
         return obj_data(self.node)
 
+    def print(self):
+        obj_info(self.node)
+        return self
+
     def source_code(self):
         return ast.unparse(self.node)
 

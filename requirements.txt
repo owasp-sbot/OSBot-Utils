@@ -2,6 +2,6 @@ python-dotenv
 pyyaml
 
 # for development
-pytest
+#pytest
 coveralls
 pdoc3
