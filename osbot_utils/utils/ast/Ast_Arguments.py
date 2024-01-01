@@ -5,7 +5,7 @@ class Ast_Arguments(Ast_Node):
 
     def __init__(self, args):
         if type(args) is not ast.arguments:
-            raise Exception(f'Expected module to be of type ast.Module, got: {module}')
+            raise Exception(f'Expected module to be of type ast.arguments, got: {args}')
         super().__init__(args)
         self.args = args
 

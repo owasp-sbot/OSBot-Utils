@@ -12,10 +12,11 @@ class Ast_Function_Def(Ast_Node):
         return f'[Ast_Node][Ast_Function_Def]'
 
     def info(self):
-        info = obj_data(self.node)
-        #obj_info(self.node)
-        #return info
-        return {'Ast_Function_Def': {'args' : self.args().info() }}
+        return {'Ast_Function_Def': {'args'   : self.args().info(),
+                                     'body'   : self.body()       ,
+                                     'name'   : self.node.name    ,
+                                     #'returns': self.returns()                 # this is for type hints
+                                     }}
 
     def name(self):
         return self.node.name

@@ -19,16 +19,6 @@ class Ast_Module(Ast_Node):
     def source_code(self):
         return ast.unparse(self.module)
 
-    def all_nodes(self):
-        nodes = []
-        for node in ast.walk(self.module):
-            node = self.ast_node(node)
-            nodes.append(node)
-        return nodes
 
     def info(self):                             # todo: see if .info() is the best name for this
-        body_nodes = []
-        for body_node in self.module.body:
-            body_node = self.ast_node(body_node)
-            body_nodes.append(body_node.info())
-        return {'Ast_Module': {'body':body_nodes  } }
+        return {'Ast_Module': {'body':self.body()  } }

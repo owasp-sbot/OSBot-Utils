@@ -20,4 +20,7 @@ class Ast:
         if type(result) is ast.Module:
             return Ast_Module(result)
 
+    def parse(self, source_code):
+        return ast.parse(source_code)
+
 
