@@ -169,11 +169,11 @@ def last_letter(text):
         return text[-1]
 
 
-def log_critical(message): logger().critical(message) # level 50
-def log_debug   (message): logger().debug   (message) # level 10
-def log_error   (message): logger().error   (message) # level 40
-def log_info    (message): logger().info    (message) # level 20
-def log_warning (message): logger().warning (message) # level 30
+# def log_critical(message): logger().critical(message) # level 50
+# def log_debug   (message): logger().debug   (message) # level 10
+# def log_error   (message): logger().error   (message) # level 40
+# def log_info    (message): logger().info    (message) # level 20
+# def log_warning (message): logger().warning (message) # level 30
 
 def log_to_console(level="INFO"):
     logger_set_level(level)

@@ -1,4 +1,5 @@
 import inspect
+import traceback
 import types
 from unittest import TestCase
 
@@ -6,19 +7,26 @@ from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Functions import type_file
 from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import obj_data, obj_keys, obj_info, print_obj_data_as_dict, signature
+from osbot_utils.utils.Objects import obj_data, obj_keys, obj_info, print_obj_data_as_dict, signature, obj_dict
 from osbot_utils.utils.Python_Logger import Python_Logger, Python_Logger_Config
 from osbot_utils.utils.Status import osbot_logger, status_error, status_info, status_debug, status_critical, \
-    status_warning, status_ok
+    status_warning, status_ok, log_critical, log_debug, log_error, log_info, log_ok, log_warning, osbot_status, Status, \
+    log_exception, status_exception
 
 
 class test_Status(TestCase):
+    osbot_status : Status
 
     @classmethod
     def setUpClass(cls) -> None:
         assert osbot_logger.config.log_to_memory is False
-        assert osbot_logger.add_memory_logger() is True
+        assert osbot_logger.add_memory_logger  () is True
         assert osbot_logger.config.log_to_memory is True
+        assert type(osbot_status) is Status
+        cls.osbot_status = osbot_status
+
+    def tearDown(self) -> None:
+        assert osbot_logger.memory_handler_clear() is True
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -39,6 +47,55 @@ class test_Status(TestCase):
                                                      log_to_file      = False ,
                                                      log_to_memory    = True  ,
                                                      path_logs        = None  )
+
+    def test__sending_different_types_of_status_messages(self):
+
+        def send_status_message(message_type, target_method, expected_level= 10, expected_status=None):
+            kwargs           = dict(message = f'an {message_type} message'    ,
+                                    data    = {'an': message_type}            ,
+                                    error   = Exception(f'an {message_type}'))
+            result           = kwargs.copy()
+            result['status'] = message_type
+
+            assert osbot_logger.memory_handler_messages() == []
+            assert target_method(**kwargs)                == result
+            assert osbot_logger.memory_handler_messages() == [f'[osbot] [{message_type}] an {message_type} message']
+            last_message = osbot_logger.memory_handler_logs().pop()
+            assert osbot_logger.memory_handler_clear()    is True
+            assert last_message.get('levelname')          == (expected_status or message_type.upper())
+            #assert last_message.get('filename')           =='test_Status.py'
+            #assert last_message.get('funcName')           =='send_status_message'
+            assert last_message.get('levelno')            == expected_level
+
+            pprint(last_message)
+
+        # test status_* methods
+        send_status_message(message_type='critical' , target_method=status_critical , expected_level=50)
+        send_status_message(message_type='debug'    , target_method=status_debug    , expected_level=10)
+        send_status_message(message_type='error'    , target_method=status_error    , expected_level=40)
+        send_status_message(message_type='exception', target_method=status_exception, expected_level=40, expected_status='ERROR')
+        send_status_message(message_type='info'     , target_method=status_info     , expected_level=20)
+        send_status_message(message_type='ok'       , target_method=status_ok       , expected_level=20, expected_status='INFO')
+        send_status_message(message_type='warning'  , target_method=status_warning  , expected_level=30)
+
+        # test log_* methods
+
+        send_status_message(message_type='critical', target_method=log_critical, expected_level=50)
+        send_status_message(message_type='debug'   , target_method=log_debug   , expected_level=10)
+        send_status_message(message_type='error'   , target_method=log_error   , expected_level=40)
+        send_status_message(message_type='info'    , target_method=log_info    , expected_level=20)
+        send_status_message(message_type='ok'      , target_method=log_ok      , expected_level=20, expected_status='INFO')
+        send_status_message(message_type='warning' , target_method=log_warning , expected_level=30)
+
+
+    def test__logging_exceptions(self):
+        try:
+            1 / 0
+        except ZeroDivisionError:
+            # This will log the exception message 'Division by zero' with the traceback
+            log_exception()
+
+        pprint(self.osbot_status.last_message())
 
     def test_status_debug(self):
         kwargs          = dict(message = 'an debug message'   ,
@@ -71,27 +128,23 @@ class test_Status(TestCase):
         assert last_log_entry.get('processName'  ) == 'MainProcess'
         assert last_log_entry.get('stack_info'   ) is None
         assert last_log_entry.get('threadName'   ) == 'MainThread'
-        assert osbot_logger.memory_handler_clear() is True
 
-    def test__sending_different_types_of_status_messages(self):
 
-        def send_status_message(message_type, target_method, expected_status=None):
-            kwargs           = dict(message = f'an {message_type} message'    ,
-                                    data    = {'an': message_type}            ,
-                                    error   = Exception(f'an {message_type}'))
-            result           = kwargs.copy()
-            result['status'] = message_type
+    def test_stack_trace(self):
+        def method_a():
+            method_b()
 
-            assert osbot_logger.memory_handler_messages() == []
-            assert target_method(**kwargs)                == result
-            assert osbot_logger.memory_handler_messages() == [f'[osbot] [{message_type}] an {message_type} message']
-            last_message = osbot_logger.memory_handler_logs().pop()
-            assert osbot_logger.memory_handler_clear()    is True
-            assert last_message.get('levelname')          == (expected_status or message_type.upper())
+        def method_b():
+            print_stack_trace(depth=5)
 
-        send_status_message(message_type='critical', target_method=status_critical)
-        send_status_message(message_type='debug'   , target_method=status_debug   )
-        send_status_message(message_type='error'   , target_method=status_error   )
-        send_status_message(message_type='info'    , target_method=status_info    )
-        send_status_message(message_type='ok'      , target_method=status_ok      , expected_status='INFO')
-        send_status_message(message_type='warning' , target_method=status_warning )
+        def print_stack_trace(depth=None):
+            for entry in traceback.extract_stack(limit=depth):
+                print(entry)
+
+
+        #stack = get_stack_trace()
+
+        print()
+        print()
+        method_a()
+        #print(len(stack))

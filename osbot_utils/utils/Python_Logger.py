@@ -188,10 +188,10 @@ class Python_Logger:
             return True
         return False
 
-    def add_handler_memory(self):
+    def add_handler_memory(self, memory_capacity=None):
         if self.log_handler_memory() is None:
             if self.logger and self.config.log_to_memory:
-                capacity       = MEMORY_LOGGER_CAPACITY
+                capacity       = memory_capacity or MEMORY_LOGGER_CAPACITY
                 flush_level    = MEMORY_LOGGER_FLUSH_LEVEL
                 target         = None                       # we want the messages to only be kept in memory
                 memory_handler = MemoryHandler(capacity=capacity, flushLevel=flush_level, target=target,flushOnClose=True)
@@ -225,6 +225,13 @@ class Python_Logger:
         for log_record in self.memory_handler_buffer():
             logs.append(obj_dict(log_record))
         return logs
+
+    def memory_handler_last_log_entry(self):
+        memory_buffer = self.memory_handler_buffer()
+        if memory_buffer:                               # Check if the buffer is not empty
+            last_log_record = memory_buffer[-1]         # get the last record
+            return obj_dict(last_log_record)            # convert record into a nice json object
+        return {}
 
     def memory_handler_messages(self):
         return [log_entry.get('message') for log_entry in self.memory_handler_logs()]
