@@ -16,6 +16,14 @@ DEFAULT_LOG_FORMAT        = '%(asctime)s\t|\t%(name)s\t|\t%(levelname)s\t|\t%(me
 MEMORY_LOGGER_CAPACITY    = 1024*10
 MEMORY_LOGGER_FLUSH_LEVEL = logging.ERROR
 
+# for reference here are the log levels
+# CRITICAL    50
+# ERROR       40
+# WARNING     30
+# INFO        20
+# DEBUG       10
+# NOTSET      0
+
 class Python_Logger_Config:
     def __init__(self):
         self.elastic_host           = None
@@ -37,6 +45,7 @@ class Python_Logger_Config:
 class Python_Logger:
     config : Python_Logger_Config
     logger : Logger
+
     def __init__(self, logger_name= None, logger_config : Python_Logger_Config = None):
         self.logger_name = logger_name or random_string(prefix="Python_Logger_")
         self.set_config(logger_config)
@@ -60,12 +69,17 @@ class Python_Logger:
 
     def setup_log_methods(self, target):
         # adds these helper methods like this so that the filename and function values are accurate
+        setattr(target, "critical"  , self.logger.critical  )
         setattr(target, "debug"     , self.logger.debug     )
-        setattr(target, "info"      , self.logger.info      )
-        setattr(target, "warning"   , self.logger.warning   )
         setattr(target, "error"     , self.logger.error     )
         setattr(target, "exception" , self.logger.exception )
-        setattr(target, "critical"  , self.logger.critical  )
+        setattr(target, "info"      , self.logger.info      )
+        setattr(target, "ok"        , self.logger.info      )
+        setattr(target, "warning"   , self.logger.warning   )
+
+
+
+
 
         # self.info       = self.logger.info
         # self.warning    = self.logger.warning
@@ -94,10 +108,6 @@ class Python_Logger:
         return False
 
     # Getters
-    def log_handlers(self):
-        if self.logger:
-            return self.logger.handlers
-        return []
 
     def log_handler(self, handler_type):
         for handler in self.log_handlers():
@@ -113,6 +123,21 @@ class Python_Logger:
 
     def log_handler_memory(self):
         return self.log_handler(MemoryHandler)
+
+    def log_handlers(self):
+        if self.logger:
+            return self.logger.handlers
+        return []
+
+    def log_handlers_remove(self, handler):
+        if handler and handler in self.log_handlers():
+            self.logger.removeHandler(handler)
+            return True
+        return False
+
+    def log_handlers_remove_type(self, handler_type):
+        handler = self.log_handler(handler_type)
+        return self.log_handlers_remove(handler)
 
     def log_formatter(self):
         return logging.Formatter(self.config.log_format)
@@ -133,6 +158,14 @@ class Python_Logger:
     def add_file_logger(self,path_log_file=None):
         self.config.log_to_file = True
         return self.add_handler_file(path_log_file=path_log_file)
+
+    def remove_memory_logger(self):
+        memory_logger = self.log_handler_memory()
+        if self.log_handlers_remove(memory_logger):
+            self.config.log_to_file = False
+            return True
+        return False
+
 
     # Handlers
     def add_handler_console(self):
@@ -156,28 +189,41 @@ class Python_Logger:
         return False
 
     def add_handler_memory(self):
-        if self.logger and self.config.log_to_memory:
-            capacity       = MEMORY_LOGGER_CAPACITY
-            flush_level    = MEMORY_LOGGER_FLUSH_LEVEL
-            target         = None                       # we want the messages to only be kept in memory
-            memory_handler = MemoryHandler(capacity=capacity, flushLevel=flush_level, target=target,flushOnClose=True)
-            memory_handler.setLevel(self.log_level())
-            self.logger.addHandler(memory_handler)
-            return True
+        if self.log_handler_memory() is None:
+            if self.logger and self.config.log_to_memory:
+                capacity       = MEMORY_LOGGER_CAPACITY
+                flush_level    = MEMORY_LOGGER_FLUSH_LEVEL
+                target         = None                       # we want the messages to only be kept in memory
+                memory_handler = MemoryHandler(capacity=capacity, flushLevel=flush_level, target=target,flushOnClose=True)
+                memory_handler.setLevel(self.log_level())
+                self.logger.addHandler(memory_handler)
+                return True
         return False
 
     # Utils
+    def memory_handler(self) -> MemoryHandler:
+        return self.log_handler_memory()
+
+    def memory_handler_buffer(self):
+        if self.config.log_to_memory:
+            return self.memory_handler().buffer
+        return []
+
+    def memory_handler_clear(self):
+        if self.config.log_to_memory:
+            memory_handler = self.memory_handler()
+            memory_handler.buffer = []
+            return True
+        return False
     def memory_handler_exceptions(self):
         return self.memory_handler_logs(index_by='levelname').get('EXCEPTIONS', {})
 
     @index_by
     @group_by
     def memory_handler_logs(self):
-        logs           = []
-        memory_handler = self.log_handler_memory()
-        if memory_handler:
-            for log_record in memory_handler.buffer:
-                logs.append(obj_dict(log_record))
+        logs = []
+        for log_record in self.memory_handler_buffer():
+            logs.append(obj_dict(log_record))
         return logs
 
     def memory_handler_messages(self):

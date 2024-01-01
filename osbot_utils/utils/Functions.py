@@ -1,9 +1,9 @@
 import inspect
 import textwrap
 import types
+from typing import Type
 
 from osbot_utils.utils.Files import parent_folder
-
 
 def function_file(function):
     if isinstance(function, types.FunctionType):
@@ -49,3 +49,10 @@ def module_full_name(module):
 def module_name(module):
     if isinstance(module, types.ModuleType):
         return module.__name__.split('.')[-1]
+
+def python_file(target):
+    return inspect.getfile(target)
+
+def type_file(target):
+    if isinstance(target, type):
+        return python_file(target)
