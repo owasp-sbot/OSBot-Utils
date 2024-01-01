@@ -1,7 +1,6 @@
 import ast
 
 from osbot_utils.utils.ast.Ast_Node         import Ast_Node
-from osbot_utils.utils.ast.Ast_Node_Registry import ast_node_registry
 
 
 class Ast_Module(Ast_Node):
@@ -13,7 +12,6 @@ class Ast_Module(Ast_Node):
             raise Exception(f'Expected module to be of type ast.Module, got: {module}')
         super().__init__(module)
         self.module = module
-        ast_node_registry.register_type(ast.Module, Ast_Module)
 
     def __repr__(self):
         return f'[Ast_Node][Ast_Module]'

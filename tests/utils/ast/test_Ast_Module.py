@@ -38,12 +38,12 @@ class test_Ast_Module(TestCase):
             nodes_types.append(type(node))
         assert nodes_types == expected_nodes_types
 
-        #pprint(nodes_types)
-        # print()
-        # print()
-        # for node in nodes:
-        #     print('----------------------------------------')
-        #     print(node, node.info())
+        pprint(nodes_types)
+        print()
+        print()
+        for node in nodes:
+            print('----------------------------------------')
+            print(node, node.info())
 
             #print(type(node).__name__, node.type)
         #print()
