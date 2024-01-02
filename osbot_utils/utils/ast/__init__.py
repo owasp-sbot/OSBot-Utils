@@ -29,14 +29,17 @@ from osbot_utils.utils.ast.Ast_For          import Ast_For
 from osbot_utils.utils.ast.Ast_Function_Def import Ast_Function_Def
 from osbot_utils.utils.ast.Ast_Generator_Exp import Ast_Generator_Exp
 from osbot_utils.utils.ast.Ast_Gt import Ast_Gt
+from osbot_utils.utils.ast.Ast_GtE import Ast_GtE
 from osbot_utils.utils.ast.Ast_If           import Ast_If
 from osbot_utils.utils.ast.Ast_If_Exp import Ast_If_Exp
 from osbot_utils.utils.ast.Ast_Import       import Ast_Import
 from osbot_utils.utils.ast.Ast_Import_From  import Ast_Import_From
+from osbot_utils.utils.ast.Ast_In import Ast_In
 from osbot_utils.utils.ast.Ast_Is           import Ast_Is
 from osbot_utils.utils.ast.Ast_Is_Not       import Ast_Is_Not
 from osbot_utils.utils.ast.Ast_Keyword      import Ast_Keyword
 from osbot_utils.utils.ast.Ast_List         import Ast_List
+from osbot_utils.utils.ast.Ast_List_Comp import Ast_List_Comp
 from osbot_utils.utils.ast.Ast_Load         import Ast_Load
 from osbot_utils.utils.ast.Ast_Lt import Ast_Lt
 from osbot_utils.utils.ast.Ast_LtE import Ast_LtE
@@ -46,12 +49,14 @@ from osbot_utils.utils.ast.Ast_Mult import Ast_Mult
 from osbot_utils.utils.ast.Ast_Name         import Ast_Name
 from osbot_utils.utils.ast.Ast_Not          import Ast_Not
 from osbot_utils.utils.ast.Ast_Not_Eq       import Ast_Not_Eq
+from osbot_utils.utils.ast.Ast_Not_In import Ast_Not_In
 from osbot_utils.utils.ast.Ast_Or import Ast_Or
 from osbot_utils.utils.ast.Ast_Pass         import Ast_Pass
 from osbot_utils.utils.ast.Ast_Pow import Ast_Pow
 from osbot_utils.utils.ast.Ast_Raise        import Ast_Raise
 from osbot_utils.utils.ast.Ast_Return       import Ast_Return
 from osbot_utils.utils.ast.Ast_Slice        import Ast_Slice
+from osbot_utils.utils.ast.Ast_Starred import Ast_Starred
 from osbot_utils.utils.ast.Ast_Store        import Ast_Store
 from osbot_utils.utils.ast.Ast_Sub          import Ast_Sub
 from osbot_utils.utils.ast.Ast_Subscript    import Ast_Subscript
@@ -87,8 +92,10 @@ ast_types = {
     ast.Expr          : Ast_Expr          ,
     ast.Eq            : Ast_Eq            ,
     ast.Gt            : Ast_Gt            ,
+    ast.GtE           : Ast_GtE           ,
     ast.Import        : Ast_Import        ,
     ast.ImportFrom    : Ast_Import_From   ,
+    ast.In            : Ast_In            ,
     ast.For           : Ast_For           ,
     ast.FunctionDef   : Ast_Function_Def  ,
     ast.GeneratorExp  : Ast_Generator_Exp ,
@@ -98,6 +105,7 @@ ast_types = {
     ast.IsNot         : Ast_Is_Not        ,
     ast.keyword       : Ast_Keyword       ,
     ast.List          : Ast_List          ,
+    ast.ListComp      : Ast_List_Comp     ,
     ast.Lt            : Ast_Lt            ,
     ast.LtE           : Ast_LtE           ,
     ast.Load          : Ast_Load          ,
@@ -107,12 +115,14 @@ ast_types = {
     ast.Name          : Ast_Name          ,
     ast.Not           : Ast_Not           ,
     ast.NotEq         : Ast_Not_Eq        ,
+    ast.NotIn         : Ast_Not_In        ,
     ast.Or            : Ast_Or            ,
     ast.Pass          : Ast_Pass          ,
     ast.Pow           : Ast_Pow           ,
     ast.Raise         : Ast_Raise         ,
     ast.Return        : Ast_Return        ,
     ast.Slice         : Ast_Slice         ,
+    ast.Starred       : Ast_Starred       ,
     ast.Store         : Ast_Store         ,
     ast.Sub           : Ast_Sub           ,
     ast.Subscript     : Ast_Subscript     ,

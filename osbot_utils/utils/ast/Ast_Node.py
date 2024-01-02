@@ -58,7 +58,9 @@ class Ast_Node:
 
     def elt         (self): return self.ast_node (self.node.elt         )
     def elts        (self): return self.ast_nodes(self.node.elts        )
-    def exc         (self): return self.ast_node (self.node.exc         )
+    def exc         (self):
+        if self.node.exc:
+            return self.ast_node (self.node.exc         )
 
     def func        (self): return self.ast_node (self.node.func        )
 
@@ -84,7 +86,7 @@ class Ast_Node:
         return self.ast_node(self.node.left)
 
     def lower(self):
-        return self.ast_nodes(self.node.lower)
+        return self.ast_node (self.node.lower)
 
     def names(self):
         return self.ast_nodes(self.node.names)
@@ -92,7 +94,10 @@ class Ast_Node:
     def op      (self): return self.ast_node (self.node.op      )
     def operand (self): return self.ast_node (self.node.operand )
     def ops     (self): return self.ast_nodes(self.node.ops     )
-    def orelse  (self): return self.ast_nodes(self.node.orelse  )
+    def orelse  (self):
+        if type(self.node.orelse) is list:
+            return self.ast_nodes(self.node.orelse  )
+        return self.ast_node(self.node.orelse)
 
     def right(self):
         return self.ast_node(self.node.right)
@@ -117,10 +122,11 @@ class Ast_Node:
         return self.ast_node(self.node.test)
 
     def type(self):
-        return self.ast_node(self.node.type)
+        if self.node.type:
+            return self.ast_node(self.node.type)
 
     def upper(self):
-        return self.ast_nodes(self.node.upper)
+        return self.ast_node (self.node.upper)
 
     def value(self):
         if self.node.value is None:
