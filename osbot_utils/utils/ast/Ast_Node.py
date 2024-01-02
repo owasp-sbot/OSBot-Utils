@@ -11,11 +11,11 @@ class Ast_Node:
         if node.__module__ != 'ast':
              raise Exception(f'Expected node.__module__ to be ast, got: {node.__module__}')
         self.node      = node
-        self.type      = node.__class__
-        self.type_name = node.__class__.__name__
+        self._type      = node.__class__
+        self._type_name = node.__class__.__name__
 
     def __repr__(self):
-        return f"[Ast_Node][????] {self.type}"
+        return f"[Ast_Node][????] {self._type}"
 
     def args(self):
         return self.ast_nodes(self.node.args)
@@ -43,12 +43,6 @@ class Ast_Node:
 
     def bases(self):
         return self.ast_nodes(self.node.bases)
-        # nodes     = self.node.bases
-        # ast_nodes = []
-        # for node in nodes:
-        #     ast_node = self.ast_node(node)
-        #     ast_nodes.append(ast_node.info())
-        # return ast_nodes
 
     def body(self):
         if self.node.body:
@@ -66,6 +60,9 @@ class Ast_Node:
     def elts(self):
         return self.ast_nodes(self.node.elts)
 
+    def exc(self):
+        return self.ast_node(self.node.exc)
+
     def func(self):
         return self.ast_node(self.node.func)
 
@@ -73,12 +70,15 @@ class Ast_Node:
         return self.ast_nodes(self.node.ifs)
 
     def info(self):
-        vars_to_del = ['col_offset', 'end_col_offset', 'lineno', 'end_lineno']
+        vars_to_del = ['col_offset', 'end_col_offset', 'lineno', 'end_lineno', 'type_comment']
         data = obj_data(self.node)
         for var_to_del in vars_to_del:
             if data.get(var_to_del):
                 del data[var_to_del]
         return data
+
+    def items(self):
+        return self.ast_nodes(self.node.items)
 
     def iter(self):
         return self.ast_node(self.node.iter)
@@ -104,14 +104,10 @@ class Ast_Node:
     def names(self):
         return self.ast_nodes(self.node.names)
 
-    def op(self):
-        return self.ast_node(self.node.op)
-
-    def ops(self):
-        return self.ast_nodes(self.node.ops)
-
-    def orelse(self):
-        return self.ast_nodes(self.node.orelse)
+    def op      (self): return self.ast_node (self.node.op      )
+    def operand (self): return self.ast_node (self.node.operand )
+    def ops     (self): return self.ast_nodes(self.node.ops     )
+    def orelse  (self): return self.ast_nodes(self.node.orelse  )
 
     def right(self):
         return self.ast_node(self.node.right)
@@ -135,6 +131,9 @@ class Ast_Node:
     def test(self):
         return self.ast_node(self.node.test)
 
+    def type(self):
+        return self.ast_node(self.node.type)
+
     def upper(self):
         return self.ast_nodes(self.node.upper)
 
@@ -150,7 +149,7 @@ class Ast_Node:
         types_stats = {}
         ast_stats   = {}
         for node in self.all_nodes():
-            type_name = node.type_name
+            type_name = node._type_name
             ast_stat  = type(node).__name__
             if types_stats.get(type_name) is None:
                 types_stats[type_name] = 0
