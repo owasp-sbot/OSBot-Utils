@@ -1,5 +1,6 @@
 import ast
 
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects import obj_data, obj_info
 
 
@@ -11,6 +12,27 @@ class Ast_Base:
 
     def __repr__(self):
         return self.__class__.__name__
+
+    def info(self):
+        return {}                   # to be overwritten by calles that uses this base class
+
+    def json_data(self, target):
+        if type(target) is dict:
+            data = {}
+            for key, value in target.items():
+                data[key] = self.json_data(value)
+            return data
+        if type(target) is list:
+            data = []
+            for item in target:
+                data.append(self.json_data(item))
+            return data
+        if isinstance(target, Ast_Base):
+            return self.json_data(target.info())
+        return target
+
+    def json(self):
+        return self.json_data(self.info())
 
     def key(self):
         return str(self)

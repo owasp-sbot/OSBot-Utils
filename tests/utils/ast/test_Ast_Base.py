@@ -16,8 +16,8 @@ class test_Ast_Base(TestCase):
         # assert isinstance(self.ast_module, Ast_Base)
         # assert type(self.ast_module) is not Ast_Base
         # assert type(self.ast_module) is Ast_Module
-        node            = ast.parse("40+2")
-        self.ast_base   = Ast_Base(node)
+        self.node       = ast.parse("40+2")
+        self.ast_base   = Ast_Base(self.node)
         assert type(self.ast_base) is Ast_Base
 
     def test___init__(self):
@@ -33,10 +33,27 @@ class test_Ast_Base(TestCase):
         assert context.test_case.longMessage                is True
         assert context.test_case.maxDiff                    == 640
 
-        #assert context.test_case is test_Ast_Base.test___init__
+        with self.assertRaises(Exception) as context_2:
+            Ast_Base("an string")
+        assert context_2.exception.args[0]                    == "'str' object has no attribute '__module__'"
 
     def test___repr__(self):
         assert self.ast_base.__repr__() == "Ast_Base"
+
+    def test_json(self):
+        assert self.ast_base.json() == {}
+        #ast_module = Ast().ast_module__from(Ast)
+        assert Ast_Module(ast.parse("42"   )).json() == { 'Ast_Module': { 'body': [{ 'Ast_Expr'  : { 'value'  : { 'Ast_Constant': { 'value': 42}}}}]}}
+        assert Ast_Module(ast.parse("aa"   )).json() == { 'Ast_Module': { 'body': [{ 'Ast_Expr'  : { 'value'  : { 'Ast_Name'    : {'ctx': {'Ast_Load': {}}}, 'id'  : 'aa'}           }}]}}
+        assert Ast_Module(ast.parse("aa=42")).json() == { 'Ast_Module': { 'body': [{ 'Ast_Assign': { 'targets': [{'Ast_Name'    : {'ctx': {'Ast_Store': {}}}, 'id': 'aa'}], 'value': {'Ast_Constant': {'value': 42}}}}]}}
+        assert Ast_Module(ast.parse("a(42)")).json() == { 'Ast_Module': { 'body': [{ 'Ast_Expr'  : { 'value'  : { 'Ast_Call'    : {'args': [{'Ast_Constant': {'value': 42}}], 'func': {'Ast_Name': {'ctx': {'Ast_Load': {}}}, 'id': 'a'}, 'keywords': []}}}}]}}
+        #tree = ast.parse("aa")
+        #print(ast.dump(tree, indent=4))
+
+        # print()
+        # print()
+        # result = ast_module.json()
+        # pprint(result)
 
     def test_key(self):
         assert self.ast_base.key() == "Ast_Base"

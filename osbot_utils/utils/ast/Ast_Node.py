@@ -45,7 +45,6 @@ class Ast_Node(Ast_Base):
         return nodes
 
     def stats(self):
-
         ast_node_types   = []
         node_types       = []
         all_keys         = []
@@ -55,17 +54,18 @@ class Ast_Node(Ast_Base):
             node_types    .append(ast_node.node.__class__.__name__)
 
             for _,info in ast_node.info().items():
-                for key,value in info.items():
-                    if not isinstance(value, Ast_Node):
-                        if type(value) not in [list, dict, tuple]:
-                            if type(value) is str:
-                                value = value[:20].strip()
-                            if value and 'ast.Constant' in str(value):
-                                print(key, str(value))
-                            all_keys  .append(key)
-                            all_values.append(value)
+                if type(info) is dict:
+                    for key,value in info.items():
+                        if not isinstance(value, Ast_Node):
+                            if type(value) not in [list, dict, tuple]:
+                                if type(value) is str:
+                                    value = value[:20].strip()
+                                if value and 'ast.Constant' in str(value):
+                                    print(key, str(value))
+                                all_keys  .append(key)
+                                all_values.append(value)
 
-                assert _ == ast_node.__class__.__name__     # todo: revove after refactoring
+                    assert _ == ast_node.__class__.__name__     # todo: revove after refactoring
 
         stats = {'all_keys'       : list_stats(all_keys)        ,
                  'all_values'     : list_stats(all_values)      ,
@@ -89,6 +89,7 @@ class Ast_Node(Ast_Base):
     def elts        (self): return self.ast_value(self.node.elts        )
     def exc         (self): return self.ast_value (self.node.exc        )
     def func        (self): return self.ast_value(self.node.func        )
+    def id          (self): return self.ast_value(self.node.id          )
     def ifs         (self): return self.ast_value(self.node.ifs         )
     def items       (self): return self.ast_value(self.node.items       )
     def iter        (self): return self.ast_value(self.node.iter        )
