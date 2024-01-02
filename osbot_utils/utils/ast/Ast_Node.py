@@ -46,28 +46,23 @@ class Ast_Node:
 
     def body(self):
         if self.node.body:
-            return self.ast_nodes(self.node.body)
+            if type(self.node.body) is list:                # handle the case where body is a list of nodes
+                return self.ast_nodes(self.node.body)
+            return self.ast_node(self.node.body)            # and when it is not (like on Ast_If_Exp)
 
-    def comparators(self):
-        return self.ast_nodes(self.node.comparators)
+    def comparators (self): return self.ast_nodes(self.node.comparators )
+    def context_expr(self): return self.ast_node (self.node.context_expr)
+    def ctx         (self): return self.ast_node (self.node.ctx         )
 
-    def ctx(self):
-        return self.ast_node(self.node.ctx)
+    def dims        (self): return self.ast_nodes(self.node.dims        )
 
-    def dims(self):
-        return self.ast_nodes(self.node.dims)
+    def elt         (self): return self.ast_node (self.node.elt         )
+    def elts        (self): return self.ast_nodes(self.node.elts        )
+    def exc         (self): return self.ast_node (self.node.exc         )
 
-    def elts(self):
-        return self.ast_nodes(self.node.elts)
+    def func        (self): return self.ast_node (self.node.func        )
 
-    def exc(self):
-        return self.ast_node(self.node.exc)
-
-    def func(self):
-        return self.ast_node(self.node.func)
-
-    def ifs(self):
-        return self.ast_nodes(self.node.ifs)
+    def ifs         (self): return self.ast_nodes(self.node.ifs         )
 
     def info(self):
         vars_to_del = ['col_offset', 'end_col_offset', 'lineno', 'end_lineno', 'type_comment']
@@ -77,23 +72,13 @@ class Ast_Node:
                 del data[var_to_del]
         return data
 
-    def items(self):
-        return self.ast_nodes(self.node.items)
-
-    def iter(self):
-        return self.ast_node(self.node.iter)
-
-    def finalbody(self):
-        return self.ast_nodes(self.node.finalbody)
-
-    def handlers(self):
-        return self.ast_nodes(self.node.handlers)
-
-    def keys(self):
-        return self.ast_nodes(self.node.keys)
-
-    def keywords(self):
-        return self.ast_nodes(self.node.keywords)
+    def items     (self): return self.ast_nodes(self.node.items     )
+    def iter      (self): return self.ast_node (self.node.iter      )
+    def generators(self): return self.ast_nodes(self.node.generators)
+    def finalbody (self): return self.ast_nodes(self.node.finalbody )
+    def handlers  (self): return self.ast_nodes(self.node.handlers  )
+    def keys      (self): return self.ast_nodes(self.node.keys      )
+    def keywords  (self): return self.ast_nodes(self.node.keywords  )
 
     def left(self):
         return self.ast_node(self.node.left)
