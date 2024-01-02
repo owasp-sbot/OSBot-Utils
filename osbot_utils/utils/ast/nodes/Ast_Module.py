@@ -5,20 +5,13 @@ from osbot_utils.utils.ast.Ast_Node         import Ast_Node
 
 class Ast_Module(Ast_Node):
 
-    module : ast.Module
-
-    def __init__(self, module):
-        if type(module) is not ast.Module:
-            raise Exception(f'Expected module to be of type ast.Module, got: {module}')
-        super().__init__(module)
-        self.module = module
-
+    # todo: see if we still need this (and if there is a better way to show it,
+    #       specially after we refactor the info() method
     def __repr__(self):
         return f'[Ast_Node][Ast_Module]'
 
-    def source_code(self):
-        return ast.unparse(self.module)
-
-
-    def info(self):                             # todo: see if .info() is the best name for this
+    # todo: see if .info() is the best name for this
+    #       I think .data() might be a better name
+    #       with the name 'Ast_Module' moved into a variable (or retrieved from the class name)
+    def info(self):
         return {'Ast_Module': {'body':self.body()  } }

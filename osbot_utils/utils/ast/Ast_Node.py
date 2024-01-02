@@ -32,7 +32,7 @@ class Ast_Node(Ast_Base):
         ast_nodes = []
         for node in nodes:
             ast_node = self.ast_node(node)
-            ast_nodes.append(ast_node.info())           # todo: see the use of .info() here (should be better to return the ast_node)
+            ast_nodes.append(ast_node)           # todo: see the use of .info() here (should be better to return the ast_node)
         return ast_nodes
 
     def all_ast_nodes(self):

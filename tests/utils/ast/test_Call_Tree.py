@@ -3,7 +3,7 @@ from unittest import TestCase
 import pytest
 
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-from osbot_utils.utils.Call_Tree import Call_Tree
+from osbot_utils.utils.ast.Call_Tree import Call_Tree
 from osbot_utils.utils.Dev import pprint
 
 
