@@ -10,10 +10,7 @@ from osbot_utils.utils.ast.Ast_Base import Ast_Base
 class Ast_Node(Ast_Base):
 
     def __repr__(self):
-        return f"[Ast_Node][????] {self._type}"
-
-    def args(self):
-        return self.ast_nodes(self.node.args)
+        return f"[Ast_Node][????] {self.node.__class__}"
 
     def ast_node(self, node):
         type_key      = type(node)
@@ -27,6 +24,8 @@ class Ast_Node(Ast_Base):
             return None
         if hasattr(value, '__module__') and value.__module__ == 'ast':
             return self.ast_node(value)
+        if type(value) is list:
+            return self.ast_nodes(value)
         return value
 
     def ast_nodes(self, nodes):
@@ -42,104 +41,6 @@ class Ast_Node(Ast_Base):
             node = self.ast_node(node)
             nodes.append(node)
         return nodes
-
-    def bases(self): return self.ast_nodes(self.node.bases)
-
-    def body(self):
-        if self.node.body:
-            if type(self.node.body) is list:                # handle the case where body is a list of nodes
-                return self.ast_nodes(self.node.body)
-            return self.ast_node(self.node.body)            # and when it is not (like on Ast_If_Exp)
-
-    def cause       (self): return self.ast_value(self.node.cause       )
-    def comparators (self): return self.ast_nodes(self.node.comparators )
-    def context_expr(self): return self.ast_node (self.node.context_expr)
-    def ctx         (self): return self.ast_node (self.node.ctx         )
-
-    def dims        (self): return self.ast_nodes(self.node.dims        )
-
-    def elt         (self): return self.ast_node (self.node.elt         )
-    def elts        (self): return self.ast_nodes(self.node.elts        )
-    def exc         (self):
-        if self.node.exc:
-            return self.ast_node (self.node.exc         )
-
-    def func        (self): return self.ast_node (self.node.func        )
-
-    def ifs         (self): return self.ast_nodes(self.node.ifs         )
-
-    def info(self):
-        vars_to_del = ['col_offset', 'end_col_offset', 'lineno', 'end_lineno', 'type_comment']
-        data = self.obj_data()
-        for var_to_del in vars_to_del:
-            if data.get(var_to_del):
-                del data[var_to_del]
-        return data
-
-    def items     (self): return self.ast_nodes(self.node.items     )
-    def iter      (self): return self.ast_node (self.node.iter      )
-    def generators(self): return self.ast_nodes(self.node.generators)
-    def finalbody (self): return self.ast_nodes(self.node.finalbody )
-    def handlers  (self): return self.ast_nodes(self.node.handlers  )
-    def keys      (self): return self.ast_nodes(self.node.keys      )
-    def keywords  (self): return self.ast_nodes(self.node.keywords  )
-
-    def left(self):
-        return self.ast_node(self.node.left)
-
-    def lower(self):
-        return self.ast_node (self.node.lower)
-
-    def names(self):
-        return self.ast_nodes(self.node.names)
-
-    def op      (self): return self.ast_node (self.node.op      )
-    def operand (self): return self.ast_node (self.node.operand )
-    def ops     (self): return self.ast_nodes(self.node.ops     )
-    def orelse  (self):
-        if type(self.node.orelse) is list:
-            return self.ast_nodes(self.node.orelse  )
-        return self.ast_node(self.node.orelse)
-
-    def right(self):
-        return self.ast_node(self.node.right)
-
-    def print(self):
-        obj_info(self.node)
-        return self
-
-    def msg(self):
-        return self.ast_value(self.node.msg)
-
-    def slice(self):
-        return self.ast_node(self.node.slice)
-
-    def source_code(self):
-        return ast.unparse(self.node)
-
-    def target(self):
-        return self.ast_node(self.node.target)
-
-    def targets(self):
-        return self.ast_nodes(self.node.targets)
-
-    def test(self):
-        return self.ast_node(self.node.test)
-
-    def type(self):
-        if self.node.type:
-            return self.ast_node(self.node.type)
-
-    def upper(self):
-        return self.ast_node (self.node.upper)
-
-    def value(self):
-        return self.ast_value(self.node.value)
-
-    def values(self):
-        return self.ast_nodes(self.node.values)
-
-
 
     def stats(self):
 
@@ -162,11 +63,7 @@ class Ast_Node(Ast_Base):
                             all_keys  .append(key)
                             all_values.append(value)
 
-
                 assert _ == ast_node.__class__.__name__     # todo: revove after refactoring
-
-        # pprint(list_stats(all_keys))
-        # pprint(list_stats(all_values))
 
         stats = {'all_keys'       : list_stats(all_keys)        ,
                  'all_values'     : list_stats(all_values)      ,
@@ -176,7 +73,42 @@ class Ast_Node(Ast_Base):
         #pprint(stats)
         return stats
 
-    # def returns(self):                                    # todo: add this when looking at type hints (which is what this is )
-    #     if self.node.returns:
-    #         return self.ast_node(self.node.returns)
 
+    # node vars mappings
+    def args        (self): return self.ast_value(self.node.args        )
+    def bases       (self): return self.ast_value(self.node.bases       )
+    def body        (self): return self.ast_value(self.node.body        )
+    def cause       (self): return self.ast_value(self.node.cause       )
+    def comparators (self): return self.ast_value(self.node.comparators )
+    def context_expr(self): return self.ast_value(self.node.context_expr)
+    def ctx         (self): return self.ast_value(self.node.ctx         )
+    def dims        (self): return self.ast_value(self.node.dims        )
+    def elt         (self): return self.ast_value(self.node.elt         )
+    def elts        (self): return self.ast_value(self.node.elts        )
+    def exc         (self): return self.ast_value (self.node.exc        )
+    def func        (self): return self.ast_value(self.node.func        )
+    def ifs         (self): return self.ast_value(self.node.ifs         )
+    def items       (self): return self.ast_value(self.node.items       )
+    def iter        (self): return self.ast_value(self.node.iter        )
+    def generators  (self): return self.ast_value(self.node.generators  )
+    def finalbody   (self): return self.ast_value(self.node.finalbody   )
+    def handlers    (self): return self.ast_value(self.node.handlers    )
+    def keys        (self): return self.ast_value(self.node.keys        )
+    def keywords    (self): return self.ast_value(self.node.keywords    )
+    def left        (self): return self.ast_value(self.node.left        )
+    def lower       (self): return self.ast_value(self.node.lower       )
+    def names       (self): return self.ast_value(self.node.names       )
+    def op          (self): return self.ast_value(self.node.op          )
+    def operand     (self): return self.ast_value(self.node.operand     )
+    def ops         (self): return self.ast_value(self.node.ops         )
+    def orelse      (self): return self.ast_value(self.node.orelse      )
+    def right       (self): return self.ast_value(self.node.right       )
+    def msg         (self): return self.ast_value(self.node.msg         )
+    def slice       (self): return self.ast_value(self.node.slice       )
+    def target      (self): return self.ast_value(self.node.target      )
+    def targets     (self): return self.ast_value(self.node.targets     )
+    def test        (self): return self.ast_value(self.node.test        )
+    def type        (self): return self.ast_value(self.node.type        )
+    def upper       (self): return self.ast_value (self.node.upper      )
+    def value       (self): return self.ast_value(self.node.value       )
+    def values      (self): return self.ast_value(self.node.values      )
