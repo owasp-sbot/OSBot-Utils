@@ -19,7 +19,8 @@ EXPECTED_PACKAGES = ['_to_remove'                    ,
                      'osbot_utils.helpers'           ,
                      'osbot_utils.testing'           ,
                      'osbot_utils.utils'             ,
-                     'osbot_utils.utils.ast'         ]
+                     'osbot_utils.utils.ast'         ,
+                     'osbot_utils.utils.ast.nodes'   ]
 
 class test_setup(TestCase):
 

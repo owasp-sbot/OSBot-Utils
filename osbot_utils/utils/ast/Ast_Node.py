@@ -10,7 +10,9 @@ from osbot_utils.utils.ast.Ast_Base import Ast_Base
 class Ast_Node(Ast_Base):
 
     def __repr__(self):
-        return f"[Ast_Node][????] {self.node.__class__}"
+        if self.__class__ is Ast_Node:
+            return f"[Ast_Node][????] {self.node.__class__}"
+        return super().__repr__()
 
     def ast_node(self, node):
         type_key      = type(node)
@@ -97,6 +99,7 @@ class Ast_Node(Ast_Base):
     def keywords    (self): return self.ast_value(self.node.keywords    )
     def left        (self): return self.ast_value(self.node.left        )
     def lower       (self): return self.ast_value(self.node.lower       )
+    def name        (self): return self.ast_value(self.node.name        )
     def names       (self): return self.ast_value(self.node.names       )
     def op          (self): return self.ast_value(self.node.op          )
     def operand     (self): return self.ast_value(self.node.operand     )

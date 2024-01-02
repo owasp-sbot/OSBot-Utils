@@ -5,6 +5,9 @@ from osbot_utils.utils.Objects import obj_data, obj_info
 
 class Ast_Base:
 
+    def __repr__(self):
+        return self.__class__.__name__
+
     def __init__(self, node):
         if node.__module__ != 'ast':
              raise Exception(f'Expected node.__module__ to be ast, got: {node.__module__}')
@@ -28,3 +31,6 @@ class Ast_Base:
 
     def source_code(self):
         return ast.unparse(self.node)
+
+    def key(self):
+        return str(self)
