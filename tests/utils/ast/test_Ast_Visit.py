@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, TestLoader
 
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils import Misc
@@ -18,34 +18,23 @@ class test_Ast_Visit(TestCase):
 
 
     def test_visit(self):
-        print()
-        # with Duration(prefix='ast_module'):
-        #     ast_module = self.ast.ast_module__from(TestCase)
 
-        #ast_module = self.ast.ast_module__from(An_Class)
-
-        with Duration(prefix='list_files'):
-            target_file_1 = python_file(TestCase)
-            target_file_2 = python_file(Misc)
-            #target_folder = parent_folder(parent_folder(parent_folder(target_file_2)))
-            target_folder = parent_folder(target_file_2)
-            target_files  = folder_files(target_folder, "*.py")
-            pprint(f"total files to process :{len(target_files)}")
-
-            #target_files = target_files[800:1300]
-            #pprint(f"files to proces :{len(target_files)}")
+        target_file_1 = python_file(TestCase)
+        target_file_2 = python_file(TestLoader)
+        target_files = [target_file_1, target_file_2]
+        #target_folder = parent_folder(parent_folder(parent_folder(target_file_2)))
+        #target_files  = folder_files(target_folder, "*.py")
+        #pprint(f"total files to process :{len(target_files)}")
 
         ast_visitor = Ast_Visitor()
-        #ast_visitor.add_file(target_file_1)
-        #ast_visitor.add_file(target_file_2)
+        ast_visitor.add_files(target_files)
 
-        with Duration(prefix='add_files'):
-            ast_visitor.add_files(target_files)
-        # ast_visitor.visit(ast_module_1.node)
-        # ast_visitor.visit(ast_module_2.node)
+        stats         = ast_visitor.stats()
+        classes_def   = stats.get('nodes').get('Ast_Class_Def'   )
+        functions_def = stats.get('nodes').get('Ast_Function_Def')
 
-        with Duration(prefix='stats'):
-            stats = ast_visitor.stats()
-            pprint('node_count', stats.get('node_count'))
-            pprint('files_visited', len(stats.get('files_visited')))
-            pprint(stats)
+        assert stats.get('node_count') == 9019
+        assert len(stats.get('files_visited')) == 2
+        assert classes_def   == 14
+        assert functions_def == 136
+        #pprint(stats)

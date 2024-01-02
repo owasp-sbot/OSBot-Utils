@@ -79,9 +79,7 @@ class test_Ast_Module(TestCase):
         module             = self.ast.parse(source_code)
         ast_module         = Ast_Module(module)
 
-        print('')
         assert type(module) is ast.Module
-        print(ast_module.stats().get('all_values'))
         assert ast_module.stats() == {'all_keys'      : { 'name': 164, 'value': 372, 'asname': 18, 'attr': 430, 'arg': 300, 'cause': 25, 'type': 1, 'exc': 1, 'optional_vars': 6, 'is_async': 4, 'step': 1},
                                       'all_values'    : { 'SkipTest': 1, '_ShouldStop': 1, '_UnexpectedSuccess': 1, '_Outcome': 1, '_id': 1, 'addModuleCleanup': 1, 'doModuleCleanups': 1, 'skip': 1, 'skipIf': 1, 'skipUnless': 1, 'expectedFailure': 7, '_is_subtype': 1,
                                                           '_BaseTestCaseContext': 1, '_AssertRaisesBaseCon': 1, '_AssertRaisesContext': 1, '_AssertWarnsContext': 1, '_OrderedChainMap': 1, 'TestCase': 1, 'FunctionTestCase': 1, '_SubTest': 1, 'Test case implementa': 1, None: 198,
