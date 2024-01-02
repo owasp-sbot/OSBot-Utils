@@ -13,6 +13,9 @@ class Ast_Base:
     def __repr__(self):
         return self.__class__.__name__
 
+    def dump(self):
+        return ast.dump(self.node, indent=4)
+
     def info(self):
         return {}                   # to be overwritten by calles that uses this base class
 
@@ -52,4 +55,6 @@ class Ast_Base:
 
     def source_code(self):
         return ast.unparse(self.node)
+
+
 

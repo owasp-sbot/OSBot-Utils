@@ -116,6 +116,7 @@ class test_Http(TestCase):
 
         assert response['form'] == {'aaa': '42', 'bbb': '123'}
 
+    # todo|: replace this test with a local web server, it fails quite a number of times locally and they can take a while
     def test_is_port_open__port_is_open__port_is_not_open(self):
         host    = "www.google.com"
         port    = 443

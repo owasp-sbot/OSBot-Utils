@@ -12,10 +12,6 @@ from osbot_utils.utils.ast.Ast_Base import Ast_Base
 class test_Ast_Base(TestCase):
 
     def setUp(self):
-        # self.ast_module = Ast().ast_module__from(Ast)
-        # assert isinstance(self.ast_module, Ast_Base)
-        # assert type(self.ast_module) is not Ast_Base
-        # assert type(self.ast_module) is Ast_Module
         self.node       = ast.parse("40+2")
         self.ast_base   = Ast_Base(self.node)
         assert type(self.ast_base) is Ast_Base
@@ -40,20 +36,39 @@ class test_Ast_Base(TestCase):
     def test___repr__(self):
         assert self.ast_base.__repr__() == "Ast_Base"
 
+    def test_dump(self):
+        assert Ast_Module(ast.parse("42"     )).dump() == ( 'Module(\n'
+                                                             '    body=[\n'
+                                                             '        Expr(\n'
+                                                             '            value=Constant(value=42))],\n'
+                                                             '    type_ignores=[])')
+        assert Ast_Module(ast.parse("aa"     )).dump()  == ( 'Module(\n'
+                                                             '    body=[\n'
+                                                             '        Expr(\n'
+                                                             "            value=Name(id='aa', ctx=Load()))],\n"
+                                                             '    type_ignores=[])')
+        assert Ast_Module(ast.parse("aa=42"   )).dump() == ( 'Module(\n'
+                                                             '    body=[\n'
+                                                             '        Assign(\n'
+                                                             '            targets=[\n'
+                                                             "                Name(id='aa', ctx=Store())],\n"
+                                                             '            value=Constant(value=42))],\n'
+                                                             '    type_ignores=[])')
+        assert Ast_Module(ast.parse("a(42)"   )).dump() == ( 'Module(\n'
+                                                             '    body=[\n'
+                                                             '        Expr(\n'
+                                                             '            value=Call(\n'
+                                                             "                func=Name(id='a', ctx=Load()),\n"
+                                                             '                args=[\n'
+                                                             '                    Constant(value=42)],\n'
+                                                             '                keywords=[]))],\n'
+                                                             '    type_ignores=[])')
     def test_json(self):
         assert self.ast_base.json() == {}
-        #ast_module = Ast().ast_module__from(Ast)
         assert Ast_Module(ast.parse("42"   )).json() == { 'Ast_Module': { 'body': [{ 'Ast_Expr'  : { 'value'  : { 'Ast_Constant': { 'value': 42}}}}]}}
         assert Ast_Module(ast.parse("aa"   )).json() == { 'Ast_Module': { 'body': [{ 'Ast_Expr'  : { 'value'  : { 'Ast_Name'    : {'ctx': {'Ast_Load': {}}}, 'id'  : 'aa'}           }}]}}
         assert Ast_Module(ast.parse("aa=42")).json() == { 'Ast_Module': { 'body': [{ 'Ast_Assign': { 'targets': [{'Ast_Name'    : {'ctx': {'Ast_Store': {}}}, 'id': 'aa'}], 'value': {'Ast_Constant': {'value': 42}}}}]}}
         assert Ast_Module(ast.parse("a(42)")).json() == { 'Ast_Module': { 'body': [{ 'Ast_Expr'  : { 'value'  : { 'Ast_Call'    : {'args': [{'Ast_Constant': {'value': 42}}], 'func': {'Ast_Name': {'ctx': {'Ast_Load': {}}}, 'id': 'a'}, 'keywords': []}}}}]}}
-        #tree = ast.parse("aa")
-        #print(ast.dump(tree, indent=4))
-
-        # print()
-        # print()
-        # result = ast_module.json()
-        # pprint(result)
 
     def test_key(self):
         assert self.ast_base.key() == "Ast_Base"
@@ -79,3 +94,8 @@ class test_Ast_Base(TestCase):
 
     def test_source_code(self):
         assert self.ast_base.source_code() == '40 + 2'
+
+    # def test_visit(self):
+    #
+    #     print()
+    #     result =
