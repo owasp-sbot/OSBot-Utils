@@ -4,16 +4,10 @@ from osbot_utils.helpers.Type_Registry import type_registry
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Lists import list_stats
 from osbot_utils.utils.Objects              import type_base_classes, obj_info, obj_data
+from osbot_utils.utils.ast.Ast_Base import Ast_Base
 
 
-class Ast_Node:
-
-    def __init__(self, node):
-        if node.__module__ != 'ast':
-             raise Exception(f'Expected node.__module__ to be ast, got: {node.__module__}')
-        self.node      = node
-        self._type      = node.__class__
-        self._type_name = node.__class__.__name__
+class Ast_Node(Ast_Base):
 
     def __repr__(self):
         return f"[Ast_Node][????] {self._type}"
@@ -27,6 +21,13 @@ class Ast_Node:
         if resolved_type:
            return resolved_type(node)
         return Ast_Node(node)
+
+    def ast_value(self, value):
+        if value is None:
+            return None
+        if hasattr(value, '__module__') and value.__module__ == 'ast':
+            return self.ast_node(value)
+        return value
 
     def ast_nodes(self, nodes):
         ast_nodes = []
@@ -50,6 +51,7 @@ class Ast_Node:
                 return self.ast_nodes(self.node.body)
             return self.ast_node(self.node.body)            # and when it is not (like on Ast_If_Exp)
 
+    def cause       (self): return self.ast_value(self.node.cause       )
     def comparators (self): return self.ast_nodes(self.node.comparators )
     def context_expr(self): return self.ast_node (self.node.context_expr)
     def ctx         (self): return self.ast_node (self.node.ctx         )
@@ -68,7 +70,7 @@ class Ast_Node:
 
     def info(self):
         vars_to_del = ['col_offset', 'end_col_offset', 'lineno', 'end_lineno', 'type_comment']
-        data = obj_data(self.node)
+        data = self.obj_data()
         for var_to_del in vars_to_del:
             if data.get(var_to_del):
                 del data[var_to_del]
@@ -106,6 +108,9 @@ class Ast_Node:
         obj_info(self.node)
         return self
 
+    def msg(self):
+        return self.ast_value(self.node.msg)
+
     def slice(self):
         return self.ast_node(self.node.slice)
 
@@ -129,9 +134,7 @@ class Ast_Node:
         return self.ast_node (self.node.upper)
 
     def value(self):
-        if self.node.value is None:
-            return None
-        return self.ast_node(self.node.value)
+        return self.ast_value(self.node.value)
 
     def values(self):
         return self.ast_nodes(self.node.values)
@@ -140,18 +143,37 @@ class Ast_Node:
 
     def stats(self):
 
-        ast_types   = []
-        node_types  = []
-        for node in self.all_ast_nodes():
+        ast_node_types   = []
+        node_types       = []
+        all_keys         = []
+        all_values       = []
+        for ast_node in self.all_ast_nodes():
+            ast_node_types.append(ast_node     .__class__.__name__)
+            node_types    .append(ast_node.node.__class__.__name__)
 
-            ast_types .append(node._type_name)
-            node_types.append(type(node).__name__)
+            for _,info in ast_node.info().items():
+                for key,value in info.items():
+                    if not isinstance(value, Ast_Node):
+                        if type(value) not in [list, dict, tuple]:
+                            if type(value) is str:
+                                value = value[:20].strip()
+                            if value and 'ast.Constant' in str(value):
+                                print(key, str(value))
+                            all_keys  .append(key)
+                            all_values.append(value)
 
 
+                assert _ == ast_node.__class__.__name__     # todo: revove after refactoring
 
-        stats = {'ast_types' : list_stats(ast_types ) ,
-                 'node_types': list_stats(node_types) }
+        # pprint(list_stats(all_keys))
+        # pprint(list_stats(all_values))
 
+        stats = {'all_keys'       : list_stats(all_keys)        ,
+                 'all_values'     : list_stats(all_values)      ,
+                 'ast_node_types' : list_stats(ast_node_types ) ,
+                 'node_types'     : list_stats(node_types) }
+
+        #pprint(stats)
         return stats
 
     # def returns(self):                                    # todo: add this when looking at type hints (which is what this is )

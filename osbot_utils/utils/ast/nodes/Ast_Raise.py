@@ -7,5 +7,5 @@ class Ast_Raise(Ast_Node):
         return f'[Ast_Node][Ast_Raise]'
 
     def info(self):
-        return {'Ast_Raise': { 'cause': self.node.cause ,
+        return {'Ast_Raise': { 'cause': self.cause() ,
                                'exc'  : self.exc()}}

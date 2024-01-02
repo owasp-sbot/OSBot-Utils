@@ -7,5 +7,5 @@ class Ast_Assert(Ast_Node):
         return f'[Ast_Node][Ast_Assert]'
 
     def info(self):
-        return {'Ast_Assert': { 'msg'  : self.node.msg ,
+        return {'Ast_Assert': { 'msg'  : self.msg() ,
                                 'test' : self.test()   }}

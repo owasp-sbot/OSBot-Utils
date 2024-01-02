@@ -7,4 +7,4 @@ class Ast_Yield(Ast_Node):
         return f'[Ast_Node][Ast_Yield]'
 
     def info(self):
-        return {'Ast_Yield': {'value': self.node.value}}
+        return {'Ast_Yield': {'value': self.value()}}
