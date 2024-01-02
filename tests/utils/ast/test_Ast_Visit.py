@@ -27,7 +27,8 @@ class test_Ast_Visit(TestCase):
         with Duration(prefix='list_files'):
             target_file_1 = python_file(TestCase)
             target_file_2 = python_file(Misc)
-            target_folder = parent_folder(parent_folder(parent_folder(target_file_2)))
+            #target_folder = parent_folder(parent_folder(parent_folder(target_file_2)))
+            target_folder = parent_folder(target_file_2)
             target_files  = folder_files(target_folder, "*.py")
             pprint(f"total files to process :{len(target_files)}")
 
@@ -43,7 +44,6 @@ class test_Ast_Visit(TestCase):
         # ast_visitor.visit(ast_module_1.node)
         # ast_visitor.visit(ast_module_2.node)
 
-        pprint(ast_visitor.ast_nodes)
         with Duration(prefix='stats'):
             stats = ast_visitor.stats()
             pprint('node_count', stats.get('node_count'))
