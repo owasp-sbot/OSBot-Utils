@@ -14,9 +14,9 @@ class Ast_Function_Def(Ast_Node):
     def info(self):
         return {'Ast_Function_Def': {'args'   : self.args().info(),
                                      'body'   : self.body()       ,
-                                     'name'   : self.node.name    ,
+                                     'name'   : self.node.name    }}
                                      #'returns': self.returns()                 # this is for type hints
-                                     }}
+
 
     def name(self):
         return self.node.name

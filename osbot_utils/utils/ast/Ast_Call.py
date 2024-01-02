@@ -7,6 +7,6 @@ class Ast_Call(Ast_Node):
         return f'[Ast_Node][Ast_Call]'
 
     def info(self):
-        return {'Ast_Call': { 'args'  : self.args()      ,
-                              'func'  : self.func()      ,
+        return {'Ast_Call': { 'args'    : self.args()    ,
+                              'func'    : self.func()    ,
                               'keywords': self.keywords()}}

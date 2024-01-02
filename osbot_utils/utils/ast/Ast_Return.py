@@ -6,7 +6,7 @@ class Ast_Return(Ast_Node):
         return f'[Ast_Node][Ast_Return]'
 
     def info(self):
-        return {'Ast_Return': {'value': self.value().info()}}
+        return {'Ast_Return': { 'value': self.value().info()}}
 
     # def value(self):
     #     return_node = self.ast_node(self.node.value)

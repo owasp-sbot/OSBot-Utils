@@ -9,4 +9,4 @@ class Ast_Class_Def(Ast_Node):
         #self.print()
         return {'Ast_Class_Def': {'bases': self.bases()  ,
                                   'body' : self.body()   ,
-                                  'name' : self.node.name}}
+                                  'name' : self.node.name }}        # we need to use the actual node.name value here

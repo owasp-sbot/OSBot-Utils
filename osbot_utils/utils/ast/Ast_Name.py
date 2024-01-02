@@ -6,4 +6,4 @@ class Ast_Name(Ast_Node):
         return f'[Ast_Node][Ast_Name]'
 
     def info(self):
-        return {'Ast_Name': {'ctx': self.ast_node(self.node.ctx)}}
+        return {'Ast_Name': {'ctx': self.ctx()}}
