@@ -4,18 +4,16 @@ from osbot_utils.utils.Objects import obj_data, obj_info
 
 
 class Ast_Base:
-
-    def __repr__(self):
-        return self.__class__.__name__
-
     def __init__(self, node):
         if node.__module__ != 'ast':
              raise Exception(f'Expected node.__module__ to be ast, got: {node.__module__}')
         self.node      = node
 
-    def print(self):
-        obj_info(self.node)
-        return self
+    def __repr__(self):
+        return self.__class__.__name__
+
+    def key(self):
+        return str(self)
 
     def obj_data(self, remove_source_info=True):
         data = obj_data(self.node)
@@ -26,11 +24,10 @@ class Ast_Base:
                     del data[var_to_del]
         return data
 
-    # def obj_data(self):
-    #     return obj_data(self.node)
+    def print(self):
+        obj_info(self.node)
+        return self
 
     def source_code(self):
         return ast.unparse(self.node)
 
-    def key(self):
-        return str(self)

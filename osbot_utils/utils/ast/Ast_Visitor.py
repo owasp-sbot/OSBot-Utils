@@ -2,6 +2,7 @@ import ast
 
 from osbot_utils.helpers.Type_Registry import type_registry
 from osbot_utils.utils.Files import file_contents, file_exists, file_name
+from osbot_utils.utils.Functions import python_file
 from osbot_utils.utils.ast.Ast_Node import Ast_Node
 
 
@@ -13,11 +14,10 @@ class Ast_Visitor(ast.NodeVisitor):
 
     def add_file(self, file_path):
         if file_exists(file_path):
-            source_code = file_contents(file_path)
-            tree        = ast.parse(source_code)
-            self.visit(tree)
-
             file_visited = "/".join(file_path.split('/')[-4:])
+            source_code  = file_contents(file_path)
+            tree         = ast.parse(source_code)
+            self.visit(tree)
             self.files_visited.append(file_visited)
             return True
         return False
@@ -25,6 +25,10 @@ class Ast_Visitor(ast.NodeVisitor):
     def add_files(self, files_paths):
         for file_path in files_paths:
             self.add_file(file_path)
+
+    def add_target(self, file_path):
+        file = python_file(file_path)
+        return self.add_file(file)
 
     def add_visited_node(self, node):
         ast_node     = self.create_ast_node(node)

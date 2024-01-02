@@ -10,15 +10,12 @@ from osbot_utils.utils.ast.Ast_Visitor import Ast_Visitor
 from tests.testing.test_Profiler       import An_Class
 
 
-class test_Ast_Visit(TestCase):
+class test_Ast_Visitor(TestCase):
 
     def setUp(self):
         self.ast      = Ast()
 
-
-
-    def test_visit(self):
-
+    def test_add_files(self):
         target_file_1 = python_file(TestCase)
         target_file_2 = python_file(TestLoader)
         target_files = [target_file_1, target_file_2]
