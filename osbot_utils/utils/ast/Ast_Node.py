@@ -2,6 +2,7 @@ import ast
 
 from osbot_utils.helpers.Type_Registry import type_registry
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Lists import list_stats
 from osbot_utils.utils.Objects              import type_base_classes, obj_info, obj_data
 
 
@@ -34,15 +35,14 @@ class Ast_Node:
             ast_nodes.append(ast_node.info())           # todo: see the use of .info() here (should be better to return the ast_node)
         return ast_nodes
 
-    def all_nodes(self):
+    def all_ast_nodes(self):
         nodes = []
         for node in ast.walk(self.node):
             node = self.ast_node(node)
             nodes.append(node)
         return nodes
 
-    def bases(self):
-        return self.ast_nodes(self.node.bases)
+    def bases(self): return self.ast_nodes(self.node.bases)
 
     def body(self):
         if self.node.body:
@@ -136,20 +136,22 @@ class Ast_Node:
     def values(self):
         return self.ast_nodes(self.node.values)
 
+
+
     def stats(self):
-        types_stats = {}
-        ast_stats   = {}
-        for node in self.all_nodes():
-            type_name = node._type_name
-            ast_stat  = type(node).__name__
-            if types_stats.get(type_name) is None:
-                types_stats[type_name] = 0
-            if ast_stats.get(ast_stat ) is None:
-                ast_stats  [ast_stat ] = 0
-            types_stats[type_name] += 1
-            ast_stats  [ast_stat ] += 1
-        stats = {'ast_types': ast_stats  ,
-                 'types'    : types_stats}
+
+        ast_types   = []
+        node_types  = []
+        for node in self.all_ast_nodes():
+
+            ast_types .append(node._type_name)
+            node_types.append(type(node).__name__)
+
+
+
+        stats = {'ast_types' : list_stats(ast_types ) ,
+                 'node_types': list_stats(node_types) }
+
         return stats
 
     # def returns(self):                                    # todo: add this when looking at type hints (which is what this is )

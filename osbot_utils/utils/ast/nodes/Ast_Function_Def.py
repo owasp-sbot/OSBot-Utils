@@ -1,6 +1,6 @@
-from osbot_utils.utils.Objects           import obj_data
-from osbot_utils.utils.ast.Ast_Arguments import Ast_Arguments
-from osbot_utils.utils.ast.Ast_Node      import Ast_Node
+from osbot_utils.utils.ast.Ast_Node            import Ast_Node
+from osbot_utils.utils.ast.nodes.Ast_Arguments import Ast_Arguments
+
 
 
 class Ast_Function_Def(Ast_Node):

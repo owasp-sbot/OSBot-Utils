@@ -1,8 +1,8 @@
 import ast
 import inspect
 
-from osbot_utils.utils.Str import str_dedent
-from osbot_utils.utils.ast.Ast_Module import Ast_Module
+from osbot_utils.utils.Str                  import str_dedent
+from osbot_utils.utils.ast.nodes.Ast_Module import Ast_Module
 
 
 class Ast:

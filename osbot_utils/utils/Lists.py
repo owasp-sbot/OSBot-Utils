@@ -163,6 +163,13 @@ def list_pop_and_trim(array, position=None):
 def list_set_dict(target):
     return sorted(list(set(obj_dict(target))))
 
+def list_stats(target):
+    stats = {}
+    for item in target:
+        if stats.get(item) is None:
+            stats[item] = 0
+        stats[item] += 1
+    return stats
 
 def list_remove(array, item):
     if type(item) is list:

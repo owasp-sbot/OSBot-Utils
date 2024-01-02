@@ -1,9 +1,7 @@
 import ast
 from unittest import TestCase
-
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.ast.Ast import Ast
-from osbot_utils.utils.ast.Ast_Module import Ast_Module
+from osbot_utils.utils.ast.nodes.Ast_Module import Ast_Module
 
 
 def the_answer():
