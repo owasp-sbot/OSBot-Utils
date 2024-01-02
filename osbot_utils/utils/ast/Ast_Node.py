@@ -69,6 +69,9 @@ class Ast_Node:
     def func(self):
         return self.ast_node(self.node.func)
 
+    def ifs(self):
+        return self.ast_nodes(self.node.ifs)
+
     def info(self):
         vars_to_del = ['col_offset', 'end_col_offset', 'lineno', 'end_lineno']
         data = obj_data(self.node)
