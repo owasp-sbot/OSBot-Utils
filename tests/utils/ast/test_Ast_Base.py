@@ -1,9 +1,13 @@
 import ast
+import builtins
+import types
 from unittest import TestCase
 from unittest.mock import patch, call
 
+from osbot_utils.testing.Catch import Catch
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Objects import obj_info
+from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Objects import obj_info, obj_methods, obj_data
 from osbot_utils.utils.ast import Ast_Module
 from osbot_utils.utils.ast.Ast import Ast
 from osbot_utils.utils.ast.Ast_Base import Ast_Base
@@ -63,6 +67,24 @@ class test_Ast_Base(TestCase):
                                                              '                    Constant(value=42)],\n'
                                                              '                keywords=[]))],\n'
                                                              '    type_ignores=[])')
+    def test_execute_code(self):
+        namespace = {'__builtins__': globals().get('__builtins__')}
+        #namespace = {'__builtins__': {}}
+        assert self.ast_base.execute_code()                      == {'error': None, 'locals': {}, 'namespace': namespace, 'status': 'ok'}
+        assert self.ast_base.execute_code(exec_locals={'a': 42}) == {'error': None, 'locals': {'a': 42}, 'namespace': namespace, 'status': 'ok'}
+        assert Ast_Module("b=42").execute_code()                 == {'error': None, 'locals': {'b': 42}, 'namespace': namespace, 'status': 'ok'}
+        assert Ast_Module("c=42").execute_code().get('locals')   == {'c': 42}
+        assert type(Ast_Module("def answer():pass").execute_code().get('locals').get('answer')) == types.FunctionType
+
+        ast_base = Ast_Module(Ast_Base).execute_code().get('locals').get('Ast_Base')
+        assert list_set(obj_data(ast_base)) == list_set(obj_data(Ast_Base))
+        assert str(ast_base)                == "<class 'Ast_Base'>"
+        assert str(Ast_Base)                == "<class 'osbot_utils.utils.ast.Ast_Base.Ast_Base'>"
+
+        expected_error = "Catch: <class 'NameError'> : name 'ast' is not defined"
+        with Catch(expected_error=expected_error):
+            ast_base(ast.parse('a')).print_dump()
+
     def test_json(self):
         assert self.ast_base.json() == {}
         assert Ast_Module(ast.parse("42"   )).json() == { 'Ast_Module': { 'body': [{ 'Ast_Expr'  : { 'value'  : { 'Ast_Constant': { 'value': 42}}}}]}}

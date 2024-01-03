@@ -5,7 +5,7 @@ from osbot_utils.utils.Files import file_contents, file_exists
 from osbot_utils.utils.Functions import python_file
 from osbot_utils.utils.ast.Ast_Node import Ast_Node
 
-
+#todo: check if this is stll needed since it Ast_Visit does it similar
 class Ast_Load(ast.NodeVisitor):
 
     def __init__(self):

@@ -5,7 +5,7 @@ class Catch:
     """
     Helper class for cases when the native Python exception traces is too noisy
     """
-    def __init__(self, log_exception=True, log_headers=True, logger=None):
+    def __init__(self, log_exception=False, log_headers=True, logger=None, expected_error=None):
         self.log_exception       = log_exception
         self.log_headers         = log_headers
         self.logger              = logger or print
@@ -13,6 +13,13 @@ class Catch:
         self.exception_value     = None
         self.exception_traceback = None
         self.execution_complete  = False
+        self.expected_error      = expected_error
+
+    def __repr__(self):
+        if self.execution_complete:
+            return f'Catch: {self.exception_type} : {self.exception_value}'
+        else:
+            return f'Catch: (not executed yet)'
 
     def __enter__(self):
         return self
@@ -30,7 +37,12 @@ class Catch:
                     self.log(exception_type)
                     self.log()
                 self.log(exception_value)
+        if self.expected_error:
+            self.assert_error_is(self.expected_error)
         return True     # returning true here will prevent the exception to be propagated (which is the objective of this class :) )
+
+    def assert_error_is(self, expected_error):
+        assert str(self) == expected_error
 
     def log(self, message=''):
         self.logger(message)

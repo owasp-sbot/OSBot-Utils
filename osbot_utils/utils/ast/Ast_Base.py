@@ -29,6 +29,22 @@ class Ast_Base:
     def dump(self):
         return ast.dump(self.node, indent=4)
 
+    def execute_code(self, exec_locals=None, exec_namespace=None):
+        exec_locals    = exec_locals    or {}
+        #exec_namespace = exec_namespace or {'__builtins__': {}}        # this has quite a lot of side effects
+        exec_namespace = exec_namespace or {}
+        exec_error  = None
+        try:
+            exec(self.source_code(), exec_namespace, exec_locals)
+            status = 'ok'
+        except Exception as error:
+            status = 'error'
+            exec_error = str(error)
+        return { 'status'    : status         ,
+                 'error'     : exec_error     ,
+                 'locals'    : exec_locals    ,
+                 'namespace' : exec_namespace }
+
     def info(self):
         return {}                   # to be overwritten by calles that uses this base class
 
