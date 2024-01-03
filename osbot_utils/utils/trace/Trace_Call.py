@@ -144,6 +144,20 @@ class Trace_Call:
 
         return view_model
 
+    # todo: find a way to sync these default values with the ones in the __init__ method
+    def default_kwargs(self):
+        return dict(title                   = None  ,
+                    print_on_exit           = False ,
+                    print_locals            = False ,
+                    capture_source_code     = False ,
+                    ignore_start_with       = None  ,
+                    capture_start_with      = None  ,
+                    print_max_string_length = None  ,
+                    show_parent_info        = True  ,
+                    show_caller             = False ,
+                    show_method_parent      = False ,
+                    show_source_code_path   = False )
+
     def fix_view_mode(self):
         if len(self.view_model) > 0:
             last_node = self.view_model[-1]                                                 # Get the last node in the view model
@@ -223,11 +237,11 @@ class Trace_Call:
                 if self.print_show_source_code_path:
 
                     raise Exception("to implement path_source_code_root")
-                    path_source_code_root = ...
-
-                    print(f" " * len(prefix), end="         ")
-                    fixed_source_code_location = source_code_location.replace(path_source_code_root, '')
-                    print(fixed_source_code_location)
+                    # path_source_code_root = ...
+                    #
+                    # print(f" " * len(prefix), end="         ")
+                    # fixed_source_code_location = source_code_location.replace(path_source_code_root, '')
+                    # print(fixed_source_code_location)
             else:
                 if idx == 0 or self.print_show_parent_info is False:                            # Handle the first line and conditional parent info differently
                     print(f"{text_bold(formatted_line)}")                                                  # Don't add "|" to the first line

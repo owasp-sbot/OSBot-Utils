@@ -6,7 +6,7 @@ from unittest.mock import patch, call
 
 from osbot_utils.testing.Catch import Catch
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Misc import list_set, random_string
 from osbot_utils.utils.Objects import obj_info, obj_methods, obj_data
 from osbot_utils.utils.ast import Ast_Module
 from osbot_utils.utils.ast.Ast import Ast
@@ -84,6 +84,11 @@ class test_Ast_Base(TestCase):
         expected_error = "Catch: <class 'NameError'> : name 'ast' is not defined"
         with Catch(expected_error=expected_error):
             ast_base(ast.parse('a')).print_dump()
+
+        the_answer_code = "def the_answer(name): return f'Hi {name}, the answer is 42'"
+        sample_name     = random_string()
+        expected_answer = f'Hi {sample_name}, the answer is 42'
+        assert Ast_Module(the_answer_code).execute_code().get('locals').get('the_answer')(sample_name) == expected_answer
 
     def test_json(self):
         assert self.ast_base.json() == {}

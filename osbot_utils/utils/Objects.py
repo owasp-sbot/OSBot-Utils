@@ -107,14 +107,21 @@ def get_value(target, key, default=None):
 def print_object_methods(target, name_width=30, value_width=100, show_private=False, show_internals=False):
     print_object_members(target, name_width=name_width, value_width=value_width,show_private=show_private,show_internals=show_internals, only_show_methods=True)
 
+def print_obj_data_aligned(obj_data):
+    print(obj_data_aligned(obj_data))
+
 def print_obj_data_as_dict(target, **kwargs):
-    data = obj_data(target, **kwargs)
-    max_key_length = max(len(k) for k in data.keys())                                 # Find the maximum key length
-    items          = [f"{k:<{max_key_length}} = {v!r:6}," for k, v in data.items()]   # Format each key-value pair
-    items[-1]      = items[-1][:-2]                                                   # Remove comma from the last item
-    indented_items = '\n     '.join(items)                                            # Join the items with newline and four-space indentation
+    data           = obj_data(target, **kwargs)
+    indented_items = obj_data_aligned(data)
     print("dict(" + indented_items + " )")
     return data
+
+def obj_data_aligned(obj_data):
+    max_key_length = max(len(k) for k in obj_data.keys())                                 # Find the maximum key length
+    items          = [f"{k:<{max_key_length}} = {v!r:6}," for k, v in obj_data.items()]   # Format each key-value pair
+    items[-1]      = items[-1][:-2]                                                   # Remove comma from the last item
+    indented_items = '\n     '.join(items)                                            # Join the items with newline and
+    return indented_items
 
 # todo: add option to not show class methods that are not bultin types
 def print_object_members(target, name_width=30, value_width=100, show_private=False, show_internals=False, show_value_class=False, show_methods=False, only_show_methods=False):

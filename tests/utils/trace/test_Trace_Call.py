@@ -1,5 +1,7 @@
 from unittest import TestCase
-from osbot_utils.testing.Trace_Call import Trace_Call
+
+from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.trace.Trace_Call import Trace_Call
 
 
 def dummy_function():
@@ -9,6 +11,20 @@ def another_function():
     dummy_function()
 
 class test_Trace_Call(TestCase):
+
+    def test_default_kwargs(self):
+        kwargs = Trace_Call.default_kwargs()
+        assert kwargs == dict(title                   = None  ,
+                              print_on_exit           = False ,
+                              print_locals            = False ,
+                              capture_source_code     = False ,
+                              ignore_start_with       = None  ,
+                              capture_start_with      = None  ,
+                              print_max_string_length = None  ,
+                              show_parent_info        = True  ,
+                              show_caller             = False ,
+                              show_method_parent      = False ,
+                              show_source_code_path   = False )
 
 
     def test_trace_call(self):
