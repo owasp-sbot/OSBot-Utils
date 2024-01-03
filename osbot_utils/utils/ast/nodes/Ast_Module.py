@@ -10,8 +10,8 @@ class Ast_Module(Ast_Node):
             target = self.parse(target)
         super().__init__(target)
 
-    def data(self):
-        return {}
+    # def body(self):
+    #     return self.node.body
 
     # todo: see if .info() is the best name for this
     #       I think .data() might be a better name

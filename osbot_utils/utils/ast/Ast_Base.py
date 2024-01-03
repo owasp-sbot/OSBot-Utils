@@ -97,6 +97,10 @@ class Ast_Base:
         obj_info(self.node)
         return self
 
+    def print_source_code(self):
+        print(self.source_code())
+        return self
+
     def source_code(self):
         return ast.unparse(self.node)
 
