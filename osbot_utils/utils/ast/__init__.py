@@ -40,6 +40,7 @@ from osbot_utils.utils.ast.nodes.Ast_In             import Ast_In
 from osbot_utils.utils.ast.nodes.Ast_Is             import Ast_Is
 from osbot_utils.utils.ast.nodes.Ast_Is_Not         import Ast_Is_Not
 from osbot_utils.utils.ast.nodes.Ast_Keyword        import Ast_Keyword
+from osbot_utils.utils.ast.nodes.Ast_Lambda import Ast_Lambda
 from osbot_utils.utils.ast.nodes.Ast_List           import Ast_List
 from osbot_utils.utils.ast.nodes.Ast_List_Comp      import Ast_List_Comp
 from osbot_utils.utils.ast.nodes.Ast_Load           import Ast_Load
@@ -57,6 +58,7 @@ from osbot_utils.utils.ast.nodes.Ast_Pass           import Ast_Pass
 from osbot_utils.utils.ast.nodes.Ast_Pow            import Ast_Pow
 from osbot_utils.utils.ast.nodes.Ast_Raise          import Ast_Raise
 from osbot_utils.utils.ast.nodes.Ast_Return         import Ast_Return
+from osbot_utils.utils.ast.nodes.Ast_Set import Ast_Set
 from osbot_utils.utils.ast.nodes.Ast_Slice          import Ast_Slice
 from osbot_utils.utils.ast.nodes.Ast_Starred        import Ast_Starred
 from osbot_utils.utils.ast.nodes.Ast_Store          import Ast_Store
@@ -106,6 +108,7 @@ ast_types = {
     ast.Is            : Ast_Is            ,
     ast.IsNot         : Ast_Is_Not        ,
     ast.keyword       : Ast_Keyword       ,
+    ast.Lambda        : Ast_Lambda        ,
     ast.List          : Ast_List          ,
     ast.ListComp      : Ast_List_Comp     ,
     ast.Lt            : Ast_Lt            ,
@@ -126,6 +129,7 @@ ast_types = {
     ast.Slice         : Ast_Slice         ,
     ast.Starred       : Ast_Starred       ,
     ast.Store         : Ast_Store         ,
+    ast.Set           : Ast_Set           ,
     ast.Sub           : Ast_Sub           ,
     ast.Subscript     : Ast_Subscript     ,
     ast.Try           : Ast_Try           ,

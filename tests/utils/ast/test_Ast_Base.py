@@ -78,10 +78,22 @@ class test_Ast_Base(TestCase):
 
     @patch('builtins.print')
     def test_print(self, builtins_print):
+        assert self.ast_base.print() == self.ast_base
+        assert builtins_print.call_args_list == [call('Module('
+                                                      '\n    body=['
+                                                      '\n        Expr('
+                                                      '\n            value=BinOp('
+                                                      '\n                left=Constant(value=40),'
+                                                      '\n                op=Add(),'
+                                                      '\n                right=Constant(value=2)))],'
+                                                      '\n    type_ignores=[])')]
+
+    @patch('builtins.print')
+    def test_print_obj_info(self, builtins_print):
         call_args_list = builtins_print.call_args_list
         str_node       = str(self.ast_base.node)
         str_body       = str(self.ast_base.node.body)
-        assert self.ast_base.print() == self.ast_base
+        assert self.ast_base.print_obj_info() == self.ast_base
         assert call_args_list[0]     == call()
         assert call_args_list[1]     == call(f"Members for object:\n\t {str_node} of type:<class 'ast.Module'>")
         assert call_args_list[2]     == call('Settings:\n\t name_width: 30 | value_width: 100 | show_private: False | show_internals: False')

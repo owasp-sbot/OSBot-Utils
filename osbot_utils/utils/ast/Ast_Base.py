@@ -1,7 +1,11 @@
 import ast
+import inspect
 
-from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Dev import pprint, jprint
+from osbot_utils.utils.Exceptions import syntax_error
+from osbot_utils.utils.Files import is_file, file_contents
 from osbot_utils.utils.Objects import obj_data, obj_info
+from osbot_utils.utils.Str import str_dedent
 
 
 class Ast_Base:
@@ -12,6 +16,15 @@ class Ast_Base:
 
     def __repr__(self):
         return self.__class__.__name__
+
+    def is_ast(self, target):
+        if hasattr(target, "__module__"):
+            if target.__module__ == 'ast':
+                return True
+        return False
+
+    def is_not_ast(self, target):
+        return self.is_ast(target) is False
 
     def dump(self):
         return ast.dump(self.node, indent=4)
@@ -34,6 +47,12 @@ class Ast_Base:
             return self.json_data(target.info())
         return target
 
+    def jprint(self):
+        return self.jprint_json()
+
+    def jprint_json(self):
+        jprint(self.json())
+
     def json(self):
         return self.json_data(self.info())
 
@@ -49,7 +68,32 @@ class Ast_Base:
                     del data[var_to_del]
         return data
 
+    def parse(self, target):
+        try:
+            if type(target) is str:
+                if is_file(target):
+                    source = file_contents(target)
+                else:
+                    source = target
+            else:
+                source = inspect.getsource(target)
+            code = str_dedent(source)                         # remove any training spaces or it won't compile
+            return ast.parse(code)
+        except SyntaxError as error:
+            raise syntax_error(error) from None
+
     def print(self):
+        return self.print_dump()
+
+    def print_dump(self):
+        print(self.dump())
+        return self
+
+    def print_json(self):
+        pprint(self.json())
+        return self
+
+    def print_obj_info(self):
         obj_info(self.node)
         return self
 

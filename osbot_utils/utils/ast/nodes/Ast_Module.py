@@ -5,6 +5,11 @@ from osbot_utils.utils.ast.Ast_Node         import Ast_Node
 
 class Ast_Module(Ast_Node):
 
+    def __init__(self, target):
+        if self.is_not_ast(target):
+            target = self.parse(target)
+        super().__init__(target)
+
     def data(self):
         return {}
 

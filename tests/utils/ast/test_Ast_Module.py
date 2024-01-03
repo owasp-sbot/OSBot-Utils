@@ -2,9 +2,11 @@ import ast
 from unittest                                       import TestCase
 
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Exceptions import syntax_error
 from osbot_utils.utils.Files                        import file_contents
 from osbot_utils.utils.Functions                    import python_file
 from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Objects import obj_info
 from osbot_utils.utils.ast.Ast                      import Ast
 from osbot_utils.utils.ast.nodes.Ast_Argument       import Ast_Argument
 from osbot_utils.utils.ast.nodes.Ast_Arguments      import Ast_Arguments
@@ -150,3 +152,17 @@ class test_Ast_Module(TestCase):
 
     def test_source_code(self):
         assert self.ast_module.source_code() == "def the_answer(aaa):\n    return 42"  # note that we lost the comment (which is a known limitation of the pure python AST classes, LibCST or parso are alternatives which are able to create a CST - Concrete Syntax Tree)
+
+    def test_syntax_error(self):
+        with self.assertRaises(Exception) as context:
+            Ast_Module("import ...")
+        assert str(context.exception) == ('[SyntaxError] '
+                                          '\n'
+                                          '\nError parsing code: invalid syntax in <unknown> at line 1 column 8'
+                                          '\n'
+                                          '\n    import ...'
+                                          '\n           ^')
+
+        with self.assertRaises(Exception) as context_2:
+            raise syntax_error('an error')
+        assert str(context_2.exception) == 'an error'
