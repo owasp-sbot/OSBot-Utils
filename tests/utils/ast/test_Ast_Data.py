@@ -12,10 +12,8 @@ class test_Ast_Data(TestCase):
     def test_modules(self):
         print()
         modules = self.ast_data.modules()
-        module  = modules[0]
+        #module  = modules[0]
         assert len(modules) == 1
-        pprint(module.data())
-        print(module.dump())
 
     # def test_stats(self):
     #     pprint(self.ast_data.stats())
