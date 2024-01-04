@@ -1,8 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch
 
-from osbot_utils.testing.Duration import Duration
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Str import str_dedent
 from osbot_utils.utils.ast import Ast_Module
 from osbot_utils.utils.ast.Ast_Merge import Ast_Merge
@@ -16,6 +14,9 @@ class test_Ast_Merge(TestCase):
 
     def test__init__(self):
         assert self.module.json() == {'Ast_Module': {'body': []}}
+
+    # def test_merge_file(self):
+    #     Ast_Module(__file__).print()
 
     def test_merge_module(self):
         code_to_merge   = "a = 42"

@@ -9,6 +9,12 @@ from dotenv import load_dotenv
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Str  import str_unicode_escape, str_max_width
 
+def base_classes(cls):
+    if type(cls) is type:
+        target = cls
+    else:
+        target = type(cls)
+    return type_base_classes(target)
 
 def class_functions_names(target):
     return list_set(class_functions(target))

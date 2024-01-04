@@ -2,6 +2,9 @@
 #       the code is not polluted with them (like in the example below)
 #       the data is avaiable in IDE's code complete
 import inspect
+import types
+
+from osbot_utils.utils.Dev import pprint
 
 
 class Kwargs_To_Self:
@@ -60,33 +63,39 @@ class Kwargs_To_Self:
             if hasattr(self, key):
                 setattr(self, key, value)
             else:
-                raise Exception(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'")
+                raise Exception(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
+                                f"Use {self.__class__.__name__}.__default_kwargs__() see what attributes are available")
+
+    @classmethod
+    def __cls_kwargs__(cls):
+        """Return current class dictionary of class level variables and their values."""
+        kwargs = {}
+
+        for k, v in vars(cls).items():
+            if not k.startswith('__') and not isinstance(v, types.FunctionType):  # remove instance functions
+                kwargs[k] = v
+
+        return kwargs
 
     @classmethod
     def __default_kwargs__(cls):
-        """Return a dictionary of class level variables and their values."""
+        """Return entire (including base classes) dictionary of class level variables and their values."""
         kwargs = {}
 
         for base_cls in inspect.getmro(cls):                  # Traverse the inheritance hierarchy and collect class-level attributes
             if base_cls is object:  # Skip the base 'object' class
                 continue
             for k, v in vars(base_cls).items():
-                if not k.startswith('__'):# and not callable(v):
+                if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
                     kwargs[k] = v
 
-        for k, v in cls.__dict__.items():
-            if not k.startswith('_') and not callable(v):
-                kwargs[k] = v
         return kwargs
 
     def __kwargs__(self):
         """Return a dictionary of the current instance's attribute values including inherited class defaults."""
         kwargs = {}
-
-
-            #kwargs.update({k: v for k, v in vars(cls).items() #if not k.startswith('_') and not callable(v)})
-
         # Update with instance-specific values
+
         for key in self.__default_kwargs__().keys():
             kwargs[key] = self.__getattribute__(key)
         return kwargs
@@ -94,4 +103,9 @@ class Kwargs_To_Self:
 
     def __locals__(self):
         """Return a dictionary of the current instance's attribute values."""
-        return {k: v for k, v in vars(self).items() if not k.startswith('_')}
+        kwargs = self.__kwargs__()
+
+        for k, v in vars(self).items():
+            if not isinstance(v, types.FunctionType):
+                kwargs[k] = v
+        return kwargs

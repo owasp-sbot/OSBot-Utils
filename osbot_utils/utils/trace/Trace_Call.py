@@ -2,6 +2,7 @@ import linecache
 import sys
 from functools import wraps
 
+from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.Dev import pformat
 
 # ANSI escape codes     #todo: refactor this color support to OSBot_Utils
@@ -52,28 +53,39 @@ def trace_calls(title=None, print=True, locals=False, source_code=False, ignore=
         return wrapper
     return decorator
 
-class Trace_Call:
-    def __init__(self, title=None, print_on_exit=False, print_locals=False, capture_source_code=False, ignore_start_with=None,
-                       capture_start_with=None, print_max_string_length=None, show_parent_info=True, show_caller=False,
-                       show_method_parent=False, show_source_code_path=False):
+class Trace_Call(Kwargs_To_Self):
+    title                   = None
+    print_on_exit           = False
+    print_locals            = False
+    capture_source_code     = False
+    ignore_start_with       = None
+    capture_start_with      = None
+    print_max_string_length = None
+    show_parent_info        = True
+    show_caller             = False
+    show_method_parent      = False
+    show_source_code_path   = False
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.prev_trace_function         = None                                                # Stores the previous trace function
         self.call_index                  = 0                                                   # Counter for the index of each function call
-        self.trace_title                 = title or 'Trace Session'                            # Title for the trace
+        self.trace_title                 = self.title or 'Trace Session'                            # Title for the trace
         self.stack                       = [{"name"      : self.trace_title , "children": [],
                                              "call_index": self.call_index }]                  # Call stack information
         self.view_model                  = []                                                  # Stores the view model data
-        self.print_show_method_parent    = show_method_parent
-        self.print_show_caller           = show_caller
-        self.print_traces_on_exit        = print_on_exit                                               # Flag for printing traces when exiting
-        self.print_show_parent_info      = show_parent_info                                            # Flag for showing parent info when printing
-        self.print_show_locals           = print_locals
-        self.print_show_source_code_path = show_source_code_path
-        self.print_max_string_length     = print_max_string_length or MAX_STRING_LENGTH
+        self.print_show_method_parent    = self.show_method_parent                             # todo: refactor these print_* variables (now that we have the nice setup created by Kwargs_To_Self)
+        self.print_show_caller           = self.show_caller
+        self.print_traces_on_exit        = self.print_on_exit                                               # Flag for printing traces when exiting
+        self.print_show_parent_info      = self.show_parent_info                                            # Flag for showing parent info when printing
+        self.print_show_locals           = self.print_locals
+        self.print_show_source_code_path = self.show_source_code_path
+        self.print_max_string_length     = self.print_max_string_length or MAX_STRING_LENGTH
         self.trace_capture_all           = False
-        self.trace_capture_source_code   = capture_source_code
+        self.trace_capture_source_code   = self.capture_source_code
         self.trace_ignore_internals      = True
-        self.trace_capture_start_with    = capture_start_with or ['cbr_website_beta']                                # List of starting substrings for modules to trace
-        self.trace_ignore_start_with     = ignore_start_with  or []
+        self.trace_capture_start_with    = self.capture_start_with or ['cbr_website_beta']                                # List of starting substrings for modules to trace
+        self.trace_ignore_start_with     = self.ignore_start_with  or []
         #self.view_parents_to_prune      = capture_start_with or ["cbr_website_beta"]                                # List of parent names to prune in the view
 
     def __enter__(self):
@@ -143,20 +155,6 @@ class Trace_Call:
             self.create_view_model(node["children"], level + 1, prefix=next_prefix, view_model=view_model)
 
         return view_model
-
-    # todo: find a way to sync these default values with the ones in the __init__ method
-    def default_kwargs(self):
-        return dict(title                   = None  ,
-                    print_on_exit           = False ,
-                    print_locals            = False ,
-                    capture_source_code     = False ,
-                    ignore_start_with       = None  ,
-                    capture_start_with      = None  ,
-                    print_max_string_length = None  ,
-                    show_parent_info        = True  ,
-                    show_caller             = False ,
-                    show_method_parent      = False ,
-                    show_source_code_path   = False )
 
     def fix_view_mode(self):
         if len(self.view_model) > 0:
