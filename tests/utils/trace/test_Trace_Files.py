@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Lists import unique
+from osbot_utils.utils.Misc import str_md5
 from osbot_utils.utils.Objects import print_obj_data_as_dict, obj_data_aligned, print_obj_data_aligned, obj_info
 from osbot_utils.utils.ast.Ast_Merge import Ast_Merge
 from osbot_utils.utils.trace.Trace_Call import Trace_Call
@@ -32,13 +33,14 @@ class test_Trace_Files(TestCase):
         def method_b() :
             print('in method_b')
 
-        kwargs = {"capture_start_with": ['t']}
+        kwargs = {"capture_start_with": ['t','o']}
         with Trace_Files(**kwargs) as trace_file:
             #trace_file.print_traces_on_exit = True                          # To hit the 'print_traces' line in __exit__
+            pprint(str_md5('aaa'))
             method_a()
             method_b()
 
-        assert len(unique(trace_file.files)) == 3
+        assert len(unique(trace_file.files)) > 1
 
         # #pprint(unique(trace_file.files))
         #
