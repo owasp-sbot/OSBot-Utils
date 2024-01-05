@@ -23,6 +23,10 @@ class Trace_Call__Handler(Kwargs_To_Self):
         self.trace_capture_start_with = self.trace_capture_start_with or []
         self.trace_ignore_start_with  = self.trace_ignore_start_with  or []
 
+    def add_trace_ignore(self, value):
+        self.trace_ignore_start_with.append(value)
+        return
+
     def trace_calls(self, frame, event, arg):
         if event == 'call':
             code        = frame.f_code                                                      # Get code object from frame

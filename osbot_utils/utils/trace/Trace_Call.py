@@ -5,6 +5,7 @@ from functools import wraps
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.Dev import pformat, pprint
 from osbot_utils.utils.trace.Trace_Call__Handler import Trace_Call__Handler
+from osbot_utils.utils.trace.Trace_Call__View_Model import Trace_Call__View_Model
 
 # ANSI escape codes     #todo: refactor this color support to OSBot_Utils
 dark_mode = False
@@ -70,18 +71,14 @@ class Trace_Call(Kwargs_To_Self):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         handler_kwargs = dict(title=self.title)
-        self.trace_call_handler = Trace_Call__Handler(**handler_kwargs)
+        self.trace_call_handler     = Trace_Call__Handler(**handler_kwargs)
+        self.trace_call_view_model  = Trace_Call__View_Model()
+
+
         self.trace_call_handler.trace_capture_start_with    = self.capture_start_with or []
         self.trace_call_handler.trace_ignore_start_with     = self.ignore_start_with  or []
         self.stack              = self.trace_call_handler.stack
-
-
         self.prev_trace_function         = None                                                # Stores the previous trace function
-        #self.call_index                  = 0                                                   # Counter for the index of each function call
-        #self.trace_title                 = self.title or 'Trace Session'                            # Title for the trace
-        # self.stack                       = [{"name"      : self.trace_title , "children": [],
-        #                                      "call_index": self.call_index }]                  # Call stack information
-        self.view_model                  = []                                                  # Stores the view model data
         self.print_show_method_parent    = self.show_method_parent                             # todo: refactor these print_* variables (now that we have the nice setup created by Kwargs_To_Self)
         self.print_show_caller           = self.show_caller
         self.print_traces_on_exit        = self.print_on_exit                                               # Flag for printing traces when exiting
@@ -89,11 +86,6 @@ class Trace_Call(Kwargs_To_Self):
         self.print_show_locals           = self.print_locals
         self.print_show_source_code_path = self.show_source_code_path
         self.print_max_string_length     = self.print_max_string_length or MAX_STRING_LENGTH
-        #self.trace_capture_all           = False
-        #self.trace_capture_source_code   = self.capture_source_code
-        #self.trace_capture_start_with    = self.capture_start_with or []                                             # List of starting substrings for modules to trace
-        #self.trace_ignore_internals      = True
-        #self.trace_ignore_start_with     = self.ignore_start_with  or []
 
     def __enter__(self):
         self.start()                                                                        # Start the tracing
@@ -102,73 +94,15 @@ class Trace_Call(Kwargs_To_Self):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()                                                                         # Stop the tracing
         self.process_data()                                                                 # Process the data captured
-        self.fix_view_mode()                                                                # Fix the view mode for the last node
         if self.print_traces_on_exit:
             self.print_traces()                                                             # Print the traces if the flag is set
 
-    def add_trace_ignore(self, value):
-        self.trace_call_handler.trace_ignore_start_with.append(value)
-        return
 
     # todo: see if this used or needed
-    def trace(self, title):
-        self.trace_call_handler.trace_title = title
-        self.stack.append({"name": title, "children": [],"call_index": self.trace_call_handler.call_index})
-        return self
-
-    def create_view_model(self, json_list, level=0, prefix="", view_model=None):
-        if view_model is None:
-            view_model = []                                                                 # Initialize view model if None
-
-        for idx, node in enumerate(json_list):                                              # Iterate over each node in the JSON list to populate the view model
-            components           = node["name"].split('.')
-            locals               = node.get('locals')
-            source_code          = node.get('source_code'         )
-            source_code_caller   = node.get('source_code_caller'  )
-            source_code_location = node.get('source_code_location')
-            method_name          = components[-1]
-            if len(components) > 1:
-                method_parent  = f"{components[-2]}"
-            else:
-                method_parent  = ""
-            if method_name == "__init__":                                                   # Adjust the method_name based on special method names like __init__ and __call__
-                method_name = f"{method_parent}.{method_name}"
-            elif method_name == "__call__":
-                method_name = f"{method_parent}.{method_name}"
-            elif method_name == "<module>":
-                method_name = f"{method_parent}.{method_name}"
-
-            pruned_parents = [comp for comp in components]
-            parent_info = '.'.join(pruned_parents[:-1])
-
-            if level == 0:                                                                  # Handle tree representation at level 0
-                emoji = "📦 "
-                tree_branch = ""
-            else:
-                is_last_sibling = (idx == len(json_list) - 1)                               # Check if the node is the last sibling
-                tree_branch = "└── " if is_last_sibling else "├── "
-                emoji = "🧩️" if not node["children"] else "🔗️"
-
-            view_model.append({ 'prefix'              : prefix               ,
-                                'tree_branch'         : tree_branch          ,
-                                'emoji'               : emoji                ,
-                                'method_name'         : method_name          ,
-                                'method_parent'       : method_parent        ,
-                                'parent_info'         : parent_info          ,
-                                'locals'              : locals               ,
-                                'source_code'         : source_code          ,
-                                'source_code_caller'  : source_code_caller   ,
-                                'source_code_location': source_code_location })
-            next_prefix = prefix + ("    " if tree_branch == "└── " else "│   ")            # Calculate the prefix for the next level
-            self.create_view_model(node["children"], level + 1, prefix=next_prefix, view_model=view_model)
-
-        return view_model
-
-    def fix_view_mode(self):
-        if len(self.view_model) > 0:
-            last_node = self.view_model[-1]                                                 # Get the last node in the view model
-            last_node['prefix']      = '└───'                                               # Update the prefix for the last node
-            last_node['tree_branch'] = '─── '
+    # def trace(self, title):
+    #     self.trace_call_handler.trace_title = title
+    #     self.stack.append({"name": title, "children": [],"call_index": self.trace_call_handler.call_index})
+    #     return self
 
 
 
@@ -210,10 +144,11 @@ class Trace_Call(Kwargs_To_Self):
                 print(f'{var_name}{color}{value}{RESET}')
 
     def print_traces(self):
+        view_model = self.trace_call_view_model.view_model
         print()
         print("--------- CALL TRACER ----------")
-        print(f"Here are the {len(self.view_model)} traces captured\n")
-        for idx, item in enumerate(self.view_model):
+        print(f"Here are the {len(view_model)} traces captured\n")
+        for idx, item in enumerate(view_model):
             prefix               = item['prefix']
             tree_branch          = item['tree_branch']
             emoji                = item['emoji']
@@ -263,7 +198,8 @@ class Trace_Call(Kwargs_To_Self):
 
 
     def process_data(self):
-        self.view_model = self.create_view_model(self.stack)                                # Process data to create the view model
+        self.trace_call_view_model.create(self.stack)                                # Process data to create the view model
+        self.trace_call_view_model.fix_view_mode()                                   # Fix the view mode for the last node
 
     def start(self):
         self.prev_trace_function = sys.gettrace()
