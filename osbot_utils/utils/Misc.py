@@ -442,6 +442,7 @@ str_remove          = remove
 
 random_id           = random_string
 random_guid         = random_uuid
+random_value        = random_string
 
 wait_for            = wait
 

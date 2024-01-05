@@ -65,27 +65,6 @@ def env_vars(reload_vars=False):
         data[key] = vars[key]
     return data
 
-# todo Improve this method to return a more usefull set of data (like an signature str, and a better view of the param.kind )
-def signature(callable_obj):
-    if not isinstance(callable_obj, (types.FunctionType, types.MethodType)):
-        return {}
-
-    signature = inspect.signature(callable_obj)
-    parameters = {}
-    sig_dict = { 'name'      : callable_obj.__name__,
-                 'parameters': parameters           }
-
-    for name, param in signature.parameters.items():
-        value = {'kind'      : str(param.kind)}
-        if param.default is not inspect.Parameter.empty:
-            value['default'] = param.default
-
-        if param.annotation is not inspect.Parameter.empty:
-            value['annotation'] = str(param.annotation)
-
-        sig_dict['parameters'][name] = value
-    return sig_dict
-
 def get_field(target, field, default=None):
     if target is not None:
         try:

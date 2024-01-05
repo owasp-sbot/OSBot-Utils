@@ -3,7 +3,8 @@ import sys
 from functools import wraps
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.utils.Dev import pformat
+from osbot_utils.utils.Dev import pformat, pprint
+from osbot_utils.utils.trace.Trace_Call__Handler import Trace_Call__Handler
 
 # ANSI escape codes     #todo: refactor this color support to OSBot_Utils
 dark_mode = False
@@ -68,11 +69,18 @@ class Trace_Call(Kwargs_To_Self):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        handler_kwargs = dict(title=self.title)
+        self.trace_call_handler = Trace_Call__Handler(**handler_kwargs)
+        self.trace_call_handler.trace_capture_start_with    = self.capture_start_with or []
+        self.trace_call_handler.trace_ignore_start_with     = self.ignore_start_with  or []
+        self.stack              = self.trace_call_handler.stack
+
+
         self.prev_trace_function         = None                                                # Stores the previous trace function
-        self.call_index                  = 0                                                   # Counter for the index of each function call
-        self.trace_title                 = self.title or 'Trace Session'                            # Title for the trace
-        self.stack                       = [{"name"      : self.trace_title , "children": [],
-                                             "call_index": self.call_index }]                  # Call stack information
+        #self.call_index                  = 0                                                   # Counter for the index of each function call
+        #self.trace_title                 = self.title or 'Trace Session'                            # Title for the trace
+        # self.stack                       = [{"name"      : self.trace_title , "children": [],
+        #                                      "call_index": self.call_index }]                  # Call stack information
         self.view_model                  = []                                                  # Stores the view model data
         self.print_show_method_parent    = self.show_method_parent                             # todo: refactor these print_* variables (now that we have the nice setup created by Kwargs_To_Self)
         self.print_show_caller           = self.show_caller
@@ -81,12 +89,11 @@ class Trace_Call(Kwargs_To_Self):
         self.print_show_locals           = self.print_locals
         self.print_show_source_code_path = self.show_source_code_path
         self.print_max_string_length     = self.print_max_string_length or MAX_STRING_LENGTH
-        self.trace_capture_all           = False
-        self.trace_capture_source_code   = self.capture_source_code
-        self.trace_ignore_internals      = True
-        self.trace_capture_start_with    = self.capture_start_with or ['cbr_website_beta']                                # List of starting substrings for modules to trace
-        self.trace_ignore_start_with     = self.ignore_start_with  or []
-        #self.view_parents_to_prune      = capture_start_with or ["cbr_website_beta"]                                # List of parent names to prune in the view
+        #self.trace_capture_all           = False
+        #self.trace_capture_source_code   = self.capture_source_code
+        #self.trace_capture_start_with    = self.capture_start_with or []                                             # List of starting substrings for modules to trace
+        #self.trace_ignore_internals      = True
+        #self.trace_ignore_start_with     = self.ignore_start_with  or []
 
     def __enter__(self):
         self.start()                                                                        # Start the tracing
@@ -100,12 +107,13 @@ class Trace_Call(Kwargs_To_Self):
             self.print_traces()                                                             # Print the traces if the flag is set
 
     def add_trace_ignore(self, value):
-        self.trace_ignore_start_with.append(value)
+        self.trace_call_handler.trace_ignore_start_with.append(value)
         return
 
+    # todo: see if this used or needed
     def trace(self, title):
-        self.trace_title = title
-        self.stack.append({"name": title, "children": [],"call_index": self.call_index})
+        self.trace_call_handler.trace_title = title
+        self.stack.append({"name": title, "children": [],"call_index": self.trace_call_handler.call_index})
         return self
 
     def create_view_model(self, json_list, level=0, prefix="", view_model=None):
@@ -130,7 +138,7 @@ class Trace_Call(Kwargs_To_Self):
             elif method_name == "<module>":
                 method_name = f"{method_parent}.{method_name}"
 
-            pruned_parents = [comp for comp in components] #if comp not in self.view_parents_to_prune]    # Remove the parents that are in the prune list
+            pruned_parents = [comp for comp in components]
             parent_info = '.'.join(pruned_parents[:-1])
 
             if level == 0:                                                                  # Handle tree representation at level 0
@@ -225,16 +233,16 @@ class Trace_Call(Kwargs_To_Self):
             formatted_line     = f"{prefix}{tree_branch}{emoji} {node_text}"
             padding            = " " * (60 - len(formatted_line))
 
-            if self.trace_capture_source_code:
+            if self.trace_call_handler.trace_capture_source_code:
                 if self.print_show_caller:
                     print(f"{prefix}{tree_branch}🔼️{text_bold(source_code_caller)}")
                     print(f"{prefix}{tree_branch}➡️{emoji} {text_grey(node_text)}")
                 else:
                     print(f"{prefix}{tree_branch}➡️{emoji} {text_bold(node_text)}")
 
-                if self.print_show_source_code_path:
-
-                    raise Exception("to implement path_source_code_root")
+                # if self.print_show_source_code_path:
+                #
+                #     raise Exception("to implement path_source_code_root")
                     # path_source_code_root = ...
                     #
                     # print(f" " * len(prefix), end="         ")
@@ -258,70 +266,9 @@ class Trace_Call(Kwargs_To_Self):
         self.view_model = self.create_view_model(self.stack)                                # Process data to create the view model
 
     def start(self):
-        self.prev_trace_function = sys.gettrace()                                           # Store the current trace function
-        sys.settrace(self.trace_calls)                                                      # Set the new trace function
+        self.prev_trace_function = sys.gettrace()
+        sys.settrace(self.trace_call_handler.trace_calls)                                                      # Set the new trace function
 
     def stop(self):
         sys.settrace(self.prev_trace_function)                                              # Restore the previous trace function
 
-    def trace_calls(self, frame, event, arg):
-        if event == 'call':
-            code        = frame.f_code                                                      # Get code object from frame
-            func_name   = code.co_name                                                      # Get function name
-            module      = frame.f_globals.get("__name__", "")                               # Get module name
-            capture     = False
-            if self.trace_capture_all:
-                capture = True
-            else:
-                for item in self.trace_capture_start_with:                                  # Check if the module should be captured
-                    if module.startswith(item):
-                        capture = True
-                        break
-            if self.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
-                capture = False
-
-            for item in self.trace_ignore_start_with:                                       # Check if the module should be ignored
-                if module.startswith(item):
-                    capture = False
-                    break
-
-            if capture:
-                if self.trace_capture_source_code:
-                    filename    = frame.f_code.co_filename
-                    lineno      = frame.f_lineno
-                    source_code = linecache.getline(filename, lineno).strip()
-
-                    caller_filename      = frame.f_back.f_code.co_filename
-                    caller_lineno        = frame.f_back.f_lineno
-                    source_code_caller   = linecache.getline(caller_filename, caller_lineno).strip()
-                    source_code_location = f'{filename}:{lineno}'
-                else:
-                    source_code          = ''
-                    source_code_caller   = ''
-                    source_code_location = ''
-
-                locals = frame.f_locals
-                instance = frame.f_locals.get("self", None)                                                           # Get instance if available
-                try:
-                    class_name = instance.__class__.__name__ if instance else ""
-                except Exception:
-                    class_name = "<unavailable>"
-                full_name = f"{module}.{class_name}.{func_name}" if class_name else f"{module}.{func_name}"
-                if "utils.for_testing.Trace_Call.Trace_Call" in full_name:                                          # Skip internal calls to this class
-                    return self.trace_calls
-                self.call_index += 1                                                                                # Increment the call index
-                new_node = { "name"                : full_name            ,
-                             "children"            : []                   ,
-                             'call_index'          : self.call_index      ,
-                             'locals'              : locals               ,
-                             'source_code'         : source_code          ,
-                             'source_code_caller'  : source_code_caller   ,
-                             'source_code_location': source_code_location }     # Create a new node for this call
-                self.stack[-1]["children"].append(new_node)                                                         # Insert the new node into the stack
-                self.stack.append(new_node)                                                                         # Push the new node to the stack
-                frame.f_locals['__trace_depth'] = len(self.stack)                                                   # Store the depth in frame locals
-        elif event == 'return':
-            if '__trace_depth' in frame.f_locals and frame.f_locals['__trace_depth'] == len(self.stack):
-                self.stack.pop()                                                                                    # Pop the stack on return if corresponding call was captured
-
-        return self.trace_calls
