@@ -5,6 +5,8 @@ class Trace_Call__View_Model:
 
     def create(self, stack):
         self.view_model = self.create_view_model(stack)
+        self.fix_view_mode()                                        # Fix the view mode for the last node
+        return self.view_model
 
     # todo: rename view_model so that it is not confused with self.view_model
     def create_view_model(self, json_list, level=0, prefix="", view_model=None):

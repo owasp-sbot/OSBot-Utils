@@ -7,6 +7,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
     call_index                : int = 0
     title                     : str
     stack                     : list
+    capture_locals            : bool = True
     trace_capture_all         : bool
     trace_capture_source_code : bool
     trace_capture_start_with  : list
@@ -44,14 +45,10 @@ class Trace_Call__Handler(Kwargs_To_Self):
             if self.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
                 capture = False
 
-
             for item in self.trace_ignore_start_with:                                       # Check if the module should be ignored
                 if module.startswith(item):
                     capture = False
                     break
-
-            # print(self.trace_capture_start_with)
-            # print(func_name, module, capture)
 
             if capture:
                 if self.trace_capture_source_code:
@@ -68,7 +65,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
                     source_code_caller   = ''
                     source_code_location = ''
 
-                locals = frame.f_locals
+
                 instance = frame.f_locals.get("self", None)                                                           # Get instance if available
                 try:
                     class_name = instance.__class__.__name__ if instance else ""
@@ -81,10 +78,12 @@ class Trace_Call__Handler(Kwargs_To_Self):
                 new_node = { "name"                : full_name            ,
                              "children"            : []                   ,
                              'call_index'          : self.call_index      ,
-                             'locals'              : locals               ,
+                             #'locals'              : locals               ,
                              'source_code'         : source_code          ,
                              'source_code_caller'  : source_code_caller   ,
                              'source_code_location': source_code_location }     # Create a new node for this call
+                if self.capture_locals:
+                    new_node['locals'] = frame.f_locals
                 self.stack[-1]["children"].append(new_node)                                                         # Insert the new node into the stack
                 self.stack.append(new_node)                                                                         # Push the new node to the stack
                 frame.f_locals['__trace_depth'] = len(self.stack)                                                   # Store the depth in frame locals

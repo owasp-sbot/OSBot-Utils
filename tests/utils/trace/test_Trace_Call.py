@@ -1,10 +1,13 @@
 from pprint                                         import pprint
 from unittest                                       import TestCase
 from unittest.mock                                  import patch, call
+
+from osbot_utils.testing.Temp_File import Temp_File
 from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
 from osbot_utils.utils.Objects import base_classes, obj_info
 from osbot_utils.utils.trace.Trace_Call             import Trace_Call, trace_calls
 from osbot_utils.utils.trace.Trace_Call__Handler    import Trace_Call__Handler
+from osbot_utils.utils.trace.Trace_Call__Print_Traces import Trace_Call__Print_Traces
 from osbot_utils.utils.trace.Trace_Call__View_Model import Trace_Call__View_Model
 
 
@@ -30,6 +33,7 @@ class test_Trace_Call(TestCase):
                                                        ignore_start_with       = []    ,
                                                        capture_start_with      = []    ,
                                                        print_max_string_length = 100   ,
+                                                       process_data            = True  ,
                                                        title                   = ''    ,
                                                        show_parent_info        = True  ,
                                                        show_caller             = False ,
@@ -99,7 +103,7 @@ class test_Trace_Call(TestCase):
 
 
     @patch('builtins.print')
-    def test___enter__exist__(self, builtins_print):
+    def test___enter__exit__(self, builtins_print):
         # Test the initialization and its attributes
         trace_call       = Trace_Call()
         handler          = trace_call.trace_call_handler
@@ -136,3 +140,26 @@ class test_Trace_Call(TestCase):
                                                  call('\x1b[1m│   ├── 🧩️ dummy_function\x1b[0m                                    test_Trace_Call'),
                                                  call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                  test_Trace_Call'),
                                                  call('\x1b[1m└────── 🧩️ dummy_function\x1b[0m                                    test_Trace_Call')] != []
+
+
+# class test_Pickle(TestCase):
+#
+#     def test_process_data(self):
+#         trace_call              = Trace_Call()
+#         trace_call__view_model  = Trace_Call__View_Model()
+#         trace_call_print_traces = Trace_Call__Print_Traces()
+#         call_handler            = trace_call.trace_call_handler
+#
+#         call_handler                 .capture_locals            = False
+#         trace_call.trace_call_handler.trace_capture_start_with  = ['']
+#         trace_call_print_traces      .print_show_parent_info    = True
+#         trace_call_print_traces      .print_show_locals         = True
+#         with trace_call:
+#             with Temp_File() as temp_file:
+#                 print(temp_file.tmp_file)
+#
+#         stack       = trace_call.stack
+#         #pprint(stack)
+#         view_model  = trace_call__view_model.create(stack)
+#         trace_call_print_traces.print_traces(view_model)
+#         #pprint(len(self.trace_call.stack))

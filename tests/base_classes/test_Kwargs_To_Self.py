@@ -242,18 +242,30 @@ class Test_Kwargs_To_Self(unittest.TestCase):
     def test___init__pics_up_types_with_values(self):
 
         class An_Class(Kwargs_To_Self):
-            attribute1 = 'default_value'
-            attribute2 = True
-            attribute3 : str
-            attribute4 : list
-            attribute5 : int = 42
+            attribute_1 = 'default_value'
+            attribute_2 = True
+            attribute_3 : bool = True
+            attribute_4 : bool = False
+            attribute_5 : str = 'abc'
+            attribute_6 : str
+            attribute_7 : list
+            attribute_8 : int = 42
 
-        an_class = An_Class()
-        assert an_class.attribute1 == 'default_value'
-        assert an_class.attribute2 == True
-        assert an_class.attribute3 == ''
-        assert an_class.attribute4 == []
-        assert an_class.attribute5 == 42
+        expected_values =  {'attribute_1': 'default_value', 'attribute_2': True, 'attribute_3': True, 'attribute_4': False, 'attribute_5': 'abc', 'attribute_6': '', 'attribute_7': [], 'attribute_8': 42}
+        an_class        = An_Class()
+
+        assert an_class.attribute_1 == 'default_value'
+        assert an_class.attribute_2 is True
+        assert an_class.attribute_3 is True
+        assert an_class.attribute_4 is False
+        assert an_class.attribute_5 == 'abc'
+        assert an_class.attribute_6 == ''
+        assert an_class.attribute_7 == []
+        assert an_class.attribute_8 == 42
+
+        assert An_Class.__default_kwargs__() == expected_values
+        assert An_Class().__kwargs__() == expected_values
+        assert An_Class().__locals__() == expected_values
 
     def test___init__pics_up_types_mutable_types(self):
 

@@ -24,6 +24,7 @@ class test_Trace_Files(TestCase):
                             'print_locals'             : False ,
                             'print_max_string_length'  : 100   ,
                             'print_on_exit'            : False ,
+                            'process_data'             : True  ,
                             'show_caller'              : False ,
                             'show_method_parent'       : False ,
                             'show_parent_info'         : True  ,

@@ -97,7 +97,7 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                 value = format_multiline(value, len(var_name))
                 print(f'{var_name}{color}{value}{RESET}')
 
-    def print_traces(self, view_model, trace_capture_source_code):
+    def print_traces(self, view_model, trace_capture_source_code = False):
         print()
         print("--------- CALL TRACER ----------")
         print(f"Here are the {len(view_model)} traces captured\n")

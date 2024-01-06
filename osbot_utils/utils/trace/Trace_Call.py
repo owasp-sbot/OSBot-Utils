@@ -30,8 +30,9 @@ class Trace_Call(Kwargs_To_Self):
     print_on_exit           : bool
     print_locals            : bool
     print_max_string_length : int  = 100
+    process_data            : bool = True
     show_parent_info        : bool = True
-    show_caller             : bool
+    show_caller             : bool = False
     show_method_parent      : bool
     show_source_code_path   : bool
 
@@ -54,32 +55,19 @@ class Trace_Call(Kwargs_To_Self):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()                                                                         # Stop the tracing
-        self.process_data()        # Process the data captured
-        if self.trace_call_print_traces.print_traces_on_exit:
-            view_model                = self.trace_call_view_model.view_model
-            trace_capture_source_code = self.trace_call_handler.trace_capture_source_code
-            self.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)                                                             # Print the traces if the flag is set
+        if self.process_data:
+            self.create_view_model()        # Process the data captured
+            if self.trace_call_print_traces.print_traces_on_exit:
+                view_model                = self.trace_call_view_model.view_model
+                self.trace_call_print_traces.print_traces(view_model)
 
 
-    # todo: see if this used or needed
-    # def trace(self, title):
-    #     self.trace_call_handler.trace_title = title
-    #     self.stack.append({"name": title, "children": [],"call_index": self.trace_call_handler.call_index})
-    #     return self
-
-
-
-
-
-
-
-    def process_data(self):
-        self.trace_call_view_model.create(self.stack)                                # Process data to create the view model
-        self.trace_call_view_model.fix_view_mode()                                   # Fix the view mode for the last node
+    def create_view_model(self):
+        self.trace_call_view_model.create(self.stack)                                       # Process data to create the view model
 
     def start(self):
         self.prev_trace_function = sys.gettrace()
-        sys.settrace(self.trace_call_handler.trace_calls)                                                      # Set the new trace function
+        sys.settrace(self.trace_call_handler.trace_calls)                                   # Set the new trace function
 
     def stop(self):
         sys.settrace(self.prev_trace_function)                                              # Restore the previous trace function
