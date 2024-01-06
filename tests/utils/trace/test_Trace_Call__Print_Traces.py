@@ -56,23 +56,26 @@ class test_Trace_Call__Print_Traces(TestCase):
                               call('Here are the 0 traces captured\n')]
             assert mock_print.call_args_list == expected_calls
 
-        handler.trace_capture_start_with =['test']
+        handler.config.trace_capture_start_with =['test']
+
         with trace_call:
             another_function()
 
         view_model                = trace_call.trace_call_view_model.view_model
-        trace_capture_source_code = trace_call.trace_call_handler.trace_capture_source_code
-
+        trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
+        trace_call.trace_call_print_traces.config.show_parent_info = True
         with patch('builtins.print') as mock_print:
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
             assert mock_print.call_args_list == [call(),
-                                                 call('--------- CALL TRACER ----------'         ),
-                                                 call('Here are the 3 traces captured\n'         ),
-                                                 call('\x1b[1m📦  Trace Session\x1b[0m'          ),
-                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m'),
-                                                 call('\x1b[1m└────── 🧩️ dummy_function\x1b[0m')]
+                                                 call('--------- CALL TRACER ----------'),
+                                                 call('Here are the 3 traces captured\n'),
+                                                 call('\x1b[1m📦  Trace Session\x1b[0m'),
+                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                  tests.utils.trace.test_Trace_Call'),
+                                                 call('\x1b[1m└────── 🧩️ dummy_function\x1b[0m                                    tests.utils.trace.test_Trace_Call')]
+
 
         with patch('builtins.print') as mock_print:
+            trace_call.trace_call_print_traces.config.show_parent_info  = False
             trace_call.trace_call_print_traces.print_show_method_parent = True
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
             assert mock_print.call_args_list == [call(),
@@ -84,13 +87,13 @@ class test_Trace_Call__Print_Traces(TestCase):
 
 
         handler.trace_capture_start_with  = ['test']
-        handler.trace_capture_source_code = True
+        handler.config.trace_capture_source_code = True
         trace_call.trace_call_print_traces.print_show_caller        = True
         with trace_call:
             another_function()
 
         view_model                = trace_call.trace_call_view_model.view_model
-        trace_capture_source_code = trace_call.trace_call_handler.trace_capture_source_code
+        trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
 
         with patch('builtins.print') as mock_print:
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
@@ -120,12 +123,13 @@ class test_Trace_Call__Print_Traces(TestCase):
                                                  call('│   └── ➡️🔗️ \x1b[1mdef another_function():\x1b[0m'),
                                                  call('└────── ➡️🧩️ \x1b[1mdef dummy_function():\x1b[0m')] != []
 
+        trace_call.trace_call_print_traces.config.capture_locals   = True
         trace_call.trace_call_print_traces.print_show_locals = True
         with patch('builtins.print') as mock_print:
             with trace_call:
                 another_function()
             view_model                = trace_call.trace_call_view_model.view_model
-            trace_capture_source_code = trace_call.trace_call_handler.trace_capture_source_code
+            trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
             assert mock_print.call_args_list == [call(),
                                                  call('--------- CALL TRACER ----------'),

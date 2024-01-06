@@ -13,7 +13,7 @@ class test_Trace_Call__View_Model(TestCase):
 
     def test_create(self):
         trace_call = Trace_Call()
-        trace_call.trace_call_handler.trace_capture_start_with = ['test']
+        trace_call.trace_call_handler.config.trace_capture_start_with = ['test']
         trace_call.start()
         dummy_function()
         another_function()
@@ -37,8 +37,9 @@ class test_Trace_Call__View_Model(TestCase):
     @patch('builtins.print')
     def test_create__via_Trace_Call_with(self, builtins_print):
         with Trace_Call() as trace_call:
-            trace_call.trace_call_handler.trace_capture_start_with = ['tests']
-            trace_call.trace_call_print_traces.print_traces_on_exit = True  # To hit the 'print_traces' line in __exit__
+            trace_call.trace_call_handler.config.trace_capture_start_with = ['tests']
+            trace_call.trace_call_print_traces.config.print_on_exit = True  # To hit the 'print_traces' line in __exit__
+            trace_call.trace_call_print_traces.config.show_parent_info = False
             dummy_function()
             another_function()
 

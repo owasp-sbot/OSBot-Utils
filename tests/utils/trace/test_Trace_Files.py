@@ -17,23 +17,11 @@ class test_Trace_Files(TestCase):
         self.kwargs = {}
 
     def test___default_kwargs__(self):
-        expected_values = { 'capture_source_code'      : False ,
-                            'capture_start_with'       : []    ,
-                            'files'                    : []    ,
-                            'ignore_start_with'        : []    ,
-                            'print_locals'             : False ,
-                            'print_max_string_length'  : 100   ,
-                            'print_on_exit'            : False ,
-                            'process_data'             : True  ,
-                            'show_caller'              : False ,
-                            'show_method_parent'       : False ,
-                            'show_parent_info'         : True  ,
-                            'show_source_code_path'    : False ,
-                            'title'                    : ''    }
-        assert Trace_Files.__default_kwargs__() == expected_values
-        assert Trace_Files().__default_kwargs__() == expected_values
         trace_files = Trace_Files()
-        assert trace_files.__locals__() == {**expected_values,
+        assert trace_files.__kwargs__() == {'config': trace_files.config ,
+                                                    'files' : []                 }
+
+        assert trace_files.__locals__() == { **trace_files.__kwargs__()                                                                 ,
                                             'prev_trace_function'       : None                                                          ,
                                             'stack'                     : [{'call_index': 0, 'children': [], 'name': 'Trace Session'}]  ,
                                             'trace_call_handler'        : trace_files.trace_call_handler                                ,

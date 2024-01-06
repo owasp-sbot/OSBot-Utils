@@ -1,31 +1,27 @@
 import linecache
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
 
 
 class Trace_Call__Handler(Kwargs_To_Self):
-    call_index                : int = 0
-    title                     : str
-    stack                     : list
-    capture_locals            : bool = True
-    trace_capture_all         : bool
-    trace_capture_source_code : bool
-    trace_capture_start_with  : list
-    trace_ignore_internals    : bool = True
-    trace_ignore_start_with   : list
-
+    call_index : int
+    #title      : str
+    stack      : list
+    config     : Trace_Call__Config
 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.trace_title                 = self.title or 'Trace Session'                            # Title for the trace
-        self.stack = [{"name": self.trace_title, "children": [],
-                       "call_index": self.call_index}]  # Call stack information
+        self.trace_title             = self.config.title or 'Trace Session'                            # Title for the trace
+        self.stack = [{"name"       : self.trace_title  ,
+                       "children"   : []                ,
+                       "call_index" : self.call_index   }]  # Call stack information
         #self.trace_capture_start_with = self.trace_capture_start_with or []
         #self.trace_ignore_start_with  = self.trace_ignore_start_with  or []
 
     def add_trace_ignore(self, value):
-        self.trace_ignore_start_with.append(value)
+        self.config.trace_ignore_start_with.append(value)
         return
 
     def trace_calls(self, frame, event, arg):
@@ -35,23 +31,23 @@ class Trace_Call__Handler(Kwargs_To_Self):
             module      = frame.f_globals.get("__name__", "")                               # Get module name
             capture     = False
 
-            if self.trace_capture_all:
+            if self.config.trace_capture_all:
                 capture = True
             else:
-                for item in self.trace_capture_start_with:                                  # Check if the module should be captured
+                for item in self.config.trace_capture_start_with:                                  # Check if the module should be captured
                     if module.startswith(item):
                         capture = True
                         break
-            if self.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
+            if self.config.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
                 capture = False
 
-            for item in self.trace_ignore_start_with:                                       # Check if the module should be ignored
+            for item in self.config.trace_ignore_start_with:                                       # Check if the module should be ignored
                 if module.startswith(item):
                     capture = False
                     break
 
             if capture:
-                if self.trace_capture_source_code:
+                if self.config.trace_capture_source_code:
                     filename    = frame.f_code.co_filename
                     lineno      = frame.f_lineno
                     source_code = linecache.getline(filename, lineno).strip()
@@ -82,7 +78,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
                              'source_code'         : source_code          ,
                              'source_code_caller'  : source_code_caller   ,
                              'source_code_location': source_code_location }     # Create a new node for this call
-                if self.capture_locals:
+                if self.config.capture_locals:
                     new_node['locals'] = frame.f_locals
                 self.stack[-1]["children"].append(new_node)                                                         # Insert the new node into the stack
                 self.stack.append(new_node)                                                                         # Push the new node to the stack
