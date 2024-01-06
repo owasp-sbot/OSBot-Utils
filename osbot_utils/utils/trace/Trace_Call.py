@@ -37,7 +37,7 @@ class Trace_Call(Kwargs_To_Self):
         self.trace_call_handler                             = Trace_Call__Handler     (config=self.config)
         self.trace_call_view_model                          = Trace_Call__View_Model  ()
         self.trace_call_print_traces                        = Trace_Call__Print_Traces(config=self.config)
-        self.trace_call_print_traces.print_traces_on_exit   = self.config.print_on_exit
+        self.trace_call_print_traces.config.print_on_exit   = self.config.print_on_exit
         self.trace_call_handler.config.trace_capture_start_with    = self.config.capture_start_with or []
         self.trace_call_handler.config.trace_ignore_start_with     = self.config.ignore_start_with  or []
         self.stack                                          = self.trace_call_handler.stack

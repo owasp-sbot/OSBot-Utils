@@ -1,5 +1,5 @@
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.utils.Dev import pformat, pprint
+from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.utils.Dev                      import pformat
 from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
 
 # ANSI escape codes     #todo: refactor this color support to separate colors class
@@ -34,21 +34,19 @@ text_red        = lambda text: f"{RED}{text}{RESET}"
 text_none       = lambda text: f"{text}"
 text_color      = lambda text, color: f"{color}{text}{RESET}"
 
-MAX_STRING_LENGTH = 100
-
 class Trace_Call__Print_Traces(Kwargs_To_Self):
 
     config: Trace_Call__Config
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.print_show_method_parent    = self.config.show_method_parent                             # todo: refactor these print_* variables (now that we have the nice setup created by Kwargs_To_Self)
-        self.print_show_caller           = self.config.show_caller
-        self.print_traces_on_exit        = self.config.print_on_exit                                               # Flag for printing traces when exiting
-        self.print_show_parent_info      = self.config.show_parent_info                                            # Flag for showing parent info when printing
-        self.print_show_locals           = self.config.print_locals
-        self.print_show_source_code_path = self.config.show_source_code_path
-        self.print_max_string_length     = self.config.print_max_string_length or MAX_STRING_LENGTH
+        # self.print_show_method_parent    = self.config.show_method_parent                             # todo: refactor these print_* variables (now that we have the nice setup created by Kwargs_To_Self)
+        # self.print_show_caller           = self.config.show_caller
+        # self.print_traces_on_exit        = self.config.print_on_exit                                               # Flag for printing traces when exiting
+        # self.print_show_parent_info      = self.config.show_parent_info                                            # Flag for showing parent info when printing
+        # self.print_show_locals           = self.config.print_locals
+        # self.print_show_source_code_path = self.config.show_source_code_path
+        # self.print_max_string_length     = self.config.print_max_string_length or MAX_STRING_LENGTH
 
     def formatted_local_data(self, local_data, formatted_line):
         if local_data:
@@ -64,8 +62,8 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                     value = pformat(value)                                                  # convert dicts to string (so that they are impacted by self.self.print_max_string_length)
                 if not isinstance(value, (int, float, bool, str, dict)):
                     formatted_data[key] = (type(value).__name__, BLUE)
-                elif isinstance(value, str) and len(value) > self.print_max_string_length:
-                    formatted_data[key] = (value[:self.print_max_string_length] + "...", GREEN)    # Trim large strings
+                elif isinstance(value, str) and len(value) > self.config.print_max_string_length:
+                    formatted_data[key] = (value[:self.config.print_max_string_length] + "...", GREEN)    # Trim large strings
                 else:
                     formatted_data[key] = (value, GREEN)
 
@@ -102,22 +100,22 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
             source_code          = item.get('source_code'       , '' )
             source_code_caller   = item.get('source_code_caller', '' )
             source_code_location = item.get('source_code_location') or ''
-            if self.print_show_method_parent:
+            if self.config.show_method_parent:
                 method_name = f'{text_olive(method_parent)}.{text_bold(method_name)}'
-                self.print_show_parent_info = False         # these are not compatible
+                self.config.show_parent_info = False         # these are not compatible
 
             node_text          = source_code or method_name
             formatted_line     = f"{prefix}{tree_branch}{emoji} {node_text}"
             padding            = " " * (60 - len(formatted_line))
 
             if trace_capture_source_code:
-                if self.print_show_caller:
+                if self.config.show_caller:
                     print(f"{prefix}{tree_branch}🔼️{text_bold(source_code_caller)}")
                     print(f"{prefix}{tree_branch}➡️{emoji} {text_grey(node_text)}")
                 else:
                     print(f"{prefix}{tree_branch}➡️{emoji} {text_bold(node_text)}")
 
-                # if self.print_show_source_code_path:
+                # if self.config.show_source_code_path:
                 #
                 #     raise Exception("to implement path_source_code_root")
                     # path_source_code_root = ...
@@ -131,7 +129,7 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                 else:
                     print(f"{text_bold(formatted_line)}{padding} {parent_info}")
 
-            if self.print_show_locals:
+            if self.config.print_locals:
             #     formatted_line = formatted_line.replace('│', ' ')
             #     print(f"{text_bold(formatted_line)}")
                  self.formatted_local_data(locals, f'{prefix}{tree_branch}')

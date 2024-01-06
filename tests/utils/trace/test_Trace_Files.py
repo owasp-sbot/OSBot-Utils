@@ -46,7 +46,7 @@ class test_Trace_Files(TestCase):
 
         kwargs = {"capture_start_with": ['t','o']}
         with Trace_Files(**kwargs) as trace_file:
-            #trace_file.print_traces_on_exit = True                          # To hit the 'print_traces' line in __exit__
+            #trace_file.config.print_on_exit = True                          # To hit the 'print_traces' line in __exit__
             pprint(str_md5('aaa'))
             method_a()
             method_b()

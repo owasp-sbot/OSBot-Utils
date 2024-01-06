@@ -110,13 +110,13 @@ class test_Trace_Call(TestCase):
         assert trace_call.prev_trace_function     is None      , "prev_trace_function should be None initially"
         assert handler.call_index                 == 0         , "call_index should be 0 initially"
         assert trace_view_model.view_model        == []        , "view_model should be empty initially"
-        assert print_traces.print_traces_on_exit is False     , "print_traces_on_exit should be False initially"
+        assert print_traces.config.print_on_exit is False     , "print_traces_on_exit should be False initially"
         assert trace_call.stack                   == [{"name": handler.trace_title, "children": [], "call_index": 0}], "Initial stack state not correct"
 
         # Test the enter and exit methods
         with Trace_Call() as trace_call:
             trace_call.trace_call_handler.config.trace_capture_start_with  = ['test_Trace_Call']
-            trace_call.trace_call_print_traces.config.print_show_parent_info = True
+            trace_call.trace_call_print_traces.config.show_parent_info = True
             trace_call.trace_call_print_traces.config.print_on_exit = True                          # To hit the 'print_traces' line in __exit__
             dummy_function()
             another_function()
@@ -149,8 +149,8 @@ class test_Trace_Call(TestCase):
 #
 #         call_handler                 .capture_locals            = False
 #         trace_call.trace_call_handler.trace_capture_start_with  = ['']
-#         trace_call_print_traces      .print_show_parent_info    = True
-#         trace_call_print_traces      .print_show_locals         = True
+#         trace_call_print_traces      .config.show_parent_info    = True
+#         trace_call_print_traces      .config.print_locals         = True
 #         with trace_call:
 #             with Temp_File() as temp_file:
 #                 print(temp_file.tmp_file)
