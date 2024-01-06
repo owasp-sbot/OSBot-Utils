@@ -66,6 +66,9 @@ class Kwargs_To_Self:
                 raise Exception(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
                                 f"Use {self.__class__.__name__}.__default_kwargs__() see what attributes are available")
 
+    def __enter__(self): return self
+    def _exit__(self, exc_type, exc_val, exc_tb): pass
+
     @classmethod
     def __cls_kwargs__(cls):
         """Return current class dictionary of class level variables and their values."""

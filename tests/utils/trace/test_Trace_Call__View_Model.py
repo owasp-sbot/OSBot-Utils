@@ -38,7 +38,7 @@ class test_Trace_Call__View_Model(TestCase):
     def test_create__via_Trace_Call_with(self, builtins_print):
         with Trace_Call() as trace_call:
             trace_call.trace_call_handler.trace_capture_start_with = ['tests']
-            trace_call.print_traces_on_exit = True  # To hit the 'print_traces' line in __exit__
+            trace_call.trace_call_print_traces.print_traces_on_exit = True  # To hit the 'print_traces' line in __exit__
             dummy_function()
             another_function()
 
@@ -55,9 +55,9 @@ class test_Trace_Call__View_Model(TestCase):
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 4 traces captured\n'),
                                                  call('\x1b[1m📦  Trace Session\x1b[0m'),
-                                                 call('\x1b[1m│   ├── 🧩️ dummy_function\x1b[0m                                    tests.utils.trace.test_Trace_Call'),
-                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                  tests.utils.trace.test_Trace_Call'),
-                                                 call('\x1b[1m└────── 🧩️ dummy_function\x1b[0m                                    tests.utils.trace.test_Trace_Call')] != []
+                                                 call('\x1b[1m│   ├── 🧩️ dummy_function\x1b[0m'),
+                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m'),
+                                                 call('\x1b[1m└────── 🧩️ dummy_function\x1b[0m')]
 
 
     def test_fix_view_mode(self):

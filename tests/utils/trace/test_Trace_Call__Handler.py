@@ -4,6 +4,7 @@ from unittest.mock import patch, call
 
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Functions import method_line_number
+from osbot_utils.utils.Misc import random_value
 
 from osbot_utils.utils.Objects import base_classes
 
@@ -77,18 +78,6 @@ class test_Trace_Call__Handler(TestCase):
 
         assert len(self.handler.stack) == 2
 
-        # self.trace_call.process_data()
-        # with patch('builtins.print') as mock_print:
-        #     self.trace_call.print_show_parent_info = False
-        #     self.trace_call.print_traces()
-        #     assert mock_print.call_args_list == [call(),
-        #                                          call('--------- CALL TRACER ----------'),
-        #                                          call('Here are the 3 traces captured\n'),
-        #                                          call('\x1b[1m📦  Trace Session\x1b[0m'),
-        #                                          call('\x1b[1m│   └── 🧩️ test_trace_calls__direct_invoke\x1b[0m'),
-        #                                          call('\x1b[1m📦  test_trace_calls__direct_invoke\x1b[0m')]
-
-
 
     def test_trace_calls__direct_invoke__variations(self):
         self.handler.trace_capture_start_with = ['test']
@@ -107,13 +96,9 @@ class test_Trace_Call__Handler(TestCase):
         assert stack_1.get('source_code_location') == source_code_location
         assert len(self.handler.stack) == 2
 
-        # with patch('builtins.print') as mock_print:
-        #     self.trace_call.print_show_parent_info = False
-        #     self.trace_call.process_data()
-        #     self.trace_call.print_traces()
-        #     assert mock_print.call_args_list == [call(),
-        #                                          call('--------- CALL TRACER ----------'),
-        #                                          call('Here are the 3 traces captured\n'),
-        #                                          call('➡️📦  \x1b[1mTrace Session\x1b[0m'),
-        #                                          call("│   └── ➡️🧩️ \x1b[1mself.handler.trace_calls( sys._getframe(),  'call', None)\x1b[0m"),
-        #                                          call("➡️📦  \x1b[1mself.handler.trace_calls( sys._getframe(),  'call', None)\x1b[0m")] != []
+
+    def test_add_trace_ignore(self):
+        value = random_value()
+        assert self.handler.trace_ignore_start_with == []
+        assert self.handler.add_trace_ignore(value) is None
+        assert self.handler.trace_ignore_start_with == [value]
