@@ -3,22 +3,24 @@ import linecache
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
 
+DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
 
 class Trace_Call__Handler(Kwargs_To_Self):
     call_index : int
-    #title      : str
     stack      : list
     config     : Trace_Call__Config
 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.trace_title             = self.config.title or 'Trace Session'                            # Title for the trace
-        self.stack = [{"name"       : self.trace_title  ,
-                       "children"   : []                ,
-                       "call_index" : self.call_index   }]  # Call stack information
-        #self.trace_capture_start_with = self.trace_capture_start_with or []
-        #self.trace_ignore_start_with  = self.trace_ignore_start_with  or []
+        self.trace_title  = self.config.title or DEFAULT_ROOT_NODE_NODE_TITLE                           # Title for the trace
+        self.stack        = [self.new_stack_node(self.trace_title, self.call_index)]
+
+
+    def new_stack_node(self, title, call_index):
+        return { "name"       : title      ,
+                 "children"   : []         ,
+                 "call_index" : call_index }
 
     def add_trace_ignore(self, value):
         self.config.trace_ignore_start_with.append(value)
@@ -26,20 +28,21 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
     def should_capture(self, module, func_name):
         capture = False
-        if self.config.trace_capture_all:
-            capture = True
-        else:
-            for item in self.config.trace_capture_start_with:                                  # Check if the module should be captured
-                if module.startswith(item):
-                    capture = True
-                    break
-        if self.config.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
-            capture = False
-
-        for item in self.config.trace_ignore_start_with:                                       # Check if the module should be ignored
-            if module.startswith(item):
+        if module and func_name:
+            if self.config.trace_capture_all:
+                capture = True
+            else:
+                for item in self.config.trace_capture_start_with:                                  # Check if the module should be captured
+                    if module.startswith(item):
+                        capture = True
+                        break
+            if self.config.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
                 capture = False
-                break
+
+            for item in self.config.trace_ignore_start_with:                                       # Check if the module should be ignored
+                if module.startswith(item):
+                    capture = False
+                    break
         return capture
 
     def map_source_code(self, frame):
