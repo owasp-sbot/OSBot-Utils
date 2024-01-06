@@ -129,8 +129,77 @@ class test_Trace_Call__Handler(TestCase):
                                                                                                                'source_code_caller'  : '' ,
                                                                                                                'source_code_location': '' }
 
+    def test_handle_event__call(self):
+        config             = self.handler.config
+        handle_event__call = self.handler.handle_event__call
+        should_capture     = self.handler.should_capture
+        stack              = self.handler.stack
 
+        # case 1: invoke with bad data
+        assert handle_event__call(frame=None) is False
 
+        # case 2: invoke with valid frame but capture is false
+        sample_frame = call_stack_current_frame().f_back               # f_back so that test_map_full_name is the frame we are looking at
+        code         = sample_frame.f_code                              # Get code object from frame
+        func_name    = code.co_name                                     # Get function name
+        module       = sample_frame.f_globals.get("__name__", "")       # Get module name
+        assert should_capture(module, func_name)      is False          # confirm that the function should not be captured
+        assert handle_event__call(frame=sample_frame) is False
+
+        # case 2: invoke with valid frame but capture is true
+        assert module == 'test_Trace_Call__Handler'
+        config.capture_locals           = False
+        config.trace_capture_start_with = [module]
+        assert should_capture(module, func_name)      is True           # confirm that the function should be captured
+        assert len(stack) == 1
+        assert handle_event__call(frame=sample_frame) is True
+        assert len(stack) == 2
+        new_node = stack[-1]
+        assert new_node == {  'call_index'          : 1     ,
+                              'children'            : []    ,
+                              'name'                : 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call',
+                              'source_code'         : ''    ,
+                              'source_code_caller'  : ''    ,
+                              'source_code_location': ''    }
+
+    def test_handle_event__return(self):
+        config               = self.handler.config
+        handle_event__call   = self.handler.handle_event__call
+        handle_event__return = self.handler.handle_event__return
+        stack                = self.handler.stack
+        sample_frame         = call_stack_current_frame().f_back
+
+        # case 1: invoke with bad data
+        assert handle_event__return(frame=None) is False
+
+        # case 2: invoke with valid frame by no stack
+        assert len(stack) == 1
+        assert handle_event__return(frame=None) is False
+
+        # case 3: invoke with valid frame and valid stack
+
+        assert stack == [{'call_index': 0, 'children': [], 'name': 'Trace Session'}]
+        assert len(stack) == 1
+        config.trace_capture_all = True
+        config.capture_locals    = False
+        assert sample_frame.f_locals.get('__trace_depth')  is None
+
+        assert handle_event__call(frame=sample_frame) is True                   # add node using handle_event__call
+        assert sample_frame.f_locals.get('__trace_depth') == 2
+        assert len(stack) == 2
+
+        assert handle_event__return(frame=sample_frame) is True                 # remove node using handle_event__return
+        assert sample_frame.f_locals.get('__trace_depth') == 2
+        assert len(stack) == 1
+
+        assert stack == [{'call_index': 0,
+                          'children': [{'call_index': 1,
+                                        'children': [],
+                                        'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__return',
+                                        'source_code': '',
+                                        'source_code_caller': '',
+                                        'source_code_location': ''}],
+                          'name': 'Trace Session'}]
 
     def test_map_full_name(self):
         sample_frame  = call_stack_current_frame().f_back                       # f_back so that test_map_full_name is the frame we are looking at
@@ -297,6 +366,262 @@ class test_Trace_Call__Handler(TestCase):
         assert should_capture(module='?module', func_name='func') is False
         assert should_capture(module='+module', func_name='func') is False
         assert should_capture(module='|module', func_name='func') is False
+
+    def test_trace_calls(self):
+        config      = self.handler.config
+        stack       = self.handler.stack
+        trace_calls = self.handler.trace_calls
+        frame_1 = call_stack_current_frame()
+        frame_2 = frame_1.f_back
+        frame_3 = frame_1.f_back
+
+        assert type(frame_1).__name__ == 'frame'
+        assert type(frame_2).__name__ == 'frame'
+        assert type(frame_3).__name__ == 'frame'
+
+        assert len(stack) == 1
+
+        # case 1: with bad data
+        assert trace_calls(frame=frame_1, event=None    , arg=None) == trace_calls
+        assert trace_calls(frame=frame_1, event='aa'    , arg=None) == trace_calls
+        assert trace_calls(frame=frame_1, event='call'  , arg=None) == trace_calls
+        assert trace_calls(frame=frame_1, event='return', arg=None) == trace_calls
+        assert trace_calls(frame=None   , event=None    , arg='aa') == trace_calls
+        assert len(stack) == 1                                                      # confirm no changes made by call above
+
+        # case 2: with valid frame and event buy with no capture
+        assert trace_calls(frame_1, 'call', None) == trace_calls
+        assert len(stack) == 1
+
+        # case 3: with valid frame and event buy with no capture
+        assert stack == [{'call_index': 0, 'children': [], 'name': 'Trace Session'}]
+        config.trace_capture_all = True
+        assert trace_calls(frame_1, 'call', None) == trace_calls
+        assert len(stack) == 2
+        assert stack == [ { 'call_index': 0,
+                            'children': [ { 'call_index': 1,
+                                            'children': [],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'name': 'Trace Session'},
+                          { 'call_index': 1,
+                            'children': [],
+                            'locals': {'__trace_depth': 2},
+                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                            'source_code': '',
+                            'source_code_caller': '',
+                            'source_code_location': ''}]
+
+        assert trace_calls(frame_1, 'return', None) == trace_calls
+        assert len(stack) == 1
+        assert stack == [ { 'call_index': 0,
+                            'children': [ { 'call_index': 1,
+                                            'children': [],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'name': 'Trace Session'}]
+
+        assert trace_calls(frame_1, 'call', None) == trace_calls
+        assert len(stack) == 2
+        assert stack == [ { 'call_index': 0,
+                            'children': [ { 'call_index': 1,
+                                            'children': [],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''},
+                                          { 'call_index': 2,
+                                            'children': [],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'name': 'Trace Session'},
+                          { 'call_index': 2,
+                            'children': [],
+                            'locals': {'__trace_depth': 2},
+                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                            'source_code': '',
+                            'source_code_caller': '',
+                            'source_code_location': ''}]
+
+        config.capture_locals = False                                           # removing locals from here since they don't work well with tests and code coverage
+        assert trace_calls(frame_2, 'call', None) == trace_calls
+        assert len(stack) == 3
+        assert stack == [ { 'call_index': 0,
+                            'children': [ { 'call_index': 1,
+                                            'children': [],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''},
+                                          { 'call_index': 2,
+                                            'children': [ { 'call_index': 3,
+                                                            'children': [],
+                                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                                            'source_code': '',
+                                                            'source_code_caller': '',
+                                                            'source_code_location': ''}],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'name': 'Trace Session'},
+                          { 'call_index': 2,
+                            'children': [ { 'call_index': 3,
+                                            'children': [],
+                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'locals': {'__trace_depth': 2},
+                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                            'source_code': '',
+                            'source_code_caller': '',
+                            'source_code_location': ''},
+                          { 'call_index': 3,
+                            'children': [],
+                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                            'source_code': '',
+                            'source_code_caller': '',
+                            'source_code_location': ''}]
+
+        assert trace_calls(frame_3, 'call', None) == trace_calls
+        assert len(stack) == 4
+        assert stack == [ { 'call_index': 0,
+                            'children': [ { 'call_index': 1,
+                                            'children': [],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''},
+                                          { 'call_index': 2,
+                                            'children': [ { 'call_index': 3,
+                                                            'children': [ { 'call_index': 4,
+                                                                            'children': [],
+                                                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                                                            'source_code': '',
+                                                                            'source_code_caller': '',
+                                                                            'source_code_location': ''}],
+                                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                                            'source_code': '',
+                                                            'source_code_caller': '',
+                                                            'source_code_location': ''}],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'name': 'Trace Session'},
+                          { 'call_index': 2,
+                            'children': [ { 'call_index': 3,
+                                            'children': [ { 'call_index': 4,
+                                                            'children': [],
+                                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                                            'source_code': '',
+                                                            'source_code_caller': '',
+                                                            'source_code_location': ''}],
+                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'locals': {'__trace_depth': 2},
+                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                            'source_code': '',
+                            'source_code_caller': '',
+                            'source_code_location': ''},
+                          { 'call_index': 3,
+                            'children': [ { 'call_index': 4,
+                                            'children': [],
+                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                            'source_code': '',
+                            'source_code_caller': '',
+                            'source_code_location': ''},
+                          { 'call_index': 4,
+                            'children': [],
+                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                            'source_code': '',
+                            'source_code_caller': '',
+                            'source_code_location': ''}]
+
+        assert trace_calls(frame_3, 'return', None) == trace_calls
+        assert len(stack) == 3
+        assert stack == [ { 'call_index': 0,
+                            'children': [ { 'call_index': 1,
+                                            'children': [],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''},
+                                          { 'call_index': 2,
+                                            'children': [ { 'call_index': 3,
+                                                            'children': [ { 'call_index': 4,
+                                                                            'children': [],
+                                                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                                                            'source_code': '',
+                                                                            'source_code_caller': '',
+                                                                            'source_code_location': ''}],
+                                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                                            'source_code': '',
+                                                            'source_code_caller': '',
+                                                            'source_code_location': ''}],
+                                            'locals': {'__trace_depth': 2},
+                                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'name': 'Trace Session'},
+                          { 'call_index': 2,
+                            'children': [ { 'call_index': 3,
+                                            'children': [ { 'call_index': 4,
+                                                            'children': [],
+                                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                                            'source_code': '',
+                                                            'source_code_caller': '',
+                                                            'source_code_location': ''}],
+                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'locals': {'__trace_depth': 2},
+                            'name': 'osbot_utils.utils.Call_Stack.call_stack_current_frame',
+                            'source_code': '',
+                            'source_code_caller': '',
+                            'source_code_location': ''},
+                          { 'call_index': 3,
+                            'children': [ { 'call_index': 4,
+                                            'children': [],
+                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                                            'source_code': '',
+                                            'source_code_caller': '',
+                                            'source_code_location': ''}],
+                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls',
+                            'source_code': '',
+                            'source_code_caller': '',
+                            'source_code_location': ''}]
+
+        # todo: continue this test when refactored the code to use the new stack_node method
+        #       there is a bug here where the __trace_depth of frame_2 and frame_3 are the same
+        #       but I think this might be a side effect for how those frames were collected (and not a bug in the actual code)
+        #assert trace_calls(frame_2, 'return', None) == trace_calls
+        #assert len(stack) == 3
+        #pprint(stack)
 
 
     def test_trace_calls__direct_invoke(self):

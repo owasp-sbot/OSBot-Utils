@@ -106,25 +106,33 @@ class Trace_Call__Handler(Kwargs_To_Self):
                 return True
         return False
 
+
     def handle_event__call(self, frame):
-        code        = frame.f_code                                                      # Get code object from frame
-        func_name   = code.co_name                                                      # Get function name
-        module      = frame.f_globals.get("__name__", "")                               # Get module name
+        if frame:
+            code        = frame.f_code                                                      # Get code object from frame
+            func_name   = code.co_name                                                      # Get function name
+            module      = frame.f_globals.get("__name__", "")                               # Get module name
 
-        capture     = self.should_capture(module, func_name)
+            capture     = self.should_capture(module, func_name)
 
-        if capture:
-            self.call_index += 1  # Increment the call index
-            source_code      = self.map_source_code(frame)
-            full_name        = self.map_full_name(frame, module, func_name)
-            new_node         =  self.create_stack_node(frame, full_name, source_code, self.call_index)
+            if capture:
+                self.call_index += 1  # Increment the call index
+                source_code      = self.map_source_code(frame)
+                full_name        = self.map_full_name(frame, module, func_name)
+                new_node         =  self.create_stack_node(frame, full_name, source_code, self.call_index)
 
-            self.add_node(frame, new_node)
+                self.add_node(frame, new_node)
+                return True
+        return False
 
 
     def handle_event__return(self, frame):
-        if '__trace_depth' in frame.f_locals and frame.f_locals['__trace_depth'] == len(self.stack):
-            self.stack.pop()  # Pop the stack on return if corresponding call was captured
+        if frame:
+            if '__trace_depth' in frame.f_locals:
+                if frame.f_locals['__trace_depth'] == len(self.stack):
+                    self.stack.pop()  # Pop the stack on return if corresponding call was captured
+                    return True
+        return False
 
     def trace_calls(self, frame, event, arg):
         if event == 'call':
