@@ -236,10 +236,10 @@ class Test_Kwargs_To_Self(unittest.TestCase):
             An_Bad_Type.__default_kwargs__()
 
         expected_error = "Catch: <class 'Exception'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
-        with Catch(expect_exception=True, expected_error=expected_error) as catch:
+        with Catch(expect_exception=True, expected_error=expected_error):
             An_Bad_Type().__default_kwargs__()
 
-    def test___init__pics_up_variables(self):
+    def test___init__pics_up_types_with_values(self):
 
         class An_Class(Kwargs_To_Self):
             attribute1 = 'default_value'
@@ -254,3 +254,34 @@ class Test_Kwargs_To_Self(unittest.TestCase):
         assert an_class.attribute3 == ''
         assert an_class.attribute4 == []
         assert an_class.attribute5 == 42
+
+    def test___init__pics_up_types_mutable_types(self):
+
+        class An_Class(Kwargs_To_Self):
+            attribute_1 = 'default_value'
+            attribute_2 = True
+            attribute_3 : str            # ok
+            attribute_4 : list           # ok
+            attribute_5 : dict           # ok
+            attribute_6 : str  = 'a'     # ok
+
+            attribute_7 : list = []      # should fail
+
+        expected_error=("Catch: <class 'Exception'> : variable 'attribute_7' is defined "
+                        "as type '<class 'list'>' which is not supported by Kwargs_To_Self, "
+                        "with only the following imumutable types being supported: "
+                        "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
+                        "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>)'")
+        with Catch(expect_exception=True, expected_error=expected_error):
+            An_Class()
+
+        class An_Class_2(Kwargs_To_Self):
+            attribute_8 : dict = {}
+
+        expected_error=("Catch: <class 'Exception'> : variable 'attribute_8' is defined "
+                        "as type '<class 'dict'>' which is not supported by Kwargs_To_Self, "
+                        "with only the following imumutable types being supported: "
+                        "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
+                        "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>)'")
+        with Catch(expect_exception=True, expected_error=expected_error):
+            An_Class_2()

@@ -7,6 +7,9 @@ import types
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects import default_value
 
+immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType)
+
+
 
 class Kwargs_To_Self:
     """
@@ -124,6 +127,10 @@ class Kwargs_To_Self:
                     var_value = default_value(var_type)
                     kwargs[var_name] = var_value
                 else:
+
+                    if var_type not in immutable_types:
+                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
+                        raise Exception(exception_message)
                     var_value = getattr(cls, var_name)
                     if not isinstance(var_value, var_type):
                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
