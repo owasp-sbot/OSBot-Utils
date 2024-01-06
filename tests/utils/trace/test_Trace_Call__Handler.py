@@ -1,6 +1,6 @@
 import sys
 from unittest import TestCase
-from unittest.mock import patch, call
+from unittest.mock import patch, call, MagicMock, PropertyMock
 
 from osbot_utils.utils.Call_Stack import call_stack_current_frame
 from osbot_utils.utils.Dev import pprint
@@ -33,6 +33,61 @@ class test_Trace_Call__Handler(TestCase):
         assert self.handler.trace_title == DEFAULT_ROOT_NODE_NODE_TITLE
         assert self.handler.stack       == [{'call_index': 0, 'children': [], 'name': DEFAULT_ROOT_NODE_NODE_TITLE}]
 
+    def test_add_node(self):
+        sample_frame  = call_stack_current_frame().f_back  # f_back so that test_map_full_name is the frame we are looking at
+        stack         = self.handler.stack
+        root_node     = self.handler.stack[0]
+
+        assert len(stack) ==1
+        assert stack     == [root_node]
+        assert root_node == {'call_index': 0, 'children': [], 'name': 'Trace Session'}
+
+        # case 1: with bad data
+        assert self.handler.add_node(frame=None        , new_node=None) is False
+        assert self.handler.add_node(frame=sample_frame, new_node=None) is False
+        assert self.handler.add_node(frame=None        , new_node={}  ) is False
+        assert stack == [root_node]        # confirm no changes made to the default stack
+
+        # case 2: adding a valid frame and node with missing fields (it needs ['call_index', 'children', 'name'])
+        node_bad = {'node_1' : 'data goes here' }
+        assert self.handler.add_node(frame=sample_frame, new_node=node_bad) is False
+
+        # case 3: adding valid frame and node
+        node_1 = dict(call_index=1, children=[], name='node_1')
+        assert stack                                        == [root_node]
+        assert stack[-1]                                    == root_node
+        assert stack[-1]['children']                        == []
+        assert len(stack)                                   == 1
+        assert sample_frame.f_locals.get('__trace_depth')   is None                     # confirm that the frame doesn't have the __trace_depth attribute
+
+        assert self.handler.add_node(frame=sample_frame, new_node=node_1) is True
+
+        assert sample_frame.f_locals.get('__trace_depth')  == len(stack)  # confirm that the frame now has the __trace_depth attribute
+        assert len(stack)                                  == 2
+        assert stack[-1]                                   == node_1
+        assert stack                                       == [root_node, node_1]
+        assert stack[-2]                                   == root_node
+        assert root_node.get('children')                   == [node_1]
+        assert root_node                                   == {'call_index': 0,  'children': [ node_1 ],  'name': DEFAULT_ROOT_NODE_NODE_TITLE}
+
+        # case 3: adding another valid node
+        node_2 = dict(call_index=2, children=[], name='node_2')
+        assert self.handler.add_node(frame=sample_frame, new_node=node_2) is True
+        assert sample_frame.f_locals.get('__trace_depth')  == len(stack)  # confirm that the frame now has the __trace_depth attribute
+        assert len(stack)                                  == 3
+        assert stack[-1]                                   == node_2
+        assert stack[-2]                                   == node_1
+        assert stack[-3]                                   == root_node
+        assert stack                                       == [root_node, node_1, node_2]
+        assert node_1.get('children')                      == [node_2]
+        assert root_node.get('children')                   == [node_1]
+        assert root_node                                   == {'call_index': 0,  'children': [ node_1 ],  'name': DEFAULT_ROOT_NODE_NODE_TITLE}
+        assert node_1                                      == {'call_index': 1,  'children': [ node_2 ],  'name': 'node_1'                    }
+        assert node_2                                      == {'call_index': 2,  'children': [        ],  'name': 'node_2'                    }
+
+
+
+
 
     def test_add_trace_ignore(self):
         value = random_value()
@@ -40,9 +95,81 @@ class test_Trace_Call__Handler(TestCase):
         assert self.handler.add_trace_ignore(value) is None
         assert self.handler.config.trace_ignore_start_with == [value]
 
-    # def test_map_full_name(self):
-    #     map_source_code = self.handler.map_full_name
-    #     config = self.handler.config
+    def test_create_stack_node(self):
+        create_stack_node = self.handler.create_stack_node
+        config            = self.handler.config
+
+        # case 1: with bad data
+        assert create_stack_node(frame=None, full_name=None, source_code=None, call_index=None) ==  {'call_index': None, 'children': [], 'name': None}
+
+        # case 2: with empty data
+        source_code = {'source_code': '', 'source_code_caller': '', 'source_code_location': ''}
+        assert create_stack_node(frame=None, full_name='', source_code=source_code, call_index=0) == {'call_index'          : 0  ,
+                                                                                                      'children'            : [] ,
+                                                                                                      'name'                : '' ,
+                                                                                                      'source_code'         : '' ,
+                                                                                                      'source_code_caller'  : '' ,
+                                                                                                      'source_code_location': '' }
+        # case 2: with valid stack
+        assert config.capture_locals is True
+        sample_frame = call_stack_current_frame().f_back
+        assert create_stack_node(frame=sample_frame, full_name='', source_code=source_code, call_index=0) == { 'call_index'          : 0                     ,
+                                                                                                               'children'            : []                    ,
+                                                                                                               'locals'              : sample_frame.f_locals ,
+                                                                                                               'name'                : ''                    ,
+                                                                                                               'source_code'         : ''                    ,
+                                                                                                               'source_code_caller'  : ''                    ,
+                                                                                                               'source_code_location': ''                    }
+        # case 3: with valid stack and config.capture_locals set to False
+        config.capture_locals = False
+        assert create_stack_node(frame=sample_frame, full_name='', source_code=source_code, call_index=0) == { 'call_index'          : 0  ,
+                                                                                                               'children'            : [] ,
+                                                                                                               'name'                : '' ,
+                                                                                                               'source_code'         : '' ,
+                                                                                                               'source_code_caller'  : '' ,
+                                                                                                               'source_code_location': '' }
+
+
+
+
+    def test_map_full_name(self):
+        sample_frame  = call_stack_current_frame().f_back                       # f_back so that test_map_full_name is the frame we are looking at
+        map_full_name = self.handler.map_full_name
+
+        # case 1: with bad data
+        assert map_full_name(frame=None, module=None, func_name=None) is None
+        assert map_full_name(frame=None, module='aa', func_name=None) is None
+        assert map_full_name(frame=None, module=None, func_name='bb') is None
+        assert map_full_name(frame=None, module='',   func_name='')   is None
+        assert map_full_name(frame=None, module='aa', func_name='')   is None
+        assert map_full_name(frame=None, module='',   func_name='bb') is None
+
+        # case 2: with good frame and empty module and func_name
+        assert map_full_name(frame=sample_frame, module= None, func_name=None) is None
+        assert map_full_name(frame=sample_frame, module='aaa', func_name=None) is None
+        assert map_full_name(frame=sample_frame, module='aaa', func_name=''  ) is None
+
+        # case 3: with good frame and valid module and func_name
+        assert map_full_name(frame=sample_frame, module='aaa', func_name='bbb') == 'aaa.test_Trace_Call__Handler.bbb'
+
+        # case 4: with variations of self value
+
+        mock_frame          = MagicMock()
+        mock_instance       = MagicMock()
+        expected_class_name = 'YourClassName'
+        mock_instance.__class__.__name__ = expected_class_name
+        mock_frame.f_locals = {'self': mock_instance }
+
+        assert map_full_name(frame=mock_frame, module='aaa', func_name='bbb') == 'aaa.YourClassName.bbb'
+        mock_instance.__class__.__name__  = ''
+        assert map_full_name(frame=mock_frame, module='aaa', func_name='bbb') == 'aaa.bbb'
+
+        type(mock_instance).class_name = PropertyMock(side_effect=Exception)    # When __class__.__name__ is accessed, raise an exception
+        mock_frame.f_locals = {'self': None}                           # Set the 'self' in f_locals to the mock instance
+        assert map_full_name(frame=mock_frame, module='aaa', func_name='bbb') == 'aaa.bbb'
+
+
+
 
     def test_map_source_code(self):
         sample_frame    = call_stack_current_frame().f_back

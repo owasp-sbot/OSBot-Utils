@@ -1,5 +1,9 @@
 import linecache
 
+from osbot_utils.utils.Dev import pprint
+
+from osbot_utils.utils.Misc import list_set
+
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
 
@@ -65,33 +69,42 @@ class Trace_Call__Handler(Kwargs_To_Self):
                     source_code_location = source_code_location )
 
     def map_full_name(self, frame, module, func_name):
-        instance = frame.f_locals.get("self", None)                                                           # Get instance if available
-        try:
+        if frame and module and func_name:
+            instance = frame.f_locals.get("self", None)                                                           # Get instance if available
+            # try:                                                  # note: DC I couldn't find a path to trigger this since by design every variable will have a__class__ attribute
+            #     class_name = instance.__class__.__name__ if instance else ""
+            # except Exception:
+            #     class_name = "<unavailable>"
             class_name = instance.__class__.__name__ if instance else ""
-        except Exception:
-            class_name = "<unavailable>"
-        if class_name:
-            full_name = f"{module}.{class_name}.{func_name}"
-        else:
-            full_name = f"{module}.{func_name}"
-        return full_name
+            if class_name:
+                full_name = f"{module}.{class_name}.{func_name}"
+            else:
+                full_name = f"{module}.{func_name}"
+            return full_name
 
     def create_stack_node(self, frame, full_name, source_code, call_index):
 
         new_node = { "name"                : full_name            ,
                      "children"            : []                   ,
-                     'call_index'          :  call_index          ,
-                     'source_code'         : source_code.get('source_code'          ),
-                     'source_code_caller'  : source_code.get('source_code_caller'   ),
-                     'source_code_location': source_code.get('source_code_location' ) }     # Create a new node for this call
-        if self.config.capture_locals:
+                     'call_index'          : call_index           }
+        if source_code:
+             new_node['source_code'         ] = source_code.get('source_code'          )
+             new_node['source_code_caller'  ] = source_code.get('source_code_caller'   )
+             new_node['source_code_location'] = source_code.get('source_code_location' )
+
+        if self.config.capture_locals and frame:
             new_node['locals'] = frame.f_locals
         return new_node
 
     def add_node(self, frame, new_node):
-        self.stack[-1]["children"].append(new_node)         # Insert the new node into the stack
-        self.stack.append(new_node)                         # Push the new node to the stack
-        frame.f_locals['__trace_depth'] = len(self.stack)   # Store the depth in frame locals
+        if frame and new_node:
+            #if list_set(new_node) == ['call_index', 'children', 'name']: # missing the source code fields
+            if 'children' in list_set(new_node):                    # todo: refactor this to a new class called Trace_Node
+                self.stack[-1]["children"].append(new_node)         # Insert the new node into the stack
+                self.stack.append(new_node)                         # Push the new node to the stack
+                frame.f_locals['__trace_depth'] = len(self.stack)   # Store the depth in frame locals
+                return True
+        return False
 
     def handle_event__call(self, frame):
         code        = frame.f_code                                                      # Get code object from frame
