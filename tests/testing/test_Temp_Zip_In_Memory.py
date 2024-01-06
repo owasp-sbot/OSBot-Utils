@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from osbot_utils.testing.Unzip_File import Unzip_File
-from osbot_utils.utils.Misc import list_set, random_text
+from osbot_utils.utils.Misc import random_text, list_set
 
 from osbot_utils.testing.Temp_File import Temp_File
 from osbot_utils.utils.Files import file_exists, file_delete, file_extension, file_contents

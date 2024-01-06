@@ -1,6 +1,8 @@
 import re
 import datetime
-from   osbot_utils.utils.Misc import class_name
+
+from osbot_utils.utils.Objects import class_name
+
 
 class Assert:
     def __init__(self ,target):

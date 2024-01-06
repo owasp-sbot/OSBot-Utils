@@ -10,9 +10,13 @@ class test_Catch(TestCase):
     @patch('builtins.print')
     def test_Catch(self, builtins_print):
 
-        with Catch() as catch:
+        expected_error = "Catch: <class 'Exception'> : new exception"
+        with Catch(log_exception=True, expected_error=expected_error) as catch:
             raise Exception('new exception')
         assert builtins_print.call_count == 5
+
+        assert str(catch) == expected_error
+        catch.assert_error_is(expected_error)
 
         calls = builtins_print.mock_calls
         assert calls[0] == call('')

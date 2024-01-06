@@ -1,23 +1,59 @@
-import logging
-
 # todo refactor into Status class
 from osbot_utils.utils.Python_Logger import Python_Logger
 
-osbot_logger = Python_Logger().setup() # logging.getLogger()
+class Status:
+    def __init__(self):
+        self.logger = Python_Logger().setup()
+        #self.logger.add_memory_logger()
 
-def status_message(status, message:str=None, data=None, error=None):
-    return  {  'data'   : data    ,
-               'error'  : error   ,
-               'message': message ,
-               'status' : status
-            }
+    def status_message(self, status, message:str=None, data=None, error=None):
+        return  {  'data'   : data    ,
+                   'error'  : error   ,
+                   'message': message ,
+                   'status' : status
+                }
 
-def status_error  (message:str='', data=None,error=None): osbot_logger.error  ('[osbot] [error] ' + str(message)); return status_message('error', message=message, data=data, error=error)
-def status_debug  (message:str='', data=None,error=None): osbot_logger.debug  ('[osbot] [debug] ' + str(message)); return status_message('debug', message=message, data=data, error=error)
-def status_fatal  (message:str='', data=None,error=None): osbot_logger.fatal  ('[osbot] [fatal] ' + str(message)); return status_message('fatal', message=message, data=data, error=error)
-def status_info   (message:str='', data=None,error=None): osbot_logger.info   ('[osbot] [info]  ' + str(message)); return status_message('info', message=message, data=data, error=error)
-def status_ok     (message:str='', data=None,error=None): osbot_logger.info   ('[osbot] [ok]    ' + str(message)); return status_message('ok', message=message, data=data, error=error)
-def status_warning(message:str='', data=None,error=None): osbot_logger.warning('[osbot] [warning] ' + str(message)); return status_message('warning', message=message, data=data, error=error)
+    def last_message(self):
+        return self.logger.memory_handler_last_log_entry()
 
-#todo: add logging hook that automatically picks up the caller (class and method) from the stack trace
+    def log_message(self, status, message:str='', data=None, error=None, stacklevel=3):          # stacklevel is usually 3 because we want to get the caller of the method that called this on
+        logger_message = f'[osbot] [{status}] ' + str(message)
+        logger_method  = self.logger.__getattribute__(status)
+        status_message = self.status_message(status=status, message=message, data=data, error=error)
+        logger_method(logger_message, exc_info=True, stacklevel=stacklevel)
+        return status_message
+
+
+
+
+osbot_status = Status()                 # todo map out the performatin implications of doing this
+osbot_logger = osbot_status.logger
+
+def status_critical (message:str='', data=None,error=None): return osbot_status.log_message(status='critical' , message=message, data=data, error=error)
+def status_debug    (message:str='', data=None,error=None): return osbot_status.log_message(status='debug'    , message=message, data=data, error=error)
+def status_error    (message:str='', data=None,error=None): return osbot_status.log_message(status='error'    , message=message, data=data, error=error)
+def status_exception(message:str='', data=None,error=None): return osbot_status.log_message(status='exception', message=message, data=data, error=error)
+def status_info     (message:str='', data=None,error=None): return osbot_status.log_message(status='info'     , message=message, data=data, error=error)
+def status_ok       (message:str='', data=None,error=None): return osbot_status.log_message(status='ok'       , message=message, data=data, error=error)
+def status_warning  (message:str='', data=None,error=None): return osbot_status.log_message(status='warning'  , message=message, data=data, error=error)
+
+log_critical  = status_critical   # level 50
+log_error     = status_error      # level 40
+log_exception = status_exception  # level 40
+log_warning   = status_warning    # level 30
+log_info      = status_info       # level 20
+log_ok        = status_ok         # level 20
+log_debug     = status_debug      # level 10
+
+
+
+#def log_error   (message):#logger().error   (message) # level 40
+#def log_info    (message): logger().info    (message) # level 20
+#def log_warning (message): logger().warning (message) # level 30
+
+
+# def status_info   (message:str='', data=None,error=None): osbot_logger.info   ('[osbot] [info]  ' + str(message)); return status_message('info', message=message, data=data, error=error)
+# def status_ok     (message:str='', data=None,error=None): osbot_logger.info   ('[osbot] [ok]    ' + str(message)); return status_message('ok', message=message, data=data, error=error)
+# def status_warning(message:str='', data=None,error=None): osbot_logger.warning('[osbot] [warning] ' + str(message)); return status_message('warning', message=message, data=data, error=error)
+
 #todo: add status_exception that automatically picks up the exception from the stack trace

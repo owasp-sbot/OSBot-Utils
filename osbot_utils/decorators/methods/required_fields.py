@@ -1,6 +1,7 @@
 from functools import wraps
 
-from osbot_utils.utils.Misc import get_missing_fields
+from osbot_utils.utils.Objects import get_missing_fields
+
 
 class required_fields:
     """checks that required fields are not null in the current object (does not work for for static methods)"""

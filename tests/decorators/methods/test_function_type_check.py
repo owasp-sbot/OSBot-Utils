@@ -7,12 +7,13 @@ class An_Class:
 
     @function_type_check
     def method_1(self, an_int: int, an_string: str, an_bool : bool = False ) -> int:
-        print('---- in method 1')
+        #print('---- in method 1')
         return 12
 
     @function_type_check
     def method_2(self):
-        print('---- in method 2')
+        #print('---- in method 2')
+        pass
 
     @function_type_check
     def method_3(self,return_me) -> str:
