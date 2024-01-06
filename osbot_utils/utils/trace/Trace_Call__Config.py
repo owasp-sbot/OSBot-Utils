@@ -21,14 +21,3 @@ class Trace_Call__Config(Kwargs_To_Self):
     trace_capture_start_with  : list
     trace_ignore_internals    : bool = True
     trace_ignore_start_with   : list
-    #title                     : str
-    #capture_source_code       : bool
-    #ignore_start_with         : list
-    #capture_start_with        : list
-    #print_on_exit             : bool
-    #print_locals              : bool
-    #print_max_string_length = 100
-    ##show_parent_info        = False
-    #show_caller             = False
-    #show_method_parent        : bool
-    #show_source_code_path     : bool

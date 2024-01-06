@@ -40,13 +40,6 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # self.print_show_method_parent    = self.config.show_method_parent                             # todo: refactor these print_* variables (now that we have the nice setup created by Kwargs_To_Self)
-        # self.print_show_caller           = self.config.show_caller
-        # self.print_traces_on_exit        = self.config.print_on_exit                                               # Flag for printing traces when exiting
-        # self.print_show_parent_info      = self.config.show_parent_info                                            # Flag for showing parent info when printing
-        # self.print_show_locals           = self.config.print_locals
-        # self.print_show_source_code_path = self.config.show_source_code_path
-        # self.print_max_string_length     = self.config.print_max_string_length or MAX_STRING_LENGTH
 
     def formatted_local_data(self, local_data, formatted_line):
         if local_data:

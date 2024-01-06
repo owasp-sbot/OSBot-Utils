@@ -147,10 +147,10 @@ class test_Trace_Call(TestCase):
 #         trace_call_print_traces = Trace_Call__Print_Traces()
 #         call_handler            = trace_call.trace_call_handler
 #
-#         call_handler                 .capture_locals            = False
-#         trace_call.trace_call_handler.trace_capture_start_with  = ['']
-#         trace_call_print_traces      .config.show_parent_info    = True
-#         trace_call_print_traces      .config.print_locals         = True
+#         call_handler                 .config.capture_locals            = False
+#         trace_call.trace_call_handler.config.trace_capture_start_with  = ['']
+#         trace_call_print_traces      .config.show_parent_info          = True
+#         #trace_call_print_traces      .config.print_locals              = False
 #         with trace_call:
 #             with Temp_File() as temp_file:
 #                 print(temp_file.tmp_file)
