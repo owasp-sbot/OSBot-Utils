@@ -185,3 +185,72 @@ class Test_Kwargs_To_Self(unittest.TestCase):
         with Catch(expect_exception=True):
             self.Config_Class(extra_var='123')
 
+    def test__default_kwargs__picks_up_mutable__vars(self):
+
+        class Class_With_Types(Kwargs_To_Self):
+            value_1 = None
+            value_2 = 'a'
+            value_3 = 1
+            type_01 : list
+            type_02 : dict
+            type_03 : int
+            type_04 : float
+            type_05 : str
+            type_06 : bool
+            type_07 : tuple
+            type_08 : set
+            type_09 : frozenset
+            type_10 : bytes
+            type_11 : complex
+            type_value_1 : int = 1
+            type_value_2 : str = "aaa"
+
+        expected_values = { 'type_01': []         ,
+                            'type_02': {}         ,
+                            'type_03': 0          ,
+                            'type_04': 0.0        ,
+                            'type_05': ''         ,
+                            'type_06': False      ,
+                            'type_07': ()         ,
+                            'type_08': set()      ,
+                            'type_09': frozenset(),
+                            'type_10': b''        ,
+                            'type_11': 0j         ,
+                            'value_1': None       ,
+                            'value_2': 'a'        ,
+                            'value_3': 1          ,
+                            'type_value_1': 1     ,
+                            'type_value_2': 'aaa' }
+
+        assert Class_With_Types.__default_kwargs__() == expected_values
+        assert Class_With_Types().__kwargs__      () == expected_values
+        assert Class_With_Types().__locals__      () == expected_values
+
+    def test__default_kwargs__picks_up_bad_types(self):
+
+        class An_Bad_Type(Kwargs_To_Self):
+            not_an_int: int = "an str"
+
+        expected_error= "Catch: <class 'Exception'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
+        with Catch(expect_exception=True, expected_error=expected_error) as catch:
+            An_Bad_Type.__default_kwargs__()
+
+        expected_error = "Catch: <class 'Exception'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
+        with Catch(expect_exception=True, expected_error=expected_error) as catch:
+            An_Bad_Type().__default_kwargs__()
+
+    def test___init__pics_up_variables(self):
+
+        class An_Class(Kwargs_To_Self):
+            attribute1 = 'default_value'
+            attribute2 = True
+            attribute3 : str
+            attribute4 : list
+            attribute5 : int = 42
+
+        an_class = An_Class()
+        assert an_class.attribute1 == 'default_value'
+        assert an_class.attribute2 == True
+        assert an_class.attribute3 == ''
+        assert an_class.attribute4 == []
+        assert an_class.attribute5 == 42

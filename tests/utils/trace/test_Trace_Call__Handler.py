@@ -19,13 +19,13 @@ class test_Trace_Call__Handler(TestCase):
 
     def test___default_kwargs(self):
         assert Trace_Call__Handler.__default_kwargs__() == dict(call_index                  = 0     ,
-                                                                stack                       = None  ,
-                                                                title                       = None  ,
+                                                                stack                       = []    ,
+                                                                title                       = ''    ,
                                                                 trace_capture_all           = False ,
                                                                 trace_capture_source_code   = False ,
-                                                                trace_capture_start_with    = None  ,
-                                                                trace_ignore_internals      = True ,
-                                                                trace_ignore_start_with     = None )
+                                                                trace_capture_start_with    = []    ,
+                                                                trace_ignore_internals      = True  ,
+                                                                trace_ignore_start_with     = []    )
 
 
     def test___init__(self):

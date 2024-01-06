@@ -29,6 +29,12 @@ def class_name(target):
     if target:
         return type(target).__name__
 
+def default_value(target : type):
+    try:
+        return target()                 #  try to create the object using the default constructor
+    except TypeError:
+        return None                     # if not return None
+
 def dict_insert_field(target_dict, new_key, insert_at, new_value=None):
     if type(target_dict) is dict:
         new_dict = {}

@@ -15,13 +15,32 @@ class test_Trace_Files(TestCase):
 
     def setUp(self):
         self.kwargs = {}
-        #self.__default_kwargs__     = Trace_Files.__default_kwargs__()
 
-        #self.trace_files = Trace_Files(**self.kwargs)
+    def test___default_kwargs__(self):
+        expected_values = { 'capture_source_code'      : False ,
+                            'capture_start_with'       : []    ,
+                            'files'                    : []    ,
+                            'ignore_start_with'        : []    ,
+                            'print_locals'             : False ,
+                            'print_max_string_length'  : 100   ,
+                            'print_on_exit'            : False ,
+                            'show_caller'              : False ,
+                            'show_method_parent'       : False ,
+                            'show_parent_info'         : True  ,
+                            'show_source_code_path'    : False ,
+                            'title'                    : ''    }
+        assert Trace_Files.__default_kwargs__() == expected_values
+        assert Trace_Files().__default_kwargs__() == expected_values
+        trace_files = Trace_Files()
+        assert trace_files.__locals__() == {**expected_values,
+                                            'prev_trace_function'       : None                                                          ,
+                                            'stack'                     : [{'call_index': 0, 'children': [], 'name': 'Trace Session'}]  ,
+                                            'trace_call_handler'        : trace_files.trace_call_handler                                ,
+                                            'trace_call_print_traces'   : trace_files.trace_call_print_traces                           ,
+                                            'trace_call_view_model'     : trace_files.trace_call_view_model                             }
 
     def test___init__(self):
-
-        assert Trace_Files.__cls_kwargs__() == {'files': None}
+        assert Trace_Files.__cls_kwargs__() == {'files': []}
         assert Trace_Files().files == []
 
         assert Trace_Files(files=[]       ).files == []

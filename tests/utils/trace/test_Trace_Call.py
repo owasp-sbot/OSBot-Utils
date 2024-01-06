@@ -1,20 +1,10 @@
-import inspect
-import os
-import sys
-from pprint import pprint
-from unittest import TestCase
-from unittest.mock import patch, call
-
-from dotenv import load_dotenv
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.helpers.Dict_To_Attr import Dict_To_Attr
-from osbot_utils.utils.Functions import method_line_number
-from osbot_utils.utils.Misc import random_value
-
+from pprint                                         import pprint
+from unittest                                       import TestCase
+from unittest.mock                                  import patch, call
+from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
 from osbot_utils.utils.Objects import base_classes, obj_info
-from osbot_utils.utils.trace.Trace_Call import Trace_Call, trace_calls
-from osbot_utils.utils.trace.Trace_Call__Handler import Trace_Call__Handler
+from osbot_utils.utils.trace.Trace_Call             import Trace_Call, trace_calls
+from osbot_utils.utils.trace.Trace_Call__Handler    import Trace_Call__Handler
 from osbot_utils.utils.trace.Trace_Call__View_Model import Trace_Call__View_Model
 
 
@@ -37,10 +27,10 @@ class test_Trace_Call(TestCase):
         assert Trace_Call.__default_kwargs__() == dict(print_on_exit           = False ,
                                                        print_locals            = False ,
                                                        capture_source_code     = False ,
-                                                       ignore_start_with       = None  ,
-                                                       capture_start_with      = None  ,
+                                                       ignore_start_with       = []    ,
+                                                       capture_start_with      = []    ,
                                                        print_max_string_length = 100   ,
-                                                       title                   = None  ,
+                                                       title                   = ''    ,
                                                        show_parent_info        = True  ,
                                                        show_caller             = False ,
                                                        show_method_parent      = False ,
@@ -110,7 +100,6 @@ class test_Trace_Call(TestCase):
 
     @patch('builtins.print')
     def test___enter__exist__(self, builtins_print):
-
         # Test the initialization and its attributes
         trace_call       = Trace_Call()
         handler          = trace_call.trace_call_handler

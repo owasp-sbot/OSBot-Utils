@@ -38,10 +38,10 @@ MAX_STRING_LENGTH = 100
 
 class Trace_Call__Print_Traces(Kwargs_To_Self):
 
-    title                   = None
+    title                   : str
     capture_source_code     = False
-    ignore_start_with       = None
-    capture_start_with      = None
+    ignore_start_with       : list
+    capture_start_with      : list
     print_on_exit           = False
     print_locals            = False
     print_max_string_length = 100

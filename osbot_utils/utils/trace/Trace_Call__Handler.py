@@ -4,14 +4,14 @@ from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 
 class Trace_Call__Handler(Kwargs_To_Self):
-    call_index                = 0
-    title                     = None
-    stack                     = None
-    trace_capture_all         = False
-    trace_capture_source_code = False
-    trace_capture_start_with  = None
-    trace_ignore_internals    = True
-    trace_ignore_start_with   = None
+    call_index                : int = 0
+    title                     : str
+    stack                     : list
+    trace_capture_all         : bool
+    trace_capture_source_code : bool
+    trace_capture_start_with  : list
+    trace_ignore_internals    : bool = True
+    trace_ignore_start_with   : list
 
 
 
@@ -20,8 +20,8 @@ class Trace_Call__Handler(Kwargs_To_Self):
         self.trace_title                 = self.title or 'Trace Session'                            # Title for the trace
         self.stack = [{"name": self.trace_title, "children": [],
                        "call_index": self.call_index}]  # Call stack information
-        self.trace_capture_start_with = self.trace_capture_start_with or []
-        self.trace_ignore_start_with  = self.trace_ignore_start_with  or []
+        #self.trace_capture_start_with = self.trace_capture_start_with or []
+        #self.trace_ignore_start_with  = self.trace_ignore_start_with  or []
 
     def add_trace_ignore(self, value):
         self.trace_ignore_start_with.append(value)
