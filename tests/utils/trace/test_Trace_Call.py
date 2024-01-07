@@ -1,3 +1,4 @@
+import os
 from pprint                                         import pprint
 from unittest                                       import TestCase
 from unittest.mock                                  import patch, call
@@ -12,6 +13,7 @@ from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
 from osbot_utils.utils.trace.Trace_Call__Handler import Trace_Call__Handler, DEFAULT_ROOT_NODE_NODE_TITLE
 from osbot_utils.utils.trace.Trace_Call__Print_Traces import Trace_Call__Print_Traces
 from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
+from osbot_utils.utils.trace.Trace_Call__Stats import Trace_Call__Stats
 from osbot_utils.utils.trace.Trace_Call__View_Model import Trace_Call__View_Model
 
 
@@ -140,25 +142,55 @@ class test_Trace_Call(TestCase):
                                                  call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                  test_Trace_Call'),
                                                  call('\x1b[1m└────── 🧩️ dummy_function\x1b[0m                                    test_Trace_Call')] != []
 
+        assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=5, event_line=7, event_return=3)
 
-# class test_Pickle(TestCase):
-#
-#     def test_process_data(self):
-#         trace_call              = Trace_Call()
-#         trace_call__view_model  = Trace_Call__View_Model()
-#         trace_call_print_traces = Trace_Call__Print_Traces()
-#         call_handler            = trace_call.trace_call_handler
-#
-#         call_handler                 .config.capture_locals            = False
-#         trace_call.trace_call_handler.config.trace_capture_start_with  = ['']
-#         trace_call_print_traces      .config.show_parent_info          = True
-#         #trace_call_print_traces      .config.print_locals              = False
-#         with trace_call:
-#             with Temp_File() as temp_file:
-#                 print(temp_file.tmp_file)
-#
-#         stack       = trace_call.stack
-#         #pprint(stack)
-#         view_model  = trace_call__view_model.create(stack)
-#         trace_call_print_traces.print_traces(view_model)
-#         #pprint(len(self.trace_call.stack))
+    def test__check_that_stats_catches_exception_stats(self):
+        try:
+            with Trace_Call() as trace_call:
+                def throw_an_exception():
+                    raise Exception('test_1')
+                try:
+                    throw_an_exception()
+                except Exception as error:
+                    assert error.args[0] == 'test_1'
+                raise Exception('test_2')
+        except Exception as error:
+            assert error.args[0] == 'test_2'
+
+
+        if 'PYCHARM_RUN_COVERAGE' in os.environ:        # handle the situation where we are getting differnt values deppending if running the test directly on under 'coverage' api
+            event_line   = 5
+            event_return = 2
+        else:
+            event_line   = 3
+            event_return = 1
+
+        assert trace_call.stats() == Trace_Call__Stats(event_call       = 3             ,
+                                                       event_exception  = 1             ,
+                                                       event_line       = event_line    ,
+                                                       event_return     = event_return  ,
+                                                       event_unknown    = 0             )
+
+
+class test_Pickle(TestCase):
+
+    def test_process_data(self):
+        trace_call              = Trace_Call()
+        trace_call__view_model  = Trace_Call__View_Model()
+        trace_call_print_traces = Trace_Call__Print_Traces()
+        call_handler            = trace_call.trace_call_handler
+
+        call_handler                 .config.capture_locals            = False
+        #trace_call.trace_call_handler.config.trace_capture_start_with  = ['']
+        trace_call.trace_call_handler.config.trace_capture_contains     = ['print']
+        trace_call_print_traces      .config.show_parent_info          = True
+        #trace_call_print_traces      .config.print_locals              = False
+        with trace_call:
+            with Temp_File() as temp_file:
+                pprint(temp_file.tmp_file)
+
+        stack       = trace_call.stack
+        #pprint(stack)
+        view_model  = trace_call__view_model.create(stack)
+        trace_call_print_traces.print_traces(view_model)
+        call_handler.stats.print()

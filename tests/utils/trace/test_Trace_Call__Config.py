@@ -30,6 +30,7 @@ class test_Trace_Call__Config(TestCase):
                           'trace_capture_all'        : False ,
                           'trace_capture_source_code': False ,
                           'trace_capture_start_with' : []    ,
+                          'trace_capture_contains'   : []    ,
                           'trace_ignore_internals'   : True  ,
                           'trace_ignore_start_with'  : []    }
         assert Trace_Call__Config.__cls_kwargs__    () == expected_data

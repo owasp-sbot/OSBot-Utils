@@ -164,7 +164,7 @@ class test_Trace_Call__Handler(TestCase):
 
         # case 7 Edge Cases in Configurations
         config.trace_capture_start_with = ['']
-        assert should_capture(module='anything', func_name='func_a') is True                    # Assuming empty string matches any module
+        assert should_capture(module='anything', func_name='func_a') is False                   # empty queries ('') should not have a match
 
         config.trace_capture_start_with = ['mod']
         config.trace_ignore_start_with  = ['mod']
@@ -234,6 +234,8 @@ class test_Trace_Call__Handler(TestCase):
         assert trace_calls(frame=None   , event=None    , arg='aa') == trace_calls
         assert len(stack) == 1                                                      # confirm no changes made by call above
 
+        assert self.handler.stats == Trace_Call__Stats(event_call= 1, event_return=1, event_unknown=3)
+        self.handler.stats.event_unknown = 0                                        # remove these since they were caused by the bad calls above
         # case 2: with valid frame and event buy with no capture
         assert trace_calls(frame_1, 'call', None) == trace_calls
         assert len(stack) == 1

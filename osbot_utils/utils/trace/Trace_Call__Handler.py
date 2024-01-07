@@ -45,10 +45,16 @@ class Trace_Call__Handler(Kwargs_To_Self):
             if self.config.trace_capture_all:
                 capture = True
             else:
-                for item in self.config.trace_capture_start_with:                                  # Check if the module should be captured
-                    if module.startswith(item):
-                        capture = True
-                        break
+                for item in self.config.trace_capture_start_with:                                  # capture if the module starts with
+                    if item:                                                                       # prevent empty queries  (which will always be true)
+                        if module.startswith(item):
+                            capture = True
+                            break
+                for item in self.config.trace_capture_contains:                                    # capture if module of func_name contains
+                    if item:                                                                       # prevent empty queries  (which will always be true)
+                        if item in module or item in func_name:
+                            capture = True
+                            break
             if self.config.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
                 capture = False
 
@@ -73,8 +79,15 @@ class Trace_Call__Handler(Kwargs_To_Self):
     def trace_calls(self, frame, event, arg):
         if event == 'call':
             self.stats.event_call +=1
-            self.handle_event__call(frame)
+            self.handle_event__call(frame)                  # todo: handle bug with locals which need to be serialised, since it's value will change
         elif event == 'return':
             self.stats.event_return += 1
-            self.handle_event__return(frame)
+            self.handle_event__return(frame)                # todo: capture arg since it represents the return object
+        elif event == 'exception':
+            self.stats.event_exception +=1                  # for now don't handle exception events
+        elif event == 'line':
+            self.stats.event_line +=1                       # for now don't handle line events
+        else:
+            self.stats.event_unknown += 1
+
         return self.trace_calls

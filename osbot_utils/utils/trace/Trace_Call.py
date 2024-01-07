@@ -67,3 +67,6 @@ class Trace_Call(Kwargs_To_Self):
 
     def stop(self):
         sys.settrace(self.prev_trace_function)                                              # Restore the previous trace function
+
+    def stats(self):
+        return self.trace_call_handler.stats
