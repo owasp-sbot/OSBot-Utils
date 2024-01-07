@@ -109,7 +109,7 @@ class test_Trace_Call(TestCase):
         print_traces.config.show_parent_info = True
 
         assert trace_call.prev_trace_function     is None      , "prev_trace_function should be None initially"
-        assert handler.call_index                 == 0         , "call_index should be 0 initially"
+        assert handler.stack.call_index           == 0         , "call_index should be 0 initially"
         assert trace_view_model.view_model        == []        , "view_model should be empty initially"
         assert print_traces.config.print_on_exit is False     , "print_traces_on_exit should be False initially"
 
