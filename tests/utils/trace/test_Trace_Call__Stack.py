@@ -195,6 +195,17 @@ class test_Trace_Call__Stack(TestCase):
         # frame_1, frame_2, frame_3 = test_frame_1()
         # pprint(frame_1, frame_2, frame_3)
 
+    def test_bug__pop_doesnt_remove_node(self):
+        sample_frame = call_stack_current_frame()
+        stack        = self.stack
+        node_1       = stack.push(sample_frame)             # add frame to the stack
+        assert '__trace_depth' in node_1.locals
+        assert node_1.locals.get('__trace_depth') == 1
+        assert node_1.locals.get('__trace_depth') == len(stack)
+        assert stack == [node_1]
+        assert stack.pop(sample_frame) is True              # pop frame from stack
+        assert stack == []                                  # check that stack is empyty
+
 class Frames_Test_Data(Kwargs_To_Self):
     frame_1 = None
     frame_2 = None

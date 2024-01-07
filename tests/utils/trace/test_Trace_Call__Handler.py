@@ -336,15 +336,21 @@ class test_Trace_Call__Handler(TestCase):
         assert node_2.children    == [node_3]
         assert node_3.children    == []
 
-        # todo: BUG: node not popped from stack on return
-        #       there is a bug here where the return is not working (i,e,  the return from frame_2 should cause node_2 to be removed from the stack
-        #       I think this might be a side effect for how those frames were collected (but that shouldn't matter)
-        #       Current hypethesis is that this is caused by the use of __trace_depth (i.e. the __trace_depth of frame_2 and frame_3 are the same)
         assert trace_calls(frame_2, 'return', None) == trace_calls
-        assert len(stack) == 3
+        assert len(stack) == 2
         assert stack.bottom()     == root_node
-        assert stack.top   ()     == node_2
-        assert stack              == [root_node, node_1_a, node_2]
+        assert stack.top   ()     == node_1_a
+        assert stack              == [root_node, node_1_a]
+        assert root_node.children == [node_1, node_1_a]
+        assert node_1_a.children  == [node_2]
+        assert node_2.children    == [node_3]
+        assert node_3.children    == []
+
+        assert trace_calls(frame_1, 'return', None) == trace_calls
+        assert len(stack)         == 1
+        assert stack.bottom()     == root_node
+        assert stack.top   ()     == root_node
+        assert stack              == [root_node]
         assert root_node.children == [node_1, node_1_a]
         assert node_1_a.children  == [node_2]
         assert node_2.children    == [node_3]

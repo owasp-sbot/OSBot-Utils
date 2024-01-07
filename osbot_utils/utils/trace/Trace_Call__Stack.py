@@ -29,7 +29,7 @@ class Trace_Call__Stack(Kwargs_To_Self):
         return self.size()
 
     def add_frame(self, frame):
-        if frame:
+        if frame and frame.__class__.__name__=='frame':
             self.call_index += 1  # Increment the call index
             code        = frame.f_code                                                      # Get code object from frame
             func_name   = code.co_name                                                      # Get function name
@@ -118,14 +118,16 @@ class Trace_Call__Stack(Kwargs_To_Self):
         return self.stack_data
 
     def pop(self, frame):
-        if frame:
-            if '__trace_depth' in frame.f_locals:
-                if frame.f_locals['__trace_depth'] == len(self):        # todo change this logic of using __trace_depth to detect when to pop from the stack
-                    self.stack_data.pop()
-                    return True
-                    #self.stack.pop()  # Pop the stack on return if corresponding call was captured
-
+        top_node = self.top()
+        if frame and top_node :
+            if frame is top_node.frame:     # only if they match, pop the stack (since we are only capturing a subset of the stack
+                self.stack_data.pop()
+                return True
         return False
+
+    def push(self, frame):
+        return self.add_frame(frame)
+
 
 
     def top(self):
