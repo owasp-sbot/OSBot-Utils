@@ -22,15 +22,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
         return self.handle_event__call(frame)
 
     def add_node(self, frame, new_node):
-        if frame and new_node:
-            #if list_set(new_node) == ['call_index', 'children', 'name']: # missing the source code fields
-            if type(new_node) is Trace_Call__Stack_Node:
-                self.stack.add_stack_node(new_node)
-                # self.stack[-1].children.append(new_node)         # Insert the new node into the stack
-                # self.stack.append(new_node)                         # Push the new node to the stack
-                frame.f_locals['__trace_depth'] = len(self.stack)   # Store the depth in frame locals
-                return True
-        return False
+        return self.stack.add_stack_node(new_node, frame)
 
     def add_trace_ignore(self, value):
         self.config.trace_ignore_start_with.append(value)
@@ -67,12 +59,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
 
     def handle_event__return(self, frame):
-        if frame:
-            if '__trace_depth' in frame.f_locals:
-                if frame.f_locals['__trace_depth'] == len(self.stack):
-                    self.stack.pop()  # Pop the stack on return if corresponding call was captured
-                    return True
-        return False
+        return self.stack.pop(frame)
 
     def map_source_code(self, frame):
         if self.config.trace_capture_source_code:

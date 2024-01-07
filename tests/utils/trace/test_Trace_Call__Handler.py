@@ -1,6 +1,6 @@
 import sys
 from unittest import TestCase
-from unittest.mock import patch, call, MagicMock, PropertyMock
+from unittest.mock import MagicMock, PropertyMock
 
 from osbot_utils.utils.Call_Stack import call_stack_current_frame
 from osbot_utils.utils.Dev import pprint

@@ -28,11 +28,13 @@ class Trace_Call__Stack(Kwargs_To_Self):
         stack_node = self.new_stack_node(title, call_index)
         return self.add_stack_node(stack_node)
 
-    def add_stack_node(self, stack_node : Trace_Call__Stack_Node):
+    def add_stack_node(self, stack_node : Trace_Call__Stack_Node, frame=None):
         if type(stack_node) is Trace_Call__Stack_Node:
             if self.stack_data:                                             # if there are items in the stack
                 self.top().children.append(stack_node)                      # add an xref to the new node to the children of the top node
             self.stack_data.append(stack_node)                              # append the new node to the stack
+            if frame:
+                frame.f_locals['__trace_depth'] = len(self)                 # todo: find a betten way than using adding __trace_depth to locals "to Store the depth in frame locals" (which will used to decide when to pop from the stack)
             return True
         return False
 
@@ -46,8 +48,16 @@ class Trace_Call__Stack(Kwargs_To_Self):
     def nodes(self):
         return self.stack_data
 
-    def pop(self):
-        return self.stack_data.pop()
+    def pop(self, frame):
+        if frame:
+            if '__trace_depth' in frame.f_locals:
+                if frame.f_locals['__trace_depth'] == len(self):        # todo change this logic of using __trace_depth to detect when to pop from the stack
+                    self.stack_data.pop()
+                    return True
+                    #self.stack.pop()  # Pop the stack on return if corresponding call was captured
+
+        return False
+
 
     def top(self):
         if self.stack_data:
