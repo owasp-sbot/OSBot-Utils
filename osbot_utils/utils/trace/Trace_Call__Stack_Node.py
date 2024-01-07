@@ -7,6 +7,8 @@ class Trace_Call__Stack_Node(Kwargs_To_Self):
     call_index          : int
     children            : list
     locals              : dict
+    func_name           : str
+    module              : str
     name                : str
     source_code         : str
     source_code_caller  : str

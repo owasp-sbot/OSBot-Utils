@@ -7,15 +7,13 @@ from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Nod
 DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
 
 class Trace_Call__Handler(Kwargs_To_Self):
-    #call_index : int
     stack      : Trace_Call__Stack
     config     : Trace_Call__Config
 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.trace_title  = self.config.title or DEFAULT_ROOT_NODE_NODE_TITLE                           # Title for the trace
-        #self.stack        = [self.new_stack_node(self.trace_title, self.call_index)]
+        self.trace_title   = self.config.title or DEFAULT_ROOT_NODE_NODE_TITLE                           # Title for the trace root node
         self.stack.config  = self.config
         self.stack.add_node(self.trace_title)
 

@@ -13,8 +13,10 @@ class test_Trace_Call__Stack_Node(TestCase):
     def test___locals__(self):
         expected_values = { 'call_index'            : 0 ,
                             'children'              : [],
+                            'func_name'             : '',
                             'locals'                : {},
                             'name'                  : '',
+                            'module'                : '',
                             'source_code'           : '',
                             'source_code_caller'    : '',
                             'source_code_location'  : ''}
@@ -34,7 +36,9 @@ class test_Trace_Call__Stack_Node(TestCase):
         assert stack_node.__locals__() == { "name"                : name       ,
                                             'locals'              : {}         ,
                                             "children"            : []         ,
+                                            'func_name'           : ''         ,
                                             "call_index"          : call_index ,
+                                            'module'              : ''         ,
                                             'source_code'         : ''         ,
                                             'source_code_caller'  : ''         ,
                                             'source_code_location': ''         }

@@ -63,13 +63,18 @@ class Trace_Call__Stack(Kwargs_To_Self):
 
     def create_stack_node(self, frame, full_name, source_code, call_index):
         new_node = Trace_Call__Stack_Node(call_index=call_index, name=full_name)
-        if source_code:
-             new_node.source_code           = source_code.get('source_code'          )
-             new_node.source_code_caller    = source_code.get('source_code_caller'   )
-             new_node.source_code_location  = source_code.get('source_code_location' )
+        if frame:
+            code      = frame.f_code
+            new_node.func_name = code.co_name                           # Get function name
+            new_node.module    = frame.f_globals.get("__name__", "")    # Get module name
+            if source_code:
+                 new_node.source_code           = source_code.get('source_code'          )
+                 new_node.source_code_caller    = source_code.get('source_code_caller'   )
+                 new_node.source_code_location  = source_code.get('source_code_location' )
 
-        if self.config.capture_locals and frame:
-            new_node.locals = frame.f_locals
+
+            if self.config.capture_locals and frame:
+                new_node.locals = frame.f_locals
         return new_node
 
     def map_source_code(self, frame):
