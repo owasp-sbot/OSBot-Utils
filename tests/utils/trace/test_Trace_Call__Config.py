@@ -14,6 +14,7 @@ class test_Trace_Call__Config(TestCase):
 
     def test__kwargs__(self):
         expected_data = { 'capture_frame'            : True  ,
+                          'capture_frame_stats'      : False ,
                           'capture_locals'           : True  ,
                           'capture_source_code'      : False ,
                           'capture_start_with'       : []    ,

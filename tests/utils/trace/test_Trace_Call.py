@@ -29,6 +29,7 @@ class test_Trace_Call(TestCase):
 
     def setUp(self):
         self.trace_call       = Trace_Call()
+        self.config           = self.trace_call.config
         self.handler          = self.trace_call.trace_call_handler
         self.trace_view_model = self.trace_call.trace_call_view_model
 
@@ -179,7 +180,54 @@ class test_Trace_Call(TestCase):
                                                        event_line       = event_line    ,
                                                        event_return     = event_return  ,
                                                        event_unknown    = 0             )
+    def test__config_capture_frame_stats(self):
+        self.config.capture_frame_stats    = True
+        self.config.show_parent_info = False
+        self.config.trace_capture_contains = ['random_filename', 'file_extension_fix']
+        with self.trace_call:
+            with Temp_File() as temp_file:
+                with Temp_File() as temp_file:
+                    def an_temp_file():
+                        return temp_file.tmp_file
 
+                    an_temp_file()
+
+        assert self.trace_call.stats() == Trace_Call__Stats(event_call      = 97  ,
+                                                            event_exception = 4   ,
+                                                            event_line      = 511 ,
+                                                            event_return    = 95  ,
+                                                            event_unknown   = 0 )
+
+        with patch('builtins.print') as builtins_print:
+            view_model = self.trace_view_model.create(self.trace_call.stack)
+            self.trace_call.trace_call_print_traces.print_traces(view_model)
+
+        assert builtins_print.call_args_list == [call(),
+                                                 call('--------- CALL TRACER ----------'),
+                                                 call('Here are the 5 traces captured\n'),
+                                                 call('\x1b[1m📦  Trace Session\x1b[0m'),
+                                                 call('\x1b[1m│   ├── 🔗️ random_filename\x1b[0m'),
+                                                 call('\x1b[1m│   │   └── 🧩️ file_extension_fix\x1b[0m'),
+                                                 call('\x1b[1m│   └── 🔗️ random_filename\x1b[0m'),
+                                                 call('\x1b[1m└────── 🧩️ file_extension_fix\x1b[0m')] != []
+
+        assert list_set(self.handler.stats.frames_stats()) == ['codecs', 'genericpath', 'os',
+                                                               'osbot_utils', 'posixpath', 'random', 'shutil',
+                                                               'tempfile', 'test_Trace_Call']
+
+        assert self.handler.stats.frames_stats().get('osbot_utils') == { 'testing': {'Temp_File': {'__enter__': 2, '__exit__': 2, '__init__': 2}},
+                                                                         'utils': {'Files': {'delete': 2,
+                                                                                             'exists': 4,
+                                                                                             'file_extension_fix': 2,
+                                                                                             'folder_delete_all': 2,
+                                                                                             'folder_exists': 4,
+                                                                                             'is_file': 4,
+                                                                                             'is_folder': 4,
+                                                                                             'path_combine': 2,
+                                                                                             'temp_folder': 2,
+                                                                                             'write': 2},
+                                                                                   'Misc': {'random_filename': 2},
+                                                                                   'trace': {'Trace_Call': {'__exit__': 1, 'stop': 1}}}}
 
 class test_Pickle(TestCase):
 
@@ -190,16 +238,24 @@ class test_Pickle(TestCase):
         call_handler            = trace_call.trace_call_handler
 
         call_handler                 .config.capture_locals            = False
-        #trace_call.trace_call_handler.config.trace_capture_start_with  = ['']
-        trace_call.trace_call_handler.config.trace_capture_contains     = ['print']
+        trace_call.trace_call_handler.config.trace_capture_start_with  = ['*']
+        #trace_call.trace_call_handler.config.trace_capture_contains     = ['print']
         trace_call_print_traces      .config.show_parent_info          = True
         #trace_call_print_traces      .config.print_locals              = False
+        import requests
+        trace_call.config.capture_frame_stats = True
         with trace_call:
             with Temp_File() as temp_file:
-                pprint(temp_file.tmp_file)
+                def an_temp_file():
+                    return temp_file.tmp_file
+                an_temp_file()
+
+
 
         stack       = trace_call.stack
         #pprint(stack)
         view_model  = trace_call__view_model.create(stack)
-        trace_call_print_traces.print_traces(view_model)
-        call_handler.stats.print()
+        #trace_call_print_traces.print_traces(view_model)
+
+        #pprint(call_handler.stats.raw_call_stats)
+        #pprint(call_handler.stats.frames_stats())

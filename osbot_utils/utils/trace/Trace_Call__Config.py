@@ -6,6 +6,7 @@ class Trace_Call__Config(Kwargs_To_Self):
     title                     : str
     capture_locals            : bool = True
     capture_frame             : bool = True
+    capture_frame_stats       : bool = False
     capture_source_code       : bool
     ignore_start_with         : list
     capture_start_with        : list

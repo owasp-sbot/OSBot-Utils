@@ -28,10 +28,11 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
     def handle_event__call(self, frame):
         if frame:
-            self.stats.log_frame(frame)
             code        = frame.f_code                                                      # Get code object from frame
             func_name   = code.co_name                                                      # Get function name
             module      = frame.f_globals.get("__name__", "")                               # Get module name
+            if self.config.capture_frame_stats:
+                self.stats.log_frame(frame)
             capture     = self.should_capture(module, func_name)
             if capture:
                 return self.stack.add_frame(frame)
@@ -48,7 +49,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
             else:
                 for item in self.config.trace_capture_start_with:                                  # capture if the module starts with
                     if item:                                                                       # prevent empty queries  (which will always be true)
-                        if module.startswith(item):
+                        if module.startswith(item) or item =='*':
                             capture = True
                             break
                 for item in self.config.trace_capture_contains:                                    # capture if module of func_name contains
