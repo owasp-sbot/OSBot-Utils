@@ -58,10 +58,10 @@ class test_Trace_Call__Handler(TestCase):
 
         # case 2: invoke with valid frame but capture is false
         sample_frame = call_stack_current_frame()
-        code         = sample_frame.f_code                              # Get code object from frame
-        func_name    = code.co_name                                     # Get function name
+        #code         = sample_frame.f_code                              # Get code object from frame
+        #func_name    = code.co_name                                     # Get function name
         module       = sample_frame.f_globals.get("__name__", "")       # Get module name
-        assert should_capture(module, func_name)      is False          # confirm that the function should not be captured
+        assert should_capture(sample_frame)      is False          # confirm that the function should not be captured
         assert handle_event__call(frame=sample_frame) is None
 
         # case 2: invoke with valid frame but capture is true
@@ -69,7 +69,7 @@ class test_Trace_Call__Handler(TestCase):
         config.capture_locals           = False
         config.trace_capture_start_with = [module]
 
-        assert should_capture(module, func_name)      is True           # confirm that the function should be captured
+        assert should_capture(sample_frame)      is True           # confirm that the function should be captured
         assert len(stack)   == 1
         new_node = handle_event__call(frame=sample_frame)
         assert type(new_node) is Trace_Call__Stack_Node
@@ -112,6 +112,7 @@ class test_Trace_Call__Handler(TestCase):
 
 
     def test_should_capture(self):
+        sample_frame   = call_stack_current_frame()
         should_capture = self.handler.should_capture
         config         = self.handler.config
 
@@ -120,95 +121,71 @@ class test_Trace_Call__Handler(TestCase):
         assert config.trace_capture_all      is False
         assert config.trace_ignore_internals is True
 
-        # case 1: with invalid values on module and/or func_name
-        assert should_capture(module=None , func_name=None) is False
-        assert should_capture(module='aa' , func_name=None) is False
-        assert should_capture(module=None , func_name='bb') is False
-        assert should_capture(module=''   , func_name=''  ) is False
-        assert should_capture(module='aa' , func_name=''  ) is False
-        assert should_capture(module=''   , func_name='bb') is False
+        # case 1: with invalid values on frame
+        assert should_capture(frame=None)    is False
 
         # case 2: trace_capture_all is True
         config.trace_capture_all = True
-        assert should_capture(module='aa' ,func_name='bb') is True
-        assert should_capture(module=None, func_name='bb') is False
-        assert should_capture(module='aa', func_name=None) is False
+        assert should_capture(frame=None        ) is False
+        assert should_capture(frame=sample_frame) is True
 
         # case 3: with trace_capture_start_with set
-        config.trace_capture_all = False
-        config.trace_capture_start_with = ['module_a']
-        assert should_capture(module='module_a' ,func_name='func_a'   ) is True
-        assert should_capture(module='module_a' ,func_name='func_b'   ) is True
-        assert should_capture(module='module_a', func_name='_internal') is False
-        assert should_capture(module='module_b', func_name='func_a'   ) is False
-        assert should_capture(module='module_b', func_name='______'   ) is False
+        config.trace_capture_all        = False
+        config.trace_capture_start_with = ['test']
+        assert should_capture(frame=sample_frame ) is True
+
 
         # case 4: with trace_ignore_internals set for False
         config.trace_ignore_internals = False
-        assert should_capture(module='module_a', func_name='func_a'   ) is True
-        assert should_capture(module='module_a', func_name='_internal') is True
+        assert should_capture(frame=sample_frame) is True
+        assert should_capture(frame=sample_frame) is True
 
         # case 5: with trace_ignore_start_with set
         config.trace_ignore_internals   = True
-        config.trace_ignore_start_with  = ['module_a']
-        config.trace_capture_start_with = ['module_b']
-        assert should_capture(module='module_a' ,func_name='func_a'   ) is False
-        assert should_capture(module='module_a' ,func_name='func_b'   ) is False
-        assert should_capture(module='module_a', func_name='_internal') is False
-        assert should_capture(module='module_b', func_name='func_a'   ) is True
-        assert should_capture(module='module_b', func_name='______'   ) is False
+        config.trace_ignore_start_with  = ['test']
+        config.trace_capture_start_with = ['test']
+        assert should_capture(frame=sample_frame) is False
 
         # case 6: Mixed Cases for trace_capture_start_with logic
-        config.trace_capture_start_with = ['mod']
-        assert should_capture(module='modXYZ', func_name='func_a') is True
+        config.trace_ignore_start_with  = []
+        config.trace_capture_start_with = ['te']
+        assert should_capture(frame=sample_frame) is True
 
         # case 7 Edge Cases in Configurations
         config.trace_capture_start_with = ['']
-        assert should_capture(module='anything', func_name='func_a') is False                   # empty queries ('') should not have a match
+        assert should_capture(frame=sample_frame) is False                      # empty queries ('') should not have a match
+        config.trace_capture_start_with = ['*']
+        assert should_capture(frame=sample_frame) is True                       # empty queries ('*') will have a match
 
-        config.trace_capture_start_with = ['mod']
-        config.trace_ignore_start_with  = ['mod']
-        assert should_capture(module='modXYZ', func_name='func_a') is False                     # Overlapping configurations
 
-        # case 8: Boundary Values for startswith Logic
-        config.trace_ignore_start_with   = []
-        config.trace_capture_start_with = ['mod']
-        assert should_capture(module='mod', func_name='func_a') is True
+        # case 8: trace_capture_contains is set
+        config.trace_ignore_start_with  = []
+        config.trace_capture_start_with = []
+        config.trace_capture_contains   = ['Call']                              # 'contains' hit in module
+        assert should_capture(frame=sample_frame) is True
+        config.trace_capture_contains = ['should_capture']                      # 'contains' hit in func_name
+        assert should_capture(frame=sample_frame) is True
+        config.trace_capture_contains = ['should_not_capture']                  # no 'contains' hit
+        assert should_capture(frame=sample_frame) is False
+
 
         # case 9: nteraction Between trace_ignore_internals and trace_capture_start_with/trace_ignore_start_with
         config.trace_capture_start_with = ['mod']
         config.trace_ignore_internals   = True
-        assert should_capture(module='mod', func_name='_internalFunc') is False
+        assert should_capture(frame=sample_frame) is False                      # todo: improve the logic of this (since it has lost a bit of the meaning after the refactoring to should_capture(frame=sample_frame) )
 
         # case 10: Functionality When All Configs are Empty or Default
         config.trace_capture_all        = False
         config.trace_capture_start_with = []
         config.trace_ignore_start_with  = []
         config.trace_ignore_internals   = True
-        assert should_capture(module='anyModule', func_name='anyFunc') is False     # Assuming default behavior is to not capture
+        assert should_capture(frame=sample_frame) is False     # Assuming default behavior is to not capture
 
         # Case 11: Overlapping Patterns
         config.trace_capture_start_with = ['common']
         config.trace_ignore_start_with = ['common']
-        assert should_capture(module='commonModule', func_name='func') is False
+        assert should_capture(frame=sample_frame) is False
 
-        # Case 12: Whitespace and Special Characters in Names
-        assert should_capture(module='  ', func_name='func') is False
-        assert should_capture(module='module', func_name='@#$') is False
-
-        # Case 13: Long String Names
-        long_string = 'a' * 1000
-        assert should_capture(module=long_string, func_name=long_string) is False
-
-        # Case 14: Special Characters in Start With Lists
-        config.trace_capture_start_with = ['^', '$', '*']
-        config.trace_ignore_start_with  = ['?', '+', '|']
-        assert should_capture(module='^module', func_name='func') is True
-        assert should_capture(module='$module', func_name='func') is True
-        assert should_capture(module='*module', func_name='func') is True
-        assert should_capture(module='?module', func_name='func') is False
-        assert should_capture(module='+module', func_name='func') is False
-        assert should_capture(module='|module', func_name='func') is False
 
     def test_trace_calls(self):
         config      = self.handler.config

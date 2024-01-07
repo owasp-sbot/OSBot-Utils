@@ -28,42 +28,43 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
     def handle_event__call(self, frame):
         if frame:
-            code        = frame.f_code                                                      # Get code object from frame
-            func_name   = code.co_name                                                      # Get function name
-            module      = frame.f_globals.get("__name__", "")                               # Get module name
             if self.config.capture_frame_stats:
                 self.stats.log_frame(frame)
-            capture     = self.should_capture(module, func_name)
-            if capture:
+            if self.should_capture(frame):
                 return self.stack.add_frame(frame)
 
 
     def handle_event__return(self, frame):
         return self.stack.pop(frame)
 
-    def should_capture(self, module, func_name):
+    def should_capture(self, frame):                                                    # todo: see if we can optimise these 3 lines (starting with frame.f_code) which are repeated in a number of places here
         capture = False
-        if module and func_name:
-            if self.config.trace_capture_all:
-                capture = True
-            else:
-                for item in self.config.trace_capture_start_with:                                  # capture if the module starts with
-                    if item:                                                                       # prevent empty queries  (which will always be true)
-                        if module.startswith(item) or item =='*':
-                            capture = True
-                            break
-                for item in self.config.trace_capture_contains:                                    # capture if module of func_name contains
-                    if item:                                                                       # prevent empty queries  (which will always be true)
-                        if item in module or item in func_name:
-                            capture = True
-                            break
-            if self.config.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
-                capture = False
+        if frame:
+            code        = frame.f_code                                                      # Get code object from frame
+            func_name   = code.co_name                                                      # Get function name
+            module      = frame.f_globals.get("__name__", "")                               # Get module name
 
-            for item in self.config.trace_ignore_start_with:                                       # Check if the module should be ignored
-                if module.startswith(item):
+            if module and func_name:
+                if self.config.trace_capture_all:
+                    capture = True
+                else:
+                    for item in self.config.trace_capture_start_with:                                  # capture if the module starts with
+                        if item:                                                                       # prevent empty queries  (which will always be true)
+                            if module.startswith(item) or item =='*':
+                                capture = True
+                                break
+                    for item in self.config.trace_capture_contains:                                    # capture if module of func_name contains
+                        if item:                                                                       # prevent empty queries  (which will always be true)
+                            if item in module or item in func_name:
+                                capture = True
+                                break
+                if self.config.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
                     capture = False
-                    break
+
+                for item in self.config.trace_ignore_start_with:                                       # Check if the module should be ignored
+                    if module.startswith(item):
+                        capture = False
+                        break
         return capture
 
     def stack_json__parse_node(self, stack_node: Trace_Call__Stack_Node):
