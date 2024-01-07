@@ -19,6 +19,10 @@ class Trace_Call__Stats(Kwargs_To_Self):
             return True
         return self.stats() == target
 
+    def log_frame(self, frame):
+        #print('in_log_frame')
+        pass
+
     def stats(self):
         return self.__locals__()
 

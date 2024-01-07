@@ -28,6 +28,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
     def handle_event__call(self, frame):
         if frame:
+            self.stats.log_frame(frame)
             code        = frame.f_code                                                      # Get code object from frame
             func_name   = code.co_name                                                      # Get function name
             module      = frame.f_globals.get("__name__", "")                               # Get module name

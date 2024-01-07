@@ -2,6 +2,7 @@ import base64
 import hashlib
 import importlib
 import logging
+import os
 import random
 import string
 import sys
@@ -132,6 +133,9 @@ def get_random_color(max=5):
     if max > 5: max = 5                                                             # add support for more than 5 colors
     colors = ['skyblue', 'darkseagreen', 'palevioletred', 'coral', 'darkgray']
     return colors[random_number(0, max-1)]
+
+def in_github_action():
+    return os.getenv('GITHUB_ACTIONS') == 'true'
 
 def is_debugging():
     return sys.gettrace() is not None
