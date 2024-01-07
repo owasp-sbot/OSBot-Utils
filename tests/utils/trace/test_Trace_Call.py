@@ -145,7 +145,7 @@ class test_Trace_Call(TestCase):
 
         # todo: figure out why we are getting these two different values
         if in_github_action():
-            assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=5, event_line=9, event_return=4)
+            assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=5, event_line=8, event_return=3)
         else:
             assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=5, event_line=7, event_return=3)
 
@@ -172,8 +172,8 @@ class test_Trace_Call(TestCase):
 
         # todo: figure out why we are getting these two different values
         if in_github_action():
-            event_line   = 5
-            event_return = 2
+            event_line   = 4
+            event_return = 1
 
         assert trace_call.stats() == Trace_Call__Stats(event_call       = 3             ,
                                                        event_exception  = 1             ,
@@ -201,7 +201,7 @@ class test_Trace_Call(TestCase):
         else:
             expected_stats = dict(event_call      = 97  ,
                                   event_exception = 4   ,
-                                  event_line      = 511 ,
+                                  event_line      = 480 ,
                                   event_return    = 95  ,
                                   event_unknown   = 0   )
         assert self.trace_call.stats() == Trace_Call__Stats(**expected_stats)

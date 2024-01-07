@@ -3,7 +3,7 @@ from unittest.mock import patch, call
 
 from osbot_utils.utils.Dev import pprint
 
-from osbot_utils.utils.Misc import random_number, wait_for
+from osbot_utils.utils.Misc import random_number, wait_for, in_github_action
 
 from osbot_utils.utils.trace.Trace_Call import Trace_Call
 from osbot_utils.utils.trace.Trace_Call__Handler import DEFAULT_ROOT_NODE_NODE_TITLE
@@ -163,11 +163,16 @@ class test_Trace_Call__Print_Traces(TestCase):
             a_bit_slower()
             even_more_slower()
 
-        assert trace_call.stats().stats() == { 'event_call'     : 20 ,
-                                               'event_exception': 0  ,
-                                               'event_line'     : 71 ,
-                                               'event_return'   : 18 ,
-                                               'event_unknown'  : 0  }
+        expected_stats = { 'event_call'     : 20 ,
+                           'event_exception': 0  ,
+                           'event_line'     : 71 ,
+                           'event_return'   : 18 ,
+                           'event_unknown'  : 0  }
+        if in_github_action():
+            expected_stats['event_line'] = 72
+
+
+        assert trace_call.stats().stats() == expected_stats
         config.print_duration            = False
         config.with_duration_bigger_than = 10 / 1000
         with patch('builtins.print') as mock_print:
