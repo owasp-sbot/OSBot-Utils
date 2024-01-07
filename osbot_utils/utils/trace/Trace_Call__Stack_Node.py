@@ -1,3 +1,5 @@
+from osbot_utils.utils.Dev import pprint
+
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 
@@ -23,3 +25,6 @@ class Trace_Call__Stack_Node(Kwargs_To_Self):
 
     def data(self):
         return self.__locals__()
+
+    def print(self):
+        pprint(self.data())

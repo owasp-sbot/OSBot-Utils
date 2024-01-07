@@ -3,7 +3,9 @@ import traceback
 
 from osbot_utils.utils.Objects import obj_data
 
-def call_stack_current_frame():
+def call_stack_current_frame(return_caller=True):
+    if return_caller:
+        return sys._getframe().f_back
     return sys._getframe()
 
 def call_stack_format_stack(depth=None):
