@@ -179,26 +179,14 @@ class test_Trace_Call__Stack(TestCase):
         new_node = stack.add_frame(test_data.frame_1)
         assert len(stack) == 2
         assert stack == [root_node, new_node]
-        #handler.config.trace_capture_all = True
-        #assert handler.add_frame(frame=test_data.frame_1) is True
 
-        #pprint(self.handler.stack)
-        #self.handler.stack[0].print()
-
-        #pprint(frames_test_data.__locals__())
-
-        # frame_1, frame_2, frame_3 = test_frame_1()
-        #
-        # frame_1, frame_2, frame_3 = test_frame_1()
-        # pprint(frame_1, frame_2, frame_3)
-
-    def test_bug__pop_doesnt_remove_node(self):
+    def test_regression__pop_doesnt_remove_node(self):
         sample_frame = call_stack_current_frame()
         stack        = self.stack
         node_1       = stack.push(sample_frame)             # add frame to the stack
         assert stack == [node_1]
-        assert stack.pop(sample_frame) is True              # pop frame from stack
-        assert stack == []                                  # check that stack is empyty
+        assert stack.pop(sample_frame) is True              # pop frame from stack              | bug was here
+        assert stack == []                                  # check that stack is empyty        | bug was here
 
 class Frames_Test_Data(Kwargs_To_Self):
     frame_1 = None

@@ -14,7 +14,7 @@ from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
 from osbot_utils.utils.trace.Trace_Call__Handler import Trace_Call__Handler, DEFAULT_ROOT_NODE_NODE_TITLE
 from osbot_utils.utils.trace.Trace_Call__Stack import Trace_Call__Stack
 from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
-
+from osbot_utils.utils.trace.Trace_Call__Stats import Trace_Call__Stats
 
 
 class test_Trace_Call__Handler(TestCase):
@@ -24,9 +24,10 @@ class test_Trace_Call__Handler(TestCase):
 
     def test___default_kwargs(self):
         default_kwargs = Trace_Call__Handler.__default_kwargs__()
-        assert list_set(default_kwargs) == ['config', 'stack']
+        assert list_set(default_kwargs) == ['config', 'stack', 'stats']
         assert type(default_kwargs.get('config')) is Trace_Call__Config
-        assert type(default_kwargs.get('stack')) is Trace_Call__Stack
+        assert type(default_kwargs.get('stack' )) is Trace_Call__Stack
+        assert type(default_kwargs.get('stats' )) is Trace_Call__Stats
 
 
 
@@ -69,21 +70,13 @@ class test_Trace_Call__Handler(TestCase):
         config.trace_capture_start_with = [module]
 
         assert should_capture(module, func_name)      is True           # confirm that the function should be captured
-        assert len(stack) == 1
+        assert len(stack)   == 1
         new_node = handle_event__call(frame=sample_frame)
         assert type(new_node) is Trace_Call__Stack_Node
-        assert stack[-1] == new_node
-        assert len(stack) == 2
+        assert stack[-1]    == new_node
+        assert len(stack)   == 2
         assert new_node == Trace_Call__Stack_Node(call_index=1, frame=sample_frame, func_name='test_handle_event__call', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call', module='test_Trace_Call__Handler')
-        # assert new_node.data() == { 'call_index'          : 1                         ,
-        #                             'children'            : []                        ,
-        #                             'locals'              : {}                        ,
-        #                             'func_name'           : 'test_handle_event__call' ,
-        #                             'name'                : 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call',
-        #                             'module'              : 'test_Trace_Call__Handler',
-        #                             'source_code'         : ''    ,
-        #                             'source_code_caller'  : ''    ,
-        #                             'source_code_location': ''    }
+
 
     def test_handle_event__return(self):
         config               = self.handler.config
@@ -116,7 +109,6 @@ class test_Trace_Call__Handler(TestCase):
         node_1    = root_node.children[0]
         assert root_node ==  Trace_Call__Stack_Node(call_index=0, children=[node_1], frame=None        , func_name='',                          name= DEFAULT_ROOT_NODE_NODE_TITLE                                                 , module=''                        )
         assert node_1    ==  Trace_Call__Stack_Node(call_index=1, children=[      ], frame=sample_frame, func_name='test_handle_event__return', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__return', module='test_Trace_Call__Handler')
-
 
 
     def test_should_capture(self):
@@ -231,7 +223,8 @@ class test_Trace_Call__Handler(TestCase):
         assert type(frame_2).__name__ == 'frame'
         assert type(frame_3).__name__ == 'frame'
 
-        assert len(stack) == 1
+        assert len(stack)         == 1
+        assert self.handler.stats == Trace_Call__Stats()
 
         # case 1: with bad data
         assert trace_calls(frame=frame_1, event=None    , arg=None) == trace_calls
@@ -248,6 +241,7 @@ class test_Trace_Call__Handler(TestCase):
         # case 3: with valid frame and event buy with no capture
         assert stack[0].data() == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE).data()
         root_node = stack[0]
+        assert self.handler.stats == Trace_Call__Stats(event_call= 2, event_return=1)
 
         config.trace_capture_all = True
         assert trace_calls(frame_1, 'call', None) == trace_calls
@@ -321,6 +315,7 @@ class test_Trace_Call__Handler(TestCase):
                                                             frame      = frame_3                                                            ,
                                                             module     = 'test_Trace_Call__Handler'                                          ,
                                                             name       = 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls' )
+        assert self.handler.stats == Trace_Call__Stats(event_call=6, event_return=2)
 
 
         assert trace_calls(frame_3, 'return', None) == trace_calls
@@ -332,6 +327,7 @@ class test_Trace_Call__Handler(TestCase):
         assert node_1_a.children  == [node_2]
         assert node_2.children    == [node_3]
         assert node_3.children    == []
+        assert self.handler.stats == Trace_Call__Stats(event_call=6, event_return=3)
 
         assert trace_calls(frame_2, 'return', None) == trace_calls
         assert len(stack) == 2
@@ -352,6 +348,7 @@ class test_Trace_Call__Handler(TestCase):
         assert node_1_a.children  == [node_2]
         assert node_2.children    == [node_3]
         assert node_3.children    == []
+        assert self.handler.stats == Trace_Call__Stats(event_call=6, event_return=5)
 
 
 

@@ -113,7 +113,6 @@ class test_Trace_Call(TestCase):
         assert trace_view_model.view_model        == []        , "view_model should be empty initially"
         assert print_traces.config.print_on_exit is False     , "print_traces_on_exit should be False initially"
 
-        assert trace_call.stack_json()           == [Trace_Call__Stack_Node(name=handler.trace_title).data()]
         assert trace_call.stack[0]               == Trace_Call__Stack_Node(name=handler.trace_title)
 
         # Test the enter and exit methods

@@ -1,14 +1,16 @@
 import linecache
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
-from osbot_utils.utils.trace.Trace_Call__Stack import Trace_Call__Stack
+from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
+from osbot_utils.utils.trace.Trace_Call__Config     import Trace_Call__Config
+from osbot_utils.utils.trace.Trace_Call__Stack      import Trace_Call__Stack
 from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
+from osbot_utils.utils.trace.Trace_Call__Stats      import Trace_Call__Stats
 
 DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
 
 class Trace_Call__Handler(Kwargs_To_Self):
-    stack      : Trace_Call__Stack
-    config     : Trace_Call__Config
+    config : Trace_Call__Config
+    stack  : Trace_Call__Stack
+    stats  : Trace_Call__Stats
 
 
     def __init__(self, **kwargs):
@@ -56,14 +58,6 @@ class Trace_Call__Handler(Kwargs_To_Self):
                     break
         return capture
 
-    # todo: replace or remove this temp method to help with refactoring
-    def stack_json(self):
-        data = []
-        for stack_node in self.stack:
-            item = self.stack_json__parse_node(stack_node)
-            data.append(item)
-        return data
-
     def stack_json__parse_node(self, stack_node: Trace_Call__Stack_Node):
         node         = stack_node.data()
         new_children = []
@@ -78,7 +72,9 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
     def trace_calls(self, frame, event, arg):
         if event == 'call':
+            self.stats.event_call +=1
             self.handle_event__call(frame)
         elif event == 'return':
+            self.stats.event_return += 1
             self.handle_event__return(frame)
         return self.trace_calls
