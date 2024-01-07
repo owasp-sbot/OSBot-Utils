@@ -13,7 +13,8 @@ class test_Trace_Call__Config(TestCase):
         assert type(default_value(Trace_Call__Config)) is Trace_Call__Config
 
     def test__kwargs__(self):
-        expected_data = { 'capture_frame'            : True  ,
+        expected_data = { 'capture_duration'         : False ,
+                          'capture_frame'            : True  ,
                           'capture_frame_stats'      : False ,
                           'capture_locals'           : True  ,
                           'capture_source_code'      : False ,

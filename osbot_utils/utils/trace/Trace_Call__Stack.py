@@ -1,4 +1,5 @@
 import linecache
+import time
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
@@ -9,6 +10,7 @@ class Trace_Call__Stack(Kwargs_To_Self):
     call_index : int
     stack_data : list
     config     : Trace_Call__Config
+    root_node  : Trace_Call__Stack_Node
 
     def __eq__(self, target):
         if self is target:
@@ -51,6 +53,8 @@ class Trace_Call__Stack(Kwargs_To_Self):
         if type(stack_node) is Trace_Call__Stack_Node:
             if self.stack_data:                                             # if there are items in the stack
                 self.top().children.append(stack_node)                      # add an xref to the new node to the children of the top node
+            else:
+                self.root_node = stack_node                                 # if not this is the first node and capture it as a root node
             self.stack_data.append(stack_node)                              # append the new node to the stack
             return True
         return False
@@ -74,6 +78,8 @@ class Trace_Call__Stack(Kwargs_To_Self):
                 new_node.frame = frame
             if self.config.capture_locals:
                 new_node.locals = frame.f_locals
+            if self.config.capture_duration:
+                new_node.call_start = time.perf_counter()
         return new_node
 
     def map_source_code(self, frame):
@@ -115,12 +121,20 @@ class Trace_Call__Stack(Kwargs_To_Self):
     def nodes(self):
         return self.stack_data
 
-    def pop(self, frame):
+    def remove_from_top(self, top_node):
+        if self.config.capture_duration:
+            top_node.call_end     = time.perf_counter()
+            top_node.call_duration = top_node.call_end - top_node.call_start
+        self.stack_data.pop()
+        return True
+    def pop(self, target):
         top_node = self.top()
-        if frame and top_node :
-            if frame is top_node.frame:     # only if they match, pop the stack (since we are only capturing a subset of the stack
-                self.stack_data.pop()
-                return True
+        if target and top_node :
+            if type(target) is Trace_Call__Stack_Node:      # handle the case when target is Trace_Call__Stack_Node
+                if target == top_node:                      # if they match, pop the stack (since we are only capturing a subset of the stack)
+                    return self.remove_from_top(top_node)
+            elif target is top_node.frame:                  # if not assume target is a frame
+                return self.remove_from_top(top_node)               # if they match, pop the stack (since we are only capturing a subset of the stack)
         return False
 
     def push(self, frame):

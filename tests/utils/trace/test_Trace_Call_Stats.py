@@ -25,12 +25,15 @@ class test_Trace_Call_Stats(TestCase):
         assert Trace_Call__Stats().__locals__      () == expected_locals
 
     def test_log_frame(self):
-        print()
         test_frames = Frames_Test_Data()
         stats           = self.trace_call_stats
 
         stats.log_frame(test_frames.frame_1)
         stats.log_frame(test_frames.frame_2)
 
-        pprint(stats.frames_stats())
+        assert stats.frames_stats() == { 'tests':
+                                             { 'utils':
+                                                   { 'trace':
+                                                         { 'test_Trace_Call__Stack': { 'get_frame_1': 1, 'get_frame_2': 1}}}}}
+
 

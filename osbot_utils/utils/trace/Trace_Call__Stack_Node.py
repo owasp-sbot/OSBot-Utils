@@ -4,7 +4,10 @@ from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 
 class Trace_Call__Stack_Node(Kwargs_To_Self):
+    call_duration       : float
+    call_end            : float
     call_index          : int
+    call_start          : float
     children            : list
     locals              : dict
     frame               : None

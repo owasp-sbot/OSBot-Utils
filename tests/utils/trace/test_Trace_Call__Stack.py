@@ -7,7 +7,7 @@ from osbot_utils.utils.Call_Stack import call_stack_current_frame
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Functions import method_line_number
 
-from osbot_utils.utils.Misc import random_string, random_int
+from osbot_utils.utils.Misc import random_string, random_int, wait_for
 from osbot_utils.utils.trace.Trace_Call__Handler import DEFAULT_ROOT_NODE_NODE_TITLE
 
 from osbot_utils.utils.trace.Trace_Call__Stack import Trace_Call__Stack
@@ -164,6 +164,66 @@ class test_Trace_Call__Stack(TestCase):
                                  'source_code_location': source_code_location                           }
 
 
+    def test_push_and_pop(self):
+        self.stack.config.capture_duration = True
+        test_data = Frames_Test_Data()
+        frame_1   = test_data.frame_1
+        frame_2   = test_data.frame_2
+        frame_3   = test_data.frame_3
+        stack = self.stack
+        assert stack == []
+
+        node_1 = stack.push(frame_1)       ; assert stack == [node_1]
+        node_2 = stack.push(frame_2)       ; assert stack == [node_1,node_2]
+        node_3 = stack.push(frame_3)       ; assert stack == [node_1, node_2, node_3]
+        node_4 = stack.push(frame_1)       ; assert stack == [node_1, node_2, node_3, node_4]
+
+        assert stack.root_node == node_1
+        assert stack.pop(node_1 ) is False ; assert stack == [node_1, node_2, node_3, node_4]
+        assert stack.pop(node_2 ) is False ; assert stack == [node_1, node_2, node_3, node_4]
+        assert stack.pop(node_3 ) is False ; assert stack == [node_1, node_2, node_3, node_4]
+        assert stack.pop(node_4 ) is True  ; assert stack == [node_1, node_2, node_3        ]
+
+        node_5 = stack.push(frame_3)       ; assert stack == [node_1, node_2, node_3, node_5]
+        assert stack.pop(node_1 ) is False ; assert stack == [node_1, node_2, node_3, node_5]
+        assert stack.pop(node_2 ) is False ; assert stack == [node_1, node_2, node_3, node_5]
+        assert stack.pop(node_3 ) is False ; assert stack == [node_1, node_2, node_3, node_5]
+        assert stack.pop(node_5 ) is True  ; assert stack == [node_1, node_2, node_3]
+
+        assert stack.pop(frame_1) is False ; assert stack == [node_1, node_2, node_3        ]
+        assert stack.pop(frame_2) is False ; assert stack == [node_1, node_2, node_3        ]
+        assert stack.pop(frame_3) is True  ; assert stack == [node_1, node_2,               ]
+
+        node_6 = stack.push(frame_1)       ; assert stack == [node_1, node_2, node_6        ]
+        assert stack.pop(frame_3) is False ; assert stack == [node_1, node_2, node_6        ]
+        assert stack.pop(frame_2) is False ; assert stack == [node_1, node_2, node_6        ]
+        assert stack.pop(frame_1) is True  ; assert stack == [node_1, node_2                ]
+        assert stack.pop(frame_2) is True  ; assert stack == [node_1                        ]
+        assert stack.pop(frame_1) is True  ; assert stack == [                            ]
+
+        assert stack.pop(frame_1) is False
+        assert stack.pop(frame_2) is False
+        assert stack.pop(frame_3) is False
+
+        assert stack           == []
+        assert stack.root_node == node_1
+
+        assert node_1.children == [node_2        ]
+        assert node_2.children == [node_3, node_6]
+        assert node_3.children == [node_4, node_5]
+        assert node_4.children == [              ]
+        assert node_5.children == [              ]
+        assert node_6.children == [              ]
+
+        assert node_1.frame == frame_1
+        assert node_2.frame == frame_2
+        assert node_3.frame == frame_3
+        assert node_4.frame == frame_1
+        assert node_5.frame == frame_3
+        assert node_6.frame == frame_1
+
+        assert node_1.call_start < node_1.call_end
+        assert node_1.call_duration < 0.0003                # these values should be very quick
 
     def test_stack_top(self):
         test_data = Frames_Test_Data()
