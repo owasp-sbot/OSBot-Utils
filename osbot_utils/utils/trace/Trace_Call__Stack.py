@@ -72,8 +72,9 @@ class Trace_Call__Stack(Kwargs_To_Self):
                  new_node.source_code_caller    = source_code.get('source_code_caller'   )
                  new_node.source_code_location  = source_code.get('source_code_location' )
 
-
-            if self.config.capture_locals and frame:
+            if self.config.capture_frame:
+                new_node.frame = frame
+            if self.config.capture_locals:
                 new_node.locals = frame.f_locals
         return new_node
 

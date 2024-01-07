@@ -74,7 +74,7 @@ class test_Trace_Call__Handler(TestCase):
         assert type(new_node) is Trace_Call__Stack_Node
         assert stack[-1] == new_node
         assert len(stack) == 2
-        assert new_node == Trace_Call__Stack_Node(call_index=1, func_name='test_handle_event__call', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call', module='test_Trace_Call__Handler')
+        assert new_node == Trace_Call__Stack_Node(call_index=1, frame=sample_frame, func_name='test_handle_event__call', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call', module='test_Trace_Call__Handler')
         # assert new_node.data() == { 'call_index'          : 1                         ,
         #                             'children'            : []                        ,
         #                             'locals'              : {}                        ,
@@ -117,8 +117,8 @@ class test_Trace_Call__Handler(TestCase):
 
         root_node = stack[0]
         node_1    = root_node.children[0]
-        assert root_node ==  Trace_Call__Stack_Node(call_index=0, children=[node_1], func_name='',                          name= DEFAULT_ROOT_NODE_NODE_TITLE                                                 , module=''                        )
-        assert node_1    ==  Trace_Call__Stack_Node(call_index=1, children=[      ], func_name='test_handle_event__return', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__return', module='test_Trace_Call__Handler')
+        assert root_node ==  Trace_Call__Stack_Node(call_index=0, children=[node_1], frame=None        , func_name='',                          name= DEFAULT_ROOT_NODE_NODE_TITLE                                                 , module=''                        )
+        assert node_1    ==  Trace_Call__Stack_Node(call_index=1, children=[      ], frame=sample_frame, func_name='test_handle_event__return', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__return', module='test_Trace_Call__Handler')
 
 
 
@@ -261,8 +261,10 @@ class test_Trace_Call__Handler(TestCase):
         assert stack.bottom() == root_node
         assert stack.top   () == node_1
         assert stack          == [root_node, node_1]
+
         assert root_node      == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE, children=[ node_1])
         assert node_1         == Trace_Call__Stack_Node(call_index = 1                                                       ,
+                                                        frame      = frame_1                                                 ,
                                                         func_name  = 'call_stack_current_frame'                              ,
                                                         locals     = {'__trace_depth': 2, 'return_caller': False }           ,
                                                         module     = 'osbot_utils.utils.Call_Stack'                          ,
@@ -284,6 +286,7 @@ class test_Trace_Call__Handler(TestCase):
         assert root_node.children == [node_1, node_1_a]
         assert node_1_a           == Trace_Call__Stack_Node(call_index = 2                                                       ,
                                                             func_name  = 'call_stack_current_frame'                              ,
+                                                            frame      = frame_1                                                 ,
                                                             locals     = {'__trace_depth': 2, 'return_caller': False }           ,
                                                             module     = 'osbot_utils.utils.Call_Stack'                          ,
                                                             name       = 'osbot_utils.utils.Call_Stack.call_stack_current_frame' )
@@ -300,6 +303,7 @@ class test_Trace_Call__Handler(TestCase):
         assert node_1_a.children  == [node_2]
         assert node_2.children    == []
         assert node_2             == Trace_Call__Stack_Node(call_index = 3                                                                  ,
+                                                            frame      = frame_2                                                            ,
                                                             func_name  = 'test_trace_calls'                                                 ,
                                                             module     = 'test_Trace_Call__Handler'                                         ,
                                                             name       = 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls' )
@@ -317,6 +321,7 @@ class test_Trace_Call__Handler(TestCase):
         assert node_3.children    == []                                             # todo: figure out why the func_name and module and the same as none_3
         assert node_3             == Trace_Call__Stack_Node(call_index = 4                                                                   ,
                                                             func_name  = 'test_trace_calls'                                                  ,
+                                                            frame      = frame_3                                                            ,
                                                             module     = 'test_Trace_Call__Handler'                                          ,
                                                             name       = 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls' )
 
@@ -377,7 +382,8 @@ class test_Trace_Call__Handler(TestCase):
                                     'self':stack_1_locals.get('self')}
 
         assert stack_1.data() == Trace_Call__Stack_Node(call_index = 1,
-                                                        func_name  = 'test_trace_calls__direct_invoke',
+                                                        func_name  = 'test_trace_calls__direct_invoke'  ,
+                                                        frame      = frame                              ,
                                                         name       = 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls__direct_invoke',
                                                         module     = 'test_Trace_Call__Handler').data()
 

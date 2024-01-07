@@ -72,9 +72,9 @@ class test_Trace_Call__Stack(TestCase):
         assert root_node.children                          == [node_1]
         node_1.locals = {}
         node_2.locals = {}
-        assert root_node                                   == Trace_Call__Stack_Node(call_index=0, children=[node_1], func_name=''              , name=DEFAULT_ROOT_NODE_NODE_TITLE                                 , module=''                      )
-        assert node_1                                      == Trace_Call__Stack_Node(call_index=1, children=[node_2], func_name='test_add_stack',name='test_Trace_Call__Stack.test_Trace_Call__Stack.test_add_stack', module='test_Trace_Call__Stack')
-        assert node_2                                      == Trace_Call__Stack_Node(call_index=2, children=[      ], func_name='test_add_stack',name='test_Trace_Call__Stack.test_Trace_Call__Stack.test_add_stack', module='test_Trace_Call__Stack')
+        assert root_node                                   == Trace_Call__Stack_Node(call_index=0, children=[node_1], frame=None        , func_name=''              , name=DEFAULT_ROOT_NODE_NODE_TITLE                                 , module=''                      )
+        assert node_1                                      == Trace_Call__Stack_Node(call_index=1, children=[node_2], frame=sample_frame, func_name='test_add_stack',name='test_Trace_Call__Stack.test_Trace_Call__Stack.test_add_stack', module='test_Trace_Call__Stack')
+        assert node_2                                      == Trace_Call__Stack_Node(call_index=2, children=[      ], frame=sample_frame, func_name='test_add_stack',name='test_Trace_Call__Stack.test_Trace_Call__Stack.test_add_stack', module='test_Trace_Call__Stack')
 
 
 
@@ -102,12 +102,12 @@ class test_Trace_Call__Stack(TestCase):
         # case 2: with valid stack
         assert config.capture_locals is True
         sample_frame = call_stack_current_frame()
-        assert create_stack_node(frame=sample_frame, full_name='', source_code=source_code, call_index=0) == Trace_Call__Stack_Node(func_name='test_create_stack_node', locals=sample_frame.f_locals, module = 'test_Trace_Call__Stack')
+        assert create_stack_node(frame=sample_frame, full_name='', source_code=source_code, call_index=0) == Trace_Call__Stack_Node(func_name='test_create_stack_node', frame=sample_frame, locals=sample_frame.f_locals, module = 'test_Trace_Call__Stack')
 
         # case 3: with valid stack and config.capture_locals set to False
         config.capture_locals = False
 
-        assert create_stack_node(frame=sample_frame, full_name='', source_code=source_code, call_index=0) == Trace_Call__Stack_Node(func_name='test_create_stack_node', module = 'test_Trace_Call__Stack')
+        assert create_stack_node(frame=sample_frame, full_name='', source_code=source_code, call_index=0) == Trace_Call__Stack_Node(func_name='test_create_stack_node', frame=sample_frame, module = 'test_Trace_Call__Stack')
 
 
     def test_map_full_name(self):
