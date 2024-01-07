@@ -8,6 +8,8 @@ from osbot_utils.utils.Misc import str_md5
 from osbot_utils.utils.Objects import print_obj_data_as_dict, obj_data_aligned, print_obj_data_aligned, obj_info
 from osbot_utils.utils.ast.Ast_Merge import Ast_Merge
 from osbot_utils.utils.trace.Trace_Call import Trace_Call
+from osbot_utils.utils.trace.Trace_Call__Handler import DEFAULT_ROOT_NODE_NODE_TITLE
+from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
 from osbot_utils.utils.trace.Trace_Files import Trace_Files
 
 
@@ -23,10 +25,13 @@ class test_Trace_Files(TestCase):
 
         assert trace_files.__locals__() == { **trace_files.__kwargs__()                                                                 ,
                                             'prev_trace_function'       : None                                                          ,
-                                            'stack'                     : [{'call_index': 0, 'children': [], 'name': 'Trace Session'}]  ,
-                                            'trace_call_handler'        : trace_files.trace_call_handler                                ,
-                                            'trace_call_print_traces'   : trace_files.trace_call_print_traces                           ,
-                                            'trace_call_view_model'     : trace_files.trace_call_view_model                             }
+                                            'stack'                     : trace_files.stack                  ,
+                                            'trace_call_handler'        : trace_files.trace_call_handler     ,
+                                            'trace_call_print_traces'   : trace_files.trace_call_print_traces,
+                                            'trace_call_view_model'     : trace_files.trace_call_view_model  }
+
+        assert len(trace_files.stack)   ==1
+        assert trace_files.stack[0]     == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE)
 
     def test___init__(self):
         assert Trace_Files.__cls_kwargs__() == {'files': []}

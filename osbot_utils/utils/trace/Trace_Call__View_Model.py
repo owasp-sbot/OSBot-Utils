@@ -14,11 +14,11 @@ class Trace_Call__View_Model:
             view_model = []                                                                 # Initialize view model if None
 
         for idx, node in enumerate(json_list):                                              # Iterate over each node in the JSON list to populate the view model
-            components           = node["name"].split('.')
-            locals               = node.get('locals')
-            source_code          = node.get('source_code'         )
-            source_code_caller   = node.get('source_code_caller'  )
-            source_code_location = node.get('source_code_location')
+            components           = node.name.split('.')
+            locals               = node.locals
+            source_code          = node.source_code
+            source_code_caller   = node.source_code_caller
+            source_code_location = node.source_code_location
             method_name          = components[-1]
             if len(components) > 1:
                 method_parent  = f"{components[-2]}"
@@ -40,7 +40,7 @@ class Trace_Call__View_Model:
             else:
                 is_last_sibling = (idx == len(json_list) - 1)                               # Check if the node is the last sibling
                 tree_branch = "└── " if is_last_sibling else "├── "
-                emoji = "🧩️" if not node["children"] else "🔗️"
+                emoji = "🧩️" if not node.children else "🔗️"
 
             view_model.append({ 'prefix'              : prefix               ,
                                 'tree_branch'         : tree_branch          ,
@@ -53,7 +53,7 @@ class Trace_Call__View_Model:
                                 'source_code_caller'  : source_code_caller   ,
                                 'source_code_location': source_code_location })
             next_prefix = prefix + ("    " if tree_branch == "└── " else "│   ")            # Calculate the prefix for the next level
-            self.create_view_model(node["children"], level + 1, prefix=next_prefix, view_model=view_model)
+            self.create_view_model(node.children, level + 1, prefix=next_prefix, view_model=view_model)
 
         return view_model
 

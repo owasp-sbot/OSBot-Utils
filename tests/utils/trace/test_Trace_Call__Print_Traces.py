@@ -100,7 +100,7 @@ class test_Trace_Call__Print_Traces(TestCase):
             assert mock_print.call_args_list == [call(),
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 5 traces captured\n'),
-                                                 call('🔼️\x1b[1mNone\x1b[0m'),
+                                                 call('🔼️\x1b[1m\x1b[0m'),
                                                  call('➡️📦  \x1b[90m\x1b[38;2;118;138;118m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
                                                  call('│   ├── 🔼️\x1b[1m\x1b[0m'),
                                                  call('│   ├── ➡️🔗️ \x1b[90m\x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1manother_function\x1b[0m\x1b[0m'),

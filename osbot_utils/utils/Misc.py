@@ -441,6 +441,7 @@ str_lines           = split_lines
 str_remove          = remove
 
 random_id           = random_string
+random_int          = random_number
 random_guid         = random_uuid
 random_value        = random_string
 

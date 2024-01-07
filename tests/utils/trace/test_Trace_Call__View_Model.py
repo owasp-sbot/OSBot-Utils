@@ -4,6 +4,7 @@ from unittest.mock import patch, call
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.utils.trace.Trace_Call import Trace_Call
+from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
 
 from osbot_utils.utils.trace.Trace_Call__View_Model import Trace_Call__View_Model
 from tests.utils.trace.test_Trace_Call import dummy_function, another_function
@@ -63,13 +64,13 @@ class test_Trace_Call__View_Model(TestCase):
 
     def test_fix_view_mode(self):
         trace_call_view_model = Trace_Call__View_Model()
-        stack_data = [{"name": "some_function", "children": [{"name": "child_function", "children": []}]}]
-
-
+        trace_node_1          = Trace_Call__Stack_Node()
+        trace_node_2          = Trace_Call__Stack_Node()
+        trace_node_1.children.append(trace_node_2)
+        stack_data            = [trace_node_1]
         trace_call_view_model.create(stack_data)
+
         view_model = trace_call_view_model.view_model
         assert len(view_model) == 2, "Two functions should be in the created view_model"
-
-
         trace_call_view_model.fix_view_mode()
         assert view_model[-1]['prefix'] == '└───', "Last node prefix should be updated"

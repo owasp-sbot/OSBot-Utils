@@ -9,8 +9,9 @@ from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
 from osbot_utils.utils.Objects import base_classes, obj_info
 from osbot_utils.utils.trace.Trace_Call             import Trace_Call, trace_calls
 from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
-from osbot_utils.utils.trace.Trace_Call__Handler    import Trace_Call__Handler
+from osbot_utils.utils.trace.Trace_Call__Handler import Trace_Call__Handler, DEFAULT_ROOT_NODE_NODE_TITLE
 from osbot_utils.utils.trace.Trace_Call__Print_Traces import Trace_Call__Print_Traces
+from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
 from osbot_utils.utils.trace.Trace_Call__View_Model import Trace_Call__View_Model
 
 
@@ -39,7 +40,7 @@ class test_Trace_Call(TestCase):
 
         assert self.trace_call.__locals__() == { 'config'                 : self.trace_call.config                                      ,
                                                  'prev_trace_function'    : None                                                        ,
-                                                 'stack'                  : [{'call_index': 0, 'children': [], 'name': 'Trace Session'}],
+                                                 'stack'                  : [Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE)] ,
                                                  'trace_call_handler'     : self.trace_call.trace_call_handler                          ,
                                                  'trace_call_view_model'  : self.trace_call.trace_call_view_model                       ,
                                                  'trace_call_print_traces': self.trace_call.trace_call_print_traces                     }
@@ -56,8 +57,8 @@ class test_Trace_Call(TestCase):
 
         assert self.trace_view_model.view_model == [{ 'prefix': '└───', 'tree_branch': '─── ', 'emoji': '📦 ',
                                                       'method_name': 'Trace Session', 'method_parent': '',
-                                                      'parent_info': '', 'locals': None, 'source_code': None,
-                                                      'source_code_caller': None, 'source_code_location': None}]
+                                                      'parent_info': '', 'locals': {}, 'source_code': '',
+                                                      'source_code_caller': '', 'source_code_location': ''}]
 
 
     @patch('builtins.print')
@@ -111,7 +112,9 @@ class test_Trace_Call(TestCase):
         assert handler.call_index                 == 0         , "call_index should be 0 initially"
         assert trace_view_model.view_model        == []        , "view_model should be empty initially"
         assert print_traces.config.print_on_exit is False     , "print_traces_on_exit should be False initially"
-        assert trace_call.stack                   == [{"name": handler.trace_title, "children": [], "call_index": 0}], "Initial stack state not correct"
+
+        assert trace_call.stack_json()           == [Trace_Call__Stack_Node(name=handler.trace_title).data()]
+        assert trace_call.stack[0]               == Trace_Call__Stack_Node(name=handler.trace_title)
 
         # Test the enter and exit methods
         with Trace_Call() as trace_call:

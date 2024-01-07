@@ -1,4 +1,5 @@
 import linecache
+from copy import copy
 
 from osbot_utils.utils.Dev import pprint
 
@@ -6,6 +7,7 @@ from osbot_utils.utils.Misc import list_set
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
+from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
 
 DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
 
@@ -21,10 +23,12 @@ class Trace_Call__Handler(Kwargs_To_Self):
         self.stack        = [self.new_stack_node(self.trace_title, self.call_index)]
 
 
-    def new_stack_node(self, title, call_index):
-        return { "name"       : title      ,
-                 "children"   : []         ,
-                 "call_index" : call_index }
+    def new_stack_node(self, name, call_index):
+        return Trace_Call__Stack_Node(call_index=call_index, name=name)
+
+        # return { "name"       : title      ,
+        #          "children"   : []         ,
+        #          "call_index" : call_index }
 
     def add_trace_ignore(self, value):
         self.config.trace_ignore_start_with.append(value)
@@ -84,23 +88,25 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
     def create_stack_node(self, frame, full_name, source_code, call_index):
 
-        new_node = { "name"                : full_name            ,
-                     "children"            : []                   ,
-                     'call_index'          : call_index           }
+        # new_node = { "name"                : full_name            ,
+        #              "children"            : []                   ,
+        #              'call_index'          : call_index           }
+        new_node = Trace_Call__Stack_Node(call_index=call_index, name=full_name)
         if source_code:
-             new_node['source_code'         ] = source_code.get('source_code'          )
-             new_node['source_code_caller'  ] = source_code.get('source_code_caller'   )
-             new_node['source_code_location'] = source_code.get('source_code_location' )
+             new_node.source_code           = source_code.get('source_code'          )
+             new_node.source_code_caller    = source_code.get('source_code_caller'   )
+             new_node.source_code_location  = source_code.get('source_code_location' )
 
         if self.config.capture_locals and frame:
-            new_node['locals'] = frame.f_locals
+            new_node.locals = frame.f_locals
         return new_node
 
     def add_node(self, frame, new_node):
         if frame and new_node:
             #if list_set(new_node) == ['call_index', 'children', 'name']: # missing the source code fields
-            if 'children' in list_set(new_node):                    # todo: refactor this to a new class called Trace_Node
-                self.stack[-1]["children"].append(new_node)         # Insert the new node into the stack
+            if type(new_node) is Trace_Call__Stack_Node:
+            #if 'children' in list_set(new_node):                    # todo: refactor this to a new class called Trace_Node
+                self.stack[-1].children.append(new_node)         # Insert the new node into the stack
                 self.stack.append(new_node)                         # Push the new node to the stack
                 frame.f_locals['__trace_depth'] = len(self.stack)   # Store the depth in frame locals
                 return True
@@ -140,3 +146,19 @@ class Trace_Call__Handler(Kwargs_To_Self):
         elif event == 'return':
             self.handle_event__return(frame)
         return self.trace_calls
+
+    # todo: replace or remove this temp method to help with refactoring
+    def stack_json(self):
+        data = []
+        for stack_node in self.stack:
+            item = self.stack_json__parse_node(stack_node)
+            data.append(item)
+        return data
+
+    def stack_json__parse_node(self, stack_node: Trace_Call__Stack_Node):
+        node         = stack_node.data()
+        new_children = []
+        for child in node.get('children'):
+            new_children.append(self.stack_json__parse_node(child))
+        node['children'] = new_children
+        return node
