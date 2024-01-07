@@ -3,14 +3,15 @@ import sys
 from functools import wraps
 
 from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
-from osbot_utils.utils.trace.Trace_Call__Config         import Trace_Call__Config
+from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config, PRINT_MAX_STRING_LENGTH
 from osbot_utils.utils.trace.Trace_Call__Handler        import Trace_Call__Handler
 from osbot_utils.utils.trace.Trace_Call__Print_Traces   import Trace_Call__Print_Traces
 from osbot_utils.utils.trace.Trace_Call__View_Model     import Trace_Call__View_Model
 
 
 def trace_calls(title=None, print=True, locals=False, source_code=False, ignore=None, include=None,
-                max_string=None, show_types=False, show_caller=False, show_parent=False, show_path=False):
+                max_string=None, show_types=False, show_caller=False, show_parent=False, show_path=False,
+                show_duration=False, duration_bigger_than=0, contains=None):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -18,7 +19,10 @@ def trace_calls(title=None, print=True, locals=False, source_code=False, ignore=
                                  capture_source_code=source_code, ignore_start_with=ignore,
                                  capture_start_with=include, print_max_string_length=max_string,
                                  show_parent_info=show_types, show_method_parent=show_parent,
-                                 show_caller=show_caller, show_source_code_path=show_path)
+                                 show_caller=show_caller, show_source_code_path=show_path,
+                                 capture_duration=show_duration, print_duration= show_duration,
+                                 with_duration_bigger_than=duration_bigger_than,
+                                 trace_capture_contains=contains)
 
             config = Trace_Call__Config(**config_kwargs)
             with Trace_Call(config=config):
@@ -37,9 +41,11 @@ class Trace_Call(Kwargs_To_Self):
         self.trace_call_handler                                 = Trace_Call__Handler     (config=self.config)
         self.trace_call_view_model                              = Trace_Call__View_Model  ()
         self.trace_call_print_traces                            = Trace_Call__Print_Traces(config=self.config)
-        self.trace_call_print_traces.config.print_on_exit       = self.config.print_on_exit
-        self.trace_call_handler.config.trace_capture_start_with = self.config.capture_start_with or []
-        self.trace_call_handler.config.trace_ignore_start_with  = self.config.ignore_start_with  or []
+        self.config.print_on_exit                               = self.config.print_on_exit
+        self.config.trace_capture_start_with                    = self.config.capture_start_with       or []          # todo add a better way to set these to [] when then value is null
+        self.config.trace_ignore_start_with                     = self.config.ignore_start_with        or []          #      probablty better done inside Kwargs_To_Self since it doesn't make sense for lists or dicts to have None value
+        self.config.trace_capture_contains                      = self.config.trace_capture_contains   or []          #      and None will be quite common since we can use [] on method's params
+        self.config.print_max_string_length                     = self.config.print_max_string_length  or PRINT_MAX_STRING_LENGTH
         self.stack                                              = self.trace_call_handler.stack
         self.prev_trace_function                                = None                                                # Stores the previous trace function
 

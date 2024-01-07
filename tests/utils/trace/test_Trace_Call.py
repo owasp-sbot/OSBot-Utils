@@ -191,7 +191,7 @@ class test_Trace_Call(TestCase):
                         return temp_file.tmp_file
 
                     an_temp_file()
-        
+
         if in_github_action():
             expected_stats = dict(event_call      = 97  ,
                                   event_exception = 4   ,
