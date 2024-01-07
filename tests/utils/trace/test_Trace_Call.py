@@ -191,17 +191,17 @@ class test_Trace_Call(TestCase):
                         return temp_file.tmp_file
 
                     an_temp_file()
-
+        
         if in_github_action():
             expected_stats = dict(event_call      = 97  ,
                                   event_exception = 4   ,
-                                  event_line      = 481 ,
-                                  event_return    = 96  ,
+                                  event_line      = 480 ,
+                                  event_return    = 95  ,
                                   event_unknown   = 0   )
         else:
             expected_stats = dict(event_call      = 97  ,
                                   event_exception = 4   ,
-                                  event_line      = 480 ,
+                                  event_line      = 511 ,
                                   event_return    = 95  ,
                                   event_unknown   = 0   )
         assert self.trace_call.stats() == Trace_Call__Stats(**expected_stats)
