@@ -1,11 +1,17 @@
+from osbot_utils.utils.Dev import pprint
+
+
 class Trace_Call__View_Model:
 
     def __init__(self):
         self.view_model = []
 
     def create(self, stack):
-        self.view_model = self.create_view_model(stack)
-        self.fix_view_mode()                                        # Fix the view mode for the last node
+        root_node = stack.root_node
+        if root_node:
+            target = [root_node]
+            self.view_model = self.create_view_model(target)
+            self.fix_view_mode()                                        # Fix the view mode for the last node
         return self.view_model
 
     # todo: rename view_model so that it is not confused with self.view_model
@@ -15,6 +21,7 @@ class Trace_Call__View_Model:
 
         for idx, node in enumerate(json_list):                                              # Iterate over each node in the JSON list to populate the view model
             components           = node.name.split('.')
+            duration             = node.call_duration
             locals               = node.locals
             source_code          = node.source_code
             source_code_caller   = node.source_code_caller
@@ -42,16 +49,18 @@ class Trace_Call__View_Model:
                 tree_branch = "└── " if is_last_sibling else "├── "
                 emoji = "🧩️" if not node.children else "🔗️"
 
-            view_model.append({ 'prefix'              : prefix               ,
-                                'tree_branch'         : tree_branch          ,
+            view_model.append({ 'duration'            : duration             ,
                                 'emoji'               : emoji                ,
                                 'method_name'         : method_name          ,
                                 'method_parent'       : method_parent        ,
-                                'parent_info'         : parent_info          ,
+
                                 'locals'              : locals               ,
+                                'parent_info'         : parent_info          ,
+                                'prefix'              : prefix               ,
                                 'source_code'         : source_code          ,
                                 'source_code_caller'  : source_code_caller   ,
-                                'source_code_location': source_code_location })
+                                'source_code_location': source_code_location ,
+                                'tree_branch'         : tree_branch          ,})
             next_prefix = prefix + ("    " if tree_branch == "└── " else "│   ")            # Calculate the prefix for the next level
             self.create_view_model(node.children, level + 1, prefix=next_prefix, view_model=view_model)
 

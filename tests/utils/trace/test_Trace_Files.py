@@ -30,7 +30,8 @@ class test_Trace_Files(TestCase):
                                             'trace_call_print_traces'   : trace_files.trace_call_print_traces,
                                             'trace_call_view_model'     : trace_files.trace_call_view_model  }
 
-        assert len(trace_files.stack)   ==1
+        trace_files.stack.add_node(DEFAULT_ROOT_NODE_NODE_TITLE)
+        assert len(trace_files.stack)   == 1
         assert trace_files.stack[0]     == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE)
 
     def test___init__(self):

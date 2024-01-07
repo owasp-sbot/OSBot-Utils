@@ -23,7 +23,7 @@ class test_Trace_Call__Config(TestCase):
                           'print_locals'             : False ,
                           'print_max_string_length'  : 100   ,
                           'print_on_exit'            : False ,
-                          'process_data'             : True  ,
+                           'print_duration'          : False,
                           'show_caller'              : False ,
                           'show_method_parent'       : False ,
                           'show_parent_info'         : True  ,
@@ -34,7 +34,8 @@ class test_Trace_Call__Config(TestCase):
                           'trace_capture_start_with' : []    ,
                           'trace_capture_contains'   : []    ,
                           'trace_ignore_internals'   : True  ,
-                          'trace_ignore_start_with'  : []    }
+                          'trace_ignore_start_with'  : []    ,
+                          'with_duration_bigger_than': False }
         assert Trace_Call__Config.__cls_kwargs__    () == expected_data
         assert Trace_Call__Config.__default_kwargs__() == expected_data
 

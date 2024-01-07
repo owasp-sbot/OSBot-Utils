@@ -1,6 +1,8 @@
 import linecache
 import time
 
+from osbot_utils.utils.Dev import pprint
+
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
 from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
@@ -45,9 +47,11 @@ class Trace_Call__Stack(Kwargs_To_Self):
 
 
     def add_node(self, title: str):
-        stack_node = self.new_stack_node(title)
-        if self.add_stack_node(stack_node):
-            return stack_node
+        new_node = self.new_stack_node(title)
+        if self.config.capture_duration:
+            new_node.call_start = time.perf_counter()
+        if self.add_stack_node(new_node):
+            return new_node
 
     def add_stack_node(self, stack_node : Trace_Call__Stack_Node, frame=None):
         if type(stack_node) is Trace_Call__Stack_Node:
@@ -81,6 +85,11 @@ class Trace_Call__Stack(Kwargs_To_Self):
             if self.config.capture_duration:
                 new_node.call_start = time.perf_counter()
         return new_node
+
+    def empty_stack(self):              # use to make sure the stack is empty (usally called at the end of a trace sessions)
+        for node in reversed(list(self.stack_data)):
+            self.pop(node)
+        return self
 
     def map_source_code(self, frame):
         if self.config.trace_capture_source_code:
@@ -127,6 +136,7 @@ class Trace_Call__Stack(Kwargs_To_Self):
             top_node.call_duration = top_node.call_end - top_node.call_start
         self.stack_data.pop()
         return True
+
     def pop(self, target):
         top_node = self.top()
         if target and top_node :
@@ -139,7 +149,6 @@ class Trace_Call__Stack(Kwargs_To_Self):
 
     def push(self, frame):
         return self.add_frame(frame)
-
 
 
     def top(self):

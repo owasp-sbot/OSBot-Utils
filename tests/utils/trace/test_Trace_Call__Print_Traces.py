@@ -1,7 +1,12 @@
 from unittest import TestCase
 from unittest.mock import patch, call
 
+from osbot_utils.utils.Dev import pprint
+
+from osbot_utils.utils.Misc import random_number, wait_for
+
 from osbot_utils.utils.trace.Trace_Call import Trace_Call
+from osbot_utils.utils.trace.Trace_Call__Handler import DEFAULT_ROOT_NODE_NODE_TITLE
 from osbot_utils.utils.trace.Trace_Call__Print_Traces import Trace_Call__Print_Traces
 from tests.utils.trace.test_Trace_Call import another_function
 
@@ -46,6 +51,7 @@ class test_Trace_Call__Print_Traces(TestCase):
             assert mock_print.call_args_list == expected_calls
 
     def test_print_traces(self):
+
         trace_call = Trace_Call()
         handler    = trace_call.trace_call_handler
 
@@ -61,7 +67,7 @@ class test_Trace_Call__Print_Traces(TestCase):
         with trace_call:
             another_function()
 
-        view_model                = trace_call.trace_call_view_model.view_model
+        view_model                = trace_call.create_view_model()
         trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
         trace_call.trace_call_print_traces.config.show_parent_info = True
         with patch('builtins.print') as mock_print:
@@ -85,64 +91,126 @@ class test_Trace_Call__Print_Traces(TestCase):
                                                  call('\x1b[1m│   └── 🔗️ \x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1manother_function\x1b[0m\x1b[0m'),
                                                  call('\x1b[1m└────── 🧩️ \x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1mdummy_function\x1b[0m\x1b[0m')]
 
-
+        #handler.stack.add_node(title=DEFAULT_ROOT_NODE_NODE_TITLE)  # add a root node
         handler.trace_capture_start_with  = ['test']
         handler.config.trace_capture_source_code = True
         trace_call.trace_call_print_traces.config.show_caller        = True
         with trace_call:
             another_function()
 
-        view_model                = trace_call.trace_call_view_model.view_model
+
+        view_model                = trace_call.create_view_model()
         trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
 
         with patch('builtins.print') as mock_print:
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
             assert mock_print.call_args_list == [call(),
                                                  call('--------- CALL TRACER ----------'),
-                                                 call('Here are the 5 traces captured\n'),
+                                                 call('Here are the 3 traces captured\n'),
                                                  call('🔼️\x1b[1m\x1b[0m'),
                                                  call('➡️📦  \x1b[90m\x1b[38;2;118;138;118m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
-                                                 call('│   ├── 🔼️\x1b[1m\x1b[0m'),
-                                                 call('│   ├── ➡️🔗️ \x1b[90m\x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1manother_function\x1b[0m\x1b[0m'),
-                                                 call('│   │   └── 🔼️\x1b[1m\x1b[0m'),
-                                                 call('│   │   └── ➡️🧩️ \x1b[90m\x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1mdummy_function\x1b[0m\x1b[0m'),
                                                  call('│   └── 🔼️\x1b[1manother_function()\x1b[0m'),
                                                  call('│   └── ➡️🔗️ \x1b[90mdef another_function():\x1b[0m'),
                                                  call('└────── 🔼️\x1b[1mdummy_function()\x1b[0m'),
                                                  call('└────── ➡️🧩️ \x1b[90mdef dummy_function():\x1b[0m')]
+
 
         trace_call.trace_call_print_traces.config.show_caller = False
         with patch('builtins.print') as mock_print:
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
             assert mock_print.call_args_list == [call(),
                                                  call('--------- CALL TRACER ----------'),
-                                                 call('Here are the 5 traces captured\n'),
+                                                 call('Here are the 3 traces captured\n'),
                                                  call('➡️📦  \x1b[1m\x1b[38;2;118;138;118m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
-                                                 call('│   ├── ➡️🔗️ \x1b[1m\x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1manother_function\x1b[0m\x1b[0m'),
-                                                 call('│   │   └── ➡️🧩️ \x1b[1m\x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1mdummy_function\x1b[0m\x1b[0m'),
                                                  call('│   └── ➡️🔗️ \x1b[1mdef another_function():\x1b[0m'),
-                                                 call('└────── ➡️🧩️ \x1b[1mdef dummy_function():\x1b[0m')] != []
+                                                 call('└────── ➡️🧩️ \x1b[1mdef dummy_function():\x1b[0m')]
 
         trace_call.trace_call_print_traces.config.capture_locals   = True
-        trace_call.trace_call_print_traces.config.print_locals = True
+        trace_call.trace_call_print_traces.config.print_locals     = True
+
         with patch('builtins.print') as mock_print:
             with trace_call:
                 another_function()
-            view_model                = trace_call.trace_call_view_model.view_model
+            view_model                = trace_call.create_view_model()
             trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
             assert mock_print.call_args_list == [call(),
                                                  call('--------- CALL TRACER ----------'),
-                                                 call('Here are the 7 traces captured\n'),
+                                                 call('Here are the 3 traces captured\n'),
                                                  call('➡️📦  \x1b[1m\x1b[38;2;118;138;118m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
-                                                 call('│   ├── ➡️🔗️ \x1b[1m\x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1manother_function\x1b[0m\x1b[0m'),
-                                                 call('│   │   └── ➡️🧩️ \x1b[1m\x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1mdummy_function\x1b[0m\x1b[0m'),
-                                                 call('                   🔖 a = \x1b[92m12\x1b[0m'),
-                                                 call('│   ├── ➡️🔗️ \x1b[1mdef another_function():\x1b[0m'),
-                                                 call('│   │   └── ➡️🧩️ \x1b[1mdef dummy_function():\x1b[0m'),
-                                                 call('                   🔖 a = \x1b[92m12\x1b[0m'),
                                                  call('│   └── ➡️🔗️ \x1b[1mdef another_function():\x1b[0m'),
                                                  call('└────── ➡️🧩️ \x1b[1mdef dummy_function():\x1b[0m'),
                                                  call('               🔖 a = \x1b[92m12\x1b[0m')]
 
+
+
+    def test__print_durations(self):
+        trace_call = Trace_Call()
+        config = trace_call.config
+        config.trace_capture_all = True
+        config.capture_duration  = True
+        with trace_call:
+            def an_fast_function():
+                random_number()
+                wait_for(0.01)
+            def a_bit_slower():
+                random_number()
+                wait_for(0.03)
+            def even_more_slower():
+                random_number()
+                wait_for(0.06)
+            an_fast_function()
+            a_bit_slower()
+            even_more_slower()
+
+        assert trace_call.stats().stats() == { 'event_call'     : 20 ,
+                                               'event_exception': 0  ,
+                                               'event_line'     : 71 ,
+                                               'event_return'   : 18 ,
+                                               'event_unknown'  : 0  }
+        config.print_duration            = False
+        config.with_duration_bigger_than = 10 / 1000
+        with patch('builtins.print') as mock_print:
+            trace_call.print()
+            assert mock_print.call_args_list == [call(),
+                                                 call('--------- CALL TRACER ----------'),
+                                                 call('Here are the 17 traces captured\n'),
+                                                 call('\x1b[1m📦  Trace Session\x1b[0m'),
+                                                 call('\x1b[1m│   ├── 🔗️ an_fast_function\x1b[0m                                  test_Trace_Call__Print_Traces'),
+                                                 call('\x1b[1m│   │   └── 🧩️ wait\x1b[0m                                          osbot_utils.utils.Misc'),
+                                                 call('\x1b[1m│   ├── 🔗️ a_bit_slower\x1b[0m                                      test_Trace_Call__Print_Traces'),
+                                                 call('\x1b[1m│   │   └── 🧩️ wait\x1b[0m                                          osbot_utils.utils.Misc'),
+                                                 call('\x1b[1m│   ├── 🔗️ even_more_slower\x1b[0m                                  test_Trace_Call__Print_Traces'),
+                                                 call('\x1b[1m│   │   └── 🧩️ wait\x1b[0m                                          osbot_utils.utils.Misc')]
+
+
+
+        config.with_duration_bigger_than = 20 / 1000
+        with patch('builtins.print') as mock_print:
+            trace_call.print()
+            assert mock_print.call_args_list == [call(),
+                                                 call('--------- CALL TRACER ----------'),
+                                                 call('Here are the 17 traces captured\n'),
+                                                 call('\x1b[1m📦  Trace Session\x1b[0m'),
+                                                 call('\x1b[1m│   ├── 🔗️ a_bit_slower\x1b[0m                                      test_Trace_Call__Print_Traces'),
+                                                 call('\x1b[1m│   │   └── 🧩️ wait\x1b[0m                                          osbot_utils.utils.Misc'),
+                                                 call('\x1b[1m│   ├── 🔗️ even_more_slower\x1b[0m                                  test_Trace_Call__Print_Traces'),
+                                                 call('\x1b[1m│   │   └── 🧩️ wait\x1b[0m                                          osbot_utils.utils.Misc')]
+
+        config.with_duration_bigger_than = 50 / 1000
+        with patch('builtins.print') as mock_print:
+            trace_call.print()
+            assert mock_print.call_args_list == [call(),
+                                                 call('--------- CALL TRACER ----------'),
+                                                 call('Here are the 17 traces captured\n'),
+                                                 call('\x1b[1m📦  Trace Session\x1b[0m'),
+                                                 call('\x1b[1m│   ├── 🔗️ even_more_slower\x1b[0m                                  test_Trace_Call__Print_Traces'),
+                                                 call('\x1b[1m│   │   └── 🧩️ wait\x1b[0m                                          osbot_utils.utils.Misc')] != []
+
+        config.with_duration_bigger_than = 150 / 1000
+        with patch('builtins.print') as mock_print:
+            trace_call.print()
+            assert mock_print.call_args_list == [call(),
+                                                 call('--------- CALL TRACER ----------'),
+                                                 call('Here are the 17 traces captured\n')] != []
 

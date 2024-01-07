@@ -35,9 +35,8 @@ class test_Trace_Call__Handler(TestCase):
         assert Kwargs_To_Self in base_classes(Trace_Call__Handler)
         assert list_set(self.handler.__locals__()) == list_set(self.handler.__default_kwargs__()) + ['trace_title']
         assert self.handler.trace_title == DEFAULT_ROOT_NODE_NODE_TITLE
-        assert self.handler.stack.size() == 1
-        assert type(self.handler.stack.top()) is Trace_Call__Stack_Node
-        assert self.handler.stack.top()       == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE)
+        assert self.handler.stack.size() == 0
+        assert self.handler.stack.top()       is None
 
 
     def test_add_trace_ignore(self):
@@ -70,11 +69,11 @@ class test_Trace_Call__Handler(TestCase):
         config.trace_capture_start_with = [module]
 
         assert should_capture(sample_frame)      is True           # confirm that the function should be captured
-        assert len(stack)   == 1
+        assert len(stack)   == 0
         new_node = handle_event__call(frame=sample_frame)
         assert type(new_node) is Trace_Call__Stack_Node
         assert stack[-1]    == new_node
-        assert len(stack)   == 2
+        assert len(stack)   == 1
         assert new_node == Trace_Call__Stack_Node(call_index=1, frame=sample_frame, func_name='test_handle_event__call', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call', module='test_Trace_Call__Handler')
 
 
@@ -89,10 +88,12 @@ class test_Trace_Call__Handler(TestCase):
         assert handle_event__return(frame=None) is False
 
         # case 2: invoke with valid frame by no stack
-        assert len(stack) == 1
+        assert len(stack) == 0
         assert handle_event__return(frame=None) is False
 
         # case 3: invoke with valid frame and valid stack
+
+        self.handler.stack.add_node(title=DEFAULT_ROOT_NODE_NODE_TITLE)             # add a root node
 
         assert len(stack) == 1
         assert stack[0].data() == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE).data()
@@ -102,7 +103,7 @@ class test_Trace_Call__Handler(TestCase):
         assert handle_event__call(frame=sample_frame) is not None                   # add node using handle_event__call
         assert len(stack) == 2
 
-        assert handle_event__return(frame=sample_frame) is True                 # remove node using handle_event__return
+        assert handle_event__return(frame=sample_frame) is True                     # remove node using handle_event__return
         assert len(stack) == 1
 
         root_node = stack[0]
@@ -188,6 +189,7 @@ class test_Trace_Call__Handler(TestCase):
 
 
     def test_trace_calls(self):
+        self.handler.stack.add_node(title=DEFAULT_ROOT_NODE_NODE_TITLE)  # add a root node
         config      = self.handler.config
         stack       = self.handler.stack
         trace_calls = self.handler.trace_calls
@@ -333,6 +335,7 @@ class test_Trace_Call__Handler(TestCase):
 
 
     def test_trace_calls__direct_invoke(self):
+        self.handler.stack.add_node(title=DEFAULT_ROOT_NODE_NODE_TITLE)  # add a root node
         frame   = sys._getframe()         # get a valid frame object
         event   = 'call'
         arg     = None
@@ -369,6 +372,7 @@ class test_Trace_Call__Handler(TestCase):
 
 
     def test_trace_calls__direct_invoke__variations(self):
+        self.handler.stack.add_node(title=DEFAULT_ROOT_NODE_NODE_TITLE)  # add a root node
         sample_frame = call_stack_current_frame()
         self.handler.config.trace_capture_start_with = ['test']
         self.handler.config.trace_capture_source_code = True
@@ -376,7 +380,7 @@ class test_Trace_Call__Handler(TestCase):
 
         method_in_frame         = test_Trace_Call__Handler.test_trace_calls__direct_invoke__variations
         source_code_file        = __file__
-        source_code_line_number = method_line_number(method_in_frame) + 4
+        source_code_line_number = method_line_number(method_in_frame) + 5
         source_code_location    = f'{source_code_file}:{source_code_line_number}'
 
         stack_1 = self.handler.stack[1]

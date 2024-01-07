@@ -41,12 +41,12 @@ class test_Trace_Call(TestCase):
     def test___init__(self):
         assert Kwargs_To_Self in base_classes(Trace_Call)
 
-        assert self.trace_call.__locals__() == { 'config'                 : self.trace_call.config                                      ,
-                                                 'prev_trace_function'    : None                                                        ,
-                                                 'stack'                  : [Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE)] ,
-                                                 'trace_call_handler'     : self.trace_call.trace_call_handler                          ,
-                                                 'trace_call_view_model'  : self.trace_call.trace_call_view_model                       ,
-                                                 'trace_call_print_traces': self.trace_call.trace_call_print_traces                     }
+        assert self.trace_call.__locals__() == { 'config'                 : self.trace_call.config                 ,
+                                                 'prev_trace_function'    : None                                   ,
+                                                 'stack'                  : []                                     ,
+                                                 'trace_call_handler'     : self.trace_call.trace_call_handler     ,
+                                                 'trace_call_view_model'  : self.trace_call.trace_call_view_model  ,
+                                                 'trace_call_print_traces': self.trace_call.trace_call_print_traces}
         assert type(self.trace_call.trace_call_handler   ) is Trace_Call__Handler
         assert type(self.trace_call.trace_call_view_model) is Trace_Call__View_Model
 
@@ -57,9 +57,9 @@ class test_Trace_Call(TestCase):
             self.trace_call.__exit__(None, None, None)
 
         mock_stop.assert_called_with()
-
-        assert self.trace_view_model.view_model == [{ 'prefix': '└───', 'tree_branch': '─── ', 'emoji': '📦 ',
-                                                      'method_name': 'Trace Session', 'method_parent': '',
+        self.trace_call.create_view_model()         # this is populate the self.trace_view_model.view_model object
+        assert self.trace_view_model.view_model == [{ 'duration': 0.0, 'prefix': '└───', 'tree_branch': '─── ', 'emoji': '📦 ',
+                                                      'method_name': '', 'method_parent': '',
                                                       'parent_info': '', 'locals': {}, 'source_code': '',
                                                       'source_code_caller': '', 'source_code_location': ''}]
 
@@ -116,7 +116,7 @@ class test_Trace_Call(TestCase):
         assert trace_view_model.view_model        == []        , "view_model should be empty initially"
         assert print_traces.config.print_on_exit is False     , "print_traces_on_exit should be False initially"
 
-        assert trace_call.stack[0]               == Trace_Call__Stack_Node(name=handler.trace_title)
+        assert trace_call.stack == []
 
         # Test the enter and exit methods
         with Trace_Call() as trace_call:

@@ -17,7 +17,6 @@ class Trace_Call__Handler(Kwargs_To_Self):
         super().__init__(**kwargs)
         self.trace_title   = self.config.title or DEFAULT_ROOT_NODE_NODE_TITLE                           # Title for the trace root node
         self.stack.config  = self.config
-        self.stack.add_node(self.trace_title)
 
     def add_frame(self, frame):
         return self.handle_event__call(frame)

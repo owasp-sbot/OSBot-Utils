@@ -92,7 +92,8 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
             locals               = item.get('locals'            , {} )
             source_code          = item.get('source_code'       , '' )
             source_code_caller   = item.get('source_code_caller', '' )
-            source_code_location = item.get('source_code_location') or ''
+            #source_code_location = item.get('source_code_location') or ''
+
             if self.config.show_method_parent:
                 method_name = f'{text_olive(method_parent)}.{text_bold(method_name)}'
                 self.config.show_parent_info = False         # these are not compatible
@@ -101,7 +102,17 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
             formatted_line     = f"{prefix}{tree_branch}{emoji} {node_text}"
             padding            = " " * (60 - len(formatted_line))
 
-            if trace_capture_source_code:
+            if self.config.print_duration:
+                duration         = item.get('duration',0) * 1000                    # todo: see if this can be optimised with the similar call below
+                duration_rounded = round(duration, 3)
+                duration_text    = "{:,.3f}ms".format(duration_rounded)
+                formatted_line += f' {text_grey(duration_text)}'
+
+            if self.config.with_duration_bigger_than:
+                duration = item.get('duration', 0)
+                if duration < self.config.with_duration_bigger_than:
+                    continue
+            if trace_capture_source_code:       # todo: refactor to use value from self.config
                 if self.config.show_caller:
                     print(f"{prefix}{tree_branch}🔼️{text_bold(source_code_caller)}")
                     print(f"{prefix}{tree_branch}➡️{emoji} {text_grey(node_text)}")

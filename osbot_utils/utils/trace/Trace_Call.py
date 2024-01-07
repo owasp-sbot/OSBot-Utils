@@ -34,14 +34,14 @@ class Trace_Call(Kwargs_To_Self):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.trace_call_handler                             = Trace_Call__Handler     (config=self.config)
-        self.trace_call_view_model                          = Trace_Call__View_Model  ()
-        self.trace_call_print_traces                        = Trace_Call__Print_Traces(config=self.config)
-        self.trace_call_print_traces.config.print_on_exit   = self.config.print_on_exit
-        self.trace_call_handler.config.trace_capture_start_with    = self.config.capture_start_with or []
-        self.trace_call_handler.config.trace_ignore_start_with     = self.config.ignore_start_with  or []
-        self.stack                                          = self.trace_call_handler.stack
-        self.prev_trace_function                            = None                                                # Stores the previous trace function
+        self.trace_call_handler                                 = Trace_Call__Handler     (config=self.config)
+        self.trace_call_view_model                              = Trace_Call__View_Model  ()
+        self.trace_call_print_traces                            = Trace_Call__Print_Traces(config=self.config)
+        self.trace_call_print_traces.config.print_on_exit       = self.config.print_on_exit
+        self.trace_call_handler.config.trace_capture_start_with = self.config.capture_start_with or []
+        self.trace_call_handler.config.trace_ignore_start_with  = self.config.ignore_start_with  or []
+        self.stack                                              = self.trace_call_handler.stack
+        self.prev_trace_function                                = None                                                # Stores the previous trace function
 
 
     def __enter__(self):
@@ -50,23 +50,30 @@ class Trace_Call(Kwargs_To_Self):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()                                                                         # Stop the tracing
-        if self.config.process_data:
+        # Process the data captured
+        if self.trace_call_print_traces.config.print_on_exit:
+            self.print()
 
-            self.create_view_model()        # Process the data captured
-            if self.trace_call_print_traces.config.print_on_exit:
-                view_model                = self.trace_call_view_model.view_model
-                self.trace_call_print_traces.print_traces(view_model)
-
+    def capture_all(self):
+        self.config.trace_capture_all = True
+        return self
 
     def create_view_model(self):
-        self.trace_call_view_model.create(self.stack)                                       # Process data to create the view model
+        return self.trace_call_view_model.create(self.stack)
+
+    def print(self):
+        view_model = self.create_view_model()
+        self.trace_call_print_traces.print_traces(view_model)
+        return view_model
 
     def start(self):
+        self.trace_call_handler.stack.add_node(title=self.trace_call_handler.trace_title)
         self.prev_trace_function = sys.gettrace()
         sys.settrace(self.trace_call_handler.trace_calls)                                   # Set the new trace function
 
     def stop(self):
         sys.settrace(self.prev_trace_function)                                              # Restore the previous trace function
+        self.stack.empty_stack()
 
     def stats(self):
         return self.trace_call_handler.stats
