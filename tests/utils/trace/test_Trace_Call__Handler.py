@@ -105,14 +105,11 @@ class test_Trace_Call__Handler(TestCase):
         assert stack[0].data() == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE).data()
         config.trace_capture_all = True
         config.capture_locals    = False
-        assert sample_frame.f_locals.get('__trace_depth')  is None
 
         assert handle_event__call(frame=sample_frame) is not None                   # add node using handle_event__call
-        assert sample_frame.f_locals.get('__trace_depth') == 2
         assert len(stack) == 2
 
         assert handle_event__return(frame=sample_frame) is True                 # remove node using handle_event__return
-        assert sample_frame.f_locals.get('__trace_depth') == 2
         assert len(stack) == 1
 
         root_node = stack[0]
@@ -266,7 +263,7 @@ class test_Trace_Call__Handler(TestCase):
         assert node_1         == Trace_Call__Stack_Node(call_index = 1                                                       ,
                                                         frame      = frame_1                                                 ,
                                                         func_name  = 'call_stack_current_frame'                              ,
-                                                        locals     = {'__trace_depth': 2, 'return_caller': False }           ,
+                                                        locals     = { 'return_caller': False }                              ,
                                                         module     = 'osbot_utils.utils.Call_Stack'                          ,
                                                         name       = 'osbot_utils.utils.Call_Stack.call_stack_current_frame' )
 
@@ -287,7 +284,7 @@ class test_Trace_Call__Handler(TestCase):
         assert node_1_a           == Trace_Call__Stack_Node(call_index = 2                                                       ,
                                                             func_name  = 'call_stack_current_frame'                              ,
                                                             frame      = frame_1                                                 ,
-                                                            locals     = {'__trace_depth': 2, 'return_caller': False }           ,
+                                                            locals     = { 'return_caller': False }                              ,
                                                             module     = 'osbot_utils.utils.Call_Stack'                          ,
                                                             name       = 'osbot_utils.utils.Call_Stack.call_stack_current_frame' )
 
@@ -381,11 +378,10 @@ class test_Trace_Call__Handler(TestCase):
         stack_1_locals = stack_1.locals
         stack_1.locals = {}
 
-        assert stack_1_locals ==   { '__trace_depth': 2,
-                                    'arg': None,
-                                    'event': 'call',
-                                    'frame': frame,
-                                    'self':stack_1_locals.get('self')}
+        assert stack_1_locals ==   { 'arg': None,
+                                     'event': 'call',
+                                     'frame': frame,
+                                     'self':stack_1_locals.get('self')}
 
         assert stack_1.data() == Trace_Call__Stack_Node(call_index = 1,
                                                         func_name  = 'test_trace_calls__direct_invoke'  ,

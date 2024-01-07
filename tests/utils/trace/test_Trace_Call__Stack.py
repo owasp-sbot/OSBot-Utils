@@ -39,7 +39,6 @@ class test_Trace_Call__Stack(TestCase):
         assert stack.top()                                  == root_node
         assert stack.top().children                         == []
         assert len(stack)                                   == 1
-        assert sample_frame.f_locals.get('__trace_depth')   is None                     # confirm that the frame doesn't have the __trace_depth attribute
         assert stack.call_index == 0
         node_1 = stack.add_frame(frame=sample_frame)
         assert type(node_1)                                 is Trace_Call__Stack_Node
@@ -47,7 +46,6 @@ class test_Trace_Call__Stack(TestCase):
         assert node_1.children                              == []
         assert node_1.name                                  == 'test_Trace_Call__Stack.test_Trace_Call__Stack.test_add_stack'
         assert node_1.source_code                           == ''
-        assert sample_frame.f_locals.get('__trace_depth')   == len(stack)  # confirm that the frame now has the __trace_depth attribute
         assert len(stack)                                   == 2
         assert stack[-1]                                    == node_1
         assert stack                                        == [root_node, node_1]
@@ -60,9 +58,8 @@ class test_Trace_Call__Stack(TestCase):
         assert root_node                                    == Trace_Call__Stack_Node(children=[node_1], name=DEFAULT_ROOT_NODE_NODE_TITLE)
 
         # case 3: adding another valid node
-        node_2 = Trace_Call__Stack_Node(call_index=2, name='node_2')
+        #node_2 = Trace_Call__Stack_Node(call_index=2, name='node_2')
         node_2 = stack.add_frame(frame=sample_frame)
-        assert sample_frame.f_locals.get('__trace_depth')  == len(stack)  # confirm that the frame now has the __trace_depth attribute
         assert len(stack)                                  == 3
         assert stack[-1]                                   == node_2
         assert stack[-2]                                   == node_1
@@ -199,9 +196,6 @@ class test_Trace_Call__Stack(TestCase):
         sample_frame = call_stack_current_frame()
         stack        = self.stack
         node_1       = stack.push(sample_frame)             # add frame to the stack
-        assert '__trace_depth' in node_1.locals
-        assert node_1.locals.get('__trace_depth') == 1
-        assert node_1.locals.get('__trace_depth') == len(stack)
         assert stack == [node_1]
         assert stack.pop(sample_frame) is True              # pop frame from stack
         assert stack == []                                  # check that stack is empyty
