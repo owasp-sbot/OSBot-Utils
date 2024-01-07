@@ -74,15 +74,16 @@ class test_Trace_Call__Handler(TestCase):
         assert type(new_node) is Trace_Call__Stack_Node
         assert stack[-1] == new_node
         assert len(stack) == 2
-        assert new_node.data() == { 'call_index'          : 1                         ,
-                                    'children'            : []                        ,
-                                    'locals'              : {}                        ,
-                                    'func_name'           : 'test_handle_event__call' ,
-                                    'name'                : 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call',
-                                    'module'              : 'test_Trace_Call__Handler',
-                                    'source_code'         : ''    ,
-                                    'source_code_caller'  : ''    ,
-                                    'source_code_location': ''    }
+        assert new_node == Trace_Call__Stack_Node(call_index=1, func_name='test_handle_event__call', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call', module='test_Trace_Call__Handler')
+        # assert new_node.data() == { 'call_index'          : 1                         ,
+        #                             'children'            : []                        ,
+        #                             'locals'              : {}                        ,
+        #                             'func_name'           : 'test_handle_event__call' ,
+        #                             'name'                : 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call',
+        #                             'module'              : 'test_Trace_Call__Handler',
+        #                             'source_code'         : ''    ,
+        #                             'source_code_caller'  : ''    ,
+        #                             'source_code_location': ''    }
 
     def test_handle_event__return(self):
         config               = self.handler.config
@@ -114,29 +115,10 @@ class test_Trace_Call__Handler(TestCase):
         assert sample_frame.f_locals.get('__trace_depth') == 2
         assert len(stack) == 1
 
-        assert self.handler.stack_json() == [{'call_index': 0,
-                                              'children': [{'call_index': 1,
-                                                            'children': [],
-                                                            'locals': {},
-                                                            'func_name': 'test_handle_event__return',
-                                                            'name': 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__return',
-                                                            'module': 'test_Trace_Call__Handler',
-                                                            'source_code': '',
-                                                            'source_code_caller': '',
-                                                            'source_code_location': ''}],
-                                              'func_name': '',
-                                              'locals': {},
-                                              'module': '',
-                                              'name': 'Trace Session',
-                                              'source_code': '',
-                                              'source_code_caller': '',
-                                             'source_code_location': ''}
-                                            ]
-
-
-
-
-
+        root_node = stack[0]
+        node_1    = root_node.children[0]
+        assert root_node ==  Trace_Call__Stack_Node(call_index=0, children=[node_1], func_name='',                          name= DEFAULT_ROOT_NODE_NODE_TITLE                                                 , module=''                        )
+        assert node_1    ==  Trace_Call__Stack_Node(call_index=1, children=[      ], func_name='test_handle_event__return', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__return', module='test_Trace_Call__Handler')
 
 
 
