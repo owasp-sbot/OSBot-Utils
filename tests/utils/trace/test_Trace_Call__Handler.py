@@ -12,31 +12,8 @@ from osbot_utils.utils.Objects import base_classes
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
 from osbot_utils.utils.trace.Trace_Call__Handler import Trace_Call__Handler, DEFAULT_ROOT_NODE_NODE_TITLE
+from osbot_utils.utils.trace.Trace_Call__Stack import Trace_Call__Stack
 from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
-
-class Frames_Test_Data(Kwargs_To_Self):
-    frame_1 = None
-    frame_2 = None
-    frame_3 = None
-
-    def __init__(self):
-        super().__init__()
-        self.frame_1 = self.get_frame_1()
-        self.frame_2 = self.get_frame_2()
-        self.frame_3 = self.get_frame_3()
-
-    def get_frame_1(self):
-        frame_1 = call_stack_current_frame()
-        return frame_1
-
-    def get_frame_2(self):
-        frame_2 = call_stack_current_frame()
-        return frame_2
-
-    def get_frame_3(self):
-        frame_3 =call_stack_current_frame()
-        return frame_3
-
 
 
 
@@ -49,33 +26,28 @@ class test_Trace_Call__Handler(TestCase):
         default_kwargs = Trace_Call__Handler.__default_kwargs__()
         assert list_set(default_kwargs) == ['call_index', 'config', 'stack']
         assert type(default_kwargs.get('config')) is Trace_Call__Config
+        assert type(default_kwargs.get('stack')) is Trace_Call__Stack
         assert default_kwargs.get('call_index') == 0
-        assert default_kwargs.get('stack'     ) == []
+
 
 
     def test___init__(self):
         assert Kwargs_To_Self in base_classes(Trace_Call__Handler)
         assert list_set(self.handler.__locals__()) == list_set(self.handler.__default_kwargs__()) + ['trace_title']
         assert self.handler.trace_title == DEFAULT_ROOT_NODE_NODE_TITLE
-        assert len(self.handler.stack) ==1
-        assert type(self.handler.stack[0]) is Trace_Call__Stack_Node
-        assert self.handler.stack[0].data()  == {'call_index'           : 0 ,
-                                                 'children'             : [] ,
-                                                 'locals'               : {} ,
-                                                 'name'                 : DEFAULT_ROOT_NODE_NODE_TITLE,
-                                                 'source_code'          : '' ,
-                                                 'source_code_caller'   : '' ,
-                                                 'source_code_location' : '' }
+        assert self.handler.stack.size() == 1
+        assert type(self.handler.stack.top()) is Trace_Call__Stack_Node
+        assert self.handler.stack.top()       == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE)
 
 
     def test_add_node(self):
         sample_frame  = call_stack_current_frame()
         stack         = self.handler.stack
-        root_node     = self.handler.stack[0]
+        root_node     = self.handler.stack.bottom()
 
-        assert len(stack) ==1
-        assert stack     == [root_node]
-        assert root_node.data() == {'call_index': 0, 'locals' : {} ,'children': [], 'name': 'Trace Session', 'source_code': '' , 'source_code_caller': '' ,'source_code_location' : '' }
+        assert stack.size()  == 1
+        assert stack         == [root_node]
+        assert root_node     == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE)
 
         # case 1: with bad data
         assert self.handler.add_node(frame=None        , new_node=None) is False
@@ -89,9 +61,10 @@ class test_Trace_Call__Handler(TestCase):
 
         # case 3: adding valid frame and node
         node_1 = Trace_Call__Stack_Node(call_index=1, name='node_1')
+
         assert stack                                        == [root_node]
-        assert stack[-1]                                    == root_node
-        assert stack[-1].children                           == []
+        assert stack.top()                                  == root_node
+        assert stack.top().children                         == []
         assert len(stack)                                   == 1
         assert sample_frame.f_locals.get('__trace_depth')   is None                     # confirm that the frame doesn't have the __trace_depth attribute
 
@@ -102,6 +75,10 @@ class test_Trace_Call__Handler(TestCase):
         assert stack[-1]                                   == node_1
         assert stack                                       == [root_node, node_1]
         assert stack[-2]                                   == root_node
+        assert stack[-3]                                   is None
+        assert stack[0]                                    == root_node
+        assert stack[1]                                    == node_1
+        assert stack[2]                                    is None
         assert root_node.children                          == [node_1]
         assert root_node.data()                            == {'call_index': 0,  'children': [ node_1 ],  'locals': {}, 'name': DEFAULT_ROOT_NODE_NODE_TITLE, 'source_code': '' , 'source_code_caller': '' ,'source_code_location' : '' }
 
@@ -310,11 +287,6 @@ class test_Trace_Call__Handler(TestCase):
                                  'source_code_location': source_code_location                           }
 
 
-
-    def test_new_stack_node(self):
-        title      = random_value()
-        call_index = random_value()
-        assert self.handler.new_stack_node(title, call_index).data()== Trace_Call__Stack_Node(call_index=call_index, name=title).data()
 
 
     def test_should_capture(self):
@@ -776,14 +748,18 @@ class test_Trace_Call__Handler(TestCase):
 
 
     def test_stack_top(self):
-
+        test_data = Frames_Test_Data()
         handler   = self.handler
         stack_top = handler.stack_top()
         assert len(handler.stack) == 1
         assert type(stack_top) is Trace_Call__Stack_Node
-        #stack_top.print()
 
-        frames_test_data = Frames_Test_Data()
+        handler.config.trace_capture_all = True
+        assert handler.add_frame(frame=test_data.frame_1) is True
+
+        pprint(self.handler.stack)
+        self.handler.stack[0].print()
+
         #pprint(frames_test_data.__locals__())
 
         # frame_1, frame_2, frame_3 = test_frame_1()
@@ -791,3 +767,27 @@ class test_Trace_Call__Handler(TestCase):
         # frame_1, frame_2, frame_3 = test_frame_1()
         # pprint(frame_1, frame_2, frame_3)
 
+
+
+class Frames_Test_Data(Kwargs_To_Self):
+    frame_1 = None
+    frame_2 = None
+    frame_3 = None
+
+    def __init__(self):
+        super().__init__()
+        self.frame_1 = self.get_frame_1()
+        self.frame_2 = self.get_frame_2()
+        self.frame_3 = self.get_frame_3()
+
+    def get_frame_1(self):
+        frame_1 = call_stack_current_frame()
+        return frame_1
+
+    def get_frame_2(self):
+        frame_2 = call_stack_current_frame()
+        return frame_2
+
+    def get_frame_3(self):
+        frame_3 =call_stack_current_frame()
+        return frame_3

@@ -1,35 +1,33 @@
 import linecache
-from copy import copy
-
-from osbot_utils.utils.Dev import pprint
-
-from osbot_utils.utils.Misc import list_set
-
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config import Trace_Call__Config
+from osbot_utils.utils.trace.Trace_Call__Stack import Trace_Call__Stack
 from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
 
 DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
 
 class Trace_Call__Handler(Kwargs_To_Self):
     call_index : int
-    stack      : list
+    stack      : Trace_Call__Stack
     config     : Trace_Call__Config
 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.trace_title  = self.config.title or DEFAULT_ROOT_NODE_NODE_TITLE                           # Title for the trace
-        self.stack        = [self.new_stack_node(self.trace_title, self.call_index)]
+        #self.stack        = [self.new_stack_node(self.trace_title, self.call_index)]
+        self.stack.add_node(self.trace_title, self.call_index)
 
+    def add_frame(self, frame):
+        return self.handle_event__call(frame)
 
     def add_node(self, frame, new_node):
         if frame and new_node:
             #if list_set(new_node) == ['call_index', 'children', 'name']: # missing the source code fields
             if type(new_node) is Trace_Call__Stack_Node:
-            #if 'children' in list_set(new_node):                    # todo: refactor this to a new class called Trace_Node
-                self.stack[-1].children.append(new_node)         # Insert the new node into the stack
-                self.stack.append(new_node)                         # Push the new node to the stack
+                self.stack.add_stack_node(new_node)
+                # self.stack[-1].children.append(new_node)         # Insert the new node into the stack
+                # self.stack.append(new_node)                         # Push the new node to the stack
                 frame.f_locals['__trace_depth'] = len(self.stack)   # Store the depth in frame locals
                 return True
         return False
@@ -109,8 +107,6 @@ class Trace_Call__Handler(Kwargs_To_Self):
                 full_name = f"{module}.{func_name}"
             return full_name
 
-    def new_stack_node(self, name, call_index):
-        return Trace_Call__Stack_Node(call_index=call_index, name=name)
 
     def should_capture(self, module, func_name):
         capture = False

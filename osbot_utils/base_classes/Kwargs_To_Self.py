@@ -10,6 +10,9 @@ from osbot_utils.utils.Objects import default_value
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType)
 
 
+#todo: see if we can also add type safety to method execution
+#      for example if we have an method like def add_node(self, title: str, call_index: int):
+#          throw an exception if the type of the value passed in is not the same as the one defined in the method
 
 class Kwargs_To_Self:
     """

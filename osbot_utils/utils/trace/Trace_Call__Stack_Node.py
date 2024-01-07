@@ -20,11 +20,16 @@ class Trace_Call__Stack_Node(Kwargs_To_Self):
         return self.data() == other.data()
 
     def __repr__(self):
-        return '[Trace_Call__Stack_Node]'
+        return f'Trace_Call__Stack_Node (call_index={self.call_index})'
 
+    def info(self):
+        return f'Stack_Node: call_index:{self.call_index} | name: {self.name} | children: {len(self.children)} | source_code: {self.source_code is not None}'
 
     def data(self):
         return self.__locals__()
 
     def print(self):
         pprint(self.data())
+
+    def print_info(self):
+        pprint(self.info())
