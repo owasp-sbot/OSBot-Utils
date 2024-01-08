@@ -30,7 +30,7 @@ class test_Local_Cache(TestCase):
         assert self.cache.data    ()                  == {'a': 1, 'b': 2}
         assert self.cache.add_data({'c': 3, 'd': 4 }) is self.cache
         assert self.cache.data    ()                  == {'a': 1, 'b': 2, 'c': 3, 'd': 4}
-        assert self.cache.set_data({'e': 5         }) is self.cache
+        assert self.cache.set_all_data({'e': 5         }) is self.cache
         assert self.cache.data    ()                  == {'e': 5 }
 
     def test_path_root_folder(self):

@@ -67,7 +67,13 @@ class Local_Cache:
     def path_cache_file(self):
         return path_combine(self.path_root_folder(), f"{self.cache_name}.json")
 
-    def set_data(self, data):
+    def set(self, key, value):
+        return self.add(key, value)
+
+    def set_data(self,items):
+        return self.add_data(items)
+
+    def set_all_data(self, data):
         self._data = data
         self.save()
         return self
