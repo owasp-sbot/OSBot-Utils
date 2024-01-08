@@ -2,6 +2,9 @@ from osbot_utils.helpers.Local_Cache import Local_Cache
 
 class Kwargs_To_Disk:
 
+    def __enter__(self): return self
+    def __exit__ (self, exc_type, exc_val, exc_tb): pass
+
     def __init__(self):
         self._cache_name  = f'{self.__class__.__module__}___{self.__class__.__name__}'
         self._local_cache = Local_Cache(cache_name=self._cache_name).setup()
