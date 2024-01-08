@@ -95,8 +95,11 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
             #source_code_location = item.get('source_code_location') or ''
 
             if self.config.show_method_parent:
-                method_name = f'{text_olive(method_parent)}.{text_bold(method_name)}'
-                self.config.show_parent_info = False         # these are not compatible
+                if self.config.show_parent_info:
+                    method_name = f'{text_olive(parent_info)}.{text_bold(method_name)}'
+                else:
+                    method_name = f'{text_olive(method_parent)}.{text_bold(method_name)}'
+
 
             node_text          = source_code or method_name
             formatted_line     = f"{prefix}{tree_branch}{emoji} {node_text}"
@@ -128,7 +131,7 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                     # fixed_source_code_location = source_code_location.replace(path_source_code_root, '')
                     # print(fixed_source_code_location)
             else:
-                if idx == 0 or self.config.show_parent_info is False:                            # Handle the first line and conditional parent info differently
+                if idx == 0 or (self.config.show_parent_info is False or self.config.show_method_parent is True):                            # Handle the first line and conditional parent info differently
                     print(f"{text_bold(formatted_line)}")                                                  # Don't add "|" to the first line
                 else:
                     print(f"{text_bold(formatted_line)}{padding} {parent_info}")
