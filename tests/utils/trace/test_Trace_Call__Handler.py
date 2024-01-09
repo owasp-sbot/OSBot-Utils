@@ -120,7 +120,7 @@ class test_Trace_Call__Handler(TestCase):
         # check default config values that impact logic
 
         assert config.trace_capture_all      is False
-        assert config.trace_ignore_internals is True
+        assert config.trace_show_internals   is False
 
         # case 1: with invalid values on frame
         assert should_capture(frame=None)    is False
@@ -137,12 +137,12 @@ class test_Trace_Call__Handler(TestCase):
 
 
         # case 4: with trace_ignore_internals set for False
-        config.trace_ignore_internals = False
+        config.trace_show_internals = False
         assert should_capture(frame=sample_frame) is True
         assert should_capture(frame=sample_frame) is True
 
         # case 5: with trace_ignore_start_with set
-        config.trace_ignore_internals   = True
+        config.trace_show_internals     = False
         config.trace_ignore_start_with  = ['test']
         config.trace_capture_start_with = ['test']
         assert should_capture(frame=sample_frame) is False
@@ -172,14 +172,14 @@ class test_Trace_Call__Handler(TestCase):
 
         # case 9: nteraction Between trace_ignore_internals and trace_capture_start_with/trace_ignore_start_with
         config.trace_capture_start_with = ['mod']
-        config.trace_ignore_internals   = True
+        config.trace_show_internals     = False
         assert should_capture(frame=sample_frame) is False                      # todo: improve the logic of this (since it has lost a bit of the meaning after the refactoring to should_capture(frame=sample_frame) )
 
         # case 10: Functionality When All Configs are Empty or Default
         config.trace_capture_all        = False
         config.trace_capture_start_with = []
         config.trace_ignore_start_with  = []
-        config.trace_ignore_internals   = True
+        config.trace_show_internals     = False
         assert should_capture(frame=sample_frame) is False     # Assuming default behavior is to not capture
 
         # Case 11: Overlapping Patterns

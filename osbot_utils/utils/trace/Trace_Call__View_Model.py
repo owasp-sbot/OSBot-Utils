@@ -68,7 +68,7 @@ class Trace_Call__View_Model:
         return view_model
 
     def fix_view_mode(self):
-        if len(self.view_model) > 0:
+        if len(self.view_model) > 0:                                                        # these changes will provide a nice end of tree, for example replacing "│       ├──" with "└────────── "
             last_node = self.view_model[-1]                                                 # Get the last node in the view model
-            last_node['prefix']      = '└───'                                               # Update the prefix for the last node
+            last_node['prefix'] = last_node['prefix'].replace(' ', '─').replace('│', '└')   # Update the prefix for the last node
             last_node['tree_branch'] = '─── '

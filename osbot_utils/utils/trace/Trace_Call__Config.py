@@ -24,6 +24,6 @@ class Trace_Call__Config(Kwargs_To_Self):
     trace_capture_source_code  : bool
     trace_capture_start_with   : list
     trace_capture_contains     : list
-    trace_ignore_internals     : bool = True
+    trace_show_internals       : bool
     trace_ignore_start_with    : list
     with_duration_bigger_than  : bool

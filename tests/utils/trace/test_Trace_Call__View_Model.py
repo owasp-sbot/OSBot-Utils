@@ -60,7 +60,7 @@ class test_Trace_Call__View_Model(TestCase):
                                                  call('\x1b[1m📦  Trace Session\x1b[0m'),
                                                  call('\x1b[1m│   ├── 🧩️ dummy_function\x1b[0m'),
                                                  call('\x1b[1m│   └── 🔗️ another_function\x1b[0m'),
-                                                 call('\x1b[1m└────── 🧩️ dummy_function\x1b[0m')]
+                                                 call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m')]
 
 
     def test_fix_view_mode(self):
@@ -74,5 +74,6 @@ class test_Trace_Call__View_Model(TestCase):
 
         view_model = trace_call_view_model.view_model
         assert len(view_model) == 1, "One functions should be in the created view_model"
+        view_model[-1]['prefix'] = '│   aaa'
         trace_call_view_model.fix_view_mode()
-        assert view_model[-1]['prefix'] == '└───', "Last node prefix should be updated"
+        assert view_model[-1]['prefix'] == '└───aaa', "Last node prefix should be updated"

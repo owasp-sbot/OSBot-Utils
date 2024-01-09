@@ -46,7 +46,8 @@ class Trace_Call__Handler(Kwargs_To_Self):
             code        = frame.f_code                                                      # Get code object from frame
             func_name   = code.co_name                                                      # Get function name
             module      = frame.f_globals.get("__name__", "")                               # Get module name
-
+            if  module == 'osbot_utils.utils.trace.Trace_Call':                             # don't trace the trace module
+                return False                                                                # todo: figure out if there is a performance implication of doing this string comparison here (or if there is a better way to detect this)
             if module and func_name:
                 if self.config.trace_capture_all:
                     capture = True
@@ -61,7 +62,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
                             if item in module or item in func_name:
                                 capture = True
                                 break
-                if self.config.trace_ignore_internals and func_name.startswith('_'):                   # Skip private functions
+                if self.config.trace_show_internals is False and func_name.startswith('_'):                   # Skip private functions
                     capture = False
 
                 for item in self.config.trace_ignore_start_with:                                       # Check if the module should be ignored

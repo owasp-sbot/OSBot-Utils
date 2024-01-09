@@ -11,7 +11,7 @@ from osbot_utils.utils.trace.Trace_Call__View_Model     import Trace_Call__View_
 
 def trace_calls(title=None, print=True, show_locals=False, source_code=False, ignore=None, include=None,
                 max_string=None, show_types=False, show_caller=False, show_class=False, show_path=False,
-                show_duration=False, duration_bigger_than=0, contains=None, ignore_internals=True,
+                show_duration=False, duration_bigger_than=0, contains=None, show_internals=False,
                 extra_data=False):
     def decorator(func):
         @wraps(func)
@@ -23,7 +23,7 @@ def trace_calls(title=None, print=True, show_locals=False, source_code=False, ig
                                  show_caller=show_caller, show_source_code_path=show_path,
                                  capture_duration=show_duration, print_duration= show_duration,
                                  with_duration_bigger_than=duration_bigger_than,
-                                 trace_capture_contains=contains, trace_ignore_internals=ignore_internals,
+                                 trace_capture_contains=contains, trace_show_internals=show_internals,
                                  capture_extra_data=extra_data)
 
             config = Trace_Call__Config(**config_kwargs)

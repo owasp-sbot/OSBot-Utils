@@ -58,7 +58,7 @@ class test_Trace_Call(TestCase):
 
         mock_stop.assert_called_with()
         self.trace_call.create_view_model()         # this is populated by the self.trace_view_model.view_model object
-        assert self.trace_view_model.view_model == [{ 'duration': 0.0, 'extra_data': {}, 'prefix': '└───', 'tree_branch': '─── ', 'emoji': '📦 ',
+        assert self.trace_view_model.view_model == [{ 'duration': 0.0, 'extra_data': {}, 'prefix': '', 'tree_branch': '─── ', 'emoji': '📦 ',
                                                       'method_name': '', 'method_parent': '',
                                                       'parent_info': '', 'locals': {}, 'source_code': '',
                                                       'source_code_caller': '', 'source_code_location': ''}]
@@ -84,7 +84,7 @@ class test_Trace_Call(TestCase):
                                                      call('\x1b[1m│       └── 🔗️ method_b\x1b[0m'),
                                                      call('\x1b[1m│           └── 🔗️ pprint\x1b[0m'),
                                                      call('\x1b[1m│               └── 🔗️ pprint\x1b[0m'),
-                                                     call('\x1b[1m└────── 🧩️ format\x1b[0m')] != []
+                                                     call('\x1b[1m└────────────────────── 🧩️ format\x1b[0m')] != []
 
 
     def test_stop(self):
@@ -141,7 +141,7 @@ class test_Trace_Call(TestCase):
                                                  call('\x1b[1m📦  Trace Session\x1b[0m'),
                                                  call('\x1b[1m│   ├── 🧩️ dummy_function\x1b[0m                                    test_Trace_Call'),
                                                  call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                  test_Trace_Call'),
-                                                 call('\x1b[1m└────── 🧩️ dummy_function\x1b[0m                                    test_Trace_Call')] != []
+                                                 call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m                                test_Trace_Call')] != []
 
         # todo: figure out why we are getting these two different values
         if in_github_action():
@@ -217,7 +217,7 @@ class test_Trace_Call(TestCase):
                                                  call('\x1b[1m│   ├── 🔗️ random_filename\x1b[0m'),
                                                  call('\x1b[1m│   │   └── 🧩️ file_extension_fix\x1b[0m'),
                                                  call('\x1b[1m│   └── 🔗️ random_filename\x1b[0m'),
-                                                 call('\x1b[1m└────── 🧩️ file_extension_fix\x1b[0m')] != []
+                                                 call('\x1b[1m└────────── 🧩️ file_extension_fix\x1b[0m')] != []
 
         assert list_set(self.handler.stats.frames_stats()) == ['codecs', 'genericpath', 'os',
                                                                'osbot_utils', 'posixpath', 'random', 'shutil',
