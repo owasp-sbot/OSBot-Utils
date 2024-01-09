@@ -130,21 +130,23 @@ class Trace_Call__Stack(Kwargs_To_Self):
     def nodes(self):
         return self.stack_data
 
-    def remove_from_top(self, top_node):
+    def remove_from_top(self, top_node, extra_data: dict):
         if self.config.capture_duration:
             top_node.call_end     = time.perf_counter()
             top_node.call_duration = top_node.call_end - top_node.call_start
+        if type(extra_data) is dict:
+            top_node.extra_data.update(extra_data)
         self.stack_data.pop()
         return True
 
-    def pop(self, target):
+    def pop(self, target, extra_data: dict = None):
         top_node = self.top()
         if target and top_node :
-            if type(target) is Trace_Call__Stack_Node:      # handle the case when target is Trace_Call__Stack_Node
-                if target == top_node:                      # if they match, pop the stack (since we are only capturing a subset of the stack)
-                    return self.remove_from_top(top_node)
-            elif target is top_node.frame:                  # if not assume target is a frame
-                return self.remove_from_top(top_node)               # if they match, pop the stack (since we are only capturing a subset of the stack)
+            if type(target) is Trace_Call__Stack_Node:                  # handle the case when target is Trace_Call__Stack_Node
+                if target == top_node:                                  # if they match, pop the stack (since we are only capturing a subset of the stack)
+                    return self.remove_from_top(top_node, extra_data)
+            elif target is top_node.frame:                              # if not assume target is a frame
+                return self.remove_from_top(top_node, extra_data)       # if they match, pop the stack (since we are only capturing a subset of the stack)
         return False
 
     def push(self, frame):

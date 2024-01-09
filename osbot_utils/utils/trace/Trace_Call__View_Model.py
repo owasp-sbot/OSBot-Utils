@@ -22,6 +22,7 @@ class Trace_Call__View_Model:
         for idx, node in enumerate(json_list):                                              # Iterate over each node in the JSON list to populate the view model
             components           = node.name.split('.')
             duration             = node.call_duration
+            extra_data           = node.extra_data
             locals               = node.locals
             source_code          = node.source_code
             source_code_caller   = node.source_code_caller
@@ -51,9 +52,9 @@ class Trace_Call__View_Model:
 
             view_model.append({ 'duration'            : duration             ,
                                 'emoji'               : emoji                ,
+                                'extra_data'          : extra_data           ,
                                 'method_name'         : method_name          ,
                                 'method_parent'       : method_parent        ,
-
                                 'locals'              : locals               ,
                                 'parent_info'         : parent_info          ,
                                 'prefix'              : prefix               ,

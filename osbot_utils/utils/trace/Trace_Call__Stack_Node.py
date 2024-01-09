@@ -2,6 +2,7 @@ from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
+EXTRA_DATA__RETURN_VALUE = '(return_value)'
 
 class Trace_Call__Stack_Node(Kwargs_To_Self):
     call_duration       : float
@@ -9,6 +10,7 @@ class Trace_Call__Stack_Node(Kwargs_To_Self):
     call_index          : int
     call_start          : float
     children            : list
+    extra_data          : dict
     locals              : dict
     frame               : None
     func_name           : str

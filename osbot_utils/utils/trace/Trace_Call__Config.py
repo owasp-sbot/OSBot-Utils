@@ -5,9 +5,10 @@ PRINT_MAX_STRING_LENGTH = 100
 class Trace_Call__Config(Kwargs_To_Self):
     title                      : str
     capture_locals             : bool = True
-    capture_duration           : bool = False
+    capture_duration           : bool
+    capture_extra_data         : bool
     capture_frame              : bool = True
-    capture_frame_stats        : bool = False
+    capture_frame_stats        : bool
     capture_source_code        : bool
     capture_start_with         : list
     ignore_start_with          : list
@@ -17,7 +18,7 @@ class Trace_Call__Config(Kwargs_To_Self):
     print_on_exit              : bool
     show_parent_info           : bool = True
     show_caller                : bool
-    show_method_parent         : bool
+    show_method_class         : bool
     show_source_code_path      : bool
     trace_capture_all          : bool
     trace_capture_source_code  : bool

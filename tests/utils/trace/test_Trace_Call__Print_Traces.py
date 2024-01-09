@@ -24,21 +24,21 @@ class test_Trace_Call__Print_Traces(TestCase):
         with patch('builtins.print') as mock_print:
             local_data     = {'a':42, '_b':'_ignored'}
             formatted_line = ''
-            expected_calls = [call('       🔖 a = \x1b[92m42\x1b[0m')]
+            expected_calls = [call('│       🔖 \x1b[1m\x1b[38;2;120;120;120ma\x1b[0m = \x1b[92m42\x1b[0m')]
             self.print_traces.formatted_local_data(local_data=local_data, formatted_line=formatted_line)
             assert mock_print.call_args_list == expected_calls
 
         with patch('builtins.print') as mock_print:
             local_data     = {'an_dict': {'a': 42 }}
             formatted_line = ''
-            expected_calls = [call("       🔖 an_dict = \x1b[92m{'a': 42}\x1b[0m")]
+            expected_calls = [call("│       🔖 \x1b[1m\x1b[38;2;120;120;120man_dict\x1b[0m = \x1b[92m{'a': 42}\x1b[0m")]
             self.print_traces.formatted_local_data(local_data=local_data, formatted_line=formatted_line)
             assert mock_print.call_args_list == expected_calls
 
         with patch('builtins.print') as mock_print:
             local_data     = {'an_method': mock_print}
             formatted_line = ''
-            expected_calls = [call('       🔖 an_method = \x1b[94mMagicMock\x1b[0m')]
+            expected_calls = [call('│       🔖 \x1b[1m\x1b[38;2;120;120;120man_method\x1b[0m = \x1b[94mMagicMock\x1b[0m')]
             self.print_traces.formatted_local_data(local_data=local_data, formatted_line=formatted_line)
             assert mock_print.call_args_list == expected_calls
 
@@ -46,7 +46,7 @@ class test_Trace_Call__Print_Traces(TestCase):
             self.print_traces.config.print_max_string_length = 2
             local_data     = {'large_string': 'xx' * self.print_traces.config.print_max_string_length}
             formatted_line = ''
-            expected_calls = [call('       🔖 large_string = \x1b[92mxx...\x1b[0m')]
+            expected_calls =  [call('│       🔖 \x1b[1m\x1b[38;2;120;120;120mlarge_string\x1b[0m = \x1b[92mxx...\x1b[0m')]
             self.print_traces.formatted_local_data(local_data=local_data, formatted_line=formatted_line)
             assert mock_print.call_args_list == expected_calls
 
@@ -82,14 +82,14 @@ class test_Trace_Call__Print_Traces(TestCase):
 
         with patch('builtins.print') as mock_print:
             trace_call.trace_call_print_traces.config.show_parent_info  = False
-            trace_call.trace_call_print_traces.config.show_method_parent = True
+            trace_call.trace_call_print_traces.config.show_method_class = True
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
             assert mock_print.call_args_list == [call(),
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 3 traces captured\n'),
-                                                 call('\x1b[1m📦  \x1b[38;2;118;138;118m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
-                                                 call('\x1b[1m│   └── 🔗️ \x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1manother_function\x1b[0m\x1b[0m'),
-                                                 call('\x1b[1m└────── 🧩️ \x1b[38;2;118;138;118mtest_Trace_Call\x1b[0m.\x1b[1mdummy_function\x1b[0m\x1b[0m')]
+                                                 call('\x1b[1m📦  \x1b[38;2;138;148;138m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
+                                                 call('\x1b[1m│   └── 🔗️ \x1b[38;2;138;148;138mtest_Trace_Call\x1b[0m.\x1b[1manother_function\x1b[0m\x1b[0m'),
+                                                 call('\x1b[1m└────── 🧩️ \x1b[38;2;138;148;138mtest_Trace_Call\x1b[0m.\x1b[1mdummy_function\x1b[0m\x1b[0m')]
 
         #handler.stack.add_node(title=DEFAULT_ROOT_NODE_NODE_TITLE)  # add a root node
         handler.trace_capture_start_with  = ['test']
@@ -108,7 +108,7 @@ class test_Trace_Call__Print_Traces(TestCase):
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 3 traces captured\n'),
                                                  call('🔼️\x1b[1m\x1b[0m'),
-                                                 call('➡️📦  \x1b[90m\x1b[38;2;118;138;118m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
+                                                 call('➡️📦  \x1b[90m\x1b[38;2;138;148;138m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
                                                  call('│   └── 🔼️\x1b[1manother_function()\x1b[0m'),
                                                  call('│   └── ➡️🔗️ \x1b[90mdef another_function():\x1b[0m'),
                                                  call('└────── 🔼️\x1b[1mdummy_function()\x1b[0m'),
@@ -121,7 +121,7 @@ class test_Trace_Call__Print_Traces(TestCase):
             assert mock_print.call_args_list == [call(),
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 3 traces captured\n'),
-                                                 call('➡️📦  \x1b[1m\x1b[38;2;118;138;118m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
+                                                 call('➡️📦  \x1b[1m\x1b[38;2;138;148;138m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
                                                  call('│   └── ➡️🔗️ \x1b[1mdef another_function():\x1b[0m'),
                                                  call('└────── ➡️🧩️ \x1b[1mdef dummy_function():\x1b[0m')]
 
@@ -137,10 +137,10 @@ class test_Trace_Call__Print_Traces(TestCase):
             assert mock_print.call_args_list == [call(),
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 3 traces captured\n'),
-                                                 call('➡️📦  \x1b[1m\x1b[38;2;118;138;118m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
+                                                 call('➡️📦  \x1b[1m\x1b[38;2;138;148;138m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
                                                  call('│   └── ➡️🔗️ \x1b[1mdef another_function():\x1b[0m'),
                                                  call('└────── ➡️🧩️ \x1b[1mdef dummy_function():\x1b[0m'),
-                                                 call('               🔖 a = \x1b[92m12\x1b[0m')]
+                                                 call('│               🔖 \x1b[1m\x1b[38;2;120;120;120ma\x1b[0m = \x1b[92m12\x1b[0m')]
 
 
 

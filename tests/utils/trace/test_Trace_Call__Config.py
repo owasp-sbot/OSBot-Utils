@@ -14,6 +14,7 @@ class test_Trace_Call__Config(TestCase):
 
     def test__kwargs__(self):
         expected_data = { 'capture_duration'         : False ,
+                          'capture_extra_data'       : False ,
                           'capture_frame'            : True  ,
                           'capture_frame_stats'      : False ,
                           'capture_locals'           : True  ,
@@ -25,7 +26,7 @@ class test_Trace_Call__Config(TestCase):
                           'print_on_exit'            : False ,
                            'print_duration'          : False,
                           'show_caller'              : False ,
-                          'show_method_parent'       : False ,
+                          'show_method_class'       : False ,
                           'show_parent_info'         : True  ,
                           'show_source_code_path'    : False ,
                           'title'                    : ''    ,

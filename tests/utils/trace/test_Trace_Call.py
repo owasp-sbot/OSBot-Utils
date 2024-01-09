@@ -57,8 +57,8 @@ class test_Trace_Call(TestCase):
             self.trace_call.__exit__(None, None, None)
 
         mock_stop.assert_called_with()
-        self.trace_call.create_view_model()         # this is populate the self.trace_view_model.view_model object
-        assert self.trace_view_model.view_model == [{ 'duration': 0.0, 'prefix': '└───', 'tree_branch': '─── ', 'emoji': '📦 ',
+        self.trace_call.create_view_model()         # this is populated by the self.trace_view_model.view_model object
+        assert self.trace_view_model.view_model == [{ 'duration': 0.0, 'extra_data': {}, 'prefix': '└───', 'tree_branch': '─── ', 'emoji': '📦 ',
                                                       'method_name': '', 'method_parent': '',
                                                       'parent_info': '', 'locals': {}, 'source_code': '',
                                                       'source_code_caller': '', 'source_code_location': ''}]

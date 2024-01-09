@@ -2,7 +2,7 @@ import linecache
 from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config     import Trace_Call__Config
 from osbot_utils.utils.trace.Trace_Call__Stack      import Trace_Call__Stack
-from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
+from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node, EXTRA_DATA__RETURN_VALUE
 from osbot_utils.utils.trace.Trace_Call__Stats      import Trace_Call__Stats
 
 DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
@@ -33,8 +33,12 @@ class Trace_Call__Handler(Kwargs_To_Self):
                 return self.stack.add_frame(frame)
 
 
-    def handle_event__return(self, frame):
-        return self.stack.pop(frame)
+    def handle_event__return(self, frame, return_value=None):
+        if return_value and self.config.capture_extra_data:
+            extra_data = { EXTRA_DATA__RETURN_VALUE : return_value}
+        else:
+            extra_data = {}
+        return self.stack.pop(target=frame, extra_data = extra_data)
 
     def should_capture(self, frame):                                                    # todo: see if we can optimise these 3 lines (starting with frame.f_code) which are repeated in a number of places here
         capture = False
@@ -84,7 +88,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
             self.handle_event__call(frame)                  # todo: handle bug with locals which need to be serialised, since it's value will change
         elif event == 'return':
             self.stats.event_return += 1
-            self.handle_event__return(frame)                # todo: capture arg since it represents the return object
+            self.handle_event__return(frame, arg)
         elif event == 'exception':
             self.stats.event_exception +=1                  # for now don't handle exception events
         elif event == 'line':
