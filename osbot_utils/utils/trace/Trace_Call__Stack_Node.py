@@ -14,6 +14,7 @@ class Trace_Call__Stack_Node(Kwargs_To_Self):
     locals              : dict
     frame               : None
     func_name           : str
+    lines               : list
     module              : str
     name                : str
     source_code         : str

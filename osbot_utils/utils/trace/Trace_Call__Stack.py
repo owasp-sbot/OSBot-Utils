@@ -13,6 +13,7 @@ class Trace_Call__Stack(Kwargs_To_Self):
     stack_data : list
     config     : Trace_Call__Config
     root_node  : Trace_Call__Stack_Node
+    line_index : int
 
     def __eq__(self, target):
         if self is target:

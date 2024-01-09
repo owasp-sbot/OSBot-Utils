@@ -1,4 +1,8 @@
+import inspect
 import linecache
+
+from osbot_utils.utils.Objects import obj_info
+
 from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config     import Trace_Call__Config
 from osbot_utils.utils.trace.Trace_Call__Stack      import Trace_Call__Stack
@@ -18,6 +22,53 @@ class Trace_Call__Handler(Kwargs_To_Self):
         self.trace_title   = self.config.title or DEFAULT_ROOT_NODE_NODE_TITLE                           # Title for the trace root node
         self.stack.config  = self.config
 
+    def add_default_root_node(self):
+        return self.stack.add_node(title=self.trace_title)
+
+    def add_line(self, frame):
+        if self.config.trace_capture_lines:
+            if frame:
+                target_node = self.stack.top()  # lines captured are added to the current top of the stack
+                if self.stack.top():
+                    target_node__func_name = target_node.func_name
+                    target_node__module    = target_node.module
+                    frame_func_name        = frame.f_code.co_name
+                    frame_module           = frame.f_globals.get("__name__", "")
+                    if frame_func_name == target_node__func_name:
+                        if frame_module == target_node__module:
+                            return self.add_line_to_node(frame, target_node, 'line')
+        return False
+
+    def add_line_to_node(self, frame, target_node, event):
+        if frame and target_node:
+            func_name = frame.f_code.co_name
+            module    = frame.f_globals.get("__name__", "")
+            if event == 'call':                                                     # if this is a call we need to do the code below to get the actual method signature (and decorators)
+                function_name       = frame.f_code.co_name
+                filename            = frame.f_code.co_filename                             # Get the filename where the function is defined
+                start_line_number   = frame.f_code.co_firstlineno                 # Get the starting line number
+                source_lines        = inspect.getsource(frame.f_code).split('\n')
+                def_line_number     = start_line_number                         # Try to find the actual 'def' line
+                for line in source_lines:
+                    if line.strip().startswith('def ' + function_name):
+                        break
+                    def_line_number += 1
+                else:
+                    def_line_number = start_line_number                      # If the 'def' line wasn't found, default to the starting line
+
+                line = linecache.getline(filename, def_line_number).rstrip()            # todo: refactor this to not capture this info here, and to use the Ast_* utils to get a better source code mapping
+            else:
+                filename    = frame.f_code.co_filename  # get the filename
+                line_number = frame.f_lineno                          # get the current line number
+                line        = linecache.getline(filename, line_number)         # get the line
+
+            if line:
+                self.stack.line_index += 1
+                line_data = dict(index = self.stack.line_index, func_name=func_name, module=module, line = line.rstrip(), event=event)
+                target_node.lines.append(line_data)
+                return True
+        return False
+
     def add_frame(self, frame):
         return self.handle_event__call(frame)
 
@@ -30,7 +81,13 @@ class Trace_Call__Handler(Kwargs_To_Self):
             if self.config.capture_frame_stats:
                 self.stats.log_frame(frame)
             if self.should_capture(frame):
-                return self.stack.add_frame(frame)
+                new_node = self.stack.add_frame(frame)
+                if self.config.trace_capture_lines:
+                    self.add_line_to_node(frame, new_node,'call')
+                return  new_node
+
+    def handle_event__line(self, frame):
+        return self.add_line(frame)
 
 
     def handle_event__return(self, frame, return_value=None):
@@ -93,7 +150,8 @@ class Trace_Call__Handler(Kwargs_To_Self):
         elif event == 'exception':
             self.stats.event_exception +=1                  # for now don't handle exception events
         elif event == 'line':
-            self.stats.event_line +=1                       # for now don't handle line events
+            self.handle_event__line(frame)
+            self.stats.event_line +=1
         else:
             self.stats.event_unknown += 1
 

@@ -75,7 +75,6 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                 indented_lines = [lines[0]] + [" " * (left_padding +1) + line for line in lines[1:]]
                 return '\n│'.join(indented_lines)
 
-            # Second pass to print the keys and values aligned
             padding = " " * len(formatted_line)
             for key, (value, color) in formatted_data.items():
                 # Calculate the number of spaces needed for alignment
@@ -83,6 +82,20 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                 var_name = f"{padding}       {emoji} {text_light_grey(key)}{spaces} = "
                 value = format_multiline(value, len(var_name)- len(text_light_grey('')))  # this logic makes sure that the local's values are column aligned
                 print(f'│{var_name}{color}{value}{RESET}')
+
+    def print_lines(self, lines, formatted_line):
+        if lines:
+            padding = " " * len(formatted_line)
+            for line in lines:
+                index       = line.get('index')
+                #func_name   = line.get('func_name')
+                #module      = line.get('module')
+                event       = line.get('event')
+                line        = line.get('line')
+                if event == 'call':
+                    print(f"{padding}       {text_grey(index):12} {text_bold_green(line)}")
+                else:
+                    print(f"{padding}       {text_grey(index):12} {text_olive(line)}")
 
     def print_traces(self, view_model, trace_capture_source_code = False):
         print()
@@ -143,6 +156,9 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                     print(f"{text_bold(formatted_line)}")                                                  # Don't add "|" to the first line
                 else:
                     print(f"{text_bold(formatted_line)}{padding} {parent_info}")
+
+            if self.config.trace_capture_lines:
+                self.print_lines(item.get('lines'), f'{prefix}{tree_branch}')
 
             if self.config.print_locals:
                 self.formatted_local_data(locals, f'{prefix}{tree_branch}')

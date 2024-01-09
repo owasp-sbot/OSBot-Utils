@@ -23,7 +23,8 @@ class Trace_Call__View_Model:
             components           = node.name.split('.')
             duration             = node.call_duration
             extra_data           = node.extra_data
-            locals               = node.locals
+            frame_locals         = node.locals
+            lines                = node.lines
             source_code          = node.source_code
             source_code_caller   = node.source_code_caller
             source_code_location = node.source_code_location
@@ -55,7 +56,8 @@ class Trace_Call__View_Model:
                                 'extra_data'          : extra_data           ,
                                 'method_name'         : method_name          ,
                                 'method_parent'       : method_parent        ,
-                                'locals'              : locals               ,
+                                'lines'               : lines                ,
+                                'locals'              : frame_locals         ,  # todo finish refactoring use of locals to frame_locals
                                 'parent_info'         : parent_info          ,
                                 'prefix'              : prefix               ,
                                 'source_code'         : source_code          ,

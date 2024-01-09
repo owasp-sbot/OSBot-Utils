@@ -15,6 +15,7 @@ from osbot_utils.utils.trace.Trace_Call__Handler import Trace_Call__Handler, DEF
 from osbot_utils.utils.trace.Trace_Call__Stack import Trace_Call__Stack
 from osbot_utils.utils.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
 from osbot_utils.utils.trace.Trace_Call__Stats import Trace_Call__Stats
+from tests.utils.trace.test_Trace_Call__Stack import Frames_Test_Data
 
 
 class test_Trace_Call__Handler(TestCase):
@@ -76,6 +77,38 @@ class test_Trace_Call__Handler(TestCase):
         assert len(stack)   == 1
         assert new_node == Trace_Call__Stack_Node(call_index=1, frame=sample_frame, func_name='test_handle_event__call', name= 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_handle_event__call', module='test_Trace_Call__Handler')
 
+    def test_handle_event__line(self):
+        config             = self.handler.config
+        handle_event__call = self.handler.handle_event__call
+        handle_event__line = self.handler.handle_event__line
+        stack              = self.handler.stack
+        test_frames        = Frames_Test_Data()
+        frame_1            = test_frames.frame_1
+        frame_2            = test_frames.frame_2
+        frame_3            = test_frames.frame_3
+
+        # case 1: invoke with bad data
+        assert handle_event__line(frame=None) is False
+
+        # case 2: invoke with valid frame by no stack
+        assert len(stack) == 0
+        assert handle_event__line(frame=frame_1) is False
+
+
+        # # case 3: invoke with valid frame and valid stack
+        #
+        self.handler.add_default_root_node()
+
+        assert len(stack) == 1
+        assert stack[0].data() == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE).data()
+        config.trace_capture_lines = True
+        config.trace_capture_all   = True
+
+        handle_event__call(frame=frame_1)                                      # simulate being inside a function
+        top_stack = self.handler.stack.top()
+        assert handle_event__line(frame=frame_1) is not None                   # add line using handle_event__line
+        #todo: finish test and add more cases
+
 
     def test_handle_event__return(self):
         config               = self.handler.config
@@ -89,11 +122,10 @@ class test_Trace_Call__Handler(TestCase):
 
         # case 2: invoke with valid frame by no stack
         assert len(stack) == 0
-        assert handle_event__return(frame=None) is False
+        assert handle_event__return(frame=sample_frame) is False
 
         # case 3: invoke with valid frame and valid stack
-
-        self.handler.stack.add_node(title=DEFAULT_ROOT_NODE_NODE_TITLE)             # add a root node
+        self.handler.add_default_root_node()
 
         assert len(stack) == 1
         assert stack[0].data() == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE).data()

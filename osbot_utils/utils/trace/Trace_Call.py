@@ -12,19 +12,19 @@ from osbot_utils.utils.trace.Trace_Call__View_Model     import Trace_Call__View_
 def trace_calls(title=None, print=True, show_locals=False, source_code=False, ignore=None, include=None,
                 max_string=None, show_types=False, show_caller=False, show_class=False, show_path=False,
                 show_duration=False, duration_bigger_than=0, contains=None, show_internals=False,
-                extra_data=False):
+                extra_data=False, show_lines=False):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             config_kwargs = dict(title=title, print_on_exit=print, print_locals=show_locals,
-                                 capture_source_code=source_code, ignore_start_with=ignore,
+                                 trace_capture_source_code=source_code, ignore_start_with=ignore,
                                  capture_start_with=include, print_max_string_length=max_string,
                                  show_parent_info=show_types, show_method_class=show_class,
                                  show_caller=show_caller, show_source_code_path=show_path,
                                  capture_duration=show_duration, print_duration= show_duration,
                                  with_duration_bigger_than=duration_bigger_than,
                                  trace_capture_contains=contains, trace_show_internals=show_internals,
-                                 capture_extra_data=extra_data)
+                                 capture_extra_data=extra_data, trace_capture_lines=show_lines)
 
             config = Trace_Call__Config(**config_kwargs)
             with Trace_Call(config=config):
