@@ -1,7 +1,9 @@
 import inspect
 import linecache
 
-from osbot_utils.utils.Objects import obj_info
+from osbot_utils.utils.Dev import pprint
+
+from osbot_utils.utils.Objects import obj_info, class_name, class_full_name
 
 from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
 from osbot_utils.utils.trace.Trace_Call__Config     import Trace_Call__Config
@@ -29,6 +31,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
         if self.config.trace_capture_lines:
             if frame:
                 target_node = self.stack.top()  # lines captured are added to the current top of the stack
+                #obj_info(target_node)
                 if self.stack.top():
                     target_node__func_name = target_node.func_name
                     target_node__module    = target_node.module
@@ -41,8 +44,10 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
     def add_line_to_node(self, frame, target_node, event):
         if frame and target_node:
-            func_name = frame.f_code.co_name
-            module    = frame.f_globals.get("__name__", "")
+            func_name  = frame.f_code.co_name
+            module     = frame.f_globals.get("__name__", "")
+            self_local = class_full_name(frame.f_locals.get('self'))
+            stack_size = len(self.stack)
             if event == 'call':                                                     # if this is a call we need to do the code below to get the actual method signature (and decorators)
                 function_name       = frame.f_code.co_name
                 filename            = frame.f_code.co_filename                             # Get the filename where the function is defined
@@ -55,8 +60,8 @@ class Trace_Call__Handler(Kwargs_To_Self):
                     def_line_number += 1
                 else:
                     def_line_number = start_line_number                      # If the 'def' line wasn't found, default to the starting line
-
-                line = linecache.getline(filename, def_line_number).rstrip()            # todo: refactor this to not capture this info here, and to use the Ast_* utils to get a better source code mapping
+                line_number = def_line_number
+                line = linecache.getline(filename, line_number).rstrip()            # todo: refactor this to not capture this info here, and to use the Ast_* utils to get a better source code mapping
             else:
                 filename    = frame.f_code.co_filename  # get the filename
                 line_number = frame.f_lineno                          # get the current line number
@@ -64,7 +69,10 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
             if line:
                 self.stack.line_index += 1
-                line_data = dict(index = self.stack.line_index, func_name=func_name, module=module, line = line.rstrip(), event=event)
+                line_data = dict(event=event, index = self.stack.line_index, func_name=func_name,
+                                 line = line.rstrip(), line_number=line_number,
+                                 module=module,  self_local=self_local,
+                                 stack_size=stack_size)
                 target_node.lines.append(line_data)
                 return True
         return False

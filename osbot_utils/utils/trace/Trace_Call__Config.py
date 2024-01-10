@@ -9,16 +9,17 @@ class Trace_Call__Config(Kwargs_To_Self):
     capture_extra_data         : bool
     capture_frame              : bool = True
     capture_frame_stats        : bool
-    trace_capture_lines        : bool = False
+    trace_capture_lines        : bool
     capture_start_with         : list
     ignore_start_with          : list
     print_duration             : bool
     print_max_string_length    : int  = PRINT_MAX_STRING_LENGTH
     print_locals               : bool
-    print_on_exit              : bool
+    print_traces_on_exit       : bool
+    print_lines_on_exit        : bool
     show_parent_info           : bool = True
     show_caller                : bool
-    show_method_class         : bool
+    show_method_class          : bool
     show_source_code_path      : bool
     trace_capture_all          : bool
     trace_capture_source_code  : bool

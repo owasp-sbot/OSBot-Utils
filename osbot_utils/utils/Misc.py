@@ -18,6 +18,11 @@ from urllib.parse import  quote_plus, unquote_plus
 #from dateutil import parser
 from dotenv     import load_dotenv
 
+def ansi_text_visible_length(text):
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')         # This regex matches the escape sequences used for text formatting
+    visible_text = ansi_escape.sub('', text)       # Remove the escape sequences
+    return len(visible_text)                            # Return the length of the remaining text
+
 def append_random_string(target, length=6, prefix='-'):
     return f'{target}{random_string(length, prefix)}'
 
