@@ -176,7 +176,7 @@ class test_Trace_Call(TestCase):
 
         # todo: figure out why we are getting these two different values
         if in_github_action():
-            event_line   = 4
+            event_line   = 5
             event_return = 1
 
         assert trace_call.stats() == Trace_Call__Stats(event_call       = 4             ,

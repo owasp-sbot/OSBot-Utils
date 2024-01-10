@@ -25,7 +25,8 @@ class Trace_Call__Print_Lines(Kwargs_To_Self):
                 leading_spaces = len(line) - len(line.lstrip())
 
             for line_data in items:
-                line_data['line'] = line_data.get('line')[leading_spaces:]
+                depth_padding = '  ' + ' ' * (line_data.get('stack_size') - 2) * 6                      # this helps to align the code with the current depth (i.e. column alignment of code)
+                line_data['line'] = depth_padding + line_data.get('line')[leading_spaces:]
                 lines.append(line_data)
         return list_sorted(lines, 'index')
 
@@ -66,7 +67,7 @@ class Trace_Call__Print_Lines(Kwargs_To_Self):
                 stack_size  = line_data.get('stack_size') -1
 
                 text_depth         = f'{stack_size:5}'
-                text_depth_padding = ' ' * (stack_size * 2)
+                text_depth_padding = ' ' * ((stack_size-1)  * 2)
                 text_index         = f'{text_grey(index):12}'
                 text_line_no       = f'{line_number:4}'
                 text_method_sig    = f'{method_sig:{max_length__sig}}'

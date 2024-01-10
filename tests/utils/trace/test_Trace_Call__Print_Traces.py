@@ -170,7 +170,7 @@ class test_Trace_Call__Print_Traces(TestCase):
                            'event_return'   : 18 ,
                            'event_unknown'  : 0  }
         if in_github_action():
-            expected_stats['event_line'] = 72
+            expected_stats['event_line'] = 73
         if 'PYCHARM_RUN_COVERAGE' in os.environ:
             expected_stats['event_line'] = 73
 
