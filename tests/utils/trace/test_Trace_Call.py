@@ -67,7 +67,7 @@ class test_Trace_Call(TestCase):
     @patch('builtins.print')
     def test_decorator__trace_calls(self, builtins_print):
 
-            @trace_calls(include=['test', 'pprint'], print=True)
+            @trace_calls(include=['test', 'pprint'], print_traces=True)
             def method_a():
                 method_b()
 
@@ -143,11 +143,15 @@ class test_Trace_Call(TestCase):
                                                  call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                  test_Trace_Call'),
                                                  call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m                                test_Trace_Call')] != []
 
-        # todo: figure out why we are getting these two different values
+        # todo: figure out why we are getting these two different values (including the case with pycharm)
         if in_github_action():
-            assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=5, event_line=8, event_return=3)
+            assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=6, event_line=9, event_return=3)
         else:
-            assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=5, event_line=7, event_return=3)
+            if 'PYCHARM_RUN_COVERAGE' in os.environ:
+                event_line = 9
+            else:
+                event_line = 8
+            assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=6, event_line=event_line, event_return=3)
 
     def test__check_that_stats_catches_exception_stats(self):
         try:
@@ -165,9 +169,9 @@ class test_Trace_Call(TestCase):
 
         if 'PYCHARM_RUN_COVERAGE' in os.environ:        # handle the situation where we are getting differnt values deppending if running the test directly on under 'coverage' api
             event_line   = 5
-            event_return = 2
+            event_return = 1
         else:
-            event_line   = 3
+            event_line   = 4
             event_return = 1
 
         # todo: figure out why we are getting these two different values
@@ -175,7 +179,7 @@ class test_Trace_Call(TestCase):
             event_line   = 4
             event_return = 1
 
-        assert trace_call.stats() == Trace_Call__Stats(event_call       = 3             ,
+        assert trace_call.stats() == Trace_Call__Stats(event_call       = 4             ,
                                                        event_exception  = 1             ,
                                                        event_line       = event_line    ,
                                                        event_return     = event_return  ,
@@ -193,17 +197,21 @@ class test_Trace_Call(TestCase):
                     an_temp_file()
 
         if in_github_action():
-            expected_stats = dict(event_call      = 97  ,
+            expected_stats = dict(event_call      = 98  ,
                                   event_exception = 4   ,
-                                  event_line      = 480 ,
+                                  event_line      = 481 ,
                                   event_return    = 95  ,
                                   event_unknown   = 0   )
         else:
-            expected_stats = dict(event_call      = 97  ,
-                                  event_exception = 4   ,
-                                  event_line      = 511 ,
-                                  event_return    = 95  ,
-                                  event_unknown   = 0   )
+            if 'PYCHARM_RUN_COVERAGE' in os.environ:
+                event_line = 513
+            else:
+                event_line = 512
+            expected_stats = dict(event_call      = 98         ,
+                                  event_exception = 4          ,
+                                  event_line      = event_line ,
+                                  event_return    = 95         ,
+                                  event_unknown   = 0          )
         assert self.trace_call.stats() == Trace_Call__Stats(**expected_stats)
 
         with patch('builtins.print') as builtins_print:
@@ -235,7 +243,7 @@ class test_Trace_Call(TestCase):
                                                                                              'temp_folder': 2,
                                                                                              'write': 2},
                                                                                    'Misc': {'random_filename': 2},
-                                                                                   'trace': {'Trace_Call': {'__exit__': 1, 'stop': 1}}}}
+                                                                                   'trace': {'Trace_Call': {'__exit__': 1, 'on_exit': 1, 'stop': 1}}}}
 
 class test_Pickle(TestCase):
 

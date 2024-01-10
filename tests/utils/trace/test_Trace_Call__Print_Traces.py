@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase
 from unittest.mock import patch, call
 
@@ -163,13 +164,15 @@ class test_Trace_Call__Print_Traces(TestCase):
             a_bit_slower()
             even_more_slower()
 
-        expected_stats = { 'event_call'     : 20 ,
+        expected_stats = { 'event_call'     : 21 ,
                            'event_exception': 0  ,
-                           'event_line'     : 71 ,
+                           'event_line'     : 72 ,
                            'event_return'   : 18 ,
                            'event_unknown'  : 0  }
         if in_github_action():
             expected_stats['event_line'] = 72
+        if 'PYCHARM_RUN_COVERAGE' in os.environ:
+            expected_stats['event_line'] = 73
 
 
         assert trace_call.stats().stats() == expected_stats
