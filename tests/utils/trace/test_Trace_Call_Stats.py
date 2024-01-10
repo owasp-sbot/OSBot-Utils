@@ -12,11 +12,12 @@ class test_Trace_Call_Stats(TestCase):
         self.trace_call_stats = Trace_Call__Stats()
 
     def test___kwargs__(self):
-        expected_locals = dict(event_call      = 0 ,
-                               event_exception = 0 ,
-                               event_line      = 0 ,
-                               event_return    = 0 ,
-                               event_unknown  =  0 ,
+        expected_locals = dict(calls          =  0 ,
+                               calls_skipped  =  0,
+                               exceptions     =  0 ,
+                               lines          =  0 ,
+                               returns        =  0 ,
+                               unknowns       =  0 ,
                                raw_call_stats = [] )
 
         assert Trace_Call__Stats.__cls_kwargs__    () == expected_locals

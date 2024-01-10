@@ -31,6 +31,12 @@ class Trace_Call__Stack_Node(Kwargs_To_Self):
     def __repr__(self):
         return f'Trace_Call__Stack_Node (call_index={self.call_index})'
 
+    def all_children(self):
+        all_children = self.children.copy()                     # Initialize the list with the current node's children
+        for child in self.children:                             # Recursively add the children of each child node
+            all_children.extend(child.all_children())
+        return all_children
+
     def info(self):
         return f'Stack_Node: call_index:{self.call_index} | name: {self.name} | children: {len(self.children)} | source_code: {self.source_code is not None}'
 

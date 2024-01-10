@@ -8,12 +8,13 @@ from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 class Trace_Call__Stats(Kwargs_To_Self):
 
-    event_call      : int
-    event_exception : int
-    event_line      : int
-    event_return    : int
-    event_unknown   : int            # to use for extra events that are not being captured
-    raw_call_stats  : list
+    calls          : int
+    calls_skipped  : int
+    exceptions     : int
+    lines          : int
+    returns        : int
+    unknowns       : int            # to use for extra events that are not being captured
+    raw_call_stats : list
 
     def __repr__(self):
         return str(self.stats())

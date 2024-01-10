@@ -68,7 +68,7 @@ class test_Trace_Call__Print_Traces(TestCase):
         with trace_call:
             another_function()
 
-        view_model                = trace_call.create_view_model()
+        view_model                = trace_call.view_data()
         trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
         trace_call.trace_call_print_traces.config.show_parent_info = True
         with patch('builtins.print') as mock_print:
@@ -100,7 +100,7 @@ class test_Trace_Call__Print_Traces(TestCase):
             another_function()
 
 
-        view_model                = trace_call.create_view_model()
+        view_model                = trace_call.view_data()
         trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
 
         with patch('builtins.print') as mock_print:
@@ -132,7 +132,7 @@ class test_Trace_Call__Print_Traces(TestCase):
         with patch('builtins.print') as mock_print:
             with trace_call:
                 another_function()
-            view_model                = trace_call.create_view_model()
+            view_model                = trace_call.view_data()
             trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
             assert mock_print.call_args_list == [call(),
@@ -164,18 +164,6 @@ class test_Trace_Call__Print_Traces(TestCase):
             a_bit_slower()
             even_more_slower()
 
-        expected_stats = { 'event_call'     : 21 ,
-                           'event_exception': 0  ,
-                           'event_line'     : 72 ,
-                           'event_return'   : 18 ,
-                           'event_unknown'  : 0  }
-        if in_github_action():
-            expected_stats['event_line'] = 73
-        if 'PYCHARM_RUN_COVERAGE' in os.environ:
-            expected_stats['event_line'] = 73
-
-
-        assert trace_call.stats().stats() == expected_stats
         config.print_duration            = False
         config.with_duration_bigger_than = 10 / 1000
         with patch('builtins.print') as mock_print:

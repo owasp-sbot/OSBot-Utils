@@ -30,7 +30,7 @@ class test_Trace_Call__View_Model(TestCase):
 
         view_model = trace_call_view_model.view_model
         assert len(view_model) == 4, "Four function calls should be traced"
-        assert view_model[0]['method_name'] == handler.trace_title    , "First function in view_model should be 'traces'"
+        assert view_model[0]['method_name'] == handler.config.title    , "First function in view_model should be 'traces'"
         assert view_model[1]['method_name'] == 'dummy_function'          , "2nd function in view_model should be 'dummy_function'"
         assert view_model[2]['method_name'] == 'another_function'        , "3rd function in view_model should be 'another_function'"
         assert view_model[3]['method_name'] == 'dummy_function'          , "4th function in view_model should be 'dummy_function'"
@@ -49,7 +49,7 @@ class test_Trace_Call__View_Model(TestCase):
         trace_call_view_model = trace_call.trace_call_view_model
         view_model            = trace_call_view_model.view_model
         assert len(view_model) == 4, "Four function calls should be traced"
-        assert view_model[0]['method_name'] == handler.trace_title    , "First function in view_model should be 'traces'"
+        assert view_model[0]['method_name'] == handler.config.title      , "First function in view_model should be 'traces'"
         assert view_model[1]['method_name'] == 'dummy_function'          , "2nd function in view_model should be 'dummy_function'"
         assert view_model[2]['method_name'] == 'another_function'        , "3rd function in view_model should be 'another_function'"
         assert view_model[3]['method_name'] == 'dummy_function'          , "4th function in view_model should be 'dummy_function'"

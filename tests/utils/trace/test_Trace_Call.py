@@ -57,7 +57,7 @@ class test_Trace_Call(TestCase):
             self.trace_call.__exit__(None, None, None)
 
         mock_stop.assert_called_with()
-        self.trace_call.create_view_model()         # this is populated by the self.trace_view_model.view_model object
+        self.trace_call.view_data()         # this is populated by the self.trace_view_model.view_model object
         assert self.trace_view_model.view_model == [{ 'duration': 0.0, 'extra_data': {}, 'lines': [],'prefix': '', 'tree_branch': '─── ', 'emoji': '📦 ',
                                                       'method_name': '', 'method_parent': '',
                                                       'parent_info': '', 'locals': {}, 'source_code': '',
@@ -129,7 +129,7 @@ class test_Trace_Call(TestCase):
         view_model = trace_call.trace_call_view_model.view_model
         assert len(view_model) == 4, "Four function calls should be traced"
 
-        assert view_model[0]['method_name'] == handler.trace_title    , "First function in view_model should be 'traces'"
+        assert view_model[0]['method_name'] == handler.config.title      , "First function in view_model should be 'traces'"
         assert view_model[1]['method_name'] == 'dummy_function'          , "2nd function in view_model should be 'dummy_function'"
         assert view_model[2]['method_name'] == 'another_function'        , "3rd function in view_model should be 'another_function'"
         assert view_model[3]['method_name'] == 'dummy_function'          , "4th function in view_model should be 'dummy_function'"
@@ -143,15 +143,6 @@ class test_Trace_Call(TestCase):
                                                  call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                  test_Trace_Call'),
                                                  call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m                                test_Trace_Call')] != []
 
-        # todo: figure out why we are getting these two different values (including the case with pycharm)
-        if in_github_action():
-            assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=6, event_line=9, event_return=3)
-        else:
-            if 'PYCHARM_RUN_COVERAGE' in os.environ:
-                event_line = 9
-            else:
-                event_line = 8
-            assert trace_call.trace_call_handler.stats == Trace_Call__Stats(event_call=6, event_line=event_line, event_return=3)
 
     def test__check_that_stats_catches_exception_stats(self):
         try:
@@ -166,24 +157,6 @@ class test_Trace_Call(TestCase):
         except Exception as error:
             assert error.args[0] == 'test_2'
 
-
-        if 'PYCHARM_RUN_COVERAGE' in os.environ:        # handle the situation where we are getting differnt values deppending if running the test directly on under 'coverage' api
-            event_line   = 5
-            event_return = 1
-        else:
-            event_line   = 4
-            event_return = 1
-
-        # todo: figure out why we are getting these two different values
-        if in_github_action():
-            event_line   = 5
-            event_return = 1
-
-        assert trace_call.stats() == Trace_Call__Stats(event_call       = 4             ,
-                                                       event_exception  = 1             ,
-                                                       event_line       = event_line    ,
-                                                       event_return     = event_return  ,
-                                                       event_unknown    = 0             )
     def test__config_capture_frame_stats(self):
         self.config.capture_frame_stats    = True
         self.config.show_parent_info = False
@@ -195,24 +168,6 @@ class test_Trace_Call(TestCase):
                         return temp_file.tmp_file
 
                     an_temp_file()
-
-        if in_github_action():
-            expected_stats = dict(event_call      = 98  ,
-                                  event_exception = 4   ,
-                                  event_line      = 481 ,
-                                  event_return    = 95  ,
-                                  event_unknown   = 0   )
-        else:
-            if 'PYCHARM_RUN_COVERAGE' in os.environ:
-                event_line = 513
-            else:
-                event_line = 512
-            expected_stats = dict(event_call      = 98         ,
-                                  event_exception = 4          ,
-                                  event_line      = event_line ,
-                                  event_return    = 95         ,
-                                  event_unknown   = 0          )
-        assert self.trace_call.stats() == Trace_Call__Stats(**expected_stats)
 
         with patch('builtins.print') as builtins_print:
             view_model = self.trace_view_model.create(self.trace_call.stack)

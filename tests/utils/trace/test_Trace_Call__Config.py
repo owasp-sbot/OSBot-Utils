@@ -18,7 +18,7 @@ class test_Trace_Call__Config(TestCase):
                           'capture_frame'            : True  ,
                           'capture_frame_stats'      : False ,
                           'capture_locals'           : True  ,
-                          'capture_start_with'       : []    ,
+                          'deep_copy_locals'         : False ,
                           'ignore_start_with'        : []    ,
                           'print_locals'             : False ,
                           'print_max_string_length'  : 100   ,
@@ -35,6 +35,7 @@ class test_Trace_Call__Config(TestCase):
                           'trace_capture_source_code': False ,
                           'trace_capture_start_with' : []    ,
                           'trace_capture_contains'   : []    ,
+                          'trace_enabled'            : True  ,
                           'trace_ignore_start_with'  : []    ,
                           'trace_show_internals'     : False ,
                           'with_duration_bigger_than': False }

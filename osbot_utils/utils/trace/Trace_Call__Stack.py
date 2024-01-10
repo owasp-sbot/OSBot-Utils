@@ -1,5 +1,6 @@
 import linecache
 import time
+from copy import copy, deepcopy
 
 from osbot_utils.utils.Dev import pprint
 
@@ -82,7 +83,13 @@ class Trace_Call__Stack(Kwargs_To_Self):
             if self.config.capture_frame:
                 new_node.frame = frame
             if self.config.capture_locals:
-                new_node.locals = frame.f_locals
+                if self.config.deep_copy_locals:
+                    try:
+                        new_node.locals = deepcopy(frame.f_locals)
+                    except Exception as error:
+                        new_node.locals = {'error': f'error in deepcopy: {error}'}
+                else:
+                    new_node.locals = frame.f_locals
             if self.config.capture_duration:
                 new_node.call_start = time.perf_counter()
         return new_node

@@ -65,6 +65,8 @@ class Kwargs_To_Self:
                             that are already defined in the class to be set.
     """
 
+    __lock_attributes__ = False
+
     def __init__(self, **kwargs):
         """
         Initialize an instance of the derived class, strictly assigning provided keyword
@@ -91,6 +93,12 @@ class Kwargs_To_Self:
 
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
+
+    def __setattr__(self, name, value):
+        if self.__lock_attributes__:
+            if not hasattr(self, name):
+                raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
+        super().__setattr__(name, value)
 
     @classmethod
     def __cls_kwargs__(cls):
@@ -162,3 +170,13 @@ class Kwargs_To_Self:
             if not isinstance(v, types.FunctionType):
                 kwargs[k] = v
         return kwargs
+
+    def locked(self, value=True):
+        self.__lock_attributes__ = value
+        return self
+
+    def update_from_kwargs(self, **kwargs):
+        """Update instance attributes with values from provided keyword arguments."""
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        return self
