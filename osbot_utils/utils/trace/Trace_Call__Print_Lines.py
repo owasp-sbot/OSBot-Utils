@@ -52,9 +52,9 @@ class Trace_Call__Print_Lines(Kwargs_To_Self):
         max_length__sig  = self.max_fields_length(lines, 'module', 'func_name') + 2
         max_length__line = self.max_fields_length(lines, 'line'        ) + self.max_fields_value (lines, 'stack_size'  ) + 5                  # this +  5 helps with the alignment of the larger line (so that it doesn't overflow the table)
         max_length__self = self.max_fields_length(lines, 'self_local'  )
-        print( '┌─────┬──────┬───────┬─' + '─' * max_length__sig + '─┬──'+ '─' * max_length__line +'─┬─' + '─' * max_length__self + '─┐   ')
-        print(f"│ #   │ Line │ Depth │ {'Method Class and Name':<{max_length__sig}} │  {'Source code':<{max_length__line}} │ {'Self object':<{max_length__self}} │   ")
-        print( '├─────┼──────┼───────┼─' + '─'* max_length__sig + '─┼──' + '─' * max_length__line +'─┼─' + '─' * max_length__self + '─┤   ')
+        print( '┌─────┬─' + '─' * max_length__line       +'──┬─' + '─' * max_length__sig                + '─┬─' + '─' * max_length__self      + '─┬──────┬───────┐   ')
+        print(f"│ #   │ {'Source code':<{max_length__line}}  │ {'Method Class and Name':<{max_length__sig}} │ {'Self object':<{max_length__self}} │ Line │ Depth │   ")
+        print( '├─────┼─' + '─' * max_length__line       +'──┼─' + '─'* max_length__sig                 + '─┼─'  + '─' * max_length__self     + '─┼──────┼───────┤   ')
         for line_data in lines:
                 index       = line_data.get('index')
                 func_name   = line_data.get('func_name')
@@ -78,10 +78,10 @@ class Trace_Call__Print_Lines(Kwargs_To_Self):
                     text_line = f'{text_light_grey(line)}'
 
                 text_line_padding  =  ' ' * (max_length__line - ansi_text_visible_length(text_line) - len(text_depth_padding))
+                text_source_code   = f'{text_depth_padding}{text_line} {text_line_padding}'
 
+                print(f"│ {text_index} │ {text_source_code} │ {text_method_sig} │ {self_local:<{max_length__self}} │ {text_line_no} │ {text_depth} │")
 
-                print(f"│ {text_index} │ {text_line_no} │ {text_depth} │ {text_method_sig} │ {text_depth_padding}{text_line} {text_line_padding} │ {self_local:<{max_length__self}} │")
-
-        print('└─────┴──────┴───────┴─' + '─' * max_length__sig + '─┴──' + '─' * max_length__line + '─┴─' + '─' * max_length__self + '─┘')
+        print('└─────┴──' + '─' * max_length__line + '─┴─' + '─' * max_length__sig + '─┴──'  + '─' * max_length__self + '┴──────┴───────┘')
 
 
