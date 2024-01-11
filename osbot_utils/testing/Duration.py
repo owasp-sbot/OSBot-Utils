@@ -1,4 +1,5 @@
 import inspect
+from datetime import timedelta
 from functools import wraps
 from osbot_utils.utils.Misc import date_time_now, time_delta_to_str
 
@@ -49,3 +50,7 @@ class Duration:
 
     def seconds(self):
         return self.duration.total_seconds()
+
+    def set_duration(self,seconds:int):
+        self.duration = timedelta(seconds=seconds)
+        return self

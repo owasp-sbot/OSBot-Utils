@@ -3,6 +3,7 @@ from pprint                                         import pprint
 from unittest                                       import TestCase
 from unittest.mock                                  import patch, call
 
+from osbot_utils.testing.Patch_Print import Patch_Print
 from osbot_utils.utils.Python_Logger import Python_Logger
 
 from osbot_utils.utils.Misc import list_set, in_github_action, ansi_text_visible_length, wait_for
@@ -206,17 +207,25 @@ class test_Trace_Call(TestCase):
     def test__trace_up_to_a_level(self):
         with self.config as _:
             _.all()
-            _.up_to_depth(1)
+            _.up_to_depth(2)
             _.trace_show_internals = True
-            _.duration(bigger_than=0, padding=100)
+            _.show_method_class = False
 
+        expected_calls = [ ''                                                ,
+                           '--------- CALL TRACER ----------'                ,
+                           'Here are the 6 traces captured\n'                ,
+                           '\x1b[1m📦  Trace Session\x1b[0m'                 ,
+                           '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
+                           '\x1b[1m│   │   ├── 🧩️ random_string\x1b[0m'      ,
+                           '\x1b[1m│   │   └── 🧩️ set_config\x1b[0m'         ,
+                           '\x1b[1m│   └── 🔗️ add_memory_logger\x1b[0m'      ,
+                           '\x1b[1m└────────── 🧩️ add_handler_memory\x1b[0m' ]
 
-        with self.trace_call as _:
-            logger = Python_Logger()
-            wait_for(0.1)
-            logger.add_memory_logger()
-            ansi_text_visible_length("some text")
-        _.view_data()
+        with Patch_Print(expected_calls=expected_calls, print_calls=False, enabled=True):
+            with self.trace_call as _:
+                logger = Python_Logger()
+                logger.add_memory_logger()
+                #ansi_text_visible_length("some text")
 
 
 
