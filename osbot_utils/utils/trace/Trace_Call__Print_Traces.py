@@ -123,13 +123,12 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
 
             node_text          = source_code or method_name
             formatted_line     = f"{prefix}{tree_branch}{emoji} {node_text}"
-            padding            = " " * (60 - len(formatted_line))
             if self.config.print_duration:
                 duration         = item.get('duration',0) * 1000                    # todo: see if this can be optimised with the similar call below
                 duration_rounded = round(duration, 3)
-                padding          = 120 - len(formatted_line)
-                duration_text    = "{:>{},.3f}ms".format(duration_rounded, padding)
-                formatted_line += f' {text_grey(duration_text)}'
+                padding_duration = self.config.padding_duration - len(formatted_line)
+                duration_text    = "{:>{},.3f}ms".format(duration_rounded, padding_duration)
+                formatted_line += f' {text_grey(duration_text)} '
 
             if self.config.with_duration_bigger_than:
                 duration = item.get('duration', 0)
@@ -155,7 +154,9 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                 if idx == 0 or (self.config.show_parent_info is False or self.config.show_method_class is True):                            # Handle the first line and conditional parent info differently
                     print(f"{text_bold(formatted_line)}")                                                  # Don't add "|" to the first line
                 else:
-                    print(f"{text_bold(formatted_line)}{padding} {parent_info}")
+                    padding = " " * (60 - len(formatted_line))
+
+                    print(f"{text_bold(formatted_line)} {padding}{parent_info}")
 
             if self.config.trace_capture_lines:
                 self.print_lines(item.get('lines'), f'{prefix}{tree_branch}')

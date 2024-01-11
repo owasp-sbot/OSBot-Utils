@@ -121,11 +121,10 @@ class Trace_Call__Stack(Kwargs_To_Self):
     def map_full_name(self, frame, module, func_name):
         if frame and module and func_name:
             instance = frame.f_locals.get("self", None)                                                           # Get instance if available
-            # try:                                                  # note: DC I couldn't find a path to trigger this since by design every variable will have a__class__ attribute
-            #     class_name = instance.__class__.__name__ if instance else ""
-            # except Exception:
-            #     class_name = "<unavailable>"
-            class_name = instance.__class__.__name__ if instance else ""
+            try:
+                class_name = instance.__class__.__name__ if instance else ""
+            except Exception:                                                               # note: this will trigger this exception: ansi_text_visible_length("some text")
+                class_name = "<unavailable>"
             if class_name:
                 full_name = f"{module}.{class_name}.{func_name}"
             else:

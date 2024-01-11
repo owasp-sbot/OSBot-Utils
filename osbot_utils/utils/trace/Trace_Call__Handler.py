@@ -121,6 +121,10 @@ class Trace_Call__Handler(Kwargs_To_Self):
         return self.stack.pop(target=frame, extra_data = extra_data)
 
     def should_capture(self, frame):                                                    # todo: see if we can optimise these 3 lines (starting with frame.f_code) which are repeated in a number of places here
+        if self.config.trace_up_to_depth:
+            if len(self.stack) > self.config.trace_up_to_depth:
+                return False
+
         capture = False
         if frame:
             code        = frame.f_code                                                      # Get code object from frame

@@ -41,7 +41,8 @@ class test_Trace_Call__View_Model(TestCase):
         with Trace_Call() as trace_call:
             trace_call.trace_call_handler.config.trace_capture_start_with = ['tests']
             trace_call.trace_call_print_traces.config.print_traces_on_exit = True  # To hit the 'print_traces' line in __exit__
-            trace_call.trace_call_print_traces.config.show_parent_info = False
+            trace_call.trace_call_print_traces.config.show_parent_info  = False
+            trace_call.trace_call_print_traces.config.show_method_class = False
             dummy_function()
             another_function()
 

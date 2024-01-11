@@ -73,15 +73,22 @@ class Hook_Method:
 
         def wrapper_method(*args, **kwargs):
             with Duration(print_result=False) as duration:
+                exception = None
                 if self.mock_call:
                     return_value = self.mock_call(*args,**kwargs)
                 else:
                     (args, kwargs) = self.before_call(*args, **kwargs)
-                    return_value   = self.target(*args, **kwargs)
-                    return_value   = self.after_call(return_value, args, kwargs)
+                    try:
+                        return_value   = self.target(*args, **kwargs)
+                        return_value   = self.after_call(return_value, args, kwargs)
+                    except Exception as error:
+                        return_value = None
+                        exception = error
+                        #raise error
 
             call = {
                         'args'        : args,
+                        'exception'   : exception,
                         'kwargs'      : kwargs,
                         'return_value': return_value,
                         'index'       : len(self.calls),

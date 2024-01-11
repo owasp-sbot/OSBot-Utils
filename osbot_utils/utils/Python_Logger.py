@@ -49,6 +49,7 @@ class Python_Logger:
     def __init__(self, logger_name= None, logger_config : Python_Logger_Config = None):
         self.logger_name = logger_name or random_string(prefix="Python_Logger_")
         self.set_config(logger_config)
+        self.logger = None
 
     def manager_get_loggers(self):
         return Logger.manager.loggerDict

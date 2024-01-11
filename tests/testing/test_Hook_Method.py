@@ -67,10 +67,11 @@ class test_Hook_Method(TestCase):
             assert requests.head('https://www.google.com') == return_value
 
         assert self.wrap_method.calls == [{ 'args'        : ('head', 'https://www.google.com'),
-                                            'duration'    : 0 ,
-                                            'index'       : 0 ,
-                                            'kwargs'      : {'allow_redirects': False},
-                                            'return_value': 'an result'}]
+                                            'duration'    : 0                                 ,
+                                            'exception'   : None                              ,
+                                            'index'       : 0                                 ,
+                                            'kwargs'      : {'allow_redirects': False         },
+                                            'return_value': 'an result'                       }]
 
 
     def test_wrap__unwrap(self):                    # todo: refactor this to use a class that doesn't take so long

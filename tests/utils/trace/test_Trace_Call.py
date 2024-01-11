@@ -3,7 +3,9 @@ from pprint                                         import pprint
 from unittest                                       import TestCase
 from unittest.mock                                  import patch, call
 
-from osbot_utils.utils.Misc import list_set, in_github_action
+from osbot_utils.utils.Python_Logger import Python_Logger
+
+from osbot_utils.utils.Misc import list_set, in_github_action, ansi_text_visible_length, wait_for
 
 from osbot_utils.testing.Temp_File import Temp_File
 from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
@@ -103,7 +105,6 @@ class test_Trace_Call(TestCase):
 
     @patch('builtins.print')
     def test___enter__exit__(self, builtins_print):
-        # Test the initialization and its attributes
         trace_call       = Trace_Call()
         handler          = trace_call.trace_call_handler
         trace_view_model = trace_call.trace_call_view_model
@@ -122,6 +123,7 @@ class test_Trace_Call(TestCase):
         with Trace_Call() as trace_call:
             trace_call.trace_call_handler.config.trace_capture_start_with  = ['test_Trace_Call']
             trace_call.trace_call_print_traces.config.show_parent_info = True
+            trace_call.trace_call_print_traces.config.show_method_class = False
             trace_call.trace_call_print_traces.config.print_traces_on_exit = True                          # To hit the 'print_traces' line in __exit__
             dummy_function()
             another_function()
@@ -159,7 +161,8 @@ class test_Trace_Call(TestCase):
 
     def test__config_capture_frame_stats(self):
         self.config.capture_frame_stats    = True
-        self.config.show_parent_info = False
+        self.config.show_parent_info       = False
+        self.config.show_method_class      = False
         self.config.trace_capture_contains = ['random_filename', 'file_extension_fix']
         with self.trace_call:
             with Temp_File() as temp_file:
@@ -200,33 +203,52 @@ class test_Trace_Call(TestCase):
                                                                                    'Misc': {'random_filename': 2},
                                                                                    'trace': {'Trace_Call': {'__exit__': 1, 'on_exit': 1, 'stop': 1}}}}
 
-class test_Pickle(TestCase):
+    def test__trace_up_to_a_level(self):
+        with self.config as _:
+            _.all()
+            _.up_to_depth(1)
+            _.trace_show_internals = True
+            _.duration(bigger_than=0, padding=100)
 
-    def test_process_data(self):
-        trace_call              = Trace_Call()
-        trace_call__view_model  = Trace_Call__View_Model()
-        trace_call_print_traces = Trace_Call__Print_Traces()
-        call_handler            = trace_call.trace_call_handler
 
-        call_handler                 .config.capture_locals            = False
-        trace_call.trace_call_handler.config.trace_capture_start_with  = ['*']
-        #trace_call.trace_call_handler.config.trace_capture_contains     = ['print']
-        trace_call_print_traces      .config.show_parent_info          = True
-        #trace_call_print_traces      .config.print_locals              = False
-        import requests
-        trace_call.config.capture_frame_stats = True
-        with trace_call:
-            with Temp_File() as temp_file:
-                def an_temp_file():
-                    return temp_file.tmp_file
-                an_temp_file()
+        with self.trace_call as _:
+            logger = Python_Logger()
+            wait_for(0.1)
+            logger.add_memory_logger()
+            ansi_text_visible_length("some text")
+        _.view_data()
 
 
 
-        stack       = trace_call.stack
-        #pprint(stack)
-        view_model  = trace_call__view_model.create(stack)
-        #trace_call_print_traces.print_traces(view_model)
 
-        #pprint(call_handler.stats.raw_call_stats)
-        #pprint(call_handler.stats.frames_stats())
+
+# class test_ Pickle(TestCase):
+#
+#     def test_process_data(self):
+#         trace_call              = Trace_Call()
+#         trace_call__view_model  = Trace_Call__View_Model()
+#         trace_call_print_traces = Trace_Call__Print_Traces()
+#         call_handler            = trace_call.trace_call_handler
+#
+#         call_handler                 .config.capture_locals            = False
+#         trace_call.trace_call_handler.config.trace_capture_start_with  = ['*']
+#         #trace_call.trace_call_handler.config.trace_capture_contains     = ['print']
+#         trace_call_print_traces      .config.show_parent_info          = True
+#         #trace_call_print_traces      .config.print_locals              = False
+#         import requests
+#         trace_call.config.capture_frame_stats = True
+#         with trace_call:
+#             with Temp_File() as temp_file:
+#                 def an_temp_file():
+#                     return temp_file.tmp_file
+#                 an_temp_file()
+#
+#
+#
+#         stack       = trace_call.stack
+#         #pprint(stack)
+#         view_model  = trace_call__view_model.create(stack)
+#         #trace_call_print_traces.print_traces(view_model)
+#
+#         #pprint(call_handler.stats.raw_call_stats)
+#         #pprint(call_handler.stats.frames_stats())

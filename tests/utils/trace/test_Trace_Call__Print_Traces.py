@@ -71,6 +71,7 @@ class test_Trace_Call__Print_Traces(TestCase):
         view_model                = trace_call.view_data()
         trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
         trace_call.trace_call_print_traces.config.show_parent_info = True
+        trace_call.trace_call_print_traces.config.show_method_class = False
         with patch('builtins.print') as mock_print:
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
             assert mock_print.call_args_list == [call(),
@@ -166,6 +167,8 @@ class test_Trace_Call__Print_Traces(TestCase):
 
         config.print_duration            = False
         config.with_duration_bigger_than = 10 / 1000
+        config.show_parent_info          = True
+        config.show_method_class         = False
         with patch('builtins.print') as mock_print:
             trace_call.print()
             assert mock_print.call_args_list == [call(),

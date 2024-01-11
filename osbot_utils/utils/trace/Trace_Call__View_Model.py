@@ -18,7 +18,6 @@ class Trace_Call__View_Model:
     def create_view_model(self, json_list, level=0, prefix="", view_model=None):
         if view_model is None:
             view_model = []                                                                 # Initialize view model if None
-
         for idx, node in enumerate(json_list):                                              # Iterate over each node in the JSON list to populate the view model
             components           = node.name.split('.')
             duration             = node.call_duration
