@@ -36,6 +36,7 @@ class Print_Table(Kwargs_To_Self):
     rows_texts          : list
     table_width         : int
     #top_separator      : str
+    text__all           : list
     text__footer        : str
     text__headers       : list
     text__table_bottom  : str
@@ -46,40 +47,6 @@ class Print_Table(Kwargs_To_Self):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def print(self):
-        self.map_headers_size       ()
-        self.map_text__headers      ()
-        self.map_rows_texts         ()
-        self.map_table_width        ()
-        self.map_text__footer       ()
-        self.map_text__title        ()
-        self.map_text__table_bottom ()
-        self.map_text__table_middle ()
-        self.map_text__table_top    ()
-
-
-        #text_separator = f"{CHAR_TABLE_VERTICAL}" + CHAR_TABLE_HORIZONTAL * (self.table_width  -3) + f"-{CHAR_TABLE_VERTICAL}"
-
-
-        text_separator = self.text__table_middle
-
-        print(self.text__table_top)
-        print(self.text__title)
-        print(text_separator)
-        print(self.text__headers)
-        print(text_separator)
-        for row_text in self.rows_texts:
-            print(row_text)
-        print(text_separator)
-        print(self.text__footer)
-        print(self.text__table_bottom)
-
-    def map_text__headers(self):
-        self.text__headers = CHAR_TABLE_VERTICAL
-        for header, size in zip(self.headers, self.headers_size):
-            self.text__headers += f" {header:{size}} {CHAR_TABLE_VERTICAL}"
-        return self
-
     def map_headers_size(self):
         self.headers_size = [len(header) for header in self.headers]
         for row in self.rows:                               # Update max width based on row data
@@ -87,8 +54,38 @@ class Print_Table(Kwargs_To_Self):
                 self.headers_size[index] = max(self.headers_size[index], len(cell))
         return self
 
+    def map_table_width(self):
+        self.table_width = len(self.text__headers)
+
+    def map_rows_texts(self):
+        self.rows_texts = []
+        for row in self.rows:
+            row_text = CHAR_TABLE_VERTICAL
+            for index, cell in enumerate(row):
+                size = self.headers_size[index]
+                row_text += f" {cell:{size}} {CHAR_TABLE_VERTICAL}"
+            self.rows_texts.append(row_text)
+        return self
+
+    def map_text__all(self):
+        self.text__all = [self.text__table_top    ,
+                          self.text__title        ,
+                          self.text__table_middle ,
+                          self.text__headers      ,
+                          self.text__table_middle ,
+                          *self.rows_texts        ,
+                          self.text__table_middle ,
+                          self.text__footer       ,
+                          self.text__table_bottom ]
+
     def map_text__footer(self):
         self.text__footer = f"{CHAR_TABLE_VERTICAL} {self.footer:{self.table_width - 4}} {CHAR_TABLE_VERTICAL}"
+
+    def map_text__headers(self):
+        self.text__headers = CHAR_TABLE_VERTICAL
+        for header, size in zip(self.headers, self.headers_size):
+            self.text__headers += f" {header:{size}} {CHAR_TABLE_VERTICAL}"
+        return self
 
     def map_text__table_bottom(self):
         self.text__table_bottom = f"{CHAR_TABLE_BOTTOM_LEFT}" + CHAR_TABLE_HORIZONTAL * (self.table_width - 2) + f"{CHAR_TABLE_BOTTOM_RIGHT}"
@@ -102,15 +99,20 @@ class Print_Table(Kwargs_To_Self):
     def map_text__title(self):
         self.text__title = f"{CHAR_TABLE_VERTICAL} {self.title:{self.table_width - 4}} {CHAR_TABLE_VERTICAL}"
 
-    def map_rows_texts(self):
-        self.rows_texts = []
-        for row in self.rows:
-            row_text = CHAR_TABLE_VERTICAL
-            for index, cell in enumerate(row):
-                size = self.headers_size[index]
-                row_text += f" {cell:{size}} {CHAR_TABLE_VERTICAL}"
-            self.rows_texts.append(row_text)
-        return self
+    def map_texts(self):
+        self.map_headers_size       ()
+        self.map_text__headers      ()
+        self.map_rows_texts         ()
+        self.map_table_width        ()
+        self.map_text__footer       ()
+        self.map_text__title        ()
+        self.map_text__table_bottom ()
+        self.map_text__table_middle ()
+        self.map_text__table_top    ()
+        self.map_text__all          ()
 
-    def map_table_width(self):
-        self.table_width = len(self.text__headers)
+    def print(self):
+        self.map_texts()
+        for text in self.text__all:
+            print(text)
+
