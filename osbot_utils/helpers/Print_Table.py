@@ -119,10 +119,12 @@ class Print_Table(Kwargs_To_Self):
                 row.append("")
 
     def map_headers_size(self):
-        self.headers_size = [len(header) for header in self.headers]                            # initialize the headers size with the size of each header
-        for row in self.rows:                                                                   # iterate over each row and update the headers size with the size of the largest cell
-            for index, cell in enumerate(row):                                                  # for each row
-                self.headers_size[index] = max(self.headers_size[index], len(cell))             # update the header size with the size of the largest cell in the same column
+        self.headers_size = [len(header) for header in self.headers]                                # initialize the headers size with the size of each header
+        for row in self.rows:                                                                       # iterate over each row and update the headers size with the size of the largest cell
+            for index, cell in enumerate(row):                                                      # for each row
+                if cell:                                                                            # Check if the cell is not empty or None
+                    max_cell_line_length = max(len(line) for line in str(cell).split('\n'))         # Split the cell into lines and find the maximum length of any line
+                    self.headers_size[index] = max(self.headers_size[index], max_cell_line_length)  # Update the corresponding header size if this line is longer than the current max
 
         # fix edge case that happens when the title or footer is longer than the table width
         if len(self.headers_size):
@@ -149,17 +151,47 @@ class Print_Table(Kwargs_To_Self):
             self.table_width = len(self.title) + 4
 
 
+    # def map_rows_texts(self):
+    #     self.rows_texts = []
+    #     if not self.rows:
+    #         self.rows_texts = [f"{CHAR_TABLE_VERTICAL}  {CHAR_TABLE_VERTICAL}"]
+    #     else:
+    #         for row in self.rows:
+    #             row_text = CHAR_TABLE_VERTICAL
+    #             for index, cell in enumerate(row):
+    #                 size = self.headers_size[index]
+    #                 row_text += f" {str(cell):{size}} {CHAR_TABLE_VERTICAL}"
+    #             self.rows_texts.append(row_text)
+    #     return self
+
     def map_rows_texts(self):
         self.rows_texts = []
-        if not self.rows:
-            self.rows_texts = [f"{CHAR_TABLE_VERTICAL}  {CHAR_TABLE_VERTICAL}"]
-        else:
+        #if not self.rows:
+        #    self.rows_texts = [f"{CHAR_TABLE_VERTICAL}aaa{CHAR_TABLE_VERTICAL}"]
+        if self.rows:
             for row in self.rows:
                 row_text = CHAR_TABLE_VERTICAL
+                additional_lines = [[] for _ in row]  # Prepare to hold additional lines from multiline cells
                 for index, cell in enumerate(row):
                     size = self.headers_size[index]
-                    row_text += f" {cell:{size}} {CHAR_TABLE_VERTICAL}"
+                    cell_lines = str(cell).split('\n')  # Split the cell text by newlines
+                    row_text += f" {cell_lines[0]:{size}} {CHAR_TABLE_VERTICAL}"  # Add the first line of the cell
+                    for i, line in enumerate(cell_lines[1:], start=1):
+                        additional_lines[index].append(line)  # Store additional lines
+
                 self.rows_texts.append(row_text)
+
+                # Handle additional lines by creating new row_texts for them
+                max_additional_lines = max(len(lines) for lines in additional_lines)
+
+                for depth in range(max_additional_lines):
+                    extra_row_text = CHAR_TABLE_VERTICAL
+                    for index, column in  enumerate(additional_lines):
+                        cell_data = column[depth] if len(column) > depth else ''
+                        size = self.headers_size[index]
+                        extra_row_text += f" {str(cell_data):{size}} {CHAR_TABLE_VERTICAL}"
+                    self.rows_texts.append(extra_row_text)
+
         return self
 
     def map_text__all(self):
@@ -219,7 +251,11 @@ class Print_Table(Kwargs_To_Self):
 
     def reorder_columns(self, new_order: list):
         if set(new_order) != set(self.headers):                                                 # Check if the new_order list has the same headers as the current table
-            raise ValueError("New order must contain the same headers as the current table.")
+            missing = set(self.headers) - set(new_order) or {}
+            extra   = set(new_order) - set(self.headers) or {}
+            raise ValueError("New order must contain the same headers as the current table.\n"
+                             f"  - Missing headers: {missing}\n"
+                             f"  - Extra headers: {extra}")
 
         index_map = {old_header: new_order.index(old_header) for old_header in self.headers}    # Create a mapping from old index to new index
         new_rows = []                                                                           # Reorder each row according to the new header order
@@ -242,6 +278,9 @@ class Print_Table(Kwargs_To_Self):
     def set_headers(self, headers):
         self.headers = headers
         return self
+
+    def set_order(self, new_order):
+        return self.reorder_columns(new_order)
 
     def set_title(self, title):
         self.title = title

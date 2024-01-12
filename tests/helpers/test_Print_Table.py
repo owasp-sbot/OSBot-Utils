@@ -295,6 +295,13 @@ class test_Print_Table(TestCase):
             assert _.text__width   == 0
             assert _.text__headers == '│  │'
 
+    def test_reorder_columns(self):
+        with self.print_table as _:
+            _.add_headers('header_1', 'header_2', 'header_3')
+            with self.assertRaises(ValueError) as context:
+                _.reorder_columns(['header_1'])
+            self.assertTrue("New order must contain the same headers as the current table." in str(context.exception))
+
     def test__regression__headers_with_no_rows_and_title(self):
         with self.print_table as _:
             _.set_title('title longer than header')
@@ -345,3 +352,26 @@ class test_Print_Table(TestCase):
                                    '│ footer longer than header and cell │',
                                    '└────────────────────────────────────┘']
 
+    def test__regression__call_with_new_line(self):
+        with self.print_table as _:
+            _.add_row(['cell_1', ''                   ,'cell_3'])
+            _.add_row(['cell\n_4', 'cell_5\n--\n--\n-','cell_6'])
+            _.add_row(['cell_7', 'cell_8'             ,'cell_9'])
+            _.map_texts()
+            #_.print()
+            assert _.text__all == ['┌───────────────────────────────────┐',
+                                   '│ Header #1 │ Header #2 │ Header #3 │',
+                                   '├───────────────────────────────────┤',
+                                   '│ cell_1    │           │ cell_3    │',
+                                   '│ cell      │ cell_5    │ cell_6    │',
+                                   '│ _4        │ --        │           │',
+                                   '│           │ --        │           │',
+                                   '│           │ -         │           │',
+                                   '│ cell_7    │ cell_8    │ cell_9    │',
+                                   '└───────────────────────────────────┘']
+
+    def test__regression__print_empty_table(self):
+        with self.print_table as _:
+            _.map_texts()
+            assert _.text__all == ['┌──┐',
+                                   '└──┘']
