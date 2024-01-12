@@ -59,6 +59,30 @@ class Print_Table(Kwargs_To_Self):
                 self.rows[index].append(cell)
         return self
 
+    def add_data(self, data):
+        if type(data) is dict:
+            self.add_dict(data)
+        elif type(data) is list:
+            for item in data:
+                self.add_data(item)
+        else:
+            self.add_row(data)
+        return self
+
+    def add_dict(self, data:dict):
+        self.fix_table()                                                # makes sure the number of headers and rows are the same
+
+        all_headers = set(self.headers) | set(data.keys())              # get all headers from the table and the data
+        for header in sorted(all_headers):                              # sorted to have consistent order of new headers (since without it the order is pseudo random)
+            if header not in self.headers:                              # to make sure the table headers and new data keys match
+                self.add_header(header)                                 # add any new headers not already present
+
+        row_raw = {header: '' for header in all_headers}                # Create a raw row with empty values for all headers
+        row_raw.update(data)                                            # Update the raw row with values from data
+        row_by_header = [row_raw[header] for header in self.headers]    # create a new row object, ensuring headers order
+        self.add_row(row_by_header)                                     # add the new row to the table
+        return self
+
     def add_header(self, header:str):
         self.headers.append(header)
         return self
@@ -193,25 +217,23 @@ class Print_Table(Kwargs_To_Self):
         for text in self.text__all:
             print(text)
 
-    def escape_csv_cell(self, cell):
-        if cell and any(c in cell for c in [',', '"', '\n']):
-            cell = cell.replace('"', '""')              # Escape double quotes
-            cell = cell.replace('\n', '\\n')            # escape new lines
-            return f'"{cell}"'                          # Enclose the cell in double quotes
-        return cell
+    def reorder_columns(self, new_order: list):
+        if set(new_order) != set(self.headers):                                                 # Check if the new_order list has the same headers as the current table
+            raise ValueError("New order must contain the same headers as the current table.")
 
-    def to_csv(self):
-        csv_content = ','.join(self.escape_csv_cell(header) for header in self.headers) + '\n'          # Create a CSV string from the headers and rows
+        index_map = {old_header: new_order.index(old_header) for old_header in self.headers}    # Create a mapping from old index to new index
+        new_rows = []                                                                           # Reorder each row according to the new header order
         for row in self.rows:
-            csv_content += ','.join(self.escape_csv_cell(cell) if cell is not None else '' for cell in row) + '\n'
-        return csv_content
+            new_row = [None] * len(row)                                                         # Initialize a new row with placeholders
+            for old_index, cell in enumerate(row):
+                new_index = index_map[self.headers[old_index]]
+                new_row[new_index] = cell
+            new_rows.append(new_row)
 
-    def to_dict(self):
-        table_dict = {header: [] for header in self.headers}                                # Initialize the dictionary with empty lists for each header
-        for row in self.rows:                                                               # Iterate over each row and append the cell to the corresponding header's list
-            for header, cell in zip(self.headers, row):
-                table_dict[header].append(cell)
-        return table_dict
+        self.headers = new_order                                                                # Reorder the headers
+        self.rows = new_rows                                                                    # Reorder the rows
+        return self
+
 
     def set_footer(self, footer):
         self.footer = footer
@@ -224,3 +246,23 @@ class Print_Table(Kwargs_To_Self):
     def set_title(self, title):
         self.title = title
         return self
+
+    def to_csv(self):
+        csv_content = ','.join(self.to_csv__escape_cell(header) for header in self.headers) + '\n'          # Create a CSV string from the headers and rows
+        for row in self.rows:
+            csv_content += ','.join(self.to_csv__escape_cell(cell) if cell is not None else '' for cell in row) + '\n'
+        return csv_content
+
+    def to_csv__escape_cell(self, cell):
+        if cell and any(c in cell for c in [',', '"', '\n']):
+            cell = cell.replace('"', '""')              # Escape double quotes
+            cell = cell.replace('\n', '\\n')            # escape new lines
+            return f'"{cell}"'                          # Enclose the cell in double quotes
+        return cell
+
+    def to_dict(self):
+        table_dict = {header: [] for header in self.headers}                                # Initialize the dictionary with empty lists for each header
+        for row in self.rows:                                                               # Iterate over each row and append the cell to the corresponding header's list
+            for header, cell in zip(self.headers, row):
+                table_dict[header].append(cell)
+        return table_dict

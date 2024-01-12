@@ -25,7 +25,7 @@ class test_Print_Table(TestCase):
                                                   'text__width'         : 0  ,
                                                   'title'               : '' }
 
-    def test_add_add_column(self):
+    def test_add_column(self):
         with self.print_table as _:
             _.add_column(header='header_1', cells=['cell_1', 'cell_2', 'cell_3'])
             _.map_texts()
@@ -76,6 +76,65 @@ class test_Print_Table(TestCase):
                                   'cell_10,,,,cell_18\n'
                                   ',,,,cell_19\n'
                                   ' a\'c ,"  c""d "," e\\nf "\n')
+
+    def test_add_data(self):
+        data = {'header_1': 'cell_1a',
+                'header_2': 'cell_2a',
+                'header_4': 'cell_4a'}
+        with self.print_table as _:
+            _.add_data("will add as row")
+            _.map_texts()
+            assert _.to_dict() == {'Header #1': ['will add as row']}
+        with self.print_table as _:
+            _.reset()
+            _.add_header('header_3')
+            _.add_row('cell_3a')
+            _.add_data(data)
+            _.add_data({'header_1': 'cell_1b'})
+            _.add_data({'header_3': 'cell_3b'})
+            _.add_data({'header_2': 'cell_2b'})
+
+            assert _.to_dict() == {'header_1': [''       , 'cell_1a', 'cell_1b' , ''        , ''        ],
+                                   'header_2': [''       , 'cell_2a', ''        , ''        , 'cell_2b' ],
+                                   'header_3': ['cell_3a', ''       , ''        , 'cell_3b' , ''        ],
+                                   'header_4': [''       , 'cell_4a', ''        , ''        , ''        ]}
+
+            _.map_texts()
+            assert _.text__all == ['┌───────────────────────────────────────────┐',
+                                   '│ header_3 │ header_1 │ header_2 │ header_4 │',
+                                   '├───────────────────────────────────────────┤',
+                                   '│ cell_3a  │          │          │          │',
+                                   '│          │ cell_1a  │ cell_2a  │ cell_4a  │',
+                                   '│          │ cell_1b  │          │          │',
+                                   '│ cell_3b  │          │          │          │',
+                                   '│          │          │ cell_2b  │          │',
+                                   '└───────────────────────────────────────────┘']
+            _.reorder_columns(sorted(_.headers))
+            _.map_texts()
+            assert _.text__all == ['┌───────────────────────────────────────────┐',
+                                   '│ header_1 │ header_2 │ header_3 │ header_4 │',
+                                   '├───────────────────────────────────────────┤',
+                                   '│          │          │ cell_3a  │          │',
+                                   '│ cell_1a  │ cell_2a  │          │ cell_4a  │',
+                                   '│ cell_1b  │          │          │          │',
+                                   '│          │          │ cell_3b  │          │',
+                                   '│          │ cell_2b  │          │          │',
+                                   '└───────────────────────────────────────────┘']
+
+        with self.print_table as _:
+            _.reset()
+            _.add_data([{'header_1': 'cell_1a'                      },
+                        {'header_2': 'cell_2a'                      },
+                        {'header_1': 'cell_1b','header_2': 'cell_2b'}])
+            _.map_texts()
+            assert _.text__all == ['┌─────────────────────┐',
+                                   '│ header_1 │ header_2 │',
+                                   '├─────────────────────┤',
+                                   '│ cell_1a  │          │',
+                                   '│          │ cell_2a  │',
+                                   '│ cell_1b  │ cell_2b  │',
+                                   '└─────────────────────┘']
+
 
     def test_add_headers(self):
         headers = ['header_1', 'header_2', 'header_3']
