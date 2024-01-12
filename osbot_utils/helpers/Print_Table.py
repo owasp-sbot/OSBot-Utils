@@ -27,11 +27,14 @@ CHAR_TABLE_VERTICAL     = "│"
 CHAR_TABLE_TOP_LEFT     = "┌"
 CHAR_TABLE_TOP_RIGHT    = "┐"
 
+MAX_CELL_SIZE = 200
+
 class Print_Table(Kwargs_To_Self):
     title               : str
     headers             : list
     footer              : str
     headers_size        : list
+    max_cell_size       : int = MAX_CELL_SIZE
     rows                : list
     rows_texts          : list
     table_width         : int
@@ -124,6 +127,8 @@ class Print_Table(Kwargs_To_Self):
             for index, cell in enumerate(row):                                                      # for each row
                 if cell:                                                                            # Check if the cell is not empty or None
                     max_cell_line_length = max(len(line) for line in str(cell).split('\n'))         # Split the cell into lines and find the maximum length of any line
+                    if max_cell_line_length > self.max_cell_size:
+                        max_cell_line_length = self.max_cell_size
                     self.headers_size[index] = max(self.headers_size[index], max_cell_line_length)  # Update the corresponding header size if this line is longer than the current max
 
         # fix edge case that happens when the title or footer is longer than the table width
@@ -164,6 +169,12 @@ class Print_Table(Kwargs_To_Self):
     #             self.rows_texts.append(row_text)
     #     return self
 
+    def cell_value(self, cell_value):
+        cell_value = str(cell_value)
+        if len(cell_value) > self.max_cell_size:
+            return cell_value[:self.max_cell_size - 3] + '...'
+        return cell_value
+
     def map_rows_texts(self):
         self.rows_texts = []
         #if not self.rows:
@@ -175,7 +186,8 @@ class Print_Table(Kwargs_To_Self):
                 for index, cell in enumerate(row):
                     size = self.headers_size[index]
                     cell_lines = str(cell).split('\n')  # Split the cell text by newlines
-                    row_text += f" {cell_lines[0]:{size}} {CHAR_TABLE_VERTICAL}"  # Add the first line of the cell
+                    cell_value = self.cell_value(cell_lines[0])
+                    row_text += f" {cell_value:{size}} {CHAR_TABLE_VERTICAL}"  # Add the first line of the cell
                     for i, line in enumerate(cell_lines[1:], start=1):
                         additional_lines[index].append(line)  # Store additional lines
 
@@ -187,9 +199,10 @@ class Print_Table(Kwargs_To_Self):
                 for depth in range(max_additional_lines):
                     extra_row_text = CHAR_TABLE_VERTICAL
                     for index, column in  enumerate(additional_lines):
-                        cell_data = column[depth] if len(column) > depth else ''
-                        size = self.headers_size[index]
-                        extra_row_text += f" {str(cell_data):{size}} {CHAR_TABLE_VERTICAL}"
+                        cell_data   = column[depth] if len(column) > depth else ''
+                        size        = self.headers_size[index]
+                        cell_value  = self.cell_value(cell_data)
+                        extra_row_text += f" {cell_value:{size}} {CHAR_TABLE_VERTICAL}"
                     self.rows_texts.append(extra_row_text)
 
         return self
