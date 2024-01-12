@@ -1,3 +1,5 @@
+from osbot_utils.utils.Dev import pprint
+
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 
@@ -93,10 +95,26 @@ class Print_Table(Kwargs_To_Self):
                 row.append("")
 
     def map_headers_size(self):
-        self.headers_size = [len(header) for header in self.headers]
-        for row in self.rows:                                                       # Update max width based on row data
-            for index, cell in enumerate(row):
-                self.headers_size[index] = max(self.headers_size[index], len(cell))
+        self.headers_size = [len(header) for header in self.headers]                            # initialize the headers size with the size of each header
+        for row in self.rows:                                                                   # iterate over each row and update the headers size with the size of the largest cell
+            for index, cell in enumerate(row):                                                  # for each row
+                self.headers_size[index] = max(self.headers_size[index], len(cell))             # update the header size with the size of the largest cell in the same column
+
+        # fix edge case that happens when the title or footer is longer than the table width
+        if len(self.headers_size):
+            last_header                 = len(self.headers_size) - 1                            # get the index of the last header
+            last_header_size            = self.headers_size[last_header]                        # get the size of the last header
+            all_headers_size            = sum(self.headers_size)                                # get the size of all headers
+            all_headers_size_minus_last = all_headers_size - last_header_size                   # get the size of all headers minus the last header
+
+            if sum(self.headers_size) < len(self.title):                                        # if the title is longer than the headers, update the last header size
+                title_size                     = len(self.title)                                # get the size of the title
+                new_last_header_size           = title_size - all_headers_size_minus_last       # calculate the new size of the last header
+                self.headers_size[last_header] = new_last_header_size                           # update the last header size
+            if sum(self.headers_size) < len(self.footer):                                       # if the footer is longer than the headers, update the last header size
+                footer_size                    = len(self.footer)                               # get the size of the footer
+                new_last_header_size           = footer_size - all_headers_size_minus_last      # calculate the new size of the last header
+                self.headers_size[last_header] = new_last_header_size                           # update the last header size
         return self
 
     def map_table_width(self):
@@ -194,3 +212,15 @@ class Print_Table(Kwargs_To_Self):
             for header, cell in zip(self.headers, row):
                 table_dict[header].append(cell)
         return table_dict
+
+    def set_footer(self, footer):
+        self.footer = footer
+        return self
+
+    def set_headers(self, headers):
+        self.headers = headers
+        return self
+
+    def set_title(self, title):
+        self.title = title
+        return self

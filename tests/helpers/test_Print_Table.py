@@ -235,3 +235,54 @@ class test_Print_Table(TestCase):
             assert _.table_width   == 4
             assert _.text__width   == 0
             assert _.text__headers == '│  │'
+
+    def test__regression__headers_with_no_rows_and_title(self):
+        with self.print_table as _:
+            _.set_title('title longer than header')
+            _.set_headers(['header_1','h2'])
+            _.map_texts()
+            assert _.text__all == ['┌─────────────────────────────┐',
+                                   '│ title longer than header    │',
+                                   '├─────────────────────────────┤',
+                                   '│ header_1 │ h2               │',
+                                   '├─────────────────────────────┤',
+                                   '└─────────────────────────────┘']
+
+        with self.print_table as _:
+            _.reset()
+            _.set_title('title longer than header and cell')
+            _.add_row(['cell bigger than header'])
+            _.map_texts()
+            assert _.text__all == ['┌───────────────────────────────────┐',
+                                   '│ title longer than header and cell │',
+                                   '├───────────────────────────────────┤',
+                                   '│ Header #1                         │',
+                                   '├───────────────────────────────────┤',
+                                   '│ cell bigger than header           │',
+                                   '└───────────────────────────────────┘']
+
+        with self.print_table as _:
+            _.reset()
+            _.set_footer('footer longer than header')
+            _.headers = ['header_1']
+            _.map_texts()
+            assert _.text__all == ['┌───────────────────────────┐',
+                                   '│ header_1                  │',
+                                   '├───────────────────────────┤',
+                                   '├───────────────────────────┤',
+                                   '│ footer longer than header │',
+                                   '└───────────────────────────┘']
+
+        with self.print_table as _:
+            _.reset()
+            _.set_footer('footer longer than header and cell')
+            _.add_row(['cell bigger than header'])
+            _.map_texts()
+            assert _.text__all == ['┌────────────────────────────────────┐',
+                                   '│ Header #1                          │',
+                                   '├────────────────────────────────────┤',
+                                   '│ cell bigger than header            │',
+                                   '├────────────────────────────────────┤',
+                                   '│ footer longer than header and cell │',
+                                   '└────────────────────────────────────┘']
+

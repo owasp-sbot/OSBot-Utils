@@ -33,6 +33,11 @@ class Patch_Print(Kwargs_To_Self):
             if self.expected_calls:
                 assert self.calls() == self.expected_calls
 
+    def call_args_list(self):
+        if self.mocked_print:
+            return self.mocked_print.call_args_list
+        return []
+
     def calls(self):
         calls_data = []
         if self.mocked_print:
