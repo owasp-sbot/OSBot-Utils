@@ -27,13 +27,13 @@ class Colors:
 
 class CPrint(Colors, Kwargs_To_Self):
     auto_new_line  : bool = True
-    auto_print     : bool
+    auto_print     : bool = True
     clear_on_print : bool = True
     current_line   : str
     lines          : list
 
     def __getattribute__(self, name):                                                       # this will replace the attributes defined in colors with methods that will call add_to_current_line with the params provided
-        if hasattr(Colors, name):                                                           # if name is one of the colors defined in Colors
+        if name != '__getattribute__' and hasattr(Colors, name):                                                           # if name is one of the colors defined in Colors
             def method(*args, **kwargs):                                                    # create a method to replace the attribute
                 return self.add_with_color(name, *args, **kwargs)                     # pass the data to add_with_color
             return method

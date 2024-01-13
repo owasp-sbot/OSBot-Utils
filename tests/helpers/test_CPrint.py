@@ -1,6 +1,8 @@
 from unittest import TestCase
 from unittest.mock import patch, call
 
+from osbot_utils.utils.Dev import pprint
+
 from osbot_utils.utils.Misc import list_set
 
 from osbot_utils.helpers.CPrint import CPrint, Colors
@@ -25,6 +27,11 @@ class test_CPrint(TestCase):
                                                              'current_line'    ,
                                                              'lines'           ,
                                                              *expected_colors  ])
+        assert self.cprint.auto_new_line  is True
+        assert self.cprint.auto_print     is True
+        assert self.cprint.clear_on_print is True
+        assert self.cprint.current_line   == ''
+        assert self.cprint.lines          == []
 
     def test_print(self):
         with Patch_Print(enabled=True) as patched_print:
@@ -45,6 +52,7 @@ class test_CPrint(TestCase):
         with Patch_Print(enabled=True) as patched_print:
             with self.cprint as _:
                 _.auto_new_line = False
+                _.auto_print    = False
                 _.red('this is in red')
                 _.green('now green')
                 _.new_line()
@@ -79,6 +87,7 @@ class test_CPrint(TestCase):
     def test__kwargs__clear_on_print(self):
         with Patch_Print(enabled=True) as patched_print:
             with self.cprint as _:
+                _.auto_print     = False
                 _.clear_on_print = False
                 _.red  ('this is in red')
                 _.green('this is in green')

@@ -4,7 +4,6 @@
 import inspect
 import types
 
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects import default_value
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType)
@@ -131,14 +130,12 @@ class Kwargs_To_Self:
             for k, v in vars(base_cls).items():
                 if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
                     kwargs[k] = v
-
             # add the vars defined with the annotations
             for var_name, var_type in base_cls.__annotations__.items():
                 if hasattr(cls, var_name) is False:                         # only add if it has not already been defined
                     var_value = default_value(var_type)
                     kwargs[var_name] = var_value
                 else:
-
                     if var_type not in immutable_types and var_name.startswith('__') is False:
                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
                         raise Exception(exception_message)
@@ -153,7 +150,6 @@ class Kwargs_To_Self:
         """Return a dictionary of the current instance's attribute values including inherited class defaults."""
         kwargs = {}
         # Update with instance-specific values
-
         for key, value in self.__default_kwargs__().items():
             if hasattr(self, key):
                 kwargs[key] = self.__getattribute__(key)
