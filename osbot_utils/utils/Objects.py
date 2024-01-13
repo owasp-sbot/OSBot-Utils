@@ -29,6 +29,13 @@ def class_name(target):
     if target:
         return type(target).__name__
 
+def class_full_name(target):
+    if target:
+        type_target = type(target)
+        type_module = type_target.__module__
+        type_name   = type_target.__name__
+        return f'{type_module}.{type_name}'
+
 def default_value(target : type):
     try:
         return target()                 #  try to create the object using the default constructor

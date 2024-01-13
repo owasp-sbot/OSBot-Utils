@@ -4,12 +4,14 @@
 import inspect
 import types
 
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects import default_value
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType)
 
 
+#todo: see if we can also add type safety to method execution
+#      for example if we have an method like def add_node(self, title: str, call_index: int):
+#          throw an exception if the type of the value passed in is not the same as the one defined in the method
 
 class Kwargs_To_Self:
     """
@@ -62,6 +64,8 @@ class Kwargs_To_Self:
                             that are already defined in the class to be set.
     """
 
+    __lock_attributes__ = False
+
     def __init__(self, **kwargs):
         """
         Initialize an instance of the derived class, strictly assigning provided keyword
@@ -88,6 +92,12 @@ class Kwargs_To_Self:
 
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
+
+    def __setattr__(self, name, value):
+        if self.__lock_attributes__:
+            if not hasattr(self, name):
+                raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
+        super().__setattr__(name, value)
 
     @classmethod
     def __cls_kwargs__(cls):
@@ -120,15 +130,13 @@ class Kwargs_To_Self:
             for k, v in vars(base_cls).items():
                 if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
                     kwargs[k] = v
-
             # add the vars defined with the annotations
             for var_name, var_type in base_cls.__annotations__.items():
                 if hasattr(cls, var_name) is False:                         # only add if it has not already been defined
                     var_value = default_value(var_type)
                     kwargs[var_name] = var_value
                 else:
-
-                    if var_type not in immutable_types:
+                    if var_type not in immutable_types and var_name.startswith('__') is False:
                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
                         raise Exception(exception_message)
                     var_value = getattr(cls, var_name)
@@ -142,7 +150,6 @@ class Kwargs_To_Self:
         """Return a dictionary of the current instance's attribute values including inherited class defaults."""
         kwargs = {}
         # Update with instance-specific values
-
         for key, value in self.__default_kwargs__().items():
             if hasattr(self, key):
                 kwargs[key] = self.__getattribute__(key)
@@ -155,7 +162,22 @@ class Kwargs_To_Self:
         """Return a dictionary of the current instance's attribute values."""
         kwargs = self.__kwargs__()
 
-        for k, v in vars(self).items():
-            if not isinstance(v, types.FunctionType):
-                kwargs[k] = v
+        if not isinstance(vars(self), types.FunctionType):
+            for k, v in vars(self).items():
+                if not isinstance(v, types.FunctionType):
+                    kwargs[k] = v
         return kwargs
+
+    def locked(self, value=True):
+        self.__lock_attributes__ = value
+        return self
+
+    def reset(self):
+        for k,v in self.__default_kwargs__().items():
+            setattr(self, k, v)
+
+    def update_from_kwargs(self, **kwargs):
+        """Update instance attributes with values from provided keyword arguments."""
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        return self

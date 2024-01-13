@@ -2,6 +2,7 @@ import base64
 import hashlib
 import importlib
 import logging
+import os
 import random
 import string
 import sys
@@ -16,6 +17,11 @@ from urllib.parse import  quote_plus, unquote_plus
 
 #from dateutil import parser
 from dotenv     import load_dotenv
+
+def ansi_text_visible_length(text):
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')         # This regex matches the escape sequences used for text formatting
+    visible_text = ansi_escape.sub('', text)       # Remove the escape sequences
+    return len(visible_text)                            # Return the length of the remaining text
 
 def append_random_string(target, length=6, prefix='-'):
     return f'{target}{random_string(length, prefix)}'
@@ -132,6 +138,9 @@ def get_random_color(max=5):
     if max > 5: max = 5                                                             # add support for more than 5 colors
     colors = ['skyblue', 'darkseagreen', 'palevioletred', 'coral', 'darkgray']
     return colors[random_number(0, max-1)]
+
+def in_github_action():
+    return os.getenv('GITHUB_ACTIONS') == 'true'
 
 def is_debugging():
     return sys.gettrace() is not None
@@ -441,6 +450,7 @@ str_lines           = split_lines
 str_remove          = remove
 
 random_id           = random_string
+random_int          = random_number
 random_guid         = random_uuid
 random_value        = random_string
 

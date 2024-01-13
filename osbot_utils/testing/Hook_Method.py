@@ -1,6 +1,10 @@
+from osbot_utils.helpers.Print_Table import Print_Table
+from osbot_utils.utils.Call_Stack import Call_Stack
+
 from osbot_utils.testing.Duration import Duration
 
 class Hook_Method:
+
     def __init__(self, target_module, target_method):
         self.target_module   = target_module
         self.target_method   = target_method
@@ -63,6 +67,12 @@ class Hook_Method:
             (args, kwargs) = method(*args, **kwargs)
         return (args, kwargs)
 
+    def print(self):
+        print()
+        print()
+        with Print_Table() as _:
+            _.print(self.calls)
+
     def set_mock_call(self, mock_call):
         """
         Use this to simulate a call to the Hooked Method (the
@@ -72,19 +82,28 @@ class Hook_Method:
     def wrap(self):
 
         def wrapper_method(*args, **kwargs):
+            call_stack= Call_Stack().capture()
             with Duration(print_result=False) as duration:
+                exception = None
                 if self.mock_call:
                     return_value = self.mock_call(*args,**kwargs)
                 else:
                     (args, kwargs) = self.before_call(*args, **kwargs)
-                    return_value   = self.target(*args, **kwargs)
-                    return_value   = self.after_call(return_value, args, kwargs)
+                    try:
+                        return_value   = self.target(*args, **kwargs)
+                        return_value   = self.after_call(return_value, args, kwargs)
+                    except Exception as error:
+                        return_value = None
+                        exception = error
+                        #raise error
 
             call = {
-                        'args'        : args,
-                        'kwargs'      : kwargs,
-                        'return_value': return_value,
-                        'index'       : len(self.calls),
+                        'args'        : args                ,
+                        'call_stack'  : call_stack          ,
+                        'exception'   : exception           ,
+                        'kwargs'      : kwargs              ,
+                        'return_value': return_value        ,
+                        'index'       : len(self.calls)     ,
                         'duration'    : int(duration.seconds()*1000)
                     }
             self.calls.append(call)

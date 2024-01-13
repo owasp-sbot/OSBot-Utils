@@ -38,7 +38,6 @@ class Dev:
     def print_now():
         print(date_time_now())
 
-
 jformat   = Dev.jformat
 jprint    = Dev.jprint
 pformat   = Dev.pformat
