@@ -256,7 +256,11 @@ class Print_Table(Kwargs_To_Self):
         self.map_text__all          ()
 
 
-    def print(self):
+    def print(self, data=None, order=None):
+        if data:
+            self.add_data(data)
+        if order:
+            self.reorder_columns(order)
         print()
         self.map_texts()
         for text in self.text__all:

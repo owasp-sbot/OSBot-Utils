@@ -12,6 +12,7 @@ class test_Print_Table(TestCase):
         assert self.print_table.__locals__() == { 'footer'              : '' ,
                                                   'headers'             : [] ,
                                                   'headers_size'        : [] ,
+                                                  'max_cell_size'       : 200,
                                                   'rows'                : [] ,
                                                   'rows_texts'          : [] ,
                                                   'table_width'         : 0  ,

@@ -3,6 +3,7 @@ from unittest import TestCase
 from unittest.mock import call, patch
 
 import pytest
+from osbot_utils.utils.Call_Stack import Call_Stack
 
 from osbot_utils.testing.Patch_Print import Patch_Print
 from osbot_utils.utils.Dev import pprint
@@ -20,20 +21,24 @@ class test_Python_Audit(TestCase):
         self.python_audit = Python_Audit()
 
     def test___init__(self):
-        expected_locals = { 'audit_events'      : [] }
+        expected_locals = { 'audit_events'      : [] , 'frame_depth': 10}
         assert self.python_audit.__locals__() == expected_locals
 
 
     def test_hook_callback(self):
-        current_frame = sys._getframe()
+        current_frame      = sys._getframe()
+        current_frame_data = "" #Call_Stack(max_depth=self.python_audit.frame_depth).capture_frame(current_frame)
         assert self.python_audit.audit_events == []
         self.python_audit.hook_callback('event-1', 'args-1')
+
         assert self.python_audit.audit_events == [('event-1', 'args-1', current_frame)]
+
         self.python_audit.hook_callback('event-2', 'args-2')
         assert self.python_audit.audit_events == [('event-1', 'args-1', current_frame), ('event-2', 'args-2', current_frame)]
 
-        assert self.python_audit.data() == [{'args': 'args-1', 'event': 'event-1', 'index': 0, 'stack': current_frame},
-                                            {'args': 'args-2', 'event': 'event-2', 'index': 1, 'stack': current_frame},]
+
+        assert self.python_audit.data() == [{'args': 'args-1', 'event': 'event-1', 'index': 0, 'stack': {'depth': 1}},
+                                            {'args': 'args-2', 'event': 'event-2', 'index': 1, 'stack': {'depth': 1}},]
 
         assert self.python_audit.events() == self.python_audit.audit_events
         assert self.python_audit.events_by_type() == {'event-1': 1, 'event-2': 1}
@@ -42,12 +47,13 @@ class test_Python_Audit(TestCase):
             self.python_audit.print()
 
         assert _.call_args_list() == [call(),
-                                      call( '┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐'),
-                                      call( '│ index │ event   │ args   │ stack                                                                                                                                                              │'),
-                                      call( '├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤'),
-                                      call(f"│ 0     │ event-1 │ args-1 │ {str(current_frame).replace('line 44', 'line 42')} │"),
-                                      call(f"│ 1     │ event-2 │ args-2 │ {str(current_frame).replace('line 44', 'line 42')} │"),
-                                      call( '└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘')]
+ call('┌─────────────────────────────────────────┐'),
+ call('│ index │ event   │ args   │ stack        │'),
+ call('├─────────────────────────────────────────┤'),
+ call("│ 0     │ event-1 │ args-1 │ {'depth': 1} │"),
+ call("│ 1     │ event-2 │ args-2 │ {'depth': 1} │"),
+ call('└─────────────────────────────────────────┘')]
+
 
 
     def test_start(self):

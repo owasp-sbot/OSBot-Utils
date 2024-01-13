@@ -139,7 +139,7 @@ class Kwargs_To_Self:
                     kwargs[var_name] = var_value
                 else:
 
-                    if var_type not in immutable_types:
+                    if var_type not in immutable_types and var_name.startswith('__') is False:
                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
                         raise Exception(exception_message)
                     var_value = getattr(cls, var_name)
