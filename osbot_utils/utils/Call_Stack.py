@@ -32,15 +32,16 @@ class Frame_Data(Kwargs_To_Self):
         return self.__locals__()
 
 class Call_Stack(Kwargs_To_Self):
-    max_depth      : int  = 10
-    frames         : list
     capture_locals : bool = False
     cprint         : CPrint
     cprint_theme   : str = 'meadow'
+    frames         : list
+    max_depth      : int  = 10
+
     __print_order__: list = ['module', 'method_name', 'caller_line', 'method_line',  'local_self', 'line_number', 'depth']
 
     def __repr__(self):
-        return f"Call_Stack({self.stats()})"
+        return "Call_Stack"
 
     def calls(self):
         calls = []
@@ -126,6 +127,7 @@ class Call_Stack(Kwargs_To_Self):
                 self.print_with_color(color_middle, text=f"{CHAR_TABLE_VERTICAL} {call}")
             self.print_with_color(color_bottom, text=f"{CHAR_TABLE_BOTTOM_LEFT} {calls[-1]}")
         return self.cprint.lines
+
 
     def stack_colors(self):
         color_themes = PRINT_STACK_COLOR_THEMES

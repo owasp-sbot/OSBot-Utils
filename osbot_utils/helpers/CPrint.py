@@ -29,6 +29,7 @@ class Colors:
 
 
 class CPrint(Colors, Kwargs_To_Self):
+    apply_colors   : bool = True
     auto_new_line  : bool = True
     auto_print     : bool = True
     clear_on_print : bool = True
@@ -48,13 +49,17 @@ class CPrint(Colors, Kwargs_To_Self):
         return self
 
     def add_to_current_line(self, color_code, *args, **kwargs):
-        color_start      = f"\033[{color_code}m"                                            # ANSI color code start and end
-        color_end        = "\033[0m"
-        kwargs['end']    = ''                                                               # remove the default print end (which is \n)
-        args             = [str(arg) for arg in args]                                       # Convert all non-string arguments to strings
-        text             = "".join(args)                                                    # Concatenate all arguments without a space (to have beter support for multi-prints per line)
-        text_with_colors = f"{color_start}{text}{color_end}"
-        self.current_line += text_with_colors
+        args             = [str(arg) for arg in args]                                           # Convert all non-string arguments to strings
+        text             = "".join(args)                                                        # Concatenate all arguments without a space (to have beter support for multi-prints per line)
+        if self.apply_colors:
+            color_start      = f"\033[{color_code}m"                                            # ANSI color code start and end
+            color_end        = "\033[0m"
+            kwargs['end']    = ''                                                               # remove the default print end (which is \n)
+
+            text_with_colors = f"{color_start}{text}{color_end}"
+            self.current_line += text_with_colors
+        else:
+            self.current_line += text
         self.apply_config_options()
         return self
 
@@ -70,6 +75,12 @@ class CPrint(Colors, Kwargs_To_Self):
         self.current_line = ''
         return self
 
+    def lines_str(self):
+        lines_str = ''
+        for line in self.lines:
+            lines_str += line + '\n'
+        return lines_str
+
     def new_line(self):
         self.flush()
         self.lines.append('')
@@ -83,3 +94,5 @@ class CPrint(Colors, Kwargs_To_Self):
         if self.clear_on_print:
             self.lines = []
         return self
+
+

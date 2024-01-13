@@ -1,5 +1,6 @@
 from unittest import TestCase
 import requests
+from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.testing.Hook_Method import Hook_Method
 
@@ -62,9 +63,16 @@ class test_Hook_Method(TestCase):
 
         self.wrap_method.set_mock_call(mock_call)
 
-
         with self.wrap_method:
-            assert requests.head('https://www.google.com') == return_value
+            def an_method():
+                assert requests.head('https://www.google.com') == return_value
+            an_method()
+
+        call_stack = self.wrap_method.calls[0]['call_stack']                            # we need to remove this from the call since assert with __repr__ wasn't working
+        del self.wrap_method.calls[0]['call_stack']
+        assert call_stack.print_lines() == [ '\x1b[34m┌ requests.api.head\x1b[0m'              ,
+                                             '\x1b[0m│ test_Hook_Method.an_method\x1b[0m'      ,
+                                             '\x1b[32m└ test_Hook_Method.test_mock_call\x1b[0m']
 
         assert self.wrap_method.calls == [{ 'args'        : ('head', 'https://www.google.com'),
                                             'duration'    : 0                                 ,

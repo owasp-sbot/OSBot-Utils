@@ -32,6 +32,7 @@ class test_Call_Stack(TestCase):
             level_1()
         with Patch_Print() as _:
             self.call_stack.print()
+
         assert _.call_args_list() == [call(),
                                       call(),
                                       call('\x1b[34m┌ test_Call_Stack.level_3\x1b[0m'),
@@ -51,8 +52,8 @@ class test_Call_Stack(TestCase):
                                       call('┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐'),
                                       call('│ module          │ method_name      │ caller_line                                    │ method_line                 │ local_self                      │ line_number │ depth │'),
                                       call('├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤'),
-                                      call('│ test_Call_Stack │ an_method        │ a = self.call_stack.capture(skip_caller=False) │ def an_method():            │ test_Call_Stack.test_Call_Stack │ 45          │ 0     │'),
-                                      call('│ test_Call_Stack │ test_print_table │ an_method()                                    │ def test_print_table(self): │ test_Call_Stack.test_Call_Stack │ 46          │ 1     │'),
+                                      call('│ test_Call_Stack │ an_method        │ a = self.call_stack.capture(skip_caller=False) │ def an_method():            │ test_Call_Stack.test_Call_Stack │ 46          │ 0     │'),
+                                      call('│ test_Call_Stack │ test_print_table │ an_method()                                    │ def test_print_table(self): │ test_Call_Stack.test_Call_Stack │ 47          │ 1     │'),
                                       call('└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘')]
 
 
