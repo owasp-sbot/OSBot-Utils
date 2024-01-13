@@ -1,6 +1,9 @@
 import inspect
 from datetime import timedelta
 from functools import wraps
+
+from osbot_utils.utils.Call_Stack import Call_Stack
+
 from osbot_utils.utils.Misc import date_time_now, time_delta_to_str
 
 
@@ -24,15 +27,18 @@ class Duration:
     """
     Helper class for to capture time duration
     """
-    def __init__(self, print_result=True, use_utc=True, prefix="\nDuration:"):
+    def __init__(self, prefix="\nDuration:", print_result=True, use_utc=True, print_stack=False):
         self.use_utc            = use_utc
         self.print_result       = print_result
         self.prefix             = prefix
         self.start_time         = None
         self.end_time           = None
         self.duration           = None
+        self.print_stack        = print_stack
+        self.call_stack         = Call_Stack()
 
     def __enter__(self):
+        self.call_stack.capture()
         self.start()
         return self
 
@@ -47,6 +53,8 @@ class Duration:
         self.duration = self.end_time - self.start_time
         if self.print_result:
             print(f"{self.prefix} {time_delta_to_str(self.duration)}")
+            if self.print_stack:
+                self.call_stack.print()
 
     def seconds(self):
         return self.duration.total_seconds()
