@@ -17,8 +17,9 @@ class test_CPrint(TestCase):
 
 
     def test__init__(self):
-        expected_colors = sorted(['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white',
-                                  'bright_black', 'bright_red', 'bright_green', 'bright_yellow', 'bright_blue', 'bright_magenta', 'bright_cyan', 'bright_white'])
+        expected_colors = sorted(['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white',  'grey', 'none', 
+                                  'bright_black', 'bright_red', 'bright_green', 'bright_yellow', 'bright_blue', 'bright_magenta', 'bright_cyan', 'bright_white',
+                                  'dark_red'])
         colors_in_colors = sorted([name for name in Colors.__dict__ if not name.startswith('__')])
         assert colors_in_colors == expected_colors
         assert list_set(self.cprint.__locals__()) == sorted(['auto_new_line'   ,

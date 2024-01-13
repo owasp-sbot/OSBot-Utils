@@ -7,14 +7,16 @@ from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 #     - have a good and logical place to capture the ID of the color
 
 class Colors:
-    black           = "30"                          # todo: figure out if this needs to be a string or if it can be an int
-    red             = "31"
-    green           = "32"
-    yellow          = "33"
+    black           = "30"
     blue            = "34"
-    magenta         = "35"
     cyan            = "36"
-    white           = "37"
+    grey            = "38;5;15"
+    green           = "32"
+    none            = "0"
+    magenta         = "35"
+    red             = "31"
+    white           = "38;5;15"
+    yellow          = "33"
     bright_black    = "90"
     bright_red      = "91"
     bright_green    = "92"
@@ -23,6 +25,7 @@ class Colors:
     bright_magenta  = "95"
     bright_cyan     = "96"
     bright_white    = "97"
+    dark_red        = "38;5;124"            # see https://github.com/fidian/ansi for a full list
 
 
 class CPrint(Colors, Kwargs_To_Self):

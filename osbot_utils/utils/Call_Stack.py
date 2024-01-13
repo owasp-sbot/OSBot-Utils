@@ -1,19 +1,26 @@
-import inspect
 import linecache
 import sys
 import traceback
 
-from osbot_utils.helpers.Print_Table         import Print_Table
+from osbot_utils.utils.Dev import pprint
+
+from osbot_utils.helpers.CPrint              import CPrint
+from osbot_utils.helpers.Print_Table         import Print_Table, CHAR_TABLE_HORIZONTAL, CHAR_TABLE_TOP_LEFT, CHAR_TABLE_VERTICAL, CHAR_TABLE_BOTTOM_LEFT
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.Objects               import obj_data, class_full_name
 
-MODULES_TO_STOP_CAPTURE = ['unittest.case']
+MODULES_TO_STOP_CAPTURE   = ['unittest.case']
+PRINT_STACK_COLOR_THEMES  = { 'default'    : ('none'          , 'none'  , 'none' ),
+                              'minty'      : ('green'         , 'grey'  , 'cyan' ) ,
+                              'meadow'     : ('blue'          , 'none'  ,'green' ) ,
+                              'aquamarine' : ('bright_cyan'   , 'cyan'  ,'blue'  ),
+                              'autumn'     : ('bright_yellow' , 'yellow','red'   )}
 
 class Frame_Data(Kwargs_To_Self):
     depth         : int
-    function_name : str
     caller_line   : str
     method_line   : str
+    method_name   : str
     line_number   : int
     local_self    : str
     module        : str
@@ -28,10 +35,26 @@ class Call_Stack(Kwargs_To_Self):
     max_depth      : int  = 10
     frames         : list
     capture_locals : bool = False
-    __print_order__: list = ['depth', 'module', 'function_name', 'caller_line', 'method_line',  'local_self', 'line_number']
+    cprint         : CPrint
+    cprint_theme   : str = 'meadow'
+    __print_order__: list = ['module', 'method_name', 'caller_line', 'method_line',  'local_self', 'line_number', 'depth']
 
-    def capture(self):
+    def __repr__(self):
+        return f"Call_Stack({self.stats()})"
+
+    def calls(self):
+        calls = []
+        for frame in self.frames:
+            method_name = frame.method_name
+            module = frame.module
+            call = f"{module}.{method_name}"
+            calls.append(call)
+        return calls
+
+    def capture(self,skip_caller=True):
         current_frame = sys._getframe().f_back
+        if skip_caller:
+            current_frame = current_frame.f_back
         return self.capture_frame(current_frame)
 
     def capture_frame(self, frame):
@@ -43,7 +66,7 @@ class Call_Stack(Kwargs_To_Self):
             self.frames.append(new_frame)
             depth += 1
             frame = frame.f_back
-        return self.frames
+        return self
 
     def stats(self):
         return { 'depth' : len(self.frames)  }
@@ -61,7 +84,7 @@ class Call_Stack(Kwargs_To_Self):
 
     def new_frame(self, frame, depth):
         file_path          = frame.f_code.co_filename
-        function_name      = frame.f_code.co_name
+        method_name        = frame.f_code.co_name
         caller_line_number = frame.f_lineno
         method_line_number = frame.f_code.co_firstlineno
 
@@ -70,9 +93,9 @@ class Call_Stack(Kwargs_To_Self):
         module         = frame.f_globals.get("__name__", "")
         local_self     = class_full_name(frame.f_locals.get('self'))
         frame_data     = Frame_Data( depth          = depth              ,
-                                     function_name  = function_name      ,
                                      caller_line    = caller_line        ,
                                      method_line    = method_line        ,
+                                     method_name    = method_name        ,
                                      module         = module             ,
                                      local_self     = local_self         ,
                                      line_number    = caller_line_number )
@@ -81,18 +104,48 @@ class Call_Stack(Kwargs_To_Self):
         return frame_data
 
     def print(self):
+        print()
+        print()
+        for line in self.print_lines():
+            print(line)
+
+    def print_lines(self):
+        self.cprint.lines      = []
+        self.cprint.auto_print = False
+        calls = self.calls()
+
+        if len(calls) == 0:
+            return []
+
+        if len(calls) == 1:
+            self.print_with_color('none', f"{CHAR_TABLE_HORIZONTAL} {calls[0]}")
+        else:
+            color_top, color_middle, color_bottom = self.stack_colors()
+            self.print_with_color(color_top, text=f"{CHAR_TABLE_TOP_LEFT} {calls[0]}")
+            for call in calls[1:-1]:
+                self.print_with_color(color_middle, text=f"{CHAR_TABLE_VERTICAL} {call}")
+            self.print_with_color(color_bottom, text=f"{CHAR_TABLE_BOTTOM_LEFT} {calls[-1]}")
+        return self.cprint.lines
+
+    def stack_colors(self):
+        color_themes = PRINT_STACK_COLOR_THEMES
+        stack_colors = color_themes.get(self.cprint_theme)
+        if not stack_colors:
+            stack_colors = color_themes.get('default')
+        return stack_colors
+
+    def print_with_color(self, color_name, text):
+        self.cprint.__getattribute__(color_name)(text)
+
+    def print_table(self):
         all_data = []
         for frame in self.frames:
             all_data.append(frame.data())
 
         with Print_Table() as _:
-            _.print(all_data)
+            _.print(all_data,self.__print_order__)
 
 
-
-    # print()
-    # for index, frame_data in enumerate(call_stack_frames_data(20)):
-    #     print(index, frame_data.get('line'))
 
 
 def call_stack_current_frame(return_caller=True):
