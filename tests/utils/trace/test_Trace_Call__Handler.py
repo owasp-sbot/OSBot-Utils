@@ -257,6 +257,7 @@ class test_Trace_Call__Handler(TestCase):
         assert self.handler.stats == Trace_Call__Stats(calls= 2, calls_skipped=2, returns=1)
 
         config.trace_capture_all = True
+        config.capture_locals    = True
         assert trace_calls(frame_1, 'call', None) == trace_calls
 
         node_1    = stack[1]
@@ -372,6 +373,7 @@ class test_Trace_Call__Handler(TestCase):
         event   = 'call'
         arg     = None
 
+        self.handler.config.capture_locals = True
         self.handler.config.trace_capture_all = True
         self.handler.trace_calls(frame, event, arg)
 

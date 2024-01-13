@@ -7,7 +7,7 @@ DEFAULT_PADDING_DURATION = 100
 
 class Trace_Call__Config(Kwargs_To_Self):
     title                      : str
-    capture_locals             : bool = True
+    capture_locals             : bool = False
     capture_duration           : bool
     capture_extra_data         : bool
     capture_frame              : bool = True

@@ -89,6 +89,8 @@ class test_Trace_Call__Stack(TestCase):
         create_stack_node = self.stack.create_stack_node
         config            = self.stack.config
 
+        config.capture_locals = True                # to reflect the change of this default config value
+
         # case 1: with bad data
         assert create_stack_node(frame=None, full_name=None, source_code=None, call_index=None) == Trace_Call__Stack_Node(call_index=None, name=None)
         # case 2: with empty data

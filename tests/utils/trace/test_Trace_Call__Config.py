@@ -17,7 +17,7 @@ class test_Trace_Call__Config(TestCase):
                           'capture_extra_data'       : False ,
                           'capture_frame'            : True  ,
                           'capture_frame_stats'      : False ,
-                          'capture_locals'           : True  ,
+                          'capture_locals'           : False ,
                           'deep_copy_locals'         : False ,
                           'ignore_start_with'        : []    ,
                           'padding_duration'         : 100   ,
