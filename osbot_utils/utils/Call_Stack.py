@@ -31,7 +31,8 @@ class Call_Stack(Kwargs_To_Self):
     __print_order__: list = ['depth', 'module', 'function_name', 'caller_line', 'method_line',  'local_self', 'line_number']
 
     def capture(self):
-        return sys._getframe().f_back
+        current_frame = sys._getframe().f_back
+        return self.capture_frame(current_frame)
 
     def capture_frame(self, frame):
         depth = 0
@@ -85,7 +86,7 @@ class Call_Stack(Kwargs_To_Self):
             all_data.append(frame.data())
 
         with Print_Table() as _:
-            _.print(all_data, order=self.__print_order__)
+            _.print(all_data)
 
 
 
