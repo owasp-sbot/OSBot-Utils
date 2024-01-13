@@ -11,7 +11,9 @@ class test_Print_Table(TestCase):
     def test___init__(self):
         assert self.print_table.__locals__() == { 'footer'              : '' ,
                                                   'headers'             : [] ,
+                                                  'headers_by_index'    : {} ,
                                                   'headers_size'        : [] ,
+                                                  'headers_to_hide'     : [] ,
                                                   'max_cell_size'       : 200,
                                                   'rows'                : [] ,
                                                   'rows_texts'          : [] ,

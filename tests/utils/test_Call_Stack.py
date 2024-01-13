@@ -33,9 +33,7 @@ class test_Call_Stack(TestCase):
         with Patch_Print() as _:
             self.call_stack.print()
 
-        assert _.call_args_list() == [call(),
-                                      call(),
-                                      call('\x1b[34m┌ test_Call_Stack.level_3\x1b[0m'),
+        assert _.call_args_list() == [call('\x1b[34m┌ test_Call_Stack.level_3\x1b[0m'),
                                       call('\x1b[0m│ test_Call_Stack.level_2\x1b[0m'),
                                       call('\x1b[0m│ test_Call_Stack.level_1\x1b[0m'),
                                       call('\x1b[32m└ test_Call_Stack.test_print\x1b[0m')]
@@ -45,20 +43,52 @@ class test_Call_Stack(TestCase):
             def an_method():
                 a = self.call_stack.capture(skip_caller=False)
             an_method()
+        headers_to_hide = ['line_number']
 
         with Patch_Print() as _:
-            self.call_stack.print_table()
+            self.call_stack.print_table(headers_to_hide)
+
         assert _.call_args_list() == [call(),
-                                      call('┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐'),
-                                      call('│ module          │ method_name      │ caller_line                                    │ method_line                 │ local_self                      │ line_number │ depth │'),
-                                      call('├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤'),
-                                      call('│ test_Call_Stack │ an_method        │ a = self.call_stack.capture(skip_caller=False) │ def an_method():            │ test_Call_Stack.test_Call_Stack │ 46          │ 0     │'),
-                                      call('│ test_Call_Stack │ test_print_table │ an_method()                                    │ def test_print_table(self): │ test_Call_Stack.test_Call_Stack │ 47          │ 1     │'),
-                                      call('└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘')]
+                                      call('┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐'),
+                                      call('│ module          │ method_name      │ caller_line                                    │ method_line                 │ local_self                      │ depth │'),
+                                      call('├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤'),
+                                      call('│ test_Call_Stack │ an_method        │ a = self.call_stack.capture(skip_caller=False) │ def an_method():            │ test_Call_Stack.test_Call_Stack │ 0     │'),
+                                      call('│ test_Call_Stack │ test_print_table │ an_method()                                    │ def test_print_table(self): │ test_Call_Stack.test_Call_Stack │ 1     │'),
+                                      call('└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘')]
+
+
+
+    def test_stack_lines__source_code(self):
+        with self.call_stack:
+            def level_1():
+                level_2()
+
+            def level_2():
+                level_3()
+
+            def level_3():
+                self.call_stack.capture(skip_caller=False)
+
+            level_1()
+
+        calls_source_code = self.call_stack.calls__source_code()
+        assert calls_source_code == [ 'self.call_stack.capture(skip_caller=False)',
+                                      'level_3()',
+                                      'level_2()',
+                                      'level_1()']
+        with Patch_Print() as _:
+            self.call_stack.print__source_code()
+
+        assert _.call_args_list() == [call('\x1b[34m┌ self.call_stack.capture(skip_caller=False)\x1b[0m'),
+                                      call('\x1b[0m│ level_3()\x1b[0m'),
+                                      call('\x1b[0m│ level_2()\x1b[0m'),
+                                      call('\x1b[32m└ level_1()\x1b[0m')]
+
 
 
 
     # static methods
+    # todo: refactor these static methods to be in a separate class
 
     def test_call_stack_current_frame(self):
         frame = call_stack_current_frame()
@@ -83,3 +113,4 @@ class test_Call_Stack(TestCase):
         frames_data = call_stack_frames_data(depth=4)
         for frame_data in frames_data:
             assert list_set(frame_data) == ['filename', 'line', 'lineno', 'locals', 'name']
+

@@ -32,8 +32,10 @@ MAX_CELL_SIZE = 200
 class Print_Table(Kwargs_To_Self):
     title               : str
     headers             : list
+    headers_by_index    : dict
     footer              : str
     headers_size        : list
+    headers_to_hide     : list
     max_cell_size       : int = MAX_CELL_SIZE
     rows                : list
     rows_texts          : list
@@ -131,6 +133,12 @@ class Print_Table(Kwargs_To_Self):
         for row in self.rows:                                       # Ensure each row has the same number of cells as there are headers
             while len(row) < len(self.headers):
                 row.append("")
+        for index, header in enumerate(self.headers):               # capture the index of the headers
+            self.headers_by_index[index] = header
+
+    def hide_headers(self, headers):
+        self.headers_to_hide = headers
+        return self
 
     def map_headers_size(self):
         self.headers_size = []                                                                        # initialize the headers size with the size of each header
@@ -197,13 +205,14 @@ class Print_Table(Kwargs_To_Self):
                 row_text = CHAR_TABLE_VERTICAL
                 additional_lines = [[] for _ in row]  # Prepare to hold additional lines from multiline cells
                 for index, cell in enumerate(row):
-                    size          = self.headers_size[index]
-                    cell_lines    = str(cell).split('\n')  # Split the cell text by newlines
-                    cell_value    = self.cell_value(cell_lines[0])
-                    extra_padding = ' ' * (size - ansi_text_visible_length(cell_value))
-                    row_text += f" {cell_value}{extra_padding} {CHAR_TABLE_VERTICAL}"  # Add the first line of the cell
-                    for i, line in enumerate(cell_lines[1:], start=1):
-                        additional_lines[index].append(line)  # Store additional lines
+                    if self.should_show_header(index):
+                        size          = self.headers_size[index]
+                        cell_lines    = str(cell).split('\n')  # Split the cell text by newlines
+                        cell_value    = self.cell_value(cell_lines[0])
+                        extra_padding = ' ' * (size - ansi_text_visible_length(cell_value))
+                        row_text += f" {cell_value}{extra_padding} {CHAR_TABLE_VERTICAL}"  # Add the first line of the cell
+                        for i, line in enumerate(cell_lines[1:], start=1):
+                            additional_lines[index].append(line)  # Store additional lines
 
                 self.rows_texts.append(row_text)
 
@@ -239,7 +248,8 @@ class Print_Table(Kwargs_To_Self):
             self.text__headers += f"  {CHAR_TABLE_VERTICAL}"
         else:
             for header, size in zip(self.headers, self.headers_size):
-                self.text__headers += f" {header:{size}} {CHAR_TABLE_VERTICAL}"
+                if self.should_show_header(header):
+                    self.text__headers += f" {header:{size}} {CHAR_TABLE_VERTICAL}"
             return self
 
     def map_text__table_bottom(self):   self.text__table_bottom = f"{CHAR_TABLE_BOTTOM_LEFT}" + CHAR_TABLE_HORIZONTAL * (self.text__width + 2) + f"{CHAR_TABLE_BOTTOM_RIGHT }"
@@ -280,6 +290,27 @@ class Print_Table(Kwargs_To_Self):
         self.map_texts()
         for text in self.text__all:
             print(text)
+
+    def should_show_header(self, header):
+        if self.headers_to_hide:
+            if type(header) is int:
+                header_name = self.headers_by_index[header]
+            else:
+                header_name = str(header)
+            return header_name not in self.headers_to_hide
+        return True
+
+    def remove_columns(self,column_names):
+        if type (column_names) is str:
+            column_names = [column_names]
+        if type(column_names) is list:
+            for column_name in column_names:
+                if column_name in self.headers:
+                    column_index = self.headers.index(column_name)
+                    del self.headers[column_index]
+                    for row in self.rows:
+                        del row[column_index]
+        return self
 
     def reorder_columns(self, new_order: list):
         if set(new_order) != set(self.headers):                                                 # Check if the new_order list has the same headers as the current table

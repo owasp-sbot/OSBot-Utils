@@ -47,10 +47,17 @@ class Call_Stack(Kwargs_To_Self):
         calls = []
         for frame in self.frames:
             method_name = frame.method_name
-            module = frame.module
-            call = f"{module}.{method_name}"
+            module      = frame.module
+            call        = f"{module}.{method_name}"
             calls.append(call)
         return calls
+
+    def calls__source_code(self):
+        calls = []
+        for frame in self.frames:
+            calls.append(frame.caller_line)
+        return calls
+
 
     def capture(self,skip_caller=True):
         current_frame = sys._getframe().f_back
@@ -105,29 +112,37 @@ class Call_Stack(Kwargs_To_Self):
         return frame_data
 
     def print(self):
-        print()
-        print()
-        for line in self.print_lines():
+        for line in self.stack_lines__calls():
             print(line)
 
-    def print_lines(self):
+    def print__source_code(self):
+        for line in self.stack_lines__source_code():
+            print(line)
+
+    def stack_lines(self, items):
         self.cprint.lines      = []
         self.cprint.auto_print = False
-        calls = self.calls()
 
-        if len(calls) == 0:
+        if len(items) == 0:
             return []
 
-        if len(calls) == 1:
-            self.print_with_color('none', f"{CHAR_TABLE_HORIZONTAL} {calls[0]}")
+        if len(items) == 1:
+            self.print_with_color('none', f"{CHAR_TABLE_HORIZONTAL} {items[0]}")
         else:
             color_top, color_middle, color_bottom = self.stack_colors()
-            self.print_with_color(color_top, text=f"{CHAR_TABLE_TOP_LEFT} {calls[0]}")
-            for call in calls[1:-1]:
+            self.print_with_color(color_top, text=f"{CHAR_TABLE_TOP_LEFT} {items[0]}")
+            for call in items[1:-1]:
                 self.print_with_color(color_middle, text=f"{CHAR_TABLE_VERTICAL} {call}")
-            self.print_with_color(color_bottom, text=f"{CHAR_TABLE_BOTTOM_LEFT} {calls[-1]}")
+            self.print_with_color(color_bottom, text=f"{CHAR_TABLE_BOTTOM_LEFT} {items[-1]}")
         return self.cprint.lines
 
+    def stack_lines__calls(self):
+        calls = self.calls()
+        return self.stack_lines(calls)
+
+    def stack_lines__source_code(self):
+        calls_source_code = self.calls__source_code()
+        return self.stack_lines(calls_source_code)
 
     def stack_colors(self):
         color_themes = PRINT_STACK_COLOR_THEMES
@@ -139,16 +154,19 @@ class Call_Stack(Kwargs_To_Self):
     def print_with_color(self, color_name, text):
         self.cprint.__getattribute__(color_name)(text)
 
-    def print_table(self):
+    def print_table(self,headers_to_hide=None):
         all_data = []
         for frame in self.frames:
             all_data.append(frame.data())
 
         with Print_Table() as _:
-            _.print(all_data,self.__print_order__)
+            _.add_data(all_data)
+            _.hide_headers(headers_to_hide)
+            _.print(order=self.__print_order__)
 
 
-
+# static methods
+# todo: refactor these static methods to be in a separate class and Call_Stack into the helpers folder
 
 def call_stack_current_frame(return_caller=True):
     if return_caller:

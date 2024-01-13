@@ -1,5 +1,14 @@
+from pprint import PrettyPrinter
 from unittest import TestCase
+from unittest.mock import call
+
 import requests
+
+from osbot_utils.testing.Patch_Print import Patch_Print
+from osbot_utils.utils.Files import pickle_save_to_file
+
+from osbot_utils.utils.trace.Trace_Call import Trace_Call
+
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.testing.Hook_Method import Hook_Method
@@ -70,9 +79,9 @@ class test_Hook_Method(TestCase):
 
         call_stack = self.wrap_method.calls[0]['call_stack']                            # we need to remove this from the call since assert with __repr__ wasn't working
         del self.wrap_method.calls[0]['call_stack']
-        assert call_stack.print_lines() == [ '\x1b[34m┌ requests.api.head\x1b[0m'              ,
-                                             '\x1b[0m│ test_Hook_Method.an_method\x1b[0m'      ,
-                                             '\x1b[32m└ test_Hook_Method.test_mock_call\x1b[0m']
+        assert call_stack.stack_lines__calls() == [ '\x1b[34m┌ requests.api.head\x1b[0m'              ,
+                                                    '\x1b[0m│ test_Hook_Method.an_method\x1b[0m'      ,
+                                                    '\x1b[32m└ test_Hook_Method.test_mock_call\x1b[0m']
 
         assert self.wrap_method.calls == [{ 'args'        : ('head', 'https://www.google.com'),
                                             'duration'    : 0                                 ,
@@ -118,3 +127,30 @@ class test_Hook_Method(TestCase):
 
     def test_wrap__unwrap___check_original(self):
         assert requests.api.request == self.target
+
+
+    def test__hook_and_check_call_stack(self):
+        # with Trace_Call() as _:
+        #     _.config.all().trace_enabled = False
+        #     _.config.trace_show_internals = True
+        #     def an_method():
+        #         pprint('in trace')
+        #     an_method()
+
+        with Hook_Method(target_module=PrettyPrinter, target_method='_safe_repr') as _:
+            pprint('in hook')
+
+        call_stack = _.calls[0].get('call_stack')
+        with Patch_Print() as _:
+            call_stack.print()
+        assert _.call_args_list() == [call('\x1b[34m┌ pprint.format\x1b[0m'),
+                                      call('\x1b[0m│ pprint._repr\x1b[0m'),
+                                      call('\x1b[0m│ pprint._format\x1b[0m'),
+                                      call('\x1b[0m│ pprint.pprint\x1b[0m'),
+                                      call('\x1b[0m│ pprint.pprint\x1b[0m'),
+                                      call('\x1b[0m│ osbot_utils.utils.Dev.pprint\x1b[0m'),
+                                      call('\x1b[32m└ test_Hook_Method.test__hook_and_check_call_stack\x1b[0m')]
+
+
+
+        #assert _.calls[0].get('return_value') == ("'in hook'", True, False)
