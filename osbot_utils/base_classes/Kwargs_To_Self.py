@@ -166,9 +166,10 @@ class Kwargs_To_Self:
         """Return a dictionary of the current instance's attribute values."""
         kwargs = self.__kwargs__()
 
-        for k, v in vars(self).items():
-            if not isinstance(v, types.FunctionType):
-                kwargs[k] = v
+        if not isinstance(vars(self), types.FunctionType):
+            for k, v in vars(self).items():
+                if not isinstance(v, types.FunctionType):
+                    kwargs[k] = v
         return kwargs
 
     def locked(self, value=True):

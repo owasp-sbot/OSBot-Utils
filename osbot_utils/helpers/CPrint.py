@@ -26,25 +26,57 @@ class Colors:
 
 
 class CPrint(Colors, Kwargs_To_Self):
+    auto_new_line  : bool = True
+    auto_print     : bool
+    clear_on_print : bool = True
+    current_line   : str
+    lines          : list
 
-    def _print_color(self, color_code, *args, **kwargs):
-        color_start   = f"\033[{color_code}m"                   # ANSI color code start and end
-        color_end     = "\033[0m"
-        kwargs['end'] = ''                                       # remove the default print end (which is \n)
-        args          = [str(arg) for arg in args]               # Convert all non-string arguments to strings
-        text          = "".join(args)                            # Concatenate all arguments without a space (to have beter support for multi-prints per line)
-        print(f"{color_start}{text}{color_end}", **kwargs)
-        return self
-
-    def __getattribute__(self, name):
-        if hasattr(Colors, name):
-            def method(*args, **kwargs):
-                color_code = getattr(Colors, name)
-                return self._print_color(color_code, *args, **kwargs)
+    def __getattribute__(self, name):                                                       # this will replace the attributes defined in colors with methods that will call add_to_current_line with the params provided
+        if hasattr(Colors, name):                                                           # if name is one of the colors defined in Colors
+            def method(*args, **kwargs):                                                    # create a method to replace the attribute
+                return self.add_with_color(name, *args, **kwargs)                     # pass the data to add_with_color
             return method
-        return super().__getattribute__(name)
+        return super().__getattribute__(name)                                               # if the attribute name is not one of the attributes defined in colors, restore the normal behaviour of __getattribute__
 
-    def line(self):
-        print()
+    def add_with_color(self, color_name, *args, **kwargs):
+        color_code = getattr(Colors, color_name)                                            # capture the color from the Colors class
+        self.add_to_current_line(color_code, *args, **kwargs)                         # add the color code to the current line
         return self
 
+    def add_to_current_line(self, color_code, *args, **kwargs):
+        color_start      = f"\033[{color_code}m"                                            # ANSI color code start and end
+        color_end        = "\033[0m"
+        kwargs['end']    = ''                                                               # remove the default print end (which is \n)
+        args             = [str(arg) for arg in args]                                       # Convert all non-string arguments to strings
+        text             = "".join(args)                                                    # Concatenate all arguments without a space (to have beter support for multi-prints per line)
+        text_with_colors = f"{color_start}{text}{color_end}"
+        self.current_line += text_with_colors
+        self.apply_config_options()
+        return self
+
+    def apply_config_options(self):
+        if self.auto_new_line:
+            self.flush()
+        if self.auto_print:
+            self.print()
+
+    def flush(self):
+        if self.current_line:
+            self.lines.append(self.current_line)
+        self.current_line = ''
+        return self
+
+    def new_line(self):
+        self.flush()
+        self.lines.append('')
+        self.apply_config_options()
+        return self
+
+    def print(self):
+        self.flush()
+        for line in self.lines:
+            print(line)
+        if self.clear_on_print:
+            self.lines = []
+        return self
