@@ -17,11 +17,11 @@ EXPECTED_PACKAGES = ['_to_remove'                    ,
                      'osbot_utils.decorators.methods',
                      'osbot_utils.fluent'            ,
                      'osbot_utils.helpers'           ,
+                     'osbot_utils.helpers.ast'       ,
+                     'osbot_utils.helpers.ast.nodes' ,
+                     'osbot_utils.helpers.trace'     ,
                      'osbot_utils.testing'           ,
-                     'osbot_utils.utils'             ,
-                     'osbot_utils.utils.ast'         ,
-                     'osbot_utils.utils.ast.nodes'   ,
-                     'osbot_utils.utils.trace'       ]
+                     'osbot_utils.utils'             ]
 
 class test_setup(TestCase):
 

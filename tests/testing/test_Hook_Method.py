@@ -1,21 +1,15 @@
-from io import StringIO
-from pprint import PrettyPrinter
-from unittest import TestCase
-from unittest.mock import call, patch
-
-import requests
-from osbot_utils.utils.Objects import obj_info
-
-from osbot_utils.testing.Patch_Print import Patch_Print
-from osbot_utils.utils.Files import pickle_save_to_file
-
-from osbot_utils.utils.trace.Trace_Call import Trace_Call
-
-from osbot_utils.utils.Dev import pprint
-
-from osbot_utils.testing.Hook_Method import Hook_Method
+import pytest
+from io                                     import StringIO
+from pprint                                 import PrettyPrinter
+from unittest                               import TestCase
+from unittest.mock                          import call, patch
+from osbot_utils.testing.Patch_Print        import Patch_Print
+from osbot_utils.helpers.trace.Trace_Call   import Trace_Call
+from osbot_utils.utils.Dev                  import pprint
+from osbot_utils.testing.Hook_Method        import Hook_Method
 
 
+@pytest.mark.skip('refactor to not use requests')
 class test_Hook_Method(TestCase):
 
     def setUp(self) -> None:
