@@ -9,7 +9,6 @@ class test_Mem_Graph(TestCase):
         self.mem_graph = Mem_Graph()
 
     def test___init__(self):
-        assert self.mem_graph.enabled is False
         assert self.mem_graph.edges   == []
         assert self.mem_graph.nodes   == []
 
@@ -19,7 +18,7 @@ class test_Mem_Graph(TestCase):
             new_node = _.add_node(label=label)
             assert _.nodes               == [new_node]
             assert new_node.label        == label
-            assert new_node.__locals__() == {'data': {} , 'key': '', 'label': label}
+            assert new_node.__locals__() == {'data': {} , 'key': label, 'label': label}
 
     def test_add_edge(self):
         label_1 = random_text()

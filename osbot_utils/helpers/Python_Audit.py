@@ -38,7 +38,7 @@ class Python_Audit(Kwargs_To_Self):
     def print(self):
         with Print_Table() as _:
             _.add_data(self.data())
-            _.set_order(['index', 'event', 'args', 'stack'])
+            _.set_order('index', 'event', 'args', 'stack')
             _.print()
 
     def size(self):

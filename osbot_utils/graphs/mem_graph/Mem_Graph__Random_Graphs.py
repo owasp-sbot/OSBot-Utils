@@ -1,13 +1,17 @@
 from osbot_utils.graphs.mem_graph.Mem_Graph import Mem_Graph
+from osbot_utils.graphs.mem_graph.Mem_Graph__Config import Mem_Graph__Config
 from osbot_utils.utils.Misc import random_int
 
 
 class Mem_Graph__Random_Graphs:
 
-    def new_graph(self):
-        return Mem_Graph()
+    def __init__(self):
+        self.config = Mem_Graph__Config()
 
-    def with_x_nodes_and_y_edges(self, x, y):
+    def new_graph(self):
+        return Mem_Graph(config=self.config)
+
+    def with_x_nodes_and_y_edges(self, x=10, y=20):
         mem_graph = self.new_graph()
         if x >0  and y > 0 :
             for i in range(x):

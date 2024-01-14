@@ -7,3 +7,6 @@ class Mem_Graph__Edge(Kwargs_To_Self):
     from_node : Mem_Graph__Node
     label     : str
     to_node   : Mem_Graph__Node
+
+    def __str__(self):
+        return f'[Graph Edge] from "{self.from_node.key}" to "{self.from_node.key}" '

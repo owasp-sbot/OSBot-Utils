@@ -342,7 +342,7 @@ class Print_Table(Kwargs_To_Self):
         self.headers = headers
         return self
 
-    def set_order(self, new_order):
+    def set_order(self, *new_order):
         return self.reorder_columns(new_order)
 
     def set_title(self, title):
