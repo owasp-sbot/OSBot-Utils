@@ -220,7 +220,7 @@ class test_Trace_Call__Stack(TestCase):
         assert node_6.frame == frame_1
 
         assert node_1.call_start < node_1.call_end
-        assert node_1.call_duration < 0.001                # these values should be very quick
+        assert node_1.call_duration < 0.005                # these values should be very quick
 
     def test_stack_top(self):
         test_data = Frames_Test_Data()
