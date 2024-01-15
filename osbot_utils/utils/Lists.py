@@ -6,72 +6,53 @@ from osbot_utils.utils.Str     import trim
 
 # refacored methods from List class
 
+def list_chunks(items:list, split: int):
+    if items and split and split > 0:
+        for i in range(0, len(items), split):
+            yield items[i:i + split]
+
+def list_dict_insert_field(target_list, new_key, insert_at, new_value=None):
+    new_list = []
+    for target_dict in target_list:
+        kvwargs = dict(target_dict = target_dict,
+                       new_key     = new_key    ,
+                       insert_at   = insert_at  ,
+                       new_value   = new_value  )
+        new_dict = dict_insert_field(**kvwargs)
+        new_list.append(new_dict)
+    return new_list
+
 def list_delete(target, item):
     if item in target:
         target.remove(item)
     return target
 
+def list_empty(list):
+    return not list_not_empty(list)
+
+def list_first(list, strip=False):
+    if list_not_empty(list):
+        value = list[0]
+        if strip:
+            value = value.strip()
+        return value
+
 def list_lower(input_list):
     return [item.lower() for item in input_list]
 
-def tuple_to_list(target:tuple):
-    if type(target) is tuple:
-        return list(target)
+def list_not_empty(list):
+    if list and type(list).__name__ == 'list' and len(list) >0:
+        return True
+    return False
 
+def list_to_tuple(target: list):
+    if type(target) is list:
+        return tuple(target)
 
-#todo refactor out this class since it is not adding much value
-class Lists:
-
-    @staticmethod
-    def first(list, strip=False):
-        if Lists.not_empty(list):
-            value = list[0]
-            if strip:
-                value = value.strip()
-            return value
-
-    @staticmethod
-    def not_empty(list):
-        if list and type(list).__name__ == 'list' and len(list) >0:
-            return True
-        return False
-
-    @staticmethod
-    def empty(list):
-        return not Lists.not_empty(list)
-
-    @staticmethod
-    def tuple_replace_position(target:tuple, position,value):
-        tuple_as_list = tuple_to_list(target)
-        if len(tuple_as_list) > position:
-            tuple_as_list[position] = value
-        list_as_tuple = list_to_tuple(tuple_as_list)
-        return list_as_tuple
-
-    @staticmethod
-    def list_to_tuple(target: list):
-        if type(target) is list:
-            return tuple(target)
-
-    @staticmethod
-    def list_dict_insert_field(target_list, new_key, insert_at, new_value=None):
-        new_list = []
-        for target_dict in target_list:
-            kvwargs = dict(target_dict = target_dict,
-                           new_key     = new_key    ,
-                           insert_at   = insert_at  ,
-                           new_value   = new_value  )
-            new_dict = dict_insert_field(**kvwargs)
-            new_list.append(new_dict)
-        return new_list
-
-def chunks(items:list, split: int):
-    if items and split and split > 0:
-        for i in range(0, len(items), split):
-            yield items[i:i + split]
 
 def len_list(target):
     return len(list(target))
+
 
 def list_add(array : list, value):
     if value is not None:
@@ -197,8 +178,20 @@ def list_filter_contains(target_list, value):
 def env_vars_list():
     return list_set(env_vars())
 
+def tuple_to_list(target:tuple):
+    if type(target) is tuple:
+        return list(target)
+
+def tuple_replace_position(target:tuple, position,value):
+    tuple_as_list = tuple_to_list(target)
+    if len(tuple_as_list) > position:
+        tuple_as_list[position] = value
+    list_as_tuple = list_to_tuple(tuple_as_list)
+    return list_as_tuple
+
 def unique(target):
     return list_set(target)
+
 
 def sys_path_python(python_folder='lib/python'):
     return list_contains(sys.path, python_folder)
@@ -211,13 +204,7 @@ array_pop_and_trim     = list_pop_and_trim
 array_add              = list_add
 
 list_contains          = list_filter_contains
-list_chunks            = chunks
-list_dict_insert_field = Lists.list_dict_insert_field       # todo: see if I can move this ot the objects class
 list_del               = list_delete
-list_empty             = Lists.empty
-list_first             = Lists.first
-list_not_empty         = Lists.not_empty
 list_sort_by           = list_sorted
-list_to_tuple          = Lists.list_to_tuple
 
-tuple_replace_position = Lists.tuple_replace_position
+chunks                 = list_chunks
