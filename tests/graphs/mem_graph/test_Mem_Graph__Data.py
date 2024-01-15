@@ -11,7 +11,9 @@ from osbot_utils.graphs.mem_graph.Mem_Graph__Random_Graphs import Mem_Graph__Ran
 class test_Mem_Graph__Data(TestCase):
 
     def setUp(self):
-        self.graph      = Mem_Graph__Random_Graphs().with_x_nodes_and_y_edges(x=4,y=20)
+        self.x          = 5
+        self.y          = 10
+        self.graph      = Mem_Graph__Random_Graphs().with_x_nodes_and_y_edges(x=self.x, y=self.y)
         self.graph_data = self.graph.data()
 
     def test___init__(self):
@@ -23,7 +25,7 @@ class test_Mem_Graph__Data(TestCase):
     def test_nodes__edges(self):
         with self.graph_data as _:                                          # Use graph_data in a context manager
             nodes_edges = _.nodes_edges()                                   # Retrieve nodes and their edges
-            assert list_set(nodes_edges) == _.nodes_keys()                  # Assert equality of nodes_edges and nodes_keys
+            assert list_set(nodes_edges) == _.nodes__keys()                  # Assert equality of nodes_edges and nodes_keys
 
             expected_data = defaultdict(list)                               # Defaultdict for storing expected data
             for edge in _.edges():                                          # Iterate over all edges in the graph
@@ -37,9 +39,28 @@ class test_Mem_Graph__Data(TestCase):
             for node_key, nodes_edges_keys in nodes_edges.items():          # Iterate over remaining items in nodes_edges
                 assert nodes_edges_keys == []                               # Assert that no edges are left untested
 
+    # todo: finish implementing method
+    def test_nodes__find_all_paths(self):
+        with self.graph_data as _:
+            _.print()
+            all_paths = _.nodes__find_all_paths()
+            # for path in all_paths:
+            #     print(path)
+            #     print()
+
+    def test_edges(self):
+        print()
+        with self.graph_data as _:
+            for edge in _.edges():
+                print(f'{edge.from_node.key} -> {edge.to_node.key}')
+
     def test_print(self):
-        #pprint(self.graph_data.nodes_edges())
-        self.graph_data.print()
+        with self.graph_data as _:
+            #pprint(_.nodes_edges())
+            _.print()
+
+    def test_print_adjacency_matrix(self):
+        self.graph_data.print_adjacency_matrix()
 
     def test_node_edges__to_from(self):
         self.graph_data.print_adjacency_matrix()

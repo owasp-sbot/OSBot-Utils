@@ -88,11 +88,12 @@ def get_field(target, field, default=None):
             pass
     return default
 
-def get_missing_fields(target,field):
+def get_missing_fields(target,fields):
     missing_fields = []
-    for field in field:
-        if get_field(target, field) is None:
-            missing_fields.append(field)
+    if fields:
+        for field in fields:
+            if get_field(target, field) is None:
+                missing_fields.append(field)
     return missing_fields
 
 def get_value(target, key, default=None):
@@ -110,15 +111,16 @@ def print_obj_data_aligned(obj_data):
 
 def print_obj_data_as_dict(target, **kwargs):
     data           = obj_data(target, **kwargs)
-    indented_items = obj_data_aligned(data)
+    indented_items = obj_data_aligned(data, tab_size=5)
     print("dict(" + indented_items + " )")
     return data
 
-def obj_data_aligned(obj_data):
+def obj_data_aligned(obj_data, tab_size=0):
     max_key_length = max(len(k) for k in obj_data.keys())                                 # Find the maximum key length
     items          = [f"{k:<{max_key_length}} = {v!r:6}," for k, v in obj_data.items()]   # Format each key-value pair
-    items[-1]      = items[-1][:-2]                                                   # Remove comma from the last item
-    indented_items = '\n     '.join(items)                                            # Join the items with newline and
+    items[-1]      = items[-1][:-2]                                                       # Remove comma from the last item
+    tab_string = f"\n{' ' * tab_size }"                                                   # apply tabbing (if needed)
+    indented_items = tab_string.join(items)                                               # Join the items with newline and
     return indented_items
 
 # todo: add option to not show class methods that are not bultin types
@@ -129,6 +131,7 @@ def print_object_members(target, name_width=30, value_width=100, show_private=Fa
     print(f"Settings:\n\t name_width: {name_width} | value_width: {value_width} | show_private: {show_private} | show_internals: {show_internals}")
     print()
     if only_show_methods:
+        show_methods = True                                             # need to make sure this setting is True, or there will be no methods to show
         print(f"{'method':<{name_width}} (params)")
     else:
         if show_value_class:
@@ -168,6 +171,8 @@ def obj_base_classes_names(obj, show_module=False):
 
 def obj_data(target, name_width=30, value_width=100, show_private=False, show_internals=False, show_value_class=False, show_methods=False, only_show_methods=False):
     result = {}
+    if show_internals:
+        show_private = True                                     # show_private will skip all internals, so need to make sure it is True
     for name, value in inspect.getmembers(target):
         if show_methods is False and type(value) is types.MethodType:
             continue
@@ -214,6 +219,16 @@ def obj_get_value(target=None, key=None, default=None):
 
 def obj_values(target=None):
     return list(obj_dict(target).values())
+
+def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
+    if hasattr(target, '__annotations__'):
+        obj_annotations = target.__annotations__
+        attr_type        = obj_annotations.get(attr_name)
+        if attr_type:
+            return type(value) is attr_type
+        #return obj_annotations
+    return None
+
 
 
 # helper duplicate methods

@@ -1,12 +1,12 @@
+from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+
 from osbot_utils.graphs.mem_graph.Mem_Graph import Mem_Graph
 from osbot_utils.graphs.mem_graph.Mem_Graph__Config import Mem_Graph__Config
 from osbot_utils.utils.Misc import random_int
 
 
-class Mem_Graph__Random_Graphs:
-
-    def __init__(self):
-        self.config = Mem_Graph__Config()
+class Mem_Graph__Random_Graphs(Kwargs_To_Self):
+    config : Mem_Graph__Config
 
     def new_graph(self):
         return Mem_Graph(config=self.config)

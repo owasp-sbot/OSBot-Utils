@@ -15,13 +15,13 @@ class Mem_Graph__Data(Kwargs_To_Self):
     def nodes(self):
         return self.mem_graph.nodes
 
-    def nodes_by__key(self):
+    def nodes__by_key(self):
         by_key = {}
         for node in self.nodes():
             by_key[node.key] = node
         return by_key
 
-    def nodes_keys(self):
+    def nodes__keys(self):
         return [node.key for node in self.nodes()]
 
     def nodes_edges(self):
@@ -34,8 +34,41 @@ class Mem_Graph__Data(Kwargs_To_Self):
             nodes__edges[node_key] = sorted(edges_keys)
         return nodes__edges
 
+    def map_paths(self, key, paths, all_paths, nodes_edges):
+        key_edges = nodes_edges[key]
+        new_paths = []
+
+        for edge_key in key_edges:
+            for path in paths:
+                if edge_key in path:
+                    if path not in all_paths:
+                        all_paths.append(path)
+                else:
+                    new_path = [*path, edge_key]
+                    new_paths.append(new_path)
+                    self.map_paths(edge_key, new_paths, all_paths, nodes_edges)
+                    if new_path not in all_paths:
+                        all_paths.append(new_path)
+        # if new_paths:
+        #     return new_paths
+
+            # for edge_key in key_edges:
+            #     self.map_paths(edge_key, paths, nodes_edges)
+        return paths
+
+    def nodes__find_all_paths(self):
+
+        key         = self.nodes__keys()[0]
+        nodes_edges = self.nodes_edges()
+        #for key in self.nodes__keys():
+        all_paths = []
+        paths = [[key]]
+        self.map_paths(key, paths,all_paths,  nodes_edges)
+        pprint(all_paths)
+
     def print(self):
         with Print_Table() as _:
+            _.set_title(self.mem_graph.config.graph_title)
             for node_key, edges_keys in self.nodes_edges().items():
                 row = {'key': node_key,  'edges': edges_keys}
                 _.add_data(row)
@@ -44,7 +77,7 @@ class Mem_Graph__Data(Kwargs_To_Self):
 
     def print_adjacency_matrix(self):
         adjacency_matrix = self.nodes_edges__adjacency_matrix()
-        node_keys        = sorted(self.nodes_keys())
+        node_keys        = sorted(self.nodes__keys())
         with Print_Table() as _:
             for row in adjacency_matrix:
                 _.add_data(row)

@@ -16,5 +16,8 @@ class Mem_Graph__Node(Kwargs_To_Self):
         if not self.key:
             self.key = self.label
 
+    def __repr__(self):
+        return self.__str__()
+
     def __str__(self):
-        return f'[Graph Node] key={self.key} | label={self.label}'
+        return f'[Graph Node] {self.key}'

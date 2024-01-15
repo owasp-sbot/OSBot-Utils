@@ -4,3 +4,4 @@ class Mem_Graph__Config(Kwargs_To_Self):
 
     allow_circle_edges    : bool
     allow_duplicate_edges : bool
+    graph_title           : str

@@ -6,15 +6,19 @@ from osbot_utils.graphs.mem_graph.Mem_Graph import Mem_Graph
 class test_Mem_Graph(TestCase):
 
     def setUp(self):
-        self.mem_graph = Mem_Graph()
+        self.mgraph = Mem_Graph()
 
     def test___init__(self):
-        assert self.mem_graph.edges   == []
-        assert self.mem_graph.nodes   == []
+        expected_args = ['config', 'edges', 'key', 'nodes']
+        with self.mgraph as _:
+            assert _.__attr_names__() == expected_args
+            assert _.edges            == []
+            assert _.nodes            == []
+            assert _.key.startswith('mgraph_')
 
     def test_add_node(self):
         label = random_text()
-        with self.mem_graph as _:
+        with self.mgraph as _:
             new_node = _.add_node(label=label)
             assert _.nodes               == [new_node]
             assert new_node.label        == label
@@ -23,7 +27,7 @@ class test_Mem_Graph(TestCase):
     def test_add_edge(self):
         label_1 = random_text()
         label_2 = random_text()
-        with self.mem_graph as _:
+        with self.mgraph as _:
             from_node  = _.add_node(label=label_1)
             to_node    = _.add_node(label=label_2)
             new_edge   = _.add_edge(from_node=from_node, to_node=to_node)

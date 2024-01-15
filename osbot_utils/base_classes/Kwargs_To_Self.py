@@ -3,10 +3,13 @@
 #       the data is avaiable in IDE's code complete
 import inspect
 import types
+from enum import Enum, EnumMeta
+
+from osbot_utils.utils.Misc import list_set
 
 from osbot_utils.utils.Objects import default_value
 
-immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType)
+immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
 
 #todo: see if we can also add type safety to method execution
@@ -85,7 +88,8 @@ class Kwargs_To_Self:
 
         for (key, value) in kwargs.items():                             # overwrite with values provided in ctor
             if hasattr(self, key):
-                setattr(self, key, value)
+                if value is not None:                                   # prevent None values from overwriting existing values, which is quite common in default constructors
+                    setattr(self, key, value)
             else:
                 raise Exception(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
                                 f"Use {self.__class__.__name__}.__default_kwargs__() see what attributes are available")
@@ -98,6 +102,9 @@ class Kwargs_To_Self:
             if not hasattr(self, name):
                 raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
         super().__setattr__(name, value)
+
+    def __attr_names__(self):
+        return list_set(self.__locals__())
 
     @classmethod
     def __cls_kwargs__(cls):
@@ -137,8 +144,9 @@ class Kwargs_To_Self:
                     kwargs[var_name] = var_value
                 else:
                     if var_type not in immutable_types and var_name.startswith('__') is False:
-                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
-                        raise Exception(exception_message)
+                        if type(var_type) not in immutable_types:
+                            exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
+                            raise Exception(exception_message)
                     var_value = getattr(cls, var_name)
                     if not isinstance(var_value, var_type):
                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
