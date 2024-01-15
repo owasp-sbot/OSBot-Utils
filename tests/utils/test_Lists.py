@@ -15,47 +15,6 @@ class test_Lists(TestCase):
         self.assertIsNone (list_add(array, None)              )
         self.assertEqual  (array                      ,['aaa','abc'])
 
-    def test_list_find(self):
-        array = ['1',2,'3']
-        self.assertEqual  (list_find(array, '1' ),  0)
-        self.assertEqual  (list_find(array,  2  ),  1)
-        self.assertEqual  (list_find(array, '3' ),  2)
-        self.assertEqual  (list_find(array, 'a' ), -1)
-        self.assertEqual  (list_find(array, None), -1)
-        self.assertRaises (Exception, list_find, None, None)
-        self.assertRaises (Exception, list_find, 'a', None)
-
-    def test_list_get(self):
-        array = ['1',2,'3']
-        assert list_get(array,  0  ) == '1'
-        assert list_get(array,  1  ) ==  2
-        assert list_get(array,  2  ) == '3'
-        assert list_get(array, -1  ) is None
-        assert list_get(array,  3  ) is None
-        assert list_get(array, None) is None
-        assert list_get(None , None) is None
-
-    def test_list_pop(self):
-        array = ['1',2,'3']
-        assert list_pop(array) == '3'
-        assert list_pop(array) ==  2
-        assert list_pop(array) == '1'
-        assert list_pop(array) is None
-        assert list_pop(None)  is None
-        array = ['1', 2, '3']
-        assert list_pop(array, 1) ==  2
-        assert list_pop(array, 1) == '3'
-        assert list_pop(array, 1) is None
-        assert list_pop(array, 0) == '1'
-        assert list_pop(array, 0) is None
-
-    def test_list_pop_and_trim(self):
-        array = [' 1 ',2,'3']
-        assert list_pop_and_trim(array,  1  ) ==  2
-        assert list_pop_and_trim(array,   1 ) == '3'
-        assert list_pop_and_trim(array,   0 ) == '1'
-        assert list_pop_and_trim(array, None) is None
-
     def test_list_chunks(self):
         array = ['1',2,'3',4 ,'5']
         assert list(list_chunks(array,  0     )) == []
@@ -81,10 +40,32 @@ class test_Lists(TestCase):
         assert list_empty([]   ) is True
         assert list_empty(['a']) is False
 
+    def test_list_find(self):
+        array = ['1',2,'3']
+        self.assertEqual  (list_find(array, '1' ),  0)
+        self.assertEqual  (list_find(array,  2  ),  1)
+        self.assertEqual  (list_find(array, '3' ),  2)
+        self.assertEqual  (list_find(array, 'a' ), -1)
+        self.assertEqual  (list_find(array, None), -1)
+        self.assertRaises (Exception, list_find, None, None)
+        self.assertRaises (Exception, list_find, 'a', None)
+
     def test_list_first(self):
         assert list_first(['a ','b']             ) is 'a '
         assert list_first(['a', 'b'], strip=True) is 'a'
         assert list_first([]) is None
+
+
+
+    def test_list_get(self):
+        array = ['1',2,'3']
+        assert list_get(array,  0  ) == '1'
+        assert list_get(array,  1  ) ==  2
+        assert list_get(array,  2  ) == '3'
+        assert list_get(array, -1  ) is None
+        assert list_get(array,  3  ) is None
+        assert list_get(array, None) is None
+        assert list_get(None , None) is None
 
     def test_list_lower(self):
         assert list_lower(['A','B']) == ['a','b']
@@ -92,6 +73,28 @@ class test_Lists(TestCase):
     def test_list_not_empty(self):
         assert list_not_empty([]   ) is False
         assert list_not_empty(['a']) is True
+
+    def test_list_pop(self):
+        array = ['1',2,'3']
+        assert list_pop(array) == '3'
+        assert list_pop(array) ==  2
+        assert list_pop(array) == '1'
+        assert list_pop(array) is None
+        assert list_pop(None)  is None
+        array = ['1', 2, '3']
+        assert list_pop(array, 1) ==  2
+        assert list_pop(array, 1) == '3'
+        assert list_pop(array, 1) is None
+        assert list_pop(array, 0) == '1'
+        assert list_pop(array, 0) is None
+
+    def test_list_pop_and_trim(self):
+        array = [' 1 ',2,'3']
+        assert list_pop_and_trim(array,  1  ) ==  2
+        assert list_pop_and_trim(array,   1 ) == '3'
+        assert list_pop_and_trim(array,   0 ) == '1'
+        assert list_pop_and_trim(array, None) is None
+
 
     def test_tuple_to_list(self):
         assert tuple_to_list(('a','b')) == ['a','b']

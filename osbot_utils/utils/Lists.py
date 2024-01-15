@@ -6,10 +6,32 @@ from osbot_utils.utils.Str     import trim
 
 # refacored methods from List class
 
+def env_vars_list():
+    return list_set(env_vars())
+
+def list_add(array : list, value):
+    if value is not None:
+        array.append(value)
+    return value
+
 def list_chunks(items:list, split: int):
     if items and split and split > 0:
         for i in range(0, len(items), split):
             yield items[i:i + split]
+
+def list_contains_list(array : list, values):
+    if array is not None:
+        if type(values) is list:
+            for item in values:
+                if (item in array) is False:
+                    return False
+            return True
+    return False
+
+def list_delete(target, item):
+    if item in target:
+        target.remove(item)
+    return target
 
 def list_dict_insert_field(target_list, new_key, insert_at, new_value=None):
     new_list = []
@@ -22,13 +44,22 @@ def list_dict_insert_field(target_list, new_key, insert_at, new_value=None):
         new_list.append(new_dict)
     return new_list
 
-def list_delete(target, item):
-    if item in target:
-        target.remove(item)
-    return target
-
 def list_empty(list):
     return not list_not_empty(list)
+
+def list_filter(target_list, filter_function):
+    return list(filter(filter_function, target_list))
+
+def list_filter_starts_with(target_list, prefix):
+    return list_filter(target_list, lambda x: x.startswith(prefix))
+
+def list_filter_contains(target_list, value):
+    return list_filter(target_list, lambda x: x.find(value) > -1)
+
+def list_find(array:list, item):
+    if item in array:
+        return array.index(item)
+    return -1
 
 def list_first(list, strip=False):
     if list_not_empty(list):
@@ -37,58 +68,15 @@ def list_first(list, strip=False):
             value = value.strip()
         return value
 
-def list_lower(input_list):
-    return [item.lower() for item in input_list]
-
-def list_not_empty(list):
-    if list and type(list).__name__ == 'list' and len(list) >0:
-        return True
-    return False
-
-def list_to_tuple(target: list):
-    if type(target) is list:
-        return tuple(target)
-
-
-def len_list(target):
-    return len(list(target))
-
-
-def list_add(array : list, value):
-    if value is not None:
-        array.append(value)
-    return value
-
-def list_contains_list(array : list, values):
-    if array is not None:
-        if type(values) is list:
-            for item in values:
-                if (item in array) is False:
-                    return False
-            return True
-    return False
-
-def list_remove_list(source: list, target: list):
-    if type(source) is list and type(target) is list:
-        for item in target:
-            if item in source:
-                source.remove(item)
-
-def list_find(array:list, item):
-    if item in array:
-        return array.index(item)
-    return -1
+def list_get(array, position=None, default=None):
+    if type(array) is list:
+        if type(position) is int and position >=0 :
+            if  len(array) > position:
+                return array[position]
+    return default
 
 def list_get_field(values, field):
     return [item.get(field) for item in values]
-
-def list_index_by(values, index_by):
-    from osbot_utils.fluent.Fluent_Dict import Fluent_Dict
-    results = {}
-    if values and index_by:
-        for item in values:
-            results[item.get(index_by)] = item
-    return Fluent_Dict(results)
 
 def list_group_by(values, group_by):
     results = {}
@@ -98,26 +86,27 @@ def list_group_by(values, group_by):
         results[value].append(item)
     return results
 
-def list_get(array, position=None, default=None):
-    if type(array) is list:
-        if type(position) is int and position >=0 :
-            if  len(array) > position:
-                return array[position]
-    return default
+def list_index_by(values, index_by):
+    from osbot_utils.fluent.Fluent_Dict import Fluent_Dict
+    results = {}
+    if values and index_by:
+        for item in values:
+            results[item.get(index_by)] = item
+    return Fluent_Dict(results)
 
-def list_order_by(urls: List[dict], key: str, reverse: bool=False) -> List[dict]:
-    """
-    Sorts a list of dictionaries containing URLs by a specified key.
+def len_list(target):
+    return len(list(target))
 
-    Args:
-        urls (List[dict]): A list of dictionaries containing URLs.
-        key (str): The key to sort the URLs by.
-        reverse (bool): Whether to sort the URLs in reverse order.
+def list_lower(input_list):
+    return [item.lower() for item in input_list]
 
-    Returns:
-        List[dict]: The sorted list of URLs.
-    """
-    return sorted(urls, key=lambda x: x[key], reverse=reverse)
+def list_not_empty(list):
+    if list and type(list).__name__ == 'list' and len(list) >0:
+        return True
+    return False
+
+def list_order_by(target: List[dict], key: str, reverse: bool=False) -> List[dict]:
+    return sorted(target, key=lambda x: x[key], reverse=reverse)
 
 def list_pop(array:list, position=None, default=None):
     if array:
@@ -135,17 +124,6 @@ def list_pop_and_trim(array, position=None):
         return trim(value)
     return value
 
-def list_set_dict(target):
-    return sorted(list(set(obj_dict(target))))
-
-def list_stats(target):
-    stats = {}
-    for item in target:
-        if stats.get(item) is None:
-            stats[item] = 0
-        stats[item] += 1
-    return stats
-
 def list_remove(array, item):
     if type(item) is list:
         result = []
@@ -156,27 +134,38 @@ def list_remove(array, item):
 
     return [element for element in array if element != item]
 
+def list_remove_list(source: list, target: list):
+    if type(source) is list and type(target) is list:
+        for item in target:
+            if item in source:
+                source.remove(item)
 
 def list_remove_empty(array):
     return [element for element in array if element]
 
-def list_zip(*args):
-    return list(zip(*args))
-
-def list_filter(target_list, filter_function):
-    return list(filter(filter_function, target_list))
+def list_set_dict(target):
+    return sorted(list(set(obj_dict(target))))
 
 def list_sorted(target_list, key, descending=False):
     return list(sorted(target_list, key= lambda x:x.get(key,None) ,reverse=descending))
 
-def list_filter_starts_with(target_list, prefix):
-    return list_filter(target_list, lambda x: x.startswith(prefix))
+def list_stats(target):
+    stats = {}
+    for item in target:
+        if stats.get(item) is None:
+            stats[item] = 0
+        stats[item] += 1
+    return stats
 
-def list_filter_contains(target_list, value):
-    return list_filter(target_list, lambda x: x.find(value) > -1)
+def list_to_tuple(target: list):
+    if type(target) is list:
+        return tuple(target)
 
-def env_vars_list():
-    return list_set(env_vars())
+def list_zip(*args):
+    return list(zip(*args))
+
+def sys_path_python(python_folder='lib/python'):
+    return list_contains(sys.path, python_folder)
 
 def tuple_to_list(target:tuple):
     if type(target) is tuple:
@@ -191,11 +180,6 @@ def tuple_replace_position(target:tuple, position,value):
 
 def unique(target):
     return list_set(target)
-
-
-def sys_path_python(python_folder='lib/python'):
-    return list_contains(sys.path, python_folder)
-
 
 array_find             = list_find
 array_get              = list_get
