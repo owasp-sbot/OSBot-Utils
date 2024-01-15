@@ -4,20 +4,23 @@ from typing import List
 from osbot_utils.utils.Objects import dict_insert_field, env_vars, list_set, obj_dict
 from osbot_utils.utils.Str     import trim
 
+# refacored methods from List class
 
-#to do refactor out this class since it is not adding much value
+def list_delete(target, item):
+    if item in target:
+        target.remove(item)
+    return target
+
+def list_lower(input_list):
+    return [item.lower() for item in input_list]
+
+def tuple_to_list(target:tuple):
+    if type(target) is tuple:
+        return list(target)
+
+
+#todo refactor out this class since it is not adding much value
 class Lists:
-
-    @staticmethod
-    def chunks(list, split_by):
-        n = max(1, split_by)
-        return (list[i:i + n] for i in range(0, len(list), n))
-
-    @staticmethod
-    def delete(list, item):
-        if item in list:
-            list.remove(item)
-        return list
 
     @staticmethod
     def first(list, strip=False):
@@ -36,15 +39,6 @@ class Lists:
     @staticmethod
     def empty(list):
         return not Lists.not_empty(list)
-
-    @staticmethod
-    def lower(input_list):
-        return [item.lower() for item in input_list]
-
-    @staticmethod
-    def tuple_to_list(target:tuple):
-            if type(target) is tuple:
-                return list(target)
 
     @staticmethod
     def tuple_replace_position(target:tuple, position,value):
@@ -217,15 +211,13 @@ array_pop_and_trim     = list_pop_and_trim
 array_add              = list_add
 
 list_contains          = list_filter_contains
-list_chunks            = Lists.chunks
+list_chunks            = chunks
 list_dict_insert_field = Lists.list_dict_insert_field       # todo: see if I can move this ot the objects class
-list_del               = Lists.delete
+list_del               = list_delete
 list_empty             = Lists.empty
 list_first             = Lists.first
-list_lower             = Lists.lower
 list_not_empty         = Lists.not_empty
 list_sort_by           = list_sorted
 list_to_tuple          = Lists.list_to_tuple
 
-tuple_to_list          = Lists.tuple_to_list
 tuple_replace_position = Lists.tuple_replace_position
