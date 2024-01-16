@@ -4,7 +4,6 @@ import ssl
 from time import sleep
 from   urllib.request import Request, urlopen
 
-from osbot_aws.helpers.Lambda_Helpers import log_error
 from osbot_utils.utils.Files import save_bytes_as_file, file_size, file_bytes, file_open_bytes, file_create
 from osbot_utils.utils.Python_Logger import Python_Logger
 
@@ -23,7 +22,7 @@ def current_host_online(url_to_use=URL_CHECK_HOST_ONLINE):
 def dns_ip_address(host):
     return socket.gethostbyname(host)
 
-def is_port_open(host, port, timeout=0.5, log_error=True):
+def is_port_open(host, port, timeout=0.5):
     return port_is_open(host=host, port=port, timeout=timeout)
 
 def port_is_open(port : int , host='0.0.0.0', timeout=1.0):
@@ -81,14 +80,14 @@ def wait_for_ssh(host, max_attempts=120, wait_for=0.5):
 
 def wait_for_port(host, port, max_attempts=20, wait_for=0.1):
     for i in range(max_attempts):
-        if is_port_open(host=host,port=port,timeout=wait_for, log_error=False):
+        if is_port_open(host=host,port=port,timeout=wait_for):
             return True
         sleep(wait_for)
     return False
 
 def wait_for_port_closed(host, port, max_attempts=20, wait_for=0.1):
     for i in range(max_attempts):
-        if is_port_open(host=host,port=port,timeout=wait_for, log_error=False) is False:
+        if is_port_open(host=host,port=port,timeout=wait_for) is False:
             return True
         sleep(wait_for)
     return False

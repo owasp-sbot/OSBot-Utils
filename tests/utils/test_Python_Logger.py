@@ -169,12 +169,21 @@ class test_Python_Logger(TestCase):
         assert log_record.message == 'an info message'
 
     def test_memory_handler_messages(self):
-        import requests
-        urllib3_logger = Python_Logger(logger_name='urllib3').setup()           # get urllib3 logger
-        urllib3_logger.add_memory_logger()                                      # add a memory logger
-        requests.get('https://www.google.com/aaa')                              # make a request to Google which uses urllib3
-        assert urllib3_logger.memory_handler_messages() == ['Starting new HTTPS connection (1): www.google.com:443',
-                                                            'https://www.google.com:443 "GET /aaa HTTP/1.1" 404 1564']
+        test_message = 'an debug message'
+        from http import cookiejar
+        http_cookiejar_logger = Python_Logger(logger_name='http.cookiejar').setup()
+        http_cookiejar_logger.add_memory_logger()
+        cookiejar.debug = True
+        cookiejar._debug(test_message)
+        assert http_cookiejar_logger.memory_handler_messages() == [test_message]
+
+        # test below is a good example of grabing the logger from urllib3, but it takes took long (since it makes a full http request and requests requests api)
+        # import requests
+        # urllib3_logger = Python_Logger(logger_name='urllib3').setup()           # get urllib3 logger
+        # urllib3_logger.add_memory_logger()                                      # add a memory logger
+        # requests.get('https://www.google.com/aaa')                              # make a request to Google which uses urllib3
+        # assert urllib3_logger.memory_handler_messages() == ['Starting new HTTPS connection (1): www.google.com:443',
+        #                                                     'https://www.google.com:443 "GET /aaa HTTP/1.1" 404 1564']
 
     def test_debug__info__warning__error__critical(self):
         self.logger.add_memory_logger()
