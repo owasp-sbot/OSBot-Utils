@@ -1,13 +1,9 @@
 import sys
 from typing import List
 
-from osbot_utils.utils.Objects import dict_insert_field, env_vars, list_set, obj_dict
+from osbot_utils.utils.Misc import list_set
+
 from osbot_utils.utils.Str     import trim
-
-# refacored methods from List class
-
-def env_vars_list():
-    return list_set(env_vars())
 
 def list_add(array : list, value):
     if value is not None:
@@ -32,17 +28,6 @@ def list_delete(target, item):
     if item in target:
         target.remove(item)
     return target
-
-def list_dict_insert_field(target_list, new_key, insert_at, new_value=None):
-    new_list = []
-    for target_dict in target_list:
-        kvwargs = dict(target_dict = target_dict,
-                       new_key     = new_key    ,
-                       insert_at   = insert_at  ,
-                       new_value   = new_value  )
-        new_dict = dict_insert_field(**kvwargs)
-        new_list.append(new_dict)
-    return new_list
 
 def list_empty(list):
     return not list_not_empty(list)
@@ -144,7 +129,7 @@ def list_remove_empty(array):
     return [element for element in array if element]
 
 def list_set_dict(target):
-    return sorted(list(set(obj_dict(target))))
+    return sorted(list(set(target.__dict__)))
 
 def list_sorted(target_list, key, descending=False):
     return list(sorted(target_list, key= lambda x:x.get(key,None) ,reverse=descending))

@@ -1,7 +1,10 @@
+import sys
 from http import server
 from http.server import SimpleHTTPRequestHandler
 from unittest import TestCase
+from unittest.mock import call
 
+from osbot_utils.testing.Patch_Print import Patch_Print
 from osbot_utils.testing.Temp_File import Temp_File
 from osbot_utils.testing.Temp_Web_Server import Temp_Web_Server
 from osbot_utils.utils.Files import file_contents, file_contains, file_name, file_exists, parent_folder, folder_exists, \
@@ -93,12 +96,14 @@ class test_Temp_Web_Server(TestCase):
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-
-                # Here's where all the complicated logic is done to generate HTML.
-                # For clarity here, replace with a simple stand-in:
                 html = "<html><p>hello world</p></html>"
 
                 self.wfile.write(html.encode())
 
+            def log_message(self, msg_format, *args):
+                print("%s - - %s\n" % (self.address_string(), msg_format % args))
+
         with Temp_Web_Server(http_handler=MyHandler) as web_server:
-            pprint(web_server.GET())
+            with Patch_Print() as _:
+                assert web_server.GET()   == '<html><p>hello world</p></html>'
+                assert _.call_args_list() == [call('127.0.0.1 - - "GET / HTTP/1.1" 200 -\n')]

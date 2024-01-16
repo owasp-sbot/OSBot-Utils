@@ -42,15 +42,6 @@ def default_value(target : type):
     except TypeError:
         return None                     # if not return None
 
-def dict_insert_field(target_dict, new_key, insert_at, new_value=None):
-    if type(target_dict) is dict:
-        new_dict = {}
-        for i, (key, value) in enumerate(target_dict.items()):
-            if i == insert_at:
-                new_dict[new_key] = new_value
-            new_dict[key] = value
-        return new_dict
-
 def dict_remove(data, target):
     if type(data) is dict:
         if type(target) is list:
@@ -64,6 +55,9 @@ def dict_remove(data, target):
 
 def env_value(var_name):
     return env_vars().get(var_name, None)
+
+def env_vars_list():
+    return list_set(env_vars())
 
 def env_vars(reload_vars=False):
     """

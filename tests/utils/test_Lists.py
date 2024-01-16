@@ -4,7 +4,7 @@ from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.utils.Lists import list_empty, list_first, list_not_empty, array_add, array_find, array_get, array_pop, \
     array_pop_and_trim, chunks, list_chunks, list_delete, list_lower, tuple_to_list, list_add, list_find, list_get, \
-    list_pop, list_pop_and_trim
+    list_pop, list_pop_and_trim, list_contains_list
 
 
 class test_Lists(TestCase):
@@ -27,6 +27,14 @@ class test_Lists(TestCase):
         assert list(list_chunks(None , 0)) == []
         assert list(list_chunks(array, 2)) == list(list_chunks(array, 2))  # test alias
         assert list(list_chunks(array, 3)) == list(list_chunks(array, 3))
+
+    def test_list_contains_list(self):
+        assert list_contains_list(['a','b','c'], ['a','b']) is True
+        assert list_contains_list(['a','b','c'], ['a','d']) is False
+        assert list_contains_list(['a','b','c'], ['a'    ]) is True
+        assert list_contains_list(None , ['a']) is False
+        assert list_contains_list(['a'], None ) is False
+        assert list_contains_list(None , None ) is False
 
     def test_list_delete(self):
         target = ['a', 'b', 'c']

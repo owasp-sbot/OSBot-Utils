@@ -6,15 +6,16 @@ from unittest import TestCase
 from unittest.mock import patch, call
 
 from dotenv import load_dotenv
+from osbot_utils.utils.Lists import list_contains_list
+
 from osbot_utils.utils.Dev import pprint
 
-from osbot_utils.utils.Lists import env_vars_list
 from osbot_utils.utils.Misc import random_int, list_set
 from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, \
     obj_dict, env_value, env_vars, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \
-    class_functions_names, class_functions, dict_insert_field, dict_remove, class_full_name, get_missing_fields, \
+    class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
-    obj_base_classes, obj_base_classes_names
+    obj_base_classes, obj_base_classes_names, env_vars_list
 
 
 class test_Objects(TestCase):
@@ -81,10 +82,6 @@ class test_Objects(TestCase):
         assert type(default_value(TestCase)) is unittest.case.TestCase
         assert type(default_value(Queue   )) is Queue
 
-    def test_dict_insert_field(self):
-        dict_1 = {'a': 1, 'b': 2, 'c': 3}
-        assert dict_insert_field(dict_1, new_key='x',insert_at=0) == {'x': None, 'a': 1, 'b': 2, 'c': 3}
-
     def test_dict_remove(self):
         dict_1 = {'a': 1, 'b': 2, 'c': 3}
         assert dict_remove(dict_1, 'a') == {'b': 2, 'c': 3}
@@ -106,6 +103,7 @@ class test_Objects(TestCase):
         assert env_vars_list().__contains__("ENV_VAR_1")
         assert env_vars_list().__contains__("ENV_VAR_2")
         assert env_vars_list() == sorted(set(env_vars()))
+        assert list_contains_list(env_vars_list(), ['PATH', 'HOME', 'PWD']) is True
 
     def test_get_field(self):
         print()

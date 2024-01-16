@@ -10,18 +10,22 @@ logger_json = logging.getLogger()   # todo: start using this API for capturing e
 from osbot_utils.utils.Files import file_exists, temp_file, file_create_gz, file_create, load_file_gz, file_contents
 
 
-class Json:
+def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=str):
+    if python_object:
+        try:
+            if pretty:
+                return json.dumps(python_object, indent=indent, sort_keys=sort_keys, default=default)
+            return json.dumps(python_object, default=default)
+        except Exception as error:
+            error_message = f'Error in load_json: {error}'
+            logger_json.exception(error_message)
 
-    @staticmethod
-    def dumps(python_object, indent=4, pretty=True,sort_keys=False, default=str):
-        if python_object:
-            try:
-                if pretty:
-                    return json.dumps(python_object, indent=indent,sort_keys=sort_keys, default=default)
-                return json.dumps(python_object, default=default)
-            except Exception as error:
-                error_message = f'Error in load_json: {error}'
-                logger_json.exception(error_message)
+def json_dumps_to_bytes(*args, **kwargs):
+    return json_dumps(*args, **kwargs).encode()
+
+
+
+class Json:
 
     @staticmethod
     def load_file(path):
@@ -105,9 +109,8 @@ class Json:
 file_create_json             = Json.save_file_pretty
 file_contents_json           = Json.load_file
 
-json_dump                    = Json.dumps
-json_dumps                   = Json.dumps
-json_format                  = Json.dumps
+json_dump                    = json_dumps
+json_format                  = json_dumps
 json_file_create             = Json.save_file
 json_file_create_gz          = Json.save_file_gz
 json_file_contents           = Json.load_file
@@ -125,7 +128,7 @@ json_md5                     = Json.md5
 json_lines_loads             = Json.loads_json_lines
 json_parse                   = Json.loads
 json_lines_parse             = Json.loads_json_lines
-json_to_str                  = Json.dumps
+json_to_str                  = json_dumps
 json_round_trip              = Json.round_trip
 json_save                    = Json.save_file
 json_save_file               = Json.save_file
