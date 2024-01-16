@@ -59,10 +59,13 @@ class Temp_Web_Server:
     def server_port_open(self):
         return port_is_open(host=self.host, port=self.port)
 
-    def stop(self):
+    def stop(self, wait_for_stop=False):
         self.server.server_close()
-        self.server.shutdown()
-        self.server_thread.join()
+        if wait_for_stop:
+            self.server.shutdown()
+            self.server_thread.join()
+        else:
+            self.server._BaseServer__shutdown_request = True  # simulate what happens inside self.server.shutdown()
 
     def start(self):
         if self.http_handler is  SimpleHTTPRequestHandler:

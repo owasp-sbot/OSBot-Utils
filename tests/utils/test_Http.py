@@ -1,18 +1,25 @@
 import json
+import ssl
+
+import osbot_utils.utils.Http
 from http.server import BaseHTTPRequestHandler
 from pprint import pprint
 from unittest import TestCase
+from unittest.mock import patch, MagicMock, call
 from urllib.parse import parse_qs
 
-from osbot_utils.utils.Objects import obj_info
+from osbot_utils.testing.Duration import Duration
+
+from osbot_utils.utils.Objects import obj_info, class_full_name, obj_data
 
 from osbot_utils.utils.Json import json_dumps_to_bytes
 from osbot_utils.testing.Temp_Web_Server import Temp_Web_Server
 from osbot_utils.utils.Files import temp_file, file_not_exists, file_exists, file_bytes, file_size, file_create_bytes, \
-    file_delete
+    file_delete, file_contents
 from osbot_utils.utils.Http import DELETE, POST, GET, GET_json, DELETE_json, GET_bytes, GET_bytes_to_file, \
     dns_ip_address, port_is_open, port_is_not_open, current_host_online, POST_json, OPTIONS, PUT_json, \
-    is_port_open, wait_for_port, current_host_offline
+    is_port_open, wait_for_port, current_host_offline, http_request, wait_for_http, wait_for_ssh,   \
+    wait_for_port_closed , GET_to_file
 
 
 # note: with the use of Custom_Handler_For_Http_Tests this test went from 10 seconds + to 17 ms :)
@@ -33,22 +40,24 @@ class test_Http(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.temp_web_server = Temp_Web_Server(http_handler=Custom_Handler_For_Http_Tests)
-        cls.temp_web_server.start()
-        cls.local_url      = cls.temp_web_server.url()
-        cls.local_host     = cls.temp_web_server.host
-        cls.local_port     = cls.temp_web_server.port
-        cls.url_png        = cls.temp_web_server.url(Custom_Handler_For_Http_Tests.HTTP_GET_IMAGE_PATH)
-        cls.headers        = {"Accept": "application/json"}
-        cls.data           = "aaa=42&bbb=123"
-        cls.data_json      = {"aaa": 42, "bbb": "123"}
-        assert cls.temp_web_server.GET() == Custom_Handler_For_Http_Tests.HTTP_GET_HTML
-        cls.add_expected_log()
+        with Duration():
+            cls.temp_web_server = Temp_Web_Server(http_handler=Custom_Handler_For_Http_Tests)
+            cls.temp_web_server.start()
+            cls.local_url      = cls.temp_web_server.url()
+            cls.local_host     = cls.temp_web_server.host
+            cls.local_port     = cls.temp_web_server.port
+            cls.url_png        = cls.temp_web_server.url(Custom_Handler_For_Http_Tests.HTTP_GET_IMAGE_PATH)
+            cls.headers        = {"Accept": "application/json"}
+            cls.data           = "aaa=42&bbb=123"
+            cls.data_json      = {"aaa": 42, "bbb": "123"}
+            assert cls.temp_web_server.GET() == Custom_Handler_For_Http_Tests.HTTP_GET_HTML
+            cls.add_expected_log()
 
     @classmethod
     def tearDownClass(cls) -> None:
-        cls.temp_web_server.stop()
-        assert cls.temp_web_server.http_handler.captured_logs == cls.expected_logs
+        with Duration():
+            cls.temp_web_server.stop()
+            assert cls.temp_web_server.http_handler.captured_logs == cls.expected_logs
 
     def test__setUp(self):
         assert self.temp_web_server.server_port_open() is True
@@ -72,6 +81,31 @@ class test_Http(TestCase):
         assert current_host_offline(url_to_use='http://111-2222-3333-abc.com') is True
         self.add_expected_log('HEAD')
 
+    def test_http_request(self):
+        with patch('osbot_utils.utils.Http.urlopen') as mock_urlopen:
+            url_https = 'https://aaaaa.bbbbb'
+            response = http_request(url=url_https,return_response_object=True)
+            assert type(response).__name__ == 'MagicMock'
+            mock_urlopen.assert_called()
+            request = mock_urlopen.call_args[0][0]                      # *args
+            context = mock_urlopen.call_args[1].get('context')          # **kwargs
+            assert class_full_name(request) == 'urllib.request.Request'
+            assert class_full_name(context) == 'ssl.SSLContext'
+
+            assert obj_data(request) == {'data'             : None                   ,
+                                         'fragment'         : None                   ,
+                                         'full_url'         : 'https://aaaaa.bbbbb'  ,
+                                         'get_method'       : f'{request.get_method}',
+                                         'headers'          : '{}'                   ,
+                                         'host'             : 'aaaaa.bbbbb'          ,
+                                         'origin_req_host'  : 'aaaaa.bbbbb'          ,
+                                         'selector'         : ''                     ,
+                                         'type'             : 'https'                ,
+                                         'unredirected_hdrs': '{}'                   ,
+                                         'unverifiable'     : False                  }
+            assert context.protocol == ssl.PROTOCOL_TLSv1_2
+            #mock_urlopen.assert_called_with('http://www.google.com')
+
     def test_is_port_open__port_is_open__port_is_not_open(self):
         host    = 'localhost'
         port    = self.local_port
@@ -84,15 +118,39 @@ class test_Http(TestCase):
         assert is_port_open    (host=host   , port=port+1  , timeout=timeout) is False
         assert is_port_open    (host=host_ip, port=port+1  , timeout=timeout) is False
 
+        assert port_is_open    (port=port                                   ) is True
         assert port_is_open    (port=port   , host=host    , timeout=timeout) is True
         assert port_is_open    (port=port   , host=host_ip , timeout=timeout) is True
+        assert port_is_open    (port=port+1 ,                               ) is False
         assert port_is_open    (port=port+1 , host=host    , timeout=timeout) is False
         assert port_is_open    (port=port+1 , host=host_ip , timeout=timeout) is False
+        assert port_is_open    (port=None   , host=host_ip, timeout=timeout ) is False
+        assert port_is_open    (port=port   , host=None    , timeout=timeout) is False
+
 
         assert port_is_not_open(host=host   , port=port  , timeout=timeout  ) is False
         assert port_is_not_open(host=host_ip, port=port  , timeout=timeout  ) is False
         assert port_is_not_open(host=host   , port=port+1, timeout=timeout  ) is True
         assert port_is_not_open(host=host_ip, port=port+1, timeout=timeout  ) is True
+
+    def test_wait_for_http(self):
+        url = self.local_url
+        assert wait_for_http(url) is True
+        self.add_expected_log()
+        assert wait_for_http('127.0.0.2', max_attempts=1, wait_for=0.001) is False
+        assert wait_for_http('aa'       , max_attempts=1, wait_for=0.001) is False
+        assert wait_for_http(None       , max_attempts=1, wait_for=0.001) is False
+
+    def test_wait_for_ssh(self):
+        with patch('osbot_utils.utils.Http.wait_for_port') as mock_wait_for_port:
+            response = wait_for_ssh('127.0.0.1')
+            assert response.__class__.__name__ == 'MagicMock'
+            mock_wait_for_port.assert_called()
+            assert mock_wait_for_port.call_args == call(host='127.0.0.1', port=22, max_attempts=120, wait_for=0.5)
+
+    def test_wait_for_port_closed(self):
+        assert wait_for_port_closed(self.local_host, self.local_port  , max_attempts=1, wait_for=0.001) is False
+        assert wait_for_port_closed(self.local_host, self.local_port+1, max_attempts=1, wait_for=0.001) is True
 
     def test_DELETE_json(self):
         url      = self.local_url                                                   # now it is 2 ms
@@ -143,6 +201,14 @@ class test_Http(TestCase):
         assert file_bytes(target)  == Custom_Handler_For_Http_Tests.HTTP_GET_IMAGE_BYTES
         assert file_delete(target) is True
         self.add_expected_log(path='/test.png')
+
+    def test_GET_to_file(self):
+        url          = self.local_url
+        file_via_get = GET_to_file(url)
+        assert file_exists  (file_via_get)
+        assert file_contents(file_via_get) == Custom_Handler_For_Http_Tests.HTTP_GET_HTML
+        assert file_delete  (file_via_get) is True
+        self.add_expected_log()
 
     def test_OPTIONS(self):
         response_headers = OPTIONS(self.local_url, headers=self.headers)
