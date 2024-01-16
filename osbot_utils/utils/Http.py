@@ -9,10 +9,12 @@ from osbot_utils.utils.Python_Logger import Python_Logger
 
 logger = Python_Logger('OSBot-utils').setup()
 
-def current_host_offline():
-    return current_host_online() is False
+URL_CHECK_HOST_ONLINE = 'https://www.google.com'
 
-def current_host_online(url_to_use='https://www.google.com'):
+def current_host_offline(url_to_use=URL_CHECK_HOST_ONLINE):
+    return current_host_online(url_to_use=url_to_use) is False
+
+def current_host_online(url_to_use=URL_CHECK_HOST_ONLINE):
     try:
         Http_Request(url_to_use, method='HEAD')
         return True
