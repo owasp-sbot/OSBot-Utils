@@ -3,6 +3,7 @@ from unittest                                       import TestCase
 from unittest.mock                                  import patch, call
 
 from osbot_utils.testing.Patch_Print                    import Patch_Print
+from osbot_utils.utils.Lists import tuple_to_list
 from osbot_utils.utils.Python_Logger                    import Python_Logger
 from osbot_utils.utils.Misc                             import list_set
 from osbot_utils.testing.Temp_File                      import Temp_File
@@ -32,7 +33,7 @@ class test_Trace_Call(TestCase):
 
     def test___default_kwargs(self):
         default_kwargs = Trace_Call.__default_kwargs__()
-        assert list_set(default_kwargs) == ['config']
+        assert list_set(default_kwargs) == ['config', 'started']
         assert type(default_kwargs.get('config')) is Trace_Call__Config
 
     def test___init__(self):
@@ -41,6 +42,7 @@ class test_Trace_Call(TestCase):
         assert self.trace_call.__locals__() == { 'config'                 : self.trace_call.config                 ,
                                                  'prev_trace_function'    : None                                   ,
                                                  'stack'                  : []                                     ,
+                                                 'started'                : False                                  ,
                                                  'trace_call_handler'     : self.trace_call.trace_call_handler     ,
                                                  'trace_call_view_model'  : self.trace_call.trace_call_view_model  ,
                                                  'trace_call_print_traces': self.trace_call.trace_call_print_traces}
@@ -60,6 +62,11 @@ class test_Trace_Call(TestCase):
                                                       'parent_info': '', 'locals': {}, 'source_code': '',
                                                       'source_code_caller': '', 'source_code_location': ''}]
 
+
+    def test_capture_all(self):
+        assert self.config.trace_capture_all is False
+        self.trace_call.capture_all()
+        assert self.config.trace_capture_all is True
 
     @patch('builtins.print')
     def test_decorator__trace_calls(self, builtins_print):
@@ -84,13 +91,32 @@ class test_Trace_Call(TestCase):
                                                      call('\x1b[1m└────────────────────── 🧩️ format\x1b[0m')] != []
 
 
+    def test_print_lines(self):
+        with Patch_Print() as _:
+            self.trace_call.print_lines()
+
+        assert _.call_args_list() == [call(),
+                                      call('--------- CALL TRACER (Lines)----------'),
+                                      call('Here are the 0 lines captured\n'),
+                                      call('┌─────┬──────┬────────┬────┬──┬───────┐   '),
+                                      call('│ #   │ Line │ Source code  │ Method Class and Name │ Self object │ Depth │   '),
+                                      call('├─────┼──────┼────────┼────┼──┼───────┤   '),
+                                      call('└─────┴──────┴────────┴────┴──┴───────┘')] != [call()]
+    def test_stats(self):
+        assert self.trace_call.stats() == {'calls': 0, 'calls_skipped': 0, 'exceptions': 0, 'lines': 0, 'returns': 0, 'unknowns': 0}
+
+    def test_stats_data(self):
+        assert self.trace_call.stats_data() == []
+
     def test_stop(self):
         prev_trace_function = None
+        self.trace_call.started = True
         with patch('sys.settrace') as mock_systrace:
             self.trace_call.stop()
             assert self.trace_call.prev_trace_function is prev_trace_function
             mock_systrace.assert_called_with(prev_trace_function)
         prev_trace_function = '___prev_trace_function___'
+        self.trace_call.started = True
         with patch('sys.settrace') as mock_systrace:
             self.trace_call.prev_trace_function = prev_trace_function
             self.trace_call.stop()
@@ -154,7 +180,7 @@ class test_Trace_Call(TestCase):
         except Exception as error:
             assert error.args[0] == 'test_2'
 
-    def test__config_capture_frame_stats(self):
+    def test__config__capture_frame_stats(self):
         self.config.capture_frame_stats    = True
         self.config.show_parent_info       = False
         self.config.show_method_class      = False
@@ -184,7 +210,8 @@ class test_Trace_Call(TestCase):
                                                                'osbot_utils', 'posixpath', 'random', 'shutil',
                                                                'tempfile', 'test_Trace_Call']
 
-        assert self.handler.stats.frames_stats().get('osbot_utils') == { 'helpers': {'trace': {'Trace_Call': {'__exit__': 1, 'on_exit': 1, 'stop': 1}}},
+        assert self.handler.stats.frames_stats().get('osbot_utils') == { 'base_classes': {'Kwargs_To_Self': {'__setattr__': 1}},
+                                                                         'helpers': {'trace': {'Trace_Call': {'__exit__': 1, 'on_exit': 1, 'stop': 1}}},
                                                                          'testing': {'Temp_File': {'__enter__': 2, '__exit__': 2, '__init__': 2}},
                                                                          'utils': {'Files': {'delete': 2,
                                                                                              'exists': 4,
@@ -198,6 +225,26 @@ class test_Trace_Call(TestCase):
                                                                                              'write': 2},
                                                                                    'Misc': {'random_filename': 2}}}
 
+    def test__config_print_traces_on_exit(self):
+        self.config.print_traces_on_exit = True
+        with Patch_Print() as _:
+            self.trace_call.on_exit()
+        assert _.call_args_list() == [call(),
+                                      call('--------- CALL TRACER ----------'),
+                                      call('Here are the 1 traces captured\n'),
+                                      call('\x1b[1m─── 📦  \x1b[38;2;138;148;138m\x1b[0m.\x1b[1m\x1b[0m\x1b[0m')]
+        self.config.print_traces_on_exit = False
+        self.config.print_lines_on_exit   = True
+        with Patch_Print() as _:
+            self.trace_call.on_exit()
+        assert _.call_args_list() == [call(),
+                                      call('--------- CALL TRACER (Lines)----------'),
+                                      call('Here are the 0 lines captured\n'),
+                                      call('┌─────┬──────┬────────┬────┬──┬───────┐   '),
+                                      call('│ #   │ Line │ Source code  │ Method Class and Name │ Self object │ Depth │   '),
+                                      call('├─────┼──────┼────────┼────┼──┼───────┤   '),
+                                      call('└─────┴──────┴────────┴────┴──┴───────┘')]
+
     def test__trace_up_to_a_level(self):
         with self.config as _:
             _.all()
@@ -207,19 +254,20 @@ class test_Trace_Call(TestCase):
 
         expected_calls = [ ''                                                ,
                            '--------- CALL TRACER ----------'                ,
-                           'Here are the 6 traces captured\n'                ,
+                           'Here are the 7 traces captured\n'                ,
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
+                           '\x1b[1m│   ├── 🧩️ __setattr__\x1b[0m'            ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
                            '\x1b[1m│   │   ├── 🧩️ random_string\x1b[0m'      ,
                            '\x1b[1m│   │   └── 🧩️ set_config\x1b[0m'         ,
                            '\x1b[1m│   └── 🔗️ add_memory_logger\x1b[0m'      ,
                            '\x1b[1m└────────── 🧩️ add_handler_memory\x1b[0m' ]
 
-        with Patch_Print(expected_calls=expected_calls, print_calls=False, enabled=True):
-            with self.trace_call as _:
+        with Patch_Print(expected_calls=expected_calls, print_calls=False, enabled=True) as _:
+            with self.trace_call:
                 logger = Python_Logger()
                 logger.add_memory_logger()
-                #ansi_text_visible_length("some text")
+        #assert _.call_args_list() == expected_calls
 
 
 

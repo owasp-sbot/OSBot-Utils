@@ -40,6 +40,7 @@ def trace_calls(title=None, print_traces=True, show_locals=False, source_code=Fa
 class Trace_Call(Kwargs_To_Self):
 
     config : Trace_Call__Config
+    started: bool
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -98,10 +99,13 @@ class Trace_Call(Kwargs_To_Self):
         self.trace_call_handler.stack.add_node(title=self.trace_call_handler.config.title)
         self.prev_trace_function = sys.gettrace()
         sys.settrace(self.trace_call_handler.trace_calls)                                   # Set the new trace function
+        self.started = True
 
     def stop(self):
-        sys.settrace(self.prev_trace_function)                                              # Restore the previous trace function
-        self.stack.empty_stack()
+        if self.started:
+            sys.settrace(self.prev_trace_function)                                              # Restore the previous trace function
+            self.stack.empty_stack()
+            self.started = False
 
     def stats(self):
         return self.trace_call_handler.stats
