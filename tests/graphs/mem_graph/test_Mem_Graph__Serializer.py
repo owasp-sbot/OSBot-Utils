@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from osbot_utils.graphs.mem_graph.Mem_Graph__Edge import Mem_Graph__Edge
 from osbot_utils.helpers.Local_Cache import Local_Cache
 
 from osbot_utils.graphs.mem_graph.Mem_Graph import Mem_Graph
@@ -21,6 +22,8 @@ class test_Mem_Graph__Serializer(TestCase):
 
 
     def test__init__(self):
+        print()
+        print()
         expected_attrs = [ 'key', 'local_cache', 'mgraph', 'mode']
         with self.graph_serializer as _:
             assert _.__attr_names__() == expected_attrs

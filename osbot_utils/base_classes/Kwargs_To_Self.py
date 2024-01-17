@@ -4,10 +4,8 @@
 import inspect
 import types
 from enum import Enum, EnumMeta
-
 from osbot_utils.utils.Misc import list_set
-
-from osbot_utils.utils.Objects import default_value
+from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
@@ -68,6 +66,7 @@ class Kwargs_To_Self:
     """
 
     __lock_attributes__ = False
+    #__type_safety__   = False
 
     def __init__(self, **kwargs):
         """
@@ -93,6 +92,7 @@ class Kwargs_To_Self:
             else:
                 raise Exception(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
                                 f"Use {self.__class__.__name__}.__default_kwargs__() see what attributes are available")
+        #self.enable_type_safety()
 
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
@@ -101,6 +101,13 @@ class Kwargs_To_Self:
         if self.__lock_attributes__:
             if not hasattr(self, name):
                 raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
+        # if self.__type_safety__:
+        # # todo: figure out a way to add this type check without major side effects
+        # #       the objective is to ensure that the type of the value passed in is the same as the one defined in the class
+        #     if value is not None:
+        #         if value_type_matches_obj_annotation_for_attr(self, name, value) is False:
+        #             raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+
         super().__setattr__(name, value)
 
     def __attr_names__(self):
@@ -175,6 +182,9 @@ class Kwargs_To_Self:
                 if not isinstance(v, types.FunctionType):
                     kwargs[k] = v
         return kwargs
+
+    # def enable_type_safety(self):
+    #     self.__type_safety__ = True
 
     def locked(self, value=True):
         self.__lock_attributes__ = value

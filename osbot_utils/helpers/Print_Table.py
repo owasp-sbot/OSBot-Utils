@@ -42,7 +42,7 @@ class Print_Table(Kwargs_To_Self):
     table_width         : int
     text__all           : list
     text__footer        : str
-    text__headers       : list
+    text__headers       : str
     text__table_bottom  : str
     text__table_middle  : str
     text__table_top     : str

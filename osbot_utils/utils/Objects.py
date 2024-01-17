@@ -3,6 +3,7 @@ import inspect
 import json
 import os
 import types
+from typing import get_origin
 
 from dotenv import load_dotenv
 
@@ -216,11 +217,14 @@ def obj_values(target=None):
 
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     if hasattr(target, '__annotations__'):
-        obj_annotations = target.__annotations__
-        attr_type        = obj_annotations.get(attr_name)
-        if attr_type:
-            return type(value) is attr_type
-        #return obj_annotations
+        obj_annotations  = target.__annotations__
+        if hasattr(obj_annotations,'get'):
+            attr_type        = obj_annotations.get(attr_name)
+            if attr_type:
+                origin_attr_type = get_origin(attr_type)                # to handle when type definion contains an generic
+                if origin_attr_type:
+                    attr_type = origin_attr_type
+                return type(value) is attr_type
     return None
 
 

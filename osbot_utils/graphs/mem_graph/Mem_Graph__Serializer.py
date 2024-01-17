@@ -25,7 +25,7 @@ class Mem_Graph__Serializer(Kwargs_To_Self):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.key         = f'serialiser_for {self.mgraph.key}'
-        #self.local_cache = str
+        self.local_cache = Local_Cache('a')
 
 
     def save(self):
