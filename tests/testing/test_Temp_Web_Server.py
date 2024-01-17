@@ -22,9 +22,10 @@ class test_Temp_Web_Server(TestCase):
         host        = "127.0.0.1"
         port        = 20002
         root_folder = current_temp_folder()
-        kwargs      = {  "host"       : host        ,
-                         "port"       : port        ,
-                         "root_folder": root_folder }
+        kwargs      = {  "host"         : host        ,
+                         "port"         : port        ,
+                         "root_folder"  : root_folder ,
+                         'wait_for_stop': True        }
         expected_content = ['<h1>Directory listing for /</h1>']
         temp_web_server = Temp_Web_Server(**kwargs)
         with temp_web_server as web_server:

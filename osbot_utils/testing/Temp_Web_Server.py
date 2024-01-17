@@ -15,12 +15,13 @@ class Temp_Web_Server:
     server        : ThreadingHTTPServer
     server_thread : Thread
 
-    def __init__(self, host: str = None, port: int = None, root_folder: str = None, server_name = None, http_handler = None):
-        self.host         = host         or "127.0.0.1"
-        self.port         = port         or random_port()
-        self.root_folder  = root_folder  or "."
-        self.server_name  = server_name  or "Temp_Web_Server"
-        self.http_handler = http_handler or SimpleHTTPRequestHandler
+    def __init__(self, host: str = None, port: int = None, root_folder: str = None, server_name = None, http_handler = None, wait_for_stop=False):
+        self.host          = host         or "127.0.0.1"
+        self.port          = port         or random_port()
+        self.root_folder   = root_folder  or "."
+        self.server_name   = server_name  or "Temp_Web_Server"
+        self.http_handler  = http_handler or SimpleHTTPRequestHandler
+        self.wait_for_stop = wait_for_stop
 
     def __enter__(self):
         self.start()
@@ -59,9 +60,9 @@ class Temp_Web_Server:
     def server_port_open(self):
         return port_is_open(host=self.host, port=self.port)
 
-    def stop(self, wait_for_stop=False):
+    def stop(self):
         self.server.server_close()
-        if wait_for_stop:
+        if self.wait_for_stop:
             self.server.shutdown()
             self.server_thread.join()
         else:
