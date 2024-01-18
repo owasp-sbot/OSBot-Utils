@@ -151,10 +151,10 @@ class test_Trace_Call__Print_Traces(TestCase):
                 wait_for(0.001)
             def a_bit_slower():
                 random_number()
-                wait_for(0.003)
+                wait_for(0.005)
             def even_more_slower():
                 random_number()
-                wait_for(0.006)
+                wait_for(0.010)
             an_fast_function()
             a_bit_slower()
             even_more_slower()
@@ -178,7 +178,7 @@ class test_Trace_Call__Print_Traces(TestCase):
 
 
 
-        config.with_duration_bigger_than = 2 / 1000
+        config.with_duration_bigger_than = 5 / 1000
         with patch('builtins.print') as mock_print:
             trace_call.print()
             assert mock_print.call_args_list == [call(),
@@ -190,7 +190,7 @@ class test_Trace_Call__Print_Traces(TestCase):
                                                  call('\x1b[1m│   └── 🔗️ even_more_slower\x1b[0m                                  test_Trace_Call__Print_Traces'),
                                                  call('\x1b[1m└────────── 🧩️ wait\x1b[0m                                          osbot_utils.utils.Misc')]
 
-        config.with_duration_bigger_than = 5 / 1000
+        config.with_duration_bigger_than = 10 / 1000
         with patch('builtins.print') as mock_print:
             trace_call.print()
             assert mock_print.call_args_list == [call(),

@@ -9,7 +9,7 @@ class test_Mem_Graph(TestCase):
         self.mgraph = Mem_Graph()
 
     def test___init__(self):
-        expected_args = ['config', 'edges', 'key', 'nodes']
+        expected_args = ['__type_safety__','config', 'edges', 'key', 'nodes']
         with self.mgraph as _:
             assert _.__attr_names__() == expected_args
             assert _.edges            == []

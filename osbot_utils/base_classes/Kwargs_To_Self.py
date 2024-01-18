@@ -66,7 +66,7 @@ class Kwargs_To_Self:
     """
 
     __lock_attributes__ = False
-    #__type_safety__   = False
+    __type_safety__   = False
 
     def __init__(self, **kwargs):
         """
@@ -101,12 +101,11 @@ class Kwargs_To_Self:
         if self.__lock_attributes__:
             if not hasattr(self, name):
                 raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
-        # if self.__type_safety__:
-        # # todo: figure out a way to add this type check without major side effects
-        # #       the objective is to ensure that the type of the value passed in is the same as the one defined in the class
-        #     if value is not None:
-        #         if value_type_matches_obj_annotation_for_attr(self, name, value) is False:
-        #             raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+
+        if self.__type_safety__:                            # todo: figure out a way to add this type check without major side effects
+            if value is not None:                           #       the objective is to ensure that the type of the value passed in is the same as the one defined in the class
+                if value_type_matches_obj_annotation_for_attr(self, name, value) is False:
+                    raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
         super().__setattr__(name, value)
 
@@ -183,8 +182,8 @@ class Kwargs_To_Self:
                     kwargs[k] = v
         return kwargs
 
-    # def enable_type_safety(self):
-    #     self.__type_safety__ = True
+    def enable_type_safety(self):
+        self.__type_safety__ = True
 
     def locked(self, value=True):
         self.__lock_attributes__ = value

@@ -21,7 +21,7 @@ class Mem_Graph(Kwargs_To_Self):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        #self.enable_type_safety()
+        self.enable_type_safety()
 
     def add_edge(self, from_node, to_node):
         if self.config.allow_circle_edges is False:

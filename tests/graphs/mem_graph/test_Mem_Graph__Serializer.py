@@ -24,7 +24,7 @@ class test_Mem_Graph__Serializer(TestCase):
     def test__init__(self):
         print()
         print()
-        expected_attrs = [ 'key', 'local_cache', 'mgraph', 'mode']
+        expected_attrs = [ '__type_safety__', 'key', 'local_cache', 'mgraph', 'mode']
         with self.graph_serializer as _:
             assert _.__attr_names__() == expected_attrs
             #assert _.local_cache      is None
@@ -33,7 +33,7 @@ class test_Mem_Graph__Serializer(TestCase):
             assert _.key              == f'serialiser_for {self.mgraph.key}'
 
             pprint(_.__annotations__.get('local_cache') is Local_Cache)
-            #_.local_cache = 'asd'
+            #_.local_cache = 123
 
 
 
