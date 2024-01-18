@@ -5,22 +5,22 @@ from osbot_utils.utils.Misc import list_set
 
 from osbot_utils.utils.Dev import pprint
 
-from osbot_utils.graphs.mem_graph.Mem_Graph__Random_Graphs import Mem_Graph__Random_Graphs
+from osbot_utils.graphs.mgraph.MGraph__Random_Graphs import MGraph__Random_Graphs
 
 
-class test_Mem_Graph__Data(TestCase):
+class test_MGraph__Data(TestCase):
 
     def setUp(self):
         self.x          = 5
         self.y          = 10
-        self.graph      = Mem_Graph__Random_Graphs().with_x_nodes_and_y_edges(x=self.x, y=self.y)
-        self.graph_data = self.graph.data()
+        self.mgraph     = MGraph__Random_Graphs().with_x_nodes_and_y_edges(x=self.x, y=self.y)
+        self.graph_data = self.mgraph.data()
 
     def test___init__(self):
-        assert self.graph_data.__class__.__name__ == 'Mem_Graph__Data'
-        assert self.graph_data.mem_graph == self.graph
-        assert self.graph_data.nodes()   == self.graph.nodes
-        assert self.graph_data.edges()   == self.graph.edges
+        assert self.graph_data.__class__.__name__ == 'MGraph__Data'
+        assert self.graph_data.mgraph    == self.mgraph
+        assert self.graph_data.nodes()   == self.mgraph.nodes
+        assert self.graph_data.edges()   == self.mgraph.edges
 
     def test_nodes__edges(self):
         with self.graph_data as _:                                          # Use graph_data in a context manager

@@ -2,13 +2,13 @@ import random
 
 from osbot_utils.utils.Files import file_exists, file_extension, pickle_load_from_file
 
-from osbot_utils.graphs.mem_graph.Mem_Graph__Random_Graphs import Mem_Graph__Random_Graphs
+from osbot_utils.graphs.mgraph.MGraph__Random_Graphs import MGraph__Random_Graphs
 
 
-class Mem_Graphs:
+class MGraphs:
 
     def new__random(self, config=None, graph_key=None):
-        return Mem_Graph__Random_Graphs(config=config, graph_key=graph_key).with_x_nodes_and_y_edges()
+        return MGraph__Random_Graphs(config=config, graph_key=graph_key).with_x_nodes_and_y_edges()
 
     def load(self, file_path):
         if file_exists(file_path):

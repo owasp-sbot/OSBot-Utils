@@ -1,12 +1,12 @@
 from unittest                               import TestCase
 from osbot_utils.utils.Misc                 import random_text
-from osbot_utils.graphs.mem_graph.Mem_Graph import Mem_Graph
+from osbot_utils.graphs.mgraph.MGraph import MGraph
 
 
-class test_Mem_Graph(TestCase):
+class test_MGraph(TestCase):
 
     def setUp(self):
-        self.mgraph = Mem_Graph()
+        self.mgraph = MGraph()
 
     def test___init__(self):
         expected_args = ['__type_safety__','config', 'edges', 'key', 'nodes']

@@ -3,7 +3,7 @@ from osbot_utils.utils.Misc import random_id
 from osbot_utils.base_classes.Kwargs_To_Self      import Kwargs_To_Self
 
 
-class Mem_Graph__Node(Kwargs_To_Self):
+class MGraph__Node(Kwargs_To_Self):
     attributes : dict
     key        : str
     label      : str

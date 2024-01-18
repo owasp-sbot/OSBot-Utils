@@ -2,26 +2,26 @@ from unittest import TestCase
 
 from osbot_utils.utils.Files import current_temp_folder, file_create
 
-from osbot_utils.graphs.mem_graph.Mem_Graph__Edge import Mem_Graph__Edge
+from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
 from osbot_utils.helpers.Local_Cache import Local_Cache
 
-from osbot_utils.graphs.mem_graph.Mem_Graph import Mem_Graph
+from osbot_utils.graphs.mgraph.MGraph import MGraph
 from osbot_utils.utils.Misc import list_set
 
-from osbot_utils.graphs.mem_graph.Mem_Graphs import Mem_Graphs
+from osbot_utils.graphs.mgraph.MGraphs import MGraphs
 from osbot_utils.helpers.Random_Seed import Random_Seed
 from osbot_utils.utils.Dev import pprint
 
-from osbot_utils.graphs.mem_graph.Mem_Graph__Serializer import Mem_Graph__Serializer, Serialization_Mode
+from osbot_utils.graphs.mgraph.MGraph__Serializer import MGraph__Serializer, Serialization_Mode
 
 
-class test_Mem_Graph__Serializer(TestCase):
+class test_MGraph__Serializer(TestCase):
 
     def setUp(self):
         self.graph_key = __name__
         with Random_Seed(enabled=False):
-            self.mgraph        = Mem_Graphs().new__random(graph_key=self.graph_key)              # todo: see if we need to make this non-random
-        self.graph_serializer = Mem_Graph__Serializer(mgraph = self.mgraph)
+            self.mgraph        = MGraphs().new__random(graph_key=self.graph_key)              # todo: see if we need to make this non-random
+        self.graph_serializer = MGraph__Serializer(mgraph = self.mgraph)
 
 
     def test__init__(self):
@@ -29,7 +29,7 @@ class test_Mem_Graph__Serializer(TestCase):
         with self.graph_serializer as _:
             assert _.__attr_names__() == expected_attrs
             assert _.caches_name     == 'mgraph_tests'
-            assert _.mgraph.__class__ is Mem_Graph
+            assert _.mgraph.__class__ is MGraph
             assert _.mode             == Serialization_Mode.PICKLE
             assert _.key              == f'serialiser_for__{self.mgraph.key}'
 

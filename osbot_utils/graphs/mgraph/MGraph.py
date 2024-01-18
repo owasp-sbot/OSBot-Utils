@@ -1,22 +1,17 @@
 from osbot_utils.utils.Misc import random_text, lower
-
-from osbot_utils.utils.Dev import pprint
-
-from osbot_utils.utils.Files import pickle_save_to_file
-
-from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
-from osbot_utils.graphs.mem_graph.Mem_Graph__Config import Mem_Graph__Config
-from osbot_utils.graphs.mem_graph.Mem_Graph__Edge    import Mem_Graph__Edge
-from osbot_utils.graphs.mem_graph.Mem_Graph__Node    import Mem_Graph__Node
+from osbot_utils.base_classes.Kwargs_To_Self   import Kwargs_To_Self
+from osbot_utils.graphs.mgraph.MGraph__Config  import MGraph__Config
+from osbot_utils.graphs.mgraph.MGraph__Edge    import MGraph__Edge
+from osbot_utils.graphs.mgraph.MGraph__Node    import MGraph__Node
 
 
 
-class Mem_Graph(Kwargs_To_Self):
+class MGraph(Kwargs_To_Self):
 
-    config : Mem_Graph__Config
-    edges  : list[Mem_Graph__Edge]
+    config : MGraph__Config
+    edges  : list[MGraph__Edge]
     key    : str
-    nodes  : list[Mem_Graph__Node]
+    nodes  : list[MGraph__Node]
 
 
     def __init__(self, **kwargs):
@@ -33,26 +28,26 @@ class Mem_Graph(Kwargs_To_Self):
             for edge in self.edges:
                 if edge.from_node == from_node and edge.to_node == to_node:
                     return None
-        new_edge = Mem_Graph__Edge(from_node=from_node, to_node=to_node)
+        new_edge = MGraph__Edge(from_node=from_node, to_node=to_node)
         self.edges.append(new_edge)
         return new_edge
 
     def add_node(self, label):
-        new_node = Mem_Graph__Node(label=label)
+        new_node = MGraph__Node(label=label)
         self.nodes.append(new_node)
         return new_node
 
     def data(self):
-        from osbot_utils.graphs.mem_graph.Mem_Graph__Data import Mem_Graph__Data
-        return Mem_Graph__Data(mem_graph=self)
+        from osbot_utils.graphs.mgraph.MGraph__Data import MGraph__Data
+        return MGraph__Data(mgraph=self)
 
     # def save(self, format='pickle'):
     #     if format == 'pickle':
     #         return pickle_save_to_file(self)
 
     def save(self):
-        from osbot_utils.graphs.mem_graph.Mem_Graph__Serializer import Mem_Graph__Serializer        # due to circular dependency
-        return Mem_Graph__Serializer(mgraph=self).save()
+        from osbot_utils.graphs.mgraph.MGraph__Serializer import MGraph__Serializer        # due to circular dependency
+        return MGraph__Serializer(mgraph=self).save()
 
     def print(self):
         print()

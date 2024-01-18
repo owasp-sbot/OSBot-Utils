@@ -1,13 +1,12 @@
-from osbot_utils.utils.Dev import pprint
-
+from osbot_utils.utils.Dev                   import pprint
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.graphs.mem_graph.Mem_Graph import Mem_Graph
-from osbot_utils.helpers.Print_Table import Print_Table
+from osbot_utils.graphs.mgraph.MGraph        import MGraph
+from osbot_utils.helpers.Print_Table         import Print_Table
 
 
-class Mem_Graph__Data(Kwargs_To_Self):
+class MGraph__Data(Kwargs_To_Self):
 
-    mem_graph : Mem_Graph
+    mgraph : MGraph
 
     def graph_data(self):
         nodes_data = self.nodes_data()
@@ -16,7 +15,7 @@ class Mem_Graph__Data(Kwargs_To_Self):
         return graph_data
 
     def edges(self):
-        return self.mem_graph.edges
+        return self.mgraph.edges
 
     def edges_data(self):
         edges_data = []
@@ -25,7 +24,7 @@ class Mem_Graph__Data(Kwargs_To_Self):
         return edges_data
 
     def nodes(self):
-        return self.mem_graph.nodes
+        return self.mgraph.nodes
 
     def nodes_data(self):
         nodes_data = []
@@ -87,7 +86,7 @@ class Mem_Graph__Data(Kwargs_To_Self):
 
     def print(self):
         with Print_Table() as _:
-            _.set_title(self.mem_graph.config.graph_title)
+            _.set_title(self.mgraph.config.graph_title)
             for node_key, edges_keys in self.nodes_edges().items():
                 row = {'key': node_key,  'edges': edges_keys}
                 _.add_data(row)

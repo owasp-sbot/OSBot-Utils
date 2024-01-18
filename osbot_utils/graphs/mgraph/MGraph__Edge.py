@@ -1,12 +1,12 @@
 from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
-from osbot_utils.graphs.mem_graph.Mem_Graph__Node   import Mem_Graph__Node
+from osbot_utils.graphs.mgraph.MGraph__Node   import MGraph__Node
 
 
-class Mem_Graph__Edge(Kwargs_To_Self):
+class MGraph__Edge(Kwargs_To_Self):
     attributes : dict
-    from_node  : Mem_Graph__Node
+    from_node  : MGraph__Node
     label      : str
-    to_node    : Mem_Graph__Node
+    to_node    : MGraph__Node
 
     def __repr__(self):
         return self.__str__()

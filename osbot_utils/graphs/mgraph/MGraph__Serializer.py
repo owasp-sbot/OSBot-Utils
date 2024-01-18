@@ -9,7 +9,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.helpers.Local_Cache import Local_Cache
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.graphs.mem_graph.Mem_Graph import Mem_Graph
+from osbot_utils.graphs.mgraph.MGraph import MGraph
 
 
 class Serialization_Mode(Enum):
@@ -17,14 +17,14 @@ class Serialization_Mode(Enum):
     PICKLE  = auto()
     YAML    = auto()
 
-class Mem_Graph__Serializer(Kwargs_To_Self):
+class MGraph__Serializer(Kwargs_To_Self):
 
     caches_name : str                = 'mgraph_tests'
     mode        : Serialization_Mode = Serialization_Mode.PICKLE
 
     local_cache : Local_Cache                                           # todo, refactor this into an MGraph__Storage__Disk class
     key         : str
-    mgraph      : Mem_Graph
+    mgraph      : MGraph
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

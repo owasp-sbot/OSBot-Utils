@@ -125,7 +125,7 @@ class test_Hook_Method(TestCase):
         assert requests.api.request == self.target
 
 
-    # todo: add use of Mem_Graph to calculate all paths, namely the ones from _safe_repr
+    # todo: add use of MGraph to calculate all paths, namely the ones from _safe_repr
     def test__hook_and_check_call_stack(self):
         # this is a really cool examle which shows both Trace_Call and Hook_Method in action
 

@@ -6,14 +6,14 @@ from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.utils.Files import pickle_save_to_file, pickle_load_from_file
 
-from osbot_utils.graphs.mem_graph.Mem_Graph__Random_Graphs  import Mem_Graph__Random_Graphs
+from osbot_utils.graphs.mgraph.MGraph__Random_Graphs  import MGraph__Random_Graphs
 from osbot_utils.utils.Misc                                 import random_int
 
 
-class test_Mem_Graph__Random_Graphs(TestCase):
+class test_MGraph__Random_Graphs(TestCase):
 
     def setUp(self):
-        self.ramdom_graphs = Mem_Graph__Random_Graphs()
+        self.ramdom_graphs = MGraph__Random_Graphs()
         self.config        = self.ramdom_graphs.config
 
     def test_with_x_nodes_and_y_edges(self):
@@ -23,7 +23,7 @@ class test_Mem_Graph__Random_Graphs(TestCase):
         x = random_int(max=10)
         y = random_int(max=20)
         new_graph = self.ramdom_graphs.with_x_nodes_and_y_edges(x, y)
-        assert type(new_graph).__name__ == 'Mem_Graph'
+        assert type(new_graph).__name__ == 'MGraph'
         assert len(new_graph.nodes)    == x
         assert len(new_graph.edges)    == y
 
