@@ -1,3 +1,4 @@
+from json import JSONDecoder
 from unittest                           import TestCase
 from osbot_utils.utils.Functions        import python_file
 from osbot_utils.helpers.ast            import Ast_Module
@@ -19,7 +20,7 @@ class test_Ast_Visit(TestCase):
 
 
     def test__visit(self):
-        module = Ast_Module(TestCase)
+        module = Ast_Module(JSONDecoder)
         self.ast_visit = Ast_Visit(module)
 
         def assert_len(nodes, size):
@@ -28,25 +29,25 @@ class test_Ast_Visit(TestCase):
         self.ast_visit.capture          ('Ast_Module'        , lambda modules  : assert_len(modules  , 1 ))
         self.ast_visit.capture          ('Ast_Function_Def'  , lambda functions: assert_len(functions, 72))
         self.ast_visit.capture_modules  (lambda modules  : assert_len(modules  , 1 ))
-        self.ast_visit.capture_functions(lambda functions: assert_len(functions, 72))
-        self.ast_visit.capture_calls    (lambda calls    : assert_len(calls    , 366))
+        self.ast_visit.capture_functions(lambda functions: assert_len(functions, 3))
+        self.ast_visit.capture_calls    (lambda calls    : assert_len(calls    , 10))
         self.ast_visit.visit()
 
     def test_capture_calls(self):
-        ast_visit = Ast_Visit(python_file(TestCase))
+        ast_visit = Ast_Visit(python_file(JSONDecoder))
         ast_visit.capture_calls().capture_imports().capture_modules().capture_functions()
         ast_visit.visit()
-        assert ast_visit.stats() == { 'Ast_Call'        : 469 ,
-                                      'Ast_Function_Def': 109 ,
-                                      'Ast_Import'      :  10 ,
-                                      'Ast_Import_From' :   4 ,
-                                      'Ast_Module'      :   1 }
+        assert ast_visit.stats() == { 'Ast_Call'        : 72 ,
+                                      'Ast_Function_Def':  9 ,
+                                      'Ast_Import'      :  1 ,
+                                      'Ast_Import_From' :  2 ,
+                                      'Ast_Module'      :  1 }
         captured_nodes = ast_visit.captured_nodes()
-        assert len(captured_nodes.get('Ast_Call'        )) == 469
-        assert len(captured_nodes.get('Ast_Function_Def')) == 109
-        assert len(captured_nodes.get('Ast_Import'      )) ==  10
-        assert len(captured_nodes.get('Ast_Import_From' )) ==   4
-        assert len(captured_nodes.get('Ast_Module'      )) ==   1
+        assert len(captured_nodes.get('Ast_Call'        )) == 72
+        assert len(captured_nodes.get('Ast_Function_Def')) == 9
+        assert len(captured_nodes.get('Ast_Import'      )) == 1
+        assert len(captured_nodes.get('Ast_Import_From' )) == 2
+        assert len(captured_nodes.get('Ast_Module'      )) == 1
 
     def test_register_node_handler(self):
 
