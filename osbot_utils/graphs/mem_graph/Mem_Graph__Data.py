@@ -9,11 +9,30 @@ class Mem_Graph__Data(Kwargs_To_Self):
 
     mem_graph : Mem_Graph
 
+    def graph_data(self):
+        nodes_data = self.nodes_data()
+        edges_data = self.edges_data()
+        graph_data = {'nodes': nodes_data, 'edges': edges_data}
+        return graph_data
+
     def edges(self):
         return self.mem_graph.edges
 
+    def edges_data(self):
+        edges_data = []
+        for edge in self.edges():
+            edges_data.append(edge.data())
+        return edges_data
+
     def nodes(self):
         return self.mem_graph.nodes
+
+    def nodes_data(self):
+        nodes_data = []
+        for node in self.nodes():
+            nodes_data.append(node.data())
+        return nodes_data
+
 
     def nodes__by_key(self):
         by_key = {}

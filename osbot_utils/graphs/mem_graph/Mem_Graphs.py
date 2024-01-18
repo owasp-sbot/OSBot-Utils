@@ -7,8 +7,8 @@ from osbot_utils.graphs.mem_graph.Mem_Graph__Random_Graphs import Mem_Graph__Ran
 
 class Mem_Graphs:
 
-    def new__random(self, config=None):
-        return Mem_Graph__Random_Graphs(config=config).with_x_nodes_and_y_edges()
+    def new__random(self, config=None, graph_key=None):
+        return Mem_Graph__Random_Graphs(config=config, graph_key=graph_key).with_x_nodes_and_y_edges()
 
     def load(self, file_path):
         if file_exists(file_path):

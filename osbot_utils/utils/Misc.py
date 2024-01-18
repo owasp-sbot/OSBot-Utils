@@ -343,11 +343,14 @@ def random_string(length:int=8, prefix:str='', postfix:str=''):
 def random_string_and_numbers(length:int=6,prefix:str=''):
     return prefix + ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
-def random_text(prefix:str=None,length:int=12):
+def random_text(prefix:str=None,length:int=12, lowercase=False):
     if prefix is None: prefix = 'text_'
     if last_letter(prefix) not in ['_','/']:
         prefix += '_'
-    return random_string_and_numbers(length=length, prefix=prefix)
+    value = random_string_and_numbers(length=length, prefix=prefix)
+    if lowercase:
+        return lower(value)
+    return value
 
 def random_uuid():
     return str(uuid.uuid4())

@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from osbot_utils.utils.Files import current_temp_folder, file_create
+
 from osbot_utils.graphs.mem_graph.Mem_Graph__Edge import Mem_Graph__Edge
 from osbot_utils.helpers.Local_Cache import Local_Cache
 
@@ -16,24 +18,29 @@ from osbot_utils.graphs.mem_graph.Mem_Graph__Serializer import Mem_Graph__Serial
 class test_Mem_Graph__Serializer(TestCase):
 
     def setUp(self):
-        with Random_Seed():
-            self.mgraph        = Mem_Graphs().new__random()              # todo: see if we need to make this non-random
+        self.graph_key = __name__
+        with Random_Seed(enabled=False):
+            self.mgraph        = Mem_Graphs().new__random(graph_key=self.graph_key)              # todo: see if we need to make this non-random
         self.graph_serializer = Mem_Graph__Serializer(mgraph = self.mgraph)
 
 
     def test__init__(self):
-        print()
-        print()
-        expected_attrs = [ '__type_safety__', 'key', 'local_cache', 'mgraph', 'mode']
+        expected_attrs = ['__type_safety__', 'caches_name', 'key', 'local_cache', 'mgraph', 'mode']
         with self.graph_serializer as _:
             assert _.__attr_names__() == expected_attrs
-            #assert _.local_cache      is None
+            assert _.caches_name     == 'mgraph_tests'
             assert _.mgraph.__class__ is Mem_Graph
             assert _.mode             == Serialization_Mode.PICKLE
-            assert _.key              == f'serialiser_for {self.mgraph.key}'
+            assert _.key              == f'serialiser_for__{self.mgraph.key}'
 
-            pprint(_.__annotations__.get('local_cache') is Local_Cache)
-            #_.local_cache = 123
+            assert _.__annotations__.get('local_cache') is Local_Cache
+            assert type(_.local_cache) is Local_Cache
+            assert _.local_cache.info() == { 'cache_name'     : _.key                           ,
+                                             'caches_name'    : _.caches_name                   ,
+                                             'data_keys'      : list_set(_.local_cache.data())  ,
+                                             'path_cache_file': f'{current_temp_folder()}/{_.caches_name}/{_.key}.json'}
+
+
 
 
 
@@ -43,7 +50,10 @@ class test_Mem_Graph__Serializer(TestCase):
 
     def test_save_to_json(self):
         with self.graph_serializer as _:
-            assert _.save_to_json() == '...json save - to be implemented...'
+
+            assert _.save_to_json() is True
+            assert _.mgraph.data().graph_data() == _.local_cache.get('graph_data')
+            _.mgraph.print()
 
     def test_save_to_pickle(self):
         with self.graph_serializer as _:
@@ -52,3 +62,30 @@ class test_Mem_Graph__Serializer(TestCase):
     def test_save_to_yaml(self):
         with self.graph_serializer as _:
             assert _.save_to_yaml() == '...yaml save - to be implemented...'
+
+#     def test_mermaid(self):
+#         file_name = 'test_mermaid.md'
+#         code = """
+# ```mermaid
+# graph LR;
+#     subgraph BBBB
+#         Z("some text")
+#         Y[["aaaaa"]]
+#     end
+#     subgraph AAAAA
+#         Z --> Y
+#         A --> B
+#         subgraph CCCC
+#             A ---> C
+#             A ----> D
+#             subgraph DDDDD
+#                 A -----> E
+#                 A ----> F
+#             end
+#             F -----> C
+#         end
+#     end
+#
+#     C ---> Z
+# ```"""
+#         file_create(file_name, code)

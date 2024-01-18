@@ -22,7 +22,7 @@ class test_Mem_Graph(TestCase):
             new_node = _.add_node(label=label)
             assert _.nodes               == [new_node]
             assert new_node.label        == label
-            assert new_node.__locals__() == {'data': {} , 'key': label, 'label': label}
+            assert new_node.__locals__() == {'attributes': {} , 'key': label, 'label': label}
 
     def test_add_edge(self):
         label_1 = random_text()
@@ -34,4 +34,4 @@ class test_Mem_Graph(TestCase):
             assert _.edges               == [new_edge]
             assert new_edge.from_node    == from_node
             assert new_edge.to_node      == to_node
-            assert new_edge.__locals__() == {'data': {}, 'from_node': from_node, 'label':'', 'to_node': to_node}
+            assert new_edge.__locals__() == {'attributes': {}, 'from_node': from_node, 'label':'', 'to_node': to_node}

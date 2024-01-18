@@ -1,5 +1,7 @@
 from enum import Enum, auto
 
+from osbot_utils.utils.Str import str_safe, safe_str
+
 from osbot_utils.utils.Objects import obj_info
 
 from osbot_utils.utils.Dev import pprint
@@ -17,16 +19,19 @@ class Serialization_Mode(Enum):
 
 class Mem_Graph__Serializer(Kwargs_To_Self):
 
-    local_cache : Local_Cache                                       # todo, refactor this into an MGraph__Storage__Disk class
-    mgraph      : Mem_Graph
+    caches_name : str                = 'mgraph_tests'
     mode        : Serialization_Mode = Serialization_Mode.PICKLE
+
+    local_cache : Local_Cache                                           # todo, refactor this into an MGraph__Storage__Disk class
     key         : str
+    mgraph      : Mem_Graph
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.enable_type_safety()
-        self.key         = f'serialiser_for {self.mgraph.key}'
-        self.local_cache = Local_Cache('a')
+        self.key         = safe_str(f'serialiser_for__{self.mgraph.key}')
+
+        self.local_cache = Local_Cache(cache_name=self.key, caches_name=self.caches_name)
 
 
     def save(self):
@@ -39,7 +44,10 @@ class Mem_Graph__Serializer(Kwargs_To_Self):
         return False
 
     def save_to_json(self):
-        return '...json save - to be implemented...'
+        graph_data = self.mgraph.data().graph_data()
+        #pprint(graph_data)
+        self.local_cache.set('graph_data', graph_data)
+        return True
 
     def save_to_pickle(self):
         obj_info(self.local_cache)

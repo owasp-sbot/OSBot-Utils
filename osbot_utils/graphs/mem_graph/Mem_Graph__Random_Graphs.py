@@ -6,10 +6,11 @@ from osbot_utils.utils.Misc import random_int
 
 
 class Mem_Graph__Random_Graphs(Kwargs_To_Self):
-    config : Mem_Graph__Config
+    config     : Mem_Graph__Config
+    graph_key : str
 
     def new_graph(self):
-        return Mem_Graph(config=self.config)
+        return Mem_Graph(config=self.config, key=self.graph_key)
 
     def with_x_nodes_and_y_edges(self, x=10, y=20):
         mem_graph = self.new_graph()

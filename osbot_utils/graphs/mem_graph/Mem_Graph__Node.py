@@ -4,10 +4,10 @@ from osbot_utils.base_classes.Kwargs_To_Self      import Kwargs_To_Self
 
 
 class Mem_Graph__Node(Kwargs_To_Self):
+    attributes : dict
+    key        : str
+    label      : str
 
-    key   : str
-    label : str
-    data : dict
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -21,3 +21,6 @@ class Mem_Graph__Node(Kwargs_To_Self):
 
     def __str__(self):
         return f'[Graph Node] {self.key}'
+
+    def data(self):
+        return self.__locals__()             # todo: see if there is a better way to do this (specialy as the node objects gets more features and attributes)

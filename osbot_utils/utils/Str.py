@@ -43,6 +43,6 @@ def trim(target):
         return target.strip()
     return ""
 
-
 html_encode = html_escape
 html_decode = html_unescape
+safe_str    = str_safe

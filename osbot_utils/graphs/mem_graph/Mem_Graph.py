@@ -1,4 +1,4 @@
-from osbot_utils.utils.Misc import random_text
+from osbot_utils.utils.Misc import random_text, lower
 
 from osbot_utils.utils.Dev import pprint
 
@@ -15,13 +15,15 @@ class Mem_Graph(Kwargs_To_Self):
 
     config : Mem_Graph__Config
     edges  : list[Mem_Graph__Edge]
-    key    : str = random_text("mgraph")
+    key    : str
     nodes  : list[Mem_Graph__Node]
 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.enable_type_safety()
+        if not self.key:
+            self.key = random_text("mgraph", lowercase=True)                 # make sure there is always a key
 
     def add_edge(self, from_node, to_node):
         if self.config.allow_circle_edges is False:
