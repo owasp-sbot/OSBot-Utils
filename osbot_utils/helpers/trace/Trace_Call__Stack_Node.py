@@ -1,3 +1,5 @@
+from osbot_utils.utils.Misc import random_id
+
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
@@ -15,11 +17,16 @@ class Trace_Call__Stack_Node(Kwargs_To_Self):
     frame               : None
     func_name           : str
     lines               : list
+    key                 : str
     module              : str
     name                : str
     source_code         : str
     source_code_caller  : str
     source_code_location: str
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        #self.key = random_id()
 
     def __eq__(self, other):
         if not isinstance(other, Trace_Call__Stack_Node):

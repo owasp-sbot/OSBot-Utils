@@ -83,6 +83,10 @@ class Trace_Call__Config(Kwargs_To_Self):
         pprint(self.__locals__())
         return self
 
+    def print_on_exit(self, value=True):
+        self.print_traces_on_exit = value
+        return self
+
     def up_to_depth(self, depth):
         self.trace_up_to_depth = depth
         return self

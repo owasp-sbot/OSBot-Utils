@@ -1,5 +1,11 @@
 import sys
 from unittest                                           import TestCase
+
+from osbot_utils.utils.Dev import pprint
+
+from osbot_utils.testing.Temp_File import Temp_File
+
+from osbot_utils.helpers.trace.Trace_Call import Trace_Call
 from osbot_utils.utils.Call_Stack                       import call_stack_current_frame
 from osbot_utils.utils.Functions                        import method_line_number
 from osbot_utils.utils.Misc                             import random_value, list_set
@@ -421,6 +427,21 @@ class test_Trace_Call__Handler(TestCase):
         assert len(self.handler.stack) == 2
 
 
+    def test_traces(self):
+        trace_call   = Trace_Call()
+        call_handler = trace_call.trace_call_handler
+        config       = trace_call.config
 
+        #config.all()
+        config.capture(contains=['Files', 'Misc']).print_on_exit(False )
+        with trace_call:
+            with Temp_File() as temp_file:
+                # _.write('test')
+                # assert file_exists(_.path())
+                pass
 
+        traces = call_handler.traces()
+        assert len(trace_call.view_data()) == len(traces)
+        for trace in traces:
+            assert type(trace) == Trace_Call__Stack_Node
 

@@ -179,3 +179,15 @@ class Trace_Call__Handler(Kwargs_To_Self):
             self.stats.unknowns += 1
 
         return self.trace_calls
+
+
+
+    def traces(self):
+        def map_traces(node, all_traces):
+            if node:
+                all_traces.append(node)
+                for child in node.children:
+                    map_traces(child, all_traces)
+        result = []
+        map_traces(self.stack.root_node, result)
+        return result

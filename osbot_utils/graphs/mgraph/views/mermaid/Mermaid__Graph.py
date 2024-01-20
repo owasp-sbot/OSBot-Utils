@@ -1,17 +1,35 @@
+from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
+from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
 from osbot_utils.graphs.mgraph.views.mermaid.Mermaid__Edge import Mermaid__Edge
 from osbot_utils.graphs.mgraph.views.mermaid.Mermaid__Node import Mermaid__Node
 from osbot_utils.graphs.mgraph.MGraph import MGraph
 
 
-class Mermaid_MGraph(MGraph):
+class Mermaid__Graph(MGraph):
 
-    nodes       : list[Mermaid__Node]
+    nodes : list[Mermaid__Node]
+    edges : list[Mermaid__Edge]
 
     def __init__(self, mgraph=None):
         super().__init__()
+        if mgraph is None:
+            mgraph = MGraph()
         self.__dict__ = mgraph.__dict__
         self.convert_nodes().convert_edges()
         self.mermaid_code = []
+
+    def add_edge(self, **kwargs):
+        #new_edge = super().add_edge(*args, **kwargs)
+        mermaid_edge = Mermaid__Edge(**kwargs)
+        self.edges.append(mermaid_edge)
+        return mermaid_edge
+
+    def add_node(self, **kwargs):
+        new_node = MGraph__Node(**kwargs)
+        mermaid_node = Mermaid__Node(**kwargs).cast(new_node)
+        self.nodes.append(mermaid_node)
+        return new_node
+
 
     def add_line(self, line):
         self.mermaid_code.append(line)
@@ -24,7 +42,7 @@ class Mermaid_MGraph(MGraph):
     def code_create(self):
         with self as _:
             _.reset_code()
-            _.add_line('graph TB')
+            _.add_line('graph LR')
             for node in _.nodes:
                 _.add_line(node.code())
             _.add_line('')
@@ -44,14 +62,15 @@ class Mermaid_MGraph(MGraph):
     def convert_edges(self):
         new_edges = []
         for edge in self.edges:
-            new_edges.append(Mermaid__Edge(edge))
+            new_edges.append(Mermaid__Edge().cast(edge))
         self.edges = new_edges
         return self
 
     def convert_nodes(self):
         new_nodes = []
         for node in self.nodes:
-            new_nodes.append(Mermaid__Node(node))
+            mermaid_node = Mermaid__Node().cast(node)
+            new_nodes.append(mermaid_node)
         self.nodes = new_nodes
         return self
 
@@ -65,3 +84,6 @@ class Mermaid_MGraph(MGraph):
         with open(file_path, 'w') as file:
             file.write(self.code_markdown())
         return file_path
+
+    def print_code(self):
+        print(self.code())
