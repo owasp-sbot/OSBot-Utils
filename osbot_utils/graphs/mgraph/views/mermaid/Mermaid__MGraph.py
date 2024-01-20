@@ -1,16 +1,16 @@
-from osbot_utils.graphs.mgraph.views.mermaid.Mermaid_Node import Mermaid_Node
-from osbot_utils.utils.Dev            import pprint
+from osbot_utils.graphs.mgraph.views.mermaid.Mermaid__Edge import Mermaid__Edge
+from osbot_utils.graphs.mgraph.views.mermaid.Mermaid__Node import Mermaid__Node
 from osbot_utils.graphs.mgraph.MGraph import MGraph
 
 
 class Mermaid_MGraph(MGraph):
 
-    nodes       : list[Mermaid_Node]
+    nodes       : list[Mermaid__Node]
 
     def __init__(self, mgraph=None):
         super().__init__()
         self.__dict__ = mgraph.__dict__
-        self.convert_nodes()
+        self.convert_nodes().convert_edges()
         self.mermaid_code = []
 
     def add_line(self, line):
@@ -27,6 +27,9 @@ class Mermaid_MGraph(MGraph):
             _.add_line('graph TB')
             for node in _.nodes:
                 _.add_line(node.code())
+            _.add_line('')
+            for edge in _.edges:
+                _.add_line(edge.code())
         return self
 
     def code_markdown(self):
@@ -38,18 +41,26 @@ class Mermaid_MGraph(MGraph):
 
         return '\n'.join(markdown)
 
+    def convert_edges(self):
+        new_edges = []
+        for edge in self.edges:
+            new_edges.append(Mermaid__Edge(edge))
+        self.edges = new_edges
+        return self
+
     def convert_nodes(self):
         new_nodes = []
         for node in self.nodes:
-            new_nodes.append(Mermaid_Node(node))
+            new_nodes.append(Mermaid__Node(node))
         self.nodes = new_nodes
+        return self
 
     def reset_code(self):
         self.mermaid_code = []
         return self
 
-    def save(self):
-        file_path = '/tmp/mermaid.md'
+    def save(self, target_file=None):
+        file_path = target_file or '/tmp/mermaid.md'
 
         with open(file_path, 'w') as file:
             file.write(self.code_markdown())

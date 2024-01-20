@@ -3,24 +3,24 @@ from contextlib import redirect_stdout
 from unittest import TestCase
 from unittest.mock import patch
 
-from osbot_utils.utils.Files import file_contents
+from osbot_utils.testing.Temp_File import Temp_File
 
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.graphs.mgraph.views.mermaid.Mermaid_Node import Mermaid_Node
-
-from osbot_utils.utils.Objects import base_classes, base_types
-
-from osbot_utils.graphs.mgraph.MGraph import MGraph
+from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Dev import pprint
 
-from osbot_utils.graphs.mgraph.MGraphs                      import MGraphs
-from osbot_utils.graphs.mgraph.views.mermaid.Mermaid_MGraph import Mermaid_MGraph
+from osbot_utils.utils.Files import file_contents
+from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.utils.Objects import base_classes, base_types
+from osbot_utils.graphs.mgraph.MGraph import MGraph
+from osbot_utils.graphs.mgraph.MGraphs                       import MGraphs
+from osbot_utils.graphs.mgraph.views.mermaid.Mermaid__MGraph import Mermaid_MGraph
+from osbot_utils.graphs.mgraph.views.mermaid.Mermaid__Node   import Mermaid__Node
 
 
 class test_Mermaid_MGraph(TestCase):
 
     def setUp(self):
-        self.mgraph         = MGraphs().new__random(x_nodes=3,y_edges=4)
+        self.mgraph         = MGraphs().new__random(x_nodes=4,y_edges=4)
         self.mermaid_mgraph = Mermaid_MGraph(self.mgraph)
 
 
@@ -31,11 +31,17 @@ class test_Mermaid_MGraph(TestCase):
         assert hasattr(self.mgraph        , "convert_nodes") is False
 
     def test_code(self):
-        with self.mermaid_mgraph as _:
-            print()
-            print(_.code())
-            #assert _.code() == 'aaa'
+        with Stdout() as stdout:
+            with self.mermaid_mgraph as _:
+                print(_.code())
+        assert stdout.value() == '\n'.join(self.mermaid_mgraph.mermaid_code) + '\n'
 
+    def test_code_markdown(self):
+        code_markdown = self.mermaid_mgraph.code_markdown()
+        assert code_markdown == '\n'.join(['# Mermaid Graph'                 ,
+                                           "```mermaid"                      ,
+                                           *self.mermaid_mgraph.mermaid_code ,
+                                           "```"                             ])
 
 
     def test_convert_nodes(self):
@@ -43,15 +49,15 @@ class test_Mermaid_MGraph(TestCase):
         assert len(self.mermaid_mgraph.edges  ) == len(self.mgraph.edges)
 
         for node in self.mgraph.nodes:
-            assert type(node) is Mermaid_Node
+            assert type(node) is Mermaid__Node
 
         for node in self.mermaid_mgraph.nodes:
-            assert type(node) is Mermaid_Node
+            assert type(node) is Mermaid__Node
 
 
-        # comparing print outputs using mock patch technique
-        with patch('builtins.print') as _:
-            self.mgraph         .print()
+
+        with patch('builtins.print') as _:          # comparing print outputs using mock patch technique
+            self.mgraph        .print()
             self.mermaid_mgraph.print()
 
         print_calls   = int(_.call_count / 2)
@@ -71,7 +77,7 @@ class test_Mermaid_MGraph(TestCase):
         assert output_mgraph.getvalue() == output_mermaid.getvalue()
 
     def test_save(self):
-        file_path = self.mermaid_mgraph.save()
-        print()
-        print(file_path)
-        print(file_contents(file_path))
+        with Temp_File() as temp_file:
+            file_path = temp_file.path()
+            assert self.mermaid_mgraph.save(file_path) == file_path
+            assert file_contents(file_path) == self.mermaid_mgraph.code_markdown()

@@ -46,14 +46,13 @@ class test_MGraph__Serializer(TestCase):
 
     def test_save(self):
         result = self.mgraph.save()
-        pprint(result)
+        assert result == '...pickle save - to be implemented...'            # todo: implement this test
 
     def test_save_to_json(self):
         with self.graph_serializer as _:
-
             assert _.save_to_json() is True
             assert _.mgraph.data().graph_data() == _.local_cache.get('graph_data')
-            _.mgraph.print()
+            #_.mgraph.print()
 
     def test_save_to_pickle(self):
         with self.graph_serializer as _:

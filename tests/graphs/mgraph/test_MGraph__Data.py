@@ -1,6 +1,10 @@
 from collections import defaultdict
 from unittest import TestCase
 
+import pytest
+
+from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
+from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Misc import list_set
 
 from osbot_utils.utils.Dev import pprint
@@ -40,6 +44,7 @@ class test_MGraph__Data(TestCase):
                 assert nodes_edges_keys == []                               # Assert that no edges are left untested
 
     # todo: finish implementing method
+    @pytest.mark.skip('finish implementing method')
     def test_nodes__find_all_paths(self):
         with self.graph_data as _:
             _.print()
@@ -49,22 +54,26 @@ class test_MGraph__Data(TestCase):
             #     print()
 
     def test_edges(self):
-        print()
         with self.graph_data as _:
             for edge in _.edges():
-                print(f'{edge.from_node.key} -> {edge.to_node.key}')
+                assert type(edge) is MGraph__Edge
+
 
     def test_print(self):
-        with self.graph_data as _:
-            #pprint(_.nodes_edges())
-            _.print()
+        with Stdout() as stdout:
+            with self.graph_data as _:
+                _.print()
+        third_line = stdout.value().split('\n')[2]          # todo: improve this test
+        assert 'key'   in third_line
+        assert 'edges' in third_line
+
 
     def test_print_adjacency_matrix(self):
-        self.graph_data.print_adjacency_matrix()
+        with Stdout() as stdout:
+             self.graph_data.print_adjacency_matrix()
+        for node in self.graph_data.nodes():
+            assert node.key in stdout.value()
+        #pprint(stdout.value())                     # use this to see what the adjacency_matrix looks like
 
-    def test_node_edges__to_from(self):
-        self.graph_data.print_adjacency_matrix()
-        #nodes_connections = self.graph_data.node_edges__to_from()
-        #pprint(nodes_connections)
 
 

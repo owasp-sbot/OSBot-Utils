@@ -50,7 +50,7 @@ class MGraph__Serializer(Kwargs_To_Self):
         return True
 
     def save_to_pickle(self):
-        obj_info(self.local_cache)
+        #obj_info(self.local_cache)
         return '...pickle save - to be implemented...'
 
     def save_to_yaml(self):
