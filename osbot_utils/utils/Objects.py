@@ -230,6 +230,7 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
 
 
 # helper duplicate methods
+base_types          = base_classes
 
 obj_list_set        = obj_keys
 obj_info            = print_object_members

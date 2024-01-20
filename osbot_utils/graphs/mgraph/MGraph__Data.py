@@ -47,7 +47,9 @@ class MGraph__Data(Kwargs_To_Self):
         for node in self.nodes():
             nodes__edges[node.key] = []
         for edge in self.edges():
-            nodes__edges[edge.from_node.key].append(edge.to_node.key)
+            from_key = edge.from_node.key
+            if from_key in nodes__edges:                                        # todo: add a better way to handle this, which is a weird situation, look also at a better way to do this assigment
+                nodes__edges[from_key].append(edge.to_node.key)
         for node_key, edges_keys in nodes__edges.items():
             nodes__edges[node_key] = sorted(edges_keys)
         return nodes__edges
