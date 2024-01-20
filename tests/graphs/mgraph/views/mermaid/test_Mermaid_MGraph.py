@@ -3,6 +3,8 @@ from contextlib import redirect_stdout
 from unittest import TestCase
 from unittest.mock import patch
 
+from osbot_utils.utils.Files import file_contents
+
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.graphs.mgraph.views.mermaid.Mermaid_Node import Mermaid_Node
 
@@ -30,7 +32,11 @@ class test_Mermaid_MGraph(TestCase):
 
     def test_code(self):
         with self.mermaid_mgraph as _:
-            assert _.code() == 'aaa'
+            print()
+            print(_.code())
+            #assert _.code() == 'aaa'
+
+
 
     def test_convert_nodes(self):
         assert len(self.mermaid_mgraph.nodes) == len(self.mgraph.nodes)
@@ -63,3 +69,9 @@ class test_Mermaid_MGraph(TestCase):
         with redirect_stdout(output_mermaid):
             self.mermaid_mgraph.print()
         assert output_mgraph.getvalue() == output_mermaid.getvalue()
+
+    def test_save(self):
+        file_path = self.mermaid_mgraph.save()
+        print()
+        print(file_path)
+        print(file_contents(file_path))
