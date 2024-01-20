@@ -20,7 +20,7 @@ class MGraph(Kwargs_To_Self):
         if not self.key:
             self.key = random_text("mgraph", lowercase=True)                 # make sure there is always a key
 
-    def add_edge(self, from_node, to_node):
+    def add_edge(self, from_node, to_node, label=None,attributes=None):
         if self.config.allow_circle_edges is False:
             if from_node == to_node:
                 return None
@@ -28,12 +28,12 @@ class MGraph(Kwargs_To_Self):
             for edge in self.edges:
                 if edge.from_node == from_node and edge.to_node == to_node:
                     return None
-        new_edge = MGraph__Edge(from_node=from_node, to_node=to_node)
+        new_edge = MGraph__Edge(from_node=from_node, to_node=to_node, label=label, attributes=attributes)
         self.edges.append(new_edge)
         return new_edge
 
-    def add_node(self, label, key=None):
-        new_node = MGraph__Node(key=key, label=label)
+    def add_node(self, label, key=None, attributes=None):
+        new_node = MGraph__Node(key=key, label=label, attributes=attributes)
         self.nodes.append(new_node)
         return new_node
 

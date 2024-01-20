@@ -24,9 +24,9 @@ class Trace_Call__Stack_Node(Kwargs_To_Self):
     source_code_caller  : str
     source_code_location: str
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        #self.key = random_id()
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
+    #     #self.key = random_id()
 
     def __eq__(self, other):
         if not isinstance(other, Trace_Call__Stack_Node):
@@ -55,3 +55,5 @@ class Trace_Call__Stack_Node(Kwargs_To_Self):
 
     def print_info(self):
         pprint(self.info())
+
+

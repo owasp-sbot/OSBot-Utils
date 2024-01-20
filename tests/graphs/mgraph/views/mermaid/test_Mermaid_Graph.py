@@ -90,3 +90,5 @@ class test_Mermaid_MGraph(TestCase):
             file_path = temp_file.path()
             assert self.mermaid_graph.save(file_path) == file_path
             assert file_contents(file_path) == self.mermaid_graph.code_markdown()
+
+        #self.mermaid_graph.save('/tmp/mermaid.md')

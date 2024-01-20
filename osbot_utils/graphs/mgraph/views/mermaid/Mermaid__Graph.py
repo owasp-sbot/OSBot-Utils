@@ -7,8 +7,9 @@ from osbot_utils.graphs.mgraph.MGraph import MGraph
 
 class Mermaid__Graph(MGraph):
 
-    nodes : list[Mermaid__Node]
-    edges : list[Mermaid__Edge]
+    edges        : list[Mermaid__Edge]
+    mermaid_code : list
+    nodes        : list[Mermaid__Node]
 
     def __init__(self, mgraph=None):
         super().__init__()
@@ -16,7 +17,6 @@ class Mermaid__Graph(MGraph):
             mgraph = MGraph()
         self.__dict__ = mgraph.__dict__
         self.convert_nodes().convert_edges()
-        self.mermaid_code = []
 
     def add_edge(self, **kwargs):
         #new_edge = super().add_edge(*args, **kwargs)
