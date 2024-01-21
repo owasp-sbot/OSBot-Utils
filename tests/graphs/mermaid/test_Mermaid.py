@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from osbot_utils.graphs.mgraph.MGraph__Serializer import Serialization_Mode
+from osbot_utils.utils.Misc import wait_for
+
 from osbot_utils.utils.Str import str_dedent
 
 from osbot_utils.utils.Dev import pprint
@@ -13,17 +14,19 @@ class test_Mermaid(TestCase):
     def setUp(self):
         self.mermaid = Mermaid()
 
+
     def test__init__(self):
 
         with self.mermaid as _:
-            expected_vars = {'config__add_nodes': None                  ,
+            expected_vars = {'config__add_nodes': True                  ,
                              'diagram_direction': _.diagram_direction   ,
                              'diagram_type'     : _.diagram_type        ,
+                             'logger'           : _.logger              ,
                              'mermaid_code'     : []                    ,
                              'mgraph'           : _.mgraph              }
             assert _.__locals__() == expected_vars
 
-    def test_save(self):
+    def test_code(self):
         expected_code = str_dedent("""
                                         flowchart TD
                                             A[Christmas] -->|Get money| B(Go shopping)
@@ -53,7 +56,18 @@ class test_Mermaid(TestCase):
         assert expected_code == _.code()
         #file_path = self.mermaid.save()
 
+    def test_config(self):
+        assert self.mermaid.config__add_nodes is True
 
+    def test_use_case_1(self):
+
+        expected_code = ("flowchart LR"
+                         "    id"      )
+        with self.mermaid as _:
+            _.set_diagram_type(Diagram__Type.flowchart)
+            _.add_node('id')
+            _.print_code()
+            #assert _.code() == expected_code
 # example = """
 # flowchart TD
 #     A[Christmas] -->|Get money| B(Go shopping)

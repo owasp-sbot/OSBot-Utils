@@ -1,5 +1,6 @@
 import logging
 import sys
+import types
 from logging          import Logger, StreamHandler, FileHandler
 from logging.handlers import MemoryHandler
 
@@ -25,6 +26,7 @@ MEMORY_LOGGER_FLUSH_LEVEL = logging.ERROR
 # NOTSET      0
 
 class Python_Logger_Config:
+
     def __init__(self):
         self.elastic_host           = None
         self.elastic_password       = None
@@ -43,8 +45,15 @@ class Python_Logger_Config:
 
 
 class Python_Logger:
-    config : Python_Logger_Config
-    logger : Logger
+    config      : Python_Logger_Config
+    logger      : Logger
+    critical    : types.FunctionType        # these will be replaced by Python_Logger_Config.setup_log_methods
+    debug       : types.FunctionType
+    error       : types.FunctionType
+    exception   : types.FunctionType
+    info        : types.FunctionType
+    ok          : types.FunctionType
+    warning     : types.FunctionType
 
     def __init__(self, logger_name= None, logger_config : Python_Logger_Config = None):
         self.logger_name = logger_name or random_string(prefix="Python_Logger_")
@@ -61,22 +70,27 @@ class Python_Logger:
             return True
         return False
 
-    def setup(self):
+    def setup(self, logger_name=None, log_level=None,add_console_logger=False, add_memory_logger=True):
+        if logger_name:
+            self.logger_name = logger_name
         self.logger =  logging.getLogger(self.logger_name)
-        self.setup_log_methods(self)
-        self.set_log_level()
-        self.add_handler_memory()
+        self.setup_log_methods()
+        self.set_log_level(log_level)
+        if add_console_logger:
+            self.add_console_logger()
+        if add_memory_logger:
+            self.add_handler_memory()
         return self
 
-    def setup_log_methods(self, target):
+    def setup_log_methods(self):
         # adds these helper methods like this so that the filename and function values are accurate
-        setattr(target, "critical"  , self.logger.critical  )
-        setattr(target, "debug"     , self.logger.debug     )
-        setattr(target, "error"     , self.logger.error     )
-        setattr(target, "exception" , self.logger.exception )
-        setattr(target, "info"      , self.logger.info      )
-        setattr(target, "ok"        , self.logger.info      )
-        setattr(target, "warning"   , self.logger.warning   )
+        setattr(self, "critical"  , self.logger.critical  )
+        setattr(self, "debug"     , self.logger.debug     )
+        setattr(self, "error"     , self.logger.error     )
+        setattr(self, "exception" , self.logger.exception )
+        setattr(self, "info"      , self.logger.info      )
+        setattr(self, "ok"        , self.logger.info      )
+        setattr(self, "warning"   , self.logger.warning   )
 
 
 
@@ -97,9 +111,9 @@ class Python_Logger:
             self.config = Python_Logger_Config()
         return self.config
 
-    def set_log_format(self, format):
-        if format:
-            self.config.log_format = format
+    def set_log_format(self, log_format):
+        if log_format:
+            self.config.log_format = log_format
 
     def set_log_level(self, level=None):
         level = level or self.config.log_level

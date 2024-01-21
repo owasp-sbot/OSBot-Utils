@@ -1,17 +1,14 @@
 from enum import Enum, auto
 
+from osbot_utils.utils.Misc import wait_for
+
+from osbot_utils.utils.Python_Logger import Python_Logger
+
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.graphs.mgraph.MGraph import MGraph
 from osbot_utils.utils.Str import safe_str
-
-# class Mermaid__Direction:
-#     BT : str = 'TB'
-#     LF : str = 'LF'
-#     LR : str = 'LR'
-#     TB : str = 'TB'
-#     TD : str = 'TB'
 
 LINE_PADDING = '    '
 
@@ -37,7 +34,8 @@ class Diagram__Direction(Enum):
     TD = auto()
     RL = auto()
 
-
+class Mermaid__Type:
+    pass
 
 class Mermaid(Kwargs_To_Self):
 
@@ -45,9 +43,13 @@ class Mermaid(Kwargs_To_Self):
     diagram_type      : Diagram__Type = Diagram__Type.graph
     mermaid_code      : list
     mgraph            : MGraph
-    config__add_nodes : True
+    config__add_nodes : bool = True
+    logger            : Python_Logger
 
-
+    def __init__(self):
+        super().__init__()
+        #self.logger.set_log_format('%(levelname)-5s : %(message)s')
+        self.logger.setup(logger_name='Logger_Name', add_memory_logger=False)
 
     def add_edge(self, from_node_key, to_node_key, label=None,attributes=None):
         nodes_by_id = self.mgraph.data().nodes__by_key()
@@ -69,6 +71,7 @@ class Mermaid(Kwargs_To_Self):
         return line
 
     def code(self):
+        self.logger.info('aaa')
         self.code_create()
         return '\n'.join(self.mermaid_code)
 
@@ -103,7 +106,7 @@ class Mermaid(Kwargs_To_Self):
             value = self.diagram_type.value
         else:
             value = self.diagram_type.name
-        return f'{value} {self.direction.name}'
+        return f'{value} {self.diagram_direction.name}'
 
     def print_code(self):
         print(self.code())
@@ -155,9 +158,9 @@ class Mermaid(Kwargs_To_Self):
 
     def set_direction(self, direction):
         if isinstance(direction, Diagram__Direction):
-            self.direction = direction
+            self.diagram_direction = direction
         elif isinstance(direction, str) and direction in Diagram__Direction.__members__:
-            self.direction = Diagram__Direction[direction]
+            self.diagram_direction = Diagram__Direction[direction]
         return self                             # If the value can't be set (not a valid name), do nothing
 
     def set_diagram_type(self, diagram_type):
