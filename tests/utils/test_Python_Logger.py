@@ -1,3 +1,4 @@
+import logging
 from _thread import RLock
 from datetime import datetime
 from io import TextIOWrapper, StringIO
@@ -5,6 +6,8 @@ from logging import Logger, LogRecord
 from logging.handlers import MemoryHandler
 from unittest import TestCase
 from unittest.mock import patch
+
+from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.utils.Files import file_lines, file_exists, file_contents, file_delete
 from osbot_utils.utils.Lists import list_set_dict
@@ -35,6 +38,7 @@ class test_Python_Logger(TestCase):
 
     def setUp(self):
         self.logger = Python_Logger().setup()
+        self.logger.set_log_level(logging.DEBUG)
 
     def tearDown(self) -> None:
         self.logger.manager_remove_logger()
@@ -138,6 +142,7 @@ class test_Python_Logger(TestCase):
         assert self.logger.add_memory_logger     () is True
 
         mem_handler = self.logger.log_handler(MemoryHandler)
+
         assert size(self.logger.log_handlers()) == 1
         assert mem_handler                      is not None
         obj_data = obj_dict(mem_handler)
@@ -161,7 +166,8 @@ class test_Python_Logger(TestCase):
         log_record = mem_handler.buffer.pop()
         assert type(log_record) is LogRecord
 
-        assert list_set_dict(log_record) == [ 'args', 'created', 'exc_info', 'exc_text', 'filename',
+        # note: asctime below is only showing when pytest_configure is set and configures config.option.log_format
+        assert list_set_dict(log_record) == [ 'args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename',
                                               'funcName', 'levelname', 'levelno', 'lineno', 'message',
                                               'module', 'msecs', 'msg', 'name', 'pathname', 'process',
                                               'processName', 'relativeCreated', 'stack_info', 'thread', 'threadName']
@@ -186,6 +192,7 @@ class test_Python_Logger(TestCase):
         #                                                     'https://www.google.com:443 "GET /aaa HTTP/1.1" 404 1564']
 
     def test_debug__info__warning__error__critical(self):
+
         self.logger.add_memory_logger()
         assert self.logger.debug     == self.logger.logger.debug
         assert self.logger.info      == self.logger.logger.info
@@ -193,17 +200,14 @@ class test_Python_Logger(TestCase):
         assert self.logger.error     == self.logger.logger.error
         assert self.logger.critical  == self.logger.logger.critical
         assert self.logger.exception == self.logger.logger.exception
-
+        
         assert self.logger.debug   ('debug message'    ) is None
         assert self.logger.info    ('info message'     ) is None
         assert self.logger.warning ('warning message'  ) is None
         assert self.logger.error   ('error message'    ) is None
         assert self.logger.critical('critical message' ) is None
-        assert self.logger.memory_handler_messages() == [ 'debug message'   ,
-                                                          'info message'    ,
-                                                          'warning message' ,
-                                                          'error message'   ,
-                                                          'critical message']
+
+        assert self.logger.memory_handler_messages() == [ 'debug message' , 'info message'    , 'warning message' , 'error message'   , 'critical message']
         log_messages = self.logger.memory_handler_logs(group_by='levelname')
 
         assert list_set(log_messages) == ['CRITICAL', 'DEBUG', 'ERROR', 'INFO', 'WARNING']
@@ -219,7 +223,8 @@ class test_Python_Logger(TestCase):
             assert log_entry.get('levelname') == levelname
             assert log_entry.get('levelno'  ) == levelno
             assert log_entry.get('message'  ) == message
-            assert list_set(log_entry) == [ 'args',  'created',  'exc_info',  'exc_text',  'filename',  'funcName',  'levelname',  'levelno',  'lineno',  'message',  'module',  'msecs',  'msg',  'name',  'pathname',  'process',  'processName',  'relativeCreated',  'stack_info',  'thread',  'threadName' ]
+            # note: asctime below is only showing when pytest_configure is set and configures config.option.log_format
+            assert list_set(log_entry) == [ 'args',  'asctime', 'created',  'exc_info',  'exc_text',  'filename',  'funcName',  'levelname',  'levelno',  'lineno',  'message',  'module',  'msecs',  'msg',  'name',  'pathname',  'process',  'processName',  'relativeCreated',  'stack_info',  'thread',  'threadName' ]
 
         assert_log(critical_logs, 'CRITICAL', 50, 'critical message')
         assert_log(debug_logs   , 'DEBUG'   , 10, 'debug message'   )
