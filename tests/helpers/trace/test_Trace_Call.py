@@ -271,7 +271,7 @@ class test_Trace_Call(TestCase):
         assert _.calls() == expected_calls
 
 
-    def test__bug__trace_capture_start_with__can_be_set_to__none(self):
+    def test__regression__trace_capture_start_with__can_be_set_to__none(self):
         config = Trace_Call__Config()                       # create a clean copy of Trace_Call__Config
         with config as _:                                   # use the context support to make the code cleanner below
             assert _.trace_capture_start_with == []         # this is what we expect by default
@@ -291,15 +291,15 @@ class test_Trace_Call(TestCase):
             assert _.trace_capture_start_with == ['a']      # FIXED: was None   BUG: this should not have been set to None (since it is not a list)
 
 
-    def test__bug__trace_calls__decorator_fails_when_trace_capture_start_with_is_set_to_none(self):
-        with self.assertRaises(Exception) as context:                           # this is the exception that we expect to be raised
-            @trace_calls()                                                      # BUG this is where the exception will occur
-            def method_a():                                                     # i.e. on the setup of the call tracer for method_a()
-                pass                                                            # we will never get here
+    def test__regression__trace_calls__decorator_fails_when_trace_capture_start_with_is_set_to_none(self):
+        #with self.assertRaises(Exception) as context:                          # FIXED: this is the exception that we expect to be raised
+            @trace_calls()                                                      # FIXED: BUG this is where the exception will occur
+            def method_a():                                                     # FIXED: i.e. on the setup of the call tracer for method_a()
+                pass                                                            # we will never get here (we got here and all good)
 
             method_a()                                                          # trigger the execution of the trace_calls decorator
 
-        assert str(context.exception) == "Invalid type for attribute 'with_duration_bigger_than'. Expected '<class 'float'>' but got '<class 'int'>'"    # confirm correct exception was raised
+        #assert str(context.exception) == "Invalid type for attribute 'with_duration_bigger_than'. Expected '<class 'float'>' but got '<class 'int'>'"    # confirm correct exception was raised
 
 
 

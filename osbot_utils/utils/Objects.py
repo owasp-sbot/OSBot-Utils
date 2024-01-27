@@ -10,6 +10,13 @@ from dotenv import load_dotenv
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Str  import str_unicode_escape, str_max_width
 
+def are_types_compatible_for_assigment(source_type, target_type):
+    if source_type is target_type:
+        return True
+    if source_type is int and target_type is float:
+        return True
+    return False
+
 def base_classes(cls):
     if type(cls) is type:
         target = cls
@@ -224,8 +231,13 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
                 origin_attr_type = get_origin(attr_type)                # to handle when type definion contains an generic
                 if origin_attr_type:
                     attr_type = origin_attr_type
-                return type(value) is attr_type
+                target_type = type(value)
+                if are_types_compatible_for_assigment(source_type=target_type, target_type=attr_type):
+                    return True
+                return target_type is attr_type
     return None
+
+
 
 
 

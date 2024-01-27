@@ -15,13 +15,24 @@ from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_
     obj_dict, env_value, env_vars, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
-    obj_base_classes, obj_base_classes_names, env_vars_list
+    obj_base_classes, obj_base_classes_names, env_vars_list, are_types_compatible_for_assigment
 
 
 class test_Objects(TestCase):
 
     def setUp(self):
         load_dotenv()                                       # todo: replace this with equivalent load_dotenv funcionality (since it is an extra import and all we currenty use of it is to load the .env file into memory)
+
+    def test_are_types_compatible_for_assigment(self):
+        assert are_types_compatible_for_assigment(source_type=int      , target_type=int      ) is True
+        assert are_types_compatible_for_assigment(source_type=str      , target_type=str      ) is True
+        assert are_types_compatible_for_assigment(source_type=float    , target_type=float    ) is True
+        assert are_types_compatible_for_assigment(source_type=TestCase , target_type=TestCase ) is True
+        assert are_types_compatible_for_assigment(source_type=int      , target_type=float    ) is True
+
+        assert are_types_compatible_for_assigment(source_type=float    , target_type=int      ) is False
+        assert are_types_compatible_for_assigment(source_type=int      , target_type=str      ) is False
+        assert are_types_compatible_for_assigment(source_type=str      , target_type=int      ) is False
 
     def test_base_classes(self):
         assert base_classes(self) == [TestCase, object]
@@ -299,7 +310,7 @@ class test_Objects(TestCase):
         #assert _(target=an_class, attr_name=None, value='') is None
 
 
-    def test__bug__value_type_matches_obj_annotation__false_positive_on_compatible_types(self):
+    def test__regression__value_type_matches_obj_annotation__false_positive_on_compatible_types(self):
         class An_Class:
             an_str   : str
             an_int   : int
@@ -313,8 +324,8 @@ class test_Objects(TestCase):
         assert _(target=an_class, attr_name='an_int'  , value=an_int  ) is True       # expected behaviour, an int can be assigned to an int
         assert _(target=an_class, attr_name='an_float', value=an_float) is True       # expected behaviour, a float can be assigned to a float
         assert _(target=an_class, attr_name='an_int'  , value=an_float) is False      # expected behaviour, a float can't be assigned to an int
+        assert _(target=an_class, attr_name='an_float', value=an_int  ) is True       # FIXED: was false    BUG: this should be True, an int can be assigned to a float
 
-        assert _(target=an_class, attr_name='an_float', value=an_int  ) is False      # BUG: this should be True, an int can be assigned to a float
 
 
 
