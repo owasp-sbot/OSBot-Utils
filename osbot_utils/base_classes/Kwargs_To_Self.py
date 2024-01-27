@@ -106,6 +106,8 @@ class Kwargs_To_Self:
             if value is not None:                           #       the objective is to ensure that the type of the value passed in is the same as the one defined in the class
                 if value_type_matches_obj_annotation_for_attr(self, name, value) is False:
                     raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+            else:
+                return                                      # when type safety is enabled, it is not possible to assign None to objects (since that will break type safety)
 
         super().__setattr__(name, value)
 
@@ -192,6 +194,7 @@ class Kwargs_To_Self:
 
     def enable_type_safety(self):
         self.__type_safety__ = True
+        return self
 
     def locked(self, value=True):
         self.__lock_attributes__ = value
@@ -204,5 +207,8 @@ class Kwargs_To_Self:
     def update_from_kwargs(self, **kwargs):
         """Update instance attributes with values from provided keyword arguments."""
         for key, value in kwargs.items():
-            setattr(self, key, value)
+            if value is not None:
+                if value_type_matches_obj_annotation_for_attr(self, key, value) is False:
+                    raise Exception(f"Invalid type for attribute '{key}'. Expected '{self.__annotations__.get(key)}' but got '{type(value)}'")
+                setattr(self, key, value)
         return self

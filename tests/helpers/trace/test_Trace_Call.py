@@ -275,8 +275,9 @@ class test_Trace_Call(TestCase):
         config = Trace_Call__Config()                       # create a clean copy of Trace_Call__Config
         with config as _:                                   # use the context support to make the code cleanner below
             assert _.trace_capture_start_with == []         # this is what we expect by default
-            _.trace_capture_start_with        = None        # BUG: this should not be possible
-            assert _.trace_capture_start_with is None       # BUG: if we allow this to happen, other parts of the code will break
+            _.enable_type_safety()
+            _.trace_capture_start_with        = None        # FIXED this now doesn't do anything   BUG: this should not be possible
+            assert _.trace_capture_start_with == []         # FIXED: value was not overwritten     BUG: if we allow this to happen, other parts of the code will break
 
         config = Trace_Call__Config()                       # create a new clean object
         with config as _:
@@ -286,8 +287,8 @@ class test_Trace_Call(TestCase):
             assert _.trace_capture_start_with == ['a']      # so far so good, since the list was correctly populated
 
             kwargs = {'trace_capture_start_with': None}     # this is where the bug will be created
-            _.update_from_kwargs(**kwargs)                  # BUG: this should not have worked
-            assert _.trace_capture_start_with is None       # BUG: this should not have been set to None (since it is not a list)
+            _.update_from_kwargs(**kwargs)                  # FIXED: works now  BUG: this should not have worked
+            assert _.trace_capture_start_with == ['a']      # FIXED: was None   BUG: this should not have been set to None (since it is not a list)
 
 
     def test__bug__trace_calls__decorator_fails_when_trace_capture_start_with_is_set_to_none(self):
@@ -298,7 +299,7 @@ class test_Trace_Call(TestCase):
 
             method_a()                                                          # trigger the execution of the trace_calls decorator
 
-        assert str(context.exception) == "'NoneType' object is not iterable"    # confirm correct exception was raised
+        assert str(context.exception) == "Invalid type for attribute 'with_duration_bigger_than'. Expected '<class 'float'>' but got '<class 'int'>'"    # confirm correct exception was raised
 
 
 

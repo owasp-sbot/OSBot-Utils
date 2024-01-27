@@ -299,6 +299,24 @@ class test_Objects(TestCase):
         #assert _(target=an_class, attr_name=None, value='') is None
 
 
+    def test__bug__value_type_matches_obj_annotation__false_positive_on_compatible_types(self):
+        class An_Class:
+            an_str   : str
+            an_int   : int
+            an_float : float
+
+        an_int   = 1
+        an_float = 1.0
+        an_class = An_Class()
+        _ = value_type_matches_obj_annotation_for_attr
+        assert _(target=an_class, attr_name='an_str'  , value=an_int  ) is False      # expected behaviour, a string can't be assigned to an int
+        assert _(target=an_class, attr_name='an_int'  , value=an_int  ) is True       # expected behaviour, an int can be assigned to an int
+        assert _(target=an_class, attr_name='an_float', value=an_float) is True       # expected behaviour, a float can be assigned to a float
+        assert _(target=an_class, attr_name='an_int'  , value=an_float) is False      # expected behaviour, a float can't be assigned to an int
+
+        assert _(target=an_class, attr_name='an_float', value=an_int  ) is False      # BUG: this should be True, an int can be assigned to a float
+
+
 
     def test__pyhton_name_mangling(self):
         class Target:
