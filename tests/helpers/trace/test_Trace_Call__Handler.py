@@ -24,7 +24,7 @@ class test_Trace_Call__Handler(TestCase):
         self.handler = Trace_Call__Handler()
 
     def test___default_kwargs(self):
-        default_kwargs = Trace_Call__Handler.__default_kwargs__()
+        default_kwargs = Trace_Call__Handler().__default_kwargs__()
         assert list_set(default_kwargs) == ['config', 'stack', 'stats']
         assert type(default_kwargs.get('config')) is Trace_Call__Config
         assert type(default_kwargs.get('stack' )) is Trace_Call__Stack

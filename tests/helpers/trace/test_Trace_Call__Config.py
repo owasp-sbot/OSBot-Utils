@@ -42,8 +42,8 @@ class test_Trace_Call__Config(TestCase):
                           'trace_show_internals'     : False ,
                           'trace_up_to_depth'        : 0     ,
                           'with_duration_bigger_than': 0.0   }
-        assert Trace_Call__Config.__cls_kwargs__    () == expected_data
-        assert Trace_Call__Config.__default_kwargs__() == expected_data
+        assert Trace_Call__Config.__cls_kwargs__      () == expected_data
+        assert Trace_Call__Config().__default_kwargs__() == expected_data
 
         with self.trace_call_config as _:
             assert _.__cls_kwargs__     () == expected_data

@@ -82,7 +82,7 @@ class Kwargs_To_Self:
                        setting an undefined attribute.
 
         """
-        for (key, value) in self.__default_kwargs__().items():                  # assign all default values to self
+        for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
             setattr(self, key, value)
 
         for (key, value) in kwargs.items():                             # overwrite with values provided in ctor
@@ -113,30 +113,39 @@ class Kwargs_To_Self:
         return list_set(self.__locals__())
 
     @classmethod
-    def __cls_kwargs__(cls):
+    def __cls_kwargs__(cls, include_base_classes=True):
         """Return current class dictionary of class level variables and their values."""
         kwargs = {}
 
-        for k, v in vars(cls).items():
-            if not k.startswith('__') and not isinstance(v, types.FunctionType):  # remove instance functions
-                kwargs[k] = v
+        for base_cls in inspect.getmro(cls):
+            if base_cls is object:  # Skip the base 'object' class
+                continue
+            for k, v in vars(base_cls).items():
+                if not k.startswith('__') and not isinstance(v, types.FunctionType):  # remove instance functions
+                    kwargs[k] = v
 
-        for var_name, var_type in cls.__annotations__.items():
-            if hasattr(cls, var_name) is False:                         # only add if it has not already been defined
-                var_value = default_value(var_type)
-                kwargs[var_name] = var_value
-            else:
-                var_value = getattr(cls, var_name)
-                if not isinstance(var_value, var_type):
-                    exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
-                    raise Exception(exception_message)
+            for var_name, var_type in base_cls.__annotations__.items():
+                if hasattr(base_cls, var_name) is False:                         # only add if it has not already been defined
+                    var_value = default_value(var_type)
+                    kwargs[var_name] = var_value
+                else:
+                    var_value = getattr(base_cls, var_name)
+                    if not isinstance(var_value, var_type):
+                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
+                        raise Exception(exception_message)
+                    if var_type not in immutable_types and var_name.startswith('__') is False:
+                        if type(var_type) not in immutable_types:
+                            exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
+                            raise Exception(exception_message)
+            if include_base_classes is False:
+                break
         return kwargs
 
-    @classmethod
-    def __default_kwargs__(cls):
+    #@classmethod
+    def __default_kwargs__(self):
         """Return entire (including base classes) dictionary of class level variables and their values."""
         kwargs = {}
-
+        cls = type(self)
         for base_cls in inspect.getmro(cls):                  # Traverse the inheritance hierarchy and collect class-level attributes
             if base_cls is object:  # Skip the base 'object' class
                 continue
@@ -145,15 +154,14 @@ class Kwargs_To_Self:
                     kwargs[k] = v
             # add the vars defined with the annotations
             for var_name, var_type in base_cls.__annotations__.items():
-                if hasattr(cls, var_name) is False:                         # only add if it has not already been defined
-                    var_value = default_value(var_type)
+                if hasattr(self, var_name):                                     # if the variable exists in self, use it (this prevents the multiple calls to default_value)
+                    var_value = getattr(self, var_name)
+                    kwargs[var_name] = var_value
+                elif hasattr(cls, var_name) is False:                           # if the attribute has not been defined in the class
+                    var_value = default_value(var_type)                         # try to create (and use) its default value
                     kwargs[var_name] = var_value
                 else:
-                    if var_type not in immutable_types and var_name.startswith('__') is False:
-                        if type(var_type) not in immutable_types:
-                            exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
-                            raise Exception(exception_message)
-                    var_value = getattr(cls, var_name)
+                    var_value = getattr(cls, var_name)                          # if it is defined, check the type
                     if not isinstance(var_value, var_type):
                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
                         raise Exception(exception_message)
@@ -190,7 +198,7 @@ class Kwargs_To_Self:
         return self
 
     def reset(self):
-        for k,v in self.__default_kwargs__().items():
+        for k,v in self.__cls_kwargs__().items():
             setattr(self, k, v)
 
     def update_from_kwargs(self, **kwargs):

@@ -32,7 +32,7 @@ class test_Trace_Call(TestCase):
         self.trace_view_model = self.trace_call.trace_call_view_model
 
     def test___default_kwargs(self):
-        default_kwargs = Trace_Call.__default_kwargs__()
+        default_kwargs = Trace_Call().__default_kwargs__()
         assert list_set(default_kwargs) == ['config', 'started']
         assert type(default_kwargs.get('config')) is Trace_Call__Config
 
@@ -258,7 +258,7 @@ class test_Trace_Call(TestCase):
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
                            '\x1b[1m│   ├── 🧩️ __setattr__\x1b[0m'            ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
-                           '\x1b[1m│   │   ├── 🧩️ random_string\x1b[0m'      ,
+                           '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'      ,
                            '\x1b[1m│   │   └── 🧩️ set_config\x1b[0m'         ,
                            '\x1b[1m│   └── 🔗️ add_memory_logger\x1b[0m'      ,
                            '\x1b[1m└────────── 🧩️ add_handler_memory\x1b[0m' ]

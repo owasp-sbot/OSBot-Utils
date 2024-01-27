@@ -27,7 +27,7 @@ class test_Trace_Files(TestCase):
         assert trace_files.stack[0]     == Trace_Call__Stack_Node(name=DEFAULT_ROOT_NODE_NODE_TITLE)
 
     def test___init__(self):
-        assert Trace_Files.__cls_kwargs__() == {'files': []}
+        assert Trace_Files.__cls_kwargs__(include_base_classes=False) == {'files': []}
         assert Trace_Files().files == []
 
         assert Trace_Files(files=[]       ).files == []

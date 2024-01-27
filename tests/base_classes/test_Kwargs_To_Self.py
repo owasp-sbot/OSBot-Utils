@@ -1,14 +1,16 @@
 import types
 import unittest
+from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
 from osbot_utils.testing.Catch                  import Catch
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Misc                     import random_string
-from osbot_utils.utils.Objects                  import obj_info, obj_data
+from osbot_utils.utils.Objects import obj_info, obj_data, default_value
 
 
-class Test_Kwargs_To_Self(unittest.TestCase):
+class Test_Kwargs_To_Self(TestCase):
 
     class Config_Class(Kwargs_To_Self):
         attribute1      = 'default_value'
@@ -31,8 +33,13 @@ class Test_Kwargs_To_Self(unittest.TestCase):
             pass
 
     def test___cls_kwargs__(self):
-        assert self.Config_Class.__cls_kwargs__() == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print }
-        assert self.Extra_Config.__cls_kwargs__() == {'attribute3': 'another_value',                     'callable_attr_2': print }
+        assert self.Config_Class.__cls_kwargs__(include_base_classes=False) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print }
+        assert self.Config_Class.__cls_kwargs__(include_base_classes=True ) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print }
+        assert self.Extra_Config.__cls_kwargs__(include_base_classes=False) == {'attribute3': 'another_value',                     'callable_attr_2': print }
+        assert self.Extra_Config.__cls_kwargs__(include_base_classes=True ) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print ,
+                                                                                'attribute3': 'another_value',                     'callable_attr_2': print , }
+        assert self.Config_Class.__cls_kwargs__(include_base_classes=True) == self.Config_Class.__cls_kwargs__()
+        assert self.Extra_Config.__cls_kwargs__(include_base_classes=True) == self.Extra_Config.__cls_kwargs__()
 
         assert self.Config_Class.__cls_kwargs__() == self.Config_Class().__cls_kwargs__()
         assert self.Extra_Config.__cls_kwargs__() == self.Extra_Config().__cls_kwargs__()
@@ -42,7 +49,7 @@ class Test_Kwargs_To_Self(unittest.TestCase):
             attribute1 = 'default_value'
             attribute2 = True
 
-        assert An_Class.__default_kwargs__() == {'attribute1': 'default_value', 'attribute2': True}
+        assert An_Class().__default_kwargs__() == {'attribute1': 'default_value', 'attribute2': True}
 
 
     def test_default_kwargs_inheritance(self):
@@ -52,15 +59,15 @@ class Test_Kwargs_To_Self(unittest.TestCase):
                              'attribute3'     : 'another_value'  ,
                              'callable_attr_1': print            ,
                              'callable_attr_2': print            }
-        self.assertEqual(self.Extra_Config.__default_kwargs__(), expected_defaults)
+        self.assertEqual(self.Extra_Config().__default_kwargs__(), expected_defaults)
 
 
     def test_default_kwargs_no_leakage(self):
         """ Test that instance attributes do not affect class-level defaults. """
         instance = self.Config_Class(attribute1='changed_value')
-        expected_defaults = {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': self.Config_Class.__default_kwargs__()['callable_attr_1']}
-        self.assertEqual(self.Config_Class.__default_kwargs__(), expected_defaults)
-        self.assertNotEqual(instance.attribute1, self.Config_Class.__default_kwargs__()['attribute1'])
+        expected_defaults = {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': self.Config_Class().__default_kwargs__()['callable_attr_1']}
+        self.assertEqual(self.Config_Class().__default_kwargs__(), expected_defaults)
+        self.assertNotEqual(instance.attribute1, self.Config_Class().__default_kwargs__()['attribute1'])
 
     def test__correct_attributes(self):
         """ Test that correct attributes are set from kwargs. """
@@ -131,7 +138,7 @@ class Test_Kwargs_To_Self(unittest.TestCase):
 
     def test__kwargs__picks_up_vars_defined_in__init__(self):
         random_value     = random_string()
-        default_kwargs   = self.Config_Class.__default_kwargs__()
+        default_kwargs   = self.Config_Class().__default_kwargs__()
         config_2_kwargs  = {**default_kwargs, 'attribute1': random_value}
 
         assert default_kwargs == {  'attribute1'    : 'default_value',
@@ -160,7 +167,7 @@ class Test_Kwargs_To_Self(unittest.TestCase):
 
 
     def test__locals__(self):
-        default_kwargs  = self.Extra_Config.__default_kwargs__()
+        default_kwargs  = self.Extra_Config().__default_kwargs__()
         extra_config_1  = self.Extra_Config()
         default_locals  = {**default_kwargs, 'callable_attr_2': extra_config_1.callable_attr_2, 'local_attribute_4': '123', 'local_callable_attr_4': print}
 
@@ -222,7 +229,7 @@ class Test_Kwargs_To_Self(unittest.TestCase):
                             'type_value_1': 1     ,
                             'type_value_2': 'aaa' }
 
-        assert Class_With_Types.__default_kwargs__() == expected_values
+        assert Class_With_Types().__default_kwargs__() == expected_values
         assert Class_With_Types().__kwargs__      () == expected_values
         assert Class_With_Types().__locals__      () == expected_values
 
@@ -233,7 +240,7 @@ class Test_Kwargs_To_Self(unittest.TestCase):
 
         expected_error= "Catch: <class 'Exception'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
         with Catch(expect_exception=True, expected_error=expected_error) as catch:
-            An_Bad_Type.__default_kwargs__()
+            An_Bad_Type().__default_kwargs__()
 
         expected_error = "Catch: <class 'Exception'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
         with Catch(expect_exception=True, expected_error=expected_error):
@@ -263,7 +270,7 @@ class Test_Kwargs_To_Self(unittest.TestCase):
         assert an_class.attribute_7 == []
         assert an_class.attribute_8 == 42
 
-        assert An_Class.__default_kwargs__() == expected_values
+        assert An_Class().__default_kwargs__() == expected_values
         assert An_Class().__kwargs__() == expected_values
         assert An_Class().__locals__() == expected_values
 
@@ -298,3 +305,28 @@ class Test_Kwargs_To_Self(unittest.TestCase):
                         "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumMeta'>)'")
         with Catch(expect_exception=True, expected_error=expected_error):
             An_Class_2()
+
+
+    def test__regression__default_value_is_not_cached(self):                    # FIXED: this is a test that confirms a BUG the currently exists in the default_value method
+
+        class An_Class(Kwargs_To_Self):
+            test_case : TestCase
+        with patch('osbot_utils.base_classes.Kwargs_To_Self.default_value') as patched_default_value:
+            patched_default_value.side_effect = default_value                   # make sure that the main code uses the original method (i.e. not the patched one)
+                                                                                #       since all we need is the ability to count how many times the method was called
+            an_class = An_Class()                                               # create instance of class (which will call default_value via __default__kwargs__)
+            assert patched_default_value.call_count == 1                        # expected result, since we used the default_value to create an instance of TestCase
+            test_case = an_class.__locals__().get('test_case')                  # get a reference of that object (which (BUG) will also call default_value)
+            assert test_case                         is not None                # make sure var that is set
+            assert type(test_case)                   == TestCase                #       and that is the correct type
+            assert patched_default_value.call_count  == 1 # was 2               # FIXED - BUG: we shouldn't see another call to default_value
+            assert an_class.__locals__().get('test_case') is test_case          # confirm that although there was a call to default_value, it's value was not used
+            assert patched_default_value.call_count  == 1 # was 3               # FIXED -BUG: again we should not see a call to default_value
+            assert an_class.__locals__().get('test_case') is test_case          # just to double-check the behaviour/bug we are seeing
+            assert patched_default_value.call_count  == 1 # was 4               # FIXED -BUG: this should be 1 (since we should only create the object once via default_value)
+            assert default_value(TestCase).__class__ is TestCase                # confirm that a direct call to default_value does create an instance of TestCase
+            assert default_value(TestCase)           is not test_case           # confirm that default_value object doesn't match the one we got originally
+            assert TestCase()                        is not TestCase()          # double check that TestCase() creates a new object every time
+            assert test_case                         is test_case               # confirm that the 'is' operator is the one correct one to check equality
+            assert test_case                         == test_case               # confirm that we can't use == (i.e. __eq__) for equality
+            assert TestCase()                        == TestCase()              #       since this should be False (i.e. two new instances of TestCase)

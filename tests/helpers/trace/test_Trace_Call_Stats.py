@@ -17,10 +17,10 @@ class test_Trace_Call_Stats(TestCase):
                                unknowns       =  0 ,
                                raw_call_stats = [] )
 
-        assert Trace_Call__Stats.__cls_kwargs__    () == expected_locals
-        assert Trace_Call__Stats.__default_kwargs__() == expected_locals
-        assert Trace_Call__Stats().__kwargs__      () == expected_locals
-        assert Trace_Call__Stats().__locals__      () == expected_locals
+        assert Trace_Call__Stats.__cls_kwargs__      () == expected_locals
+        assert Trace_Call__Stats().__default_kwargs__() == expected_locals
+        assert Trace_Call__Stats().__kwargs__        () == expected_locals
+        assert Trace_Call__Stats().__locals__        () == expected_locals
 
     def test_log_frame(self):
         test_frames = Frames_Test_Data()
