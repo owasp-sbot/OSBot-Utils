@@ -271,7 +271,34 @@ class test_Trace_Call(TestCase):
         assert _.calls() == expected_calls
 
 
+    def test__bug__trace_capture_start_with__can_be_set_to__none(self):
+        config = Trace_Call__Config()                       # create a clean copy of Trace_Call__Config
+        with config as _:                                   # use the context support to make the code cleanner below
+            assert _.trace_capture_start_with == []         # this is what we expect by default
+            _.trace_capture_start_with        = None        # BUG: this should not be possible
+            assert _.trace_capture_start_with is None       # BUG: if we allow this to happen, other parts of the code will break
 
+        config = Trace_Call__Config()                       # create a new clean object
+        with config as _:
+            assert _.trace_capture_start_with == []         # confirm value
+            kwargs = {'trace_capture_start_with': ['a']}    # create an object that can be used on update_from_kwargs
+            _.update_from_kwargs(**kwargs)                  # this is the other location of the bug (in fact it is where the bug was discovered)
+            assert _.trace_capture_start_with == ['a']      # so far so good, since the list was correctly populated
+
+            kwargs = {'trace_capture_start_with': None}     # this is where the bug will be created
+            _.update_from_kwargs(**kwargs)                  # BUG: this should not have worked
+            assert _.trace_capture_start_with is None       # BUG: this should not have been set to None (since it is not a list)
+
+
+    def test__bug__trace_calls__decorator_fails_when_trace_capture_start_with_is_set_to_none(self):
+        with self.assertRaises(Exception) as context:                           # this is the exception that we expect to be raised
+            @trace_calls()                                                      # BUG this is where the exception will occur
+            def method_a():                                                     # i.e. on the setup of the call tracer for method_a()
+                pass                                                            # we will never get here
+
+            method_a()                                                          # trigger the execution of the trace_calls decorator
+
+        assert str(context.exception) == "'NoneType' object is not iterable"    # confirm correct exception was raised
 
 
 

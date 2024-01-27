@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from osbot_utils.helpers.trace.Trace_Call import trace_calls
 from osbot_utils.utils.Objects import obj_info
 
 from osbot_utils.utils.Dev import pprint
@@ -59,6 +60,7 @@ class test_Mermaid(TestCase):
     def test_config(self):
         assert self.mermaid.config__add_nodes is True
 
+    #@trace_calls()
     def test_use_case_1(self):
 
         expected_code = ("flowchart LR"
@@ -66,7 +68,8 @@ class test_Mermaid(TestCase):
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
             _.add_node('id')
-            _.print_code()
+            _.logger.info('from test_use_case_1')
+            #_.print_code()
             #assert _.code() == expected_code
 # example = """
 # flowchart TD

@@ -74,7 +74,7 @@ class Mermaid(Kwargs_To_Self):
         return line
 
     def code(self):
-        self.logger.info('aaa')
+        self.logger.info('in code ')
         self.code_create()
         return '\n'.join(self.mermaid_code)
 
