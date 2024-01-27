@@ -61,30 +61,27 @@ class Python_Logger:
         self.set_logger_name(logger_name)
         #self.logger_name = logger_name or random_string(prefix="Python_Logger_")
         self.set_config(logger_config)
-        self.logger = None
+        # self.logger = None
+        self.setup()                            # todo: undestand side effect of setting up logger on __init__
+
+    def disable(self):
+        self.logger.disabled = True
+        return self
 
     def set_logger_name(self, logger_name):
-        if logger_name:
+        if logger_name:                                     # if the value is provided, use it
             self.logger_name = logger_name
-            return
+            return self
+        for frame_info in inspect.stack():                  # Look for the first frame that is outside this Python_Logger class
+            if 'self' in frame_info.frame.f_locals:
+                caller_self = frame_info.frame.f_locals['self']
+                caller_module = caller_self.__class__.__name__
+                if caller_module != 'Python_Logger':
+                    self.logger_name = 'Python_Logger__' + caller_module
+                    return self
+
         self.logger_name = random_string(prefix="Python_Logger_")
-
-        # todo: finish implementation of this method that tries to get the logger name from the caller
-        #stack      = inspect.stack()                # Look for the first frame that is outside this Python_Logger class
-        # print('------')
-        # for frame_info in stack:
-        #     if 'self' in frame_info.frame.f_locals:
-        #         caller_self = frame_info.frame.f_locals['self']
-        #         caller_module = caller_self.__class__.__name__
-        #         print(caller_module)
-
-        #frame_info = stack[2:]
-        # if 'self' in frame_info.frame.f_locals:
-        #     caller_self = frame_info.frame.f_locals['self']
-        #     logger_name = caller_self.__class__.__name__
-        #     self.logger_name = 'Python_Logger_' + logger_name
-        # else:
-
+        return self
 
     def manager_get_loggers(self):
         return Logger.manager.loggerDict

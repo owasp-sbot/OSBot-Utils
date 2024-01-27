@@ -1,5 +1,9 @@
 from enum import Enum, auto
 
+from osbot_utils.utils.Objects import obj_info
+
+from osbot_utils.testing.Duration import Duration
+
 from osbot_utils.utils.Misc import wait_for
 
 from osbot_utils.utils.Python_Logger import Python_Logger
@@ -48,8 +52,7 @@ class Mermaid(Kwargs_To_Self):
 
     def __init__(self):
         super().__init__()
-        #self.logger.set_log_format('%(levelname)-5s : %(message)s')
-        self.logger.setup(logger_name='Logger_Name', add_memory_logger=False)
+        #self.logger.disable()
 
     def add_edge(self, from_node_key, to_node_key, label=None,attributes=None):
         nodes_by_id = self.mgraph.data().nodes__by_key()

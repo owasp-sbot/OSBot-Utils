@@ -254,20 +254,22 @@ class test_Trace_Call(TestCase):
 
         expected_calls = [ ''                                                ,
                            '--------- CALL TRACER ----------'                ,
-                           'Here are the 7 traces captured\n'                ,
+                           'Here are the 8 traces captured\n'                ,
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
                            '\x1b[1m│   ├── 🧩️ __setattr__\x1b[0m'            ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
-                           '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'      ,
-                           '\x1b[1m│   │   └── 🧩️ set_config\x1b[0m'         ,
+                           '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'    ,
+                           '\x1b[1m│   │   ├── 🧩️ set_config\x1b[0m'         ,
+                           '\x1b[1m│   │   └── 🧩️ setup\x1b[0m'              ,
                            '\x1b[1m│   └── 🔗️ add_memory_logger\x1b[0m'      ,
                            '\x1b[1m└────────── 🧩️ add_handler_memory\x1b[0m' ]
-
-        with Patch_Print(expected_calls=expected_calls, print_calls=False, enabled=True) as _:
+        #expected_calls = expected_calls
+        with Patch_Print(print_calls=False, enabled=True) as _:
             with self.trace_call:
                 logger = Python_Logger()
                 logger.add_memory_logger()
-        #assert _.call_args_list() == expected_calls
+        assert _.calls() == expected_calls
+
 
 
 

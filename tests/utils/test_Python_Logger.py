@@ -47,6 +47,10 @@ class test_Python_Logger(TestCase):
         assert obj_items(self.logger.config) == obj_items(Python_Logger_Config())
         assert self.logger.logger            is not None
 
+    def test_set_logger_name(self):
+        assert self.logger.logger_name                             == 'Python_Logger__test_Python_Logger'
+        assert self.logger.set_logger_name('new_name').logger_name == 'new_name'
+
     # Helpers and Setup methods
 
     def test_manager_get_loggers(self):

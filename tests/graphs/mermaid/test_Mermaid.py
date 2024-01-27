@@ -1,13 +1,11 @@
 from unittest import TestCase
 
-from osbot_utils.utils.Misc import wait_for
-
-from osbot_utils.utils.Str import str_dedent
+from osbot_utils.utils.Objects import obj_info
 
 from osbot_utils.utils.Dev import pprint
 
+from osbot_utils.utils.Str import str_dedent
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid, Diagram__Direction, Diagram__Type
-
 
 class test_Mermaid(TestCase):
 
@@ -25,6 +23,8 @@ class test_Mermaid(TestCase):
                              'mermaid_code'     : []                    ,
                              'mgraph'           : _.mgraph              }
             assert _.__locals__() == expected_vars
+            assert _.logger.logger_name == 'Python_Logger__Mermaid'
+
 
     def test_code(self):
         expected_code = str_dedent("""
