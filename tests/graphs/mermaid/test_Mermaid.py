@@ -60,17 +60,18 @@ class test_Mermaid(TestCase):
     def test_config(self):
         assert self.mermaid.config__add_nodes is True
 
-    #@trace_calls()
+    @trace_calls(contains=['mermaid'])         # this was the code that was triggering the bug
     def test_use_case_1(self):
-
         expected_code = ("flowchart LR"
                          "    id"      )
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
             _.add_node('id')
             _.logger.info('from test_use_case_1')
-            #_.print_code()
+            _.print_code()
+
             #assert _.code() == expected_code
+
 # example = """
 # flowchart TD
 #     A[Christmas] -->|Get money| B(Go shopping)

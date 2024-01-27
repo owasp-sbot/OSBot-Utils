@@ -29,7 +29,9 @@ def trace_calls(title=None, print_traces=True, show_locals=False, source_code=Fa
                                  print_lines_on_exit=print_lines, trace_enabled=enabled,
                                  trace_capture_lines=show_lines or print_lines)
 
-            config = Trace_Call__Config().locked().update_from_kwargs(**config_kwargs)
+            config = (Trace_Call__Config().locked             ()
+                                          .enable_type_safety ()
+                                          .update_from_kwargs (**config_kwargs))
 
             with Trace_Call(config=config):
                 result = func(*args, **kwargs)
