@@ -1,4 +1,6 @@
 from enum                                       import Enum, auto
+
+from osbot_utils.graphs.mermaid.Mermaid__Edge import Mermaid__Edge
 from osbot_utils.graphs.mermaid.Mermaid__Graph  import Mermaid__Graph
 from osbot_utils.graphs.mermaid.Mermaid__Node import LINE_PADDING, Mermaid__Node
 from osbot_utils.utils.Python_Logger            import Python_Logger
@@ -43,7 +45,6 @@ class Mermaid(Kwargs_To_Self):
 
     def __init__(self):
         super().__init__()
-        #self.logger.disable()
 
     def add_edge(self, from_node_key, to_node_key, label=None,attributes=None):
         nodes_by_id = self.graph.data().nodes__by_key()
@@ -54,7 +55,8 @@ class Mermaid(Kwargs_To_Self):
         if not to_node:
             to_node = self.add_node(key=to_node_key)
         new_edge = self.graph.add_edge(from_node, to_node, label=label,attributes=attributes)
-        return new_edge
+        mermaid_edge = Mermaid__Edge().cast(new_edge)
+        return mermaid_edge
 
     def add_node(self, **kwargs):
         mgraph_node = self.graph.add_node(**kwargs)
@@ -81,7 +83,7 @@ class Mermaid(Kwargs_To_Self):
                     _.add_line(node_code)
                 _.add_line('')
             for edge in _.edges():
-                edge_code = self.render_edge(edge)
+                edge_code = edge.render_edge()
                 _.add_line(edge_code)
         return self
 
@@ -109,25 +111,6 @@ class Mermaid(Kwargs_To_Self):
 
     def nodes(self):
         return self.graph.nodes
-
-    def render_edge(self, edge):
-        from_node_key = safe_str(edge.from_node.key)
-        to_node_key   = safe_str(edge.to_node  .key)
-        if edge.attributes.get('output_node_from'):
-            from_node_key =  edge.from_node.render_node(include_padding=False) #f'{edge.from_node.key}["{edge.from_node.label}"]'
-        if edge.attributes.get('output_node_to'):
-            to_node_key   = edge.to_node.render_node(include_padding=False   ) #f'{edge.to_node  .key}["{edge.to_node  .label}"]'
-        if edge.attributes.get('edge_mode') == 'lr_using_pipe':
-            link_code      = f'-->|{edge.label}|'
-        elif edge.label:
-            link_code      = f'--"{edge.label}"-->'
-        else:
-            link_code      = '-->'
-        edge_code      = f'{LINE_PADDING}{from_node_key} {link_code} {to_node_key}'
-        return edge_code
-
-
-
 
     def reset_code(self):
         self.mermaid_code = []

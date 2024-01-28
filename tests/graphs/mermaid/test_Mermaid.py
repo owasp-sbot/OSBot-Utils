@@ -1,16 +1,10 @@
 from unittest import TestCase
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
-from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
-
-from osbot_utils.helpers.trace.Trace_Call import trace_calls
-from osbot_utils.utils.Objects import obj_info, base_types, type_mro
-
-from osbot_utils.utils.Dev import pprint
-
-from osbot_utils.utils.Str import str_dedent
-from osbot_utils.graphs.mermaid.Mermaid import Mermaid, Diagram__Direction, Diagram__Type
+from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.graphs.mermaid.Mermaid__Node   import Mermaid__Node
+from osbot_utils.graphs.mgraph.MGraph__Node     import MGraph__Node
+from osbot_utils.utils.Objects                  import type_mro
+from osbot_utils.utils.Str                      import str_dedent
+from osbot_utils.graphs.mermaid.Mermaid         import Mermaid, Diagram__Direction, Diagram__Type
 
 class test_Mermaid(TestCase):
 
@@ -45,12 +39,12 @@ class test_Mermaid(TestCase):
             _.set_config__add_nodes(False)
             _.set_direction(Diagram__Direction.TD)
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node(label='Christmas'    , key='A', attributes = { 'node_shape': 'normal'    }).wrap_with_quotes(False)
-            _.add_node(label='Go shopping'  , key='B', attributes = { 'node_shape': 'round-edge'}).wrap_with_quotes(False)
-            _.add_node(label='Let me think' , key='C', attributes = { 'node_shape': 'rhombus'   }).wrap_with_quotes(False)
-            _.add_node(label='Laptop'       , key='D'                                            ).wrap_with_quotes(False)
-            _.add_node(label='iPhone'       , key='E'                                            ).wrap_with_quotes(False)
-            _.add_node(label='fa:fa-car Car', key='F'                                            ).wrap_with_quotes(False)
+            _.add_node(label='Christmas'    , key='A').wrap_with_quotes(False).shape('normal'    )
+            _.add_node(label='Go shopping'  , key='B').wrap_with_quotes(False).shape('round-edge')
+            _.add_node(label='Let me think' , key='C').wrap_with_quotes(False).shape('rhombus'   )
+            _.add_node(label='Laptop'       , key='D').wrap_with_quotes(False)
+            _.add_node(label='iPhone'       , key='E').wrap_with_quotes(False)
+            _.add_node(label='fa:fa-car Car', key='F').wrap_with_quotes(False)
             _.add_edge('A', 'B', 'Get money', attributes = {'output_node_from': True, 'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
             _.add_edge('B', 'C'                   , attributes= {'output_node_to': True})
             _.add_edge('C', 'D', label='One'      , attributes= {'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
@@ -64,8 +58,14 @@ class test_Mermaid(TestCase):
     def test_config(self):
         assert self.mermaid.config__add_nodes is True
 
+    def test__config__edge__output_node_from(self):
+        with self.mermaid as _:
+            _.add_edge('id', 'id2', attributes= {'output_node_from': True})
+            #_.print_code()
+            assert _.code() == 'graph LR\n    id["id"]\n    id2["id2"]\n\n    id["id"] --> id2'
+
     def test__config__wrap_with_quotes(self):
-        new_node = Mermaid().add_node(label='id').wrap_with_quotes()
+        new_node = Mermaid().add_node(key='id').wrap_with_quotes()
         assert new_node.attributes == {'wrap_with_quotes': True}
         assert new_node.key == 'id'
         assert new_node.data() == {'attributes' : {'wrap_with_quotes': True},
@@ -74,24 +74,24 @@ class test_Mermaid(TestCase):
         assert type_mro(new_node) == [Mermaid__Node, MGraph__Node, Kwargs_To_Self, object]
 
         with Mermaid() as _:
-            _.add_node(label='id')
+            _.add_node(key='id')
             assert _.code() == 'graph LR\n    id["id"]\n'
         with Mermaid() as _:
-            _.add_node(label='id')
+            _.add_node(key='id')
             assert _.code() == 'graph LR\n    id["id"]\n'
         with Mermaid() as _:
-            _.add_node(label='id').wrap_with_quotes(False)
+            _.add_node(key='id').wrap_with_quotes(False)
             assert _.code() == 'graph LR\n    id[id]\n'
 
         mermaid = Mermaid()
-        new_node = mermaid.add_node(label='id')
+        new_node = mermaid.add_node(key='id')
         new_node.wrap_with_quotes(False)
         assert type(new_node) == Mermaid__Node
         assert new_node.attributes == {'wrap_with_quotes': False}
         assert mermaid.code() == 'graph LR\n    id[id]\n'
 
     def test__config__node_shape(self):
-        with Mermaid().add_node(label='id') as _:
+        with Mermaid().add_node(key='id') as _:
             assert _                    .render_node() == '    id["id"]'
             assert _.shape(''          ).render_node() == '    id["id"]'
             assert _.shape('aaaaa'     ).render_node() == '    id["id"]'
@@ -112,7 +112,7 @@ class test_Mermaid(TestCase):
         print()
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node(label='id').wrap_with_quotes(False).shape('rhombus')
+            _.add_node(key='id').wrap_with_quotes(False).shape('rhombus')
             _.print_code()
             _.save()
 

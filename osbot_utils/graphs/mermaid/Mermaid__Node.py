@@ -5,8 +5,8 @@ LINE_PADDING = '    '
 
 class Mermaid__Node(MGraph__Node):
 
-    def cast(self, node):
-        self.__dict__ = node.__dict__
+    def cast(self, source):
+        self.__dict__ = source.__dict__
         return self
 
     def render_node(self, include_padding=True):

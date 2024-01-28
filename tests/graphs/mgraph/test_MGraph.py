@@ -19,7 +19,7 @@ class test_MGraph(TestCase):
     def test_add_node(self):
         label = random_text()
         with self.mgraph as _:
-            new_node = _.add_node(label=label)
+            new_node = _.add_node(key=label)
             assert _.nodes               == [new_node]
             assert new_node.label        == label
             assert new_node.__locals__() == {'attributes': {} , 'key': label, 'label': label}
@@ -28,8 +28,8 @@ class test_MGraph(TestCase):
         label_1 = random_text()
         label_2 = random_text()
         with self.mgraph as _:
-            from_node  = _.add_node(label=label_1)
-            to_node    = _.add_node(label=label_2)
+            from_node  = _.add_node(key=label_1)
+            to_node    = _.add_node(key=label_2)
             new_edge   = _.add_edge(from_node=from_node, to_node=to_node)
             assert _.edges               == [new_edge]
             assert new_edge.from_node    == from_node

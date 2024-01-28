@@ -32,7 +32,7 @@ class MGraph(Kwargs_To_Self):
         self.edges.append(new_edge)
         return new_edge
 
-    def add_node(self, label, key=None, attributes=None):
+    def add_node(self, key=None, label=None, attributes=None):
         new_node = MGraph__Node(key=key, label=label, attributes=attributes)
         self.nodes.append(new_node)
         return new_node

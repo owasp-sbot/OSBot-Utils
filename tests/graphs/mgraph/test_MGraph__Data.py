@@ -29,7 +29,7 @@ class test_MGraph__Data(TestCase):
     def test_nodes__edges(self):
         with self.graph_data as _:                                          # Use graph_data in a context manager
             nodes_edges = _.nodes_edges()                                   # Retrieve nodes and their edges
-            assert list_set(nodes_edges) == _.nodes__keys()                  # Assert equality of nodes_edges and nodes_keys
+            assert list_set(nodes_edges) == sorted(_.nodes__keys())         # Assert equality of nodes_edges and nodes_keys
 
             expected_data = defaultdict(list)                               # Defaultdict for storing expected data
             for edge in _.edges():                                          # Iterate over all edges in the graph

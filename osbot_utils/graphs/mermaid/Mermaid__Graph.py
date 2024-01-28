@@ -7,9 +7,9 @@ from osbot_utils.graphs.mgraph.MGraph import MGraph
 
 class Mermaid__Graph(MGraph):
     pass
-    #edges        : list[Mermaid__Edge]
+    edges        : list[Mermaid__Edge]
     mermaid_code : list
-    #nodes        : list[Mermaid__Node]
+    nodes        : list[Mermaid__Node]
 
     # def __init__(self, mgraph=None):
     #     super().__init__()
@@ -36,9 +36,6 @@ class Mermaid__Graph(MGraph):
         return mermaid_node
         #new_node = MGraph__Node(*args, **kwargs)
 
-        return new_node
-        mermaid_node = Mermaid__Node(**kwargs).cast(new_node)
-        self.nodes.append(mermaid_node)
         return new_node
     #
     #
