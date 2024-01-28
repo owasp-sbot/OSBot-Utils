@@ -54,8 +54,11 @@ class Mermaid(Kwargs_To_Self):
             from_node = self.add_node(key=from_node_key)
         if not to_node:
             to_node = self.add_node(key=to_node_key)
-        new_edge = self.graph.add_edge(from_node, to_node, label=label,attributes=attributes)
-        mermaid_edge = Mermaid__Edge().cast(new_edge)
+
+        # todo: add back the protection/detection that we get from MGraph class of allow_circle_edges and allow_duplicate_edges
+        #new_edge = self.graph.add_edge(from_node, to_node, label=label,attributes=attributes)
+        mermaid_edge = Mermaid__Edge(from_node=from_node, to_node=to_node, label=label, attributes=attributes)
+        self.graph.edges.append(mermaid_edge)
         return mermaid_edge
 
     def add_node(self, **kwargs):

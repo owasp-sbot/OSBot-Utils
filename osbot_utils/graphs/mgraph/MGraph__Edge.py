@@ -10,6 +10,10 @@ class MGraph__Edge(Kwargs_To_Self):
     label      : str
     to_node    : Mermaid__Node
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.enable_type_safety()
+
     def __repr__(self):
         return self.__str__()
 
@@ -22,19 +26,3 @@ class MGraph__Edge(Kwargs_To_Self):
 
     def data(self):
         return self.__locals__()             # todo: see if there is a better way to do this (specialy as the edge objects gets more features and attributes)
-
-    def render_edge(self):
-        from_node_key = safe_str(self.from_node.key)
-        to_node_key   = safe_str(self.to_node  .key)
-        if self.attributes.get('output_node_from'):
-            from_node_key =  self.from_node.render_node(include_padding=False) #f'{edge.from_node.key}["{edge.from_node.label}"]'
-        if self.attributes.get('output_node_to'):
-            to_node_key   = self.to_node.render_node(include_padding=False   ) #f'{edge.to_node  .key}["{edge.to_node  .label}"]'
-        if self.attributes.get('edge_mode') == 'lr_using_pipe':
-            link_code      = f'-->|{self.label}|'
-        elif self.label:
-            link_code      = f'--"{self.label}"-->'
-        else:
-            link_code      = '-->'
-        edge_code      = f'{LINE_PADDING}{from_node_key} {link_code} {to_node_key}'
-        return edge_code

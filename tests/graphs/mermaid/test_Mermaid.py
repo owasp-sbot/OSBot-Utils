@@ -1,5 +1,9 @@
 from unittest import TestCase
+
+from osbot_utils.utils.Dev import pprint
+
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.graphs.mermaid.Mermaid__Edge import Mermaid__Edge
 from osbot_utils.graphs.mermaid.Mermaid__Node   import Mermaid__Node
 from osbot_utils.graphs.mgraph.MGraph__Node     import MGraph__Node
 from osbot_utils.utils.Objects                  import type_mro
@@ -45,11 +49,11 @@ class test_Mermaid(TestCase):
             _.add_node(label='Laptop'       , key='D').wrap_with_quotes(False)
             _.add_node(label='iPhone'       , key='E').wrap_with_quotes(False)
             _.add_node(label='fa:fa-car Car', key='F').wrap_with_quotes(False)
-            _.add_edge('A', 'B', 'Get money', attributes = {'output_node_from': True, 'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
-            _.add_edge('B', 'C'                   , attributes= {'output_node_to': True})
-            _.add_edge('C', 'D', label='One'      , attributes= {'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
-            _.add_edge('C', 'E', label='Two'      , attributes= {'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
-            _.add_edge('C', 'F', label='Three'    , attributes= {'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
+            _.add_edge('A', 'B', label='Get money').output_node_from().output_node_to().edge_mode__lr_using_pipe()
+            _.add_edge('B', 'C'                   ).output_node_to()
+            _.add_edge('C', 'D', label='One'      ).output_node_to().edge_mode__lr_using_pipe()
+            _.add_edge('C', 'E', label='Two'      ).output_node_to().edge_mode__lr_using_pipe()
+            _.add_edge('C', 'F', label='Three'    ).output_node_to().edge_mode__lr_using_pipe()
             #_.print_code()
 
         assert expected_code == _.code()
@@ -60,9 +64,16 @@ class test_Mermaid(TestCase):
 
     def test__config__edge__output_node_from(self):
         with self.mermaid as _:
-            _.add_edge('id', 'id2', attributes= {'output_node_from': True})
-            #_.print_code()
-            assert _.code() == 'graph LR\n    id["id"]\n    id2["id2"]\n\n    id["id"] --> id2'
+            new_edge = _.add_edge('id', 'id2').output_node_from()
+            assert _.code()               == 'graph LR\n    id["id"]\n    id2["id2"]\n\n    id["id"] --> id2'
+            assert new_edge.attributes    == {'output_node_from': True }
+            assert new_edge.render_edge() == '    id["id"] --> id2'
+            new_edge.output_node_from(False)
+            assert new_edge.attributes    == {'output_node_from': False}
+            assert new_edge.render_edge() == '    id --> id2'
+
+
+
 
     def test__config__wrap_with_quotes(self):
         new_node = Mermaid().add_node(key='id').wrap_with_quotes()
@@ -118,6 +129,36 @@ class test_Mermaid(TestCase):
 
             assert _.code() == 'flowchart LR\n    id{id}\n'
             assert _.code() != expected_code
+
+
+    def test__bug__Mermaid__Edge__init__is_not_enforcing_type_safety(self):
+        from_node_key = 'from_node_key'
+        to_node_key   = 'to_node_key'
+        from_node     = from_node_key
+        to_node       = to_node_key
+
+        assert Mermaid__Edge.__annotations__ == {'from_node': str           ,           # confirm the type annotations
+                                                 'to_node'  : Mermaid__Node }
+        assert type(from_node) is str                                                   # confirm that both variables are of type str
+        assert type(to_node  ) is str
+
+        new_edge = Mermaid__Edge(from_node=from_node, to_node=to_node)                  # BUG, this should have not worked (an exception should have been raised)
+        assert new_edge.from_node       == from_node                                    # confirm that assigment worked 
+        assert new_edge.to_node         == to_node                                      # BUG, to_node should never be anything else than a Mermaid__Node object
+        assert type(new_edge.from_node) is str                                          # confirm that the type of the variables is still str
+        assert type(new_edge.to_node  ) is str                                          # BUG, to_node should never be anything else than a Mermaid__Node object
+        assert new_edge.__type_safety__ is True                                         # confirm that type safety is enabled
+
+        with self.assertRaises(Exception) as context:
+            new_edge.to_node = to_node                                                  # confirm that this type safety is working (i.e. assigment post ctor)
+        assert str(context.exception) == ("Invalid type for attribute 'to_node'."       
+                                          " Expected '<class 'osbot_utils.graphs."      # note how the type safety correctly picked up that we were expecting
+                                          "mermaid.Mermaid__Node.Mermaid__Node'>' "     #     an object of type Mermaid__Node
+                                          "but got '<class 'str'>'")                    #     but we got an object of type str
+
+
+
+
 
 
 

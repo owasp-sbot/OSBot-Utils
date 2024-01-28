@@ -1,32 +1,47 @@
+from osbot_utils.graphs.mermaid.Mermaid__Node import LINE_PADDING, Mermaid__Node
 from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
 #from osbot_utils.graphs.mgraph.views.mermaid.Mermaid__Node import Mermaid__Node
 from osbot_utils.utils.Str import safe_str
 
 
 class Mermaid__Edge(MGraph__Edge):
-    pass
-    #from_node : Mermaid__Node
-    #to_node   : Mermaid__Node
+    from_node : str
+    to_node   : Mermaid__Node
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     # def __init__(self, **kwargs):
     #     super().__init__(**kwargs)
     #     self.convert_nodes()
     #
-    # def cast(self, edge):
-    #     self.__dict__ = edge.__dict__
-    #     self.convert_nodes()
-    #     return self
-    #
-    # def code(self):
-    #     from_node_key = safe_str(self.from_node.key)
-    #     to_node_key   = safe_str(self.to_node.key)
-    #     if self.label:
-    #         link_code      = f'--"{self.label}"-->'
-    #     else:
-    #         link_code      = '-->'
-    #     edge_code      = f'{from_node_key} {link_code} {to_node_key}'
-    #     return edge_code
-    #
-    # def convert_nodes(self):
-    #     self.from_node = Mermaid__Node().cast(self.from_node)
-    #     self.to_node   = Mermaid__Node().cast(self.to_node  )
+    def edge_mode(self, edge_mode):
+        self.attributes['edge_mode'] = edge_mode
+        return self
+
+    def edge_mode__lr_using_pipe(self):
+        return self.edge_mode('lr_using_pipe')
+
+    def output_node_from(self, value=True):
+        self.attributes['output_node_from'] = value
+        return self
+
+    def output_node_to(self, value=True):
+        self.attributes['output_node_to'] = value
+        return self
+
+    def render_edge(self):
+        from_node_key = safe_str(self.from_node.key)
+        to_node_key   = safe_str(self.to_node  .key)
+        if self.attributes.get('output_node_from'):
+            from_node_key =  self.from_node.render_node(include_padding=False) #f'{edge.from_node.key}["{edge.from_node.label}"]'
+        if self.attributes.get('output_node_to'):
+            to_node_key   = self.to_node.render_node(include_padding=False   ) #f'{edge.to_node  .key}["{edge.to_node  .label}"]'
+        if self.attributes.get('edge_mode') == 'lr_using_pipe':
+            link_code      = f'-->|{self.label}|'
+        elif self.label:
+            link_code      = f'--"{self.label}"-->'
+        else:
+            link_code      = '-->'
+        edge_code      = f'{LINE_PADDING}{from_node_key} {link_code} {to_node_key}'
+        return edge_code
