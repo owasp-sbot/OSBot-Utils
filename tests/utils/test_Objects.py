@@ -15,7 +15,7 @@ from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_
     obj_dict, env_value, env_vars, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
-    obj_base_classes, obj_base_classes_names, env_vars_list, are_types_compatible_for_assigment
+    obj_base_classes, obj_base_classes_names, env_vars_list, are_types_compatible_for_assigment, type_mro
 
 
 class test_Objects(TestCase):
@@ -327,7 +327,9 @@ class test_Objects(TestCase):
         assert _(target=an_class, attr_name='an_float', value=an_int  ) is True       # FIXED: was false    BUG: this should be True, an int can be assigned to a float
 
 
-
+    def test_type_mro(self):
+        assert type_mro(TestCase  ) == [TestCase, object]
+        assert type_mro(TestCase()) == [TestCase, object]
 
     def test__pyhton_name_mangling(self):
         class Target:

@@ -1,7 +1,11 @@
 from unittest import TestCase
 
+from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
+from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
+
 from osbot_utils.helpers.trace.Trace_Call import trace_calls
-from osbot_utils.utils.Objects import obj_info
+from osbot_utils.utils.Objects import obj_info, base_types, type_mro
 
 from osbot_utils.utils.Dev import pprint
 
@@ -22,7 +26,7 @@ class test_Mermaid(TestCase):
                              'diagram_type'     : _.diagram_type        ,
                              'logger'           : _.logger              ,
                              'mermaid_code'     : []                    ,
-                             'mgraph'           : _.mgraph              }
+                             'graph'            : _.graph               }
             assert _.__locals__() == expected_vars
             assert _.logger.logger_name == 'Python_Logger__Mermaid'
 
@@ -41,12 +45,12 @@ class test_Mermaid(TestCase):
             _.set_config__add_nodes(False)
             _.set_direction(Diagram__Direction.TD)
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node( 'Christmas'   , 'A', attributes = {'wrap_with_quotes': False, 'node_shape': 'normal'    })
-            _.add_node('Go shopping'  , 'B', attributes = {'wrap_with_quotes': False, 'node_shape': 'round-edge'})
-            _.add_node('Let me think' , 'C', attributes = {'wrap_with_quotes': False, 'node_shape': 'rhombus'   })
-            _.add_node('Laptop'       , 'D', attributes = {'wrap_with_quotes': False})
-            _.add_node('iPhone'       , 'E', attributes = {'wrap_with_quotes': False})
-            _.add_node('fa:fa-car Car', 'F', attributes = {'wrap_with_quotes': False})
+            _.add_node(label='Christmas'    , key='A', attributes = {'wrap_with_quotes': False, 'node_shape': 'normal'    })
+            _.add_node(label='Go shopping'  , key='B', attributes = {'wrap_with_quotes': False, 'node_shape': 'round-edge'})
+            _.add_node(label='Let me think' , key='C', attributes = {'wrap_with_quotes': False, 'node_shape': 'rhombus'   })
+            _.add_node(label='Laptop'       , key='D', attributes = {'wrap_with_quotes': False})
+            _.add_node(label='iPhone'       , key='E', attributes = {'wrap_with_quotes': False})
+            _.add_node(label='fa:fa-car Car', key='F', attributes = {'wrap_with_quotes': False})
             _.add_edge('A', 'B', 'Get money', attributes = {'output_node_from': True, 'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
             _.add_edge('B', 'C'                   , attributes= {'output_node_to': True})
             _.add_edge('C', 'D', label='One'      , attributes= {'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
@@ -60,17 +64,46 @@ class test_Mermaid(TestCase):
     def test_config(self):
         assert self.mermaid.config__add_nodes is True
 
-    @trace_calls(contains=['mermaid'])         # this was the code that was triggering the bug
+    def test__config__wrap_with_quotes(self):
+        new_node = Mermaid().add_node(label='id', attributes={'wrap_with_quotes': True})
+        assert new_node.attributes == {'wrap_with_quotes': True}
+        assert new_node.key == 'id'
+        assert new_node.data() == {'attributes' : {'wrap_with_quotes': True},
+                                   'key'        : 'id'                      ,
+                                   'label'      : 'id'                      }
+        assert type_mro(new_node) == [Mermaid__Node, MGraph__Node, Kwargs_To_Self, object]
+
+        with Mermaid() as _:
+            _.add_node(label='id')
+            assert _.code() == 'graph LR\n    id["id"]\n'
+        with Mermaid() as _:
+            _.add_node(label='id', attributes={'wrap_with_quotes': True})
+            assert _.code() == 'graph LR\n    id["id"]\n'
+        with Mermaid() as _:
+            _.add_node(label='id', attributes={'wrap_with_quotes': False})
+            assert _.code() == 'graph LR\n    id[id]\n'
+
+
+    #@trace_calls(contains=['mermaid'])         # this was the code that was triggering the bug
     def test_use_case_1(self):
-        expected_code = ("flowchart LR"
-                         "    id"      )
+        expected_code = """
+                            flowchart LR
+                               id"""
+
+        print()
+        print()
+
+        print(str_dedent(expected_code))
+        print()
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node('id')
-            _.logger.info('from test_use_case_1')
+            _.add_node(key='id', attributes = {'wrap_with_quotes': False, 'node_shape': 'normal'    })
             _.print_code()
+            _.save()
 
             #assert _.code() == expected_code
+
+
 
 # example = """
 # flowchart TD

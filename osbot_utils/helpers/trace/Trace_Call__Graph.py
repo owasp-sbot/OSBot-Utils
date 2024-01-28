@@ -1,10 +1,10 @@
-from osbot_utils.graphs.mgraph.views.mermaid.Mermaid__Graph import Mermaid__Graph
+from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.trace.Trace_Call import Trace_Call
 
-
+# todo: reimplement this class when Mermaid__Graph has been updated to new version
 class Trace_Call__Graph(Trace_Call):
 
     def create(self):

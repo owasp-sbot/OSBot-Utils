@@ -153,7 +153,14 @@ def print_object_members(target, name_width=30, value_width=100, show_private=Fa
                 print(f"{name:<{name_width}} | {value}"[:max_width])
 
 def obj_base_classes(obj):
-    return type_base_classes(type(obj))
+    return [obj_type for obj_type in type_base_classes(type(obj))]
+
+def type_mro(target):
+    if type(target) is type:
+        cls = target
+    else:
+        cls = type(target)
+    return list(inspect.getmro(cls))
 
 def type_base_classes(cls):
     base_classes = cls.__bases__

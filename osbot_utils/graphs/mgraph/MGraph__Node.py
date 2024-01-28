@@ -8,7 +8,6 @@ class MGraph__Node(Kwargs_To_Self):
     key        : str
     label      : str
 
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if not self.label:

@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
 from osbot_utils.utils.Objects import obj_info
 
 from osbot_utils.testing.Duration import Duration
@@ -46,7 +47,7 @@ class Mermaid(Kwargs_To_Self):
     diagram_direction : Diagram__Direction  = Diagram__Direction.LR
     diagram_type      : Diagram__Type = Diagram__Type.graph
     mermaid_code      : list
-    mgraph            : MGraph
+    graph             : Mermaid__Graph
     config__add_nodes : bool = True
     logger            : Python_Logger
 
@@ -55,32 +56,37 @@ class Mermaid(Kwargs_To_Self):
         #self.logger.disable()
 
     def add_edge(self, from_node_key, to_node_key, label=None,attributes=None):
-        nodes_by_id = self.mgraph.data().nodes__by_key()
+        nodes_by_id = self.graph.data().nodes__by_key()
         from_node   = nodes_by_id.get(from_node_key)
         to_node     = nodes_by_id.get(to_node_key)
         if not from_node:
             from_node = self.add_node(from_node_key)
         if not to_node:
             to_node = self.add_node(to_node_key)
-        new_edge = self.mgraph.add_edge(from_node, to_node, label=label,attributes=attributes)
+        new_edge = self.graph.add_edge(from_node, to_node, label=label,attributes=attributes)
         return new_edge
 
-    def add_node(self, label, key=None, attributes=None):
-        new_node = self.mgraph.add_node(key=key, label=label, attributes=attributes)
-        return new_node
+    def add_node(self, **kwargs):
+        return self.graph.add_node(**kwargs)
+
+    # def add_node(self, label, key=None, attributes=None):
+    #     new_node = self.graph.add_node(key=key, label=label, attributes=attributes)
+    #     return new_node
 
     def add_line(self, line):
         self.mermaid_code.append(line)
         return line
 
     def code(self):
-        self.logger.info('in code ')
         self.code_create()
         return '\n'.join(self.mermaid_code)
 
-    def code_create(self):
+    def code_create(self, recreate=False):
         with self as _:
-            _.reset_code()
+            if recreate:                            # if recreate is True, reset the code
+                _.reset_code()
+            elif self.mermaid_code:                 # if the code has already been created, dont' create it
+                return self                         #   todo: find a better way to do this, namely around the concept of auto detecting (on change) when the recreation needs to be done (vs being able to use the previously calculated data)
             _.add_line(self.graph_header())
             if self.config__add_nodes:
                 for node in _.nodes():
@@ -102,7 +108,7 @@ class Mermaid(Kwargs_To_Self):
         return '\n'.join(markdown)
 
     def edges(self):
-        return self.mgraph.edges
+        return self.graph.edges
 
     def graph_header(self):
         if type(self.diagram_type.value) is str:
@@ -115,7 +121,7 @@ class Mermaid(Kwargs_To_Self):
         print(self.code())
 
     def nodes(self):
-        return self.mgraph.nodes
+        return self.graph.nodes
 
     def render_edge(self, edge):
         from_node_key = safe_str(edge.from_node.key)

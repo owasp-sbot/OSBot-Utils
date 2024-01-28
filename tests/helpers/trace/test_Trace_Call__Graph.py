@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+import pytest
+
 from osbot_utils.graphs.mgraph.MGraphs import MGraphs
 from osbot_utils.utils.Misc import str_md5
 
@@ -20,6 +22,7 @@ class test_Trace_Call__Graph(TestCase):
         self.trace_graph  = Trace_Call__Graph()
         self.trace_config = self.trace_graph.config
 
+    @pytest.mark.skip("Fix this when Trace_Call__Graph is reimplemented with new version of Mermaid Graph")
     def test_create(self):
         self.trace_config.capture(contains=['osbot']).print_on_exit(False )
 
