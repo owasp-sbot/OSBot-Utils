@@ -45,12 +45,12 @@ class test_Mermaid(TestCase):
             _.set_config__add_nodes(False)
             _.set_direction(Diagram__Direction.TD)
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node(label='Christmas'    , key='A', attributes = {'wrap_with_quotes': False, 'node_shape': 'normal'    })
-            _.add_node(label='Go shopping'  , key='B', attributes = {'wrap_with_quotes': False, 'node_shape': 'round-edge'})
-            _.add_node(label='Let me think' , key='C', attributes = {'wrap_with_quotes': False, 'node_shape': 'rhombus'   })
-            _.add_node(label='Laptop'       , key='D', attributes = {'wrap_with_quotes': False})
-            _.add_node(label='iPhone'       , key='E', attributes = {'wrap_with_quotes': False})
-            _.add_node(label='fa:fa-car Car', key='F', attributes = {'wrap_with_quotes': False})
+            _.add_node(label='Christmas'    , key='A', attributes = { 'node_shape': 'normal'    }).wrap_with_quotes(False)
+            _.add_node(label='Go shopping'  , key='B', attributes = { 'node_shape': 'round-edge'}).wrap_with_quotes(False)
+            _.add_node(label='Let me think' , key='C', attributes = { 'node_shape': 'rhombus'   }).wrap_with_quotes(False)
+            _.add_node(label='Laptop'       , key='D'                                            ).wrap_with_quotes(False)
+            _.add_node(label='iPhone'       , key='E'                                            ).wrap_with_quotes(False)
+            _.add_node(label='fa:fa-car Car', key='F'                                            ).wrap_with_quotes(False)
             _.add_edge('A', 'B', 'Get money', attributes = {'output_node_from': True, 'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
             _.add_edge('B', 'C'                   , attributes= {'output_node_to': True})
             _.add_edge('C', 'D', label='One'      , attributes= {'output_node_to': True, 'edge_mode': 'lr_using_pipe'})
@@ -65,7 +65,7 @@ class test_Mermaid(TestCase):
         assert self.mermaid.config__add_nodes is True
 
     def test__config__wrap_with_quotes(self):
-        new_node = Mermaid().add_node(label='id', attributes={'wrap_with_quotes': True})
+        new_node = Mermaid().add_node(label='id').wrap_with_quotes()
         assert new_node.attributes == {'wrap_with_quotes': True}
         assert new_node.key == 'id'
         assert new_node.data() == {'attributes' : {'wrap_with_quotes': True},
@@ -77,11 +77,26 @@ class test_Mermaid(TestCase):
             _.add_node(label='id')
             assert _.code() == 'graph LR\n    id["id"]\n'
         with Mermaid() as _:
-            _.add_node(label='id', attributes={'wrap_with_quotes': True})
+            _.add_node(label='id')
             assert _.code() == 'graph LR\n    id["id"]\n'
         with Mermaid() as _:
-            _.add_node(label='id', attributes={'wrap_with_quotes': False})
+            _.add_node(label='id').wrap_with_quotes(False)
             assert _.code() == 'graph LR\n    id[id]\n'
+
+        mermaid = Mermaid()
+        new_node = mermaid.add_node(label='id')
+        new_node.wrap_with_quotes(False)
+        assert type(new_node) == Mermaid__Node
+        assert new_node.attributes == {'wrap_with_quotes': False}
+        assert mermaid.code() == 'graph LR\n    id[id]\n'
+
+    def test__config__node_shape(self):
+        with Mermaid().add_node(label='id') as _:
+            assert _                    .render_node() == '    id["id"]'
+            assert _.shape(''          ).render_node() == '    id["id"]'
+            assert _.shape('aaaaa'     ).render_node() == '    id["id"]'
+            assert _.shape('round-edge').render_node() == '    id("id")'
+            assert _.shape('rhombus'   ).render_node() == '    id{"id"}'
 
 
     #@trace_calls(contains=['mermaid'])         # this was the code that was triggering the bug
@@ -97,11 +112,12 @@ class test_Mermaid(TestCase):
         print()
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node(key='id', attributes = {'wrap_with_quotes': False, 'node_shape': 'normal'    })
+            _.add_node(label='id').wrap_with_quotes(False).shape('rhombus')
             _.print_code()
             _.save()
 
-            #assert _.code() == expected_code
+            assert _.code() == 'flowchart LR\n    id{id}\n'
+            assert _.code() != expected_code
 
 
 
