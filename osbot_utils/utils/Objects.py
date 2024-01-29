@@ -5,6 +5,7 @@ import os
 import types
 from typing import get_origin
 
+
 from dotenv import load_dotenv
 
 from osbot_utils.utils.Misc import list_set
@@ -15,6 +16,25 @@ def are_types_compatible_for_assigment(source_type, target_type):
         return True
     if source_type is int and target_type is float:
         return True
+    if target_type in source_type.__mro__:          # this means that the source_type has the target_type has of its base types
+        return True
+
+    return False
+
+def are_types_magic_mock(source_type, target_type):
+    from unittest.mock import MagicMock
+    if isinstance(source_type, MagicMock):
+        return True
+    if isinstance(target_type, MagicMock):
+        return True
+    if source_type is MagicMock:
+        return True
+    if target_type is MagicMock:
+        return True
+    # if class_full_name(source_type) == 'unittest.mock.MagicMock':
+    #     return True
+    # if class_full_name(target_type) == 'unittest.mock.MagicMock':
+    #     return True
     return False
 
 def base_classes(cls):
@@ -229,6 +249,10 @@ def obj_get_value(target=None, key=None, default=None):
 def obj_values(target=None):
     return list(obj_dict(target).values())
 
+def raise_exception_on_obj_type_annotation_mismatch(target, attr_name, value):
+    if value_type_matches_obj_annotation_for_attr(target, attr_name, value) is False:
+        raise Exception(f"Invalid type for attribute '{attr_name}'. Expected '{target.__annotations__.get(attr_name)}' but got '{type(value)}'")
+
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     if hasattr(target, '__annotations__'):
         obj_annotations  = target.__annotations__
@@ -238,10 +262,13 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
                 origin_attr_type = get_origin(attr_type)                # to handle when type definion contains an generic
                 if origin_attr_type:
                     attr_type = origin_attr_type
-                target_type = type(value)
-                if are_types_compatible_for_assigment(source_type=target_type, target_type=attr_type):
+                value_type = type(value)
+                if are_types_compatible_for_assigment(source_type=value_type, target_type=attr_type):
                     return True
-                return target_type is attr_type
+                if are_types_magic_mock(source_type=value_type, target_type=attr_type):
+                    return True
+
+                return value_type is attr_type
     return None
 
 
@@ -254,3 +281,5 @@ base_types          = base_classes
 obj_list_set        = obj_keys
 obj_info            = print_object_members
 obj_methods         = print_object_methods
+
+type_full_name      = class_full_name

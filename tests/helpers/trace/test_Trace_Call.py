@@ -33,7 +33,7 @@ class test_Trace_Call(TestCase):
 
     def test___default_kwargs(self):
         default_kwargs = Trace_Call().__default_kwargs__()
-        assert list_set(default_kwargs) == ['config', 'started']
+        assert list_set(default_kwargs) == ['config', 'prev_trace_function', 'started']
         assert type(default_kwargs.get('config')) is Trace_Call__Config
 
     def test___init__(self):
@@ -208,7 +208,7 @@ class test_Trace_Call(TestCase):
 
         assert list_set(self.handler.stats.frames_stats()) == ['codecs', 'genericpath', 'os',
                                                                'osbot_utils', 'posixpath', 'random', 'shutil',
-                                                               'tempfile', 'test_Trace_Call']
+                                                               'tempfile', 'test_Trace_Call', 'typing']
 
         assert self.handler.stats.frames_stats().get('osbot_utils') == { 'base_classes': {'Kwargs_To_Self': {'__setattr__': 1}},
                                                                          'helpers': {'trace': {'Trace_Call': {'__exit__': 1, 'on_exit': 1, 'stop': 1}}},
@@ -223,7 +223,9 @@ class test_Trace_Call(TestCase):
                                                                                              'path_combine': 2,
                                                                                              'temp_folder': 2,
                                                                                              'write': 2},
-                                                                                   'Misc': {'random_filename': 2}}}
+                                                                                   'Misc': {'random_filename': 2},
+                                                                                   'Objects': { 'are_types_compatible_for_assigment': 1,
+                                                                                                'value_type_matches_obj_annotation_for_attr': 1}}}
 
     def test__config_print_traces_on_exit(self):
         self.config.print_traces_on_exit = True
@@ -254,9 +256,10 @@ class test_Trace_Call(TestCase):
 
         expected_calls = [ ''                                                ,
                            '--------- CALL TRACER ----------'                ,
-                           'Here are the 8 traces captured\n'                ,
+                           'Here are the 9 traces captured\n'                ,
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
-                           '\x1b[1m│   ├── 🧩️ __setattr__\x1b[0m'            ,
+                           '\x1b[1m│   ├── 🔗️ __setattr__\x1b[0m'            ,
+                           '\x1b[1m│   │   └── 🧩️ get_origin\x1b[0m'         ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
                            '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'    ,
                            '\x1b[1m│   │   ├── 🧩️ set_config\x1b[0m'         ,
@@ -270,13 +273,49 @@ class test_Trace_Call(TestCase):
                 logger.add_memory_logger()
         assert _.calls() == expected_calls
 
+    def test_regression__previous_set_variables_can_be_set_to_none(self):
+        with Trace_Call__Config() as _:                             # create a new clean object
+            assert _.trace_capture_start_with == []                 # confirm variable is set
+            with self.assertRaises(Exception) as context:           # FIXED: after the fix
+                _.trace_capture_start_with = None                   # FIXED: this now raises an exception
+            assert str(context.exception) == ("Can't set None, to a variable that is already set. Invalid type for "
+                                              "attribute 'trace_capture_start_with'. "
+                                              "Expected '<class 'list'>' but got '<class 'NoneType'>'")
+            # _.trace_capture_start_with        = None               # BUG: this should not be allowed
+            # assert _.trace_capture_start_with is None              # BUG: this var should not have changed
+
+        class An_Class(Kwargs_To_Self):                              # create a test class to confirm behaviour
+            none_allowed = None                                      # we can have a None here (since the type is not defined)
+            an_list      : list                                      # when a list is defined, the default value will be assigned to it (in this case [] )
+
+        an_class = An_Class()                                        # create an instance of the test class
+        assert an_class.none_allowed is None                         # conform that the none_allowed var exists and it is None
+        assert an_class.an_list      == []                           # confirm that the an_list var exists and it is an empty list
+        with self.assertRaises(Exception) as context:                # FIXED: after the fix
+            an_class.an_list = None                                  # FIXED: this raises an exception
+        assert str(context.exception) == ("Can't set None, to a variable that is already set. Invalid type for "
+                                           "attribute 'an_list'. Expected '<class 'list'>' but got '<class 'NoneType'>'")
+        #an_class.an_list = None                                     # BUG: this should not be allowed (since we know that an_list should be a list)
+        #assert an_class.an_list      is None                        # BUG: this var should not have changed
+
+    def test_bug__it_is_possible_to_change_types_of_objects_already_set(self):
+        class An_Class(): pass
+
+        an_class = An_Class()                                       # create an instance of the test class
+        an_class.new_var = None                                     # we can create new vars (since we have not 'locked' the class)
+        assert an_class.new_var is None                             # confirm it exists and it is None
+        an_class.new_var = "abc"                                    # confirm that we can assign the variable to a string
+        assert type(an_class.new_var) is str                        # confirm that it is a string
+        an_class.new_var = 42                                       # BUG: confirm that we can change the type (which we really shouldn't)
+        assert type(an_class.new_var) is int                        # BUG: confirm that the type changed (which it shouldn't)
+
 
     def test__regression__trace_capture_start_with__can_be_set_to__none(self):
         config = Trace_Call__Config()                       # create a clean copy of Trace_Call__Config
         with config as _:                                   # use the context support to make the code cleanner below
             assert _.trace_capture_start_with == []         # this is what we expect by default
-            _.enable_type_safety()
-            _.trace_capture_start_with        = None        # FIXED this now doesn't do anything   BUG: this should not be possible
+            #_.enable_type_safety()
+            #_.trace_capture_start_with        = None        # FIXED this now doesn't do anything   BUG: this should not be possible
             assert _.trace_capture_start_with == []         # FIXED: value was not overwritten     BUG: if we allow this to happen, other parts of the code will break
 
         config = Trace_Call__Config()                       # create a new clean object

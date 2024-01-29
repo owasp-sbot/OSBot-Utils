@@ -13,6 +13,7 @@ class test_Trace_Files(TestCase):
         trace_files = Trace_Files()
         assert trace_files.__kwargs__() == {'config': trace_files.config ,
                                             'started': False             ,
+                                            'prev_trace_function': None  ,
                                             'files' : []                 }
 
         assert trace_files.__locals__() == { **trace_files.__kwargs__()                                                                 ,

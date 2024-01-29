@@ -8,6 +8,8 @@ from osbot_utils.helpers.trace.Trace_Call__Stack_Node   import Trace_Call__Stack
 from osbot_utils.helpers.trace.Trace_Call__Stats        import Trace_Call__Stats
 
 DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
+GLOBAL_FUNCTIONS_TO_IGNORE   = ['value_type_matches_obj_annotation_for_attr', 'are_types_compatible_for_assigment'      # type safety functions which introduce quite a lot of noise in the traces (and unless one is debugging type safety, they will not be needed)
+                                ]
 
 class Trace_Call__Handler(Kwargs_To_Self):
     config : Trace_Call__Config
@@ -128,6 +130,8 @@ class Trace_Call__Handler(Kwargs_To_Self):
             module      = frame.f_globals.get("__name__", "")                               # Get module name
             if  module == 'osbot_utils.helpers.trace.Trace_Call':                             # don't trace the trace module
                 return False                                                                # todo: figure out if there is a performance implication of doing this string comparison here (or if there is a better way to detect this)
+            if func_name in GLOBAL_FUNCTIONS_TO_IGNORE:
+                return False
             if module and func_name:
                 if self.config.trace_capture_all:
                     capture = True

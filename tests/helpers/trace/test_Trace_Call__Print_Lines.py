@@ -35,7 +35,6 @@ class test_Trace_Call__Print_Lines(TestCase):
         # print()
         # print_lines.print_lines()
         # return
-
         with patch('builtins.print') as builtins_print:
             print_lines.print_lines()
             assert builtins_print.call_args_list == [call('--------- CALL TRACER (Lines)----------'),

@@ -41,8 +41,9 @@ def trace_calls(title=None, print_traces=True, show_locals=False, source_code=Fa
 
 class Trace_Call(Kwargs_To_Self):
 
-    config : Trace_Call__Config
-    started: bool
+    config             : Trace_Call__Config
+    started            : bool
+    prev_trace_function: None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -56,7 +57,7 @@ class Trace_Call(Kwargs_To_Self):
         self.config.trace_capture_contains                      = self.config.trace_capture_contains   or []          #      and None will be quite common since we can use [] on method's params
         self.config.print_max_string_length                     = self.config.print_max_string_length  or PRINT_MAX_STRING_LENGTH
         self.stack                                              = self.trace_call_handler.stack
-        self.prev_trace_function                                = None                                                # Stores the previous trace function
+        #self.prev_trace_function                                = None                                                # Stores the previous trace function
 
 
     def __enter__(self):

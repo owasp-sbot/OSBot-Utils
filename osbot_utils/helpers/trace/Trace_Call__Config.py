@@ -35,8 +35,8 @@ class Trace_Call__Config(Kwargs_To_Self):
     trace_up_to_depth          : int
     with_duration_bigger_than  : float
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **wargs):
+        super().__init__(**wargs)
         self.locked()
 
     def all(self, up_to_depth=0, print_traces=True):

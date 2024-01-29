@@ -25,7 +25,7 @@ class test_MGraph__Serializer(TestCase):
 
 
     def test__init__(self):
-        expected_attrs = ['__type_safety__', 'caches_name', 'key', 'local_cache', 'mgraph', 'mode']
+        expected_attrs = ['caches_name', 'key', 'local_cache', 'mgraph', 'mode']
         with self.graph_serializer as _:
             assert _.__attr_names__() == expected_attrs
             assert _.caches_name     == 'mgraph_tests'

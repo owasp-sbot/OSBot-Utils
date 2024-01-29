@@ -5,7 +5,8 @@ import inspect
 import types
 from enum import Enum, EnumMeta
 from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr
+from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
+    raise_exception_on_obj_type_annotation_mismatch
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
@@ -66,7 +67,7 @@ class Kwargs_To_Self:
     """
 
     __lock_attributes__ = False
-    __type_safety__   = False
+    #__type_safety__   = False
 
     def __init__(self, **kwargs):
         """
@@ -83,6 +84,8 @@ class Kwargs_To_Self:
 
         """
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
+            if value is not None:                                           # when the value is explicity set to None on the class static vars, we can't check for type safety
+                raise_exception_on_obj_type_annotation_mismatch(self, key, value)
             setattr(self, key, value)
 
         for (key, value) in kwargs.items():                             # overwrite with values provided in ctor
@@ -92,7 +95,7 @@ class Kwargs_To_Self:
             else:
                 raise Exception(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
                                 f"Use {self.__class__.__name__}.__default_kwargs__() see what attributes are available")
-        #self.enable_type_safety()
+        self.enable_type_safety()
 
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
@@ -102,12 +105,12 @@ class Kwargs_To_Self:
             if not hasattr(self, name):
                 raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
 
-        if self.__type_safety__:                            # todo: figure out a way to add this type check without major side effects
-            if value is not None:                           #       the objective is to ensure that the type of the value passed in is the same as the one defined in the class
-                if value_type_matches_obj_annotation_for_attr(self, name, value) is False:
-                    raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
-            else:
-                return                                      # when type safety is enabled, it is not possible to assign None to objects (since that will break type safety)
+        if value is not None:
+            if value_type_matches_obj_annotation_for_attr(self, name, value) is False:
+                raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+        else:
+            if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
+                raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
         super().__setattr__(name, value)
 
@@ -120,16 +123,23 @@ class Kwargs_To_Self:
         kwargs = {}
 
         for base_cls in inspect.getmro(cls):
-            if base_cls is object:  # Skip the base 'object' class
+            if base_cls is object:                                                      # Skip the base 'object' class
                 continue
             for k, v in vars(base_cls).items():
-                if not k.startswith('__') and not isinstance(v, types.FunctionType):  # remove instance functions
+                if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
                     kwargs[k] = v
 
             for var_name, var_type in base_cls.__annotations__.items():
-                if hasattr(base_cls, var_name) is False:                         # only add if it has not already been defined
-                    var_value = default_value(var_type)
-                    kwargs[var_name] = var_value
+                if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
+
+                    if var_name in kwargs:                      # this fixes the BUG which happened when multiple MRO classes had the same variable name
+                        continue
+
+                    var_value = default_value(var_type)         # FOUND THE BUG, it is here
+                    kwargs[var_name] = var_value                # in the var overflow situation, the kwargs will have the correct type
+                                                                # becuase it runs first, but when processing the base class, that will also be created
+                                                                # and the base type will be used (which is wrong)
+                                                                # a solution is to check if kwargs[var_name] exists and if not assign it
                 else:
                     var_value = getattr(base_cls, var_name)
                     if not isinstance(var_value, var_type):
@@ -193,7 +203,7 @@ class Kwargs_To_Self:
         return kwargs
 
     def enable_type_safety(self):
-        self.__type_safety__ = True
+        #self.__type_safety__ = True
         return self
 
     def locked(self, value=True):

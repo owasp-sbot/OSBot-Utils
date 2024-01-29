@@ -6,7 +6,7 @@ from unittest.mock import patch, MagicMock
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
 from osbot_utils.testing.Catch                  import Catch
 from osbot_utils.utils.Dev                      import pprint
-from osbot_utils.utils.Misc                     import random_string
+from osbot_utils.utils.Misc import random_string, list_set
 from osbot_utils.utils.Objects import obj_info, obj_data, default_value
 
 
@@ -330,3 +330,59 @@ class Test_Kwargs_To_Self(TestCase):
             assert test_case                         is test_case               # confirm that the 'is' operator is the one correct one to check equality
             assert test_case                         == test_case               # confirm that we can't use == (i.e. __eq__) for equality
             assert TestCase()                        == TestCase()              #       since this should be False (i.e. two new instances of TestCase)
+
+    def test__regression__type_safety_race_condition_on_overloaded_vars(self):
+
+        class Base_Class                       :  pass                         # a base class
+        class Implements_Base_Class(Base_Class): pass                          # is used as a base class here
+        class An_Class(Kwargs_To_Self):                                        # now when a new class
+            an_var: Base_Class                                                 # creates a var using the base class
+        class Extends_An_Class(An_Class):                                      # and another class uses it has a base class
+            an_var: Implements_Base_Class                                      # and changes the type to a compatible type
+                                                                               #   we will get an exception, because Kwargs_To_Self creates
+                                                                               #   a new object of type Base_Class when it should create
+                                                                               #   a new object of type Implements_Base_Class
+
+        Base_Class()                                                           # this works ok
+        Implements_Base_Class()                                                # this works ok
+        An_Class()                                                             # this works ok (with an_var = Base_Class() )
+        Extends_An_Class()                                                     # FIXED: this works now (with an_var = Implements_Base_Class() )
+
+        assert type(An_Class()        .an_var) is Base_Class                  # just confirming an_var is Base_Class
+        assert type(Extends_An_Class().an_var) is Implements_Base_Class       # just confirming an_var is now Implements_Base_Class
+
+        # with self.assertRaises(Exception) as context:                       # BUG: this now will fail
+        #     Extends_An_Class()                                              # BUG: due to a bug in type safety logic Kwargs_To_Self
+        #
+        # assert str(context.exception) == ("Invalid type for attribute 'an_var'. Expected '<class 'test_Kwargs_To_Self.Test_Kwargs_To_Self.test__bug__type_safety_race_condition_on_overloaded_vars.<locals>."
+        #                                     "Implements_Base_Class'>' "
+        #                                  "but got '<class 'test_Kwargs_To_Self.Test_Kwargs_To_Self.test__bug__type_safety_race_condition_on_overloaded_vars.<locals>."
+        #                                     "Base_Class'>'")
+
+    def test__type_safety_bug__in___cls_kwargs__(self):
+        class Base_Class                           : pass                                  # set of classes that replicate the bug
+        class Implements_Base_Class(Base_Class    ): pass                                  # which happens when we have a base class
+        class An_Class             (Kwargs_To_Self): an_var: Base_Class                    # and a class that uses it as a var
+        class Extends_An_Class     (An_Class      ):an_var: Implements_Base_Class          # and another class that extends it and changes the type
+
+        an_class__cls_kwargs__         = An_Class        .__cls_kwargs__()                 # the bug in __cls_kwargs__() so lets get its output for both
+        extends_an_class__cls_kwargs__ = Extends_An_Class.__cls_kwargs__()                 # An_Class and Extends_An_Class
+        assert list_set(an_class__cls_kwargs__        )           == ['an_var']            # confirm that the only var created and assigned
+        assert list_set(extends_an_class__cls_kwargs__)           == ['an_var']            # the 'an_var' one
+        assert type(an_class__cls_kwargs__        .get('an_var')) == Base_Class            # this is ok since the an_var in An_Class should be Base_Class
+        assert type(extends_an_class__cls_kwargs__.get('an_var')) == Implements_Base_Class # FIXED: BUG: since an_var in Extends_An_Class should be Implements_Base_Class
+
+
+
+
+
+
+        #Implements_Base_Class()
+        #An_Class()
+        #Extends_An_Class()
+            # assert type(Base_Class_A  ().an_int_in_base_class_a) is int
+        # assert type(Parent_Class_A().an_int_in_base_class_a) is int
+        # assert type(Parent_Class_A().an_str_in_base_class_b) is str
+        # assert type(Target_Base_Class_B().base_class_a     ) is Base_Class_A
+        # assert type(Target_Parent_Class_B().base_class_a) is Base_Class_A
+        # assert type(Target_Base_Class_B().base_class_a.an_int_in_base_class_a) is int

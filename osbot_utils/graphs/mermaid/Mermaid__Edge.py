@@ -5,11 +5,11 @@ from osbot_utils.utils.Str import safe_str
 
 
 class Mermaid__Edge(MGraph__Edge):
-    from_node : str
+    from_node : Mermaid__Node
     to_node   : Mermaid__Node
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
 
     # def __init__(self, **kwargs):
     #     super().__init__(**kwargs)

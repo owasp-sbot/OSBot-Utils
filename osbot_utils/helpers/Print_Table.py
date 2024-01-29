@@ -329,8 +329,8 @@ class Print_Table(Kwargs_To_Self):
                 new_row[new_index] = cell
             new_rows.append(new_row)
 
-        self.headers = new_order                                                                # Reorder the headers
-        self.rows = new_rows                                                                    # Reorder the rows
+        self.headers = list(new_order)                                                                # Reorder the headers
+        self.rows    = new_rows                                                                    # Reorder the rows
         return self
 
 

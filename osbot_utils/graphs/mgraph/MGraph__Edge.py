@@ -6,9 +6,9 @@ from osbot_utils.utils.Str import safe_str
 
 class MGraph__Edge(Kwargs_To_Self):
     attributes : dict
-    from_node  : Mermaid__Node
+    from_node  : MGraph__Node
     label      : str
-    to_node    : Mermaid__Node
+    to_node    : MGraph__Node
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

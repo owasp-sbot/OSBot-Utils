@@ -8,7 +8,7 @@ from osbot_utils.helpers.trace.Trace_Call__Print_Traces import text_grey, text_b
 class Trace_Call__Print_Lines(Kwargs_To_Self):
 
     config     : Trace_Call__Config
-    view_model : dict
+    view_model : list
 
     def lines(self):
         lines = []
