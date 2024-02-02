@@ -95,7 +95,6 @@ class Kwargs_To_Self:
             else:
                 raise Exception(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
                                 f"Use {self.__class__.__name__}.__default_kwargs__() see what attributes are available")
-        self.enable_type_safety()
 
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
@@ -202,11 +201,13 @@ class Kwargs_To_Self:
                     kwargs[k] = v
         return kwargs
 
-    def enable_type_safety(self):
-        #self.__type_safety__ = True
+    def merge_with(self, target):
+        original_attrs = {k: v for k, v in self.__dict__.items() if k not in target.__dict__}       # Store the original attributes of self that should be retained.
+        self.__dict__ = target.__dict__                                                             # Set the target's __dict__ to self, now self and target share the same __dict__.
+        self.__dict__.update(original_attrs)                                                        # Reassign the original attributes back to self.
         return self
 
-    def locked(self, value=True):
+    def locked(self, value=True):                                   # todo, figure out best way to do this
         self.__lock_attributes__ = value
         return self
 

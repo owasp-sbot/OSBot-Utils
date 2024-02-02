@@ -12,7 +12,6 @@ class MGraph__Edge(Kwargs_To_Self):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.enable_type_safety()
 
     def __repr__(self):
         return self.__str__()

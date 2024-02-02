@@ -4,6 +4,7 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
 from osbot_utils.testing.Catch                  import Catch
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Misc import random_string, list_set
@@ -307,6 +308,33 @@ class Test_Kwargs_To_Self(TestCase):
             An_Class_2()
 
 
+    def test_merge_with(self):
+        class Base_Class(Kwargs_To_Self):
+            an_int : int
+
+        class Target_Class(Base_Class):
+            an_str : str
+
+        base_class   = Base_Class()
+        target_class = Target_Class()
+        assert list_set(base_class  .__kwargs__()) == ['an_int']
+        assert list_set(target_class.__kwargs__()) == ['an_int', 'an_str']
+        base_class.an_int = 42
+        merged_class = target_class.merge_with(base_class)
+        assert merged_class.an_int == 42
+        base_class.an_int = 123                                                  # confirm that change in base_class
+        assert merged_class.an_int == 123                                        # impacts merged_class
+        merged_class.an_int= 456                                                 # confirm that change in merged_class
+        assert base_class.an_int == 456                                          # impacts base_class
+
+
+
+
+
+
+    # test BUGS and REGRESSION TESTS
+
+
     def test__regression__default_value_is_not_cached(self):                    # FIXED: this is a test that confirms a BUG the currently exists in the default_value method
 
         class An_Class(Kwargs_To_Self):
@@ -359,7 +387,7 @@ class Test_Kwargs_To_Self(TestCase):
         #                                  "but got '<class 'test_Kwargs_To_Self.Test_Kwargs_To_Self.test__bug__type_safety_race_condition_on_overloaded_vars.<locals>."
         #                                     "Base_Class'>'")
 
-    def test__type_safety_bug__in___cls_kwargs__(self):
+    def test__regression__type_safety_bug__in___cls_kwargs__(self):
         class Base_Class                           : pass                                  # set of classes that replicate the bug
         class Implements_Base_Class(Base_Class    ): pass                                  # which happens when we have a base class
         class An_Class             (Kwargs_To_Self): an_var: Base_Class                    # and a class that uses it as a var
@@ -374,15 +402,156 @@ class Test_Kwargs_To_Self(TestCase):
 
 
 
+    def test__regression__cast_issue_with_base_class_mode_a(self):                   # note although this test is still showing the bug, the test__regression__cast_issue_with_base_class_mode_c shows the fix (which is why it has been changed to regression test)
+        class Base_Class(Kwargs_To_Self):
+            an_int : int = 42
+
+        class Cast_Mode_A(Base_Class):
+            an_str : str = 'abc'
+
+            def cast(self, target):
+                self.__dict__ = target.__dict__
+                return self
+
+        base_class = Base_Class()                                                    # create an object of Base_Class base class
+        assert list_set(base_class.__kwargs__())  == ['an_int']                      # confirm that it has the expected vars
+        assert base_class.an_int                  == 42                              # confirm that an_int was correct set via Kwargs_To_Self
+        cast_mode_a = Cast_Mode_A()                                                  # create an object of Cast_Mode_A class
+        assert list_set(cast_mode_a.__kwargs__()) == ['an_int', 'an_str']            # confirm that it has the vars from Base_Class and Cast_Mode_A
+        assert cast_mode_a.an_int                 == 42                              # confirm that an_int was correctly set via Kwargs_To_Self
+        assert cast_mode_a.an_str                 == 'abc'                           # confirm that an_str was correctly set via Kwargs_To_Self
+
+        base_class.an_int                          = 123                             # now change the value of base_class.an_int
+        assert base_class.an_int                  == 123                             # confirm it has been changed correctly
+        cast_mode_a_from_base_class                = Cast_Mode_A().cast(base_class)  # now create a new object of Cast_Mode_A and cast it from base_class
+        assert cast_mode_a_from_base_class.an_int == 123                             # confirm that an_int was the new object picked up the new value (via cast)
+
+        cast_mode_a_from_base_class.an_int         = 456                             # now change the an_int on the new class
+        assert cast_mode_a_from_base_class.an_int == 456                             # and confirm that the value has been changed correctly in the 'casted' object
+        assert base_class.an_int                  == 456                             # and confirm that it also was changed in the original object (i.e. base_class)
+
+        # the example above is the exact behaviour which replicates the 'cast' operation in other languages (i.e. C#), where
+        #       cast_mode_a_from_base_class = Cast_Mode_A().cast(base_class)
+        # is equivalent to
+        #       cast_mode_a_from_base_class = (Cast_Mode_A) base_class
+        assert cast_mode_a_from_base_class.an_str  == 'abc'
+        cast_mode_a_from_base_class.new_str         = 'new_str'
+        assert cast_mode_a_from_base_class.new_str == 'new_str'                      # confirm that the new var is set correctly
+        assert base_class.new_str                  == 'new_str'                      # confirm that the new var is set correctly
+        assert cast_mode_a_from_base_class.__dict__ == base_class.__dict__
+
+        base_class_2  = Base_Class()                                                 # create a clean instance of Base_Class
+        cast_mode_a_2 = Cast_Mode_A()                                                # create a clean instance of Cast_Mode_A
+        assert list_set(base_class_2 .__dict__) == ['an_int']                        # confirm that it has the expected vars
+        assert list_set(cast_mode_a_2.__dict__) == ['an_int', 'an_str']              # confirm that it has the vars from Base_Class and Cast_Mode_A
+        cast_mode_a_2.cast(base_class_2)                                             # cast it from base_class_2
+        assert list_set(base_class_2.__dict__ ) == ['an_int']                        # re-config that base_class_2 only has the one var
+        assert list_set(cast_mode_a_2.__dict__) == ['an_int']                        # BUG: but now cast_mode_a_2 lost the an_str var
+        assert cast_mode_a_2.an_str             == 'abc'                             # works because an_str is defined in the Cast_Mode_A class, it's still accessible by instances of that class, even if it's not in their instance __dict__.
+
+        cast_mode_a_3 = Cast_Mode_A()
+        cast_mode_a_3.an_str = 'changed'
+        assert cast_mode_a_3.an_str == 'changed'
+        cast_mode_a_3.cast(base_class_2)
+        assert cast_mode_a_3.an_str == 'abc'
+
+    def test__regression__cast_issue_with_base_class_mode_b(self):                         # note although this test is still showing the bug, the test__regression__cast_issue_with_base_class_mode_c shows the fix (which is why it has been changed to regression test)
+        class Base_Class(Kwargs_To_Self):
+            an_int : int = 42
+
+        class Cast_Mode_B(Base_Class):
+            an_str : str = 'abc'
+
+            def cast(self, target):
+                for key, value in target.__dict__.items():
+                    setattr(self, key, value)
+                return self
+
+        base_class  = Base_Class()                                                  # create a new instance of Base_Class
+
+        base_class.an_int = 222
+        cast_mode_b = Cast_Mode_B().cast(base_class)                                # 'cast' that Base_Class object into a Cast_Mode_B object
+
+        assert list_set(base_class.__kwargs__())  == ['an_int']                     # Base_Class correctly still only has one var
+        assert list_set(cast_mode_b.__kwargs__()) == ['an_int', 'an_str']           # Cast_Mode_B correctly has both vars
+        assert base_class.an_int                  == 222                            # confirm that an_int was correctly set via Kwargs_To_Self
+        assert cast_mode_b.an_int                 == 222                            # confirm that the value was correctly set via cast
+        cast_mode_b.an_int = 123                                                    # now modify the an_int value in the Cast_Mode_B object
+        assert cast_mode_b.an_int                 == 123                            # confirm that the value was correctly set in the Cast_Mode_B object
+        assert base_class.an_int                  == 222                            # BUG: but the value in the Base_Class object was not changed!
+
+        base_class.an_int = 456                                                     # now modify the an_int value in the Base_Class object
+        assert base_class.an_int                  == 456                            # confirm that the value was correctly set in the Base_Class object
+        assert cast_mode_b.an_int                 == 123                            # BUG: but the value in the Cast_Mode_B object was not changed!
+
+        # the current hypothesis is that the current cast code
+        #                  for key, value in target.__dict__.items():
+        #                     setattr(self, key, value)
+        # is actually creating a copy of the an_int object, instead of a reference to it (which is what we want)
+
+
+    def test__regression__cast_issue_with_base_class_mode_c(self):                  # the cast version below is the one that has the correct behaviour
+        class Base_Class(Kwargs_To_Self):
+            an_int : int = 42
+
+        class Cast_Mode_C(Base_Class):
+            an_str : str = 'abc'
+
+            def cast(self, target):
+                original_attrs = {k: v for k, v in self.__dict__.items() if k not in target.__dict__}       # Store the original attributes of self that should be retained.
+                self.__dict__ = target.__dict__                                                             # Set the target's __dict__ to self, now self and target share the same __dict__.
+                self.__dict__.update(original_attrs)                                                        # Reassign the original attributes back to self.
+                return self
 
 
 
-        #Implements_Base_Class()
-        #An_Class()
-        #Extends_An_Class()
-            # assert type(Base_Class_A  ().an_int_in_base_class_a) is int
-        # assert type(Parent_Class_A().an_int_in_base_class_a) is int
-        # assert type(Parent_Class_A().an_str_in_base_class_b) is str
-        # assert type(Target_Base_Class_B().base_class_a     ) is Base_Class_A
-        # assert type(Target_Parent_Class_B().base_class_a) is Base_Class_A
-        # assert type(Target_Base_Class_B().base_class_a.an_int_in_base_class_a) is int
+        base_class  = Base_Class()                                                  # create a new instance of Base_Class
+
+        base_class.an_int = 222
+        cast_mode_c = Cast_Mode_C().cast(base_class)                                # 'cast' that Base_Class object into a Cast_Mode_B object
+
+        assert list_set(base_class.__kwargs__())  == ['an_int']                     # Base_Class correctly still only has one var
+        assert list_set(cast_mode_c.__kwargs__()) == ['an_int', 'an_str']           # Cast_Mode_B correctly has both vars
+        assert base_class.an_int                  == 222                            # confirm that an_int was correctly set via Kwargs_To_Self
+        assert cast_mode_c.an_int                 == 222                            # confirm that the value was correctly set via cast
+        cast_mode_c.an_int = 123                                                    # now modify the an_int value in the Cast_Mode_B object
+        assert cast_mode_c.an_int                 == 123                            # confirm that the value was correctly set in the Cast_Mode_B object
+        assert base_class.an_int                  == 123                            # FIXED :BUG: but the value in the Base_Class object was not changed!
+
+        base_class.an_int = 456                                                     # now modify the an_int value in the Base_Class object
+        assert base_class.an_int                  == 456                            # confirm that the value was correctly set in the Base_Class object
+        assert cast_mode_c.an_int                 == 456                            # FIXED: BUG: but the value in the Cast_Mode_B object was not changed!
+
+
+
+
+
+    def test__bug__cast_issue_with_base_class__with_new_vars__in_mermaid(self):
+        from osbot_utils.graphs.mermaid.Mermaid import Mermaid
+        from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
+        from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
+        new_node_1 = Mermaid().add_node(key='id')
+        assert list_set(new_node_1.__kwargs__()) == ['attributes', 'config', 'key', 'label']
+        assert type(new_node_1).__name__ == 'Mermaid__Node'
+
+        new_node_2 = Mermaid().add_node(key='id')
+        assert type(new_node_2).__name__ == 'Mermaid__Node'
+
+        assert list_set(new_node_2.__dict__         ) == ['attributes', 'config', 'key', 'label']
+
+
+        mermaid_node = Mermaid__Graph().add_node(key='id')
+        assert type(mermaid_node).__name__ == 'Mermaid__Node'
+        assert list_set(mermaid_node.__dict__) == ['attributes', 'config', 'key', 'label']   # BUG, should be ['attributes', 'key', 'label']
+
+        mgraph_node = MGraph__Node(key='id')
+        assert type(mgraph_node).__name__ == 'MGraph__Node'
+        new_mermaid_node = Mermaid__Node()
+        assert list_set(mgraph_node.__dict__     ) == ['attributes', 'key'   , 'label'       ]
+        assert list_set(new_mermaid_node.__dict__) == ['attributes', 'config', 'key', 'label']
+
+        new_mermaid_node.merge_with(mgraph_node)
+        assert list_set(new_mermaid_node.__dict__) == ['attributes', 'config', 'key', 'label'          ]
+
+
+

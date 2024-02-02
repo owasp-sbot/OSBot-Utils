@@ -3,13 +3,32 @@ from osbot_utils.utils.Str import safe_str
 
 LINE_PADDING = '    '
 
+class Mermaid__Node__Shape:
+    default = ('[', ']')
+
+class Mermaid__Node__Config:
+    node_shape: Mermaid__Node__Shape = Mermaid__Node__Shape.default
+
 class Mermaid__Node(MGraph__Node):
 
-    def cast(self, source):
-        self.__dict__ = source.__dict__
-        return self
+    config : Mermaid__Node__Config
 
-    def render_node(self, include_padding=True):
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
+
+    # def cast(self, source):
+    #     self.__dict__ = source.__dict__
+    #     return self
+
+
+        #for key,value in source.__dict__.items():
+        #   setattr(self, key, value)
+
+
+
+#        return self
+
+    def get_node_shape_chars(self):
         node_shape = self.attributes.get('node_shape')
         if node_shape == 'round-edge':
             left_char, right_char = '(', ')'
@@ -17,10 +36,19 @@ class Mermaid__Node(MGraph__Node):
             left_char, right_char = '{', '}'
         else:
             left_char, right_char = '[', ']'
-        if self.attributes.get('wrap_with_quotes') is False:
-            node_code = f'{self.key}{left_char}{self.label}{right_char}'
+        return left_char, right_char
+
+    def render_node(self, include_padding=True):
+        left_char, right_char = self.get_node_shape_chars()
+
+        if self.attributes.get('show_label') is False:
+            node_code = f'{self.key}'
         else:
-            node_code = f'{self.key}{left_char}"{self.label}"{right_char}'
+            if self.attributes.get('wrap_with_quotes') is False:
+                node_code = f'{self.key}{left_char}{self.label}{right_char}'
+            else:
+                node_code = f'{self.key}{left_char}"{self.label}"{right_char}'
+
         if include_padding:
             node_code = f'{LINE_PADDING}{node_code}'
         return node_code
@@ -31,4 +59,8 @@ class Mermaid__Node(MGraph__Node):
 
     def wrap_with_quotes(self, value=True):
         self.attributes['wrap_with_quotes'] = value
+        return self
+
+    def show_label(self, value=True):
+        self.attributes['show_label'] = value
         return self

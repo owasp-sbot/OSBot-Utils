@@ -10,8 +10,11 @@ def html_escape(value):
 def html_unescape(value):
     return unescape(value)
 
-def str_dedent(value):
-    return textwrap.dedent(value).strip()
+def str_dedent(value, strip=True):
+    result = textwrap.dedent(value)
+    if strip:
+        result = result.strip()
+    return result
 
 def str_index(target:str, source:str):
     try:

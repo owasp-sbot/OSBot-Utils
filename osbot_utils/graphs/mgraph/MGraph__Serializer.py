@@ -28,7 +28,6 @@ class MGraph__Serializer(Kwargs_To_Self):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.enable_type_safety()
         self.key         = safe_str(f'serialiser_for__{self.mgraph.key}')
 
         self.local_cache = Local_Cache(cache_name=self.key, caches_name=self.caches_name)

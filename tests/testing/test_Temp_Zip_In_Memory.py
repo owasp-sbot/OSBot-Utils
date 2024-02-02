@@ -34,7 +34,7 @@ class test_Temp_Zip_In_Memory(TestCase):
             pytest.skip("every now and then this test fails in github actions")
 
         with Temp_Folder() as temp_folder:
-            max_total_files = 30
+            max_total_files = 3 #30                                                 # was taking 100ms with 30 files . with 3 it takes about 16ms
             temp_folder.add_temp_files_and_folders(max_total_files=max_total_files)
             assert len(temp_folder.files()) == max_total_files
             with Temp_Zip_In_Memory() as _:
@@ -42,7 +42,7 @@ class test_Temp_Zip_In_Memory(TestCase):
                 _.set_root_folder(temp_folder)
                 assert temp_folder.files(show_parent_folder=True) == _.target_files()
                 zip_bytes = _.zip_bytes()
-                assert len(zip_bytes) > 5000
+                assert len(zip_bytes) > 256
 
                 assert _.zip_bytes_files() == temp_folder.files()
 

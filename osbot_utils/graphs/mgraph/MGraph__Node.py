@@ -27,3 +27,11 @@ class MGraph__Node(Kwargs_To_Self):
 
     def data(self):
         return self.__locals__()             # todo: see if there is a better way to do this (specialy as the node objects gets more features and attributes)
+
+    def set_key(self, value: str):
+        self.key = value
+        return self
+
+    def set_label(self, value: str):
+        self.label = value
+        return self

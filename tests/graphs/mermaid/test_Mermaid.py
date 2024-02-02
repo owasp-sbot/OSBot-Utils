@@ -1,13 +1,15 @@
 from unittest import TestCase
 
 from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
+from osbot_utils.helpers.trace.Trace_Call import trace_calls
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
 from osbot_utils.graphs.mermaid.Mermaid__Edge import Mermaid__Edge
-from osbot_utils.graphs.mermaid.Mermaid__Node   import Mermaid__Node
+from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node, Mermaid__Node__Config
 from osbot_utils.graphs.mgraph.MGraph__Node     import MGraph__Node
-from osbot_utils.utils.Objects                  import type_mro
+from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Objects import type_mro, obj_data
 from osbot_utils.utils.Str                      import str_dedent
 from osbot_utils.graphs.mermaid.Mermaid         import Mermaid, Diagram__Direction, Diagram__Type
 
@@ -44,21 +46,20 @@ class test_Mermaid(TestCase):
             _.set_config__add_nodes(False)
             _.set_direction(Diagram__Direction.TD)
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node(label='Christmas'    , key='A').wrap_with_quotes(False).shape('normal'    )
-            _.add_node(label='Go shopping'  , key='B').wrap_with_quotes(False).shape('round-edge')
-            _.add_node(label='Let me think' , key='C').wrap_with_quotes(False).shape('rhombus'   )
-            _.add_node(label='Laptop'       , key='D').wrap_with_quotes(False)
-            _.add_node(label='iPhone'       , key='E').wrap_with_quotes(False)
-            _.add_node(label='fa:fa-car Car', key='F').wrap_with_quotes(False)
+            _.add_node(key='A').set_label('Christmas'    ).wrap_with_quotes(False).shape('normal'    )
+            _.add_node(key='B').set_label('Go shopping'  ).wrap_with_quotes(False).shape('round-edge')
+            _.add_node(key='C').set_label('Let me think' ).wrap_with_quotes(False).shape('rhombus'   )
+            _.add_node(key='D').set_label('Laptop'       ).wrap_with_quotes(False)
+            _.add_node(key='E').set_label('iPhone'       ).wrap_with_quotes(False)
+            _.add_node(key='F').set_label('fa:fa-car Car').wrap_with_quotes(False)
             _.add_edge('A', 'B', label='Get money').output_node_from().output_node_to().edge_mode__lr_using_pipe()
             _.add_edge('B', 'C'                   ).output_node_to()
             _.add_edge('C', 'D', label='One'      ).output_node_to().edge_mode__lr_using_pipe()
             _.add_edge('C', 'E', label='Two'      ).output_node_to().edge_mode__lr_using_pipe()
             _.add_edge('C', 'F', label='Three'    ).output_node_to().edge_mode__lr_using_pipe()
-            #_.print_code()
 
-        assert expected_code == _.code()
-        #file_path = self.mermaid.save()
+            assert expected_code ==_.code()
+            #file_path = self.mermaid.save()
 
     def test_config(self):
         assert self.mermaid.config__add_nodes is True
@@ -74,13 +75,14 @@ class test_Mermaid(TestCase):
             assert new_edge.render_edge() == '    id --> id2'
 
 
-
-
     def test__config__wrap_with_quotes(self):
         new_node = Mermaid().add_node(key='id').wrap_with_quotes()
+        assert type(new_node) is Mermaid__Node
         assert new_node.attributes == {'wrap_with_quotes': True}
         assert new_node.key == 'id'
+
         assert new_node.data() == {'attributes' : {'wrap_with_quotes': True},
+                                   'config'     : new_node.config           ,
                                    'key'        : 'id'                      ,
                                    'label'      : 'id'                      }
         assert type_mro(new_node) == [Mermaid__Node, MGraph__Node, Kwargs_To_Self, object]
@@ -115,21 +117,36 @@ class test_Mermaid(TestCase):
     def test_use_case_1(self):
         expected_code = """
                             flowchart LR
-                               id"""
-
-        print()
-        print()
-
-        print(str_dedent(expected_code))
-        print()
+                                id
+                        """
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node(key='id').wrap_with_quotes(False).shape('rhombus')
-            _.print_code()
-            _.save()
+            _.add_node(key='id').show_label(False)
 
-            assert _.code() == 'flowchart LR\n    id{id}\n'
-            assert _.code() != expected_code
+            assert _.code().strip() == str_dedent(expected_code)
+
+
+
+    def test__regression__Mermaid_Node__config_is_not_being_set(self):
+        new_node_1 = Mermaid__Node()
+
+        assert type(new_node_1) is Mermaid__Node
+        assert list_set(new_node_1.__dict__        ) == ['attributes', 'config', 'key', 'label']
+        assert list_set(new_node_1.__locals__()    ) == ['attributes', 'config', 'key', 'label']
+        assert list_set(obj_data(new_node_1)       ) == ['attributes', 'config', 'key', 'label']
+        assert list_set(obj_data(new_node_1.config)) == ['node_shape']
+
+        new_node_2 = Mermaid().add_node(key='id')
+        assert type(new_node_2) is Mermaid__Node
+        assert list_set(new_node_2.__dict__        ) == ['attributes', 'config', 'key', 'label']                # FIXED, BUG: missing config
+        assert list_set(new_node_2.__locals__()     ) == ['attributes', 'config', 'key', 'label']
+        assert list_set(obj_data(new_node_2)        ) == ['attributes', 'config', 'key', 'label']                         # FIXED, BUG: missing config
+        new_node_2.config                                                                                    # FIXED, BUG: missing config
+
+        # with self.assertRaises(Exception) as context:
+        #   new_node_2.config                                                                           # BUG: should not raise an exception
+        # assert str(context.exception) == "'Mermaid__Node' object has no attribute 'config'"
+
 
     def test__regression__Mermaid__Edge__is_failing_on_ctor(self):
         MGraph__Edge()                                                  # MGraph__Edge  ctor doesn't raise an exception

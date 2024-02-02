@@ -16,7 +16,6 @@ class MGraph(Kwargs_To_Self):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.enable_type_safety()
         if not self.key:
             self.key = random_text("mgraph", lowercase=True)                 # make sure there is always a key
 

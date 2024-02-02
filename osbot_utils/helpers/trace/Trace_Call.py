@@ -30,7 +30,6 @@ def trace_calls(title=None, print_traces=True, show_locals=False, source_code=Fa
                                  trace_capture_lines=show_lines or print_lines)
 
             config = (Trace_Call__Config().locked             ()
-                                          .enable_type_safety ()
                                           .update_from_kwargs (**config_kwargs))
 
             with Trace_Call(config=config):

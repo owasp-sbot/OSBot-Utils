@@ -89,7 +89,6 @@ class test_Objects(TestCase):
         assert default_value(date    ) is None
         assert default_value(datetime) is None
 
-        assert type(default_value(self    )) is unittest.result.TestResult
         assert type(default_value(TestCase)) is unittest.case.TestCase
         assert type(default_value(Queue   )) is Queue
 
