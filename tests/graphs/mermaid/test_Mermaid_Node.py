@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid
+from osbot_utils.graphs.mermaid.models.Mermaid__Node__Shape import Mermaid__Node__Shape
 from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
 from osbot_utils.utils.Dev import pprint
 
@@ -31,12 +32,41 @@ class test_Mermaid_Node(TestCase):
     def test_data(self):
         assert self.mermaid_node.data() == self.mermaid_node.__locals__()
 
-    def test_wrap_with_quotes(self):
+    def test_shape(self):
+        assert self.mermaid_node.shape(Mermaid__Node__Shape.round_edges).config.node_shape == Mermaid__Node__Shape.round_edges
+        assert self.mermaid_node.shape(Mermaid__Node__Shape.rhombus    ).config.node_shape == Mermaid__Node__Shape.rhombus
+        assert self.mermaid_node.shape(Mermaid__Node__Shape.default    ).config.node_shape == Mermaid__Node__Shape.default
+        assert self.mermaid_node.shape('round_edges'                   ).config.node_shape == Mermaid__Node__Shape.round_edges
+        assert self.mermaid_node.shape('rhombus'                       ).config.node_shape == Mermaid__Node__Shape.rhombus
+        assert self.mermaid_node.shape('default'                       ).config.node_shape == Mermaid__Node__Shape.default
+        assert self.mermaid_node.shape('aaaa'                          ).config.node_shape == Mermaid__Node__Shape.default
+        assert self.mermaid_node.shape(' '                             ).config.node_shape == Mermaid__Node__Shape.default
+        assert self.mermaid_node.shape(''                              ).config.node_shape == Mermaid__Node__Shape.default
+        assert self.mermaid_node.shape(None                            ).config.node_shape == Mermaid__Node__Shape.default
+        assert self.mermaid_node.shape(                                ).config.node_shape == Mermaid__Node__Shape.default
 
+
+
+
+    def test_wrap_with_quotes(self):
         assert self.node_config.wrap_with_quotes                                 == True
         assert self.mermaid_node.wrap_with_quotes(     ).config.wrap_with_quotes == True
         assert self.mermaid_node.wrap_with_quotes(False).config.wrap_with_quotes == False
         assert self.mermaid_node.wrap_with_quotes(True ).config.wrap_with_quotes == True
+
+    def test__render_node__node_shape(self):
+        with Mermaid().add_node(key='id') as _:
+            assert _                     .render_node() == '    id["id"]'
+            assert _.shape(''           ).render_node() == '    id["id"]'
+            assert _.shape('aaaaa'      ).render_node() == '    id["id"]'
+            assert _.shape('round_edges').render_node() == '    id("id")'
+            assert _.shape('rhombus'    ).render_node() == '    id{"id"}'
+
+            assert _.shape(Mermaid__Node__Shape.default    ).render_node() == '    id["id"]'
+            assert _.shape(Mermaid__Node__Shape.rectangle  ).render_node() == '    id["id"]'
+            assert _.shape(Mermaid__Node__Shape.round_edges).render_node() == '    id("id")'
+            assert _.shape(Mermaid__Node__Shape.rhombus    ).render_node() == '    id{"id"}'
+
 
     def test__config__wrap_with_quotes(self):
         new_node = self.mermaid_node.set_key('id').set_label('id')

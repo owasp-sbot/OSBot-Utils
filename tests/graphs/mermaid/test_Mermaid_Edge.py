@@ -1,4 +1,6 @@
 from unittest import TestCase
+
+from osbot_utils.graphs.mermaid.Mermaid import Mermaid
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
@@ -29,3 +31,13 @@ class test_Mermaid_Edge(TestCase):
     # def test_convert_nodes(self):
     #     assert type(self.mermaid_edge.from_node) is Mermaid__Node
     #     assert type(self.mermaid_edge.to_node  ) is Mermaid__Node
+
+    def test__config__edge__output_node_from(self):
+        with Mermaid() as _:
+            new_edge = _.add_edge('id', 'id2').output_node_from()
+            assert _.code()               == 'graph LR\n    id["id"]\n    id2["id2"]\n\n    id["id"] --> id2'
+            assert new_edge.attributes    == {'output_node_from': True }
+            assert new_edge.render_edge() == '    id["id"] --> id2'
+            new_edge.output_node_from(False)
+            assert new_edge.attributes    == {'output_node_from': False}
+            assert new_edge.render_edge() == '    id --> id2'

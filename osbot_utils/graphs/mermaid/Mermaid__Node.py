@@ -1,17 +1,12 @@
 from enum import Enum
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.graphs.mermaid.configs.Mermaid__Node__Config import Mermaid__Node__Config
+from osbot_utils.graphs.mermaid.models.Mermaid__Node__Shape import Mermaid__Node__Shape
 from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
 from osbot_utils.utils.Str import safe_str
 
 LINE_PADDING = '    '
-
-class Mermaid__Node__Shape(Enum):
-    default = ('[', ']')
-
-class Mermaid__Node__Config(Kwargs_To_Self):
-    node_shape       : Mermaid__Node__Shape = Mermaid__Node__Shape.default
-    wrap_with_quotes : bool = True               # add support for only using quotes when needed
 
 class Mermaid__Node(MGraph__Node):
 
@@ -28,22 +23,8 @@ class Mermaid__Node(MGraph__Node):
         #for key,value in source.__dict__.items():
         #   setattr(self, key, value)
 
-
-
-#        return self
-
-    def get_node_shape_chars(self):
-        node_shape = self.attributes.get('node_shape')
-        if node_shape == 'round-edge':
-            left_char, right_char = '(', ')'
-        elif node_shape == 'rhombus':
-            left_char, right_char = '{', '}'
-        else:
-            left_char, right_char = '[', ']'
-        return left_char, right_char
-
     def render_node(self, include_padding=True):
-        left_char, right_char = self.get_node_shape_chars()
+        left_char, right_char = self.config.node_shape.value
 
         if self.attributes.get('show_label') is False:
             node_code = f'{self.key}'
@@ -57,9 +38,15 @@ class Mermaid__Node(MGraph__Node):
             node_code = f'{LINE_PADDING}{node_code}'
         return node_code
 
-    def shape(self, value):
-        self.attributes['node_shape'] = value
+    def shape(self, shape=None):
+        self.config.node_shape = Mermaid__Node__Shape.get_shape(shape)
         return self
+
+    def shape_circle     (self): self.config.node_shape = Mermaid__Node__Shape.circle       ; return self
+    def shape_round_edges(self): self.config.node_shape = Mermaid__Node__Shape.round_edges  ; return self
+    def shape_rhombus    (self): self.config.node_shape = Mermaid__Node__Shape.rhombus      ; return self
+    def shape_default    (self): self.config.node_shape = Mermaid__Node__Shape.default      ; return self
+
 
     def wrap_with_quotes(self, value=True):
         self.config.wrap_with_quotes = value

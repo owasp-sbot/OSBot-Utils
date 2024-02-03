@@ -46,9 +46,9 @@ class test_Mermaid(TestCase):
             _.set_config__add_nodes(False)
             _.set_direction(Diagram__Direction.TD)
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node(key='A').set_label('Christmas'    ).wrap_with_quotes(False).shape('normal'    )
-            _.add_node(key='B').set_label('Go shopping'  ).wrap_with_quotes(False).shape('round-edge')
-            _.add_node(key='C').set_label('Let me think' ).wrap_with_quotes(False).shape('rhombus'   )
+            _.add_node(key='A').set_label('Christmas'    ).wrap_with_quotes(False).shape_default    ()
+            _.add_node(key='B').set_label('Go shopping'  ).wrap_with_quotes(False).shape_round_edges()
+            _.add_node(key='C').set_label('Let me think' ).wrap_with_quotes(False).shape_rhombus    ()
             _.add_node(key='D').set_label('Laptop'       ).wrap_with_quotes(False)
             _.add_node(key='E').set_label('iPhone'       ).wrap_with_quotes(False)
             _.add_node(key='F').set_label('fa:fa-car Car').wrap_with_quotes(False)
@@ -64,26 +64,7 @@ class test_Mermaid(TestCase):
     def test_config(self):
         assert self.mermaid.config__add_nodes is True
 
-    def test__config__edge__output_node_from(self):
-        with self.mermaid as _:
-            new_edge = _.add_edge('id', 'id2').output_node_from()
-            assert _.code()               == 'graph LR\n    id["id"]\n    id2["id2"]\n\n    id["id"] --> id2'
-            assert new_edge.attributes    == {'output_node_from': True }
-            assert new_edge.render_edge() == '    id["id"] --> id2'
-            new_edge.output_node_from(False)
-            assert new_edge.attributes    == {'output_node_from': False}
-            assert new_edge.render_edge() == '    id --> id2'
 
-
-
-
-    def test__config__node_shape(self):
-        with Mermaid().add_node(key='id') as _:
-            assert _                    .render_node() == '    id["id"]'
-            assert _.shape(''          ).render_node() == '    id["id"]'
-            assert _.shape('aaaaa'     ).render_node() == '    id["id"]'
-            assert _.shape('round-edge').render_node() == '    id("id")'
-            assert _.shape('rhombus'   ).render_node() == '    id{"id"}'
 
 
     #@trace_calls(contains=['mermaid'])         # this was the code that was triggering the bug
