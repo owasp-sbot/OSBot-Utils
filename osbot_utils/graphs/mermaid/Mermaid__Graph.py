@@ -34,6 +34,7 @@ class Mermaid__Graph(MGraph):
         mermaid_node = Mermaid__Node().merge_with(new_node)
         self.nodes.append(mermaid_node)
         return mermaid_node
+
     #
     #
     # def add_line(self, line):

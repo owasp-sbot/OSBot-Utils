@@ -75,34 +75,7 @@ class test_Mermaid(TestCase):
             assert new_edge.render_edge() == '    id --> id2'
 
 
-    def test__config__wrap_with_quotes(self):
-        new_node = Mermaid().add_node(key='id').wrap_with_quotes()
-        assert type(new_node) is Mermaid__Node
-        assert new_node.attributes == {'wrap_with_quotes': True}
-        assert new_node.key == 'id'
 
-        assert new_node.data() == {'attributes' : {'wrap_with_quotes': True},
-                                   'config'     : new_node.config           ,
-                                   'key'        : 'id'                      ,
-                                   'label'      : 'id'                      }
-        assert type_mro(new_node) == [Mermaid__Node, MGraph__Node, Kwargs_To_Self, object]
-
-        with Mermaid() as _:
-            _.add_node(key='id')
-            assert _.code() == 'graph LR\n    id["id"]\n'
-        with Mermaid() as _:
-            _.add_node(key='id')
-            assert _.code() == 'graph LR\n    id["id"]\n'
-        with Mermaid() as _:
-            _.add_node(key='id').wrap_with_quotes(False)
-            assert _.code() == 'graph LR\n    id[id]\n'
-
-        mermaid = Mermaid()
-        new_node = mermaid.add_node(key='id')
-        new_node.wrap_with_quotes(False)
-        assert type(new_node) == Mermaid__Node
-        assert new_node.attributes == {'wrap_with_quotes': False}
-        assert mermaid.code() == 'graph LR\n    id[id]\n'
 
     def test__config__node_shape(self):
         with Mermaid().add_node(key='id') as _:
@@ -134,7 +107,7 @@ class test_Mermaid(TestCase):
         assert list_set(new_node_1.__dict__        ) == ['attributes', 'config', 'key', 'label']
         assert list_set(new_node_1.__locals__()    ) == ['attributes', 'config', 'key', 'label']
         assert list_set(obj_data(new_node_1)       ) == ['attributes', 'config', 'key', 'label']
-        assert list_set(obj_data(new_node_1.config)) == ['node_shape']
+        assert list_set(obj_data(new_node_1.config)) == ['node_shape','wrap_with_quotes'       ]
 
         new_node_2 = Mermaid().add_node(key='id')
         assert type(new_node_2) is Mermaid__Node

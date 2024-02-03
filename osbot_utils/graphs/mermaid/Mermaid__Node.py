@@ -1,13 +1,17 @@
+from enum import Enum
+
+from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
 from osbot_utils.utils.Str import safe_str
 
 LINE_PADDING = '    '
 
-class Mermaid__Node__Shape:
+class Mermaid__Node__Shape(Enum):
     default = ('[', ']')
 
-class Mermaid__Node__Config:
-    node_shape: Mermaid__Node__Shape = Mermaid__Node__Shape.default
+class Mermaid__Node__Config(Kwargs_To_Self):
+    node_shape       : Mermaid__Node__Shape = Mermaid__Node__Shape.default
+    wrap_with_quotes : bool = True               # add support for only using quotes when needed
 
 class Mermaid__Node(MGraph__Node):
 
@@ -44,7 +48,7 @@ class Mermaid__Node(MGraph__Node):
         if self.attributes.get('show_label') is False:
             node_code = f'{self.key}'
         else:
-            if self.attributes.get('wrap_with_quotes') is False:
+            if self.config.wrap_with_quotes is False:
                 node_code = f'{self.key}{left_char}{self.label}{right_char}'
             else:
                 node_code = f'{self.key}{left_char}"{self.label}"{right_char}'
@@ -58,7 +62,7 @@ class Mermaid__Node(MGraph__Node):
         return self
 
     def wrap_with_quotes(self, value=True):
-        self.attributes['wrap_with_quotes'] = value
+        self.config.wrap_with_quotes = value
         return self
 
     def show_label(self, value=True):
