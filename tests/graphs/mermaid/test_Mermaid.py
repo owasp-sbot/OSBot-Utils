@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from osbot_utils.graphs.mermaid.configs.Mermaid__Edge__Config import Mermaid__Edge__Config
 from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
 from osbot_utils.helpers.trace.Trace_Call import trace_calls
 from osbot_utils.utils.Dev import pprint
@@ -124,8 +125,9 @@ class test_Mermaid(TestCase):
         to_node       = to_node_key
 
 
-        assert Mermaid__Edge.__annotations__ == {'from_node': Mermaid__Node ,           # confirm the type annotations
-                                                 'to_node'  : Mermaid__Node }
+        assert Mermaid__Edge.__annotations__ == { 'config'   : Mermaid__Edge__Config ,
+                                                  'from_node': Mermaid__Node         ,           # confirm the type annotations
+                                                  'to_node'  : Mermaid__Node         }
         assert type(from_node) is str                                                   # confirm that both variables are of type str
         assert type(to_node  ) is str
         with self.assertRaises(Exception) as context:

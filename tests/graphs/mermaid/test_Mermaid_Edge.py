@@ -16,7 +16,7 @@ class test_Mermaid_Edge(TestCase):
 
     def test__init__(self):
         assert type(self.mermaid_edge) is Mermaid__Edge
-        assert list_set(self.mermaid_edge.__dict__) == ['attributes', 'from_node', 'label', 'to_node']
+        assert list_set(self.mermaid_edge.__dict__) == ['attributes', 'config', 'from_node', 'label', 'to_node']
 
     # def test_code(self):
     #     from_node = self.mermaid_edge.from_node

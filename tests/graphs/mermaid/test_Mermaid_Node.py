@@ -45,7 +45,17 @@ class test_Mermaid_Node(TestCase):
         assert self.mermaid_node.shape(None                            ).config.node_shape == Mermaid__Node__Shape.default
         assert self.mermaid_node.shape(                                ).config.node_shape == Mermaid__Node__Shape.default
 
-
+    def test_shape__shape_name(self):
+        assert self.mermaid_node.shape_hexagon()            is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.hexagon
+        assert self.mermaid_node.shape_parallelogram()      is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.parallelogram
+        assert self.mermaid_node.shape_parallelogram_alt()  is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.parallelogram_alt
+        assert self.mermaid_node.shape_rectangle()          is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.rectangle
+        assert self.mermaid_node.shape_trapezoid()          is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.trapezoid
+        assert self.mermaid_node.shape_trapezoid_alt()      is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.trapezoid_alt
+        assert self.mermaid_node.shape_default()            is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.default
+        assert self.mermaid_node.shape_round_edges()        is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.round_edges
+        assert self.mermaid_node.shape_rhombus()            is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.rhombus
+        assert self.mermaid_node.shape_circle()             is self.mermaid_node;  assert self.mermaid_node.config.node_shape == Mermaid__Node__Shape.circle
 
 
     def test_wrap_with_quotes(self):

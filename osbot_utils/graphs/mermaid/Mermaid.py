@@ -62,8 +62,6 @@ class Mermaid(Kwargs_To_Self):
 
     def add_node(self, **kwargs):
         return self.graph.add_node(**kwargs)
-        #mgraph_node = self.graph.add_node(**kwargs)
-        #return Mermaid__Node().cast(mgraph_node)
 
     def add_line(self, line):
         self.mermaid_code.append(line)
