@@ -42,22 +42,10 @@ class test_Mermaid(TestCase):
     def test_set_direction(self):
         with self.mermaid as _:
             assert _.renderer is not None
-            #assert _.set_direction(Diagram__Direction.LR) is _
-            #assert _.renderer.diagram_direction == Diagram__Direction.LR
+            assert _.set_direction(Diagram__Direction.LR) is _
+            assert _.renderer.diagram_direction == Diagram__Direction.LR
 
 
-    #@trace_calls(contains=['mermaid'])         # this was the code that was triggering the bug
-    # todo, move into separate test just focused on the use cases
-    def test_use_case_1(self):
-        expected_code = """
-                            flowchart LR
-                                id
-                        """
-        with self.mermaid as _:
-            _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node(key='id').show_label(False)
-
-            assert _.code().strip() == str_dedent(expected_code)
 
 
 
