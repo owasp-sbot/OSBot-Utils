@@ -26,7 +26,7 @@ class Mermaid__Node(MGraph__Node):
     def render_node(self, include_padding=True):
         left_char, right_char = self.config.node_shape.value
 
-        if self.attributes.get('show_label') is False:
+        if self.config.show_label is False:
             node_code = f'{self.key}'
         else:
             if self.config.wrap_with_quotes is False:
@@ -53,5 +53,5 @@ class Mermaid__Node(MGraph__Node):
         return self
 
     def show_label(self, value=True):
-        self.attributes['show_label'] = value
+        self.config.show_label = value
         return self

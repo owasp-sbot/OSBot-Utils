@@ -1,10 +1,12 @@
 from osbot_utils.graphs.mermaid.Mermaid__Node import LINE_PADDING, Mermaid__Node
+from osbot_utils.graphs.mermaid.configs.Mermaid__Edge__Config import Mermaid__Edge__Config
 from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
 #from osbot_utils.graphs.mgraph.views.mermaid.Mermaid__Node import Mermaid__Node
 from osbot_utils.utils.Str import safe_str
 
 
 class Mermaid__Edge(MGraph__Edge):
+    config    : Mermaid__Edge__Config
     from_node : Mermaid__Node
     to_node   : Mermaid__Node
 
@@ -23,7 +25,8 @@ class Mermaid__Edge(MGraph__Edge):
         return self.edge_mode('lr_using_pipe')
 
     def output_node_from(self, value=True):
-        self.attributes['output_node_from'] = value
+        self.config.output_node_from = value
+        #self.attributes['output_node_from'] = value
         return self
 
     def output_node_to(self, value=True):
@@ -33,7 +36,8 @@ class Mermaid__Edge(MGraph__Edge):
     def render_edge(self):
         from_node_key = safe_str(self.from_node.key)
         to_node_key   = safe_str(self.to_node  .key)
-        if self.attributes.get('output_node_from'):
+        #if self.attributes.get('output_node_from'):
+        if self.config.output_node_from:
             from_node_key =  self.from_node.render_node(include_padding=False) #f'{edge.from_node.key}["{edge.from_node.label}"]'
         if self.attributes.get('output_node_to'):
             to_node_key   = self.to_node.render_node(include_padding=False   ) #f'{edge.to_node  .key}["{edge.to_node  .label}"]'

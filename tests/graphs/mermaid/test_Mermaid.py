@@ -88,7 +88,7 @@ class test_Mermaid(TestCase):
         assert list_set(new_node_1.__dict__        ) == ['attributes', 'config', 'key', 'label']
         assert list_set(new_node_1.__locals__()    ) == ['attributes', 'config', 'key', 'label']
         assert list_set(obj_data(new_node_1)       ) == ['attributes', 'config', 'key', 'label']
-        assert list_set(obj_data(new_node_1.config)) == ['node_shape','wrap_with_quotes'       ]
+        assert list_set(obj_data(new_node_1.config)) == ['node_shape','show_label', 'wrap_with_quotes'       ]
 
         new_node_2 = Mermaid().add_node(key='id')
         assert type(new_node_2) is Mermaid__Node

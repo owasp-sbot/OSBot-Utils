@@ -29,7 +29,6 @@ class Mermaid__Graph(MGraph):
     #     return mermaid_edge
     #
     def add_node(self, **kwargs):
-        #new_node = super().add_node(key=key, label=label, attributes=attributes)
         new_node    = MGraph__Node(**kwargs)
         mermaid_node = Mermaid__Node().merge_with(new_node)
         self.nodes.append(mermaid_node)

@@ -36,8 +36,8 @@ class test_Mermaid_Edge(TestCase):
         with Mermaid() as _:
             new_edge = _.add_edge('id', 'id2').output_node_from()
             assert _.code()               == 'graph LR\n    id["id"]\n    id2["id2"]\n\n    id["id"] --> id2'
-            assert new_edge.attributes    == {'output_node_from': True }
+            assert new_edge.config.output_node_from is True
             assert new_edge.render_edge() == '    id["id"] --> id2'
             new_edge.output_node_from(False)
-            assert new_edge.attributes    == {'output_node_from': False}
+            assert new_edge.config.output_node_from is False
             assert new_edge.render_edge() == '    id --> id2'
