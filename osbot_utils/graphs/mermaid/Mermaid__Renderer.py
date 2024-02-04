@@ -25,11 +25,14 @@ class Mermaid__Renderer(Kwargs_To_Self):
                 _.reset_code()
             elif self.mermaid_code:                 # if the code has already been created, don't create it
                 return self                         #   todo: find a better way to do this, namely around the concept of auto detecting (on change) when the recreation needs to be done (vs being able to use the previously calculated data)
+            for directive in _.config.directives:
+                _.add_line(f'%%{{{directive}}}%%')
             _.add_line(self.graph_header())
             if self.config.add_nodes:
                 for node in nodes:
                     node_code = node.render_node()
                     _.add_line(node_code)
+            if self.config.line_before_edges:
                 _.add_line('')
             for edge in edges:
                 edge_code = edge.render_edge()

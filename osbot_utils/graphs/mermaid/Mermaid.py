@@ -30,6 +30,10 @@ class Mermaid(Kwargs_To_Self):
         self.graph.edges.append(mermaid_edge)
         return mermaid_edge
 
+    def add_directive(self, directive):
+        self.renderer.config.directives.append(directive)
+        return self
+
     def add_node(self, **kwargs):
         return self.graph.add_node(**kwargs)
 
@@ -55,10 +59,6 @@ class Mermaid(Kwargs_To_Self):
 
     def nodes(self):
         return self.graph.nodes
-
-    def set_config__add_nodes(self, value):
-        self.renderer.config.add_nodes = value
-        return self
 
     def set_direction(self, direction):
         if isinstance(direction, Diagram__Direction):

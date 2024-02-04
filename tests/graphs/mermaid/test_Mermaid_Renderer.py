@@ -34,7 +34,8 @@ class test_Mermaid_Renderer(TestCase):
                                             """)
 
         with self.mermaid as _:
-            _.set_config__add_nodes(False)
+            _.renderer.config.add_nodes         = False
+            _.renderer.config.line_before_edges = False
             _.set_direction(Diagram__Direction.TD)
             _.set_diagram_type(Diagram__Type.flowchart)
             _.add_node(key='A').set_label('Christmas'    ).wrap_with_quotes(False).shape_default    ()

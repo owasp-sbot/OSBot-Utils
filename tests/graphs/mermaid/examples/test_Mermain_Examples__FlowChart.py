@@ -44,11 +44,65 @@ class test_Mermain_Examples__FlowChart(TestCase):
             _.add_node(key='id', label='This ❤ Unicode')
 
 
-    def test_example_4_a_node_with_markdown_formating(self):
+    def test_example_4__a_node_with_markdown_formating(self):
+
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.add_node(key='id', label='This ❤ Unicode')
+            _.add_directive('init: {"flowchart": {"htmlLabels": false}} ')
+            _.add_node(key='markdown', label='This **is** _Markdown_').markdown()
+            _.add_node(key='newLines', label="""Line1
+    Line 2
+    Line 3""").markdown()
+            _.add_edge('markdown', 'newLines')
+            _.renderer.config.line_before_edges = False
+            _.save()
 
-        self.assert_on_exit      = False
-        self.print_on_exit       = True
-        self.print_expected_code = True
+
+    def test_example_5__direction__from_top_to_bottom(self):
+
+        with self.mermaid as _:
+            _.set_diagram_type(Diagram__Type.flowchart)
+            _.set_direction('TD')
+            _.renderer.config.line_before_edges = False
+            _.renderer.config.add_nodes = False
+            _.add_edge('Start', 'Stop')
+
+
+    # def test_(self):
+    #
+    #     self.assert_on_exit      = False
+    #     self.print_on_exit       = True
+    #     self.print_expected_code = True
+    #
+    #     with self.mermaid as _:
+    #         _.set_diagram_type(Diagram__Type.flowchart)
+
+    # def test_(self):
+    #
+    #     self.assert_on_exit      = False
+    #     self.print_on_exit       = True
+    #     self.print_expected_code = True
+    #
+    #     with self.mermaid as _:
+    #         _.set_diagram_type(Diagram__Type.flowchart)
+
+    # def test_(self):
+    #
+    #     self.assert_on_exit      = False
+    #     self.print_on_exit       = True
+    #     self.print_expected_code = True
+    #
+    #     with self.mermaid as _:
+    #         _.set_diagram_type(Diagram__Type.flowchart)
+
+    # def test_(self):
+    #
+    #     self.assert_on_exit      = False
+    #     self.print_on_exit       = True
+    #     self.print_expected_code = True
+    #
+    #     with self.mermaid as _:
+    #         _.set_diagram_type(Diagram__Type.flowchart)
+
+
+
