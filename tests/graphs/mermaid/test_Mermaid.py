@@ -23,22 +23,27 @@ class test_Mermaid(TestCase):
     def test__init__(self):
 
         with self.mermaid as _:
-            expected_vars = {'config__add_nodes': True                  ,
-                             'diagram_direction': _.diagram_direction   ,
-                             'diagram_type'     : _.diagram_type        ,
-                             'logger'           : _.logger              ,
-                             'mermaid_code'     : []                    ,
-                             'graph'            : _.graph               }
+            expected_vars = {'logger'           : _.logger              ,
+                             'graph'            : _.graph               ,
+                             'renderer'         : _.renderer            }
             assert _.__locals__() == expected_vars
-            assert _.logger.logger_name == 'Python_Logger__Mermaid'
+            assert _.logger  .logger_name        == 'Python_Logger__Mermaid'
+            assert _.logger  .__class__.__name__ == 'Python_Logger'
+            assert _.graph   .__class__.__name__ == 'Mermaid__Graph'
+            assert _.renderer.__class__.__name__ == 'Mermaid__Renderer'
 
 
 
 
     def test_config(self):
-        assert self.mermaid.config__add_nodes is True
+        assert self.mermaid.renderer.config.add_nodes is True
 
 
+    def test_set_direction(self):
+        with self.mermaid as _:
+            assert _.renderer is not None
+            #assert _.set_direction(Diagram__Direction.LR) is _
+            #assert _.renderer.diagram_direction == Diagram__Direction.LR
 
 
     #@trace_calls(contains=['mermaid'])         # this was the code that was triggering the bug

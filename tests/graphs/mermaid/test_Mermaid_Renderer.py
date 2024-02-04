@@ -1,15 +1,27 @@
 from unittest import TestCase
 
-from osbot_utils.graphs.mermaid.Mermaid import Diagram__Direction, Diagram__Type, Mermaid
-from osbot_utils.graphs.mermaid.Mermaid__Renderer import Mermaid_Renderer
-from osbot_utils.utils.Str import str_dedent
+from osbot_utils.graphs.mermaid.Mermaid             import Diagram__Direction, Diagram__Type, Mermaid
+from osbot_utils.graphs.mermaid.Mermaid__Renderer   import Mermaid__Renderer
+from osbot_utils.utils.Str                          import str_dedent
 
 
 class test_Mermaid_Renderer(TestCase):
 
     def setUp(self):
         self.mermaid  = Mermaid()
-        self.renderer = Mermaid_Renderer()
+        self.renderer = Mermaid__Renderer()
+
+    def test__init__(self):
+        with self.renderer as _:
+            expected_locals = {'config'             : _.config              ,
+                               'diagram_direction'  : Diagram__Direction.LR ,
+                               'diagram_type'       : Diagram__Type.graph   ,
+                               'mermaid_code'       : []                    }
+            assert _                           is not None
+            assert _.__locals__()              == expected_locals
+            assert _.config.__class__.__name__ == 'Mermaid__Render__Config'
+
+
 
     def test_code(self):
         expected_code = str_dedent("""
