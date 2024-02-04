@@ -45,7 +45,6 @@ class test_Mermain_Examples__FlowChart(TestCase):
 
 
     def test_example_4__a_node_with_markdown_formating(self):
-
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
             _.add_directive('init: {"flowchart": {"htmlLabels": false}} ')
@@ -55,27 +54,50 @@ class test_Mermain_Examples__FlowChart(TestCase):
     Line 3""").markdown()
             _.add_edge('markdown', 'newLines')
             _.renderer.config.line_before_edges = False
-            _.save()
 
 
     def test_example_5__direction__from_top_to_bottom(self):
-
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
-            _.set_direction('TD')
             _.renderer.config.line_before_edges = False
-            _.renderer.config.add_nodes = False
+            _.renderer.config.add_nodes         = False
+            _.set_direction('TD')
             _.add_edge('Start', 'Stop')
 
 
-    # def test_(self):
-    #
-    #     self.assert_on_exit      = False
-    #     self.print_on_exit       = True
-    #     self.print_expected_code = True
-    #
-    #     with self.mermaid as _:
-    #         _.set_diagram_type(Diagram__Type.flowchart)
+    def test_example_6__direction__from_left_to_right(self):
+        with self.mermaid as _:
+            _.set_diagram_type(Diagram__Type.flowchart)
+            _.renderer.config.line_before_edges = False
+            _.renderer.config.add_nodes         = False
+            _.set_direction('LR')
+            _.add_edge('Start', 'Stop')
+
+    def test_example_7__node_shapes_a_node_with_round_edges(self):
+        with self.mermaid as _:
+            _.set_diagram_type(Diagram__Type.flowchart)
+            _.add_node(key='id1', label='This is the text in the box').shape_round_edges().wrap_with_quotes(False)
+
+    def test_example_8__node_shapes_a_stadium_shaped_node(self):
+
+        self.assert_on_exit      = True
+        self.print_on_exit       = True
+        self.print_expected_code = True
+
+        with self.mermaid as _:
+            _.set_diagram_type(Diagram__Type.flowchart)
+            _.add_node(key='id1', label='This is the text in the box').shape_stadium().wrap_with_quotes(False)
+
+    def test_example_9__node_shapes_a_node_in_a_subroutine(self):
+        with self.mermaid as _:
+            _.set_diagram_type(Diagram__Type.flowchart)
+            _.add_node(key='id1', label='This is the text in the box').shape_subroutine().wrap_with_quotes(False)
+
+    def test_example_10__node_shapes_a_node_in_a_cylindrical_shape(self):
+        with self.mermaid as _:
+            _.set_diagram_type(Diagram__Type.flowchart)
+            _.add_node(key='id1', label='Database').shape_cylindrical().wrap_with_quotes(False)
+            #_.save()
 
     # def test_(self):
     #
@@ -104,5 +126,13 @@ class test_Mermain_Examples__FlowChart(TestCase):
     #     with self.mermaid as _:
     #         _.set_diagram_type(Diagram__Type.flowchart)
 
+    # def test_(self):
+    #
+    #     self.assert_on_exit      = False
+    #     self.print_on_exit       = True
+    #     self.print_expected_code = True
+    #
+    #     with self.mermaid as _:
+    #         _.set_diagram_type(Diagram__Type.flowchart)
 
 

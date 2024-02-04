@@ -42,10 +42,13 @@ class Mermaid__Node(MGraph__Node):
         return self
 
     def shape_circle            (self): self.config.node_shape = Mermaid__Node__Shape.circle            ; return self
+    def shape_cylindrical       (self): self.config.node_shape = Mermaid__Node__Shape.cylindrical       ; return self
     def shape_default           (self): self.config.node_shape = Mermaid__Node__Shape.default           ; return self
     def shape_hexagon           (self): self.config.node_shape = Mermaid__Node__Shape.hexagon           ; return self
     def shape_parallelogram     (self): self.config.node_shape = Mermaid__Node__Shape.parallelogram     ; return self
     def shape_parallelogram_alt (self): self.config.node_shape = Mermaid__Node__Shape.parallelogram_alt ; return self
+    def shape_stadium           (self): self.config.node_shape = Mermaid__Node__Shape.stadium           ; return self
+    def shape_subroutine        (self): self.config.node_shape = Mermaid__Node__Shape.subroutine        ; return self
     def shape_rectangle         (self): self.config.node_shape = Mermaid__Node__Shape.rectangle         ; return self
     def shape_rhombus           (self): self.config.node_shape = Mermaid__Node__Shape.rhombus           ; return self
     def shape_round_edges       (self): self.config.node_shape = Mermaid__Node__Shape.round_edges       ; return self

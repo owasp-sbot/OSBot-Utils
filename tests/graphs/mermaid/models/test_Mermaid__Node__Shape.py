@@ -29,7 +29,7 @@ class test_Mermaid__Node__Shape(TestCase):
         assert Mermaid__Node__Shape.circle.value            == ('((' , '))'  )
         assert Mermaid__Node__Shape.hexagon.value           == ('{{' , '}}'  )
         assert Mermaid__Node__Shape.parallelogram.value     == ('[/' , '/]'  )
-        assert Mermaid__Node__Shape.parallelogram_alt.value == ('[/]' , '[\]')
+        assert Mermaid__Node__Shape.parallelogram_alt.value == ('[\\', '\\]' )
         assert Mermaid__Node__Shape.rectangle.value         == ('['  , ']'   )
         assert Mermaid__Node__Shape.trapezoid.value         == ('[/' , '\]'  )
         assert Mermaid__Node__Shape.trapezoid_alt.value     == ('[\\', '/]'  )
