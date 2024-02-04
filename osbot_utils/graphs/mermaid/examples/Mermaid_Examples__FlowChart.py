@@ -51,3 +51,48 @@ flowchart LR
 flowchart LR
     id1[(Database)]
     """
+
+    example_11__node_shapes_a_node_in_the_form_of_a_circle = """
+flowchart LR
+    id1((This is the text in the circle))
+    """
+
+    example_12__node_shapes_a_node_in_an_asymmetric_shape = """
+flowchart LR
+    id1>This is the text in the box]
+    """
+
+    example_13__node_shapes_a_node_rhombus = """
+flowchart LR
+    id1{This is the text in the box}
+    """
+
+    example_14__node_shapes_a_hexagon_node = """
+flowchart LR
+    id1{{This is the text in the box}}
+    """
+
+    example_15__node_shapes_parallelogram = """
+flowchart TD
+    id1[/This is the text in the box/]
+    """
+
+    example_16__node_shapes_parallelogram_alt = """
+flowchart TD
+    id1[\This is the text in the box\]
+    """
+
+    example_17__node_shapes_trapezoid = """
+flowchart TD
+    A[/Christmas\]
+    """
+
+    example_18__node_shapes_trapezoid_alt = """
+flowchart TD
+    B[\Go shopping/]
+    """
+
+    example_19__node_shapes_double_circle = """
+flowchart TD
+    id1(((This is the text in the circle)))
+    """

@@ -3,11 +3,13 @@ from enum import Enum
 
 
 class Mermaid__Node__Shape(Enum):
-    default             = ('['  , ']'  )        # Rectangle
-    round_edges         = ('('  , ')'  )        # Stadium shape, used for processes or operations
-    rhombus             = ('{'  , '}'  )        # Rhombus, often synonymous with diamond in diagramming contexts
+    asymmetric          = ('>'  , ']'  )        # Asymmetric
     circle              = ('((' , '))' )        # Circle, used for endpoints or start/end points
     cylindrical         = ('[(' , ')]' )        # Cylindrical
+    default             = ('['  , ']'  )        # Rectangle
+    double_circle       = ('(((', ')))')        # Double Circle
+    round_edges         = ('('  , ')'  )        # Stadium shape, used for processes or operations
+    rhombus             = ('{'  , '}'  )        # Rhombus, often synonymous with diamond in diagramming contexts
     hexagon             = ('{{' , '}}' )        # Hexagon, used for preparation or complex processing
     parallelogram       = ('[/' , '/]' )        # Parallelogram, used for input/output
     parallelogram_alt   = ('[\\', '\\]')        # Alternative parallelogram, also used for input/output
