@@ -297,9 +297,9 @@ def datetime_to_timestamp(datetime):
 def timestamp_to_datetime(timestamp):
     return datetime.fromtimestamp(timestamp/1000)
 
-def timestamp_to_str(timestamp):
+def timestamp_to_str(timestamp, date_time_format='%Y-%m-%d %H:%M:%S.%f'):
     date_time = timestamp_to_datetime(timestamp)
-    return datetime_to_str(date_time)
+    return datetime_to_str(date_time, date_time_format=date_time_format)
 
 def to_string(target):
     if target:
