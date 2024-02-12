@@ -301,6 +301,12 @@ def timestamp_to_str(timestamp, date_time_format='%Y-%m-%d %H:%M:%S.%f'):
     date_time = timestamp_to_datetime(timestamp)
     return datetime_to_str(date_time, date_time_format=date_time_format)
 
+def timestamp_to_str_date(timestamp, date_format='%Y-%m-%d'):
+    return timestamp_to_str(timestamp, date_format)
+
+def timestamp_to_str_time(timestamp, time_format='%H:%M:%S'):
+    return timestamp_to_str(timestamp, time_format)
+
 def to_string(target):
     if target:
         return str(target)
