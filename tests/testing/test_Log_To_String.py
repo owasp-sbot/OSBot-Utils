@@ -19,6 +19,7 @@ class test_Log_To_String(TestCase):
 
     def test__enter____leave__(self):
         with Log_To_String(self.logger) as log_to_string:
+            log_to_string.set_level_warning()
             self.add_test_log_entires()
             assert log_to_string.contents() == "critical message\nerror message\nwarning message\n"
             self.logger.exception("an exception")

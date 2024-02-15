@@ -1,12 +1,15 @@
+import sys
 from http import server
 from http.server import SimpleHTTPRequestHandler
 from unittest import TestCase
+from unittest.mock import call
 
+from osbot_utils.testing.Patch_Print import Patch_Print
 from osbot_utils.testing.Temp_File import Temp_File
 from osbot_utils.testing.Temp_Web_Server import Temp_Web_Server
 from osbot_utils.utils.Files import file_contents, file_contains, file_name, file_exists, parent_folder, folder_exists, \
     file_not_exists, folder_not_exists, current_temp_folder, temp_filename, file_extension
-from osbot_utils.utils.Misc import random_text
+from osbot_utils.utils.Misc import random_text, in_github_action
 from osbot_utils.utils.Dev import pprint
 
 
@@ -16,12 +19,15 @@ class test_Temp_Web_Server(TestCase):
         pass
 
     def test__enter__leave__(self):
+        if not in_github_action():              # skipp locally since this now takes 500ms which is 30% of the total test time (and since we will still execute this in the CI pipeline it is ok to skip locally)
+            return
         host        = "127.0.0.1"
         port        = 20002
         root_folder = current_temp_folder()
-        kwargs      = {  "host"       : host        ,
-                         "port"       : port        ,
-                         "root_folder": root_folder }
+        kwargs      = {  "host"         : host        ,
+                         "port"         : port        ,
+                         "root_folder"  : root_folder ,
+                         'wait_for_stop': True        }                                 # this is why it takes 500ms, since it wait for the port to be fully closed
         expected_content = ['<h1>Directory listing for /</h1>']
         temp_web_server = Temp_Web_Server(**kwargs)
         with temp_web_server as web_server:
@@ -93,12 +99,14 @@ class test_Temp_Web_Server(TestCase):
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-
-                # Here's where all the complicated logic is done to generate HTML.
-                # For clarity here, replace with a simple stand-in:
                 html = "<html><p>hello world</p></html>"
 
                 self.wfile.write(html.encode())
 
+            def log_message(self, msg_format, *args):
+                print("%s - - %s\n" % (self.address_string(), msg_format % args))
+
         with Temp_Web_Server(http_handler=MyHandler) as web_server:
-            pprint(web_server.GET())
+            with Patch_Print() as _:
+                assert web_server.GET()   == '<html><p>hello world</p></html>'
+                assert _.call_args_list() == [call('127.0.0.1 - - "GET / HTTP/1.1" 200 -\n')]

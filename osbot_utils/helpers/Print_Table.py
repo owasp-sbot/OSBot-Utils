@@ -42,7 +42,7 @@ class Print_Table(Kwargs_To_Self):
     table_width         : int
     text__all           : list
     text__footer        : str
-    text__headers       : list
+    text__headers       : str
     text__table_bottom  : str
     text__table_middle  : str
     text__table_top     : str
@@ -329,8 +329,8 @@ class Print_Table(Kwargs_To_Self):
                 new_row[new_index] = cell
             new_rows.append(new_row)
 
-        self.headers = new_order                                                                # Reorder the headers
-        self.rows = new_rows                                                                    # Reorder the rows
+        self.headers = list(new_order)                                                                # Reorder the headers
+        self.rows    = new_rows                                                                    # Reorder the rows
         return self
 
 
@@ -342,7 +342,7 @@ class Print_Table(Kwargs_To_Self):
         self.headers = headers
         return self
 
-    def set_order(self, new_order):
+    def set_order(self, *new_order):
         return self.reorder_columns(new_order)
 
     def set_title(self, title):

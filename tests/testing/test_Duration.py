@@ -13,7 +13,7 @@ class test_Duration(TestCase):
     @patch('builtins.print')
     def test_Duration(self, builtins_print):
         with Duration() as duration:
-            wait(0.2)
+            wait(0.002)
         duration_srt     = time_delta_to_str(duration.duration)
         expected_output = f'\nDuration: {duration_srt}'
         assert builtins_print.mock_calls == [call(expected_output)]

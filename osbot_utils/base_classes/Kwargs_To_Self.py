@@ -3,10 +3,12 @@
 #       the data is avaiable in IDE's code complete
 import inspect
 import types
+from enum import Enum, EnumMeta
+from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
+    raise_exception_on_obj_type_annotation_mismatch
 
-from osbot_utils.utils.Objects import default_value
-
-immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType)
+immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
 
 #todo: see if we can also add type safety to method execution
@@ -65,6 +67,7 @@ class Kwargs_To_Self:
     """
 
     __lock_attributes__ = False
+    #__type_safety__   = False
 
     def __init__(self, **kwargs):
         """
@@ -80,12 +83,15 @@ class Kwargs_To_Self:
                        setting an undefined attribute.
 
         """
-        for (key, value) in self.__default_kwargs__().items():                  # assign all default values to self
+        for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
+            if value is not None:                                           # when the value is explicity set to None on the class static vars, we can't check for type safety
+                raise_exception_on_obj_type_annotation_mismatch(self, key, value)
             setattr(self, key, value)
 
         for (key, value) in kwargs.items():                             # overwrite with values provided in ctor
             if hasattr(self, key):
-                setattr(self, key, value)
+                if value is not None:                                   # prevent None values from overwriting existing values, which is quite common in default constructors
+                    setattr(self, key, value)
             else:
                 raise Exception(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
                                 f"Use {self.__class__.__name__}.__default_kwargs__() see what attributes are available")
@@ -97,33 +103,60 @@ class Kwargs_To_Self:
         if self.__lock_attributes__:
             if not hasattr(self, name):
                 raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
+
+        if value is not None:
+            if value_type_matches_obj_annotation_for_attr(self, name, value) is False:
+                raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+        else:
+            if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
+                raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+
         super().__setattr__(name, value)
 
+    def __attr_names__(self):
+        return list_set(self.__locals__())
+
     @classmethod
-    def __cls_kwargs__(cls):
+    def __cls_kwargs__(cls, include_base_classes=True):
         """Return current class dictionary of class level variables and their values."""
         kwargs = {}
 
-        for k, v in vars(cls).items():
-            if not k.startswith('__') and not isinstance(v, types.FunctionType):  # remove instance functions
-                kwargs[k] = v
+        for base_cls in inspect.getmro(cls):
+            if base_cls is object:                                                      # Skip the base 'object' class
+                continue
+            for k, v in vars(base_cls).items():
+                if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
+                    kwargs[k] = v
 
-        for var_name, var_type in cls.__annotations__.items():
-            if hasattr(cls, var_name) is False:                         # only add if it has not already been defined
-                var_value = default_value(var_type)
-                kwargs[var_name] = var_value
-            else:
-                var_value = getattr(cls, var_name)
-                if not isinstance(var_value, var_type):
-                    exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
-                    raise Exception(exception_message)
+            for var_name, var_type in base_cls.__annotations__.items():
+                if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
+
+                    if var_name in kwargs:                      # this fixes the BUG which happened when multiple MRO classes had the same variable name
+                        continue
+
+                    var_value = default_value(var_type)         # FOUND THE BUG, it is here
+                    kwargs[var_name] = var_value                # in the var overflow situation, the kwargs will have the correct type
+                                                                # becuase it runs first, but when processing the base class, that will also be created
+                                                                # and the base type will be used (which is wrong)
+                                                                # a solution is to check if kwargs[var_name] exists and if not assign it
+                else:
+                    var_value = getattr(base_cls, var_name)
+                    if not isinstance(var_value, var_type):
+                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
+                        raise Exception(exception_message)
+                    if var_type not in immutable_types and var_name.startswith('__') is False:
+                        if type(var_type) not in immutable_types:
+                            exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
+                            raise Exception(exception_message)
+            if include_base_classes is False:
+                break
         return kwargs
 
-    @classmethod
-    def __default_kwargs__(cls):
+    #@classmethod
+    def __default_kwargs__(self):
         """Return entire (including base classes) dictionary of class level variables and their values."""
         kwargs = {}
-
+        cls = type(self)
         for base_cls in inspect.getmro(cls):                  # Traverse the inheritance hierarchy and collect class-level attributes
             if base_cls is object:  # Skip the base 'object' class
                 continue
@@ -132,14 +165,14 @@ class Kwargs_To_Self:
                     kwargs[k] = v
             # add the vars defined with the annotations
             for var_name, var_type in base_cls.__annotations__.items():
-                if hasattr(cls, var_name) is False:                         # only add if it has not already been defined
-                    var_value = default_value(var_type)
+                if hasattr(self, var_name):                                     # if the variable exists in self, use it (this prevents the multiple calls to default_value)
+                    var_value = getattr(self, var_name)
+                    kwargs[var_name] = var_value
+                elif hasattr(cls, var_name) is False:                           # if the attribute has not been defined in the class
+                    var_value = default_value(var_type)                         # try to create (and use) its default value
                     kwargs[var_name] = var_value
                 else:
-                    if var_type not in immutable_types and var_name.startswith('__') is False:
-                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
-                        raise Exception(exception_message)
-                    var_value = getattr(cls, var_name)
+                    var_value = getattr(cls, var_name)                          # if it is defined, check the type
                     if not isinstance(var_value, var_type):
                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
                         raise Exception(exception_message)
@@ -168,16 +201,25 @@ class Kwargs_To_Self:
                     kwargs[k] = v
         return kwargs
 
-    def locked(self, value=True):
+    def merge_with(self, target):
+        original_attrs = {k: v for k, v in self.__dict__.items() if k not in target.__dict__}       # Store the original attributes of self that should be retained.
+        self.__dict__ = target.__dict__                                                             # Set the target's __dict__ to self, now self and target share the same __dict__.
+        self.__dict__.update(original_attrs)                                                        # Reassign the original attributes back to self.
+        return self
+
+    def locked(self, value=True):                                   # todo, figure out best way to do this
         self.__lock_attributes__ = value
         return self
 
     def reset(self):
-        for k,v in self.__default_kwargs__().items():
+        for k,v in self.__cls_kwargs__().items():
             setattr(self, k, v)
 
     def update_from_kwargs(self, **kwargs):
         """Update instance attributes with values from provided keyword arguments."""
         for key, value in kwargs.items():
-            setattr(self, key, value)
+            if value is not None:
+                if value_type_matches_obj_annotation_for_attr(self, key, value) is False:
+                    raise Exception(f"Invalid type for attribute '{key}'. Expected '{self.__annotations__.get(key)}' but got '{type(value)}'")
+                setattr(self, key, value)
         return self

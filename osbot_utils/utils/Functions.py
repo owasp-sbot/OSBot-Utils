@@ -1,8 +1,13 @@
+import builtins
 import inspect
 import textwrap
 import types
 
 from osbot_utils.utils.Files import parent_folder
+
+def function_args(function):
+    if isinstance(function, types.FunctionType):
+        return inspect.getfullargspec(function)
 
 def function_file(function):
     if isinstance(function, types.FunctionType):
@@ -12,18 +17,13 @@ def function_folder(function):
     if isinstance(function, types.FunctionType):
         return parent_folder(inspect.getfile(function))
 
-def function_name(function):
-    if isinstance(function, types.FunctionType):
-        return function.__name__
-
-
 def function_module(function):
     if isinstance(function, types.FunctionType):
         return inspect.getmodule(function)
 
-def function_args(function):
-    return inspect.getfullargspec(function)
-
+def function_name(function):
+    if isinstance(function, types.FunctionType):
+        return function.__name__
 
 def function_source_code(function):
     if isinstance(function, types.FunctionType):
@@ -40,6 +40,9 @@ def get_line_number(function):
         return line
     except Exception:
         return None
+
+def is_callable(target):
+    return callable(target)
 
 def method_params(target):
     params = {}
@@ -96,7 +99,10 @@ def signature(callable_obj):
     return sig_dict
 
 def python_file(target):
-    return inspect.getfile(target)
+    if isinstance(target, type) or type(target) in [types.ModuleType , types.MethodType,
+                                                    types.FunctionType, types.TracebackType,
+                                                    types.FrameType, types.CodeType]:
+        return inspect.getfile(target)
 
 def type_file(target):
     if isinstance(target, type):

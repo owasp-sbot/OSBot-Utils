@@ -20,7 +20,7 @@ class test_Print_Table(TestCase):
                                                   'table_width'         : 0  ,
                                                   'text__all'           : [] ,
                                                   'text__footer'        : '' ,
-                                                  'text__headers'       : [] ,
+                                                  'text__headers'       : '' ,
                                                   'text__table_bottom'  : '' ,
                                                   'text__table_middle'  : '' ,
                                                   'text__table_top'     : '' ,

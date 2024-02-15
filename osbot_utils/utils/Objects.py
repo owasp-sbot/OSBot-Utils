@@ -3,11 +3,39 @@ import inspect
 import json
 import os
 import types
+from typing import get_origin
+
 
 from dotenv import load_dotenv
 
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Str  import str_unicode_escape, str_max_width
+
+def are_types_compatible_for_assigment(source_type, target_type):
+    if source_type is target_type:
+        return True
+    if source_type is int and target_type is float:
+        return True
+    if target_type in source_type.__mro__:          # this means that the source_type has the target_type has of its base types
+        return True
+
+    return False
+
+def are_types_magic_mock(source_type, target_type):
+    from unittest.mock import MagicMock
+    if isinstance(source_type, MagicMock):
+        return True
+    if isinstance(target_type, MagicMock):
+        return True
+    if source_type is MagicMock:
+        return True
+    if target_type is MagicMock:
+        return True
+    # if class_full_name(source_type) == 'unittest.mock.MagicMock':
+    #     return True
+    # if class_full_name(target_type) == 'unittest.mock.MagicMock':
+    #     return True
+    return False
 
 def base_classes(cls):
     if type(cls) is type:
@@ -42,15 +70,6 @@ def default_value(target : type):
     except TypeError:
         return None                     # if not return None
 
-def dict_insert_field(target_dict, new_key, insert_at, new_value=None):
-    if type(target_dict) is dict:
-        new_dict = {}
-        for i, (key, value) in enumerate(target_dict.items()):
-            if i == insert_at:
-                new_dict[new_key] = new_value
-            new_dict[key] = value
-        return new_dict
-
 def dict_remove(data, target):
     if type(data) is dict:
         if type(target) is list:
@@ -64,6 +83,9 @@ def dict_remove(data, target):
 
 def env_value(var_name):
     return env_vars().get(var_name, None)
+
+def env_vars_list():
+    return list_set(env_vars())
 
 def env_vars(reload_vars=False):
     """
@@ -88,11 +110,12 @@ def get_field(target, field, default=None):
             pass
     return default
 
-def get_missing_fields(target,field):
+def get_missing_fields(target,fields):
     missing_fields = []
-    for field in field:
-        if get_field(target, field) is None:
-            missing_fields.append(field)
+    if fields:
+        for field in fields:
+            if get_field(target, field) is None:
+                missing_fields.append(field)
     return missing_fields
 
 def get_value(target, key, default=None):
@@ -110,15 +133,16 @@ def print_obj_data_aligned(obj_data):
 
 def print_obj_data_as_dict(target, **kwargs):
     data           = obj_data(target, **kwargs)
-    indented_items = obj_data_aligned(data)
+    indented_items = obj_data_aligned(data, tab_size=5)
     print("dict(" + indented_items + " )")
     return data
 
-def obj_data_aligned(obj_data):
+def obj_data_aligned(obj_data, tab_size=0):
     max_key_length = max(len(k) for k in obj_data.keys())                                 # Find the maximum key length
     items          = [f"{k:<{max_key_length}} = {v!r:6}," for k, v in obj_data.items()]   # Format each key-value pair
-    items[-1]      = items[-1][:-2]                                                   # Remove comma from the last item
-    indented_items = '\n     '.join(items)                                            # Join the items with newline and
+    items[-1]      = items[-1][:-2]                                                       # Remove comma from the last item
+    tab_string = f"\n{' ' * tab_size }"                                                   # apply tabbing (if needed)
+    indented_items = tab_string.join(items)                                               # Join the items with newline and
     return indented_items
 
 # todo: add option to not show class methods that are not bultin types
@@ -129,6 +153,7 @@ def print_object_members(target, name_width=30, value_width=100, show_private=Fa
     print(f"Settings:\n\t name_width: {name_width} | value_width: {value_width} | show_private: {show_private} | show_internals: {show_internals}")
     print()
     if only_show_methods:
+        show_methods = True                                             # need to make sure this setting is True, or there will be no methods to show
         print(f"{'method':<{name_width}} (params)")
     else:
         if show_value_class:
@@ -148,7 +173,14 @@ def print_object_members(target, name_width=30, value_width=100, show_private=Fa
                 print(f"{name:<{name_width}} | {value}"[:max_width])
 
 def obj_base_classes(obj):
-    return type_base_classes(type(obj))
+    return [obj_type for obj_type in type_base_classes(type(obj))]
+
+def type_mro(target):
+    if type(target) is type:
+        cls = target
+    else:
+        cls = type(target)
+    return list(inspect.getmro(cls))
 
 def type_base_classes(cls):
     base_classes = cls.__bases__
@@ -168,6 +200,8 @@ def obj_base_classes_names(obj, show_module=False):
 
 def obj_data(target, name_width=30, value_width=100, show_private=False, show_internals=False, show_value_class=False, show_methods=False, only_show_methods=False):
     result = {}
+    if show_internals:
+        show_private = True                                     # show_private will skip all internals, so need to make sure it is True
     for name, value in inspect.getmembers(target):
         if show_methods is False and type(value) is types.MethodType:
             continue
@@ -215,9 +249,37 @@ def obj_get_value(target=None, key=None, default=None):
 def obj_values(target=None):
     return list(obj_dict(target).values())
 
+def raise_exception_on_obj_type_annotation_mismatch(target, attr_name, value):
+    if value_type_matches_obj_annotation_for_attr(target, attr_name, value) is False:
+        raise Exception(f"Invalid type for attribute '{attr_name}'. Expected '{target.__annotations__.get(attr_name)}' but got '{type(value)}'")
+
+def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
+    if hasattr(target, '__annotations__'):
+        obj_annotations  = target.__annotations__
+        if hasattr(obj_annotations,'get'):
+            attr_type        = obj_annotations.get(attr_name)
+            if attr_type:
+                origin_attr_type = get_origin(attr_type)                # to handle when type definion contains an generic
+                if origin_attr_type:
+                    attr_type = origin_attr_type
+                value_type = type(value)
+                if are_types_compatible_for_assigment(source_type=value_type, target_type=attr_type):
+                    return True
+                if are_types_magic_mock(source_type=value_type, target_type=attr_type):
+                    return True
+
+                return value_type is attr_type
+    return None
+
+
+
+
 
 # helper duplicate methods
+base_types          = base_classes
 
 obj_list_set        = obj_keys
 obj_info            = print_object_members
 obj_methods         = print_object_methods
+
+type_full_name      = class_full_name

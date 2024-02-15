@@ -31,3 +31,7 @@ class Temp_File:
 
     def path(self):
         return self.file_path
+
+    def write(self, contents):
+        file_create(self.file_path, contents)
+        return self

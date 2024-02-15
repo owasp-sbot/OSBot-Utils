@@ -1,4 +1,3 @@
-import types
 from unittest import TestCase
 from osbot_utils.base_classes.Cache_Pickle import Cache_Pickle
 from osbot_utils.decorators.methods.context import context
@@ -11,8 +10,12 @@ class test_Cache_Pickle(TestCase):
     def setUp(self) -> None:
         self.cache_pickle = Cache_Pickle()
 
-    def test_aaaa(self):
-        pass
+    def test__getattribute___(self):
+        class An_Class(Cache_Pickle):
+            not_an_method = 42
+        an_class = An_Class()
+        assert an_class.__getattribute__('not_an_method') == 42
+
 
     def test__init__(self):
         with self.cache_pickle as _:
@@ -25,6 +28,7 @@ class test_Cache_Pickle(TestCase):
 
     def test__cache_data(self):
         class An_Class(Cache_Pickle):
+            an_method = sorted
             def return_42(self):
                 return 42
 
@@ -41,7 +45,12 @@ class test_Cache_Pickle(TestCase):
         assert len(cache_files) == 1
         assert pickle_load_from_file(cache_file)
 
+        assert an_class.an_method([2,3,1]) == [1,2,3]
 
+        assert An_Class().return_42(reload_cache=True ) == 42
+        assert An_Class().return_42(reload_cache=False) == 42
+        assert An_Class().return_42(use_cache   =True ) == 42
+        assert An_Class().return_42(use_cache   =False) == 42
 
     def test__cache_disable(self):
         with self.cache_pickle as _:

@@ -104,7 +104,8 @@ class test_Status(TestCase):
         assert osbot_logger.memory_handler_messages()   == ['[osbot] [debug] an debug message']
         last_log_entry = osbot_logger.memory_handler_logs().pop()
 
-        assert list_set(last_log_entry) == ['args', 'created', 'exc_info', 'exc_text', 'filename', 'funcName',
+        # note: asctime below is only showing when pytest_configure is set and configures config.option.log_format
+        assert list_set(last_log_entry) == ['args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename', 'funcName',
                                             'levelname', 'levelno', 'lineno', 'message', 'module', 'msecs',
                                             'msg', 'name', 'pathname', 'process', 'processName', 'relativeCreated',
                                             'stack_info', 'thread', 'threadName']

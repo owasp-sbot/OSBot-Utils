@@ -297,9 +297,15 @@ def datetime_to_timestamp(datetime):
 def timestamp_to_datetime(timestamp):
     return datetime.fromtimestamp(timestamp/1000)
 
-def timestamp_to_str(timestamp):
+def timestamp_to_str(timestamp, date_time_format='%Y-%m-%d %H:%M:%S.%f'):
     date_time = timestamp_to_datetime(timestamp)
-    return datetime_to_str(date_time)
+    return datetime_to_str(date_time, date_time_format=date_time_format)
+
+def timestamp_to_str_date(timestamp, date_format='%Y-%m-%d'):
+    return timestamp_to_str(timestamp, date_format)
+
+def timestamp_to_str_time(timestamp, time_format='%H:%M:%S'):
+    return timestamp_to_str(timestamp, time_format)
 
 def to_string(target):
     if target:
@@ -343,11 +349,14 @@ def random_string(length:int=8, prefix:str='', postfix:str=''):
 def random_string_and_numbers(length:int=6,prefix:str=''):
     return prefix + ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
-def random_text(prefix:str=None,length:int=12):
+def random_text(prefix:str=None,length:int=12, lowercase=False):
     if prefix is None: prefix = 'text_'
     if last_letter(prefix) not in ['_','/']:
         prefix += '_'
-    return random_string_and_numbers(length=length, prefix=prefix)
+    value = random_string_and_numbers(length=length, prefix=prefix)
+    if lowercase:
+        return lower(value)
+    return value
 
 def random_uuid():
     return str(uuid.uuid4())
