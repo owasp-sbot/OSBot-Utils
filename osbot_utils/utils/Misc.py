@@ -168,6 +168,13 @@ def is_float(value):
     except ValueError:
         return False
 
+def is_guid(value):
+    try:
+        uuid_obj = uuid.UUID(value)
+        return str(uuid_obj) == value.lower()
+    except ValueError:
+        return False
+
 
 def ignore_warning__unclosed_ssl():
     warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
