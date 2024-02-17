@@ -4,6 +4,8 @@
 import inspect
 import types
 from enum import Enum, EnumMeta
+
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
     raise_exception_on_obj_type_annotation_mismatch
@@ -223,3 +225,33 @@ class Kwargs_To_Self:
                     raise Exception(f"Invalid type for attribute '{key}'. Expected '{self.__annotations__.get(key)}' but got '{type(value)}'")
                 setattr(self, key, value)
         return self
+
+
+    def deserialize_from_dict(self, data):
+        for key, value in data.items():
+            if hasattr(self, key) and isinstance(getattr(self, key), Kwargs_To_Self):
+                getattr(self, key).deserialize_from_dict(value)                         # Recursive call for complex nested objects
+            else:
+                setattr(self, key, value)                                               # Direct assignment for primitive types and other structures
+        return self
+
+    def serialize_to_dict(self):
+        return serialize_to_dict(self)
+
+    def print(self):
+        pprint(serialize_to_dict(self))
+
+def serialize_to_dict(obj):
+    if isinstance(obj, (str, int, float, bool, bytes)) or obj is None:
+        return obj
+    elif isinstance(obj, list):
+        return [serialize_to_dict(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {key: serialize_to_dict(value) for key, value in obj.items()}
+    elif hasattr(obj, "__dict__"):
+        data = {}                                           # todo: look at a more advanced version which saved the type of the object, for example with {'__type__': type(obj).__name__}
+        for key, value in obj.__dict__.items():
+            data[key] = serialize_to_dict(value)  # Recursive call for complex types
+        return data
+    else:
+        raise TypeError(f"Type {type(obj)} not serializable")
