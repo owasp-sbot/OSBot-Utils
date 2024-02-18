@@ -302,6 +302,7 @@ def datetime_to_timestamp(datetime):
     return int(datetime.timestamp() * 1000)
 
 def timestamp_to_datetime(timestamp):
+    timestamp = float(timestamp)                            # handle cases when timestamp is a Decimal
     return datetime.fromtimestamp(timestamp/1000)
 
 def timestamp_to_str(timestamp, date_time_format='%Y-%m-%d %H:%M:%S.%f'):

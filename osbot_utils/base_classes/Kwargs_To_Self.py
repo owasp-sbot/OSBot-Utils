@@ -203,6 +203,12 @@ class Kwargs_To_Self:
                     kwargs[k] = v
         return kwargs
 
+    # global methods added to any class that base classes this
+    # todo: see if there should be a prefix on these methods, to make it easier to spot them
+    #       of if these are actually that useful that they should be added like this
+    def json(self):
+        return self.serialize_to_dict()
+
     def merge_with(self, target):
         original_attrs = {k: v for k, v in self.__dict__.items() if k not in target.__dict__}       # Store the original attributes of self that should be retained.
         self.__dict__ = target.__dict__                                                             # Set the target's __dict__ to self, now self and target share the same __dict__.
@@ -235,7 +241,7 @@ class Kwargs_To_Self:
                 setattr(self, key, value)                                               # Direct assignment for primitive types and other structures
         return self
 
-    def serialize_to_dict(self):
+    def serialize_to_dict(self):                        # todo: see if we need this method or if the .json() is enough
         return serialize_to_dict(self)
 
     def print(self):
