@@ -230,7 +230,7 @@ class test_Http(TestCase):
                                              'Content-Length' : '14'                                  ,
                                              'Content-Type'   : 'application/x-www-form-urlencoded'   ,
                                              'Host'           : f'{self.local_host}:{self.local_port}',
-                                             'User-Agent'     : 'Python-urllib/3.10'                } ,
+                                             'User-Agent'     : 'Python-urllib/3.12'                } ,
                                 'json'   : { 'json':'is here', 'a':42}                                                       ,
                                 'url'    : f'{self.local_host}:{self.local_port}/'
                             }

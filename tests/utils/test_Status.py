@@ -108,7 +108,7 @@ class test_Status(TestCase):
         assert list_set(last_log_entry) == ['args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename', 'funcName',
                                             'levelname', 'levelno', 'lineno', 'message', 'module', 'msecs',
                                             'msg', 'name', 'pathname', 'process', 'processName', 'relativeCreated',
-                                            'stack_info', 'thread', 'threadName']
+                                            'stack_info', 'taskName', 'thread', 'threadName']
         assert last_log_entry.get('args'         ) == ()
         assert last_log_entry.get('exc_info'     ) == (None, None, None)
         assert last_log_entry.get('exc_text'     ) == 'NoneType: None'
