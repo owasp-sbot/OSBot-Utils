@@ -157,8 +157,8 @@ class test_Trace_Call__Stack(TestCase):
         source_code_location    = f'{source_code_file}:{source_code_line_number}'
         source_code             = map_source_code(sample_frame)
         assert  source_code == { 'source_code': 'source_code             = map_source_code(sample_frame)'  ,
-                                 'source_code_caller': 'method()'                                       ,
-                                 'source_code_location': source_code_location                           }
+                                 'source_code_caller': 'if method() is not None:'                          ,
+                                 'source_code_location': source_code_location                              }
 
 
     def test_push_and_pop(self):

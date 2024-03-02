@@ -291,10 +291,9 @@ class Test_Kwargs_To_Self(TestCase):
                         "as type '<class 'list'>' which is not supported by Kwargs_To_Self, "
                         "with only the following imumutable types being supported: "
                         "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
-                        "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumMeta'>)'")
+                        "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
         with Catch(expect_exception=True, expected_error = expected_error) as catch:
             An_Class()
-
 
         class An_Class_2(Kwargs_To_Self):
             attribute_8 : dict = {}
@@ -303,7 +302,7 @@ class Test_Kwargs_To_Self(TestCase):
                         "as type '<class 'dict'>' which is not supported by Kwargs_To_Self, "
                         "with only the following imumutable types being supported: "
                         "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
-                        "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumMeta'>)'")
+                        "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
         with Catch(expect_exception=True, expected_error=expected_error):
             An_Class_2()
 

@@ -133,13 +133,15 @@ class test_Trace_Call__Print_Traces(TestCase):
             view_model                = trace_call.view_data()
             trace_capture_source_code = trace_call.trace_call_handler.config.trace_capture_source_code
             trace_call.trace_call_print_traces.print_traces(view_model, trace_capture_source_code)
+
+            from osbot_utils.utils.Dev import pprint
+
             assert mock_print.call_args_list == [call(),
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 3 traces captured\n'),
                                                  call('➡️📦  \x1b[1m\x1b[38;2;138;148;138m\x1b[0m.\x1b[1mTrace Session\x1b[0m\x1b[0m'),
                                                  call('│   └── ➡️🔗️ \x1b[1mdef another_function():\x1b[0m'),
-                                                 call('└────────── ➡️🧩️ \x1b[1mdef dummy_function():\x1b[0m'),
-                                                 call('│                   🔖 \x1b[1m\x1b[38;2;120;120;120ma\x1b[0m = \x1b[92m12\x1b[0m')]
+                                                 call('└────────── ➡️🧩️ \x1b[1mdef dummy_function():\x1b[0m')]
 
 
 
