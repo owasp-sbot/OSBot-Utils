@@ -20,7 +20,7 @@ class test_Temp_Web_Server(TestCase):
 
     def test__enter__leave__(self):
         if not in_github_action():              # skipp locally since this now takes 500ms which is 30% of the total test time (and since we will still execute this in the CI pipeline it is ok to skip locally)
-            return
+           return
         host        = "127.0.0.1"
         port        = 20002
         root_folder = current_temp_folder()
@@ -31,10 +31,10 @@ class test_Temp_Web_Server(TestCase):
         expected_content = ['<h1>Directory listing for /</h1>']
         temp_web_server = Temp_Web_Server(**kwargs)
         with temp_web_server as web_server:
-            assert web_server.server_port_open()             is True
-            assert web_server.GET_contains(expected_content) is True
-            assert web_server.GET_contains('<html>\n'      ) is True
-            assert web_server.GET_contains('aaaaaa__bbbbbb') is False
+            assert web_server.server_port_open()                 is True
+            assert web_server.GET_contains(expected_content    ) is True
+            assert web_server.GET_contains('<html lang="en">\n') is True
+            assert web_server.GET_contains('aaaaaa__bbbbbb'    ) is False
 
         assert web_server.server_port_open() is False
         assert web_server.GET()              is None
