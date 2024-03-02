@@ -25,7 +25,7 @@ class test_Ast_Load(TestCase):
         classes_def   = stats.get('nodes').get('Ast_Class_Def'   )
         functions_def = stats.get('nodes').get('Ast_Function_Def')
 
-        assert stats.get('node_count') == 3358
+        assert stats.get('node_count') == 3361
         assert len(stats.get('files_visited')) == 2
         assert classes_def   == 3
         assert functions_def == 22

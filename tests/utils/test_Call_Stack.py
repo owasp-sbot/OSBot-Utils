@@ -112,5 +112,5 @@ class test_Call_Stack(TestCase):
     def test_call_stack_frames_data(self):
         frames_data = call_stack_frames_data(depth=4)
         for frame_data in frames_data:
-            assert list_set(frame_data) == ['filename', 'line', 'lineno', 'locals', 'name']
+            assert list_set(frame_data) == ['colno', 'end_colno', 'end_lineno', 'filename', 'line', 'lineno', 'locals', 'name']
 

@@ -39,13 +39,13 @@ class test_Objects(TestCase):
         assert base_classes(type(self)) == [TestCase, object]
 
     def test_class_functions_names(self):
-        assert 'assertEquals' in class_functions_names(self)
+        assert 'assertEqual' in class_functions_names(self)
 
     def test_class_functions(self):
         functions = class_functions(self)
         assert len(functions) > 90
-        assert 'assertEquals' in functions
-        assert functions['assertEquals'].__class__ == types.FunctionType
+        assert 'assertEqual' in functions
+        assert functions['assertEqual'].__class__ == types.FunctionType
 
     def test_class_full_name(self):
         assert class_full_name(self       ) == 'test_Objects.test_Objects'
@@ -153,7 +153,7 @@ class test_Objects(TestCase):
 
 
 
-        expected_vars__show_internals = sorted([ '_Target__aa', 'var_1', 'var_2', 'var_3', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__'])
+        expected_vars__show_internals = sorted([ '_Target__aa', 'var_1', 'var_2', 'var_3', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__'])
         expected_vars__show_private   = sorted([ '_Target__aa', 'var_1', 'var_2', 'var_3'])
 
         assert obj_data(target) == {'var_1': 'the answer', 'var_2': 'is', 'var_3': 42}
@@ -213,7 +213,7 @@ class test_Objects(TestCase):
                                         call( 'an_int                         | 42'),
                                         call( 'an_str                         | the answer'),
                                         call(),
-                                        call("Members for object:\n\t test_print_object_members (test_Objects.test_Objects) of type:<class 'test_Objects.test_Objects'>"),
+                                        call("Members for object:\n\t test_print_object_members (test_Objects.test_Objects.test_print_object_members) of type:<class 'test_Objects.test_Objects'>"),
                                         call('Settings:\n\t name_width: 30 | value_width: 100 | show_private: False | show_internals: False'),
                                         call(),
                                         call('field                          | value'),
