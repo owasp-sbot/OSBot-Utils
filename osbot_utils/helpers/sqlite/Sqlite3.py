@@ -6,11 +6,17 @@ class Sqlite3(Kwargs_To_Self):
 
     @cache_on_self
     def connect(self, db_name):
-        return sqlite3.connect(db_name)
+        connection             = sqlite3.connect(db_name)
+        connection.row_factory = self.dict_factory              # this returns a dict as the row value of every query
+        return connection
 
     @cache_on_self
     def cursor(self,db_name):
         return self.connect(db_name).cursor()
+
+    def dict_factory(self, cursor, row):                        # from https://docs.python.org/3/library/sqlite3.html#how-to-create-and-use-row-factories
+        fields = [column[0] for column in cursor.description]
+        return {key: value for key, value in zip(fields, row)}
 
     def execute(self, db_name, sql_query):
         return self.cursor(db_name).execute(sql_query)
@@ -18,9 +24,6 @@ class Sqlite3(Kwargs_To_Self):
     def execute__fetch_all(self, db_name, sql_query):
         return self.execute(db_name,sql_query).fetchall()
 
-
-    # def create(self):
-    #     conn = sqlite3.connect('example.db')
     def table_create(self, db_name, table_name, fields):
         sql_query = f"CREATE TABLE {table_name} ({', '.join(fields)})"
         return self.execute(db_name, sql_query)
@@ -39,6 +42,7 @@ class Sqlite3(Kwargs_To_Self):
         sql_query = f"PRAGMA table_info({table_name});"
         cursor = self.execute(db_name, sql_query)
         columns = cursor.fetchall()
+        return columns
         schema = []
         for col in columns:
             col_info = { "cid"          : col[0] ,
@@ -53,9 +57,4 @@ class Sqlite3(Kwargs_To_Self):
     def tables(self, db_name):
         sql_query = "SELECT * FROM sqlite_master WHERE type='table';"
         cursor    = self.execute(db_name, sql_query)                    # Query to select all table names from the sqlite_master table
-        tables    = []
-        for table in cursor.fetchall():                                   # Fetch all results
-            (type, name, tbl_name, rootpage, sql) = table
-            table_data = {"type": type, "name": name, "rootpage": rootpage, "table": tbl_name,"sql": sql}
-            tables.append(table_data)
-        return tables
+        return cursor.fetchall()
