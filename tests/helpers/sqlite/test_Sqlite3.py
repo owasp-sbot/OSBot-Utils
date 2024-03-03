@@ -26,6 +26,7 @@ class test_Sqlite3(TestCase):
 
         if in_github_action():
             expected_obj_items.extend(['enable_load_extension', 'load_extension'])
+            expected_obj_items.sort()
         connection = self.sqlite3.connect(self.db_name)
         assert type(connection) is Connection
         assert list_set(obj_data(connection)) == expected_obj_items
