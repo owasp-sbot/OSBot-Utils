@@ -1,13 +1,6 @@
-#from functools import cache
 import sqlite3
-
-from sqlite3 import Connection
-
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.decorators.methods.cache import cache
-
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-
 
 class Sqlite3(Kwargs_To_Self):
 

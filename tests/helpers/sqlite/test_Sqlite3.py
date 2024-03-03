@@ -5,7 +5,7 @@ from unittest import TestCase
 from osbot_utils.helpers.sqlite.Capture_Sqlite_Error import capture_sqlite_error, Capture_Sqlite_Error
 from osbot_utils.helpers.sqlite.Sqlite3 import Sqlite3
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Misc import list_set, in_github_action
 from osbot_utils.utils.Objects import obj_data
 
 
@@ -16,15 +16,19 @@ class test_Sqlite3(TestCase):
         self.sqlite3 = Sqlite3()
 
     def test_connect(self):
+        expected_obj_items = [ 'DataError'         , 'DatabaseError'         , 'Error'           , 'IntegrityError', 'InterfaceError', 'InternalError'                       ,
+                               'NotSupportedError' , 'OperationalError'      , 'ProgrammingError', 'Warning'                                                                 ,
+                               'autocommit'        , 'backup'                , 'blobopen'        , 'close'         , 'commit'        , 'create_aggregate', 'create_collation',
+                               'create_function'   , 'create_window_function', 'cursor'          , 'deserialize'   , 'execute'       , 'executemany'                         ,
+                               'executescript'     , 'getconfig'             , 'getlimit'        , 'in_transaction', 'interrupt'     , 'isolation_level'                     ,
+                               'iterdump'          , 'rollback'              , 'row_factory'     , 'serialize'     , 'set_authorizer', 'set_progress_handler'                ,
+                               'set_trace_callback', 'setconfig'             , 'setlimit'        , 'text_factory'  , 'total_changes'                                         ]
+
+        if in_github_action():
+            expected_obj_items.extend(['enable_load_extension', 'load_extension'])
         connection = self.sqlite3.connect(self.db_name)
         assert type(connection) is Connection
-        assert list_set(obj_data(connection)) == [ 'DataError', 'DatabaseError', 'Error', 'IntegrityError', 'InterfaceError', 'InternalError',
-                                                   'NotSupportedError', 'OperationalError', 'ProgrammingError', 'Warning',
-                                                   'autocommit', 'backup', 'blobopen', 'close', 'commit', 'create_aggregate', 'create_collation',
-                                                   'create_function', 'create_window_function', 'cursor', 'deserialize', 'execute', 'executemany',
-                                                   'executescript', 'getconfig', 'getlimit', 'in_transaction', 'interrupt', 'isolation_level',
-                                                   'iterdump', 'rollback', 'row_factory', 'serialize', 'set_authorizer', 'set_progress_handler',
-                                                   'set_trace_callback', 'setconfig', 'setlimit', 'text_factory', 'total_changes']
+        assert list_set(obj_data(connection)) == expected_obj_items
         assert connection.autocommit     == -1
         assert connection.in_transaction is False
         assert connection.row_factory    is None
