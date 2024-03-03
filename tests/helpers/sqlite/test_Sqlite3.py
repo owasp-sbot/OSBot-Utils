@@ -1,12 +1,12 @@
-from sqlite3 import Connection
+from sqlite3 import Connection, Cursor
 from unittest import TestCase
 
 
 from osbot_utils.helpers.sqlite.Capture_Sqlite_Error import capture_sqlite_error, Capture_Sqlite_Error
 from osbot_utils.helpers.sqlite.Sqlite3 import Sqlite3
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import list_set, in_github_action
-from osbot_utils.utils.Objects import obj_data
+from osbot_utils.utils.Misc import list_set, in_github_action, wait_for
+from osbot_utils.utils.Objects import obj_data, obj_info
 
 
 class test_Sqlite3(TestCase):
@@ -38,12 +38,47 @@ class test_Sqlite3(TestCase):
         assert connection == self.sqlite3.connect(self.db_name)         # confirm @cache is working since we get the same object every time
         assert connection == self.sqlite3.connect(self.db_name)
 
-    #@capture_sqlite_error
+
     def test_execute(self):
-        with Capture_Sqlite_Error() as error:
-            self.sqlite3.execute(self.db_name, '')
-        assert error.error_details == {'error_code': 'ProgrammingError',
-                                       'error_message': 'parameters are of unsupported type'}
+        cursor = self.sqlite3.execute(self.db_name, '')
+        assert type(cursor) is Cursor
+        assert cursor.description is None
+
+    @capture_sqlite_error
+    def test_table_create(self):
+        table_name = 'test_table'
+        fields     = ['id INTEGER PRIMARY KEY', 'name TEXT NOT NULL','email TEXT UNIQUE NOT NULL']
+        assert self.sqlite3.tables(self.db_name) == []
+        self.sqlite3.table_create(db_name=self.db_name, table_name=table_name, fields=fields)
+        assert self.sqlite3.tables(self.db_name) == [{ 'name'     : 'test_table'        ,
+                                                       'rootpage' : 2                   ,
+                                                       'sql'      : 'CREATE TABLE test_table (id INTEGER PRIMARY KEY, name '
+                                                                    'TEXT NOT NULL, email TEXT UNIQUE NOT NULL)',
+                                                       'table'    : 'test_table'        ,
+                                                       'type'     : 'table'             }]
+
+
+        assert self.sqlite3.table__sqlite_master(self.db_name) == [ ( 'table',
+                                                                      'test_table',
+                                                                      'test_table',
+                                                                      2,
+                                                                      'CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT NOT NULL, '
+                                                                      'email TEXT UNIQUE NOT NULL)'),
+                                                                    ('index', 'sqlite_autoindex_test_table_1', 'test_table', 3, None)]
+
+        self.sqlite3.table_delete(self.db_name, table_name)
+        assert self.sqlite3.tables(self.db_name) == []
+        #pprint(table__sqlite_master)
+
+
+
+    def test_tables(self):
+        tables = self.sqlite3.tables(self.db_name)
+        assert tables == []
+
+
+
+
 
 #         """CREATE TABLE users (
 #     id INTEGER PRIMARY KEY AUTOINCREMENT,
