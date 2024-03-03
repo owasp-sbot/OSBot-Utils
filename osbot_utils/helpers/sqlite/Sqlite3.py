@@ -15,6 +15,10 @@ class Sqlite3(Kwargs_To_Self):
     def execute(self, db_name, sql_query):
         return self.cursor(db_name).execute(sql_query)
 
+    def execute__fetch_all(self, db_name, sql_query):
+        return self.execute(db_name,sql_query).fetchall()
+
+
     # def create(self):
     #     conn = sqlite3.connect('example.db')
     def table_create(self, db_name, table_name, fields):
@@ -31,6 +35,21 @@ class Sqlite3(Kwargs_To_Self):
         cursor     = self.execute(db_name, sql_query)
         return cursor.fetchall()
 
+    def table__schema(self, db_name, table_name):
+        sql_query = f"PRAGMA table_info({table_name});"
+        cursor = self.execute(db_name, sql_query)
+        columns = cursor.fetchall()
+        schema = []
+        for col in columns:
+            col_info = { "cid"          : col[0] ,
+                         "name"         : col[1] ,
+                         "type"         : col[2] ,
+                         "notnull"      : col[3] ,
+                         "default_value": col[4] ,
+                         "pk"           : col[5] }
+            schema.append(col_info)
+        return schema
+
     def tables(self, db_name):
         sql_query = "SELECT * FROM sqlite_master WHERE type='table';"
         cursor    = self.execute(db_name, sql_query)                    # Query to select all table names from the sqlite_master table
@@ -39,7 +58,4 @@ class Sqlite3(Kwargs_To_Self):
             (type, name, tbl_name, rootpage, sql) = table
             table_data = {"type": type, "name": name, "rootpage": rootpage, "table": tbl_name,"sql": sql}
             tables.append(table_data)
-        return tables
-
-
         return tables

@@ -44,6 +44,11 @@ class test_Sqlite3(TestCase):
         assert type(cursor) is Cursor
         assert cursor.description is None
 
+    def test_execute__fetch_all(self):
+        sql_query = "select * from sqlite_schema"
+        result = self.sqlite3.execute__fetch_all(self.db_name, sql_query)
+        assert result == []
+
     @capture_sqlite_error
     def test_table_create(self):
         table_name = 'test_table'
@@ -66,9 +71,33 @@ class test_Sqlite3(TestCase):
                                                                       'email TEXT UNIQUE NOT NULL)'),
                                                                     ('index', 'sqlite_autoindex_test_table_1', 'test_table', 3, None)]
 
-        self.sqlite3.table_delete(self.db_name, table_name)
-        assert self.sqlite3.tables(self.db_name) == []
-        #pprint(table__sqlite_master)
+        table__schema = self.sqlite3.table__schema(db_name=self.db_name, table_name=table_name)
+        assert table__schema == [{ 'cid'          : 0        ,
+                                   'name'         : 'id'     ,
+                                   'type'         : 'INTEGER',
+                                   'notnull'      : 0        ,
+                                   'default_value': None     ,
+                                   'pk'           : 1        },
+                                 { 'cid'          : 1        ,
+                                   'name'         : 'name'   ,
+                                   'type'         : 'TEXT'   ,
+                                   'notnull'      : 1        ,
+                                   'default_value': None     ,
+                                   'pk'           : 0        },
+                                 { 'cid'          : 2        ,
+                                   'name'         : 'email'  ,
+                                   'type'         : 'TEXT'   ,
+                                   'notnull'      : 1        ,
+                                   'default_value': None     ,
+                                   'pk'           : 0        }]
+        #pprint(table__schema)
+
+        #pprint(list(self.sqlite3.connect(db_name=self.db_name).iterdump()))
+
+
+        # self.sqlite3.table_delete(self.db_name, table_name)
+        # assert self.sqlite3.tables(self.db_name) == []
+        # #pprint(table__sqlite_master)
 
 
 
