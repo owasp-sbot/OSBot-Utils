@@ -1,6 +1,7 @@
 # todo: find a way to add these documentations strings to a separate location so that
 #       the code is not polluted with them (like in the example below)
 #       the data is avaiable in IDE's code complete
+import functools
 import inspect
 import types
 from enum import Enum, EnumMeta
@@ -8,7 +9,7 @@ from enum import Enum, EnumMeta
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
-    raise_exception_on_obj_type_annotation_mismatch
+    raise_exception_on_obj_type_annotation_mismatch, obj_info
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
@@ -85,6 +86,7 @@ class Kwargs_To_Self:
                        setting an undefined attribute.
 
         """
+
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
             if value is not None:                                           # when the value is explicity set to None on the class static vars, we can't check for type safety
                 raise_exception_on_obj_type_annotation_mismatch(self, key, value)
@@ -101,7 +103,13 @@ class Kwargs_To_Self:
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
-    def __setattr__(self, name, value):
+    #def __setattr__(self, name, value):
+    def __setattr__(self, *args, **kwargs):
+        if len(args) == 2:
+            name,value = args
+        else:
+            name = None
+            value = None
         if self.__lock_attributes__:
             if not hasattr(self, name):
                 raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
@@ -113,7 +121,7 @@ class Kwargs_To_Self:
             if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
                 raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
-        super().__setattr__(name, value)
+        super().__setattr__(*args, **kwargs)
 
     def __attr_names__(self):
         return list_set(self.__locals__())
@@ -128,7 +136,8 @@ class Kwargs_To_Self:
                 continue
             for k, v in vars(base_cls).items():
                 if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
-                    kwargs[k] = v
+                    if type(v) is not functools._lru_cache_wrapper:                     # todo, find better way to handle edge cases like this one (which happens when the @cache decorator is used in a instance method that uses Kwargs_To_Self)
+                        kwargs[k] = v
 
             for var_name, var_type in base_cls.__annotations__.items():
                 if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
