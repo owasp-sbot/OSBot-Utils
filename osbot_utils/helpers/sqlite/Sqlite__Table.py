@@ -9,20 +9,22 @@ class Sqlite__Table(Kwargs_To_Self):
     table_fields : list
 
     def create(self):
-        if self.table_name and self.table_fields:
-            self.cursor().table_create(table_name=self.table_name, fields=self.table_fields)
-            return self.exists()
-        return False
+        result = self.cursor().table_create(table_name=self.table_name, fields=self.table_fields)
+        return result.get('status') == 'ok'
 
     def cursor(self):
         return self.database.cursor()
 
     def delete(self):
-        return self.cursor().table_delete(self.table_name)
+        if self.exists() is False:                                  # if table doesn't exist
+            return False                                            # return False
+        self.cursor().table_delete(self.table_name)                 # delete table
+        return self.exists() is False                               # confirm table does not exist
 
     def exists(self):
         return self.cursor().table_exists(self.table_name)
 
-
+    def schema(self):
+        return self.cursor().table_schema(self.table_name)
 
 

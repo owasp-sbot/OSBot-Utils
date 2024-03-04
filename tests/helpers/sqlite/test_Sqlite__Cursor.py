@@ -1,7 +1,10 @@
-from sqlite3 import Cursor
+from sqlite3 import Cursor, OperationalError
 from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
+from osbot_utils.helpers.sqlite.Temp_Sqlite_Table import Temp_Sqlite_Table
+from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Objects import obj_info
 
 
 class test_Sqlite__Cursor(TestCase):
@@ -10,9 +13,8 @@ class test_Sqlite__Cursor(TestCase):
         self.cursor = Sqlite__Cursor()
 
     def test_execute(self):
-        cursor = self.cursor.execute( '')
-        assert type(cursor) is Cursor
-        assert cursor.description is None
+        assert self.cursor.execute(''   ) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
+        assert self.cursor.execute('aaa') == {'data': None, 'error': 'near "aaa": syntax error', 'message': '', 'status': 'exception'}
 
     def test_execute__fetch_all(self):
         sql_query = "select * from sqlite_schema"
@@ -102,6 +104,11 @@ class test_Sqlite__Cursor(TestCase):
 
         self.cursor.table_delete(table_name)
         assert self.cursor.tables() == []
+
+    def test_table_schema(self):
+        with Temp_Sqlite_Table() as table:
+            table_schema = table.cursor().table_schema(table.table_name)
+            assert table_schema == [{'cid': 0, 'name': 'id', 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1}]
 
     def test_tables(self):
         assert self.cursor.tables() == []

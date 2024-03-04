@@ -1,9 +1,12 @@
 # todo refactor into Status class
+import traceback
+
 from osbot_utils.utils.Python_Logger import Python_Logger
 
 class Status:
     def __init__(self):
-        self.logger = Python_Logger().setup()
+        self.logger             = Python_Logger().setup()
+        self.call_logger_method = False
         #self.logger.add_memory_logger()
 
     def status_message(self, status, message:str=None, data=None, error=None):
@@ -20,7 +23,11 @@ class Status:
         logger_message = f'[osbot] [{status}] ' + str(message)
         logger_method  = self.logger.__getattribute__(status)
         status_message = self.status_message(status=status, message=message, data=data, error=error)
-        logger_method(logger_message, exc_info=True, stacklevel=stacklevel)
+        if self.call_logger_method:
+            kwargs = {}                                                 # todo: add option to capture stack trace and other helpful debug data
+            if status =='exception':
+                kwargs = dict(exc_info=True, stacklevel=stacklevel)
+            logger_method(logger_message, **kwargs)
         return status_message
 
 
@@ -46,6 +53,8 @@ log_ok        = status_ok         # level 20
 log_debug     = status_debug      # level 10
 
 
+def send_status_to_logger(value: bool = True):
+    osbot_status.call_logger_method = value
 
 #def log_error   (message):#logger().error   (message) # level 40
 #def log_info    (message): logger().info    (message) # level 20
