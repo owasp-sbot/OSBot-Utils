@@ -5,7 +5,7 @@ from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 class Sqlite(Kwargs_To_Self):
 
     @cache_on_self
-    def connect(self, db_name):
+    def connect(self, db_name):         # todo: refactor this to Sqlite__Connection class
         connection             = sqlite3.connect(db_name)
         connection.row_factory = self.dict_factory              # this returns a dict as the row value of every query
         return connection
