@@ -4,7 +4,7 @@
 import functools
 import inspect
 import types
-from enum import Enum, EnumMeta
+from enum import Enum, EnumMeta, EnumType
 
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import list_set
@@ -259,6 +259,8 @@ class Kwargs_To_Self:
 def serialize_to_dict(obj):
     if isinstance(obj, (str, int, float, bool, bytes)) or obj is None:
         return obj
+    elif isinstance(obj, Enum):
+        return obj.name
     elif isinstance(obj, list):
         return [serialize_to_dict(item) for item in obj]
     elif isinstance(obj, dict):

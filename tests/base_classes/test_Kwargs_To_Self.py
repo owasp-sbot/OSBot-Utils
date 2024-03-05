@@ -1,5 +1,6 @@
 import types
 import unittest
+from enum import Enum, auto
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
@@ -69,6 +70,20 @@ class Test_Kwargs_To_Self(TestCase):
         expected_defaults = {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': self.Config_Class().__default_kwargs__()['callable_attr_1']}
         self.assertEqual(self.Config_Class().__default_kwargs__(), expected_defaults)
         self.assertNotEqual(instance.attribute1, self.Config_Class().__default_kwargs__()['attribute1'])
+
+    def test_serialize_to_dict(self):
+        class An_Enum(Enum):
+            value_1 = auto()
+            value_2 = auto()
+
+        class An_Class(Kwargs_To_Self):
+            an_str  : str
+            an_enum : An_Enum
+
+        an_class = An_Class()
+        assert an_class.serialize_to_dict() == {'an_enum': None, 'an_str': ''}
+        an_class.an_enum = An_Enum.value_1
+        assert an_class.serialize_to_dict() == {'an_enum': 'value_1', 'an_str': ''}
 
     def test__correct_attributes(self):
         """ Test that correct attributes are set from kwargs. """
