@@ -117,7 +117,9 @@ class Kwargs_To_Self:
         if value is not None:
             check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
             check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
-            if check_1 is False and check_2 is None or check_1 is None and check_2 is False:
+            if (check_1 is False and check_2 is None  or
+                check_1 is None  and check_2 is False or
+                check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
                 raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
         else:
             if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None

@@ -4,7 +4,7 @@ from typing import Optional, Union
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 class Sqlite__Field__Type(Enum):
-    INTEGER = 1
+    INTEGER = auto()
 
 class Sqlite__Field(Kwargs_To_Self):
     cid        : int
@@ -13,3 +13,4 @@ class Sqlite__Field(Kwargs_To_Self):
     notnull    : int
     dflt_value : Optional[Union[int, str, float, bytes]] = 'an dflt value'
     pk         : int
+
