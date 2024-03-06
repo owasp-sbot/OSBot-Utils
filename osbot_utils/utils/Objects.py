@@ -81,6 +81,12 @@ def dict_remove(data, target):
                 del data[target]
     return data
 
+def enum_from_value(enum_type, value):
+    try:
+        return enum_type[value]         # Attempt to convert the value to an Enum member by name
+    except KeyError:
+        raise ValueError(f"Value '{value}' is not a valid member of {enum_type.__name__}.")     # Handle the case where the value does not match any Enum member
+
 def env_value(var_name):
     return env_vars().get(var_name, None)
 
@@ -252,6 +258,15 @@ def obj_values(target=None):
 def raise_exception_on_obj_type_annotation_mismatch(target, attr_name, value):
     if value_type_matches_obj_annotation_for_attr(target, attr_name, value) is False:
         raise Exception(f"Invalid type for attribute '{attr_name}'. Expected '{target.__annotations__.get(attr_name)}' but got '{type(value)}'")
+
+def obj_is_attribute_annotation_of_type(target, attribute_name, expected_type):
+    if hasattr(target, '__annotations__'):
+        obj_annotations  = target.__annotations__
+        if hasattr(obj_annotations,'get'):
+            attribute_annotation = obj_annotations.get(attribute_name)
+            attribute_type = type(attribute_annotation)
+            return attribute_type is expected_type
+    return False
 
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     if hasattr(target, '__annotations__'):

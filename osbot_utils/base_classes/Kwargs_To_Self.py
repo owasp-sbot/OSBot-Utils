@@ -7,9 +7,10 @@ import types
 from enum import Enum, EnumMeta, EnumType
 
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Json import json_parse
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
-    raise_exception_on_obj_type_annotation_mismatch, obj_info
+    raise_exception_on_obj_type_annotation_mismatch, obj_info, obj_is_attribute_annotation_of_type, enum_from_value
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
@@ -59,8 +60,6 @@ class Kwargs_To_Self:
         It is important that all attributes which may be set at instantiation are
         predefined in the class. Failure to do so will result in an exception being
         raised.
-
-        Also important is that attributes tyeps
 
     Methods:
         __init__(**kwargs): The initializer that handles the assignment of keyword
@@ -135,9 +134,13 @@ class Kwargs_To_Self:
             if base_cls is object:                                                      # Skip the base 'object' class
                 continue
             for k, v in vars(base_cls).items():
+                # todo: refactor this logic since it is weird to start with a if not..., and then if ... continue (all these should be if ... continue )
                 if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
-                    if type(v) is not functools._lru_cache_wrapper:                     # todo, find better way to handle edge cases like this one (which happens when the @cache decorator is used in a instance method that uses Kwargs_To_Self)
-                        kwargs[k] = v
+                    if isinstance(v, classmethod):                                      # also remove class methods
+                        continue
+                    if type(v) is functools._lru_cache_wrapper:                         # todo, find better way to handle edge cases like this one (which happens when the @cache decorator is used in a instance method that uses Kwargs_To_Self)
+                        continue
+                    kwargs[k] = v
 
             for var_name, var_type in base_cls.__annotations__.items():
                 if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
@@ -173,7 +176,8 @@ class Kwargs_To_Self:
                 continue
             for k, v in vars(base_cls).items():
                 if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
-                    kwargs[k] = v
+                    if not isinstance(v, classmethod):
+                        kwargs[k] = v
             # add the vars defined with the annotations
             for var_name, var_type in base_cls.__annotations__.items():
                 if hasattr(self, var_name):                                     # if the variable exists in self, use it (this prevents the multiple calls to default_value)
@@ -208,7 +212,7 @@ class Kwargs_To_Self:
 
         if not isinstance(vars(self), types.FunctionType):
             for k, v in vars(self).items():
-                if not isinstance(v, types.FunctionType):
+                if not isinstance(v, types.FunctionType) and not isinstance(v,classmethod):
                     kwargs[k] = v
         return kwargs
 
@@ -247,6 +251,10 @@ class Kwargs_To_Self:
             if hasattr(self, key) and isinstance(getattr(self, key), Kwargs_To_Self):
                 getattr(self, key).deserialize_from_dict(value)                         # Recursive call for complex nested objects
             else:
+                if obj_is_attribute_annotation_of_type(self, key, EnumType):            # handle the case when the value is an Enum
+                    enum_type = getattr(self, '__annotations__').get(key)
+                    value = enum_from_value(enum_type, value)
+
                 setattr(self, key, value)                                               # Direct assignment for primitive types and other structures
         return self
 
@@ -255,6 +263,13 @@ class Kwargs_To_Self:
 
     def print(self):
         pprint(serialize_to_dict(self))
+
+    @classmethod
+    def from_json(cls, json_data):
+        if type(json_data) is str:
+            json_data = json_parse(json_data)
+        return cls().deserialize_from_dict(json_data)
+
 
 def serialize_to_dict(obj):
     if isinstance(obj, (str, int, float, bool, bytes)) or obj is None:

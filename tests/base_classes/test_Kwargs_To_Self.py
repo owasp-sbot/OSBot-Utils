@@ -8,6 +8,7 @@ from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
 from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
 from osbot_utils.testing.Catch                  import Catch
 from osbot_utils.utils.Dev                      import pprint
+from osbot_utils.utils.Json import json_dumps
 from osbot_utils.utils.Misc import random_string, list_set
 from osbot_utils.utils.Objects import obj_info, obj_data, default_value
 
@@ -71,7 +72,7 @@ class Test_Kwargs_To_Self(TestCase):
         self.assertEqual(self.Config_Class().__default_kwargs__(), expected_defaults)
         self.assertNotEqual(instance.attribute1, self.Config_Class().__default_kwargs__()['attribute1'])
 
-    def test_serialize_to_dict(self):
+    def test_serialize_to_dict__enum(self):
         class An_Enum(Enum):
             value_1 = auto()
             value_2 = auto()
@@ -80,10 +81,62 @@ class Test_Kwargs_To_Self(TestCase):
             an_str  : str
             an_enum : An_Enum
 
+        an_str_value  = 'an value'
+        an_enum_value = An_Enum.value_1
+
         an_class = An_Class()
+
         assert an_class.serialize_to_dict() == {'an_enum': None, 'an_str': ''}
-        an_class.an_enum = An_Enum.value_1
-        assert an_class.serialize_to_dict() == {'an_enum': 'value_1', 'an_str': ''}
+        an_class.an_str  = an_str_value
+        an_class.an_enum = an_enum_value
+        an_class_dict    = an_class.serialize_to_dict()
+        assert an_enum_value.name == 'value_1'
+        assert an_class_dict      == {'an_enum': an_enum_value.name, 'an_str': an_str_value}
+        assert an_class.json()    == an_class.serialize_to_dict()
+
+        an_class_2 = An_Class()
+        an_class_2.deserialize_from_dict(an_class_dict)
+        assert an_class_2.an_str  == an_class.an_str
+        assert an_class_2.an_enum == an_class.an_enum
+        assert an_class_2.json()  == an_class_dict
+
+
+    def test_deserialize_from_dict(self):
+        class An_Enum(Enum):
+            value_1 = auto()
+            value_2 = auto()
+
+        class An_Class(Kwargs_To_Self):
+            an_str  : str
+            an_enum : An_Enum
+
+        an_class_dict = {'an_enum': 'value_2', 'an_str': ''}
+        an_class      = An_Class()
+
+        an_class.deserialize_from_dict(an_class_dict)
+        assert an_class.json() == an_class_dict
+
+    def test_from_json(self):
+        class An_Enum(Enum):
+            value_1 = auto()
+            value_2 = auto()
+
+        class An_Class(Kwargs_To_Self):
+            an_str  : str
+            an_enum : An_Enum
+
+        an_class           = An_Class(an_str='an_str_value', an_enum=An_Enum.value_2)
+        an_class_json      = an_class.json()
+        an_class_str       = json_dumps(an_class_json)
+        an_class_from_json = An_Class.from_json(an_class_json)
+        an_class_from_str  = An_Class.from_json(an_class_str )
+
+        assert type(an_class_from_json)   == An_Class
+        assert an_class_json              == {'an_enum': 'value_2', 'an_str': 'an_str_value'}
+        assert an_class_from_json.an_enum == An_Enum.value_2
+        assert an_class_from_json.an_str  == 'an_str_value'
+        assert an_class_from_json.json()  == an_class_json
+        assert an_class_from_str .json()  == an_class_json
 
     def test__correct_attributes(self):
         """ Test that correct attributes are set from kwargs. """
