@@ -160,7 +160,7 @@ class Kwargs_To_Self:
                         raise Exception(exception_message)
                     if var_type not in immutable_types and var_name.startswith('__') is False:
                         if type(var_type) not in immutable_types:
-                            exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following imumutable types being supported: '{immutable_types}'"
+                            exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{immutable_types}'"
                             raise Exception(exception_message)
             if include_base_classes is False:
                 break

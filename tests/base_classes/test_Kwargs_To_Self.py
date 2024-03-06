@@ -1,6 +1,7 @@
 import types
 import unittest
 from enum import Enum, auto
+from typing import Union, Optional
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
@@ -10,7 +11,7 @@ from osbot_utils.testing.Catch                  import Catch
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Json import json_dumps
 from osbot_utils.utils.Misc import random_string, list_set
-from osbot_utils.utils.Objects import obj_info, obj_data, default_value
+from osbot_utils.utils.Objects import obj_info, obj_data, default_value, obj_is_type_union_compatible
 
 
 class Test_Kwargs_To_Self(TestCase):
@@ -46,6 +47,81 @@ class Test_Kwargs_To_Self(TestCase):
 
         assert self.Config_Class.__cls_kwargs__() == self.Config_Class().__cls_kwargs__()
         assert self.Extra_Config.__cls_kwargs__() == self.Extra_Config().__cls_kwargs__()
+
+    def test_obj_is_type_union_compatible(self):
+        compatible_types = (int, float, bool, str)
+
+        # Direct type cases
+        var_1: str = ''
+        var_2: int = 1
+        var_3: float = 1.0
+        var_4: bool = True
+
+        assert obj_is_type_union_compatible(type(var_1), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_2), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_3), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_4), compatible_types) is True
+
+        # Union types
+        var_5: Union[str, int         ] = 2
+        var_6: Union[int, float, bytes] = 3.14   # type bytes is not in the compatible list, but var_6 is not assigned to it
+        var_7: Union[int, float, bytes] = b'aaa' # type bytes is not in the compatible list, and var_7 is assigned to it
+        var_8: Union[str, int         ] = None
+        var_9: Union[str, int         ] = None
+
+        assert obj_is_type_union_compatible(Union[str, int]         , compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_5)             , compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_8)             , compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_9)             , compatible_types) is True
+        assert obj_is_type_union_compatible(Union[int, float, bytes], compatible_types) is False  # Because bytes is not compatible
+        assert obj_is_type_union_compatible(type(var_6)             , compatible_types) is True   # bytes could be one of the values, but it is not
+        assert obj_is_type_union_compatible(type(var_7)             , compatible_types) is False  # now that bytes is one of the values, it fails
+
+        # Optional types (which are essentially Union[type, NoneType])
+        var_10: Optional[str  ] = None
+        var_11: Optional[bytes] = None  # bytes is not in the compatible list, , but var_11 is not assigned to it
+        var_12: Optional[str  ] = 'a'
+        var_13: Optional[bytes] = 'a'
+        var_14: Optional[bytes] = b'aaa'
+
+        assert obj_is_type_union_compatible(type(var_10), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_11), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_12), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_13), compatible_types) is True   # todo: BUG type safe should had picked this up
+        assert obj_is_type_union_compatible(type(var_14), compatible_types) is False  # Because bytes is not compatible
+
+        # Complex case with nested Unions and Optionals
+        var_15: Optional[Union[int, str, None ]] = None
+        var_16: Optional[Union[int, str, bytes]] = None
+        var_17: Optional[Union[int, str, bytes]] = 'a'
+        var_18: Optional[Union[int, str, bytes]] = b'aaa'
+
+        assert obj_is_type_union_compatible(type(var_15), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_16), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_17), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_18), compatible_types) is False
+
+    def test_bug__obj_is_type_union_compatible(self):
+        compatible_types = (int, float, str)        # bool not here
+        var_1: Optional[bytes] = 'a'                # str
+        var_2: Optional[bytes] = 1                  # int
+        var_3: Optional[bytes] = 1.1                # float
+        var_4: Optional[bytes] = False              # bool
+        var_5: Optional[bytes] = b'aaa'             # bytes
+        assert type(var_1) is str
+        assert type(var_2) is int
+        assert type(var_3) is float
+        assert type(var_4) is bool
+        assert type(var_5) is bytes
+        assert obj_is_type_union_compatible(type(var_1), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_2), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_3), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_4), compatible_types) is False
+        assert obj_is_type_union_compatible(type(var_5), compatible_types) is False
+
+
+    def test__cls_kwargs__with_optional_attributes(self):
+        pass
 
     def test___default_kwargs__(self):
         class An_Class(Kwargs_To_Self):
@@ -357,7 +433,7 @@ class Test_Kwargs_To_Self(TestCase):
 
         expected_error=("Catch: <class 'Exception'> : variable 'attribute_7' is defined "
                         "as type '<class 'list'>' which is not supported by Kwargs_To_Self, "
-                        "with only the following imumutable types being supported: "
+                        "with only the following immutable types being supported: "
                         "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
                         "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
         with Catch(expect_exception=True, expected_error = expected_error) as catch:
@@ -368,7 +444,7 @@ class Test_Kwargs_To_Self(TestCase):
 
         expected_error=("Catch: <class 'Exception'> : variable 'attribute_8' is defined "
                         "as type '<class 'dict'>' which is not supported by Kwargs_To_Self, "
-                        "with only the following imumutable types being supported: "
+                        "with only the following immutable types being supported: "
                         "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
                         "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
         with Catch(expect_exception=True, expected_error=expected_error):

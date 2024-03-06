@@ -3,8 +3,7 @@ import inspect
 import json
 import os
 import types
-from typing import get_origin
-
+from typing import get_origin, Union, get_args
 
 from dotenv import load_dotenv
 
@@ -267,6 +266,16 @@ def obj_is_attribute_annotation_of_type(target, attribute_name, expected_type):
             attribute_type = type(attribute_annotation)
             return attribute_type is expected_type
     return False
+
+def obj_is_type_union_compatible(var_type, compatible_types):
+    origin = get_origin(var_type)
+    if origin is Union:                                                     # For Union types, including Optionals
+        args = get_args(var_type)                                           # Get the argument types
+        for arg in args:                                                    # Iterate through each argument in the Union
+            if not (arg in compatible_types or arg is type(None)):          # Check if the argument is either in the compatible_types or is type(None)
+                return False                                                # If any arg doesn't meet the criteria, return False immediately
+        return True                                                         # If all args are compatible, return True
+    return var_type in compatible_types or var_type is type(None)           # Check for direct compatibility or type(None) for non-Union types
 
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     if hasattr(target, '__annotations__'):
