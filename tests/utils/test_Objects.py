@@ -2,6 +2,7 @@ import builtins
 import os
 import types
 import unittest
+from typing import Optional, Union
 from unittest import TestCase
 from unittest.mock import patch, call
 
@@ -15,7 +16,8 @@ from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_
     obj_dict, env_value, env_vars, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
-    obj_base_classes, obj_base_classes_names, env_vars_list, are_types_compatible_for_assigment, type_mro
+    obj_base_classes, obj_base_classes_names, env_vars_list, are_types_compatible_for_assigment, type_mro, \
+    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr
 
 
 class test_Objects(TestCase):
@@ -193,6 +195,119 @@ class test_Objects(TestCase):
         assert obj_items ({}) == []
         assert obj_keys  ({}) == []
         assert obj_values({}) == []
+
+    def test_value_type_matches_obj_annotation_for_union_attr(self):
+
+        an_str  : str   = ''
+        an_int  :  int  = 1
+        an_float: float = 1.0
+        an_bool : bool  = True
+        an_bytes: bytes = b"aaaa"
+
+        class Direct_Type_Cases:
+            var_1: str   = ''
+            var_2: int   = 1
+            var_3: float = 1.0
+            var_4: bool  = True
+
+        class With_Union_Types:
+            str_int        : Union[str, int         ]
+            int_float_bytes: Union[int, float, bytes]
+
+        direct_type_cases = Direct_Type_Cases()
+        with_union_types  = With_Union_Types()
+
+        _ = value_type_matches_obj_annotation_for_union_attr
+
+        assert _(target=direct_type_cases, attr_name='var_1'         , value=an_str  ) is None          # any not Union type will return None
+        assert _(target=direct_type_cases, attr_name='var_1'         , value=an_int  ) is None
+        assert _(target=direct_type_cases, attr_name='var_2'         , value=an_int  ) is None
+
+        assert _(target=with_union_types, attr_name='str_int'        , value=an_str  ) is True
+        assert _(target=with_union_types, attr_name='str_int'        , value=an_int  ) is True
+        assert _(target=with_union_types, attr_name='str_int'        , value=an_bool ) is False
+        assert _(target=with_union_types, attr_name='AAAAA'          , value=an_bool ) is None          # any not Union type will return None
+
+
+        assert _(target=with_union_types, attr_name='int_float_bytes', value=an_int  ) is True
+        assert _(target=with_union_types, attr_name='int_float_bytes', value=an_float) is True
+        assert _(target=with_union_types, attr_name='int_float_bytes', value=an_bytes) is True
+        assert _(target=with_union_types, attr_name='int_float_bytes', value=an_str  ) is False
+        assert _(target=with_union_types, attr_name='int_float_bytes', value=an_bool ) is False
+        assert _(target=with_union_types, attr_name='AAAAA'          , value=an_bool ) is None          # any not Union type will return None
+
+
+
+    def test_obj_is_type_union_compatible(self):
+        compatible_types = (int, float, bool, str)
+
+        # Direct type cases
+        var_1: str = ''
+        var_2: int = 1
+        var_3: float = 1.0
+        var_4: bool = True
+
+        assert obj_is_type_union_compatible(type(var_1), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_2), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_3), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_4), compatible_types) is True
+
+        # Union types
+        var_5: Union[str, int         ] = 2
+        var_6: Union[int, float, bytes] = 3.14    # will work - type bytes is not in the compatible list, but var_6 is not assigned to it
+        var_7: Union[int, float, bytes] = b'aaa'  # will fail - type bytes is not in the compatible list, and var_7 is assigned to it
+        var_8: Union[str, int         ] = None
+        var_9: Union[str, int         ] = None
+
+        assert obj_is_type_union_compatible(Union[str, int]         , compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_5)             , compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_8)             , compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_9)             , compatible_types) is True
+        assert obj_is_type_union_compatible(Union[int, float, bytes], compatible_types) is False  # Because bytes is not compatible
+        assert obj_is_type_union_compatible(type(var_6)             , compatible_types) is True   # bytes could be one of the values, but it is not
+        assert obj_is_type_union_compatible(type(var_7)             , compatible_types) is False  # now that bytes is one of the values, it fails
+
+        # Optional types (which are essentially Union[type, NoneType])
+        var_10: Optional[str  ] = None
+        var_11: Optional[bytes] = None  # bytes is not in the compatible list, , but var_11 is not assigned to it
+        var_12: Optional[str  ] = 'a'
+        var_13: Optional[bytes] = 'a'
+        var_14: Optional[bytes] = b'aaa'
+
+        assert obj_is_type_union_compatible(type(var_10), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_11), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_12), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_13), compatible_types) is True   # todo: BUG type safe should had picked this up
+        assert obj_is_type_union_compatible(type(var_14), compatible_types) is False  # Because bytes is not compatible
+
+        # Complex case with nested Unions and Optionals
+        var_15: Optional[Union[int, str, None ]] = None
+        var_16: Optional[Union[int, str, bytes]] = None
+        var_17: Optional[Union[int, str, bytes]] = 'a'
+        var_18: Optional[Union[int, str, bytes]] = b'aaa'
+
+        assert obj_is_type_union_compatible(type(var_15), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_16), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_17), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_18), compatible_types) is False
+
+    def test_bug__obj_is_type_union_compatible(self):
+        compatible_types = (int, float, str)        # bool not here
+        var_1: Optional[bytes] = 'a'                # str
+        var_2: Optional[bytes] = 1                  # int
+        var_3: Optional[bytes] = 1.1                # float
+        var_4: Optional[bytes] = False              # bool
+        var_5: Optional[bytes] = b'aaa'             # bytes
+        assert type(var_1) is str
+        assert type(var_2) is int
+        assert type(var_3) is float
+        assert type(var_4) is bool
+        assert type(var_5) is bytes
+        assert obj_is_type_union_compatible(type(var_1), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_2), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_3), compatible_types) is True
+        assert obj_is_type_union_compatible(type(var_4), compatible_types) is False
+        assert obj_is_type_union_compatible(type(var_5), compatible_types) is False
 
     def test_print_object_members(self):
         class An_Class:

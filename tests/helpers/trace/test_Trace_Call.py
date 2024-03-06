@@ -224,8 +224,10 @@ class test_Trace_Call(TestCase):
                                                                                              'temp_folder': 2,
                                                                                              'write': 2},
                                                                                    'Misc': {'random_filename': 2},
-                                                                                   'Objects': { 'are_types_compatible_for_assigment': 1,
-                                                                                                'value_type_matches_obj_annotation_for_attr': 1}}}
+                                                                                   'Objects': { 'are_types_compatible_for_assigment'              : 1,
+                                                                                                'obj_attribute_annotation'                        : 1,
+                                                                                                'value_type_matches_obj_annotation_for_attr'      : 1,
+                                                                                                'value_type_matches_obj_annotation_for_union_attr':1 }}}
 
     def test__config_print_traces_on_exit(self):
         self.config.print_traces_on_exit = True
@@ -256,10 +258,9 @@ class test_Trace_Call(TestCase):
 
         expected_calls = [ ''                                                ,
                            '--------- CALL TRACER ----------'                ,
-                           'Here are the 9 traces captured\n'                ,
+                           'Here are the 8 traces captured\n'                ,
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
-                           '\x1b[1m│   ├── 🔗️ __setattr__\x1b[0m'            ,
-                           '\x1b[1m│   │   └── 🧩️ get_origin\x1b[0m'         ,
+                           '\x1b[1m│   ├── 🧩️ __setattr__\x1b[0m'            ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
                            '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'    ,
                            '\x1b[1m│   │   ├── 🧩️ set_config\x1b[0m'         ,

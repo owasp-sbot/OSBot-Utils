@@ -10,7 +10,8 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json import json_parse
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
-    raise_exception_on_obj_type_annotation_mismatch, obj_info, obj_is_attribute_annotation_of_type, enum_from_value
+    raise_exception_on_obj_type_annotation_mismatch, obj_info, obj_is_attribute_annotation_of_type, enum_from_value, \
+    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
@@ -114,11 +115,14 @@ class Kwargs_To_Self:
                 raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
 
         if value is not None:
-            if value_type_matches_obj_annotation_for_attr(self, name, value) is False:
+            check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
+            check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
+            if check_1 is False and check_2 is None or check_1 is None and check_2 is False:
                 raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
         else:
             if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
-                raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+                if getattr(self, name) is not None:                         # unless it is already set to None
+                    raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
         super().__setattr__(*args, **kwargs)
 
@@ -155,13 +159,15 @@ class Kwargs_To_Self:
                                                                 # a solution is to check if kwargs[var_name] exists and if not assign it
                 else:
                     var_value = getattr(base_cls, var_name)
-                    if not isinstance(var_value, var_type):
+                    if var_type and not isinstance(var_value, var_type):
                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
                         raise Exception(exception_message)
-                    if var_type not in immutable_types and var_name.startswith('__') is False:
-                        if type(var_type) not in immutable_types:
-                            exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{immutable_types}'"
-                            raise Exception(exception_message)
+                    if var_type not in immutable_types and var_name.startswith('__') is False:              # if var_type is not one of the immutable_types or is an __ internal
+                        #todo: fix type safety bug that I believe is caused here
+                        if obj_is_type_union_compatible(var_type, immutable_types) is False:                # if var_type is not something like Optional[Union[int, str]]
+                            if type(var_type) not in immutable_types:
+                                exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{immutable_types}'"
+                                raise Exception(exception_message)
             if include_base_classes is False:
                 break
         return kwargs
