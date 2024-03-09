@@ -1,15 +1,12 @@
+import inspect
+import typing
+from decimal import Decimal
 from enum import auto, Enum
 from typing import Optional, Union
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
 
-class Sqlite__Field__Type(Enum):
-    DECIMAL = auto()
-    INTEGER = auto()
-    TEXT    = auto()
-    BLOB    = auto()
-    REAL    = auto()
-    NUMERIC = auto()
 
 class Sqlite__Field(Kwargs_To_Self):
     cid              : int
@@ -55,3 +52,18 @@ class Sqlite__Field(Kwargs_To_Self):
             return fk_constraint
 
         return " ".join(parts)
+
+    @classmethod
+    def fix_from_json_data(cls, json_data):
+        type_type = json_data.get('type')
+        mapped_type = Sqlite__Field__Type.type_map().get(type_type)
+        if mapped_type:
+            json_data['type'] = mapped_type
+            return mapped_type
+
+
+    @classmethod
+    def from_json(cls, json_data):
+        cls.fix_from_json_data(json_data)
+        return super(Sqlite__Field, cls).from_json(json_data)
+

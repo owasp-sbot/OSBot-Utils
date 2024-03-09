@@ -261,7 +261,8 @@ class Kwargs_To_Self:
             else:
                 if obj_is_attribute_annotation_of_type(self, key, EnumType):            # handle the case when the value is an Enum
                     enum_type = getattr(self, '__annotations__').get(key)
-                    value = enum_from_value(enum_type, value)
+                    if type(value) is not enum_type:                                    # if the value is not already of the target type
+                        value = enum_from_value(enum_type, value)                       # try to resolve the value into the enum
 
                 setattr(self, key, value)                                               # Direct assignment for primitive types and other structures
         return self

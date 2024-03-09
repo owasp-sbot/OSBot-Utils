@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field, Sqlite__Field__Type
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Misc import random_string
 from osbot_utils.utils.Objects import obj_info, obj_data
 
 
@@ -80,6 +81,54 @@ class test_Sqlite__Field(TestCase):
         sqlite_field__sql_text_10 = "quantity INTEGER CHECK (quantity >= 0)"
         assert Sqlite__Field(**sqlite_field__use_case_10).text_for_create_table() == sqlite_field__sql_text_10
 
+    def test_fix_from_json_data(self):
+        print()
+        for type_type, mapped_type in Sqlite__Field__Type.type_map().items():
+            json_data = {'type': type_type }
+            result = Sqlite__Field.fix_from_json_data(json_data)
+            assert result            is  mapped_type
+            assert json_data['type'] is mapped_type
+
+        assert Sqlite__Field.fix_from_json_data({'type': None                    }) is None
+        assert Sqlite__Field.fix_from_json_data({'type': 'abc'                   }) is None
+        assert Sqlite__Field.fix_from_json_data({'type': Sqlite__Field__Type.REAL}) is None
+
+    def test_from_json(self):
+        field_name = "id"
+        field_type = 'INTEGER'
+        expected_data = { 'autoincrement'    : False,
+                          'check_constraint' : None ,
+                          'cid'              : 0    ,
+                          'dflt_value'       : None ,
+                          'is_foreign_key'   : False,
+                          'name'             : ''   ,
+                          'notnull'          : False,
+                          'on_delete_action' : None ,
+                          'pk'               : False,
+                          'precision'        : None ,
+                          'references_column': None ,
+                          'references_table' : None ,
+                          'scale'            : None ,
+                          'type'             : None ,
+                          'unique'           : False}
+
+        def assert_sqlite_field_type(field_name, field_type, expected_type_local):
+            field_data   = dict(name=field_name, type=field_type)
+            expected_data['name'         ] = field_name
+            expected_data['type'         ] = expected_type_local
+            sqlite_field = Sqlite__Field.from_json(field_data)
+            assert sqlite_field.__locals__() == expected_data
+
+        assert Sqlite__Field.from_json({}).json() == expected_data
+
+        assert_sqlite_field_type('id'    , int  , Sqlite__Field__Type.INTEGER)
+        assert_sqlite_field_type('aaaa' , float, Sqlite__Field__Type.REAL    )
+        assert_sqlite_field_type('bytes', bytes, Sqlite__Field__Type.BLOB    )
+        assert_sqlite_field_type(random_string()  , str, Sqlite__Field__Type.TEXT      )
+
+
+
+            #assert result == mapped_type
 
 
 
