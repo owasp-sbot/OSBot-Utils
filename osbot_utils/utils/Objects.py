@@ -262,11 +262,12 @@ def raise_exception_on_obj_type_annotation_mismatch(target, attr_name, value):
         raise Exception(f"Invalid type for attribute '{attr_name}'. Expected '{target.__annotations__.get(attr_name)}' but got '{type(value)}'")
 
 def obj_attribute_annotation(target, attr_name):
-    if hasattr(target, '__annotations__'):
-        obj_annotations  = target.__annotations__
-        if hasattr(obj_annotations,'get'):
-            attribute_annotation = obj_annotations.get(attr_name)
-            return attribute_annotation
+    if target is not None and attr_name is not None:
+        if hasattr(target, '__annotations__'):
+            obj_annotations  = target.__annotations__
+            if hasattr(obj_annotations,'get'):
+                attribute_annotation = obj_annotations.get(attr_name)
+                return attribute_annotation
     return None
 
 def obj_is_attribute_annotation_of_type(target, attr_name, expected_type):

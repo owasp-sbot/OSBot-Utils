@@ -11,7 +11,7 @@ from osbot_utils.utils.Json import json_parse
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
     raise_exception_on_obj_type_annotation_mismatch, obj_info, obj_is_attribute_annotation_of_type, enum_from_value, \
-    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr
+    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, obj_attribute_annotation
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
@@ -103,7 +103,6 @@ class Kwargs_To_Self:
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
-    #def __setattr__(self, name, value):
     def __setattr__(self, *args, **kwargs):
         if len(args) == 2:
             name,value = args
@@ -150,15 +149,10 @@ class Kwargs_To_Self:
 
             for var_name, var_type in base_cls.__annotations__.items():
                 if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
-
-                    if var_name in kwargs:                      # this fixes the BUG which happened when multiple MRO classes had the same variable name
+                    if var_name in kwargs:
                         continue
-
-                    var_value = default_value(var_type)         # FOUND THE BUG, it is here
-                    kwargs[var_name] = var_value                # in the var overflow situation, the kwargs will have the correct type
-                                                                # becuase it runs first, but when processing the base class, that will also be created
-                                                                # and the base type will be used (which is wrong)
-                                                                # a solution is to check if kwargs[var_name] exists and if not assign it
+                    var_value = cls.__default__value__(var_type)
+                    kwargs[var_name] = var_value
                 else:
                     var_value = getattr(base_cls, var_name)
                     if var_type and not isinstance(var_value, var_type):
@@ -173,6 +167,11 @@ class Kwargs_To_Self:
             if include_base_classes is False:
                 break
         return kwargs
+
+    @classmethod
+    def __default__value__(cls, var_type):
+        var_value = default_value(var_type)         # todo : add support for lists
+        return var_value
 
     #@classmethod
     def __default_kwargs__(self):
@@ -191,13 +190,15 @@ class Kwargs_To_Self:
                 if hasattr(self, var_name):                                     # if the variable exists in self, use it (this prevents the multiple calls to default_value)
                     var_value = getattr(self, var_name)
                     kwargs[var_name] = var_value
+                # todo: check if code below is still in use, since there is no code coverage that hits it
                 elif hasattr(cls, var_name) is False:                           # if the attribute has not been defined in the class
-                    var_value = default_value(var_type)                         # try to create (and use) its default value
+                    var_value = self.__default__value__(var_type)               # try to create (and use) its default value
                     kwargs[var_name] = var_value
                 else:
                     var_value = getattr(cls, var_name)                          # if it is defined, check the type
                     if not isinstance(var_value, var_type):
-                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
+                        exception_message = (f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' "
+                                             f"of type '{type(var_value)}'")
                         raise Exception(exception_message)
 
         return kwargs
