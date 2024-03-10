@@ -5,7 +5,9 @@ import functools
 import inspect
 import types
 from enum import Enum, EnumMeta, EnumType
+from typing import get_origin, get_args
 
+from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json import json_parse
 from osbot_utils.utils.Misc import list_set
@@ -20,7 +22,7 @@ immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, type
 #      for example if we have an method like def add_node(self, title: str, call_index: int):
 #          throw an exception if the type of the value passed in is not the same as the one defined in the method
 
-class Kwargs_To_Self:
+class Kwargs_To_Self:               # todo: check if the description below is still relevant (since a lot has changed since it was created)
     """
     A mixin class to strictly assign keyword arguments to pre-defined instance attributes during initialization.
 
@@ -170,10 +172,12 @@ class Kwargs_To_Self:
 
     @classmethod
     def __default__value__(cls, var_type):
-        var_value = default_value(var_type)         # todo : add support for lists
-        return var_value
+        if get_origin(var_type) is list:                        # if we have list defined as list[type]
+            item_type = get_args(var_type)[0]                   #    get the type that was defined
+            return Type_Safe__List(expected_type=item_type)     #    and used it as expected_type in Type_Safe__List
+        else:
+            return default_value(var_type)                      # for all other cases call default_value, which will try to create a default instance
 
-    #@classmethod
     def __default_kwargs__(self):
         """Return entire (including base classes) dictionary of class level variables and their values."""
         kwargs = {}

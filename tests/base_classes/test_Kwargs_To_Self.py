@@ -6,6 +6,7 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid
 from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
 from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
@@ -167,16 +168,44 @@ class Test_Kwargs_To_Self(TestCase):
         assert an_class_from_json.json()  == an_class_json
         assert an_class_from_str .json()  == an_class_json
 
-    def test__correct_attributes(self):
-        """ Test that correct attributes are set from kwargs. """
-        config = self.Config_Class(attribute1='new_value', attribute2=False)
-        self.assertEqual(config.attribute1, 'new_value')
-        self.assertFalse(config.attribute2)
+    def test__default__value__(self):
+        _ = Kwargs_To_Self.__default__value__
+        assert      _(str      )  == ''
+        assert      _(int      )  == 0
+        assert      _(list     )  == []
+        assert      _(list[str])  == []                 # although we get Type_Safe__List, the value when empty will always be []
+        assert      _(list[int])  == []                 # although we get Type_Safe__List, the value when empty will always be []
+        assert type(_(str      )) is str
+        assert type(_(int      )) is int
+        assert type(_(list     )) is list               # here (because list      was used) we get a normal list
+        assert type(_(list[str])) is Type_Safe__List    # here (because list[str] was used) we get the special type Type_Safe__List
+        assert type(_(list[int])) is Type_Safe__List
+        assert repr(_(list[str])) == 'list[str]'        # Type_Safe__List will return a representation of the original list[str]
+        assert repr(_(list[int])) == 'list[int]'
+
+        assert _(list[str]).expected_type is str        # confirm that .expected_type is set to the correct expected type (in this case str)
+        assert _(list[int]).expected_type is int        # confirm that .expected_type is set to the correct expected type (in this case int)
+
+        _(list).append('aa')                            # if we don't define the type it is possible to do this
+        _(list).append(42)                              # have a list with a str and an int
+        _(list[str]).append('aaaa')                     # but if we define the type, it is ok to append a value of typed defined
+        with self.assertRaises(Exception) as context:   # but if we append a value of a different type
+            _(list[str]).append(42)                     # like an int, we will get a Type Safety exception :)
+        assert context.exception.args[0] == "In Type_Safe__List: Invalid type for item: Expected 'str', but got 'int'"
 
     def test__kwargs__(self):
         assert self.Config_Class().__kwargs__() == { 'attribute1'     : 'default_value',
                                                      'attribute2'     : True           ,
                                                      'callable_attr_1': print          }
+
+
+    # test multiple scenarios
+
+    def test__correct_attributes(self):
+        """ Test that correct attributes are set from kwargs. """
+        config = self.Config_Class(attribute1='new_value', attribute2=False)
+        self.assertEqual(config.attribute1, 'new_value')
+        self.assertFalse(config.attribute2)
 
     def test__undefined_attribute(self):
         """ Test that an exception is raised for undefined attributes. """

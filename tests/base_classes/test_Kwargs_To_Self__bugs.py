@@ -2,6 +2,7 @@ from typing import Optional, Union
 from unittest import TestCase
 
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
 from osbot_utils.graphs.mermaid.Mermaid         import Mermaid
 from osbot_utils.graphs.mermaid.Mermaid__Graph  import Mermaid__Graph
 from osbot_utils.graphs.mermaid.Mermaid__Node   import Mermaid__Node
@@ -112,7 +113,7 @@ class test_Kwargs_To_Self__bugs(TestCase):
         assert type(should_raise_exception.an_int)    is bool                               # BUG:  confirming that an_int is a bool
         assert should_raise_exception.__annotations__ == {'an_int': int }                   # confirm that the an_int annotation is int
 
-    def test__bug__check_type_safety_assignments__on_list(self):
+    def test__regression__check_type_safety_assignments__on_list(self):
 
         class An_Class(Kwargs_To_Self):
             an_str     : str
@@ -130,10 +131,17 @@ class test_Kwargs_To_Self__bugs(TestCase):
 
         asserts_exception('an_str', 42, 'str','int')
 
-        an_class.an_str_list.append('should work'    )
-        an_class.an_str_list.append(42               )  # BUG should have not worked
-        an_class.an_int_list.append('should not work')  # BUG should have not worked
-        an_class.an_int_list.append(42               )
+        an_class.an_str_list.append('should work')
+        an_class.an_int_list.append(42            )
+
+        with self.assertRaises(Exception) as context:
+            an_class.an_str_list.append(42)                                 # FIXED was: BUG should have not worked
+        assert context.exception.args[0] == "In Type_Safe__List: Invalid type for item: Expected 'str', but got 'int'"
+
+        with self.assertRaises(Exception) as context:
+            an_class.an_int_list.append('should not work')                  # FIXED was: BUG should have not worked
+        assert context.exception.args[0] == "In Type_Safe__List: Invalid type for item: Expected 'int', but got 'str'"
+
 
     def test__bug__mermaid__list_allows_wrong_type(self):
         mermaid_graph = Mermaid__Graph()
@@ -141,19 +149,32 @@ class test_Kwargs_To_Self__bugs(TestCase):
         graph_nodes   = mermaid_graph.nodes
         bad_node      = 'an str'
 
-        assert obj_attribute_annotation(mermaid_graph, 'nodes') == list[Mermaid__Node]      # confirm nodes is list[Mermaid__Node]
-        assert type(graph_nodes) is list                                                              # confirm that we lose type in graph_nodes
+        assert obj_attribute_annotation(mermaid_graph, 'nodes') == list[Mermaid__Node]       # confirm nodes is list[Mermaid__Node]
+        #assert type(graph_nodes) is list                                                              # FIXED was BUG: confirm that we lose type in graph_nodes
+        assert type(graph_nodes) is Type_Safe__List                                                    # FIXED now graph_nodes is a typed list
+        assert repr(graph_nodes) == 'list[Mermaid__Node]'                                              # FIXED confirm graph_nodes is list[Mermaid__Node]
 
         mermaid_graph.nodes.append(mermaid_node)                                        # adding Mermaid__Node directly
         graph_nodes        .append(mermaid_node)                                        # which should be appended ok
         assert graph_nodes == mermaid_graph.nodes == [mermaid_node, mermaid_node]       # and should be in list[Mermaid__Node] nodes var
 
-        mermaid_graph.nodes.append(bad_node)                                            # BUG: type issue
-        mermaid_graph.nodes.append(1)                                                   # BUG: str and ints
-        graph_nodes        .append(bad_node)                                            # BUG: are not of type Mermaid__Node
-        graph_nodes        .append(2)                                                   # BUG: and break nodes type safety list[Mermaid__Node]
+        with self.assertRaises(Exception) as context_1:
+            mermaid_graph.nodes.append(bad_node)                                        # FIXED was BUG: type issue
+        with self.assertRaises(Exception) as context_2:
+            mermaid_graph.nodes.append(1)                                               # FIXED was BUG: str and ints
+        with self.assertRaises(Exception) as context_3:
+            graph_nodes        .append(bad_node)                                        # FIXED was BUG: are not of type Mermaid__Node
+        with self.assertRaises(Exception) as context_4:
+            graph_nodes        .append(2)                                               # FIXED was BUG: and break nodes type safety list[Mermaid__Node]
 
-        assert graph_nodes == [mermaid_node, mermaid_node, bad_node, 1, bad_node, 2]
+        #assert graph_nodes == [mermaid_node, mermaid_node, bad_node, 1, bad_node, 2]   # FIXED was BUG: graph_nodes should not have the bad values
+        assert graph_nodes == mermaid_graph.nodes == [mermaid_node, mermaid_node]       # FIXED bad values have not been added to graph_nodes
+
+        exception_template = "In Type_Safe__List: Invalid type for item: Expected 'Mermaid__Node', but got '{type_name}'"
+        assert context_1.exception.args[0] == exception_template.format(type_name='str')
+        assert context_2.exception.args[0] == exception_template.format(type_name='int')
+        assert context_3.exception.args[0] == exception_template.format(type_name='str')
+        assert context_4.exception.args[0] == exception_template.format(type_name='int')
 
 
     def test__bug__mermaid__cast_issue_with_base_class__with_new_vars(self):
