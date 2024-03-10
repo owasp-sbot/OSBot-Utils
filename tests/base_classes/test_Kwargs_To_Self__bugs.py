@@ -143,7 +143,7 @@ class test_Kwargs_To_Self__bugs(TestCase):
         assert context.exception.args[0] == "In Type_Safe__List: Invalid type for item: Expected 'int', but got 'str'"
 
 
-    def test__bug__mermaid__list_allows_wrong_type(self):
+    def test__regression__mermaid__list_allows_wrong_type(self):
         mermaid_graph = Mermaid__Graph()
         mermaid_node  = Mermaid__Node()
         graph_nodes   = mermaid_graph.nodes
