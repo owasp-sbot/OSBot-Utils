@@ -1,26 +1,16 @@
-from sqlite3 import Cursor
-
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.decorators.methods.cache import cache
-from osbot_utils.decorators.methods.capture_status import capture_status, apply_capture_status
+from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Status import status_ok, status_error, status_exception
 
 
-#@apply_capture_status
 class Sqlite__Cursor(Kwargs_To_Self):
     database : Sqlite__Database
 
-    # def db_name(self):
-    #     return self.database.db_name
-
-    def connection(self):
-        return self.cursor().connection
-
-    @cache
+    @cache_on_self
     def cursor(self):
-        return self.database.sqlite.cursor(self.database.connection_string())
+        return self.database.connection().cursor()
 
     def execute(self, sql_query, *params):
         try:

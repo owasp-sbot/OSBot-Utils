@@ -1,6 +1,4 @@
 from osbot_utils.base_classes.Kwargs_To_Self     import Kwargs_To_Self
-from osbot_utils.decorators.methods.capture_status import apply_capture_status
-from osbot_utils.helpers.sqlite.Sqlite import Sqlite
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
 
 class Sqlite__Table(Kwargs_To_Self):

@@ -2,10 +2,10 @@ import sqlite3
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.decorators.methods.cache import cache
-from osbot_utils.helpers.sqlite.Sqlite import Sqlite
-from osbot_utils.utils.Dev import pprint
+from osbot_utils.decorators.methods.cache_on_self import cache_on_self
+
 from osbot_utils.utils.Files import current_temp_folder, path_combine, folder_create
-from osbot_utils.utils.Misc import random_text, random_filename
+from osbot_utils.utils.Misc import  random_filename
 
 SQLITE_DATABASE_PATH__IN_MEMORY = ':memory:'
 FOLDER_NAME_TEMP_DATABASES      = '_temp_sqlite_databases'
@@ -15,16 +15,16 @@ TEMP_DATABASE__FILE_EXTENSION   = '.sqlite'
 class Sqlite__Database(Kwargs_To_Self):
     in_memory : bool = True                     # default to an in-memory database
     db_path   : str
-    sqlite  : Sqlite
 
-    # @cache_on_self
-    # def connect(self, db_name):  # todo: refactor this to Sqlite__Connection class
-    #     connection = sqlite3.connect(db_name)
-    #     connection.row_factory = self.dict_factory  # this returns a dict as the row value of every query
-    #     return connection
+    @cache_on_self
+    def connect(self):
+        connection_string = self.connection_string()
+        connection        = sqlite3.connect(connection_string)
+        connection.row_factory = self.dict_factory                      # this returns a dict as the row value of every query
+        return connection
 
     def connection(self):
-        return self.cursor().connection()
+        return self.connect()
 
     def connection_string(self):
         if self.in_memory:
@@ -37,6 +37,10 @@ class Sqlite__Database(Kwargs_To_Self):
     def cursor(self):
         from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
         return Sqlite__Cursor(database=self)
+
+    def dict_factory(self, cursor, row):                        # from https://docs.python.org/3/library/sqlite3.html#how-to-create-and-use-row-factories
+        fields = [column[0] for column in cursor.description]
+        return {key: value for key, value in zip(fields, row)}
 
     def path_temp_database(self):
         random_file_name = TEMP_DATABASE__FILE_NAME_PREFIX + random_filename(extension=TEMP_DATABASE__FILE_EXTENSION)

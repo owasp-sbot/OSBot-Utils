@@ -1,21 +1,12 @@
-from sqlite3 import Cursor, OperationalError, Connection
 from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
 from osbot_utils.helpers.sqlite.Temp_Sqlite__Table import Temp_Sqlite__Table
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Objects import obj_info
-
 
 class test_Sqlite__Cursor(TestCase):
 
     def setUp(self):
         self.cursor = Sqlite__Cursor()
-
-    def test_connection(self):
-        connection = self.cursor.connection()
-        assert type(connection) == Connection
-
 
     def test_execute(self):
         assert self.cursor.execute(''   ) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
@@ -26,7 +17,6 @@ class test_Sqlite__Cursor(TestCase):
         result = self.cursor.execute__fetch_all(sql_query)
         assert result == []
 
-    #@capture_sqlite_error
     def test_table_create(self):
         table_name = 'test_table'
         fields     = ['id INTEGER PRIMARY KEY', 'name TEXT NOT NULL','email TEXT UNIQUE NOT NULL']
@@ -39,8 +29,6 @@ class test_Sqlite__Cursor(TestCase):
                                                                     'TEXT NOT NULL, email TEXT UNIQUE NOT NULL)',
                                                        'tbl_name' : 'test_table'        ,
                                                        'type'     : 'table'             }]
-
-        #self.cursor.table__sqlite_master()
 
         assert self.cursor.table__sqlite_master() == [{'name'     : 'test_table'                           ,
                                                                     'rootpage' : 2                                      ,
