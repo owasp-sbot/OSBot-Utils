@@ -15,6 +15,9 @@ class Sqlite__Cursor(Kwargs_To_Self):
     def db_name(self):
         return self.database.db_name
 
+    def connection(self):
+        return self.cursor().connection
+
     @cache
     def cursor(self):
         return self.database.sqlite.cursor(self.db_name())

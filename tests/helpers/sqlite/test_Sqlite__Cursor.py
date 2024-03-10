@@ -1,4 +1,4 @@
-from sqlite3 import Cursor, OperationalError
+from sqlite3 import Cursor, OperationalError, Connection
 from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
@@ -11,6 +11,11 @@ class test_Sqlite__Cursor(TestCase):
 
     def setUp(self):
         self.cursor = Sqlite__Cursor()
+
+    def test_connection(self):
+        connection = self.cursor.connection()
+        assert type(connection) == Connection
+
 
     def test_execute(self):
         assert self.cursor.execute(''   ) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}

@@ -282,7 +282,9 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     def from_json(cls, json_data):
         if type(json_data) is str:
             json_data = json_parse(json_data)
-        return cls().deserialize_from_dict(json_data)
+        if json_data:                                           # if there is not data or is {} then don't create an object (since this could be caused by bad data being provided)
+            return cls().deserialize_from_dict(json_data)
+        return None
 
 
 def serialize_to_dict(obj):

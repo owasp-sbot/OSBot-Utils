@@ -24,6 +24,9 @@ class Sqlite__Table(Kwargs_To_Self):
     def exists(self):
         return self.cursor().table_exists(self.table_name)
 
+    def not_exists(self):
+        return self.exists() is False
+
     def schema(self):
         return self.cursor().table_schema(self.table_name)
 

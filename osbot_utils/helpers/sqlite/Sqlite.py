@@ -2,7 +2,7 @@ import sqlite3
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 
-class Sqlite(Kwargs_To_Self):
+class Sqlite(Kwargs_To_Self):            # todo: see where most of these methods can be refactored to (now that we have a good set of Sqlite__nnnn methods)
 
     @cache_on_self
     def connect(self, db_name):         # todo: refactor this to Sqlite__Connection class
