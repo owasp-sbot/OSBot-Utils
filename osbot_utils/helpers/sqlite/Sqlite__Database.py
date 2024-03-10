@@ -4,19 +4,48 @@ from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.decorators.methods.cache import cache
 from osbot_utils.helpers.sqlite.Sqlite import Sqlite
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Files import current_temp_folder, path_combine, folder_create
+from osbot_utils.utils.Misc import random_text, random_filename
 
+SQLITE_DATABASE_PATH__IN_MEMORY = ':memory:'
+FOLDER_NAME_TEMP_DATABASES      = '_temp_sqlite_databases'
+TEMP_DATABASE__FILE_NAME_PREFIX = 'random_sqlite_db__'
+TEMP_DATABASE__FILE_EXTENSION   = '.sqlite'
 
 class Sqlite__Database(Kwargs_To_Self):
-    db_name : str = ':memory:'              # default to an in-memory database
+    in_memory : bool = True                     # default to an in-memory database
+    db_path   : str
     sqlite  : Sqlite
+
+    # @cache_on_self
+    # def connect(self, db_name):  # todo: refactor this to Sqlite__Connection class
+    #     connection = sqlite3.connect(db_name)
+    #     connection.row_factory = self.dict_factory  # this returns a dict as the row value of every query
+    #     return connection
 
     def connection(self):
         return self.cursor().connection()
+
+    def connection_string(self):
+        if self.in_memory:
+            return SQLITE_DATABASE_PATH__IN_MEMORY
+        if self.db_path:
+            return self.db_path
+        return self.path_temp_database()
 
     @cache
     def cursor(self):
         from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
         return Sqlite__Cursor(database=self)
+
+    def path_temp_database(self):
+        random_file_name = TEMP_DATABASE__FILE_NAME_PREFIX + random_filename(extension=TEMP_DATABASE__FILE_EXTENSION)
+        return random_file_name
+
+    def path_temp_databases(self):
+        path_temp_databases  = path_combine(current_temp_folder(), FOLDER_NAME_TEMP_DATABASES)      # use current temp folder has the parent folder
+        folder_create(path_temp_databases)                                                          # make sure it exists
+        return path_temp_databases
 
     def save_to(self, path):
         connection = self.connection()
@@ -32,6 +61,7 @@ class Sqlite__Database(Kwargs_To_Self):
 
     def tables(self):
         return self.cursor().tables()
+
 
 
 

@@ -5,7 +5,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import random_text
 
 
-class Temp_Sqlite_Table(Kwargs_To_Self):
+class Temp_Sqlite__Table(Kwargs_To_Self):
     table_name   : str           = random_text(prefix='random_table')
     table_field  : str           = 'id INTEGER PRIMARY KEY'
     table_fields : list

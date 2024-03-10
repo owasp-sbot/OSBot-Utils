@@ -2,7 +2,7 @@ from sqlite3 import Cursor, OperationalError, Connection
 from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
-from osbot_utils.helpers.sqlite.Temp_Sqlite_Table import Temp_Sqlite_Table
+from osbot_utils.helpers.sqlite.Temp_Sqlite__Table import Temp_Sqlite__Table
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects import obj_info
 
@@ -111,7 +111,7 @@ class test_Sqlite__Cursor(TestCase):
         assert self.cursor.tables() == []
 
     def test_table_schema(self):
-        with Temp_Sqlite_Table() as table:
+        with Temp_Sqlite__Table() as table:
             table_schema = table.cursor().table_schema(table.table_name)
             assert table_schema == [{'cid': 0, 'name': 'id', 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1}]
 

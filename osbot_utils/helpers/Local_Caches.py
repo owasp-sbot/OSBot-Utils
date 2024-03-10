@@ -7,7 +7,7 @@ from osbot_utils.utils.Misc          import random_text
 
 class Local_Caches:
 
-    DEFAULT_NAME = "_cache_data"
+    DEFAULT_NAME = "_cache_data"                # todo: see if this is still being used
 
     def __init__(self, caches_name=None):
         self.caches_name = caches_name or random_text("local_caches")

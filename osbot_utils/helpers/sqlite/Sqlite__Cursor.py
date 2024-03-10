@@ -12,15 +12,15 @@ from osbot_utils.utils.Status import status_ok, status_error, status_exception
 class Sqlite__Cursor(Kwargs_To_Self):
     database : Sqlite__Database
 
-    def db_name(self):
-        return self.database.db_name
+    # def db_name(self):
+    #     return self.database.db_name
 
     def connection(self):
         return self.cursor().connection
 
     @cache
     def cursor(self):
-        return self.database.sqlite.cursor(self.db_name())
+        return self.database.sqlite.cursor(self.database.connection_string())
 
     def execute(self, sql_query, *params):
         try:
