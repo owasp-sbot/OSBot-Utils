@@ -55,11 +55,12 @@ class Sqlite__Field(Kwargs_To_Self):
 
     @classmethod
     def fix_from_json_data(cls, json_data):
-        type_type = json_data.get('type')
-        mapped_type = Sqlite__Field__Type.type_map().get(type_type)
-        if mapped_type:
-            json_data['type'] = mapped_type
-            return mapped_type
+        if type(json_data) is dict:
+            type_type = json_data.get('type')
+            mapped_type = Sqlite__Field__Type.type_map().get(type_type)
+            if mapped_type:
+                json_data['type'] = mapped_type
+                return mapped_type
 
 
     @classmethod

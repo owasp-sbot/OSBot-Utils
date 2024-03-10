@@ -9,23 +9,36 @@ from osbot_utils.utils.Json import json_save_tmp_file, json_parse, json_loads, j
     json_load_file, json_load_file_and_delete, json_save_file_gz, json_save_file_pretty_gz, json_load_file_gz, \
     json_round_trip, Json, logger_json, json_load_file_gz_and_delete, json_save_file_pretty, json_save_file, json_load
 from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Status import send_status_to_logger
 
 
 class test_Json(TestCase):
 
-    def test_dumps__bad_object(self):
+    def test_test_json_dumps(self):
+        assert json_dumps({}       ) is None
+        assert json_dumps({'a': 42}) == '{\n    "a": 42\n}'
+
+    def test_json_dumps__bad_object(self):
         serializer       = None                             # need to set this since json_dumps uses default=str for the default json serializer
         bad_obj          = { "date": datetime.now() }
         expected_message = "TypeError: Object of type datetime is not JSON serializable"
 
+        send_status_to_logger(True)
         with Log_To_String(logger_json) as log_to_string:
             assert json_dumps(bad_obj, default=serializer) is None
             assert expected_message in log_to_string.contents()
+        send_status_to_logger(False)
+
+        with self.assertRaises(Exception) as context:
+            json_dumps(bad_obj, default=serializer, raise_exception=True)
+        assert context.exception.args[0] == 'Object of type datetime is not JSON serializable'
 
         # confirm that we get a string in date object with default json_dumps
         round_trip = json_load(json_dumps(bad_obj))
         assert list_set(round_trip.keys())  == ['date']
         assert type(round_trip.get('date')) is str
+
+
 
     def test_json_parse__json_format__json_dumps__json_loads(self):
         data = {'answer': 42 }
@@ -42,9 +55,16 @@ class test_Json(TestCase):
     def test_json_loads__bad_json(self):
         bad_json         = "{ bad : json }"
         expected_message = 'json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 3 (char 2)\n'
+        send_status_to_logger(True)
         with Log_To_String(logger_json) as log_to_string:
             assert json_loads(bad_json) == {}
             assert expected_message in log_to_string.contents()
+        send_status_to_logger(False)
+
+        with self.assertRaises(Exception) as context:
+            json_loads(bad_json, raise_exception=True)
+        assert context.exception.args[0] == 'Expecting property name enclosed in double quotes: line 1 column 3 (char 2)'
+
 
     def test_json_load_file__json_save_tmp_file(self):
         data = {'answer': 42 }

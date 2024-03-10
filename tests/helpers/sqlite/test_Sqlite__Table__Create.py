@@ -23,9 +23,17 @@ class test_Sqlite__Table__Create(TestCase):
     def setUp(self) -> None:
         self.table_create = Sqlite__Table__Create()
 
-    def test_create_table(self):
-
-        field_data =  dict(name="id", type="INTEGER", pk=True, autoincrement=True)
+    def test_add_field(self):
+        field_data = dict(name="id", type="INTEGER", pk=True, autoincrement=True)
         sqlite_field = Sqlite__Field.from_json(field_data)
-        assert sqlite_field.text_for_create_table()== 'id INTEGER PRIMARY KEY AUTOINCREMENT'
-        self.table_create.add_field(field_data)
+        assert sqlite_field.text_for_create_table() == 'id INTEGER PRIMARY KEY AUTOINCREMENT'
+
+        with self.table_create as _:
+            assert len(_.fields) == 0
+            _.add_field(field_data)
+            assert len(_.fields) == 1
+            _.add_field('aaa')
+
+
+    #def test_create_table(self):
+
