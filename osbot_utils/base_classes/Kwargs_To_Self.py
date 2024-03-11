@@ -157,15 +157,16 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                     kwargs[var_name] = var_value
                 else:
                     var_value = getattr(base_cls, var_name)
-                    if var_type and not isinstance(var_value, var_type):# and var_value is not None:
-                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
-                        raise Exception(exception_message)
-                    if var_type not in immutable_types and var_name.startswith('__') is False:              # if var_type is not one of the immutable_types or is an __ internal
-                        #todo: fix type safety bug that I believe is caused here
-                        if obj_is_type_union_compatible(var_type, immutable_types) is False:                # if var_type is not something like Optional[Union[int, str]]
-                            if type(var_type) not in immutable_types:
-                                exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{immutable_types}'"
-                                raise Exception(exception_message)
+                    if var_value is not None:                                                                   # allow None assignments on ctor since that is a valid use case
+                        if var_type and not isinstance(var_value, var_type):                                    # check type
+                            exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
+                            raise Exception(exception_message)
+                        if var_type not in immutable_types and var_name.startswith('__') is False:              # if var_type is not one of the immutable_types or is an __ internal
+                            #todo: fix type safety bug that I believe is caused here
+                            if obj_is_type_union_compatible(var_type, immutable_types) is False:                # if var_type is not something like Optional[Union[int, str]]
+                                if type(var_type) not in immutable_types:
+                                    exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{immutable_types}'"
+                                    raise Exception(exception_message)
             if include_base_classes is False:
                 break
         return kwargs

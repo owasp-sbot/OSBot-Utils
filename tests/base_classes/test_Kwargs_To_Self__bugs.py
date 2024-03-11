@@ -13,24 +13,6 @@ from osbot_utils.utils.Objects                  import obj_attribute_annotation
 
 class test_Kwargs_To_Self__bugs(TestCase):
 
-    def test__bug__ctor_doest_allow_none_values(self):
-        class An_Class(Kwargs_To_Self):
-            an_int  : list
-            an_list : list
-            an_str  : str
-        assert An_Class().__locals__() == {'an_int': [], 'an_list': [], 'an_str': ''}
-
-        class An_Class(Kwargs_To_Self):
-            an_int  : int  = None                                       # BUG: will raise exception
-            an_list : list = None                                       # BUG: will raise exception
-            an_str  : str  = None                                       # BUG: will raise exception
-
-        with self.assertRaises(Exception) as context:
-            An_Class()                                                  # BUG should have not thrown exception
-        assert context.exception.args[0] == ("variable 'an_int' is defined as type '<class 'int'>' "
-                                             "but has value 'None' "
-                                             "of type '<class 'NoneType'>'"'')
-
     def test__bug__check_type_safety_assignments__on_ctor(self):
         an_bool_value = True
         an_int_value  = 42

@@ -327,3 +327,29 @@ class test_Kwargs_To_Self__regression(TestCase):
 
         new_mermaid_node.merge_with(mgraph_node)
         assert list_set(new_mermaid_node.__dict__) == ['attributes', 'config', 'key', 'label'          ]
+
+    def test__regression__ctor_doest_allow_none_values(self):
+        class An_Class(Kwargs_To_Self):
+            an_int  : list
+            an_list : list
+            an_str  : str
+        assert An_Class().__locals__() == {'an_int': [], 'an_list': [], 'an_str': ''}
+
+        class An_Class(Kwargs_To_Self):
+            an_int  : int  = None                                       # BUG: will raise exception
+            an_str  : str  = None                                       # BUG: will raise exception
+            an_list : list = None  # BUG: will raise exception
+
+        an_class = An_Class()
+        assert an_class.__locals__() == {'an_int': None, 'an_list': None, 'an_str': None}
+
+        an_class.an_int  = 42                               # confirm that normal assignments are still ok
+        an_class.an_str  = '42'
+        an_class.an_list = [42, '42']
+        assert an_class.__locals__() == {'an_int': 42, 'an_list': [42, '42'], 'an_str': '42'}
+
+        with self.assertRaises(Exception) as context:       # confirm that type safety checks are still in place
+            an_class.an_list = 'a'
+        assert context.exception.args[0] == ("Invalid type for attribute 'an_list'. "
+                                             "Expected '<class 'list'>' "
+                                             "but got '<class 'str'>'"                )
