@@ -15,12 +15,14 @@ TEMP_DATABASE__FILE_EXTENSION   = '.sqlite'
 class Sqlite__Database(Kwargs_To_Self):
     in_memory : bool = True                     # default to an in-memory database
     db_path   : str
+    connected : bool = False
 
     @cache_on_self
     def connect(self):
-        connection_string = self.connection_string()
-        connection        = sqlite3.connect(connection_string)
+        connection_string      = self.connection_string()
+        connection             = sqlite3.connect(connection_string)
         connection.row_factory = self.dict_factory                      # this returns a dict as the row value of every query
+        self.connected         = True
         return connection
 
     def connection(self):
@@ -29,9 +31,9 @@ class Sqlite__Database(Kwargs_To_Self):
     def connection_string(self):
         if self.in_memory:
             return SQLITE_DATABASE_PATH__IN_MEMORY
-        if self.db_path:
-            return self.db_path
-        return self.path_temp_database()
+        if not self.db_path:
+            self.db_path = self.path_temp_database()
+        return self.db_path
 
     @cache
     def cursor(self):
@@ -44,7 +46,7 @@ class Sqlite__Database(Kwargs_To_Self):
 
     def path_temp_database(self):
         random_file_name = TEMP_DATABASE__FILE_NAME_PREFIX + random_filename(extension=TEMP_DATABASE__FILE_EXTENSION)
-        return random_file_name
+        return path_combine(self.path_temp_databases(), random_file_name)
 
     def path_temp_databases(self):
         path_temp_databases  = path_combine(current_temp_folder(), FOLDER_NAME_TEMP_DATABASES)      # use current temp folder has the parent folder
