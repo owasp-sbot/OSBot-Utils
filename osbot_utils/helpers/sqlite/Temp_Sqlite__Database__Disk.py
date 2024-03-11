@@ -10,7 +10,8 @@ class Temp_Sqlite__Database__Disk(Kwargs_To_Self):
         self.database.in_memory = False
 
     def __enter__(self):
-        pass
+        self.database.connect()
+        return self.database
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.database.delete()

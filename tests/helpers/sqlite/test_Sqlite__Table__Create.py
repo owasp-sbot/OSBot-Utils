@@ -5,6 +5,7 @@ import pytest
 from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field__Type, Sqlite__Field
 from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Files import file_delete, file_exists
 from osbot_utils.utils.Misc import random_text
 from osbot_utils.utils.Objects import obj_info
 
@@ -44,10 +45,11 @@ class test_Sqlite__Table__Create(TestCase):
         with self.table_create as _:
             _.add_field(FIELD_DATA__ID_INT_PK)
             assert _.create_table() is True
-
             target_file = '/tmp/test.db'
-
+            file_delete(target_file)
             _.database().save_to(target_file)
+            assert file_exists(target_file) is True
+
 
 
     def test_sql_for__create_table(self):
