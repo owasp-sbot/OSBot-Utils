@@ -49,7 +49,6 @@ class test_Trace_Call__Config(TestCase):
             assert _.__cls_kwargs__     () == expected_data
             assert _.__default_kwargs__ () == expected_data
             assert _.__kwargs__         () == expected_data
-            expected_data['__lock_attributes__'] = True
             assert _.__locals__         () == expected_data
 
     def test_all(self):

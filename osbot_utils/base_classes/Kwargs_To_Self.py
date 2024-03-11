@@ -227,7 +227,8 @@ class Kwargs_To_Self:               # todo: check if the description below is st
         if not isinstance(vars(self), types.FunctionType):
             for k, v in vars(self).items():
                 if not isinstance(v, types.FunctionType) and not isinstance(v,classmethod):
-                    kwargs[k] = v
+                    if k.startswith('__') is False:
+                        kwargs[k] = v
         return kwargs
 
     # global methods added to any class that base classes this

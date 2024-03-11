@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
+from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid
 from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
 from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
@@ -353,3 +354,21 @@ class test_Kwargs_To_Self__regression(TestCase):
         assert context.exception.args[0] == ("Invalid type for attribute 'an_list'. "
                                              "Expected '<class 'list'>' "
                                              "but got '<class 'str'>'"                )
+
+    def test__regression__cache_on_self__shows_on_locals(self):
+        class An_Class(Kwargs_To_Self):
+            an_str: str
+
+            def an_method(self):
+                return 41
+
+            @cache_on_self
+            def an_method__cached(self):
+                return 42
+
+        an_class = An_Class()
+        assert an_class.__locals__       () == {'an_str': ''}
+        assert an_class.an_method        () == 41
+        assert an_class.an_method__cached() == 42
+        #assert an_class.__locals__       () == {'an_str': '', 'cache_on_self_an_method__cached__': 42}  # FIXED was BUG: cache method should not be here
+        assert an_class.__locals__       () == {'an_str': ''}                                            # FIXED, cached value is not returned

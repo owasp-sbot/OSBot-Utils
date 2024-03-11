@@ -13,12 +13,20 @@ TEMP_DATABASE__FILE_NAME_PREFIX = 'random_sqlite_db__'
 TEMP_DATABASE__FILE_EXTENSION   = '.sqlite'
 
 class Sqlite__Database(Kwargs_To_Self):
-    db_path   : str  = ''                       # should be None
+    db_path   : str  = None
     closed    : bool = False
     connected : bool = False
     deleted   : bool = False
     in_memory : bool = True                     # default to an in-memory database
 
+
+    def close(self):
+        if self.closed is False:
+            self.connection().close()
+            self.closed    = True
+            self.connected = False
+            return True
+        return False
 
     @cache_on_self
     def connect(self):
@@ -46,7 +54,13 @@ class Sqlite__Database(Kwargs_To_Self):
     def delete(self):
         if self.in_memory:          # can't delete an in-memory database
             return False
-        return file_delete(self.db_path)
+        if self.deleted:
+            return False
+        self.close()
+        if file_delete(self.db_path):
+            self.deleted = True
+            return True
+        return False
 
     def dict_factory(self, cursor, row):                        # from https://docs.python.org/3/library/sqlite3.html#how-to-create-and-use-row-factories
         fields = [column[0] for column in cursor.description]

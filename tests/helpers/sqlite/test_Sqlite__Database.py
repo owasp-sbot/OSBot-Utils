@@ -2,6 +2,8 @@ from contextlib import contextmanager
 from sqlite3 import Cursor, Connection
 from unittest import TestCase
 
+import pytest
+
 from osbot_utils.decorators.methods.obj_as_context import obj_as_context
 from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database, SQLITE_DATABASE_PATH__IN_MEMORY, \
@@ -20,12 +22,25 @@ class test_Sqlite__Database(TestCase):
         self.database = Sqlite__Database()
 
     def test__init(self):
-        expected_vars = { 'db_path'  : ''    ,
+        expected_vars = { 'db_path'  : None  ,
                           'closed'   : False ,
                           'connected': False ,
                           'deleted'  : False ,
                           'in_memory': True  }
         assert self.database.__locals__() == expected_vars
+
+    @pytest.mark.skip('todo: fix bug caused by side effect of closing the db')
+    def test_close(self):
+        with self.database as db:
+            assert db.tables() == []
+            assert db.closed is False
+            assert db.close() is True
+            assert db.closed is True
+            assert db.close() is False
+            #assert db.tables() == []
+            with self.assertRaises(Exception) as context:
+                db.tables()
+            assert context.exception.args[0] == 'Cannot operate on a closed database.'
 
     def test_connect(self):
         expected_obj_items = [ 'DataError'         , 'DatabaseError'         , 'Error'           , 'IntegrityError', 'InterfaceError', 'InternalError'                       ,
@@ -56,7 +71,7 @@ class test_Sqlite__Database(TestCase):
     def test_connection_string(self):
         assert self.database.connection_string() == SQLITE_DATABASE_PATH__IN_MEMORY
         self.database.in_memory = False
-        assert self.database.db_path == ''
+        assert self.database.db_path is None
         connection_string = self.database.connection_string()
         assert connection_string == self.database.db_path
         assert parent_folder(connection_string) == self.database.path_temp_databases()
@@ -65,15 +80,35 @@ class test_Sqlite__Database(TestCase):
     def test_cursor(self):
         assert type(self.database.cursor()) is Sqlite__Cursor
 
+
     def test_delete(self):
-        assert self.database.in_memory is True
-        assert self.database.db_path   == ''
-        assert self.database.delete()  is False     # can't delete an in-memory db
-        self.database.in_memory = False
-        self.database.connect()                     # trigger the creation of the connection
-        assert file_extension(self.database.db_path) == TEMP_DATABASE__FILE_EXTENSION
-        assert file_exists(self.database.db_path) is True
-        assert self.database.delete()  is True
+        with self.database as db:
+            assert db.in_memory is True                                                 # confirm we are in-memory mode
+            assert db.db_path   is None                                                 # where the db_path value should not be set
+            assert db.delete()  is False                                                # conform can't delete an in-memory db
+
+            db.in_memory = False                                                        # change mode to not be in_memory
+            db.connect()                                                                # trigger the creation of the connection
+            db_path = db.db_path                                                        # get the value for db_path
+            assert file_extension(db_path) == TEMP_DATABASE__FILE_EXTENSION             # confirm that is set and has correct ext
+            assert file_exists(db_path)    is True                                      # confirm file exists
+
+            assert db.__locals__() == { #'cache_on_self_connect__': db.connection(),     # FIXED: was BUG this value should not be here
+                                        'closed'                 : False          ,
+                                        'connected'              : True           ,
+                                        'db_path'                : db_path        ,
+                                        'deleted'                : False          ,
+                                        'in_memory'              : False          }
+
+            assert db.delete()  is True                                                 #  confirm we can delete the file
+
+            assert file_exists(db_path)    is False                                     # after deletion the file doesn't exist
+            assert db.__locals__() == { #'cache_on_self_connect__': db.connection(),    # FIXED: was BUG this value should not be here
+                                        'closed'                 : True           ,     # was False
+                                        'connected'              : False          ,     # was True
+                                        'db_path'                : db_path        ,
+                                        'deleted'                : True           ,     # # was False
+                                        'in_memory'              : False          }
 
     def test_exists(self):
         assert self.database.exists()

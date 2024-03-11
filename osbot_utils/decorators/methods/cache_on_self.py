@@ -5,7 +5,7 @@ from osbot_utils.utils.Misc import str_md5
 from typing import Any, Callable, TypeVar
 
 
-CACHE_ON_SELF_KEY_PREFIX = 'cache_on_self'
+CACHE_ON_SELF_KEY_PREFIX = '__cache_on_self__'
 CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
                             complex, str]
 
