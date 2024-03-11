@@ -46,7 +46,7 @@ class Sqlite__Database(Kwargs_To_Self):
             self.db_path = self.path_temp_database()
         return self.db_path
 
-    @cache
+    @cache_on_self
     def cursor(self):
         from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
         return Sqlite__Cursor(database=self)
