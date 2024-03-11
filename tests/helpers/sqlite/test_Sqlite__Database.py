@@ -87,27 +87,26 @@ class test_Sqlite__Database(TestCase):
             assert db.db_path   is None                                                 # where the db_path value should not be set
             assert db.delete()  is False                                                # conform can't delete an in-memory db
 
-            db.in_memory = False                                                        # change mode to not be in_memory
+            db.in_memory = False                                                        # change db mode to not be in_memory
             db.connect()                                                                # trigger the creation of the connection
             db_path = db.db_path                                                        # get the value for db_path
             assert file_extension(db_path) == TEMP_DATABASE__FILE_EXTENSION             # confirm that is set and has correct ext
             assert file_exists(db_path)    is True                                      # confirm file exists
 
-            assert db.__locals__() == { #'cache_on_self_connect__': db.connection(),     # FIXED: was BUG this value should not be here
-                                        'closed'                 : False          ,
+            assert db.__locals__() == { 'closed'                 : False          ,     # check the current values of the db config
                                         'connected'              : True           ,
                                         'db_path'                : db_path        ,
                                         'deleted'                : False          ,
                                         'in_memory'              : False          }
 
-            assert db.delete()  is True                                                 #  confirm we can delete the file
+            assert db.delete() is True                                                  # confirm we can delete the file
+            assert db.delete() is False                                                 # confirm we can't delete it twice
 
-            assert file_exists(db_path)    is False                                     # after deletion the file doesn't exist
-            assert db.__locals__() == { #'cache_on_self_connect__': db.connection(),    # FIXED: was BUG this value should not be here
-                                        'closed'                 : True           ,     # was False
+            assert file_exists(db_path)    is False                                     # after deletion confirm the file doesn't exist
+            assert db.__locals__() == { 'closed'                 : True           ,     # was False
                                         'connected'              : False          ,     # was True
                                         'db_path'                : db_path        ,
-                                        'deleted'                : True           ,     # # was False
+                                        'deleted'                : True           ,     # was False
                                         'in_memory'              : False          }
 
     def test_exists(self):
