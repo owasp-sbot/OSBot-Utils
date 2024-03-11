@@ -157,7 +157,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                     kwargs[var_name] = var_value
                 else:
                     var_value = getattr(base_cls, var_name)
-                    if var_type and not isinstance(var_value, var_type):
+                    if var_type and not isinstance(var_value, var_type):# and var_value is not None:
                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
                         raise Exception(exception_message)
                     if var_type not in immutable_types and var_name.startswith('__') is False:              # if var_type is not one of the immutable_types or is an __ internal

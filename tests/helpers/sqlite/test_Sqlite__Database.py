@@ -20,9 +20,11 @@ class test_Sqlite__Database(TestCase):
         self.database = Sqlite__Database()
 
     def test__init(self):
-        expected_vars = {'connected': False ,
-                         'db_path'  : ''    ,
-                         'in_memory': True  }
+        expected_vars = { 'db_path'  : ''    ,
+                          'closed'   : False ,
+                          'connected': False ,
+                          'deleted'  : False ,
+                          'in_memory': True  }
         assert self.database.__locals__() == expected_vars
 
     def test_connect(self):
@@ -62,6 +64,19 @@ class test_Sqlite__Database(TestCase):
 
     def test_cursor(self):
         assert type(self.database.cursor()) is Sqlite__Cursor
+
+    def test_delete(self):
+        assert self.database.in_memory is True
+        assert self.database.db_path   == ''
+        assert self.database.delete()  is False     # can't delete an in-memory db
+        self.database.in_memory = False
+        self.database.connect()                     # trigger the creation of the connection
+        assert file_extension(self.database.db_path) == TEMP_DATABASE__FILE_EXTENSION
+        assert file_exists(self.database.db_path) is True
+        assert self.database.delete()  is True
+
+    def test_exists(self):
+        assert self.database.exists()
 
     def test_path_temp_database(self):
         path_temp_database                = self.database.path_temp_database()

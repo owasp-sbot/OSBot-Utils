@@ -13,4 +13,4 @@ class Temp_Sqlite__Database__Disk(Kwargs_To_Self):
         pass
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        self.database.delete()
