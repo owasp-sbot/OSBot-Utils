@@ -4,29 +4,43 @@ from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import 
     FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, file_exists
+from osbot_utils.utils.Json import json_loads, json_from_file
 from osbot_utils.utils.Misc import list_set
 
 
 class test_Sqlite__Sample_Data__Chinook(TestCase):
+
     def setUp(self):
         self.chinook_sqlite = Sqlite__Sample_Data__Chinook()
-        print()
 
     def test_chinook_data_as_json(self):
         chinook_data_as_json = self.chinook_sqlite.chinook_data_as_json()
         assert list_set(chinook_data_as_json) == ['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice',
                                                   'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track']
 
+    def test_create_table_from_data(self):
+        table = self.chinook_sqlite.create_table_from_data()
+        for row in table.rows():
+            name = row.get('name')
+            value = row.get('value')
+            data = json_loads(value)
+            print(f'{name:15} {len(value):10} {len(data):10}')
 
-    def test_download_chinook_data__from_url(self):
-        force_download = True
-        path_chinook_data_as_json = self.chinook_sqlite.download_chinook_data__from_url(force_download=force_download)
-        assert file_exists(path_chinook_data_as_json)
+    def test_load_db_from_disk(self):
+        table = self.chinook_sqlite.load_db_from_disk()
+        for row in table.rows():
+            name = row.get('name')
+            value = row.get('value')
+            data = json_loads(value)
+            print(f'{name:15} {len(value):10} {len(data):10}' )
 
-    def test_load_chinook_data__from_disk(self):
-        chinook_data = self.chinook_sqlite.load_chinook_data__from_disk()
-        assert list_set(chinook_data) == ['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice',
-                                          'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track']
+    def test_json_loads_file_from_disk(self):
+        path_to_file = self.chinook_sqlite.path_chinook_data_as_json()
+        all_data = json_from_file(path_to_file)
+        for name, data in all_data.items():
+            print(f'{name:15} {len(data):10}')
+
+
 
     def test_path_chinook_data(self):
         path_chinook_data = self.chinook_sqlite.path_chinook_data()

@@ -10,7 +10,14 @@ class Sqlite__Cursor(Kwargs_To_Self):
 
     @cache_on_self
     def cursor(self):
-        return self.database.connection().cursor()
+        return self.connection().cursor()
+
+    def commit(self):
+        self.connection().commit()
+        return self
+
+    def connection(self):
+        return self.database.connection()
 
     def execute(self, sql_query, *params):
         try:
@@ -22,6 +29,9 @@ class Sqlite__Cursor(Kwargs_To_Self):
     def execute__fetch_all(self,sql_query):
         self.execute(sql_query=sql_query)
         return self.cursor().fetchall()
+
+    def fetchone(self):
+        return self.cursor().fetchone()
 
     def table_create(self, table_name, fields):
         if table_name and fields:

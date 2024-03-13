@@ -19,6 +19,19 @@ class Sqlite__Database(Kwargs_To_Self):
     deleted   : bool = False
     in_memory : bool = True                     # default to an in-memory database
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.db_path:                        # if self.db_path is set via the ctor (then it means that this is not in memory)
+            self.in_memory = False              # todo: see if this is not better done with a direct method for a getter/setter
+
+    # @property
+    # def db_path(self):
+    #     return self._db_path
+    #
+    # @db_path.setter
+    # def db_path(self, value):
+    #     self._db_path = value
+    #     self._in_memory = not bool(value)  # Update in_memory when db_path is set
 
     def close(self):
         if self.closed is False:
