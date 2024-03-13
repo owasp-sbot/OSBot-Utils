@@ -9,6 +9,7 @@ class Sqlite__Table__Create(Kwargs_To_Self):
     def __init__(self,table_name):
         super().__init__()
         self.table.table_name = table_name
+        self.set_default_fields()
 
     def add_field(self, field_data: dict):
         sqlite_field = Sqlite__Field.from_json(field_data)
@@ -16,6 +17,17 @@ class Sqlite__Table__Create(Kwargs_To_Self):
             self.fields.append(sqlite_field)
             return True
         return False
+
+    def add_field_with_type(self, field_name, field_type):
+        return self.add_field(dict(name=field_name, type=field_type))
+
+    def add_field__text(self, field_name):
+        return self.add_field_with_type(field_name=field_name, field_type="TEXT")
+
+    def add_fields__text(self, *fields_name):
+        for field_name in fields_name:
+            self.add_field__text(field_name=field_name)
+        return self
 
     def create_table(self):
         sql_query = self.sql_for__create_table()
@@ -26,6 +38,10 @@ class Sqlite__Table__Create(Kwargs_To_Self):
 
     def database(self):
         return self.table.database
+
+    def set_default_fields(self):
+        self.add_field(dict(name="id", type="INTEGER", pk=True))        # by default every table has an id field
+        return self
 
     def sql_for__create_table(self):
         field_definitions = [field.text_for_create_table() for field in self.fields]

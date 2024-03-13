@@ -8,15 +8,6 @@ class Sqlite__Table(Kwargs_To_Self):
     table_name   : str
     table_fields : list
 
-    def add_record(self, record):
-        schema        = self.fields__cached()                                               # Retrieve the schema from the cached fields
-        filtered_data = {key: value for key, value in record.items() if key in schema}      # Filter the data dictionary to include only keys that are valid column names according to the schema
-        columns       = ', '.join(filtered_data.keys())                                     # Construct column names and placeholders
-        placeholders  = ', '.join(['?' for _ in filtered_data.values()])
-        sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'          # Construct the SQL statement
-        self.cursor().execute(sql, list(filtered_data.values()))                            # Execute the SQL statement with the filtered data values
-        return self
-
     def create(self):
         result = self.cursor().table_create(table_name=self.table_name, fields=self.table_fields)
         return result.get('status') == 'ok'
@@ -45,6 +36,15 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def not_exists(self):
         return self.exists() is False
+
+    def row_add(self, record):
+        schema        = self.fields__cached()                                               # Retrieve the schema from the cached fields
+        filtered_data = {key: value for key, value in record.items() if key in schema}      # Filter the data dictionary to include only keys that are valid column names according to the schema
+        columns       = ', '.join(filtered_data.keys())                                     # Construct column names and placeholders
+        placeholders  = ', '.join(['?' for _ in filtered_data.values()])
+        sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'          # Construct the SQL statement
+        self.cursor().execute(sql, list(filtered_data.values()))                            # Execute the SQL statement with the filtered data values
+        return self
 
     def rows(self):
         sql_query = f"Select * from {self.table_name}"

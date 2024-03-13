@@ -20,11 +20,16 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
 
     def test_create_table_from_data(self):
         table = self.chinook_sqlite.create_table_from_data()
+        assert table.fields() == {'id'   : {'cid': 0, 'name': 'id'   , 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1},
+                                  'name' : {'cid': 1, 'name': 'name' , 'type': 'TEXT'   , 'notnull': 0, 'dflt_value': None, 'pk': 0},
+                                  'value': {'cid': 2, 'name': 'value', 'type': 'TEXT'   , 'notnull': 0, 'dflt_value': None, 'pk': 0}}
+
         for row in table.rows():
             name = row.get('name')
             value = row.get('value')
             data = json_loads(value)
             print(f'{name:15} {len(value):10} {len(data):10}')
+
 
     def test_load_db_from_disk(self):
         table = self.chinook_sqlite.load_db_from_disk()

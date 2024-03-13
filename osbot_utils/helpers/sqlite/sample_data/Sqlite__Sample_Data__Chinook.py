@@ -31,17 +31,15 @@ class Sqlite__Sample_Data__Chinook():
     def create_table_from_data(self):
         chinook_data = self.chinook_data_as_json()
         table_creator = Sqlite__Table__Create(table_name=self.table_name)
-        table_creator.add_field(dict(name="id", type="INTEGER", pk=True))
-        table_creator.add_field(dict(name="name", type="TEXT"))
-        table_creator.add_field(dict(name="value", type="TEXT"))
-        table_creator.create_table()
-        table = table_creator.table
+        table         = table_creator.table
+        table_creator.add_fields__text("name", "value").create_table()
+
         cursor = table.cursor()
         assert len(chinook_data) == 11
         for key, items in chinook_data.items():
             name = key
-            value =json_dump(items)
-            cursor.execute(f'INSERT INTO {self.table_name} (name, value) VALUES (?, ?)', (name, value))
+            value = json_dump(items)
+            table.row_add(dict(name=name, value=value))
 
         cursor.commit()
 

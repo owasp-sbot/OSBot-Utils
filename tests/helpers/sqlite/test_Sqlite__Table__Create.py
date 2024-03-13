@@ -29,7 +29,7 @@ class test_Sqlite__Table__Create(TestCase):
     def test_add_field(self):
         field_data   = FIELD_DATA__ID_INT_PK
         with self.table_create as _:
-            assert len(_.fields) == 0
+            assert len(_.fields) == 1                       # there is a default id field on all tables
             assert _.add_field(field_data) is True
             assert _.add_field(None      ) is False
             assert _.add_field('aaa'     ) is False
@@ -43,7 +43,6 @@ class test_Sqlite__Table__Create(TestCase):
 
     def test_create_table(self):
         with self.table_create as _:
-            _.add_field(FIELD_DATA__ID_INT_PK)
             assert _.create_table() is True
             target_file = '/tmp/test.db'
             file_delete(target_file)
@@ -54,6 +53,5 @@ class test_Sqlite__Table__Create(TestCase):
 
     def test_sql_for__create_table(self):
         with self.table_create as _:
-            _.add_field(FIELD_DATA__ID_INT_PK)
             sql_query = _.sql_for__create_table()
-            assert sql_query == f'CREATE TABLE {self.table_name} (id INTEGER PRIMARY KEY AUTOINCREMENT);'
+            assert sql_query == f'CREATE TABLE {self.table_name} (id INTEGER PRIMARY KEY);'
