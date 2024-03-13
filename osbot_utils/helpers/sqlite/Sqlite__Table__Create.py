@@ -1,4 +1,6 @@
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.decorators.lists.filter_list import filter_list
+from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
 
@@ -35,6 +37,15 @@ class Sqlite__Table__Create(Kwargs_To_Self):
             self.table.cursor().execute(sql_query)
             return self.table.exists()
         return False
+
+
+    @filter_list
+    def fields_json(self):
+        return [field.json() for field in self.fields]
+
+    def fields_reset(self):
+        self.fields = []
+        return self
 
     def database(self):
         return self.table.database

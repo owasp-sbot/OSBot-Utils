@@ -35,7 +35,26 @@ class test_Sqlite__Table__Create(TestCase):
             assert _.add_field('aaa'     ) is False
             assert _.add_field({}        ) is False
 
+    def test_add_field_with_type(self):
+        with self.table_create as _:
+            _.add_field_with_type('an_field', 'TEXT')
+            assert _.fields_json(only_show=['name', 'type']) == [{'name': 'id'      , 'type': 'INTEGER'},
+                                                                 {'name': 'an_field', 'type': 'TEXT'   }]
+            _.fields_reset()
+            assert _.fields_json() == []
 
+    def test_add_field__text(self):
+        with self.table_create as _:
+            _.add_field__text('an_text_field')
+            assert _.fields_json(only_show=['name', 'type']) == [{'name': 'id'           , 'type': 'INTEGER'},
+                                                                 {'name': 'an_text_field', 'type': 'TEXT'   }]
+
+    def test_add_fields__text(self):
+        with self.table_create as _:
+            _.add_fields__text('field_1', 'field_2')
+            assert _.fields_json(only_show=['name', 'type']) == [{'name': 'id'     , 'type': 'INTEGER'},
+                                                                 {'name': 'field_1', 'type': 'TEXT'   },
+                                                                 {'name': 'field_2', 'type': 'TEXT'   }]
     def test__check_test_data(self):
         field_data = FIELD_DATA__ID_INT_PK
         sqlite_field = Sqlite__Field.from_json(field_data)
@@ -43,7 +62,8 @@ class test_Sqlite__Table__Create(TestCase):
 
     def test_create_table(self):
         with self.table_create as _:
-            assert _.create_table() is True
+            assert _.create_table() is True                     # create_table
+            assert _.create_table() is False                    # should only return True once
             target_file = '/tmp/test.db'
             file_delete(target_file)
             _.database().save_to(target_file)
@@ -51,7 +71,10 @@ class test_Sqlite__Table__Create(TestCase):
 
 
 
+
     def test_sql_for__create_table(self):
         with self.table_create as _:
             sql_query = _.sql_for__create_table()
             assert sql_query == f'CREATE TABLE {self.table_name} (id INTEGER PRIMARY KEY);'
+
+        # todo: add support for composite primary and for foreign key constraints

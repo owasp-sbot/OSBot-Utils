@@ -243,8 +243,8 @@ class Kwargs_To_Self:               # todo: check if the description below is st
         self.__dict__.update(original_attrs)                                                        # Reassign the original attributes back to self.
         return self
 
-    def locked(self, value=True):                                   # todo, figure out best way to do this
-        self.__lock_attributes__ = value
+    def locked(self, value=True):                                   # todo: figure out best way to do this (maybe???)
+        self.__lock_attributes__ = value                            #     : update, with the latest changes were we don't show internals on __locals__() this might be a good way to do this
         return self
 
     def reset(self):
