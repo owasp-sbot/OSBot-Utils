@@ -13,8 +13,10 @@ URL__CHINOOK_JSON             = 'https://github.com/lerocha/chinook-database/rel
 FILE_NAME__CHINOOK_DATA_JSON  = 'ChinookData.json'
 FOLDER_NAME__CHINOOK_DATA     = 'chinook_data'
 FOLDER_NAME__SQLITE_DATA_SETS = '_sqlite_data_sets'
+PATH__DB__TESTS               = '/tmp/db-tests'
 PATH__DB__CHINOOK             = '/tmp/db-tests/test-chinook.db'
 TABLE_NAME__CHINOOK           = 'chinook_data'
+
 class Sqlite__Sample_Data__Chinook():
     url_chinook_database_json : str = URL__CHINOOK_JSON
     path_local_db             : str = PATH__DB__CHINOOK

@@ -1,9 +1,10 @@
 from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
-    FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA
+    FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, file_exists
+from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, file_exists, \
+    folder_create
 from osbot_utils.utils.Json import json_loads, json_from_file
 from osbot_utils.utils.Misc import list_set
 
@@ -12,6 +13,7 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
 
     def setUp(self):
         self.chinook_sqlite = Sqlite__Sample_Data__Chinook()
+        folder_create(PATH__DB__TESTS)                          # todo: refactor to handle this better
 
     def test_chinook_data_as_json(self):
         chinook_data_as_json = self.chinook_sqlite.chinook_data_as_json()
