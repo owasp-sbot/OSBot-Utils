@@ -14,7 +14,7 @@ class Sqlite__Table(Kwargs_To_Self):
         columns       = ', '.join(filtered_data.keys())                                     # Construct column names and placeholders
         placeholders  = ', '.join(['?' for _ in filtered_data.values()])
         sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'          # Construct the SQL statement
-        self.cursor().execute(sql, list(filtered_data.values()))                        #    Execute the SQL statement with the filtered data values
+        self.cursor().execute(sql, list(filtered_data.values()))                            # Execute the SQL statement with the filtered data values
         return self
 
     def create(self):
