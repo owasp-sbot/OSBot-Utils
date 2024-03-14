@@ -18,4 +18,14 @@ class Sqlite__DB__Json(Kwargs_To_Self):
         for key,value in json_data.items():
             self.table_create.add_field_with_type(key, type(value))
 
+    def create_table_from_json_data(self, json_data):
+        self.create_fields_from_json_data(json_data)
+        if self.table_create.create_table():
+            self.table_create.table.row_add(json_data)
+            return self.table_create.table
+
+    #def add_data_to_data_from_json_data(self, json_data):
+
+
+
 

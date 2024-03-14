@@ -9,8 +9,8 @@ from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field_
 
 
 class Sqlite__Table__Create(Kwargs_To_Self):
-    fields : list[Sqlite__Field]
-    table  : Sqlite__Table
+    fields  : list[Sqlite__Field]
+    table   : Sqlite__Table
 
     def __init__(self, table_name):
         super().__init__()
