@@ -88,7 +88,7 @@ class Json:
 
     @staticmethod
     def round_trip(data):
-        return json.loads(json.dumps(data))
+        return json_loads(json_dumps(data))
 
     @staticmethod
     def save_file(python_object, path=None, pretty=False, sort_keys=False):

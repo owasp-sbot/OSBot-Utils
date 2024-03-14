@@ -281,7 +281,7 @@ class test_Kwargs_To_Self__regression(TestCase):
         assert obj_attribute_annotation(mermaid_graph, 'nodes') == list[Mermaid__Node]       # confirm nodes is list[Mermaid__Node]
         #assert type(graph_nodes) is list                                                              # FIXED was BUG: confirm that we lose type in graph_nodes
         assert type(graph_nodes) is Type_Safe__List                                                    # FIXED now graph_nodes is a typed list
-        assert repr(graph_nodes) == 'list[Mermaid__Node]'                                              # FIXED confirm graph_nodes is list[Mermaid__Node]
+        assert repr(graph_nodes) == 'list[Mermaid__Node] with 0 elements'                              # FIXED confirm graph_nodes is list[Mermaid__Node]
 
         mermaid_graph.nodes.append(mermaid_node)                                        # adding Mermaid__Node directly
         graph_nodes        .append(mermaid_node)                                        # which should be appended ok

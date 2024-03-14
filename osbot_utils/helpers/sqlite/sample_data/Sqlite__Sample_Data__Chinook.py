@@ -1,28 +1,32 @@
+from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
 from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Json import Sqlite__DB__Json
 from osbot_utils.testing.Duration import duration, Duration
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import current_temp_folder, path_combine, folder_create, file_exists, file_not_exists, \
     file_contents
 from osbot_utils.utils.Http import GET, GET_to_file
-from osbot_utils.utils.Json import json_loads, json_from_file, json_dump
+from osbot_utils.utils.Json import json_loads, json_from_file, json_dump, json_file_create, json_file_load
 from osbot_utils.utils.Objects import obj_info
 
-URL__CHINOOK_JSON             = 'https://github.com/lerocha/chinook-database/releases/download/v1.4.5/ChinookData.json'
-FILE_NAME__CHINOOK_DATA_JSON  = 'ChinookData.json'
-FOLDER_NAME__CHINOOK_DATA     = 'chinook_data'
-FOLDER_NAME__SQLITE_DATA_SETS = '_sqlite_data_sets'
-PATH__DB__TESTS               = '/tmp/db-tests'
-PATH__DB__CHINOOK             = '/tmp/db-tests/test-chinook.db'
-TABLE_NAME__CHINOOK           = 'chinook_data'
+URL__CHINOOK_JSON                = 'https://github.com/lerocha/chinook-database/releases/download/v1.4.5/ChinookData.json'
+FILE_NAME__CHINOOK_DATA_JSON     = 'ChinookData.json'
+FILE_NAME__TABLES_SCHEMAS_FIELDS = 'chinook__tables_schemas_fields.json'
+FOLDER_NAME__CHINOOK_DATA        = 'chinook_data'
+FOLDER_NAME__SQLITE_DATA_SETS    = '_sqlite_data_sets'
+PATH__DB__TESTS                  = '/tmp/db-tests'
+PATH__DB__CHINOOK                = '/tmp/db-tests/test-chinook.db'
+TABLE_NAME__CHINOOK              = 'chinook_data'
 
-class Sqlite__Sample_Data__Chinook():
-    url_chinook_database_json : str = URL__CHINOOK_JSON
-    path_local_db             : str = PATH__DB__CHINOOK
-    table_name                : str = TABLE_NAME__CHINOOK
-    def __init__(self):
-        pass
+class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
+    url_chinook_database_json : str                 = URL__CHINOOK_JSON
+    path_local_db             : str                 = PATH__DB__CHINOOK
+    table_name                : str                 = TABLE_NAME__CHINOOK
+    json_db                   : Sqlite__DB__Json
+
+
 
     def chinook_data_as_json(self):
         path_chinook_data_as_json = self.path_chinook_data_as_json()
@@ -65,3 +69,16 @@ class Sqlite__Sample_Data__Chinook():
         path_data_sets = path_combine(current_temp_folder(), FOLDER_NAME__SQLITE_DATA_SETS)
         return folder_create(path_data_sets)
 
+    def path_tables_schemas_fields(self):
+        return path_combine(self.path_chinook_data(), FILE_NAME__TABLES_SCHEMAS_FIELDS)
+
+    def tables_schemas_fields_from_data(self):
+        path_tables_schemas_fields = self.path_tables_schemas_fields()
+        if file_not_exists(path_tables_schemas_fields):
+            tables_schemas = {}
+            for name, data  in self.chinook_data_as_json().items():
+                table_schema = self.json_db.get_schema_from_json_data(data)
+                tables_schemas[name] = table_schema
+            json_file_create(tables_schemas, path=path_tables_schemas_fields)
+
+        return json_file_load(path_tables_schemas_fields)

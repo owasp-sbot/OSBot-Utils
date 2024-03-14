@@ -5,7 +5,7 @@ class Type_Safe__List(list):
         self.expected_type = expected_type
 
     def __repr__(self):
-        return f"list[{self.expected_type.__name__}]"
+        return f"list[{self.expected_type.__name__}] with {len(self)} elements"
 
     def append(self, item):
         if not isinstance(item, self.expected_type):

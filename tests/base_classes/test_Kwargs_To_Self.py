@@ -180,8 +180,8 @@ class Test_Kwargs_To_Self(TestCase):
         assert type(_(list     )) is list               # here (because list      was used) we get a normal list
         assert type(_(list[str])) is Type_Safe__List    # here (because list[str] was used) we get the special type Type_Safe__List
         assert type(_(list[int])) is Type_Safe__List
-        assert repr(_(list[str])) == 'list[str]'        # Type_Safe__List will return a representation of the original list[str]
-        assert repr(_(list[int])) == 'list[int]'
+        assert repr(_(list[str])) == 'list[str] with 0 elements'        # Type_Safe__List will return a representation of the original list[str]
+        assert repr(_(list[int])) == 'list[int] with 0 elements'
 
         assert _(list[str]).expected_type is str        # confirm that .expected_type is set to the correct expected type (in this case str)
         assert _(list[int]).expected_type is int        # confirm that .expected_type is set to the correct expected type (in this case int)

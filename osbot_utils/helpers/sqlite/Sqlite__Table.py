@@ -1,4 +1,5 @@
 from osbot_utils.base_classes.Kwargs_To_Self     import Kwargs_To_Self
+from osbot_utils.decorators.lists.filter_list import filter_list
 from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
@@ -59,6 +60,10 @@ class Sqlite__Table(Kwargs_To_Self):
     @index_by
     def schema(self):
         return self.cursor().table_schema(self.table_name)
+
+    @filter_list
+    def schema__by_name_type(self):
+        return {item.get('name'): item.get('type') for item in self.schema()}
 
     def size(self):
         var_name = 'size'

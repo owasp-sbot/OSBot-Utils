@@ -64,48 +64,68 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
 
 
     def test__check__chinook_data__schema(self):
-        json_db          = Sqlite__DB__Json()
-        chinook_data     = self.chinook_sqlite.chinook_data_as_json()
-        expected_schemas = { 'Genre'         : { 'GenreId'        : Sqlite__Field__Type.INTEGER , 'Name'              : Sqlite__Field__Type.TEXT     },
-                             'MediaType'     : { 'MediaTypeId'    : Sqlite__Field__Type.INTEGER , 'Name'              : Sqlite__Field__Type.TEXT     },
-                             'Artist'        : { 'ArtistId'       : Sqlite__Field__Type.INTEGER , 'Name'              : Sqlite__Field__Type.TEXT     },
-                             'Album'         : { 'AlbumId'        : Sqlite__Field__Type.INTEGER , 'ArtistId'          : Sqlite__Field__Type.INTEGER  ,
-                                                 'Title'          : Sqlite__Field__Type.TEXT                                                         },
-                             'Track'         : { 'AlbumId'        : Sqlite__Field__Type.INTEGER , 'Bytes'             : Sqlite__Field__Type.INTEGER  ,
-                                                 'Composer'       : Sqlite__Field__Type.TEXT    , 'GenreId'           : Sqlite__Field__Type.INTEGER  ,
-                                                 'MediaTypeId'    : Sqlite__Field__Type.INTEGER , 'Milliseconds'      : Sqlite__Field__Type.INTEGER  ,
-                                                 'Name'           : Sqlite__Field__Type.TEXT    , 'TrackId'           : Sqlite__Field__Type.INTEGER  ,
-                                                 'UnitPrice'      : Sqlite__Field__Type.REAL                                                         },
-                             'Employee'      : { 'Address'        : Sqlite__Field__Type.TEXT    , 'BirthDate'         : Sqlite__Field__Type.TEXT     ,
-                                                 'City'           : Sqlite__Field__Type.TEXT    , 'Country'           : Sqlite__Field__Type.TEXT     ,
-                                                 'Email'          : Sqlite__Field__Type.TEXT    , 'EmployeeId'        : Sqlite__Field__Type.INTEGER  ,
-                                                 'Fax'            : Sqlite__Field__Type.TEXT    , 'FirstName'         : Sqlite__Field__Type.TEXT     ,
-                                                 'HireDate'       : Sqlite__Field__Type.TEXT    , 'LastName'          : Sqlite__Field__Type.TEXT     ,
-                                                 'Phone'          : Sqlite__Field__Type.TEXT    , 'PostalCode'        : Sqlite__Field__Type.TEXT     ,
-                                                 'ReportsTo'      : Sqlite__Field__Type.INTEGER , 'State'             : Sqlite__Field__Type.TEXT     ,
-                                                 'Title'          : Sqlite__Field__Type.TEXT                                                         },
-                             'Customer'      : { 'Address'        : Sqlite__Field__Type.TEXT     , 'City'             : Sqlite__Field__Type.TEXT     ,
-                                                 'Company'        : Sqlite__Field__Type.TEXT     , 'Country'          : Sqlite__Field__Type.TEXT     ,
-                                                 'CustomerId'     : Sqlite__Field__Type.INTEGER  , 'Email'            : Sqlite__Field__Type.TEXT     ,
-                                                 'Fax'            : Sqlite__Field__Type.TEXT     , 'FirstName'        : Sqlite__Field__Type.TEXT     ,
-                                                 'LastName'       : Sqlite__Field__Type.TEXT     , 'Phone'            : Sqlite__Field__Type.TEXT     ,
-                                                 'PostalCode'     : Sqlite__Field__Type.TEXT     , 'State'            : Sqlite__Field__Type.TEXT     ,
-                                                 'SupportRepId'   : Sqlite__Field__Type.INTEGER                                                      },
-                             'Invoice'       : { 'BillingAddress' : Sqlite__Field__Type.TEXT     , 'BillingCity'      : Sqlite__Field__Type.TEXT     ,
-                                                 'BillingCountry' : Sqlite__Field__Type.TEXT     , 'BillingPostalCode': Sqlite__Field__Type.TEXT     ,
-                                                 'BillingState'   : Sqlite__Field__Type.TEXT     , 'CustomerId'       : Sqlite__Field__Type.INTEGER  ,
-                                                 'InvoiceDate'    : Sqlite__Field__Type.TEXT     , 'InvoiceId'        : Sqlite__Field__Type.INTEGER  ,
-                                                 'Total'          : Sqlite__Field__Type.REAL                                                         },
-                             'InvoiceLine'   : { 'InvoiceId'      : Sqlite__Field__Type.INTEGER  , 'InvoiceLineId'    : Sqlite__Field__Type.INTEGER  ,
-                                                 'Quantity'       : Sqlite__Field__Type.INTEGER  , 'TrackId'          : Sqlite__Field__Type.INTEGER  ,
-                                                 'UnitPrice'      : Sqlite__Field__Type.REAL                                                         },
-                             'Playlist'      : { 'Name'           : Sqlite__Field__Type.TEXT     , 'PlaylistId'       : Sqlite__Field__Type.INTEGER  },
-                             'PlaylistTrack' : { 'PlaylistId'     : Sqlite__Field__Type.INTEGER  , 'TrackId'          : Sqlite__Field__Type.INTEGER  }}
+        #json_db          = Sqlite__DB__Json()
+        #chinook_data     = self.chinook_sqlite.chinook_data_as_json()
+        expected_schemas = { 'Genre'         : { 'GenreId'        : 'INTEGER' , 'Name'              : 'TEXT'     },
+                             'MediaType'     : { 'MediaTypeId'    : 'INTEGER' , 'Name'              : 'TEXT'     },
+                             'Artist'        : { 'ArtistId'       : 'INTEGER' , 'Name'              : 'TEXT'     },
+                             'Album'         : { 'AlbumId'        : 'INTEGER' , 'ArtistId'          : 'INTEGER'  ,
+                                                 'Title'          : 'TEXT'                                       },
+                             'Track'         : { 'AlbumId'        : 'INTEGER' , 'Bytes'             : 'INTEGER'  ,
+                                                 'Composer'       : 'TEXT'    , 'GenreId'           : 'INTEGER'  ,
+                                                 'MediaTypeId'    : 'INTEGER' , 'Milliseconds'      : 'INTEGER'  ,
+                                                 'Name'           : 'TEXT'    , 'TrackId'           : 'INTEGER'  ,
+                                                 'UnitPrice'      : 'REAL'                                       },
+                             'Employee'      : { 'Address'        : 'TEXT'    , 'BirthDate'         : 'TEXT'     ,
+                                                 'City'           : 'TEXT'    , 'Country'           : 'TEXT'     ,
+                                                 'Email'          : 'TEXT'    , 'EmployeeId'        : 'INTEGER'  ,
+                                                 'Fax'            : 'TEXT'    , 'FirstName'         : 'TEXT'     ,
+                                                 'HireDate'       : 'TEXT'    , 'LastName'          : 'TEXT'     ,
+                                                 'Phone'          : 'TEXT'    , 'PostalCode'        : 'TEXT'     ,
+                                                 'ReportsTo'      : 'INTEGER' , 'State'             : 'TEXT'     ,
+                                                 'Title'          : 'TEXT'                                       },
+                             'Customer'      : { 'Address'        : 'TEXT'     , 'City'             : 'TEXT'     ,
+                                                 'Company'        : 'TEXT'     , 'Country'          : 'TEXT'     ,
+                                                 'CustomerId'     : 'INTEGER'  , 'Email'            : 'TEXT'     ,
+                                                 'Fax'            : 'TEXT'     , 'FirstName'        : 'TEXT'     ,
+                                                 'LastName'       : 'TEXT'     , 'Phone'            : 'TEXT'     ,
+                                                 'PostalCode'     : 'TEXT'     , 'State'            : 'TEXT'     ,
+                                                 'SupportRepId'   : 'INTEGER'                                    },
+                             'Invoice'       : { 'BillingAddress' : 'TEXT'     , 'BillingCity'      : 'TEXT'     ,
+                                                 'BillingCountry' : 'TEXT'     , 'BillingPostalCode': 'TEXT'     ,
+                                                 'BillingState'   : 'TEXT'     , 'CustomerId'       : 'INTEGER'  ,
+                                                 'InvoiceDate'    : 'TEXT'     , 'InvoiceId'        : 'INTEGER'  ,
+                                                 'Total'          : 'REAL'                                       },
+                             'InvoiceLine'   : { 'InvoiceId'      : 'INTEGER'  , 'InvoiceLineId'    : 'INTEGER'  ,
+                                                 'Quantity'       : 'INTEGER'  , 'TrackId'          : 'INTEGER'  ,
+                                                 'UnitPrice'      : 'REAL'                                       },
+                             'Playlist'      : { 'Name'           : 'TEXT'     , 'PlaylistId'       : 'INTEGER'  },
+                             'PlaylistTrack' : { 'PlaylistId'     : 'INTEGER'  , 'TrackId'          : 'INTEGER'  }}
 
-        print()
-        for name, data  in chinook_data.items():
-            expected_schema = expected_schemas.get(name)
-            with Duration(prefix =name):
-                assert json_db.get_schema_from_json_data(data) == expected_schema
+        schemas = self.chinook_sqlite.tables_schemas_fields_from_data()
+        assert self.chinook_sqlite.tables_schemas_fields_from_data() == expected_schemas # check all schemas in one go
+
+        # test one table
+        # table_name  = 'Playlist'
+        # table_schema = schemas.get(table_name)
+        # table = self.chinook_sqlite.json_db.create_table_from_schema(table_name, table_schema)
+        # assert table.exists() is True
+        # assert table.schema__by_name_type() == {'Name': 'TEXT', 'PlaylistId': 'INTEGER', 'id': 'INTEGER'}
+
+        # test all tables
+        json_db  = self.chinook_sqlite.json_db
+        database = json_db.database
+        assert database.tables() == []
+        for table_name, table_schema in schemas.items():
+            table = json_db.create_table_from_schema(table_name, table_schema)
+            assert table.exists() is True
+        database_tables = database.tables()
+        assert len(database_tables) == len(schemas)
+        for table in database_tables:
+            table_schema    = table.schema__by_name_type()
+            expected_schema = schemas[table.table_name]
+            assert table_schema.get('id') == 'INTEGER'              # confirm default id field has been set
+            del table_schema['id']                                  # delete it
+            assert table_schema == expected_schema                  # confirm the schema from table matches the schema used to create the table
 
 

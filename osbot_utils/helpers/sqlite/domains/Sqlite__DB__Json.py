@@ -13,11 +13,20 @@ class Sqlite__DB__Json(Kwargs_To_Self):
     def __init__(self):
         super().__init__()
         self.table_create = Sqlite__Table__Create(self.table_name)
+        self.table_create.table.database = self.database
 
     def create_fields_from_json_data(self, json_data):
-        self.table_create.table.database = self.database
         for key,value in json_data.items():
             self.table_create.add_field_with_type(key, type(value))
+
+    def create_table_from_schema(self, table_name, schema):
+        table_create               = Sqlite__Table__Create(table_name)
+        table_create.table.database = self.database
+        for field_name,field_type in schema.items():
+            table_create.add_field_with_type(field_name, field_type)
+
+        if table_create.create_table():
+            return table_create.table
 
     def create_table_from_json_data(self, json_data):
         self.create_fields_from_json_data(json_data)

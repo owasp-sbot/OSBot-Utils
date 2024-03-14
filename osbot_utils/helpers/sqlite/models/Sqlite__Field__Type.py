@@ -17,6 +17,9 @@ class Sqlite__Field__Type(Enum):
     def __repr__(self):
         return f'Sqlite__Field__Type.{self.name}'
 
+    def __str__(self):
+        return self.name
+
     @classmethod
     @cache
     def type_map(cls):

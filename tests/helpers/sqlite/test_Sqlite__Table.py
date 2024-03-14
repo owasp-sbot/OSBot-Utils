@@ -36,11 +36,20 @@ class test_Sqlite__Table(TestCase):
         assert self.table.create() is True                  # created ok
         assert self.table.create() is False                 # can't create if already exists
         assert self.table.exists() is True                  # confirm table exists
-        assert self.table.database.tables() == [ { 'name'       : 'an_table'    ,
-                                                    'rootpage'  : 2             ,
-                                                    'sql'       : 'CREATE TABLE an_table (id INTEGER PRIMARY KEY, value TEXT NOT NULL)',
-                                                    'tbl_name'  : 'an_table'    ,
-                                                    'type'      : 'table'       }]
+
+        tables_raw = self.table.database.tables_raw()
+        tables     = self.table.database.tables()
+        table      = tables[0]
+
+        assert len(tables) == 1
+        assert type(table) is Sqlite__Table
+        assert tables_raw  == [{ 'name'       : 'an_table'   ,
+                                 'rootpage'  : 2             ,
+                                 'sql'       : 'CREATE TABLE an_table (id INTEGER PRIMARY KEY, value TEXT NOT NULL)',
+                                 'tbl_name'  : 'an_table'    ,
+                                 'type'      : 'table'       }]
+        assert table.schema() == [{'cid': 0, 'name': 'id'   , 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1},
+                                  {'cid': 1, 'name': 'value', 'type': 'TEXT'   , 'notnull': 1, 'dflt_value': None, 'pk': 0}]
 
 
     def test_exists(self):

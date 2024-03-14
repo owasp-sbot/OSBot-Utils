@@ -93,13 +93,22 @@ class Sqlite__Database(Kwargs_To_Self):
 
 
     def table(self, table_name):
-        from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
+        from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table              # need to import here due to circular imports
         return Sqlite__Table(database=self, table_name=table_name)
 
     def table__sqlite_master(self):
         return self.table('sqlite_master')
 
     def tables(self):
+        from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table             # todo: add support for Type_Registry
+        tables = []
+        for table_data in self.tables_raw():
+            table_name = table_data.get('name')
+            table = Sqlite__Table(database=self, table_name=table_name)
+            tables.append(table)
+        return tables
+
+    def tables_raw(self):
         return self.cursor().tables()
 
     def tables_names(self):
