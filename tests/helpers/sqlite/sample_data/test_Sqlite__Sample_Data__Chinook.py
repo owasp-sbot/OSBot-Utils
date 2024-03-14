@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Json import Sqlite__DB__Json
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
     FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS
 from osbot_utils.utils.Dev import pprint
@@ -47,8 +48,6 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
         for name, data in all_data.items():
             print(f'{name:15} {len(data):10}')
 
-
-
     def test_path_chinook_data(self):
         path_chinook_data = self.chinook_sqlite.path_chinook_data()
         assert folder_exists(path_chinook_data) is True
@@ -60,3 +59,17 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
         assert folder_exists(path_data_sets) is True
         assert parent_folder(path_data_sets) == current_temp_folder()
         assert folder_name  (path_data_sets) == FOLDER_NAME__SQLITE_DATA_SETS
+
+
+    def test__check__chinook_data__schema(self):
+        json_db = Sqlite__DB__Json()
+        chinook_data = self.chinook_sqlite.chinook_data_as_json()
+
+        employee_data = chinook_data.get('Employee')
+        pprint(employee_data)
+        return
+        for name, data  in chinook_data.items():
+            print(name)
+            data_schema = json_db.get_schema_from_json_data(data)
+            pprint(data_schema)
+
