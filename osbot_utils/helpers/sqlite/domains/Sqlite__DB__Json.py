@@ -42,6 +42,7 @@ class Sqlite__DB__Json(Kwargs_To_Self):
         for item in target:
             if not isinstance(item, dict):
                 continue  # or raise an exception, depending on your needs
+
             current_schema = self.get_schema_from_dict(item)
 
             for key, current_type in current_schema.items():
@@ -59,9 +60,10 @@ class Sqlite__DB__Json(Kwargs_To_Self):
 
     def get_schema_from_dict(self, target):
         schema = {}
+        type_map  = Sqlite__Field__Type.type_map()
         for key, value in target.items():
             value_type = type(value)
-            field_type = Sqlite__Field__Type.type_map().get(value_type)
+            field_type = type_map.get(value_type)
             if field_type is None:
                 raise ValueError(f"in get_schema_from_dict, the value_type {value_type} from '{key} = {value}' is not supported by Sqlite__Field__Type")
             schema[key] = field_type

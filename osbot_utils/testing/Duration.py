@@ -38,7 +38,8 @@ class Duration:
         self.call_stack         = Call_Stack()
 
     def __enter__(self):
-        self.call_stack.capture()
+        if self.print_stack:
+            self.call_stack.capture()
         self.start()
         return self
 

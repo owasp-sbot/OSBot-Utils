@@ -4,6 +4,7 @@ from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Json import Sqlite__DB__Json
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
     FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS
+from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, file_exists, \
     folder_create
@@ -101,8 +102,10 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
                              'Playlist'      : { 'Name'           : Sqlite__Field__Type.TEXT     , 'PlaylistId'       : Sqlite__Field__Type.INTEGER  },
                              'PlaylistTrack' : { 'PlaylistId'     : Sqlite__Field__Type.INTEGER  , 'TrackId'          : Sqlite__Field__Type.INTEGER  }}
 
-
+        print()
         for name, data  in chinook_data.items():
             expected_schema = expected_schemas.get(name)
-            assert json_db.get_schema_from_json_data(data) == expected_schema
+            with Duration(prefix =name):
+                assert json_db.get_schema_from_json_data(data) == expected_schema
+
 
