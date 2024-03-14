@@ -96,8 +96,14 @@ class Sqlite__Database(Kwargs_To_Self):
         from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
         return Sqlite__Table(database=self, table_name=table_name)
 
+    def table__sqlite_master(self):
+        return self.table('sqlite_master')
+
     def tables(self):
         return self.cursor().tables()
+
+    def tables_names(self):
+        return self.table__sqlite_master().field_data('name')
 
 
 

@@ -5,17 +5,17 @@ from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Crea
 
 
 class Sqlite__DB__Json(Kwargs_To_Self):
-    database: Sqlite__Database
+    database     : Sqlite__Database
+    table_create : Sqlite__Table__Create
+    table_name   : str                    = 'new_db_table'
 
-    def json_data_convert_to_sqlite_fields(self, json_data):
-        if type(json_data) is dict:
-            return self.json_data_convert_to_sqlite_fields__dict(json_data)
+    def __init__(self):
+        super().__init__()
+        self.table_create = Sqlite__Table__Create(self.table_name)
 
-    def json_data_convert_to_sqlite_fields__dict(self, json_data):
-        create_table = Sqlite__Table__Create('new_table')
-        sqlite_fields = []
+    def create_fields_from_json_data(self, json_data):
+        self.table_create.table.database = self.database
         for key,value in json_data.items():
-            if type(value) is str:
-                create_table.add_field__text(key)
-                #print(key,type(value))
-        return create_table.locked()
+            self.table_create.add_field_with_type(key, type(value))
+
+

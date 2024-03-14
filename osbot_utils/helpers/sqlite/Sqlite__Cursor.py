@@ -62,3 +62,11 @@ class Sqlite__Cursor(Kwargs_To_Self):
         sql_query = "SELECT * FROM sqlite_master WHERE type='table';"                   # Query to select all table names from the sqlite_master table
         self.execute(sql_query)
         return self.cursor().fetchall()
+
+    def tables_names(self):
+        cell_name = 'name'
+        sql_query = f"SELECT {cell_name} FROM sqlite_master WHERE type='table';"                   # Query to select all table names from the sqlite_master table
+        self.execute(sql_query)
+        all_rows   = self.cursor().fetchall()
+        all_values = [cell.get(cell_name) for cell in all_rows]
+        return all_values

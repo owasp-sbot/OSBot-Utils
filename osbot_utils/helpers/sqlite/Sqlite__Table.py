@@ -27,6 +27,12 @@ class Sqlite__Table(Kwargs_To_Self):
     def exists(self):
         return self.cursor().table_exists(self.table_name)
 
+    def field_data(self, field_name):
+        sql_query  = f"SELECT {field_name} FROM {self.table_name};"  # Construct the SQL query
+        all_rows   = self.cursor().execute__fetch_all(sql_query)      # Execute the SQL query and get all rows
+        all_values = [row[field_name] for row in all_rows]          # Extract the desired field from each row in the result set
+        return all_values
+
     def fields(self):
         return self.schema(index_by='name')
 

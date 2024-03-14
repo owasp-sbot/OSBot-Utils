@@ -38,10 +38,14 @@ class test_Sqlite__Table__Create(TestCase):
     def test_add_field_with_type(self):
         with self.table_create as _:
             _.add_field_with_type('an_field', 'TEXT')
-            assert _.fields_json(only_show=['name', 'type']) == [{'name': 'id'      , 'type': 'INTEGER'},
-                                                                 {'name': 'an_field', 'type': 'TEXT'   }]
+            assert _.fields__by_name_type() == {'an_field': 'TEXT', 'id': 'INTEGER'}
             _.fields_reset()
             assert _.fields_json() == []
+            _.add_field_with_type('an_str'  , str  )
+            _.add_field_with_type('an_int'  , int  )
+            _.add_field_with_type('an_bytes', bytes)
+            assert _.fields__by_name_type() == {'an_bytes': 'BLOB', 'an_int': 'INTEGER', 'an_str': 'TEXT'}
+
 
     def test_add_field__text(self):
         with self.table_create as _:
@@ -52,9 +56,8 @@ class test_Sqlite__Table__Create(TestCase):
     def test_add_fields__text(self):
         with self.table_create as _:
             _.add_fields__text('field_1', 'field_2')
-            assert _.fields_json(only_show=['name', 'type']) == [{'name': 'id'     , 'type': 'INTEGER'},
-                                                                 {'name': 'field_1', 'type': 'TEXT'   },
-                                                                 {'name': 'field_2', 'type': 'TEXT'   }]
+            assert _.fields__by_name_type()  == {'field_1': 'TEXT', 'field_2': 'TEXT', 'id': 'INTEGER'}
+
     def test__check_test_data(self):
         field_data = FIELD_DATA__ID_INT_PK
         sqlite_field = Sqlite__Field.from_json(field_data)

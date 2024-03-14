@@ -1,14 +1,18 @@
+import inspect
+
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.decorators.lists.filter_list import filter_list
 from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
+from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
+
 
 class Sqlite__Table__Create(Kwargs_To_Self):
     fields : list[Sqlite__Field]
     table  : Sqlite__Table
 
-    def __init__(self,table_name):
+    def __init__(self, table_name):
         super().__init__()
         self.table.table_name = table_name
         self.set_default_fields()
@@ -21,10 +25,13 @@ class Sqlite__Table__Create(Kwargs_To_Self):
         return False
 
     def add_field_with_type(self, field_name, field_type):
+        if inspect.isclass(field_type):
+            field_type = Sqlite__Field__Type.type_map().get(field_type)
+
         return self.add_field(dict(name=field_name, type=field_type))
 
     def add_field__text(self, field_name):
-        return self.add_field_with_type(field_name=field_name, field_type="TEXT")
+        return self.add_field_with_type(field_name=field_name, field_type=str)
 
     def add_fields__text(self, *fields_name):
         for field_name in fields_name:
@@ -42,6 +49,9 @@ class Sqlite__Table__Create(Kwargs_To_Self):
     @filter_list
     def fields_json(self):
         return [field.json() for field in self.fields]
+
+    def fields__by_name_type(self):
+        return { item.get('name'): item.get('type') for item in self.fields_json() }
 
     def fields_reset(self):
         self.fields = []
