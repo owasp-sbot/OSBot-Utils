@@ -23,6 +23,10 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
         assert list_set(chinook_data_as_json) == ['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice',
                                                   'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track']
 
+    def test_create_tables(self):
+        self.chinook_sqlite.create_tables()
+        self.chinook_sqlite.save()
+
     def test_create_table_from_data(self):
         table = self.chinook_sqlite.create_table_from_data()
         assert table.fields() == {'id'   : {'cid': 0, 'name': 'id'   , 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1},
@@ -36,13 +40,38 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
             print(f'{name:15} {len(value):10} {len(data):10}')
 
 
+    def test_create_tables_from_schema(self):
+        json_db  = self.chinook_sqlite.json_db
+        database = json_db.database
+        schemas_fields = self.chinook_sqlite.tables_schemas_fields_from_data()
+
+        assert database.tables() == []
+
+        self.chinook_sqlite.create_tables_from_schema()
+
+        database_tables = database.tables()
+        assert len(database_tables) == len(schemas_fields)
+        for table in database_tables:
+            table_schema    = table.schema__by_name_type()
+            expected_schema = schemas_fields[table.table_name]
+            assert table_schema.get('id') == 'INTEGER'              # confirm default id field has been set
+            del table_schema['id']                                  # delete it
+            assert table_schema == expected_schema                  # confirm the schema from table matches the schema used to create the table
+
+
     def test_load_db_from_disk(self):
-        table = self.chinook_sqlite.load_db_from_disk()
-        for row in table.rows():
-            name = row.get('name')
-            value = row.get('value')
-            data = json_loads(value)
-            print(f'{name:15} {len(value):10} {len(data):10}' )
+        path_to_file         = self.chinook_sqlite.path_chinook_data_as_json()
+        data_from__json_file  = json_from_file(path_to_file)
+        data_from__db_chinook = self.chinook_sqlite.load_db_from_disk()
+
+        for table in data_from__db_chinook.tables():
+            table_name   = table.table_name
+            table_fields = table.fields_names__cached(execute_id=True)
+            table_data__from_db   = table.rows(table_fields)
+            table_data__from_json = data_from__json_file.get(table_name)
+            assert len(table_data__from_db) > 0
+            assert table_data__from_db == table_data__from_json
+
 
     def test_json_loads_file_from_disk(self):
         path_to_file = self.chinook_sqlite.path_chinook_data_as_json()
@@ -64,8 +93,6 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
 
 
     def test__check__chinook_data__schema(self):
-        #json_db          = Sqlite__DB__Json()
-        #chinook_data     = self.chinook_sqlite.chinook_data_as_json()
         expected_schemas = { 'Genre'         : { 'GenreId'        : 'INTEGER' , 'Name'              : 'TEXT'     },
                              'MediaType'     : { 'MediaTypeId'    : 'INTEGER' , 'Name'              : 'TEXT'     },
                              'Artist'        : { 'ArtistId'       : 'INTEGER' , 'Name'              : 'TEXT'     },
@@ -105,27 +132,13 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
         schemas = self.chinook_sqlite.tables_schemas_fields_from_data()
         assert self.chinook_sqlite.tables_schemas_fields_from_data() == expected_schemas # check all schemas in one go
 
-        # test one table
-        # table_name  = 'Playlist'
-        # table_schema = schemas.get(table_name)
-        # table = self.chinook_sqlite.json_db.create_table_from_schema(table_name, table_schema)
-        # assert table.exists() is True
-        # assert table.schema__by_name_type() == {'Name': 'TEXT', 'PlaylistId': 'INTEGER', 'id': 'INTEGER'}
+        #test one table
+        table_name  = 'Playlist'
+        table_schema = schemas.get(table_name)
+        table = self.chinook_sqlite.json_db.create_table_from_schema(table_name, table_schema)
+        assert table.exists() is True
+        assert table.schema__by_name_type() == {'Name': 'TEXT', 'PlaylistId': 'INTEGER', 'id': 'INTEGER'}
 
-        # test all tables
-        json_db  = self.chinook_sqlite.json_db
-        database = json_db.database
-        assert database.tables() == []
-        for table_name, table_schema in schemas.items():
-            table = json_db.create_table_from_schema(table_name, table_schema)
-            assert table.exists() is True
-        database_tables = database.tables()
-        assert len(database_tables) == len(schemas)
-        for table in database_tables:
-            table_schema    = table.schema__by_name_type()
-            expected_schema = schemas[table.table_name]
-            assert table_schema.get('id') == 'INTEGER'              # confirm default id field has been set
-            del table_schema['id']                                  # delete it
-            assert table_schema == expected_schema                  # confirm the schema from table matches the schema used to create the table
+
 
 

@@ -7,7 +7,6 @@ from osbot_utils.utils.Misc import random_text
 
 class Temp_Sqlite__Table(Kwargs_To_Self):
     table_name   : str           = random_text(prefix='random_table')
-    table_field  : str           = 'id INTEGER PRIMARY KEY'
     table_fields : list
     table        : Sqlite__Table
 
@@ -15,7 +14,6 @@ class Temp_Sqlite__Table(Kwargs_To_Self):
     def __init__(self):
         super().__init__()
         self.table.table_name   = self.table_name
-        self.table.table_fields = [self.table_field]
 
     def __enter__(self):
         self.table.create()

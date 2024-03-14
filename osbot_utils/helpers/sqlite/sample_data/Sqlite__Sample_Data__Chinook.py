@@ -48,15 +48,33 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
             table.row_add(dict(name=name, value=value))
 
         cursor.commit()
-
-        pprint(f'created db size :{table.size()}')
-        table.database.save_to(PATH__DB__CHINOOK)
         return table
+
+    def create_tables(self):
+        database = self.json_db.database
+        self.create_tables_from_schema()
+        chinook_data = self.chinook_data_as_json()
+        for table_name, rows in chinook_data.items():
+            print(f'populating table: {table_name} with {len(rows)} rows')
+            with Duration(prefix=table_name):
+                table = database.table(table_name)
+                table.rows_add(rows)
+
+
+    def create_tables_from_schema(self):
+        schemas  = self.tables_schemas_fields_from_data()
+        for table_name, table_schema in schemas.items():
+            self.json_db.create_table_from_schema(table_name, table_schema)
+        return self
+
+    def database(self):
+        return self.json_db.database
 
     def load_db_from_disk(self):
         db_chinook = Sqlite__Database(db_path=PATH__DB__CHINOOK)
-        db_chinook.connect()
-        return db_chinook.table(self.table_name)
+        return db_chinook
+        # db_chinook.connect()
+        # return db_chinook.table(self.table_name)
 
     def path_chinook_data_as_json(self):
         return path_combine(self.path_chinook_data(), FILE_NAME__CHINOOK_DATA_JSON)
@@ -82,3 +100,9 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
             json_file_create(tables_schemas, path=path_tables_schemas_fields)
 
         return json_file_load(path_tables_schemas_fields)
+
+    def save(self, path=PATH__DB__CHINOOK):
+        database = self.database()
+        pprint(f'saving db with :{len(database.tables_raw())}')
+        database.save_to(path)
+        return True

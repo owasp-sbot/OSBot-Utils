@@ -131,7 +131,7 @@ class test_Sqlite__Database(TestCase):
 
     def test_save_to(self):
         target_file = '/tmp/test.db'
-        result = self.database.save_to(target_file)
+        assert self.database.save_to(target_file) == target_file
         assert file_exists(target_file)
 
     def test_table(self):
@@ -142,3 +142,9 @@ class test_Sqlite__Database(TestCase):
 
     def test_tables(self):
         assert self.database.tables() == []
+
+    def test_table_names(self):
+        assert self.database.tables_names() == []
+        table_name = 'an_table'
+        assert self.database.table(table_name).create() is True
+        assert self.database.tables_names() == ['an_table']

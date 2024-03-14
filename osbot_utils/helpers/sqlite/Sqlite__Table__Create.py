@@ -4,9 +4,8 @@ from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.decorators.lists.filter_list import filter_list
 from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field
-from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
+from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table, DEFAULT_FIELD_NAME__ID
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
-
 
 class Sqlite__Table__Create(Kwargs_To_Self):
     fields  : list[Sqlite__Field]
@@ -23,6 +22,13 @@ class Sqlite__Table__Create(Kwargs_To_Self):
             self.fields.append(sqlite_field)
             return True
         return False
+
+    def add_fields(self, fields_data:list[dict]):
+        results = []
+        if fields_data:
+            for field_data in fields_data:
+                results.append(self.add_field(field_data))
+        return results
 
     def add_field_with_type(self, field_name, field_type):
         if inspect.isclass(field_type):
@@ -61,7 +67,7 @@ class Sqlite__Table__Create(Kwargs_To_Self):
         return self.table.database
 
     def set_default_fields(self):
-        self.add_field(dict(name="id", type="INTEGER", pk=True))        # by default every table has an id field
+        self.add_field(dict(name=DEFAULT_FIELD_NAME__ID, type="INTEGER", pk=True))        # by default every table has an id field
         return self
 
     def sql_for__create_table(self):
