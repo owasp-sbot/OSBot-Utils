@@ -36,20 +36,26 @@ class Sqlite__DB__Json(Kwargs_To_Self):
     def get_schema_from_list_of_dict(self, target):
         if not isinstance(target, list):
             raise ValueError("in get_schema_from_list_of_dict, the provided target is not a list")
-        schemas = []
+
+        overall_schema = {}
+
         for item in target:
-            if type(item) is dict:
-                schemas.append(self.get_schema_from_dict(item))
-        if not schemas:
-            return {}
+            if not isinstance(item, dict):
+                continue  # or raise an exception, depending on your needs
+            current_schema = self.get_schema_from_dict(item)
 
-        # Check that all schemas are the same
-        base_schema = schemas[0]
-        for schema in schemas[1:]:
-            if schema != base_schema:
-                raise ValueError("In get_schema_from_list_of_dict not all items of the dict in the list had the same schema")
-        return base_schema
+            for key, current_type in current_schema.items():
+                if (key                 in overall_schema              and                                   # Check if key exists in the overall schema
+                    overall_schema[key] != current_type                and                                   # Check if there's a type mismatch for the key
+                    current_type        != Sqlite__Field__Type.UNKNOWN and                                   # Ensure current type is not UNKNOWN
+                    overall_schema[key] != Sqlite__Field__Type.UNKNOWN    ):                                 # Ensure overall schema's type for the key is not UNKNOWN
+                        message = f"Type conflict for field '{key}': {overall_schema[key]} vs {current_type}"
+                        raise ValueError(message)
+                else:
+                    overall_schema[key] = current_type                                                        # Update or add the key with its type to the overall schema
 
+
+        return overall_schema
 
     def get_schema_from_dict(self, target):
         schema = {}

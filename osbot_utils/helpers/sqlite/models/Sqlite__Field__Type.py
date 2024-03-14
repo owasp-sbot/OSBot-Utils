@@ -15,7 +15,7 @@ class Sqlite__Field__Type(Enum):
     UNKNOWN = NoneType                          # special type to handle cases when the type is not known # todo: handle this on the table creation stage
 
     def __repr__(self):
-        return f'sqlite.{self.name}'
+        return f'Sqlite__Field__Type.{self.name}'
 
     @classmethod
     @cache

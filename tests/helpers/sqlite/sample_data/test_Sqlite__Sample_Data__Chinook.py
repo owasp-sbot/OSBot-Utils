@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Json import Sqlite__DB__Json
+from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
     FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS
 from osbot_utils.utils.Dev import pprint
@@ -62,14 +63,46 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
 
 
     def test__check__chinook_data__schema(self):
-        json_db = Sqlite__DB__Json()
-        chinook_data = self.chinook_sqlite.chinook_data_as_json()
+        json_db          = Sqlite__DB__Json()
+        chinook_data     = self.chinook_sqlite.chinook_data_as_json()
+        expected_schemas = { 'Genre'         : { 'GenreId'        : Sqlite__Field__Type.INTEGER , 'Name'              : Sqlite__Field__Type.TEXT     },
+                             'MediaType'     : { 'MediaTypeId'    : Sqlite__Field__Type.INTEGER , 'Name'              : Sqlite__Field__Type.TEXT     },
+                             'Artist'        : { 'ArtistId'       : Sqlite__Field__Type.INTEGER , 'Name'              : Sqlite__Field__Type.TEXT     },
+                             'Album'         : { 'AlbumId'        : Sqlite__Field__Type.INTEGER , 'ArtistId'          : Sqlite__Field__Type.INTEGER  ,
+                                                 'Title'          : Sqlite__Field__Type.TEXT                                                         },
+                             'Track'         : { 'AlbumId'        : Sqlite__Field__Type.INTEGER , 'Bytes'             : Sqlite__Field__Type.INTEGER  ,
+                                                 'Composer'       : Sqlite__Field__Type.TEXT    , 'GenreId'           : Sqlite__Field__Type.INTEGER  ,
+                                                 'MediaTypeId'    : Sqlite__Field__Type.INTEGER , 'Milliseconds'      : Sqlite__Field__Type.INTEGER  ,
+                                                 'Name'           : Sqlite__Field__Type.TEXT    , 'TrackId'           : Sqlite__Field__Type.INTEGER  ,
+                                                 'UnitPrice'      : Sqlite__Field__Type.REAL                                                         },
+                             'Employee'      : { 'Address'        : Sqlite__Field__Type.TEXT    , 'BirthDate'         : Sqlite__Field__Type.TEXT     ,
+                                                 'City'           : Sqlite__Field__Type.TEXT    , 'Country'           : Sqlite__Field__Type.TEXT     ,
+                                                 'Email'          : Sqlite__Field__Type.TEXT    , 'EmployeeId'        : Sqlite__Field__Type.INTEGER  ,
+                                                 'Fax'            : Sqlite__Field__Type.TEXT    , 'FirstName'         : Sqlite__Field__Type.TEXT     ,
+                                                 'HireDate'       : Sqlite__Field__Type.TEXT    , 'LastName'          : Sqlite__Field__Type.TEXT     ,
+                                                 'Phone'          : Sqlite__Field__Type.TEXT    , 'PostalCode'        : Sqlite__Field__Type.TEXT     ,
+                                                 'ReportsTo'      : Sqlite__Field__Type.INTEGER , 'State'             : Sqlite__Field__Type.TEXT     ,
+                                                 'Title'          : Sqlite__Field__Type.TEXT                                                         },
+                             'Customer'      : { 'Address'        : Sqlite__Field__Type.TEXT     , 'City'             : Sqlite__Field__Type.TEXT     ,
+                                                 'Company'        : Sqlite__Field__Type.TEXT     , 'Country'          : Sqlite__Field__Type.TEXT     ,
+                                                 'CustomerId'     : Sqlite__Field__Type.INTEGER  , 'Email'            : Sqlite__Field__Type.TEXT     ,
+                                                 'Fax'            : Sqlite__Field__Type.TEXT     , 'FirstName'        : Sqlite__Field__Type.TEXT     ,
+                                                 'LastName'       : Sqlite__Field__Type.TEXT     , 'Phone'            : Sqlite__Field__Type.TEXT     ,
+                                                 'PostalCode'     : Sqlite__Field__Type.TEXT     , 'State'            : Sqlite__Field__Type.TEXT     ,
+                                                 'SupportRepId'   : Sqlite__Field__Type.INTEGER                                                      },
+                             'Invoice'       : { 'BillingAddress' : Sqlite__Field__Type.TEXT     , 'BillingCity'      : Sqlite__Field__Type.TEXT     ,
+                                                 'BillingCountry' : Sqlite__Field__Type.TEXT     , 'BillingPostalCode': Sqlite__Field__Type.TEXT     ,
+                                                 'BillingState'   : Sqlite__Field__Type.TEXT     , 'CustomerId'       : Sqlite__Field__Type.INTEGER  ,
+                                                 'InvoiceDate'    : Sqlite__Field__Type.TEXT     , 'InvoiceId'        : Sqlite__Field__Type.INTEGER  ,
+                                                 'Total'          : Sqlite__Field__Type.REAL                                                         },
+                             'InvoiceLine'   : { 'InvoiceId'      : Sqlite__Field__Type.INTEGER  , 'InvoiceLineId'    : Sqlite__Field__Type.INTEGER  ,
+                                                 'Quantity'       : Sqlite__Field__Type.INTEGER  , 'TrackId'          : Sqlite__Field__Type.INTEGER  ,
+                                                 'UnitPrice'      : Sqlite__Field__Type.REAL                                                         },
+                             'Playlist'      : { 'Name'           : Sqlite__Field__Type.TEXT     , 'PlaylistId'       : Sqlite__Field__Type.INTEGER  },
+                             'PlaylistTrack' : { 'PlaylistId'     : Sqlite__Field__Type.INTEGER  , 'TrackId'          : Sqlite__Field__Type.INTEGER  }}
 
-        employee_data = chinook_data.get('Employee')
-        pprint(employee_data)
-        return
+
         for name, data  in chinook_data.items():
-            print(name)
-            data_schema = json_db.get_schema_from_json_data(data)
-            pprint(data_schema)
+            expected_schema = expected_schemas.get(name)
+            assert json_db.get_schema_from_json_data(data) == expected_schema
 

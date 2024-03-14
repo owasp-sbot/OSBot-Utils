@@ -63,10 +63,9 @@ class test_Sqlite__DB__Json(TestCase):
         assert json_data__list_of_dict__schema == { 'an_int'     : Sqlite__Field__Type.INTEGER  ,
                                                     'an_str'     : Sqlite__Field__Type.TEXT     }
 
-    @pytest.mark.skip
-    def test__bug__extract_schema_from_json_data__when_value_has_none(self):
+
+    def test__regression__extract_schema_from_json_data__when_value_has_none(self):
         json_data__list_of_dict = self.json_data__list_of_dict()
         json_data__list_of_dict[1]['an_str'] = None
-        pprint(json_data__list_of_dict)
-        # this will raise an exception on none
         json_data__list_of_dict__schema = self.json_db.get_schema_from_json_data(json_data__list_of_dict)
+        assert json_data__list_of_dict__schema == {'an_int': Sqlite__Field__Type.INTEGER, 'an_str': Sqlite__Field__Type.TEXT}
