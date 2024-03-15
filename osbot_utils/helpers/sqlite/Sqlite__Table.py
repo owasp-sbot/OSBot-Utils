@@ -2,6 +2,7 @@ from osbot_utils.base_classes.Kwargs_To_Self     import Kwargs_To_Self
 from osbot_utils.decorators.lists.filter_list import filter_list
 from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
+from osbot_utils.helpers.Print_Table import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
 
 from osbot_utils.utils.Dev import pprint
@@ -56,6 +57,9 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def not_exists(self):
         return self.exists() is False
+
+    def print(self, **kwargs):
+        return Print_Table(**kwargs).print(self.rows())
 
     def row_add(self, record):
         schema        = self.fields__cached()                                               # Retrieve the schema from the cached fields

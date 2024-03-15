@@ -1,7 +1,10 @@
 from unittest import TestCase
 
+from osbot_utils.helpers.Print_Table import Print_Table
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
     FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS
+from osbot_utils.testing.Duration import Duration
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, folder_create
 from osbot_utils.utils.Json import json_from_file
 from osbot_utils.utils.Misc import list_set
@@ -90,6 +93,22 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
         assert parent_folder(path_data_sets) == current_temp_folder()
         assert folder_name  (path_data_sets) == FOLDER_NAME__SQLITE_DATA_SETS
 
+    def test_table__genre(self):
+        table__genre = self.chinook_sqlite.table__genre()
+        table_data   = table__genre.rows()
+        assert len(table_data) == 25
+        for row in table_data:
+            assert list_set(row) == ['GenreId', 'Name', 'id']
+
+    def test_table__track(self):
+        table__genre = self.chinook_sqlite.table__track()
+        table_data   = table__genre.rows()
+        assert len(table_data) == 3503
+        for row in table_data:
+            assert list_set(row) == ['AlbumId', 'Bytes', 'Composer', 'GenreId', 'MediaTypeId',
+                                     'Milliseconds', 'Name', 'TrackId', 'UnitPrice', 'id']
+        #table__genre.print(max_cell_size=50)
+
 
     def test__check__chinook_data__schema(self):
         expected_schemas = { 'Genre'         : { 'GenreId'        : 'INTEGER' , 'Name'              : 'TEXT'     },
@@ -139,6 +158,11 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
         assert table.schema__by_name_type() == {'Name': 'TEXT', 'PlaylistId': 'INTEGER', 'id': 'INTEGER'}
 
 
+
+    # def test__debug__print_all(self):
+    #     db_chinook = self.chinook_sqlite.load_db_from_disk()
+    #     for table in db_chinook.tables():
+    #         table.print()
 
 
     # def test__performance_test__load_db_from_disk__using_sqlite3(self):

@@ -1,4 +1,5 @@
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
 from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
@@ -68,6 +69,7 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
     def database(self):
         return self.json_db.database
 
+    @cache_on_self
     def load_db_from_disk(self):
         db_chinook = Sqlite__Database(db_path=PATH__DB__CHINOOK)
         return db_chinook
@@ -87,6 +89,12 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
 
     def path_tables_schemas_fields(self):
         return path_combine(self.path_chinook_data(), FILE_NAME__TABLES_SCHEMAS_FIELDS)
+
+    def table__genre(self):
+        return self.load_db_from_disk().table('Genre')
+
+    def table__track(self):
+        return self.load_db_from_disk().table('Track')
 
     def tables_schemas_fields_from_data(self):
         path_tables_schemas_fields = self.path_tables_schemas_fields()
