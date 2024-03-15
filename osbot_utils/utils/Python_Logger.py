@@ -62,7 +62,7 @@ class Python_Logger:
         #self.logger_name = logger_name or random_string(prefix="Python_Logger_")
         self.set_config(logger_config)
         # self.logger = None
-        self.setup()                            # todo: undestand side effect of setting up logger on __init__
+        self.setup()                            # todo: understand side effect of setting up logger on __init__
 
     def disable(self):
         self.logger.disabled = True

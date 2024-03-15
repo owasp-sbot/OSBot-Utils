@@ -3,11 +3,12 @@ from typing import Any, Callable, TypeVar
 
 T = TypeVar('T', bound=Callable[..., Any])
 
-# todo: create signature based on request params so that we don't cache when the params are different
-# todo: add capability to reset or change the cache value currently stored in the cache_id value
 def cache(function: T) -> T:
     """
-    Use this decorator when wanting to cache a value for all executions of the current process
+    Use this decorator when wanting to cache a value for all executions of the current process and want to preserve the type completion
+    which the one from  "from functools import cache" doesn't
+    note: that this will cache only one value per function (regardless of the values of *args,**kwargs).
+          if you have multiple params that should be cached separately, use the @cache_on_self decorator (or the native @cache from functools)
     """
     @wraps(function)
     def wrapper(*args,**kwargs):

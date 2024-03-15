@@ -32,12 +32,12 @@ class test_cache_on_self(TestCase):
 
         # testing function that returns static value
         assert an_class_1.an_function() == 42                                               # invoke method, set cache and confirm return value
-        assert obj_data(an_class_1)     == { cache_key : 42}                                # confirm attribute has been set in class
-        pprint(obj_data(an_class_1))
-        assert an_class_1.cache_on_self_an_function__ == 42                                 # which can be accessed directly
-        an_class_1.cache_on_self_an_function__         = 12                                 # if we change the attribute directly
-        assert obj_data(an_class_1)     == { cache_key : 12}                                # confirm value changes (via obj data)
-        assert an_class_1.cache_on_self_an_function__ == 12                                 # confirm value change (directly)
+        assert obj_data(an_class_1, show_internals=True).get(cache_key) == 42                # confirm attribute has been set in class
+
+        assert an_class_1.__cache_on_self___an_function__               == 42               # which can be accessed directly
+        an_class_1.__cache_on_self___an_function__                      = 12                # if we change the attribute directly
+        assert obj_data(an_class_1, show_internals=True).get(cache_key) == 12               # confirm value changes (via obj data)
+        assert an_class_1.__cache_on_self___an_function__               == 12               # confirm value change (directly)
 
         an_class_2 = An_Class()                                                             # create 2nd instance
         assert an_class_2.an_function() == 42                                               # confirm previous version was not affected
@@ -59,17 +59,24 @@ class test_cache_on_self(TestCase):
         assert an_class_3.echo(555) == 555
         assert an_class_3.echo(666) == 666                                                  # config, new value has been set
 
-        assert obj_data(an_class_1) == {'cache_on_self_an_function__'                         : 12  ,
-                                        'cache_on_self_echo_698d51a19d8a121ce581499d7b701668_': 111 ,
-                                        'cache_on_self_echo_bcbe3365e6ac95ea2c0343a2395834dd_': 222 }
+        obj_data__class_1 = obj_data(an_class_1, show_internals=True)
+        obj_data__class_2 = obj_data(an_class_2, show_internals=True)
+        obj_data__class_3 = obj_data(an_class_3, show_internals=True)
+        cache_items__class_1 = {k: v for k, v in obj_data__class_1.items() if k.startswith('__cache_on_self__')}
+        cache_items__class_2 = {k: v for k, v in obj_data__class_2.items() if k.startswith('__cache_on_self__')}
+        cache_items__class_3 = {k: v for k, v in obj_data__class_3.items() if k.startswith('__cache_on_self__')}
 
-        assert obj_data(an_class_2) == {'cache_on_self_an_function__'                         : 42  ,
-                                        'cache_on_self_echo_310dcbbf4cce62f762a2aaa148d556bd_': 333 ,
-                                        'cache_on_self_echo_550a141f12de6341fba65b0ad0433500_': 444 }
+        assert cache_items__class_1 == {'__cache_on_self___an_function__'                         : 12  ,
+                                        '__cache_on_self___echo_698d51a19d8a121ce581499d7b701668_': 111 ,
+                                        '__cache_on_self___echo_bcbe3365e6ac95ea2c0343a2395834dd_': 222 }
 
-        assert obj_data(an_class_3) == {'cache_on_self_an_function__'                         : 42  ,
-                                        'cache_on_self_echo_15de21c670ae7c3f6f3f1f37029303c9_': 555 ,
-                                        'cache_on_self_echo_fae0b27c451c728867a567e8c1bb4e53_': 666 }
+        assert cache_items__class_2 == {'__cache_on_self___an_function__'                         : 42  ,
+                                        '__cache_on_self___echo_310dcbbf4cce62f762a2aaa148d556bd_': 333 ,
+                                        '__cache_on_self___echo_550a141f12de6341fba65b0ad0433500_': 444 }
+
+        assert cache_items__class_3 == {'__cache_on_self___an_function__'                         : 42  ,
+                                        '__cache_on_self___echo_15de21c670ae7c3f6f3f1f37029303c9_': 555 ,
+                                        '__cache_on_self___echo_fae0b27c451c728867a567e8c1bb4e53_': 666 }
 
         # testing function that returns dynamic value (with kargs)
         assert an_class_1.echo(value=111) == 111                                                    # confirm returns echo value

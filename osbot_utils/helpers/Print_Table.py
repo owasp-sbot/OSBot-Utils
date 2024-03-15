@@ -290,6 +290,7 @@ class Print_Table(Kwargs_To_Self):
         self.map_texts()
         for text in self.text__all:
             print(text)
+        return self
 
     def should_show_header(self, header):
         if self.headers_to_hide:

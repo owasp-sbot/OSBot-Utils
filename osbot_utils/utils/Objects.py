@@ -3,8 +3,7 @@ import inspect
 import json
 import os
 import types
-from typing import get_origin
-
+from typing import get_origin, Union, get_args
 
 from dotenv import load_dotenv
 
@@ -80,6 +79,12 @@ def dict_remove(data, target):
             if target in data:
                 del data[target]
     return data
+
+def enum_from_value(enum_type, value):
+    try:
+        return enum_type[value]         # Attempt to convert the value to an Enum member by name
+    except KeyError:
+        raise ValueError(f"Value '{value}' is not a valid member of {enum_type.__name__}.")     # Handle the case where the value does not match any Enum member
 
 def env_value(var_name):
     return env_vars().get(var_name, None)
@@ -250,8 +255,45 @@ def obj_values(target=None):
     return list(obj_dict(target).values())
 
 def raise_exception_on_obj_type_annotation_mismatch(target, attr_name, value):
-    if value_type_matches_obj_annotation_for_attr(target, attr_name, value) is False:
+    # todo : check if this is is not causing the type safety issues
+    if value_type_matches_obj_annotation_for_attr(target, attr_name, value) is False:               # handle case with normal types
+        if value_type_matches_obj_annotation_for_union_attr(target, attr_name, value) is True:      # handle union cases
+            return                                                                                  #     this is done like this because value_type_matches_obj_annotation_for_union_attr will return None when there is no Union objects
         raise Exception(f"Invalid type for attribute '{attr_name}'. Expected '{target.__annotations__.get(attr_name)}' but got '{type(value)}'")
+
+def obj_attribute_annotation(target, attr_name):
+    if target is not None and attr_name is not None:
+        if hasattr(target, '__annotations__'):
+            obj_annotations  = target.__annotations__
+            if hasattr(obj_annotations,'get'):
+                attribute_annotation = obj_annotations.get(attr_name)
+                return attribute_annotation
+    return None
+
+def obj_is_attribute_annotation_of_type(target, attr_name, expected_type):
+    attribute_annotation = obj_attribute_annotation(target, attr_name)
+    attribute_type       = type(attribute_annotation)
+    return attribute_type is expected_type
+
+def obj_is_type_union_compatible(var_type, compatible_types):
+    origin = get_origin(var_type)
+    if origin is Union:                                                     # For Union types, including Optionals
+        args = get_args(var_type)                                           # Get the argument types
+        for arg in args:                                                    # Iterate through each argument in the Union
+            if not (arg in compatible_types or arg is type(None)):          # Check if the argument is either in the compatible_types or is type(None)
+                return False                                                # If any arg doesn't meet the criteria, return False immediately
+        return True                                                         # If all args are compatible, return True
+    return var_type in compatible_types or var_type is type(None)           # Check for direct compatibility or type(None) for non-Union types
+
+def value_type_matches_obj_annotation_for_union_attr(target, attr_name, value):
+    value_type           = type(value)
+    attribute_annotation = obj_attribute_annotation(target,attr_name)
+    origin               = get_origin(attribute_annotation)
+    if origin is Union:                                                     # For Union types, including Optionals
+        args = get_args(attribute_annotation)                               # Get the argument types
+        return value_type in args
+    return None                                                             # if it is not an Union type just return None (to give an indication to the caller that the comparison was not made)
+
 
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     if hasattr(target, '__annotations__'):

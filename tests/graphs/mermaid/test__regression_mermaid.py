@@ -53,12 +53,12 @@ class test__regression__mermaid(TestCase):
         from_node     = from_node_key
         to_node       = to_node_key
 
-
         assert Mermaid__Edge.__annotations__ == { 'config'   : Mermaid__Edge__Config ,
                                                   'from_node': Mermaid__Node         ,           # confirm the type annotations
                                                   'to_node'  : Mermaid__Node         }
-        assert type(from_node) is str                                                   # confirm that both variables are of type str
+        assert type(from_node) is str                                                           # confirm that both variables are of type str
         assert type(to_node  ) is str
+
         with self.assertRaises(Exception) as context:
             Mermaid__Edge(from_node=from_node, to_node=to_node)                  # FIXED: this now raises exception: BUG, this should have not worked (an exception should have been raised)
         assert str(context.exception) == ("Invalid type for attribute 'from_node'. Expected '<class "

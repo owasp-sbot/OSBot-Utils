@@ -168,6 +168,13 @@ def is_float(value):
     except ValueError:
         return False
 
+def is_guid(value):
+    try:
+        uuid_obj = uuid.UUID(value)
+        return str(uuid_obj) == value.lower()
+    except ValueError:
+        return False
+
 
 def ignore_warning__unclosed_ssl():
     warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
@@ -295,6 +302,7 @@ def datetime_to_timestamp(datetime):
     return int(datetime.timestamp() * 1000)
 
 def timestamp_to_datetime(timestamp):
+    timestamp = float(timestamp)                            # handle cases when timestamp is a Decimal
     return datetime.fromtimestamp(timestamp/1000)
 
 def timestamp_to_str(timestamp, date_time_format='%Y-%m-%d %H:%M:%S.%f'):

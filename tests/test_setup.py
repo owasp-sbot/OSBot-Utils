@@ -21,6 +21,7 @@ EXPECTED_PACKAGES = ['_to_remove'                    ,
                      'osbot_utils.helpers'           ,
                      'osbot_utils.helpers.ast'       ,
                      'osbot_utils.helpers.ast.nodes' ,
+                     'osbot_utils.helpers.sqlite'    ,
                      'osbot_utils.helpers.trace'     ,
                      'osbot_utils.testing'           ,
                      'osbot_utils.utils'             ]

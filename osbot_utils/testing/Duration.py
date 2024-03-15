@@ -38,7 +38,8 @@ class Duration:
         self.call_stack         = Call_Stack()
 
     def __enter__(self):
-        self.call_stack.capture()
+        if self.print_stack:
+            self.call_stack.capture()
         self.start()
         return self
 
@@ -55,6 +56,9 @@ class Duration:
             print(f"{self.prefix} {time_delta_to_str(self.duration)}")
             if self.print_stack:
                 self.call_stack.print()
+
+    def milliseconds(self):
+        return self.duration.total_seconds() * 1000
 
     def seconds(self):
         return self.duration.total_seconds()

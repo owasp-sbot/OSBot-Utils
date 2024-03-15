@@ -1,9 +1,5 @@
-from functools import cache
-
 from osbot_utils.utils.Misc import list_set
-
 from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.utils.Files    import current_temp_folder, path_combine, create_folder, safe_file_name, file_exists, file_delete
 from osbot_utils.utils.Json import json_save_file, json_load_file
@@ -72,13 +68,13 @@ class Local_Cache:
     def keys(self):
         return self.data().keys()
 
-    @cache
+    @cache_on_self
     def path_root_folder(self):
         path_root_folder = path_combine(current_temp_folder(), self.caches_name)
         create_folder(path_root_folder)                          # create if it doesn't exist
         return path_root_folder
 
-    @cache
+    @cache_on_self
     def path_cache_file(self):
         return path_combine(self.path_root_folder(), f"{self.cache_name}.json")
 

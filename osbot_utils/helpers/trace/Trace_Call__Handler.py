@@ -8,8 +8,11 @@ from osbot_utils.helpers.trace.Trace_Call__Stack_Node   import Trace_Call__Stack
 from osbot_utils.helpers.trace.Trace_Call__Stats        import Trace_Call__Stats
 
 DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
-GLOBAL_FUNCTIONS_TO_IGNORE   = ['value_type_matches_obj_annotation_for_attr', 'are_types_compatible_for_assigment'      # type safety functions which introduce quite a lot of noise in the traces (and unless one is debugging type safety, they will not be needed)
-                                ]
+GLOBAL_FUNCTIONS_TO_IGNORE   = ['value_type_matches_obj_annotation_for_attr'       ,            # these are type safety functions which introduce quite a lot of noise in the traces (and unless one is debugging type safety, they will not be needed)
+                                'value_type_matches_obj_annotation_for_union_attr' ,
+                                'are_types_compatible_for_assigment'               ,
+                                'obj_attribute_annotation'                         ,
+                                'get_origin'                                       ]
 
 class Trace_Call__Handler(Kwargs_To_Self):
     config : Trace_Call__Config

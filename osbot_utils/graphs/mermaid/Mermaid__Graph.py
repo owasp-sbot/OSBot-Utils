@@ -6,7 +6,6 @@ from osbot_utils.graphs.mgraph.MGraph import MGraph
 
 
 class Mermaid__Graph(MGraph):
-    pass
     edges        : list[Mermaid__Edge]
     mermaid_code : list
     nodes        : list[Mermaid__Node]

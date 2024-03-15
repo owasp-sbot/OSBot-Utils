@@ -1,5 +1,8 @@
 import traceback
+from io import StringIO
 from unittest import TestCase
+from unittest.mock import patch
+
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Functions import type_file
 from osbot_utils.utils.Misc import list_set
@@ -7,7 +10,7 @@ from osbot_utils.utils.Objects import obj_data
 from osbot_utils.utils.Python_Logger import Python_Logger, Python_Logger_Config
 from osbot_utils.utils.Status import osbot_logger, status_error, status_info, status_debug, status_critical, \
     status_warning, status_ok, log_critical, log_debug, log_error, log_info, log_ok, log_warning, osbot_status, Status, \
-    log_exception, status_exception
+    log_exception, status_exception, send_status_to_logger
 
 
 class test_Status(TestCase):
@@ -15,6 +18,7 @@ class test_Status(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        send_status_to_logger(True)
         assert osbot_logger.config.log_to_memory is False
         assert osbot_logger.add_memory_logger  () is True
         assert osbot_logger.config.log_to_memory is True
@@ -28,6 +32,7 @@ class test_Status(TestCase):
     def tearDownClass(cls) -> None:
         assert osbot_logger.memory_handler_logs() == []
         assert osbot_logger.remove_memory_logger() is True
+        send_status_to_logger(False)
 
     def test__osbot_logger(self):
         assert type(osbot_logger        ) is Python_Logger
@@ -63,7 +68,7 @@ class test_Status(TestCase):
             #assert last_message.get('funcName')           =='send_status_message'
             assert last_message.get('levelno')            == expected_level
 
-            pprint(last_message)
+            #pprint(last_message)
 
         # test status_* methods
         send_status_message(message_type='critical' , target_method=status_critical , expected_level=50)
@@ -91,35 +96,40 @@ class test_Status(TestCase):
             # This will log the exception message 'Division by zero' with the traceback
             log_exception()
 
-        pprint(self.osbot_status.last_message())
+        assert list_set(self.osbot_status.last_message()) == ['args', 'asctime', 'created', 'exc_info', 'exc_text',
+                                                              'filename', 'funcName', 'levelname', 'levelno', 'lineno',
+                                                              'message', 'module', 'msecs', 'msg', 'name', 'pathname',
+                                                              'process', 'processName', 'relativeCreated', 'stack_info',
+                                                              'taskName', 'thread', 'threadName']
 
-    def test_status_debug(self):
-        kwargs          = dict(message = 'an debug message'   ,
-                               data    = {'an': 'debug'}      ,
-                               error   = Exception('an debug'))
+    def test_status_exception(self):
+
+        kwargs          = dict(message = 'an exception message',
+                               data    = {'an': 'exception'}       ,
+                               error   = Exception('an exception'  ))
         result          = kwargs.copy()
-        result['status'] = 'debug'
+        result['status'] = 'exception'
         assert osbot_logger.memory_handler_messages()   == []
-        assert status_debug(**kwargs)                   == result
-        assert osbot_logger.memory_handler_messages()   == ['[osbot] [debug] an debug message']
+        assert status_exception(**kwargs)               == result
+        assert osbot_logger.memory_handler_messages()   == ['[osbot] [exception] an exception message']
         last_log_entry = osbot_logger.memory_handler_logs().pop()
 
         # note: asctime below is only showing when pytest_configure is set and configures config.option.log_format
         assert list_set(last_log_entry) == ['args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename', 'funcName',
                                             'levelname', 'levelno', 'lineno', 'message', 'module', 'msecs',
                                             'msg', 'name', 'pathname', 'process', 'processName', 'relativeCreated',
-                                            'stack_info', 'thread', 'threadName']
+                                            'stack_info', 'taskName', 'thread', 'threadName']
         assert last_log_entry.get('args'         ) == ()
         assert last_log_entry.get('exc_info'     ) == (None, None, None)
         assert last_log_entry.get('exc_text'     ) == 'NoneType: None'
         assert last_log_entry.get('filename'     ) == 'test_Status.py'
-        assert last_log_entry.get('funcName'     ) == 'test_status_debug'
-        assert last_log_entry.get('levelname'    ) == 'DEBUG'
-        assert last_log_entry.get('levelno'      ) == 10
+        assert last_log_entry.get('funcName'     ) == 'test_status_exception'
+        assert last_log_entry.get('levelname'    ) == 'ERROR'
+        assert last_log_entry.get('levelno'      ) == 40
         assert last_log_entry.get('lineno'       )  > 0
-        assert last_log_entry.get('message'      ) == '[osbot] [debug] an debug message'
+        assert last_log_entry.get('message'      ) == '[osbot] [exception] an exception message'
         assert last_log_entry.get('module'       ) == 'test_Status'
-        assert last_log_entry.get('msg'          ) == '[osbot] [debug] an debug message'
+        assert last_log_entry.get('msg'          ) == '[osbot] [exception] an exception message'
         assert last_log_entry.get('name'         ) == osbot_logger.logger_name
         assert last_log_entry.get('pathname'     ) == type_file(test_Status)
         assert last_log_entry.get('processName'  ) == 'MainProcess'
@@ -136,12 +146,7 @@ class test_Status(TestCase):
 
         def print_stack_trace(depth=None):
             for entry in traceback.extract_stack(limit=depth):
-                print(entry)
+                assert type(entry) == traceback.FrameSummary
+                #print(entry)
 
-
-        #stack = get_stack_trace()
-
-        print()
-        print()
         method_a()
-        #print(len(stack))

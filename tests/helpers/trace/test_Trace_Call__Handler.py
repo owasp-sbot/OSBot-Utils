@@ -422,7 +422,7 @@ class test_Trace_Call__Handler(TestCase):
         assert stack_1.name                 == 'test_Trace_Call__Handler.test_Trace_Call__Handler.test_trace_calls__direct_invoke__variations'
 
         assert stack_1.source_code          == "self.handler.trace_calls(sample_frame, 'call', None)"
-        assert stack_1.source_code_caller   == 'method()'
+        assert stack_1.source_code_caller   == 'if method() is not None:'
         assert stack_1.source_code_location == source_code_location
         assert len(self.handler.stack) == 2
 

@@ -5,7 +5,7 @@ from unittest.mock                                  import patch, call
 from osbot_utils.testing.Patch_Print                    import Patch_Print
 from osbot_utils.utils.Lists import tuple_to_list
 from osbot_utils.utils.Python_Logger                    import Python_Logger
-from osbot_utils.utils.Misc                             import list_set
+from osbot_utils.utils.Misc import list_set, in_github_action
 from osbot_utils.testing.Temp_File                      import Temp_File
 from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
 from osbot_utils.utils.Objects                          import base_classes
@@ -224,8 +224,10 @@ class test_Trace_Call(TestCase):
                                                                                              'temp_folder': 2,
                                                                                              'write': 2},
                                                                                    'Misc': {'random_filename': 2},
-                                                                                   'Objects': { 'are_types_compatible_for_assigment': 1,
-                                                                                                'value_type_matches_obj_annotation_for_attr': 1}}}
+                                                                                   'Objects': { 'are_types_compatible_for_assigment'              : 1,
+                                                                                                'obj_attribute_annotation'                        : 1,
+                                                                                                'value_type_matches_obj_annotation_for_attr'      : 1,
+                                                                                                'value_type_matches_obj_annotation_for_union_attr':1 }}}
 
     def test__config_print_traces_on_exit(self):
         self.config.print_traces_on_exit = True
@@ -248,6 +250,8 @@ class test_Trace_Call(TestCase):
                                       call('└─────┴──────┴────────┴────┴──┴───────┘')]
 
     def test__trace_up_to_a_level(self):
+        if not in_github_action():              # todo: rewrite this test to use an example that is not
+            return                              #       as expensive as Python_Logger since it is taking 200+ms (which is about 50% of the all OSBot_Utils tests
         with self.config as _:
             _.all()
             _.up_to_depth(2)
@@ -256,10 +260,9 @@ class test_Trace_Call(TestCase):
 
         expected_calls = [ ''                                                ,
                            '--------- CALL TRACER ----------'                ,
-                           'Here are the 9 traces captured\n'                ,
+                           'Here are the 8 traces captured\n'                ,
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
-                           '\x1b[1m│   ├── 🔗️ __setattr__\x1b[0m'            ,
-                           '\x1b[1m│   │   └── 🧩️ get_origin\x1b[0m'         ,
+                           '\x1b[1m│   ├── 🧩️ __setattr__\x1b[0m'            ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
                            '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'    ,
                            '\x1b[1m│   │   ├── 🧩️ set_config\x1b[0m'         ,
@@ -269,7 +272,7 @@ class test_Trace_Call(TestCase):
         #expected_calls = expected_calls
         with Patch_Print(print_calls=False, enabled=True) as _:
             with self.trace_call:
-                logger = Python_Logger()
+                logger = Python_Logger()                            # todo: figure out why this is so expensive
                 logger.add_memory_logger()
         assert _.calls() == expected_calls
 
