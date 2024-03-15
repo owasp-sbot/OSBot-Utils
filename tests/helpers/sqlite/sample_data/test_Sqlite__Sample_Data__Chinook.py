@@ -1,17 +1,9 @@
-import sqlite3
 from unittest import TestCase
 
-from boto3.dynamodb import table
-
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Json import Sqlite__DB__Json
-from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
-    FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS, PATH__DB__CHINOOK
-from osbot_utils.testing.Duration import Duration
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, file_exists, \
-    folder_create
-from osbot_utils.utils.Json import json_loads, json_from_file
+    FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS
+from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, folder_create
+from osbot_utils.utils.Json import json_from_file
 from osbot_utils.utils.Misc import list_set
 
 
