@@ -34,31 +34,29 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
             GET_to_file(self.url_chinook_database_json, path_chinook_data_as_json)
         return json_from_file(path_chinook_data_as_json)
 
-    def create_table_from_data(self):
-        chinook_data = self.chinook_data_as_json()
-        table_creator = Sqlite__Table__Create(table_name=self.table_name)
-        table         = table_creator.table
-        table_creator.add_fields__text("name", "value").create_table()
-
-        cursor = table.cursor()
-        assert len(chinook_data) == 11
-        for key, items in chinook_data.items():
-            name = key
-            value = json_dump(items)
-            table.row_add(dict(name=name, value=value))
-
-        cursor.commit()
-        return table
+    # def create_table_from_data(self):
+    #     chinook_data = self.chinook_data_as_json()
+    #     table_creator = Sqlite__Table__Create(table_name=self.table_name)
+    #     table         = table_creator.table
+    #     table_creator.add_fields__text("name", "value").create_table()
+    #
+    #     cursor = table.cursor()
+    #     assert len(chinook_data) == 11
+    #     for key, items in chinook_data.items():
+    #         name = key
+    #         value = json_dump(items)
+    #         table.row_add(dict(name=name, value=value))
+    #
+    #     cursor.commit()
+    #     return table
 
     def create_tables(self):
-        database = self.json_db.database
         self.create_tables_from_schema()
         chinook_data = self.chinook_data_as_json()
         for table_name, rows in chinook_data.items():
-            print(f'populating table: {table_name} with {len(rows)} rows')
-            with Duration(prefix=table_name):
-                table = database.table(table_name)
-                table.rows_add(rows)
+            table = self.json_db.database.table(table_name)
+            table.rows_add(rows)
+
 
 
     def create_tables_from_schema(self):
@@ -103,6 +101,5 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
 
     def save(self, path=PATH__DB__CHINOOK):
         database = self.database()
-        pprint(f'saving db with :{len(database.tables_raw())}')
         database.save_to(path)
         return True

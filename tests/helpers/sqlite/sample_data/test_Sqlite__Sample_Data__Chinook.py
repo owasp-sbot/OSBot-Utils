@@ -1,9 +1,12 @@
+import sqlite3
 from unittest import TestCase
+
+from boto3.dynamodb import table
 
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Json import Sqlite__DB__Json
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
-    FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS
+    FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS, PATH__DB__CHINOOK
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, file_exists, \
@@ -27,17 +30,20 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
         self.chinook_sqlite.create_tables()
         self.chinook_sqlite.save()
 
-    def test_create_table_from_data(self):
-        table = self.chinook_sqlite.create_table_from_data()
-        assert table.fields() == {'id'   : {'cid': 0, 'name': 'id'   , 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1},
-                                  'name' : {'cid': 1, 'name': 'name' , 'type': 'TEXT'   , 'notnull': 0, 'dflt_value': None, 'pk': 0},
-                                  'value': {'cid': 2, 'name': 'value', 'type': 'TEXT'   , 'notnull': 0, 'dflt_value': None, 'pk': 0}}
 
-        for row in table.rows():
-            name = row.get('name')
-            value = row.get('value')
-            data = json_loads(value)
-            print(f'{name:15} {len(value):10} {len(data):10}')
+
+
+    # def test_create_table_from_data(self):
+    #     table = self.chinook_sqlite.create_table_from_data()
+    #     assert table.fields() == {'id'   : {'cid': 0, 'name': 'id'   , 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1},
+    #                               'name' : {'cid': 1, 'name': 'name' , 'type': 'TEXT'   , 'notnull': 0, 'dflt_value': None, 'pk': 0},
+    #                               'value': {'cid': 2, 'name': 'value', 'type': 'TEXT'   , 'notnull': 0, 'dflt_value': None, 'pk': 0}}
+    #
+    #     for row in table.rows():
+    #         name = row.get('name')
+    #         value = row.get('value')
+    #         data = json_loads(value)
+    #         print(f'{name:15} {len(value):10} {len(data):10}')
 
 
     def test_create_tables_from_schema(self):
@@ -76,8 +82,9 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
     def test_json_loads_file_from_disk(self):
         path_to_file = self.chinook_sqlite.path_chinook_data_as_json()
         all_data = json_from_file(path_to_file)
-        for name, data in all_data.items():
-            print(f'{name:15} {len(data):10}')
+        assert len(all_data) == 11
+        #for name, data in all_data.items():
+        #    print(f'{name:15} {len(data):10}')
 
     def test_path_chinook_data(self):
         path_chinook_data = self.chinook_sqlite.path_chinook_data()
@@ -138,6 +145,68 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
         table = self.chinook_sqlite.json_db.create_table_from_schema(table_name, table_schema)
         assert table.exists() is True
         assert table.schema__by_name_type() == {'Name': 'TEXT', 'PlaylistId': 'INTEGER', 'id': 'INTEGER'}
+
+
+
+
+    # def test__performance_test__load_db_from_disk__using_sqlite3(self):
+    #     def dict_factory(_, row):
+    #         fields = [column[0] for column in _.description]
+    #         value = {key: value for key, value in zip(fields, row)}
+    #         return row
+    #
+    #     def run_performance_test(use_dict_factory, db_to_load, print_table=True):
+    #
+    #         if use_dict_factory:
+    #             duration_prefix = '\tWith dict_factory   '
+    #         else:
+    #             duration_prefix = '\tWithout dict_factory'
+    #
+    #         with Duration(prefix=duration_prefix):
+    #             connection     = sqlite3.connect(db_to_load)
+    #             if use_dict_factory:
+    #                 connection.row_factory = dict_factory
+    #             cursor         = connection.cursor()
+    #             sql_tables     = 'select name from sqlite_master where type="table"'
+    #             sql_table_data = 'select * from {table_name}'
+    #             cursor.execute(sql_tables)
+    #             tables_names = []
+    #             for cell in cursor.fetchall():
+    #                 tables_names.append(cell[0])
+    #             if print_table:
+    #                 print(f"|{'-' * 50}|")
+    #                 print(f"| {'Table Name':25} | {'# Rows':5} | {'Duration'} |")
+    #                 print(f"|{'-' * 50}|")
+    #             for table_name in tables_names:
+    #                 with Duration(print_result=False) as duration:
+    #                     cursor.execute(f'SELECT COUNT(*) as size FROM {table_name}')
+    #                     size = cursor.fetchone()[0]
+    #                 print(f'| {table_name:25} | {size:8} | {duration.milliseconds():6.2f} ms |')
+    #                 #     sql_query = sql_table_data.format(table_name=table_name)
+    #                 #     cursor.execute(sql_query)
+    #                 #     table_data = cursor.fetchall()
+    #                 # if print_table:
+    #                 #     print(f'| {table_name:25} | {len(table_data):6} | {duration.milliseconds():6.2f} ms |')
+    #
+    #             if print_table:
+    #                 print(f"|{'-' * 50}|")
+    #             connection.close()
+    #
+    #
+    #     def test_on_file(db_to_load):
+    #         print(f"\n******* loading db: {db_to_load} *******\n")
+    #         run_performance_test(use_dict_factory=True, db_to_load=db_to_load)
+    #         run_performance_test(use_dict_factory=False, db_to_load=db_to_load)
+    #
+    #
+    #     print()
+    #     test_on_file(db_to_load=PATH__DB__CHINOOK)
+    #     #test_on_file(db_to_load='/Users/diniscruz/Downloads/acs-1-year-2015.sqlite')
+    #     #test_on_file(db_to_load='/Users/diniscruz/Downloads/census2000names.sqlite')
+    #     #test_on_file(db_to_load='/Users/diniscruz/Downloads/nba.sqlite')
+    #     #test_on_file(db_to_load='/Users/diniscruz/Downloads/enwiki-20170820.db')
+    #     # test_on_file(db_to_load='/Users/diniscruz/Downloads/enwiki-20170820.db')
+    #     #test_on_file(db_to_load='/Users/diniscruz/Downloads/sfpd-incidents.sqlite')
 
 
 

@@ -57,6 +57,9 @@ class Duration:
             if self.print_stack:
                 self.call_stack.print()
 
+    def milliseconds(self):
+        return self.duration.total_seconds() * 1000
+
     def seconds(self):
         return self.duration.total_seconds()
 
