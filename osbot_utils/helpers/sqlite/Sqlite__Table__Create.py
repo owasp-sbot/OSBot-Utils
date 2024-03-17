@@ -51,6 +51,12 @@ class Sqlite__Table__Create(Kwargs_To_Self):
             return self.table.exists()
         return False
 
+    def create_table__from_class(self, table_class):
+        if inspect.isclass(table_class):
+            for field_name, field_type in table_class.__annotations__.items():
+                self.add_field_with_type(field_name, field_type)
+
+        return self.create_table()
 
     @filter_list
     def fields_json(self):

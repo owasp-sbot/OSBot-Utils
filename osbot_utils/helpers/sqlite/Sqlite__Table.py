@@ -5,7 +5,6 @@ from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.helpers.Print_Table import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
 
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import list_set
 
 DEFAULT_FIELD_NAME__ID = 'id'
@@ -13,13 +12,17 @@ DEFAULT_FIELD_NAME__ID = 'id'
 class Sqlite__Table(Kwargs_To_Self):
     database     : Sqlite__Database
     table_name   : str
+    table_class  : type
 
-    def create(self, fields=None):
+    def _table_create(self):
         from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
-        table_create       = Sqlite__Table__Create(self.table_name)         # todo: fix this workflow
-        table_create.table = self                                           #       since it is weird to have to overwrite the table vale of Sqlite__Table__Create
-        table_create.add_fields(fields)
-        return table_create.create_table()
+        table_create = Sqlite__Table__Create(self.table_name)                               # todo: fix this workflow
+        table_create.table = self
+        return table_create                                                                            #       since it is weird to have to overwrite the table vale of Sqlite__Table__Create
+
+    def create(self):
+        table_create = self._table_create()
+        return table_create.create_table__from_class(self.table_class)
 
     def cursor(self):
         return self.database.cursor()
