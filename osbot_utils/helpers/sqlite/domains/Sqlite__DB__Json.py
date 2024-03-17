@@ -31,7 +31,7 @@ class Sqlite__DB__Json(Kwargs_To_Self):
     def create_table_from_json_data(self, json_data):
         self.create_fields_from_json_data(json_data)
         if self.table_create.create_table():
-            self.table_create.table.row_add(json_data)
+            self.table_create.table.row_add_record(json_data)
             return self.table_create.table
 
     #def add_data_to_data_from_json_data(self, json_data):

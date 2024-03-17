@@ -4,15 +4,18 @@ from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.helpers.Print_Table import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
+from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Objects import base_types
+from osbot_utils.utils.Status import status_error
 
 DEFAULT_FIELD_NAME__ID = 'id'
 
 class Sqlite__Table(Kwargs_To_Self):
     database     : Sqlite__Database
     table_name   : str
-    table_class  : type
+    table_class  : type                             # todo: figure out if there is a better name for this (for example 'row_class'). since 'table_class' implies more things
 
     def _table_create(self):
         from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
@@ -58,24 +61,37 @@ class Sqlite__Table(Kwargs_To_Self):
             field_names.remove(DEFAULT_FIELD_NAME__ID)
         return field_names
 
+    def new_row_obj(self, row_data=None):
+        if self.table_class:
+            new_obj = self.table_class()
+            if row_data and Kwargs_To_Self in base_types(new_obj):
+                new_obj.update_from_kwargs(**row_data)
+            return new_obj
+
     def not_exists(self):
         return self.exists() is False
 
     def print(self, **kwargs):
         return Print_Table(**kwargs).print(self.rows())
 
-    def row_add(self, record):
+    def row_add(self, row_obj):
+        if self.table_class:
+            if type(row_obj) is self.table_class:
+                if Kwargs_To_Self in base_types(row_obj):
+                    return self.row_add_record(row_obj.json())
+        return status_error('in row_add, row_obj had the wrong format', data=row_obj)
+
+    def row_add_record(self, record):
         schema        = self.fields__cached()                                               # Retrieve the schema from the cached fields
         filtered_data = {key: value for key, value in record.items() if key in schema}      # Filter the data dictionary to include only keys that are valid column names according to the schema
         columns       = ', '.join(filtered_data.keys())                                     # Construct column names and placeholders
         placeholders  = ', '.join(['?' for _ in filtered_data.values()])
         sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'          # Construct the SQL statement
-        self.cursor().execute(sql, list(filtered_data.values()))                            # Execute the SQL statement with the filtered data values
-        return self
+        return self.cursor().execute(sql, list(filtered_data.values()))                            # Execute the SQL statement with the filtered data values
 
     def rows_add(self, records, commit=True):
         for record in records:
-            self.row_add(record)
+            self.row_add_record(record)
         if commit:
             self.cursor().commit()
         return self

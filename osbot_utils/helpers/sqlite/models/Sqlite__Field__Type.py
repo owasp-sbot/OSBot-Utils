@@ -6,6 +6,7 @@ from osbot_utils.decorators.methods.cache import cache
 
 
 class Sqlite__Field__Type(Enum):
+    BOOLEAN = bool
     DECIMAL = Decimal
     INTEGER = int
     TEXT    = str

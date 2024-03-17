@@ -85,9 +85,9 @@ class test_Sqlite__Table__Create(TestCase):
 
         with self.table_create as _:
             _.create_table__from_class(Sqlite__Bedrock__Row)
-            _.table.row_add(Sqlite__Bedrock__Row(request_hash='abc', cache_hits=41).json())
-            _.table.row_add(Sqlite__Bedrock__Row(request_hash='def', cache_hits=42).json())
-            _.table.row_add(Sqlite__Bedrock__Row(request_hash='xyz', cache_hits=43).json())
+            _.table.row_add_record(Sqlite__Bedrock__Row(request_hash='abc', cache_hits=41).json())
+            _.table.row_add_record(Sqlite__Bedrock__Row(request_hash='def', cache_hits=42).json())
+            _.table.row_add_record(Sqlite__Bedrock__Row(request_hash='xyz', cache_hits=43).json())
         assert _.table.rows() == [{'cache_hits': 41, 'id': 1, 'latest': 0, 'request_data': '', 'request_hash': 'abc', 'response_data': '', 'response_hash': '', 'timestamp': 0},
                                   {'cache_hits': 42, 'id': 2, 'latest': 0, 'request_data': '', 'request_hash': 'def', 'response_data': '', 'response_hash': '', 'timestamp': 0},
                                   {'cache_hits': 43, 'id': 3, 'latest': 0, 'request_data': '', 'request_hash': 'xyz', 'response_data': '', 'response_hash': '', 'timestamp': 0}]
