@@ -2,9 +2,9 @@ from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
-PRINT_MAX_STRING_LENGTH        = 100
-DEFAULT_PADDING_DURATION       = 100
-PRINT_SHOW_PARENT_INFO_COLUMN  = 60
+PRINT_MAX_STRING_LENGTH    = 100
+PRINT_PADDING__DURATION    = 100
+PRINT_PADDING_PARENT_INFO  = 60
 
 class Trace_Call__Config(Kwargs_To_Self):
     title                      : str
@@ -16,11 +16,11 @@ class Trace_Call__Config(Kwargs_To_Self):
     deep_copy_locals           : bool
     trace_capture_lines        : bool
     ignore_start_with          : list
-    padding_duration           : int = DEFAULT_PADDING_DURATION
+    print_padding_duration     : int = PRINT_PADDING__DURATION
+    print_padding_parent_info  : int = PRINT_PADDING_PARENT_INFO
     print_duration             : bool
     print_max_string_length    : int  = PRINT_MAX_STRING_LENGTH
     print_locals               : bool
-    print_show_parent_info_col : int = PRINT_SHOW_PARENT_INFO_COLUMN
     print_traces_on_exit       : bool
     print_lines_on_exit        : bool
     show_parent_info           : bool = False
@@ -63,10 +63,10 @@ class Trace_Call__Config(Kwargs_To_Self):
         self.print_traces_on_exit = True
         return self
 
-    def duration(self, bigger_than=0, padding=DEFAULT_PADDING_DURATION):
+    def duration(self, bigger_than=0, padding=PRINT_PADDING__DURATION):
         self.capture_duration          = True
         self.print_duration            = True
-        self.padding_duration          = padding
+        self.print_padding_duration          = padding
         self.with_duration_bigger_than = bigger_than
         return self
 

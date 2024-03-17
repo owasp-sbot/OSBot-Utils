@@ -127,7 +127,7 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
             if self.config.print_duration:
                 duration         = item.get('duration',0) * 1000                    # todo: see if this can be optimised with the similar call below
                 duration_rounded = round(duration, 3)
-                padding_duration = self.config.padding_duration - len(formatted_line)
+                padding_duration = self.config.print_padding_duration - len(formatted_line)
                 duration_text    = "{:>{},.3f}ms".format(duration_rounded, padding_duration)
                 formatted_line += f' {text_grey(duration_text)} '
 
@@ -156,7 +156,7 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                 if idx == 0 or (self.config.show_parent_info is False or self.config.show_method_class is True):                            # Handle the first line and conditional parent info differently
                     print(f"{text_bold(formatted_line)}")                                                  # Don't add "|" to the first line
                 else:
-                    padding = " " * (self.config.print_show_parent_info_col - len(formatted_line))
+                    padding = " " * (self.config.print_padding_parent_info - len(formatted_line))
 
                     print(f"{text_bold(formatted_line)} {padding}         {parent_info}")
 

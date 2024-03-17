@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch, call
 
 from osbot_utils.utils.Objects                    import default_value
-from osbot_utils.helpers.trace.Trace_Call__Config import Trace_Call__Config, DEFAULT_PADDING_DURATION
+from osbot_utils.helpers.trace.Trace_Call__Config import Trace_Call__Config, PRINT_PADDING__DURATION
 
 
 class test_Trace_Call__Config(TestCase):
@@ -21,13 +21,13 @@ class test_Trace_Call__Config(TestCase):
                           'capture_locals'             : False ,
                           'deep_copy_locals'           : False ,
                           'ignore_start_with'          : []    ,
-                          'padding_duration'           : 100   ,
                           'print_locals'               : False ,
                           'print_max_string_length'    : 100   ,
-                          'print_show_parent_info_col' : 60 ,
+                          'print_padding_duration'     : 100   ,
+                          'print_padding_parent_info'  : 60    ,
                           'print_lines_on_exit'        : False ,
                           'print_traces_on_exit'       : False ,
-                          'print_duration'             : False,
+                          'print_duration'             : False ,
                           'show_caller'                : False ,
                           'show_method_class'          : True  ,      # recently changed
                           'show_parent_info'           : False ,      # recently changed
@@ -86,14 +86,14 @@ class test_Trace_Call__Config(TestCase):
             config = self.trace_call_config
             assert config.capture_duration is False
             assert config.print_duration is False
-            assert config.padding_duration == DEFAULT_PADDING_DURATION
+            assert config.print_padding_duration == PRINT_PADDING__DURATION
             assert config.with_duration_bigger_than == 0
 
         with self.subTest("After setting duration"):
             config.duration(bigger_than=10, padding=20)
             assert config.capture_duration is True
             assert config.print_duration is True
-            assert config.padding_duration == 20
+            assert config.print_padding_duration == 20
             assert config.with_duration_bigger_than == 10
 
     def test_locals(self):
