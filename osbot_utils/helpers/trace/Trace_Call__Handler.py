@@ -9,10 +9,17 @@ from osbot_utils.helpers.trace.Trace_Call__Stats        import Trace_Call__Stats
 
 DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
 GLOBAL_FUNCTIONS_TO_IGNORE   = ['value_type_matches_obj_annotation_for_attr'       ,            # these are type safety functions which introduce quite a lot of noise in the traces (and unless one is debugging type safety, they will not be needed)
-                                'value_type_matches_obj_annotation_for_union_attr' ,
+                                'value_type_matches_obj_annotation_for_union_attr' ,            # todo: map out and document why exactly these methods are ignore (and what is the side effect)
                                 'are_types_compatible_for_assigment'               ,
                                 'obj_attribute_annotation'                         ,
-                                'get_origin'                                       ]
+                                'get_origin'                                       ,
+                                'getmro'                                           ,
+                                'default_value'                                    ,
+                                'raise_exception_on_obj_type_annotation_mismatch'  ]
+GLOBAL_MODULES_TO_IGNORE     = ['osbot_utils.helpers.trace.Trace_Call'             ,            # todo: map out and document why exactly these modules are ignore (and what is the side effect)
+                                'osbot_utils.base_classes.Kwargs_To_Self'          ,            #       also see if this should be done here or at the print/view stage
+                                'osbot_utils.helpers.CPrint'                       ,
+                                'codecs']
 
 class Trace_Call__Handler(Kwargs_To_Self):
     config : Trace_Call__Config
@@ -131,10 +138,13 @@ class Trace_Call__Handler(Kwargs_To_Self):
             code        = frame.f_code                                                      # Get code object from frame
             func_name   = code.co_name                                                      # Get function name
             module      = frame.f_globals.get("__name__", "")                               # Get module name
-            if  module == 'osbot_utils.helpers.trace.Trace_Call':                             # don't trace the trace module
-                return False                                                                # todo: figure out if there is a performance implication of doing this string comparison here (or if there is a better way to detect this)
-            if func_name in GLOBAL_FUNCTIONS_TO_IGNORE:
+
+            if module in GLOBAL_MODULES_TO_IGNORE:                                         # check if we should skip this module
                 return False
+
+            if func_name in GLOBAL_FUNCTIONS_TO_IGNORE:                                     # check if we should skip this function
+                return False
+
             if module and func_name:
                 if self.config.trace_capture_all:
                     capture = True

@@ -208,10 +208,9 @@ class test_Trace_Call(TestCase):
 
         assert list_set(self.handler.stats.frames_stats()) == ['codecs', 'genericpath', 'os',
                                                                'osbot_utils', 'posixpath', 'random', 'shutil',
-                                                               'tempfile', 'test_Trace_Call', 'typing']
+                                                               'tempfile', 'test_Trace_Call']
 
-        assert self.handler.stats.frames_stats().get('osbot_utils') == { 'base_classes': {'Kwargs_To_Self': {'__setattr__': 1}},
-                                                                         'helpers': {'trace': {'Trace_Call': {'__exit__': 1, 'on_exit': 1, 'stop': 1}}},
+        assert self.handler.stats.frames_stats().get('osbot_utils') == { 'helpers': {'trace': {'Trace_Call': {'__exit__': 1, 'on_exit': 1, 'stop': 1}}},
                                                                          'testing': {'Temp_File': {'__enter__': 2, '__exit__': 2, '__init__': 2}},
                                                                          'utils': {'Files': {'delete': 2,
                                                                                              'exists': 4,
@@ -223,11 +222,7 @@ class test_Trace_Call(TestCase):
                                                                                              'path_combine': 2,
                                                                                              'temp_folder': 2,
                                                                                              'write': 2},
-                                                                                   'Misc': {'random_filename': 2},
-                                                                                   'Objects': { 'are_types_compatible_for_assigment'              : 1,
-                                                                                                'obj_attribute_annotation'                        : 1,
-                                                                                                'value_type_matches_obj_annotation_for_attr'      : 1,
-                                                                                                'value_type_matches_obj_annotation_for_union_attr':1 }}}
+                                                                                   'Misc': {'random_filename': 2}}}
 
     def test__config_print_traces_on_exit(self):
         self.config.print_traces_on_exit = True

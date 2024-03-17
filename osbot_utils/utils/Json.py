@@ -3,7 +3,7 @@ import gzip
 import logging
 import os
 
-from osbot_utils.utils.Misc import str_lines, str_md5
+from osbot_utils.utils.Misc import str_lines, str_md5, str_sha256
 from osbot_utils.utils.Status import log_exception
 
 logger_json = logging.getLogger()   # todo: start using this API for capturing error messages from methods bellow
@@ -26,6 +26,9 @@ def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=st
 
 def json_dumps_to_bytes(*args, **kwargs):
     return json_dumps(*args, **kwargs).encode()
+
+def json_sha_256(target):
+    return str_sha256(json_dumps(target))
 
 
 

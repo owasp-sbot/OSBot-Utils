@@ -10,14 +10,16 @@ from osbot_utils.helpers.trace.Trace_Call__Print_Traces     import Trace_Call__P
 from osbot_utils.helpers.trace.Trace_Call__View_Model       import Trace_Call__View_Model
 
 
-def trace_calls(title=None, print_traces=True, show_locals=False, source_code=False, ignore=None, include=None,
-                max_string=None, show_types=False, show_caller=False, show_class=False, show_path=False,
-                show_duration=False, duration_bigger_than=0, contains=None, show_internals=False,
-                extra_data=False, show_lines=False, print_lines=False, enabled=True):
+def trace_calls(title         = None , print_traces = True , show_locals    = False, source_code          = False ,
+                ignore        = None , include      = None , show_path      = False, duration_bigger_than = 0     ,
+                max_string    = None , show_types   = False, show_caller    = False, show_duration        = False ,
+                show_class    = False, contains     = None , show_internals = False, enabled              = True  ,
+                extra_data    = False, show_lines   = False, print_lines    = False                               ):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             config_kwargs = dict(title=title, print_traces_on_exit=print_traces, print_locals=show_locals,
+                                 capture_locals = show_locals,
                                  trace_capture_source_code=source_code, ignore_start_with=ignore,
                                  trace_capture_start_with=include, print_max_string_length=max_string,
                                  show_parent_info=show_types, show_method_class=show_class,
@@ -32,7 +34,7 @@ def trace_calls(title=None, print_traces=True, show_locals=False, source_code=Fa
             config = (Trace_Call__Config().locked             ()
                                           .update_from_kwargs (**config_kwargs))
 
-            with Trace_Call(config=config):
+            with Trace_Call(config=config,disable_type_safety=False):
                 result = func(*args, **kwargs)
                 return result
         return wrapper
@@ -100,8 +102,9 @@ class Trace_Call(Kwargs_To_Self):
     def start(self):
         self.trace_call_handler.stack.add_node(title=self.trace_call_handler.config.title)
         self.prev_trace_function = sys.gettrace()
-        sys.settrace(self.trace_call_handler.trace_calls)                                   # Set the new trace function
-        self.started = True
+        self.started             = True                                                         # set this here so that it does show in the trace
+        sys.settrace(self.trace_call_handler.trace_calls)                                       # Set the new trace function
+
 
     def stop(self):
         if self.started:

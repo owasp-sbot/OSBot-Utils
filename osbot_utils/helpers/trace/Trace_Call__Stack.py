@@ -87,6 +87,7 @@ class Trace_Call__Stack(Kwargs_To_Self):
                         new_node.locals = {'error': f'error in deepcopy: {error}'}
                 else:
                     new_node.locals = frame.f_locals
+
             if self.config.capture_duration:
                 new_node.call_start = time.perf_counter()
         return new_node

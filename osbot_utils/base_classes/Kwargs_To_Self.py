@@ -72,7 +72,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     """
 
     __lock_attributes__ = False
-    #__type_safety__   = False
+    __type_safety__     = True
 
     def __init__(self, **kwargs):
         """
@@ -88,6 +88,9 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                        setting an undefined attribute.
 
         """
+        if 'disable_type_safety' in kwargs:                                 # special
+            self.__type_safety__ = kwargs['disable_type_safety']
+            del kwargs['disable_type_safety']
 
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
             if value is not None:                                           # when the value is explicity set to None on the class static vars, we can't check for type safety
@@ -106,26 +109,27 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
     def __setattr__(self, *args, **kwargs):
-        if len(args) == 2:
-            name,value = args
-        else:
-            name = None
-            value = None
-        if self.__lock_attributes__:
-            if not hasattr(self, name):
-                raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
+        if self.__type_safety__:
+            if len(args) == 2:
+                name,value = args
+            else:
+                name = None
+                value = None
+            if self.__lock_attributes__:
+                if not hasattr(self, name):
+                    raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
 
-        if value is not None:
-            check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
-            check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
-            if (check_1 is False and check_2 is None  or
-                check_1 is None  and check_2 is False or
-                check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
-                raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
-        else:
-            if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
-                if getattr(self, name) is not None:                         # unless it is already set to None
-                    raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+            if value is not None:
+                check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
+                check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
+                if (check_1 is False and check_2 is None  or
+                    check_1 is None  and check_2 is False or
+                    check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
+                    raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+            else:
+                if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
+                    if getattr(self, name) is not None:                         # unless it is already set to None
+                        raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
         super().__setattr__(*args, **kwargs)
 

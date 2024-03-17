@@ -75,9 +75,10 @@ class Sqlite__Database(Kwargs_To_Self):
             return True
         return file_exists(self.db_path)
 
-    def path_temp_database(self):
-        random_file_name = TEMP_DATABASE__FILE_NAME_PREFIX + random_filename(extension=TEMP_DATABASE__FILE_EXTENSION)
-        return path_combine(self.path_temp_databases(), random_file_name)
+    def path_temp_database(self, file_name=None):
+        if file_name is None:
+            file_name = TEMP_DATABASE__FILE_NAME_PREFIX + random_filename(extension=TEMP_DATABASE__FILE_EXTENSION)
+        return path_combine(self.path_temp_databases(), file_name)
 
     def path_temp_databases(self):
         path_temp_databases  = path_combine(current_temp_folder(), FOLDER_NAME_TEMP_DATABASES)      # use current temp folder has the parent folder
