@@ -15,10 +15,15 @@ GLOBAL_FUNCTIONS_TO_IGNORE   = ['value_type_matches_obj_annotation_for_attr'    
                                 'get_origin'                                       ,
                                 'getmro'                                           ,
                                 'default_value'                                    ,
-                                'raise_exception_on_obj_type_annotation_mismatch'  ]
+                                'raise_exception_on_obj_type_annotation_mismatch'  ,
+                                '__cls_kwargs__'        ,
+                                '__default__value__'    ,
+                                '__setattr__'           ,
+                                '<module>']
 GLOBAL_MODULES_TO_IGNORE     = ['osbot_utils.helpers.trace.Trace_Call'             ,            # todo: map out and document why exactly these modules are ignore (and what is the side effect)
-                                'osbot_utils.base_classes.Kwargs_To_Self'          ,            #       also see if this should be done here or at the print/view stage
-                                'osbot_utils.helpers.CPrint'                       ,
+                                'osbot_utils.helpers.CPrint'                       ,            #       also see if this should be done here or at the print/view stage
+                                'osbot_utils.helpers.Print_Table'      ,
+                                'osbot_utils.decorators.methods.cache_on_self'     ,
                                 'codecs']
 
 class Trace_Call__Handler(Kwargs_To_Self):

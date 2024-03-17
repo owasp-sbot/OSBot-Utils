@@ -12,9 +12,9 @@ from osbot_utils.helpers.trace.Trace_Call__View_Model       import Trace_Call__V
 
 def trace_calls(title         = None , print_traces = True , show_locals    = False, source_code          = False ,
                 ignore        = None , include      = None , show_path      = False, duration_bigger_than = 0     ,
-                max_string    = None , show_types   = False, show_caller    = False, show_duration        = False ,
+                max_string    = None , show_types   = False, show_duration  = False ,# show_caller    = False     ,         # todo: add back when show_caller is working again
                 show_class    = False, contains     = None , show_internals = False, enabled              = True  ,
-                extra_data    = False, show_lines   = False, print_lines    = False                               ):
+                extra_data    = False, show_lines   = False, print_lines    = False, show_types_padding   = None):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -27,14 +27,14 @@ def trace_calls(title         = None , print_traces = True , show_locals    = Fa
                                  capture_duration=show_duration, print_duration= show_duration,
                                  with_duration_bigger_than=duration_bigger_than,
                                  trace_capture_contains=contains, trace_show_internals=show_internals,
-                                 capture_extra_data=extra_data,
+                                 capture_extra_data=extra_data, print_show_parent_info_col= show_types_padding,
                                  print_lines_on_exit=print_lines, trace_enabled=enabled,
                                  trace_capture_lines=show_lines or print_lines)
 
             config = (Trace_Call__Config().locked             ()
                                           .update_from_kwargs (**config_kwargs))
 
-            with Trace_Call(config=config,disable_type_safety=False):
+            with Trace_Call(config=config):
                 result = func(*args, **kwargs)
                 return result
         return wrapper

@@ -2,8 +2,9 @@ from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
-PRINT_MAX_STRING_LENGTH  = 100
-DEFAULT_PADDING_DURATION = 100
+PRINT_MAX_STRING_LENGTH        = 100
+DEFAULT_PADDING_DURATION       = 100
+PRINT_SHOW_PARENT_INFO_COLUMN  = 60
 
 class Trace_Call__Config(Kwargs_To_Self):
     title                      : str
@@ -19,6 +20,7 @@ class Trace_Call__Config(Kwargs_To_Self):
     print_duration             : bool
     print_max_string_length    : int  = PRINT_MAX_STRING_LENGTH
     print_locals               : bool
+    print_show_parent_info_col : int = PRINT_SHOW_PARENT_INFO_COLUMN
     print_traces_on_exit       : bool
     print_lines_on_exit        : bool
     show_parent_info           : bool = False

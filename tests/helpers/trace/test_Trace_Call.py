@@ -162,9 +162,9 @@ class test_Trace_Call(TestCase):
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 4 traces captured\n'),
                                                  call('\x1b[1m📦  Trace Session\x1b[0m'),
-                                                 call('\x1b[1m│   ├── 🧩️ dummy_function\x1b[0m                                    test_Trace_Call'),
-                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                  test_Trace_Call'),
-                                                 call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m                                test_Trace_Call')] != []
+                                                 call('\x1b[1m│   ├── 🧩️ dummy_function\x1b[0m                                             test_Trace_Call'),
+                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                           test_Trace_Call'),
+                                                 call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m                                         test_Trace_Call')] != []
 
 
     def test__check_that_stats_catches_exception_stats(self):
