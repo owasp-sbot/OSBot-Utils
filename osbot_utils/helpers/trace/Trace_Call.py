@@ -23,7 +23,7 @@ def trace_calls(title         = None , print_traces = True , show_locals    = Fa
                                  trace_capture_source_code=source_code, ignore_start_with=ignore,
                                  trace_capture_start_with=include, print_max_string_length=max_string,
                                  show_parent_info=show_types, show_method_class=show_class,
-                                 show_caller=show_caller, show_source_code_path=show_path,
+                                show_source_code_path=show_path,
                                  capture_duration=show_duration, print_duration= show_duration,
                                  with_duration_bigger_than=duration_bigger_than,
                                  trace_capture_contains=contains, trace_show_internals=show_internals,
