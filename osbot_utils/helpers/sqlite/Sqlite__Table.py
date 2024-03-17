@@ -23,6 +23,10 @@ class Sqlite__Table(Kwargs_To_Self):
         table_create.table = self
         return table_create                                                                            #       since it is weird to have to overwrite the table vale of Sqlite__Table__Create
 
+    def clear(self):
+        sql_query = f'DELETE FROM {self.table_name}'
+        return self.cursor().execute_and_commit(sql_query)
+
     def create(self):
         table_create = self._table_create()
         return table_create.create_table__from_class(self.table_class)
@@ -75,11 +79,12 @@ class Sqlite__Table(Kwargs_To_Self):
         return Print_Table(**kwargs).print(self.rows())
 
     def row_add(self, row_obj):
-        if self.table_class:
-            if type(row_obj) is self.table_class:
-                if Kwargs_To_Self in base_types(row_obj):
-                    return self.row_add_record(row_obj.json())
-        return status_error('in row_add, row_obj had the wrong format', data=row_obj)
+        return self.row_add_record(row_obj.__dict__)
+        # if self.table_class:                                         # todo: see if we need the type checks below
+        #     if type(row_obj) is self.table_class:
+        #         if Kwargs_To_Self in base_types(row_obj):
+        #             return self.row_add_record(row_obj.json())
+        # return status_error('in row_add, row_obj had the wrong format', data=row_obj)
 
     def row_add_record(self, record):
         schema        = self.fields__cached()                                               # Retrieve the schema from the cached fields

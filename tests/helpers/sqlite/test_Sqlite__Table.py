@@ -73,14 +73,14 @@ class test_Sqlite__Table(TestCase):
     def test_row_add(self):
         row_obj_1 = self.table.new_row_obj()
         row_obj_2 = self.table.new_row_obj(dict(an_str='A', an_int=42))
-        pprint(self.table.table_class)
         assert self.table.row_add(row_obj_1) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
         assert self.table.row_add(row_obj_2) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
         assert self.table.rows() == [{'an_bytes': b'', 'an_int': 0 , 'an_str': '' , 'id': 1},
                                      {'an_bytes': b'', 'an_int': 42, 'an_str': 'A', 'id': 2}]
-
-        self.table.delete()     # todo add a method to clear a table
-        self.table.create()
+        assert self.table.size() == 2
+        assert self.table.clear() == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
+        assert self.table.size() == 0
+        assert self.table.rows() == []
 
     def test_rows(self):
         size = 10
