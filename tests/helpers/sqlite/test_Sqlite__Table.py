@@ -39,6 +39,25 @@ class test_Sqlite__Table(TestCase):
         expected_vars = dict(database=self.table.database, table_name=TEST_TABLE_NAME, row_schema=self.table.row_schema)
         assert self.table.__locals__() == expected_vars
 
+    def test_add_row(self):
+        expected_rows = [{'an_bytes': b'a', 'an_int': 42, 'an_str': '', 'id': 1},
+                         {'an_bytes': b'a', 'an_int': 12, 'an_str': '', 'id': 2}]
+        with self.table as _:
+            _.add_row(an_bytes=b'a', an_int=42      )
+            _.add_row(an_bytes=b'a', an_int=12, id=2)
+            assert _.rows() == expected_rows
+
+            with self.assertRaises(Exception) as context:
+                _.add_row(an_bytes=b'a', an_int='an-str')
+            assert context.exception.args[0] == ("Invalid type for attribute 'an_int'. Expected '<class 'int'>' but got "
+                                                 "'<class 'str'>'")
+            with self.assertRaises(Exception) as context:
+                _.add_row(an_bytes=b'a', bad_var='an-str')
+            assert context.exception.args[0] == ('in row_add the provided row_obj is not valid: provided row_obj has a field '
+                                                  'that is not part of the current table: bad_var') != ''
+
+            assert _.rows() == expected_rows
+
     def test_create(self):
         assert self.table.delete() is True                  # confirm table exists
         assert self.table.delete() is False                 # confirm that deleting table when it doesn't exist returns False
@@ -117,10 +136,10 @@ class test_Sqlite__Table(TestCase):
         test_data = self.create_test_data(size)
         self.table.rows_add(test_data)
         assert len(self.table.rows()) == len(test_data)
+        self.table.clear()
 
     def test_select_rows_where(self):
         with self.table as _:
-            _.clear()
             _.add_row(an_bytes=b'a', an_int=42      )
             _.add_row(an_bytes=b'a', an_int=12, id=2)
             assert _.select_rows_where(an_int=42) == [{'an_bytes': b'a', 'an_int': 42, 'an_str': '', 'id': 1}]
@@ -133,6 +152,16 @@ class test_Sqlite__Table(TestCase):
             assert context.exception.args[0] == 'in select_rows_where, the provided field is not valid: bad_var'
             _.clear()
 
+    def test_select_field_values(self):
+        with self.table as _:
+            _.add_row(an_str='str_in_1', an_int=42)
+            _.add_row(an_str='str_in_2', an_int=12)
+            assert _.select_field_values('an_str') == ['str_in_1', 'str_in_2']
+            with self.assertRaises(Exception) as context:
+                _.select_field_values('an_str_2')
+            assert context.exception.args[0] == ('in select_all_vales_from_field, the provide field_name "an_str_2" does not '
+                                                 'exist in the current table "an_table"')
+            _.clear()
 
     def test_sql_query_for_fields(self):
         assert self.table.sql_query_for_fields(                ) == 'SELECT an_bytes, an_int, an_str, id FROM an_table;'

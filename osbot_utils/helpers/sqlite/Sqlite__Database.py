@@ -113,7 +113,7 @@ class Sqlite__Database(Kwargs_To_Self):
         return self.cursor().tables()
 
     def tables_names(self):
-        return self.table__sqlite_master().field_data('name')
+        return self.table__sqlite_master().select_field_values('name')
 
 
 
