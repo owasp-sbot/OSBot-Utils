@@ -16,10 +16,11 @@ class test_SQL_Builder__Select(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.db_chinook = Sqlite__Sample_Data__Chinook().load_db_from_disk()
-        cls.table = cls.db_chinook.table('Genre')
+        cls.table      = cls.db_chinook.table('Genre')
+        cls.table.row_schema__set_from_field_types()
 
     def setUp(self):
-        self.sql_builder_select = SQL_Builder__Select()
+        self.sql_builder_select = SQL_Builder__Select(table=self.table)
 
     def test__setup(self):
         assert self.db_chinook.tables_names() == ['Genre', 'MediaType', 'Artist', 'Album', 'Track', 'Employee', 'Customer', 'Invoice', 'InvoiceLine', 'Playlist', 'PlaylistTrack']
@@ -27,3 +28,6 @@ class test_SQL_Builder__Select(TestCase):
 
     def test_build(self):
         assert self.sql_builder_select.build()  == 'SELECT * FROM *'
+
+    # def test_validate_query_data(self):
+    #     self.validate_query_data()§

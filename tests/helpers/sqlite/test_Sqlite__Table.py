@@ -1,9 +1,11 @@
+import inspect
 from unittest import TestCase
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.Print_Table import Print_Table
-from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
+from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table, SQL_TABLE__MODULE_NAME__ROW_SCHEMA, ROW_BASE_CLASS
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Objects import type_full_name
 
 TEST_TABLE_NAME       = 'an_table'
 EXPECTED_TABLE_SCHEMA = [{'cid': 0, 'name': 'id'      , 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1},
@@ -129,7 +131,35 @@ class test_Sqlite__Table(TestCase):
             assert self.table.size() == 0
             assert self.table.rows() == []
 
+    def test_row_schema__create_from_current_field_types(self):
+        with self.table as _:
+            expected_schema          = {'an_bytes': bytes, 'an_int': int, 'an_str': str}
+            expected_values          = {'an_bytes': b'', 'an_int': 0, 'an_str': ''}
+            field_types              = _.fields_types__cached(exclude_id=True)
+            Current_Row_Schema_Class = _.row_schema
+            Dynamic_Row_Schema_Class = _.row_schema__create_from_current_field_types()
 
+            assert _.row_schema                                         == An_Table_Class
+            assert field_types                                          == expected_schema
+            assert inspect.isclass(Current_Row_Schema_Class           ) is True
+            assert inspect.isclass(Dynamic_Row_Schema_Class           ) is True
+            assert issubclass(Current_Row_Schema_Class, Kwargs_To_Self) is True
+            assert issubclass(Dynamic_Row_Schema_Class, Kwargs_To_Self) is True
+            assert Current_Row_Schema_Class.__cls_kwargs__()            == expected_values
+            assert Dynamic_Row_Schema_Class.__cls_kwargs__()            == expected_values
+            assert Current_Row_Schema_Class.__schema__()                == expected_schema
+            assert Dynamic_Row_Schema_Class.__schema__()                == expected_schema
+            assert Current_Row_Schema_Class.__name__                    == 'An_Table_Class'
+            assert Dynamic_Row_Schema_Class.__name__                    == 'Row_Schema__An_Table'
+            assert Current_Row_Schema_Class.__module__                  == 'test_Sqlite__Table'
+            assert Dynamic_Row_Schema_Class.__module__                  == SQL_TABLE__MODULE_NAME__ROW_SCHEMA
+
+            current_obj = Current_Row_Schema_Class()
+            dynamic_obj = Dynamic_Row_Schema_Class()
+            assert current_obj.__locals__()    == expected_values
+            assert dynamic_obj.__locals__()    == expected_values
+            assert type_full_name(current_obj) == 'test_Sqlite__Table.An_Table_Class'
+            assert type_full_name(dynamic_obj) == f'{SQL_TABLE__MODULE_NAME__ROW_SCHEMA}.Row_Schema__An_Table'
 
     def test_rows(self):
         size = 10
@@ -189,7 +219,7 @@ class test_Sqlite__Table(TestCase):
             pass
         non_subclass_instance            = NonSubclassRow()
         non_subclass_instance__type_name = str(type(non_subclass_instance))
-        assert_validation_error(self.table, non_subclass_instance, f"provided row_obj ({non_subclass_instance__type_name}) is not a subclass of Kwargs_To_Self")  # at column 100
+        assert_validation_error(self.table, non_subclass_instance, f"provided row_obj ({non_subclass_instance__type_name}) is not a subclass of {ROW_BASE_CLASS}")  # at column 100
 
         # Test case where row_obj has an extra field not in the table
         class SubclassRowWithExtra(Kwargs_To_Self):

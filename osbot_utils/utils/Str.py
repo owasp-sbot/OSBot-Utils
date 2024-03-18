@@ -40,6 +40,18 @@ def str_starts_with(source, prefix):
 def str_unicode_escape(target):
     return str(target).encode('unicode_escape').decode("utf-8")
 
+def str_cap_snake_case(snake_str):
+    """
+    Converts a snake_case string to Capitalized_Snake_Case.
+
+    Args:
+        snake_str (str): The snake_case string to be converted.
+
+    Returns:
+        str: The converted string in Capitalized_Snake_Case.
+    """
+    return "_".join(word.capitalize() for word in snake_str.split("_"))
+
 
 def trim(target):
     if type(target) is str:

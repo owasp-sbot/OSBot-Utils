@@ -8,10 +8,13 @@ from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field_
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import base_types
+from osbot_utils.utils.Objects import base_types, default_value
 from osbot_utils.utils.Status import status_error
+from osbot_utils.utils.Str import str_cap_snake_case
 
-DEFAULT_FIELD_NAME__ID = 'id'
+DEFAULT_FIELD_NAME__ID             = 'id'
+ROW_BASE_CLASS                     = Kwargs_To_Self
+SQL_TABLE__MODULE_NAME__ROW_SCHEMA = 'Dynamic_Class__Sqlite__Table'
 
 class Sqlite__Table(Kwargs_To_Self):
     database  : Sqlite__Database
@@ -61,17 +64,19 @@ class Sqlite__Table(Kwargs_To_Self):
     def fields__cached(self):
         return self.fields()
 
-    def fields_types__cached(self):
+    def fields_types__cached(self, exclude_id=False):
         fields_types = {}
         for field_name, field_data in self.fields__cached().items():
+            if exclude_id and field_name == DEFAULT_FIELD_NAME__ID:
+                continue
             sqlite_field_type = field_data['type']
             field_type = Sqlite__Field__Type.enum_map().get(sqlite_field_type)
             fields_types[field_name] = field_type
         return fields_types
 
-    def fields_names__cached(self, execute_id=False):
+    def fields_names__cached(self, exclude_id=False):
         field_names = list_set(self.fields__cached())
-        if execute_id:
+        if exclude_id:
             field_names.remove(DEFAULT_FIELD_NAME__ID)
         return field_names
 
@@ -109,7 +114,7 @@ class Sqlite__Table(Kwargs_To_Self):
     def new_row_obj(self, row_data=None):
         if self.row_schema:
             new_obj = self.row_schema()
-            if row_data and Kwargs_To_Self in base_types(new_obj):
+            if row_data and ROW_BASE_CLASS in base_types(new_obj):
                 new_obj.update_from_kwargs(**row_data)
             return new_obj
 
@@ -148,6 +153,21 @@ class Sqlite__Table(Kwargs_To_Self):
             self.row_add_record(record)
         if commit:
             self.cursor().commit()
+        return self
+
+    def row_schema__create_from_current_field_types(self):
+        exclude_field_id                 = True                                                                 # don't include the id field since in most cases the row_schema doesn't include it
+        field_types                      = self.fields_types__cached(exclude_id=exclude_field_id)               # mapping with field name to field type (in python)
+        caps_table_name                  = str_cap_snake_case(self.table_name)
+        dynamic_class_name               = f'Row_Schema__{caps_table_name}'                                    # name that we will give to the dynamic class generated
+        dynamic_class_dict               = { k: default_value(v) for k, v in field_types.items()}              # assign the field values its default value (for that type)
+        dynamic_class_dict['__module__'] = SQL_TABLE__MODULE_NAME__ROW_SCHEMA                                            # set the module name
+        Dynamic_Class                    = type(dynamic_class_name, (ROW_BASE_CLASS,), dynamic_class_dict)     # Create the dynamic class
+        Dynamic_Class.__annotations__    = field_types                                                         # Set annotations of the new Dynamic_Class to be the mappings we have from field_types
+        return Dynamic_Class                                                                                   # return the Dynamic class (whose fields should match the field_types)
+
+    def row_schema__set_from_field_types(self):
+        self.row_schema = self.row_schema__create_from_current_field_types()
         return self
 
 
@@ -215,7 +235,7 @@ class Sqlite__Table(Kwargs_To_Self):
         invalid_reason = ""
         if self.row_schema:
             if row_obj:
-                if issubclass(type(row_obj), Kwargs_To_Self):
+                if issubclass(type(row_obj), ROW_BASE_CLASS):
                     for field_name, field_type in row_obj.__annotations__.items():
                         if field_name not in field_types:
                             invalid_reason = f'provided row_obj has a field that is not part of the current table: {field_name}'
@@ -233,7 +253,7 @@ class Sqlite__Table(Kwargs_To_Self):
                                 invalid_reason = f'provided row_obj has a field {field_name} that has a field value {field_value} value that has a type {type(field_value)} that does not match the current tables type of that field: {field_types.get(field_name)}'
                                 break
                 else:
-                    invalid_reason = f'provided row_obj ({type(row_obj)}) is not a subclass of Kwargs_To_Self'
+                    invalid_reason = f'provided row_obj ({type(row_obj)}) is not a subclass of {ROW_BASE_CLASS}'
             else:
                 invalid_reason = f'provided row_obj was None'
         else:

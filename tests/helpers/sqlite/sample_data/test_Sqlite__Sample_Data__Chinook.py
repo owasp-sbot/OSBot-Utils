@@ -67,7 +67,7 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
 
         for table in data_from__db_chinook.tables():
             table_name   = table.table_name
-            table_fields = table.fields_names__cached(execute_id=True)
+            table_fields = table.fields_names__cached(exclude_id=True)
             table_data__from_db   = table.rows(table_fields)
             table_data__from_json = data_from__json_file.get(table_name)
             assert len(table_data__from_db) > 0

@@ -235,6 +235,10 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                         kwargs[k] = v
         return kwargs
 
+    @classmethod
+    def __schema__(cls):
+        return cls.__annotations__
+
     # global methods added to any class that base classes this
     # todo: see if there should be a prefix on these methods, to make it easier to spot them
     #       of if these are actually that useful that they should be added like this
