@@ -5,6 +5,7 @@ from osbot_utils.decorators.methods.cache_on_self           import cache_on_self
 from osbot_utils.helpers.Print_Table                        import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database            import Sqlite__Database
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc                                 import list_set
 from osbot_utils.utils.Objects                              import base_types, default_value
 from osbot_utils.utils.Str                                  import str_cap_snake_case
@@ -138,12 +139,21 @@ class Sqlite__Table(Kwargs_To_Self):
         # return status_error('in row_add, row_obj had the wrong format', data=row_obj)
 
     def row_add_record(self, record):
-        schema        = self.fields__cached()                                               # Retrieve the schema from the cached fields
-        filtered_data = {key: value for key, value in record.items() if key in schema}      # Filter the data dictionary to include only keys that are valid column names according to the schema
-        columns       = ', '.join(filtered_data.keys())                                     # Construct column names and placeholders
-        placeholders  = ', '.join(['?' for _ in filtered_data.values()])
-        sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'          # Construct the SQL statement
-        return self.cursor().execute(sql, list(filtered_data.values()))                            # Execute the SQL statement with the filtered data values
+        validation_result = self.validate_record_with_schema(record)
+        if validation_result:
+            raise ValueError(f"row_add_record, validation_result for provided record failed with {validation_result}")
+
+        sql_command = self.sql_command_for_insert(record)
+        return self.cursor().execute(sql_command, list(record.values()))                    # Execute the SQL statement with the filtered data values
+
+    def validate_record_with_schema(self, record):
+        schema = self.fields__cached()
+
+        extra_keys = [key for key in record if key not in schema]                           # Check for keys in record that are not in the schema
+        if extra_keys:
+            return f'Validation error: Unrecognized keys {extra_keys} in record.'
+
+        return ''               # If we reach here, the record is valid
 
     def rows_add(self, records, commit=True):           # todo: refactor to use row_add
         for record in records:
@@ -215,6 +225,12 @@ class Sqlite__Table(Kwargs_To_Self):
     def sql_builder_select(self):
         from osbot_utils.helpers.sqlite.sql_builder.SQL_Builder__Select import SQL_Builder__Select
         return SQL_Builder__Select(table=self)
+
+    def sql_command_for_insert(self, filtered_data):
+        columns       = ', '.join(filtered_data.keys())                                         # Construct column names and placeholders
+        placeholders  = ', '.join(['?' for _ in filtered_data.values()])
+        sql_command   = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'    # Construct the SQL statement
+        return sql_command
 
     def sql_query_for_select_field_name(self, field_name):
         if field_name:
