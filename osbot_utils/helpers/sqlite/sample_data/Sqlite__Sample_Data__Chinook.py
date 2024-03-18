@@ -71,7 +71,7 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
 
     @cache_on_self
     def load_db_from_disk(self):
-        db_chinook = Sqlite__Database(db_path=PATH__DB__CHINOOK)
+        db_chinook = Sqlite__Database(db_path=PATH__DB__CHINOOK, auto_schema_row=True)          # set the auto_schema_row so that we have a row_schema defined for all tables
         return db_chinook
         # db_chinook.connect()
         # return db_chinook.table(self.table_name)

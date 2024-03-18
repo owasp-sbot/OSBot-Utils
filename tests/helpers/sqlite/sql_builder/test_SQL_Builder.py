@@ -22,9 +22,10 @@ class test_SQL_Builder(TestCase):
         self.sql_builder = SQL_Builder(table=self.table)
 
     def test_validate_query_data(self):
-        with self.assertRaises(ValueError) as context:
-            self.sql_builder.validate_query_data()
-        assert context.exception.args[0] == 'in SQL_Builder, there was no row_schema defined in the mapped table'
+        self.sql_builder.validate_query_data()
+        # with self.assertRaises(ValueError) as context:
+        #
+        # assert context.exception.args[0] == 'in SQL_Builder, there was no row_schema defined in the mapped table'
 
     def test_create_temp_schema(self):
         field_types= self.table.fields_types__cached()

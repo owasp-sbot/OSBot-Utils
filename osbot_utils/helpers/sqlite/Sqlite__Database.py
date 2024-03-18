@@ -13,11 +13,12 @@ TEMP_DATABASE__FILE_NAME_PREFIX = 'random_sqlite_db__'
 TEMP_DATABASE__FILE_EXTENSION   = '.sqlite'
 
 class Sqlite__Database(Kwargs_To_Self):
-    db_path   : str  = None
-    closed    : bool = False
-    connected : bool = False
-    deleted   : bool = False
-    in_memory : bool = True                     # default to an in-memory database
+    db_path         : str  = None
+    closed          : bool = False
+    connected       : bool = False
+    deleted         : bool = False
+    in_memory       : bool = True                       # default to an in-memory database
+    auto_schema_row : bool = False                      # option to map the table's schema_row when creating an table object
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -95,17 +96,19 @@ class Sqlite__Database(Kwargs_To_Self):
 
     def table(self, table_name):
         from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table              # need to import here due to circular imports
-        return Sqlite__Table(database=self, table_name=table_name)
+        table = Sqlite__Table(database=self, table_name=table_name)
+        if self.auto_schema_row:
+            table.row_schema__set_from_field_types()                            # todo: see if we shouldn't just propagate the auto_schema_row to the Sqlite__Table and do that on the ctor
+        return table
 
     def table__sqlite_master(self):
         return self.table('sqlite_master')
 
     def tables(self):
-        from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table             # todo: add support for Type_Registry
         tables = []
         for table_data in self.tables_raw():
             table_name = table_data.get('name')
-            table = Sqlite__Table(database=self, table_name=table_name)
+            table      = self.table(table_name)
             tables.append(table)
         return tables
 

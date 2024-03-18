@@ -22,11 +22,12 @@ class test_Sqlite__Database(TestCase):
         self.database = Sqlite__Database()
 
     def test__init(self):
-        expected_vars = { 'db_path'  : None  ,
-                          'closed'   : False ,
-                          'connected': False ,
-                          'deleted'  : False ,
-                          'in_memory': True  }
+        expected_vars = { 'auto_schema_row': False ,
+                          'db_path'        : None  ,
+                          'closed'         : False ,
+                          'connected'      : False ,
+                          'deleted'        : False ,
+                          'in_memory'      : True  }
         assert self.database.__locals__() == expected_vars
 
     @pytest.mark.skip('todo: fix bug caused by side effect of closing the db')
@@ -93,7 +94,8 @@ class test_Sqlite__Database(TestCase):
             assert file_extension(db_path) == TEMP_DATABASE__FILE_EXTENSION             # confirm that is set and has correct ext
             assert file_exists(db_path)    is True                                      # confirm file exists
 
-            assert db.__locals__() == { 'closed'                 : False          ,     # check the current values of the db config
+            assert db.__locals__() == { 'auto_schema_row'        : False          ,
+                                        'closed'                 : False          ,     # check the current values of the db config
                                         'connected'              : True           ,
                                         'db_path'                : db_path        ,
                                         'deleted'                : False          ,
@@ -103,7 +105,8 @@ class test_Sqlite__Database(TestCase):
             assert db.delete() is False                                                 # confirm we can't delete it twice
 
             assert file_exists(db_path)    is False                                     # after deletion confirm the file doesn't exist
-            assert db.__locals__() == { 'closed'                 : True           ,     # was False
+            assert db.__locals__() == { 'auto_schema_row'        : False          ,
+                                        'closed'                 : True           ,     # was False
                                         'connected'              : False          ,     # was True
                                         'db_path'                : db_path        ,
                                         'deleted'                : True           ,     # was False
