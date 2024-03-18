@@ -34,9 +34,13 @@ class Sqlite__Cursor(Kwargs_To_Self):
         except Exception as error:
             return status_exception(error=f'{error}')
 
-    def execute__fetch_all(self,sql_query):
-        self.execute(sql_query=sql_query)
+    def execute__fetch_all(self,sql_query, *params):
+        self.execute(sql_query,*params)
         return self.cursor().fetchall()
+
+    def execute__fetch_one(self,sql_query, *params):
+        self.execute(sql_query, *params)
+        return self.cursor().fetchone()
 
     def fetchone(self):
         return self.cursor().fetchone()

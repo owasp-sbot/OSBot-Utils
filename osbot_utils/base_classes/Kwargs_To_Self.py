@@ -89,7 +89,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
 
         """
         if 'disable_type_safety' in kwargs:                                 # special
-            self.__type_safety__ = kwargs['disable_type_safety']
+            self.__type_safety__ = kwargs['disable_type_safety'] is False
             del kwargs['disable_type_safety']
 
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self

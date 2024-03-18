@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.helpers.Print_Table import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
 from osbot_utils.utils.Dev import pprint
 
@@ -22,7 +23,7 @@ class test_Sqlite__Table(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.table        = Sqlite__Table(table_name=TEST_TABLE_NAME, table_class=An_Table_Class)
+        cls.table        = Sqlite__Table(table_name=TEST_TABLE_NAME, row_schema=An_Table_Class)
         assert cls.table.create() is True
         #assert cls.table.create() == True
 
@@ -35,7 +36,7 @@ class test_Sqlite__Table(TestCase):
         return [{'an_str': f'an_str_{i}', 'an_int': i} for i in range(size)]
 
     def test__init__(self):
-        expected_vars = dict(database=self.table.database, table_name=TEST_TABLE_NAME, table_class=self.table.table_class)
+        expected_vars = dict(database=self.table.database, table_name=TEST_TABLE_NAME, row_schema=self.table.row_schema)
         assert self.table.__locals__() == expected_vars
 
     def test_create(self):
@@ -66,21 +67,50 @@ class test_Sqlite__Table(TestCase):
     def test_exists(self):
         assert self.table.exists() is True
 
+    def test_fields__cached(self):
+        fields = self.table.fields__cached()
+        assert fields == self.table.fields()
+        assert list(fields.values()) == EXPECTED_TABLE_SCHEMA
+        assert list(fields.keys  ()) == ['an_bytes', 'an_int', 'an_str', 'id']
+        assert list(fields.keys  ()) == self.table.fields_names__cached()
+
+    def test_fields_types__cached(self):
+        assert self.table.fields_types__cached() == { 'an_bytes': bytes,
+                                                      'an_int'  : int  ,
+                                                      'an_str'  : str  ,
+                                                      'id'      : int  }
+
+    def test_indexes(self):
+        index_field = 'an_int'
+        index_name  = f'idx__{self.table.table_name}__{index_field}'
+        assert self.table.indexes() == []
+        self.table.index_create(index_field)
+        assert self.table.indexes() == [index_name]
+        assert self.table.index_exists(index_field) is True
+        self.table.index_delete(index_name)
+        assert self.table.index_exists(index_field) is False
+        assert self.table.indexes() == []
+
+
     def test_schema(self):
         table_schema = self.table.schema()
         assert table_schema == EXPECTED_TABLE_SCHEMA
 
+
     def test_row_add(self):
-        row_obj_1 = self.table.new_row_obj()
-        row_obj_2 = self.table.new_row_obj(dict(an_str='A', an_int=42))
-        assert self.table.row_add(row_obj_1) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
-        assert self.table.row_add(row_obj_2) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
-        assert self.table.rows() == [{'an_bytes': b'', 'an_int': 0 , 'an_str': '' , 'id': 1},
-                                     {'an_bytes': b'', 'an_int': 42, 'an_str': 'A', 'id': 2}]
-        assert self.table.size() == 2
-        assert self.table.clear() == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
-        assert self.table.size() == 0
-        assert self.table.rows() == []
+        with self.table as _:
+            row_obj_1 = self.table.new_row_obj()
+            row_obj_2 = self.table.new_row_obj(dict(an_str='A', an_int=42))
+            assert self.table.row_add(row_obj_1) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
+            assert self.table.row_add(row_obj_2) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
+            assert self.table.rows() == [{'an_bytes': b'', 'an_int': 0 , 'an_str': '' , 'id': 1},
+                                         {'an_bytes': b'', 'an_int': 42, 'an_str': 'A', 'id': 2}]
+            assert self.table.size() == 2
+            assert self.table.clear() == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
+            assert self.table.size() == 0
+            assert self.table.rows() == []
+
+
 
     def test_rows(self):
         size = 10
@@ -88,9 +118,68 @@ class test_Sqlite__Table(TestCase):
         self.table.rows_add(test_data)
         assert len(self.table.rows()) == len(test_data)
 
+    def test_select_rows_where(self):
+        with self.table as _:
+            _.clear()
+            _.add_row(an_bytes=b'a', an_int=42      )
+            _.add_row(an_bytes=b'a', an_int=12, id=2)
+            assert _.select_rows_where(an_int=42) == [{'an_bytes': b'a', 'an_int': 42, 'an_str': '', 'id': 1}]
+            assert _.select_rows_where(an_bytes=b'a') == [{'an_bytes': b'a', 'an_int': 42, 'an_str': '', 'id': 1},
+                                                          {'an_bytes': b'a', 'an_int': 12, 'an_str': '', 'id': 2}]
+
+
+            with self.assertRaises(Exception) as context:
+                _.select_rows_where(bad_var=123)
+            assert context.exception.args[0] == 'in select_rows_where, the provided field is not valid: bad_var'
+            _.clear()
+
+
     def test_sql_query_for_fields(self):
         assert self.table.sql_query_for_fields(                ) == 'SELECT an_bytes, an_int, an_str, id FROM an_table;'
         assert self.table.sql_query_for_fields(['id'          ]) == 'SELECT id FROM an_table;'
         assert self.table.sql_query_for_fields(['an_int'      ]) == 'SELECT an_int FROM an_table;'
         assert self.table.sql_query_for_fields(['an_str'      ]) == 'SELECT an_str FROM an_table;'
         assert self.table.sql_query_for_fields(['an_str', 'id']) == 'SELECT an_str, id FROM an_table;'
+
+    def test_validate_row_obj(self):
+        def assert_validation_error(table, obj, expected_error):
+            error = table.validate_row_obj(obj)
+            assert error == expected_error, f"Expected: {expected_error}, Got: {error}"
+
+        # Test case where table_class is not defined
+        table_with_no_row_schema = Sqlite__Table(table_name='no-row-schema')
+        assert table_with_no_row_schema.row_schema is None
+        assert_validation_error(table_with_no_row_schema,None,  f"there is no row_schema defined for this table no-row-schema")  # at column 100
+
+
+        # Test case where row_obj is None
+        assert_validation_error(self.table, None, "provided row_obj was None")  # at column 100
+
+        # Test case where row_obj does not subclass Kwargs_To_Self
+        class NonSubclassRow:
+            pass
+        non_subclass_instance            = NonSubclassRow()
+        non_subclass_instance__type_name = str(type(non_subclass_instance))
+        assert_validation_error(self.table, non_subclass_instance, f"provided row_obj ({non_subclass_instance__type_name}) is not a subclass of Kwargs_To_Self")  # at column 100
+
+        # Test case where row_obj has an extra field not in the table
+        class SubclassRowWithExtra(Kwargs_To_Self):
+            extra_field: int
+        sub_class_with_extra_row = SubclassRowWithExtra()
+        assert_validation_error(self.table, sub_class_with_extra_row, 'provided row_obj has a field that is not part of the current table: ''extra_field')
+
+        # Test case where row_obj has an extra field that doesn't match the correct field type
+        class An_Table_Class__With_Bad_Field(Kwargs_To_Self):
+            an_str: int
+        new_obj_bad_field = An_Table_Class__With_Bad_Field()
+        assert_validation_error(self.table, new_obj_bad_field, "provided row_obj has a field an_str that has a field type <class 'int'> that "
+                                                                             "does not match the current tables type of that field: <class 'str'>")
+
+        # Test case where row_obj has an extra field with data that doesn't match the correct field type
+        new_obj_bad_data        = An_Table_Class(disable_type_safety=True) # we need to disable type safety, or we will not be able to make the assignment in the next line
+        new_obj_bad_data.an_str = 123
+        expected_reason         = ('provided row_obj has a field an_str that has a field value 123 value that '
+                                   "has a type <class 'int'> that does not match the current tables type of that "
+                                   "field: <class 'str'>")
+        assert_validation_error(self.table, new_obj_bad_data, expected_reason)  # BUG
+

@@ -30,6 +30,12 @@ class Sqlite__Table__Create(Kwargs_To_Self):
                 results.append(self.add_field(field_data))
         return results
 
+    def add_fields_from_class(self, table_class):
+        if inspect.isclass(table_class):
+            for field_name, field_type in table_class.__annotations__.items():
+                self.add_field_with_type(field_name, field_type)
+        return self
+
     def add_field_with_type(self, field_name, field_type):
         if inspect.isclass(field_type):
             field_type = Sqlite__Field__Type.type_map().get(field_type)
@@ -51,11 +57,9 @@ class Sqlite__Table__Create(Kwargs_To_Self):
             return self.table.exists()
         return False
 
-    def create_table__from_class(self, table_class):
-        if inspect.isclass(table_class):
-            for field_name, field_type in table_class.__annotations__.items():
-                self.add_field_with_type(field_name, field_type)
-
+    def create_table__from_row_schema(self, row_schema):
+        self.add_fields_from_class(row_schema)
+        self.table.row_schema = row_schema
         return self.create_table()
 
     @filter_list

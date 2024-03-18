@@ -4,6 +4,7 @@ from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.helpers.Print_Table import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
+from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.utils.Misc import list_set
@@ -13,15 +14,19 @@ from osbot_utils.utils.Status import status_error
 DEFAULT_FIELD_NAME__ID = 'id'
 
 class Sqlite__Table(Kwargs_To_Self):
-    database     : Sqlite__Database
-    table_name   : str
-    table_class  : type                             # todo: figure out if there is a better name for this (for example 'row_class'). since 'table_class' implies more things
+    database  : Sqlite__Database
+    table_name: str
+    row_schema: type
 
-    def _table_create(self):
+    def _table_create(self):                        # todo: Sqlite__Table__Create needs to be refactored (since that was created before we had support for table_class )
         from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
         table_create = Sqlite__Table__Create(self.table_name)                               # todo: fix this workflow
         table_create.table = self
         return table_create                                                                            #       since it is weird to have to overwrite the table vale of Sqlite__Table__Create
+
+    def add_row(self, **row_data):
+        new_row  = self.new_row_obj(row_data)
+        return self.row_add(new_row)
 
     def clear(self):
         sql_query = f'DELETE FROM {self.table_name}'
@@ -29,13 +34,16 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def create(self):
         table_create = self._table_create()
-        return table_create.create_table__from_class(self.table_class)
+        return table_create.create_table__from_row_schema(self.row_schema)
 
-    def cursor(self):
-        return self.database.cursor()
+    def commit(self):
+        return self.cursor().commit()
 
     def connection(self):
         return self.database.connection()
+
+    def cursor(self):
+        return self.database.cursor()
 
     def delete(self):
         if self.exists() is False:                                  # if table doesn't exist
@@ -59,15 +67,54 @@ class Sqlite__Table(Kwargs_To_Self):
     def fields__cached(self):
         return self.fields()
 
+    def fields_types__cached(self):
+        fields_types = {}
+        for field_name, field_data in self.fields__cached().items():
+            sqlite_field_type = field_data['type']
+            field_type = Sqlite__Field__Type.enum_map().get(sqlite_field_type)
+            fields_types[field_name] = field_type
+        return fields_types
+
     def fields_names__cached(self, execute_id=False):
         field_names = list_set(self.fields__cached())
         if execute_id:
             field_names.remove(DEFAULT_FIELD_NAME__ID)
         return field_names
 
+    def index_create(self, index_field):
+        if index_field not in self.fields_names__cached():
+            raise ValueError(f"in index_create, invalid target_field: {index_field}")
+
+        index_name = self.index_name(index_field)
+        sql_query = f'CREATE INDEX IF NOT EXISTS {index_name} ON {self.table_name}({index_field});'
+        return self.cursor().execute_and_commit(sql_query)
+
+    def index_delete(self, index_name):
+        sql_query = f'DROP INDEX IF EXISTS {index_name};'
+        return self.cursor().execute_and_commit(sql_query)
+
+    def index_exists(self, index_field):
+        index_name = self.index_name(index_field)
+        return index_name in self.indexes()
+
+    def index_name(self, index_field):
+        return f'idx__{self.table_name}__{index_field}'
+
+    def list_from_fetch(self, rows, field_name):
+        return [row[field_name] for row in rows]
+
+    def indexes(self):
+        field_name  = 'name'
+        table_name  = 'sqlite_master'
+        table_type  = 'index'
+        field_query = 'tbl_name'
+        sql_query   = f"SELECT {field_name} FROM {table_name} WHERE type='{table_type}' AND {field_query}=?"
+        rows        = self.cursor().execute__fetch_all(sql_query, (self.table_name,))
+        return self.list_from_fetch(rows, field_name)
+
     def new_row_obj(self, row_data=None):
-        if self.table_class:
-            new_obj = self.table_class()
+        if self.row_schema:
+            new_obj = self.row_schema()
             if row_data and Kwargs_To_Self in base_types(new_obj):
                 new_obj.update_from_kwargs(**row_data)
             return new_obj
@@ -78,7 +125,15 @@ class Sqlite__Table(Kwargs_To_Self):
     def print(self, **kwargs):
         return Print_Table(**kwargs).print(self.rows())
 
-    def row_add(self, row_obj):
+    def row_add(self, row_obj=None):
+        invalid_reason = self.validate_row_obj(row_obj)
+        if invalid_reason:
+            raise Exception(f"in row_add the provided row_obj is not valid: {invalid_reason}")
+        # if type(row_data) is self.table_class:
+        #     new_row = row_data
+        # else:
+        #     new_row = self.new_row_obj(row_data)
+
         return self.row_add_record(row_obj.__dict__)
         # if self.table_class:                                         # todo: see if we need the type checks below
         #     if type(row_obj) is self.table_class:
@@ -94,7 +149,7 @@ class Sqlite__Table(Kwargs_To_Self):
         sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'          # Construct the SQL statement
         return self.cursor().execute(sql, list(filtered_data.values()))                            # Execute the SQL statement with the filtered data values
 
-    def rows_add(self, records, commit=True):
+    def rows_add(self, records, commit=True):           # todo: refactor to use row_add
         for record in records:
             self.row_add_record(record)
         if commit:
@@ -106,6 +161,22 @@ class Sqlite__Table(Kwargs_To_Self):
         sql_query = self.sql_query_for_fields(fields_names)
         return self.cursor().execute__fetch_all(sql_query)
 
+    def select_rows_where(self, **kwargs):
+        valid_fields  = self.fields__cached()                               # Get a list of valid field names from the cached schema
+        params        = []                                                  # Initialize an empty list to hold query parameters
+        where_clauses = []                                                  # Initialize an empty list to hold parts of the WHERE clause
+        for field_name, query_value in kwargs.items():                      # Iterate over each keyword argument and its value
+            if field_name not in valid_fields:                              # Check if the provided field name is valid
+                raise ValueError(f'in select_rows_where, the provided field is not valid: {field_name}')
+            params.append(query_value)                                      # Append the query value to the parameters list
+            where_clauses.append(f"{field_name} = ?")                       # Append the corresponding WHERE clause part, using a placeholder for the value
+        where_clause = ' AND '.join(where_clauses)                          # Join the individual parts of the WHERE clause with 'AND'
+
+
+        sql_query = f"SELECT * FROM {self.table_name} WHERE {where_clause}" # Construct the full SQL query
+
+        # Execute the query and return the results
+        return self.cursor().execute__fetch_all(sql_query, params)
 
     @index_by
     def schema(self):
@@ -137,4 +208,29 @@ class Sqlite__Table(Kwargs_To_Self):
         sql_query = f"SELECT {fields_str} FROM {self.table_name};"  # Join the valid field names with commas
         return sql_query
 
+    def validate_row_obj(self, row_obj):
+        field_types = self.fields_types__cached()
+        invalid_reason = ""
+        if self.row_schema:
+            if row_obj:
+                if issubclass(type(row_obj), Kwargs_To_Self):
+                    for field_name, field_type in row_obj.__annotations__.items():
+                        if field_name not in field_types:
+                            invalid_reason = f'provided row_obj has a field that is not part of the current table: {field_name}'
+                            break
+
+                        if field_type != field_types[field_name]:
+                            invalid_reason = f'provided row_obj has a field {field_name} that has a field type {field_type} that does not match the current tables type of that field: {field_types[field_name]}'
+                            break
+                    if invalid_reason  is '':
+                        for field_name, field_value in row_obj.__locals__().items():
+                            if type(field_value) != field_types[field_name]:
+                                invalid_reason = f'provided row_obj has a field {field_name} that has a field value {field_value} value that has a type {type(field_value)} that does not match the current tables type of that field: {field_types[field_name]}'
+                else:
+                    invalid_reason = f'provided row_obj ({type(row_obj)}) is not a subclass of Kwargs_To_Self'
+            else:
+                invalid_reason = f'provided row_obj was None'
+        else:
+            invalid_reason = f'there is no row_schema defined for this table {self.table_name}'
+        return invalid_reason
 
