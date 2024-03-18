@@ -193,12 +193,26 @@ class test_Sqlite__Table(TestCase):
                                                  'exist in the current table "an_table"')
             _.clear()
 
+    def test_size(self):
+        assert self.table.size() == 0
+
     def test_sql_query_for_fields(self):
         assert self.table.sql_query_for_fields(                ) == 'SELECT an_bytes, an_int, an_str, id FROM an_table;'
         assert self.table.sql_query_for_fields(['id'          ]) == 'SELECT id FROM an_table;'
         assert self.table.sql_query_for_fields(['an_int'      ]) == 'SELECT an_int FROM an_table;'
         assert self.table.sql_query_for_fields(['an_str'      ]) == 'SELECT an_str FROM an_table;'
         assert self.table.sql_query_for_fields(['an_str', 'id']) == 'SELECT an_str, id FROM an_table;'
+
+    def test_sql_query_for_size(self):
+        assert self.table.sql_query_for_size('a' ) == 'SELECT COUNT(*) as a FROM an_table'
+        assert self.table.sql_query_for_size(''  ) is None
+        assert self.table.sql_query_for_size(None) is None
+
+    def test_sql_query_for_select_field_name(self):
+        assert self.table.sql_query_for_select_field_name('a' ) == 'SELECT a FROM an_table;'
+        assert self.table.sql_query_for_select_field_name(''  ) is None
+        assert self.table.sql_query_for_select_field_name(None) is None
+
 
     def test_validate_row_obj(self):
         def assert_validation_error(table, obj, expected_error):

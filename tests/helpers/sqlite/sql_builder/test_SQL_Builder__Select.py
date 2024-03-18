@@ -17,7 +17,6 @@ class test_SQL_Builder__Select(TestCase):
     def setUpClass(cls) -> None:
         cls.db_chinook = Sqlite__Sample_Data__Chinook().load_db_from_disk()
         cls.table      = cls.db_chinook.table('Genre')
-        cls.table.row_schema__set_from_field_types()  # todo: refactor this to inside the Sqlite__Sample_Data__Chinook (since that will always be needed)
 
     def setUp(self):
         self.sql_builder_select = SQL_Builder__Select(table=self.table)
@@ -31,3 +30,8 @@ class test_SQL_Builder__Select(TestCase):
 
     def test_validate_query_data(self):
         self.sql_builder_select.validate_query_data()
+
+    def test_sql_query_for_fields(self):
+        expected_sql = 'SELECT GenreId, Name, id FROM Genre;'
+        assert expected_sql == self.table.sql_query_for_fields()
+

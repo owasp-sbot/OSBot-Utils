@@ -1,16 +1,13 @@
-from osbot_utils.base_classes.Kwargs_To_Self     import Kwargs_To_Self
-from osbot_utils.decorators.lists.filter_list import filter_list
-from osbot_utils.decorators.lists.index_by import index_by
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-from osbot_utils.helpers.Print_Table import Print_Table
-from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
-from osbot_utils.utils.Dev import pprint
-
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import base_types, default_value
-from osbot_utils.utils.Status import status_error
-from osbot_utils.utils.Str import str_cap_snake_case
+from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
+from osbot_utils.decorators.lists.filter_list               import filter_list
+from osbot_utils.decorators.lists.index_by                  import index_by
+from osbot_utils.decorators.methods.cache_on_self           import cache_on_self
+from osbot_utils.helpers.Print_Table                        import Print_Table
+from osbot_utils.helpers.sqlite.Sqlite__Database            import Sqlite__Database
+from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
+from osbot_utils.utils.Misc                                 import list_set
+from osbot_utils.utils.Objects                              import base_types, default_value
+from osbot_utils.utils.Str                                  import str_cap_snake_case
 
 DEFAULT_FIELD_NAME__ID             = 'id'
 ROW_BASE_CLASS                     = Kwargs_To_Self
@@ -195,7 +192,7 @@ class Sqlite__Table(Kwargs_To_Self):
     def select_field_values(self, field_name):
         if field_name not in self.fields__cached():
             raise ValueError(f'in select_all_vales_from_field, the provide field_name "{field_name}" does not exist in the current table "{self.table_name}"')
-        sql_query  = f"SELECT {field_name} FROM {self.table_name};"     # Construct the SQL query
+        sql_query  = self.sql_query_for_select_field_name(field_name)
         all_rows   = self.cursor().execute__fetch_all(sql_query)        # Execute the SQL query and get all rows
         all_values = [row[field_name] for row in all_rows]              # Extract the desired field from each row in the result set
         return all_values
@@ -210,25 +207,25 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def size(self):
         var_name = 'size'
-        self.cursor().execute(f'SELECT COUNT(*) as {var_name} FROM {self.table_name}')
-        result = self.cursor().fetchone()
+        sql_query = self.sql_query_for_size(var_name)
+        result = self.cursor().execute__fetch_one(sql_query)
         return result.get(var_name)
 
-    def sql_query_for_fields(self, field_names: list = None):               # todo: refactor this into an SQL_Builder class
-        valid_fields = self.fields_names__cached()
-        if field_names is None:
-            field_names = valid_fields
-        elif isinstance(field_names, list) is False:
-            raise ValueError(f"in sql_query_for_fields, field_names must be a list, it was :{field_names}")
+    @cache_on_self
+    def sql_builder_select(self):
+        from osbot_utils.helpers.sqlite.sql_builder.SQL_Builder__Select import SQL_Builder__Select
+        return SQL_Builder__Select(table=self)
 
-        invalid_field_names = [name for name in field_names if name not in valid_fields]    # If no valid field names are provided, raise an error or return a default query
-        if invalid_field_names:                                                             # If there are any invalid field names, raise an exception listing them
-            message = f"Invalid field names provided: {', '.join(invalid_field_names)}"
-            raise ValueError(message)
+    def sql_query_for_select_field_name(self, field_name):
+        if field_name:
+            return f"SELECT {field_name} FROM {self.table_name};"  # Construct the SQL query
 
-        fields_str = ', '.join(field_names)                         # Construct the SQL query string
-        sql_query = f"SELECT {fields_str} FROM {self.table_name};"  # Join the valid field names with commas
-        return sql_query
+    def sql_query_for_size(self, var_name):
+        if var_name:
+            return f'SELECT COUNT(*) as {var_name} FROM {self.table_name}'
+
+    def sql_query_for_fields(self, field_names: list = None):
+        return self.sql_builder_select().select_for_fields(field_names)
 
     def validate_row_obj(self, row_obj):
         field_types = self.fields_types__cached()
