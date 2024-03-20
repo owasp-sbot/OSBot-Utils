@@ -42,7 +42,10 @@ class Sqlite__Cursor(Kwargs_To_Self):
         self.execute(sql_query, *params)
         return self.cursor().fetchone()
 
-    def fetchone(self):
+    def fetch_all(self):
+        return self.cursor().fetchall()
+
+    def fetch_one(self):
         return self.cursor().fetchone()
 
     def table_create(self, table_name, fields):

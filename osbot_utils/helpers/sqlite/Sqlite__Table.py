@@ -144,8 +144,8 @@ class Sqlite__Table(Kwargs_To_Self):
         if validation_result:
             raise ValueError(f"row_add_record, validation_result for provided record failed with {validation_result}")
 
-        sql_command = self.sql_command_for_insert(record)
-        return self.cursor().execute(sql_command, list(record.values()))                    # Execute the SQL statement with the filtered data values
+        sql_command,params = self.sql_command_for_insert(record)
+        return self.cursor().execute(sql_command, params)                    # Execute the SQL statement with the filtered data values
 
     def validate_record_with_schema(self, record):
         schema = self.fields__cached()
@@ -218,11 +218,23 @@ class Sqlite__Table(Kwargs_To_Self):
     def sql_command_delete_table(self):
         return f'DELETE FROM {self.table_name}'
 
-    def sql_command_for_insert(self, filtered_data):
-        columns       = ', '.join(filtered_data.keys())                                         # Construct column names and placeholders
-        placeholders  = ', '.join(['?' for _ in filtered_data.values()])
-        sql_command   = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'    # Construct the SQL statement
-        return sql_command
+    def sql_command_for_insert(self, record):
+        valid_field_names = self.fields_names__cached()
+        if type(record) is dict:
+            if record:
+                field_names   = record.keys()
+                params        =  list(record.values())
+                for field_name in field_names:
+                    if field_name not in valid_field_names:
+                        raise ValueError(f'in sql_command_for_insert, there was a field_name "{field_name}" that did exist in the current table')
+
+                columns       = ', '.join(field_names)                                                         # Construct column names and placeholders
+                placeholders  = ', '.join(['?' for _ in field_names])
+                sql_command   = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'    # Construct the SQL statement
+                return sql_command, params
+
+    def sql_query_for_fields(self, field_names: list = None):
+        return self.sql_builder().select_for_fields(field_names)
 
     def sql_query_for_select_field_name(self, field_name):
         if field_name:
@@ -232,17 +244,32 @@ class Sqlite__Table(Kwargs_To_Self):
         if var_name:
             return f'SELECT COUNT(*) as {var_name} FROM {self.table_name}'
 
-    def sql_query_for_fields(self, field_names: list = None):
-        return self.sql_builder().select_for_fields(field_names)
+
+    def validate_query_fields(self, target_table, return_fields, query_conditions):
+        valid_fields = self.fields_names__cached()
+        if target_table not in self.database.tables_names():
+            raise ValueError(f'in validate_query_fields, invalid target_table name: {target_table}')
+        if type(return_fields) is not list:
+            raise ValueError(f'in validate_query_fields, return_fields value must be a list, and it was {type(return_fields)}')
+        for return_field in return_fields:
+            if return_field not in valid_fields:
+                raise ValueError(f'in validate_query_fields, invalid, invalid return_field: {return_field}')
+        if type(query_conditions) is not dict:
+            raise ValueError(f'in validate_query_fields, query_conditions value must be a dict, and it was {type(query_conditions)}')
+        for where_field in query_conditions.keys():
+            if where_field not in valid_fields:
+                raise ValueError(f'in validate_query_fields, invalid, invalid return_field: {where_field}')
 
     #todo: need to add type safety to deal with SQL Injection
     def sql_query_select_fields_from_table_with_conditions(self,target_table, return_fields, query_conditions):
-        where_fields     = list(query_conditions.keys())
-        params           = list(query_conditions.values())
-        fields_to_return = ', '.join(return_fields)                                             # Join the select_fields list into a comma-separated string
-        where_clause     = ' AND '.join([f"{field}=?" for field in where_fields])           # Dynamically construct the WHERE clause based on condition_fields
-        sql_query        = f"SELECT {fields_to_return} FROM {target_table} WHERE {where_clause}"  # Construct the full SQL query
-        return sql_query, params
+        #self.validate_query_fields(target_table, return_fields, query_conditions)
+        if target_table and return_fields and query_conditions:
+            where_fields     = list(query_conditions.keys())
+            params           = list(query_conditions.values())
+            fields_to_return = ', '.join(return_fields)                                               # Join the select_fields list into a comma-separated string
+            where_clause     = ' AND '.join([f"{field}=?" for field in where_fields])                 # Dynamically construct the WHERE clause based on condition_fields
+            sql_query        = f"SELECT {fields_to_return} FROM {target_table} WHERE {where_clause}"  # Construct the full SQL query
+            return sql_query, params
 
     def sql_query_for_select_rows_where(self, **kwargs):
         valid_fields  = self.fields__cached()                                                               # Get a list of valid field names from the cached schema

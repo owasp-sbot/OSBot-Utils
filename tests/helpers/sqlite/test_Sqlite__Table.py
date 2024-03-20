@@ -2,6 +2,7 @@ import inspect
 from unittest import TestCase
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.decorators.methods.obj_as_context import obj_as_context
 from osbot_utils.helpers.Print_Table import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table, SQL_TABLE__MODULE_NAME__ROW_SCHEMA, ROW_BASE_CLASS
 from osbot_utils.utils.Dev import pprint
@@ -196,6 +197,26 @@ class test_Sqlite__Table(TestCase):
     def test_size(self):
         assert self.table.size() == 0
 
+    def test_sql_command_delete_table(self):
+        assert self.table.sql_command_delete_table() == 'DELETE FROM an_table'
+
+    def test_sql_command_for_insert(self):
+        valid_field_names = self.table.fields_names__cached()
+        assert valid_field_names == ['an_bytes', 'an_int', 'an_str', 'id']
+        assert self.table.sql_command_for_insert({'id': 42            }) == ('INSERT INTO an_table (id) VALUES (?)'           , [42])
+        assert self.table.sql_command_for_insert({'id': 1, 'an_int':2 }) == ('INSERT INTO an_table (id, an_int) VALUES (?, ?)', [1, 2])
+        assert self.table.sql_command_for_insert({'id': None          })  == ('INSERT INTO an_table (id) VALUES (?)'          , [None])
+        assert self.table.sql_command_for_insert({}                    ) is None
+        assert self.table.sql_command_for_insert(None                  ) is None
+        assert self.table.sql_command_for_insert(''                    ) is None
+        assert self.table.sql_command_for_insert('aaa'                 ) is None
+        with self.assertRaises(Exception) as context:
+            self.table.sql_command_for_insert({None: 42})
+        assert context.exception.args[0] == 'in sql_command_for_insert, there was a field_name "None" that did exist in the current table'
+        with self.assertRaises(Exception) as context:
+            self.table.sql_command_for_insert({'a': 42})
+        assert context.exception.args[0] == 'in sql_command_for_insert, there was a field_name "a" that did exist in the current table'
+
     def test_sql_query_for_fields(self):
         assert self.table.sql_query_for_fields(                ) == 'SELECT an_bytes, an_int, an_str, id FROM an_table;'
         assert self.table.sql_query_for_fields(['id'          ]) == 'SELECT id FROM an_table;'
@@ -203,15 +224,103 @@ class test_Sqlite__Table(TestCase):
         assert self.table.sql_query_for_fields(['an_str'      ]) == 'SELECT an_str FROM an_table;'
         assert self.table.sql_query_for_fields(['an_str', 'id']) == 'SELECT an_str, id FROM an_table;'
 
+    def test_sql_query_for_select_field_name(self):
+        assert self.table.sql_query_for_select_field_name('a' ) == 'SELECT a FROM an_table;'
+        assert self.table.sql_query_for_select_field_name(''  ) is None
+        assert self.table.sql_query_for_select_field_name(None) is None
+
     def test_sql_query_for_size(self):
         assert self.table.sql_query_for_size('a' ) == 'SELECT COUNT(*) as a FROM an_table'
         assert self.table.sql_query_for_size(''  ) is None
         assert self.table.sql_query_for_size(None) is None
 
-    def test_sql_query_for_select_field_name(self):
-        assert self.table.sql_query_for_select_field_name('a' ) == 'SELECT a FROM an_table;'
-        assert self.table.sql_query_for_select_field_name(''  ) is None
-        assert self.table.sql_query_for_select_field_name(None) is None
+    def test_sql_query_select_fields_from_table_with_conditions(self):
+        _ = self.table.sql_query_select_fields_from_table_with_conditions
+        assert _(None, None, None) is None
+        assert _('aa', None, None) is None
+        assert _('aa', 'bb', None) is None
+        assert _('aa', 'bb', {}  ) is None
+        assert _('aa', ['bb'], {'a': 12  }) == ('SELECT bb FROM aa WHERE a=?', [12  ])
+        assert _('aa', ['bb'], {'a': None}) == ('SELECT bb FROM aa WHERE a=?', [None])
+
+
+    def test__vulnerability__multiple_sqli_in__query_select_fields_from_table_with_conditions(self):
+        vulnerable_function         = self.table.sql_query_select_fields_from_table_with_conditions
+        var_name                    = 'an_name'
+        query_conditions            = {var_name: None}
+        return_fields               = ['bb']
+        table_name                  = 'aa'
+        sql_query__no_payloads      = 'SELECT bb FROM aa WHERE an_name=?'
+        assert vulnerable_function(table_name, return_fields,query_conditions) == (sql_query__no_payloads, [None])
+
+        # case 1: SQLi payload on table_name
+        table_name_with_sqli                   = 'another_table --'
+        sql_query__sqli_on_table_name         = f'SELECT bb FROM {table_name_with_sqli} WHERE an_name=?'
+        assert sql_query__sqli_on_table_name == 'SELECT bb FROM another_table -- WHERE an_name=?'
+        assert vulnerable_function(table_name_with_sqli, return_fields, query_conditions) == (sql_query__sqli_on_table_name, [None])
+
+        # case 2: SQLi payload on return_fields
+        table_name                            = 'aa'
+        return_fields_with_sqli               = ['* from another_table --']
+        sql_query__sqli_on_table_name         = f'SELECT {return_fields_with_sqli[0]} FROM {table_name} WHERE an_name=?'
+        assert sql_query__sqli_on_table_name == f'SELECT * from another_table -- FROM aa WHERE an_name=?'
+        assert vulnerable_function(table_name, return_fields_with_sqli, query_conditions) == (sql_query__sqli_on_table_name, [None])
+
+        # case 3: SQLi payload on field_name
+        field_name__with_sqli                 = "a=? or 1=1 or b="
+        param_value                           = "doesn't matter what goes here"
+        return_fields                         = ['bb']
+        query_conditions                      = { field_name__with_sqli : param_value}
+        query_with_sqli                       = 'SELECT bb FROM aa WHERE a=? or 1=1 or b==?'
+        assert vulnerable_function(table_name, return_fields, query_conditions) == (query_with_sqli, [param_value])
+
+    def test__vulnerability__sqli_in__query_select_fields_from_table_with_conditions(self):
+        def get_sql_query(field_name,param_value):
+            vunerable_function =self.table.sql_query_select_fields_from_table_with_conditions
+            table_name         = self.table.table_name
+            return_fields      = ['*']
+            query_conditions   = { field_name : param_value}
+            sql_query,params   = vunerable_function(table_name, return_fields, query_conditions)
+            return sql_query,params
+
+        assert self.table.schema__by_name_type() == {'an_bytes': 'BLOB'     ,
+                                                     'an_int'  : 'INTEGER'  ,
+                                                     'an_str'  : 'TEXT'     ,
+                                                     'id'      : 'INTEGER'  }
+        self.table.add_row(an_int=1 , an_str='uno value')
+        self.table.add_row(an_int=42, an_str='the answer')
+        assert self.table.rows() == [{'an_bytes': b'', 'an_int': 1 , 'an_str': 'uno value' , 'id': 1},
+                                     {'an_bytes': b'', 'an_int': 42, 'an_str': 'the answer', 'id': 2}]
+
+        payload_1__no_exploit = 'an_int'
+        sql_query_1, params   = get_sql_query(payload_1__no_exploit, 42)
+        result_1              = self.table.cursor().execute(sql_query_1, params)
+        data_1                = self.table.cursor().fetch_all()
+        status_1              = result_1.get('status')
+        assert status_1      == 'ok'
+        assert sql_query_1   == 'SELECT * FROM an_table WHERE an_int=?'
+        assert data_1        == [{'an_bytes': b'', 'an_int': 42, 'an_str': 'the answer', 'id': 2}]
+
+        payload_2__bad_sql    = 'an_int AAAAAA'
+        sql_query_2, params   = get_sql_query(payload_2__bad_sql, 42)
+        result_2              = self.table.cursor().execute(sql_query_2, params)
+        status_2              = result_2.get('status')
+        error_2               = result_2.get('error')
+        assert sql_query_2   == 'SELECT * FROM an_table WHERE an_int AAAAAA=?'
+        assert status_2      == 'exception'
+        assert error_2       ==  'near "AAAAAA": syntax error'
+
+        payload_3__sqli_1    = 'an_int=? or 1=1 --'
+        sql_query_3, params  = get_sql_query(payload_3__sqli_1, 42)
+        result_3             = self.table.cursor().execute(sql_query_3, params)
+        data_3               = self.table.cursor().fetch_all()
+        status_3             = result_3.get('status')
+        assert sql_query_3 == 'SELECT * FROM an_table WHERE an_int=? or 1=1 --=?'
+        assert status_3     == 'ok'
+        assert data_3       == [{'an_bytes': b'', 'an_int': 1, 'an_str': 'uno value', 'id': 1},
+                                {'an_bytes': b'', 'an_int': 42, 'an_str': 'the answer', 'id': 2}]
+
+        self.table.clear()
 
 
     def test_validate_row_obj(self):
