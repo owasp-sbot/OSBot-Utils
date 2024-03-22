@@ -1,4 +1,5 @@
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.Sqlite__Globals import ROW_BASE_CLASS
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
 
 
@@ -79,6 +80,36 @@ class SQL_Builder(Kwargs_To_Self):
 
         sql_query = f"SELECT * FROM {self.table.table_name} WHERE {where_clause}" # Construct the full SQL query
         return sql_query, params
+
+    def validate_row_obj(self, row_obj):
+        field_types = self.table.fields_types__cached()
+        invalid_reason = ""
+        if self.table.row_schema:
+            if row_obj:
+                if issubclass(type(row_obj), ROW_BASE_CLASS):
+                    for field_name, field_type in row_obj.__annotations__.items():
+                        if field_name not in field_types:
+                            invalid_reason = f'provided row_obj has a field that is not part of the current table: {field_name}'
+                            break
+
+                        if field_type != field_types[field_name]:
+                            invalid_reason = f'provided row_obj has a field {field_name} that has a field type {field_type} that does not match the current tables type of that field: {field_types[field_name]}'
+                            break
+                    if invalid_reason  is '':
+                        for field_name, field_value in row_obj.__locals__().items():
+                            if field_name not in field_types:
+                                invalid_reason = f'provided row_obj has a field that is not part of the current table: {field_name}'
+                                break
+                            if type(field_value) != field_types.get(field_name):
+                                invalid_reason = f'provided row_obj has a field {field_name} that has a field value {field_value} value that has a type {type(field_value)} that does not match the current tables type of that field: {field_types.get(field_name)}'
+                                break
+                else:
+                    invalid_reason = f'provided row_obj ({type(row_obj)}) is not a subclass of {ROW_BASE_CLASS}'
+            else:
+                invalid_reason = f'provided row_obj was None'
+        else:
+            invalid_reason = f'there is no row_schema defined for this table {self.table.table_name}'
+        return invalid_reason
 
     def validate_query_fields(self, target_table, return_fields, query_conditions):
         valid_fields = self.table.fields_names__cached(include_star_field=True)

@@ -195,7 +195,7 @@ class test_Sqlite__Table(TestCase):
 
     def test_validate_row_obj(self):
         def assert_validation_error(table, obj, expected_error):
-            error = table.validate_row_obj(obj)
+            error = table.sql_builder().validate_row_obj(obj)
             assert error == expected_error, f"Expected: {expected_error}, Got: {error}"
 
         # Test case where table_class is not defined

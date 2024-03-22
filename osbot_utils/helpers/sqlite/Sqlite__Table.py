@@ -4,15 +4,11 @@ from osbot_utils.decorators.lists.index_by                  import index_by
 from osbot_utils.decorators.methods.cache_on_self           import cache_on_self
 from osbot_utils.helpers.Print_Table                        import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database            import Sqlite__Database
+from osbot_utils.helpers.sqlite.Sqlite__Globals import DEFAULT_FIELD_NAME__ID, ROW_BASE_CLASS, SQL_TABLE__MODULE_NAME__ROW_SCHEMA
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc                                 import list_set
 from osbot_utils.utils.Objects                              import base_types, default_value
 from osbot_utils.utils.Str                                  import str_cap_snake_case
-
-DEFAULT_FIELD_NAME__ID             = 'id'
-ROW_BASE_CLASS                     = Kwargs_To_Self
-SQL_TABLE__MODULE_NAME__ROW_SCHEMA = 'Dynamic_Class__Sqlite__Table'
 
 class Sqlite__Table(Kwargs_To_Self):
     database  : Sqlite__Database
@@ -126,20 +122,10 @@ class Sqlite__Table(Kwargs_To_Self):
         return Print_Table(**kwargs).print(self.rows())
 
     def row_add(self, row_obj=None):
-        invalid_reason = self.validate_row_obj(row_obj)
+        invalid_reason = self.sql_builder().validate_row_obj(row_obj)
         if invalid_reason:
             raise Exception(f"in row_add the provided row_obj is not valid: {invalid_reason}")
-        # if type(row_data) is self.table_class:
-        #     new_row = row_data
-        # else:
-        #     new_row = self.new_row_obj(row_data)
-
         return self.row_add_record(row_obj.__dict__)
-        # if self.table_class:                                         # todo: see if we need the type checks below
-        #     if type(row_obj) is self.table_class:
-        #         if Kwargs_To_Self in base_types(row_obj):
-        #             return self.row_add_record(row_obj.json())
-        # return status_error('in row_add, row_obj had the wrong format', data=row_obj)
 
     def row_add_record(self, record):
         validation_result = self.validate_record_with_schema(record)
@@ -155,8 +141,7 @@ class Sqlite__Table(Kwargs_To_Self):
         extra_keys = [key for key in record if key not in schema]                           # Check for keys in record that are not in the schema
         if extra_keys:
             return f'Validation error: Unrecognized keys {extra_keys} in record.'
-
-        return ''               # If we reach here, the record is valid
+        return ''                                                                           # If we reach here, the record is valid
 
     def rows_add(self, records, commit=True):           # todo: refactor to use row_add
         for record in records:
@@ -216,34 +201,4 @@ class Sqlite__Table(Kwargs_To_Self):
     def sql_builder(self):
         from osbot_utils.helpers.sqlite.sql_builder.SQL_Builder import SQL_Builder
         return SQL_Builder(table=self)
-
-    def validate_row_obj(self, row_obj):
-        field_types = self.fields_types__cached()
-        invalid_reason = ""
-        if self.row_schema:
-            if row_obj:
-                if issubclass(type(row_obj), ROW_BASE_CLASS):
-                    for field_name, field_type in row_obj.__annotations__.items():
-                        if field_name not in field_types:
-                            invalid_reason = f'provided row_obj has a field that is not part of the current table: {field_name}'
-                            break
-
-                        if field_type != field_types[field_name]:
-                            invalid_reason = f'provided row_obj has a field {field_name} that has a field type {field_type} that does not match the current tables type of that field: {field_types[field_name]}'
-                            break
-                    if invalid_reason  is '':
-                        for field_name, field_value in row_obj.__locals__().items():
-                            if field_name not in field_types:
-                                invalid_reason = f'provided row_obj has a field that is not part of the current table: {field_name}'
-                                break
-                            if type(field_value) != field_types.get(field_name):
-                                invalid_reason = f'provided row_obj has a field {field_name} that has a field value {field_value} value that has a type {type(field_value)} that does not match the current tables type of that field: {field_types.get(field_name)}'
-                                break
-                else:
-                    invalid_reason = f'provided row_obj ({type(row_obj)}) is not a subclass of {ROW_BASE_CLASS}'
-            else:
-                invalid_reason = f'provided row_obj was None'
-        else:
-            invalid_reason = f'there is no row_schema defined for this table {self.table_name}'
-        return invalid_reason
 
