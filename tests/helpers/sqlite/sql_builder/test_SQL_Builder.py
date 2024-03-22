@@ -52,41 +52,41 @@ class test_SQL_Builder(TestCase):
         assert schema_obj.__locals__() == {'an_bytes': b'', 'an_int': 123, 'an_str': 'abc', 'id': 0}
 
     def test_sql_command_delete_table(self):
-        assert self.sql_builder.sql_command_delete_table() == 'DELETE FROM an_table'
+        assert self.sql_builder.command_delete_table() == 'DELETE FROM an_table'
 
     def test_sql_command_for_insert(self):
         valid_field_names = self.table.fields_names__cached()
         assert valid_field_names == ['an_bytes', 'an_int', 'an_str', 'id']
-        assert self.sql_builder.sql_command_for_insert({'id': 42            }) == ('INSERT INTO an_table (id) VALUES (?)'           , [42])
-        assert self.sql_builder.sql_command_for_insert({'id': 1, 'an_int':2 }) == ('INSERT INTO an_table (id, an_int) VALUES (?, ?)', [1, 2])
-        assert self.sql_builder.sql_command_for_insert({'id': None          })  == ('INSERT INTO an_table (id) VALUES (?)'          , [None])
-        assert self.sql_builder.sql_command_for_insert({}                    ) is None
-        assert self.sql_builder.sql_command_for_insert(None                  ) is None
-        assert self.sql_builder.sql_command_for_insert(''                    ) is None
-        assert self.sql_builder.sql_command_for_insert('aaa'                 ) is None
+        assert self.sql_builder.command_for_insert({'id': 42}) == ('INSERT INTO an_table (id) VALUES (?)'           , [42])
+        assert self.sql_builder.command_for_insert({'id': 1, 'an_int':2}) == ('INSERT INTO an_table (id, an_int) VALUES (?, ?)', [1, 2])
+        assert self.sql_builder.command_for_insert({'id': None}) == ('INSERT INTO an_table (id) VALUES (?)'          , [None])
+        assert self.sql_builder.command_for_insert({}) is None
+        assert self.sql_builder.command_for_insert(None) is None
+        assert self.sql_builder.command_for_insert('') is None
+        assert self.sql_builder.command_for_insert('aaa') is None
         with self.assertRaises(Exception) as context:
-            self.sql_builder.sql_command_for_insert({None: 42})
+            self.sql_builder.command_for_insert({None: 42})
         assert context.exception.args[0] == 'in sql_command_for_insert, there was a field_name "None" that did exist in the current table'
         with self.assertRaises(Exception) as context:
-            self.sql_builder.sql_command_for_insert({'a': 42})
+            self.sql_builder.command_for_insert({'a': 42})
         assert context.exception.args[0] == 'in sql_command_for_insert, there was a field_name "a" that did exist in the current table'
 
     def test_sql_query_for_fields(self):
-        assert self.sql_builder.sql_query_for_fields(                ) == 'SELECT an_bytes, an_int, an_str, id FROM an_table;'
-        assert self.sql_builder.sql_query_for_fields(['id'          ]) == 'SELECT id FROM an_table;'
-        assert self.sql_builder.sql_query_for_fields(['an_int'      ]) == 'SELECT an_int FROM an_table;'
-        assert self.sql_builder.sql_query_for_fields(['an_str'      ]) == 'SELECT an_str FROM an_table;'
-        assert self.sql_builder.sql_query_for_fields(['an_str', 'id']) == 'SELECT an_str, id FROM an_table;'
+        assert self.sql_builder.query_for_fields() == 'SELECT an_bytes, an_int, an_str, id FROM an_table;'
+        assert self.sql_builder.query_for_fields(['id']) == 'SELECT id FROM an_table;'
+        assert self.sql_builder.query_for_fields(['an_int']) == 'SELECT an_int FROM an_table;'
+        assert self.sql_builder.query_for_fields(['an_str']) == 'SELECT an_str FROM an_table;'
+        assert self.sql_builder.query_for_fields(['an_str', 'id']) == 'SELECT an_str, id FROM an_table;'
 
     def test_sql_query_for_select_field_name(self):
-        assert self.sql_builder.sql_query_for_select_field_name('a' ) == 'SELECT a FROM an_table;'
-        assert self.sql_builder.sql_query_for_select_field_name(''  ) is None
-        assert self.sql_builder.sql_query_for_select_field_name(None) is None
+        assert self.sql_builder.query_for_select_field_name('a') == 'SELECT a FROM an_table;'
+        assert self.sql_builder.query_for_select_field_name('') is None
+        assert self.sql_builder.query_for_select_field_name(None) is None
 
     def test_sql_query_for_size(self):
-        assert self.sql_builder.sql_query_for_size('a' ) == 'SELECT COUNT(*) as a FROM an_table'
-        assert self.sql_builder.sql_query_for_size(''  ) is None
-        assert self.sql_builder.sql_query_for_size(None) is None
+        assert self.sql_builder.query_for_size('a') == 'SELECT COUNT(*) as a FROM an_table'
+        assert self.sql_builder.query_for_size('') is None
+        assert self.sql_builder.query_for_size(None) is None
 
     def test_sql_query_select_fields_from_table_with_conditions(self):
         _ = self.sql_builder.sql_query_select_fields_with_conditions

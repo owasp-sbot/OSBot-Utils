@@ -30,7 +30,7 @@ class Sqlite__Table(Kwargs_To_Self):
         return self.row_add(new_row)
 
     def clear(self):
-        sql_query = self.sql_builder().sql_command_delete_table()
+        sql_query = self.sql_builder().command_delete_table()
         return self.cursor().execute_and_commit(sql_query)
 
     def create(self):
@@ -146,7 +146,7 @@ class Sqlite__Table(Kwargs_To_Self):
         if validation_result:
             raise ValueError(f"row_add_record, validation_result for provided record failed with {validation_result}")
 
-        sql_command,params = self.sql_builder().sql_command_for_insert(record)
+        sql_command,params = self.sql_builder().command_for_insert(record)
         return self.cursor().execute(sql_command, params)                    # Execute the SQL statement with the filtered data values
 
     def validate_record_with_schema(self, record):
@@ -182,18 +182,18 @@ class Sqlite__Table(Kwargs_To_Self):
 
 
     def rows(self, fields_names=None):
-        sql_query = self.sql_builder().sql_query_for_fields(fields_names)
+        sql_query = self.sql_builder().query_for_fields(fields_names)
         return self.cursor().execute__fetch_all(sql_query)
 
     def select_rows_where(self, **kwargs):
-        sql_query, params = self.sql_builder().sql_query_for_select_rows_where(**kwargs)
+        sql_query, params = self.sql_builder().query_for_select_rows_where(**kwargs)
         # Execute the query and return the results
         return self.cursor().execute__fetch_all(sql_query, params)
 
     def select_field_values(self, field_name):
         if field_name not in self.fields__cached():
             raise ValueError(f'in select_all_vales_from_field, the provide field_name "{field_name}" does not exist in the current table "{self.table_name}"')
-        sql_query  = self.sql_builder().sql_query_for_select_field_name(field_name)
+        sql_query  = self.sql_builder().query_for_select_field_name(field_name)
         all_rows   = self.cursor().execute__fetch_all(sql_query)        # Execute the SQL query and get all rows
         all_values = [row[field_name] for row in all_rows]              # Extract the desired field from each row in the result set
         return all_values
@@ -208,7 +208,7 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def size(self):
         var_name = 'size'
-        sql_query = self.sql_builder().sql_query_for_size(var_name)
+        sql_query = self.sql_builder().query_for_size(var_name)
         result = self.cursor().execute__fetch_one(sql_query)
         return result.get(var_name)
 

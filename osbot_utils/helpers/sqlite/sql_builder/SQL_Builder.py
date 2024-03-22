@@ -25,10 +25,10 @@ class SQL_Builder(Kwargs_To_Self):
         sql_query = f"SELECT {fields_str} FROM {self.table.table_name};"  # Join the valid field names with commas
         return sql_query
 
-    def sql_command_delete_table(self):
+    def command_delete_table(self):
         return f'DELETE FROM {self.table.table_name}'
 
-    def sql_command_for_insert(self, record):
+    def command_for_insert(self, record):
         valid_field_names = self.table.fields_names__cached()
         if type(record) is dict:
             if record:
@@ -43,14 +43,14 @@ class SQL_Builder(Kwargs_To_Self):
                 sql_command   = f'INSERT INTO {self.table.table_name} ({columns}) VALUES ({placeholders})'    # Construct the SQL statement
                 return sql_command, params
 
-    def sql_query_for_fields(self, field_names: list = None):
+    def query_for_fields(self, field_names: list = None):
         return self.select_for_fields(field_names)
 
-    def sql_query_for_select_field_name(self, field_name):
+    def query_for_select_field_name(self, field_name):
         if field_name:
             return f"SELECT {field_name} FROM {self.table.table_name};"  # Construct the SQL query
 
-    def sql_query_for_size(self, var_name):
+    def query_for_size(self, var_name):
         if var_name:
             return f'SELECT COUNT(*) as {var_name} FROM {self.table.table_name}'
 
@@ -65,7 +65,7 @@ class SQL_Builder(Kwargs_To_Self):
             sql_query        = f"SELECT {fields_to_return} FROM {target_table} WHERE {where_clause}"  # Construct the full SQL query
             return sql_query, params
 
-    def sql_query_for_select_rows_where(self, **kwargs):
+    def query_for_select_rows_where(self, **kwargs):
         valid_fields  = self.table.fields__cached()                                                               # Get a list of valid field names from the cached schema
         params        = []                                                                                  # Initialize an empty list to hold query parameters
         where_clauses = []                                                                                  # Initialize an empty list to hold parts of the WHERE clause
