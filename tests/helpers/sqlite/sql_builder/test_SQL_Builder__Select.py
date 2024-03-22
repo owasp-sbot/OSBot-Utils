@@ -25,13 +25,7 @@ class test_SQL_Builder__Select(TestCase):
         assert self.db_chinook.tables_names() == ['Genre', 'MediaType', 'Artist', 'Album', 'Track', 'Employee', 'Customer', 'Invoice', 'InvoiceLine', 'Playlist', 'PlaylistTrack']
         assert self.table.size() == 25
 
-    # def test_build(self):
-    #     assert self.sql_builder_select.build()  == 'SELECT * FROM *'
 
     def test_validate_query_data(self):
         self.sql_builder_select.validate_query_data()
-
-    def test_sql_query_for_fields(self):
-        expected_sql = 'SELECT GenreId, Name, id FROM Genre;'
-        assert expected_sql == self.table.sql_query_for_fields()
 

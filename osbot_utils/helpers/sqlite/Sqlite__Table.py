@@ -30,7 +30,7 @@ class Sqlite__Table(Kwargs_To_Self):
         return self.row_add(new_row)
 
     def clear(self):
-        sql_query = self.sql_command_delete_table()
+        sql_query = self.sql_builder().sql_command_delete_table()
         return self.cursor().execute_and_commit(sql_query)
 
     def create(self):
@@ -108,7 +108,7 @@ class Sqlite__Table(Kwargs_To_Self):
         table_sqlite_master = self.database.table__sqlite_master()
         table_type        = 'index'
         query_conditions  = {'type': table_type, 'tbl_name': self.table_name}
-        sql_query, params = table_sqlite_master.sql_query_select_fields_with_conditions(return_fields, query_conditions)
+        sql_query, params = table_sqlite_master.sql_builder().sql_query_select_fields_with_conditions(return_fields, query_conditions)
         rows              = table_sqlite_master.cursor().execute__fetch_all(sql_query, params)
         return table_sqlite_master.list_of_field_name_from_rows(rows, field_name)
 
@@ -146,7 +146,7 @@ class Sqlite__Table(Kwargs_To_Self):
         if validation_result:
             raise ValueError(f"row_add_record, validation_result for provided record failed with {validation_result}")
 
-        sql_command,params = self.sql_command_for_insert(record)
+        sql_command,params = self.sql_builder().sql_command_for_insert(record)
         return self.cursor().execute(sql_command, params)                    # Execute the SQL statement with the filtered data values
 
     def validate_record_with_schema(self, record):
@@ -182,18 +182,18 @@ class Sqlite__Table(Kwargs_To_Self):
 
 
     def rows(self, fields_names=None):
-        sql_query = self.sql_query_for_fields(fields_names)
+        sql_query = self.sql_builder().sql_query_for_fields(fields_names)
         return self.cursor().execute__fetch_all(sql_query)
 
     def select_rows_where(self, **kwargs):
-        sql_query, params = self.sql_query_for_select_rows_where(**kwargs)
+        sql_query, params = self.sql_builder().sql_query_for_select_rows_where(**kwargs)
         # Execute the query and return the results
         return self.cursor().execute__fetch_all(sql_query, params)
 
     def select_field_values(self, field_name):
         if field_name not in self.fields__cached():
             raise ValueError(f'in select_all_vales_from_field, the provide field_name "{field_name}" does not exist in the current table "{self.table_name}"')
-        sql_query  = self.sql_query_for_select_field_name(field_name)
+        sql_query  = self.sql_builder().sql_query_for_select_field_name(field_name)
         all_rows   = self.cursor().execute__fetch_all(sql_query)        # Execute the SQL query and get all rows
         all_values = [row[field_name] for row in all_rows]              # Extract the desired field from each row in the result set
         return all_values
@@ -208,7 +208,7 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def size(self):
         var_name = 'size'
-        sql_query = self.sql_query_for_size(var_name)
+        sql_query = self.sql_builder().sql_query_for_size(var_name)
         result = self.cursor().execute__fetch_one(sql_query)
         return result.get(var_name)
 
@@ -216,77 +216,6 @@ class Sqlite__Table(Kwargs_To_Self):
     def sql_builder(self):
         from osbot_utils.helpers.sqlite.sql_builder.SQL_Builder import SQL_Builder
         return SQL_Builder(table=self)
-
-    def sql_command_delete_table(self):
-        return f'DELETE FROM {self.table_name}'
-
-    def sql_command_for_insert(self, record):
-        valid_field_names = self.fields_names__cached()
-        if type(record) is dict:
-            if record:
-                field_names   = record.keys()
-                params        =  list(record.values())
-                for field_name in field_names:
-                    if field_name not in valid_field_names:
-                        raise ValueError(f'in sql_command_for_insert, there was a field_name "{field_name}" that did exist in the current table')
-
-                columns       = ', '.join(field_names)                                                         # Construct column names and placeholders
-                placeholders  = ', '.join(['?' for _ in field_names])
-                sql_command   = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'    # Construct the SQL statement
-                return sql_command, params
-
-    def sql_query_for_fields(self, field_names: list = None):
-        return self.sql_builder().select_for_fields(field_names)
-
-    def sql_query_for_select_field_name(self, field_name):
-        if field_name:
-            return f"SELECT {field_name} FROM {self.table_name};"  # Construct the SQL query
-
-    def sql_query_for_size(self, var_name):
-        if var_name:
-            return f'SELECT COUNT(*) as {var_name} FROM {self.table_name}'
-
-
-    def validate_query_fields(self, target_table, return_fields, query_conditions):
-        valid_fields = self.fields_names__cached(include_star_field=True)
-        if target_table not in self.database.tables_names(include_sqlite_master=True):
-            raise ValueError(f'in validate_query_fields, invalid target_table name: "{target_table}"')
-        if type(return_fields) is not list:
-            raise ValueError(f'in validate_query_fields, return_fields value must be a list, and it was "{type(return_fields)}"')
-        for return_field in return_fields:
-            if return_field not in valid_fields:
-                raise ValueError(f'in validate_query_fields, invalid, invalid return_field: "{return_field}"')
-        if type(query_conditions) is not dict:
-            raise ValueError(f'in validate_query_fields, query_conditions value must be a dict, and it was "{type(query_conditions)}"')
-        for where_field in query_conditions.keys():
-            if where_field not in valid_fields:
-                raise ValueError(f'in validate_query_fields, invalid, invalid return_field: "{where_field}"')
-
-    def sql_query_select_fields_with_conditions(self, return_fields, query_conditions):
-        target_table = self.table_name
-        self.validate_query_fields(target_table, return_fields, query_conditions)
-        if target_table and return_fields and query_conditions:
-            where_fields     = list(query_conditions.keys())
-            params           = list(query_conditions.values())
-            fields_to_return = ', '.join(return_fields)                                               # Join the select_fields list into a comma-separated string
-            where_clause     = ' AND '.join([f"{field}=?" for field in where_fields])                 # Dynamically construct the WHERE clause based on condition_fields
-            sql_query        = f"SELECT {fields_to_return} FROM {target_table} WHERE {where_clause}"  # Construct the full SQL query
-            return sql_query, params
-
-    def sql_query_for_select_rows_where(self, **kwargs):
-        valid_fields  = self.fields__cached()                                                               # Get a list of valid field names from the cached schema
-        params        = []                                                                                  # Initialize an empty list to hold query parameters
-        where_clauses = []                                                                                  # Initialize an empty list to hold parts of the WHERE clause
-        for field_name, query_value in kwargs.items():                                                      # Iterate over each keyword argument and its value
-            if field_name not in valid_fields:                                                              # Check if the provided field name is valid
-                raise ValueError(f'in select_rows_where, the provided field is not valid: {field_name}')
-            params.append(query_value)                                                                      # Append the query value to the parameters list
-            where_clauses.append(f"{field_name} = ?")                                                       # Append the corresponding WHERE clause part, using a placeholder for the value
-        where_clause = ' AND '.join(where_clauses)                                                          # Join the individual parts of the WHERE clause with 'AND'
-
-
-        sql_query = f"SELECT * FROM {self.table_name} WHERE {where_clause}" # Construct the full SQL query
-        return sql_query, params
 
     def validate_row_obj(self, row_obj):
         field_types = self.fields_types__cached()
