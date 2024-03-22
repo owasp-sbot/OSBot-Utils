@@ -72,10 +72,12 @@ class Sqlite__Table(Kwargs_To_Self):
             fields_types[field_name] = field_type
         return fields_types
 
-    def fields_names__cached(self, exclude_id=False):
+    def fields_names__cached(self, exclude_id=False, include_star_field=False):
         field_names = list_set(self.fields__cached())
         if exclude_id:
             field_names.remove(DEFAULT_FIELD_NAME__ID)
+        if include_star_field:
+            field_names.append('*')
         return field_names
 
     def index_create(self, index_field):
@@ -103,12 +105,12 @@ class Sqlite__Table(Kwargs_To_Self):
     def indexes(self):
         field_name        = 'name'
         return_fields     = [field_name]
-        target_table      = 'sqlite_master'
+        table_sqlite_master = self.database.table__sqlite_master()
         table_type        = 'index'
         query_conditions  = {'type': table_type, 'tbl_name': self.table_name}
-        sql_query, params = self.sql_query_select_fields_from_table_with_conditions(target_table, return_fields, query_conditions)
-        rows              = self.cursor().execute__fetch_all(sql_query, params)
-        return self.list_of_field_name_from_rows(rows, field_name)
+        sql_query, params = table_sqlite_master.sql_query_select_fields_with_conditions(return_fields, query_conditions)
+        rows              = table_sqlite_master.cursor().execute__fetch_all(sql_query, params)
+        return table_sqlite_master.list_of_field_name_from_rows(rows, field_name)
 
     def new_row_obj(self, row_data=None):
         if self.row_schema:
@@ -246,23 +248,23 @@ class Sqlite__Table(Kwargs_To_Self):
 
 
     def validate_query_fields(self, target_table, return_fields, query_conditions):
-        valid_fields = self.fields_names__cached()
-        if target_table not in self.database.tables_names():
-            raise ValueError(f'in validate_query_fields, invalid target_table name: {target_table}')
+        valid_fields = self.fields_names__cached(include_star_field=True)
+        if target_table not in self.database.tables_names(include_sqlite_master=True):
+            raise ValueError(f'in validate_query_fields, invalid target_table name: "{target_table}"')
         if type(return_fields) is not list:
-            raise ValueError(f'in validate_query_fields, return_fields value must be a list, and it was {type(return_fields)}')
+            raise ValueError(f'in validate_query_fields, return_fields value must be a list, and it was "{type(return_fields)}"')
         for return_field in return_fields:
             if return_field not in valid_fields:
-                raise ValueError(f'in validate_query_fields, invalid, invalid return_field: {return_field}')
+                raise ValueError(f'in validate_query_fields, invalid, invalid return_field: "{return_field}"')
         if type(query_conditions) is not dict:
-            raise ValueError(f'in validate_query_fields, query_conditions value must be a dict, and it was {type(query_conditions)}')
+            raise ValueError(f'in validate_query_fields, query_conditions value must be a dict, and it was "{type(query_conditions)}"')
         for where_field in query_conditions.keys():
             if where_field not in valid_fields:
-                raise ValueError(f'in validate_query_fields, invalid, invalid return_field: {where_field}')
+                raise ValueError(f'in validate_query_fields, invalid, invalid return_field: "{where_field}"')
 
-    #todo: need to add type safety to deal with SQL Injection
-    def sql_query_select_fields_from_table_with_conditions(self,target_table, return_fields, query_conditions):
-        #self.validate_query_fields(target_table, return_fields, query_conditions)
+    def sql_query_select_fields_with_conditions(self, return_fields, query_conditions):
+        target_table = self.table_name
+        self.validate_query_fields(target_table, return_fields, query_conditions)
         if target_table and return_fields and query_conditions:
             where_fields     = list(query_conditions.keys())
             params           = list(query_conditions.values())

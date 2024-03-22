@@ -115,8 +115,13 @@ class Sqlite__Database(Kwargs_To_Self):
     def tables_raw(self):
         return self.cursor().tables()
 
-    def tables_names(self):
-        return self.table__sqlite_master().select_field_values('name')
+    def tables_names(self, include_sqlite_master=False):
+        table_names = self.table__sqlite_master().select_field_values('name')
+        if include_sqlite_master:
+            table_names.append('sqlite_master')
+        return table_names
+
+
 
 
 
