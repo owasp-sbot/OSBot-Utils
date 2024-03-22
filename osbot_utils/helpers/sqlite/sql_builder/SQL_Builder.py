@@ -26,8 +26,17 @@ class SQL_Builder(Kwargs_To_Self):
         sql_query = f"SELECT {fields_str} FROM {self.table.table_name};"  # Join the valid field names with commas
         return sql_query
 
-    def command_delete_table(self):
+    def command__delete_table(self):
         return f'DELETE FROM {self.table.table_name}'
+
+    def command__delete_where(self, query_conditions):
+        self.validator().validate_query_fields(self.table, [],query_conditions)      # todo: add method to validate_query_fields to handle just the query section (so that we don't need to provide a empty list for the return values)
+        target_table = self.table.table_name
+        where_fields = list(query_conditions.keys())
+        params       = list(query_conditions.values())
+        where_clause = ' AND '.join([f"{field}=?" for field in where_fields])                   # todo: refactor into method that just handle the WHERE statements
+        sql_query    = f"DELETE FROM {target_table} WHERE {where_clause}"                       # todo: refactor into a method that creates the final statement from a number of other objects (or strings)
+        return sql_query, params
 
     def command_for_insert(self, record):
         valid_field_names = self.table.fields_names__cached()
@@ -56,8 +65,8 @@ class SQL_Builder(Kwargs_To_Self):
             return f'SELECT COUNT(*) as {var_name} FROM {self.table.table_name}'
 
     def sql_query_select_fields_with_conditions(self, return_fields, query_conditions):
+        self.validator().validate_query_fields(self.table , return_fields, query_conditions)
         target_table = self.table.table_name
-        self.validate_query_fields(target_table, return_fields, query_conditions)
         if target_table and return_fields and query_conditions:
             where_fields     = list(query_conditions.keys())
             params           = list(query_conditions.values())
@@ -111,9 +120,15 @@ class SQL_Builder(Kwargs_To_Self):
             invalid_reason = f'there is no row_schema defined for this table {self.table.table_name}'
         return invalid_reason
 
-    def validate_query_fields(self, target_table, return_fields, query_conditions):
-        valid_fields = self.table.fields_names__cached(include_star_field=True)
-        if target_table not in self.table.database.tables_names(include_sqlite_master=True):
+    def validator(self):
+        return SQL_Query__Validator()
+
+class SQL_Query__Validator:
+
+    def validate_query_fields(self, table, return_fields, query_conditions):
+        target_table = table.table_name
+        valid_fields = table.fields_names__cached(include_star_field=True)
+        if target_table not in table.database.tables_names(include_sqlite_master=True):
             raise ValueError(f'in validate_query_fields, invalid target_table name: "{target_table}"')
         if type(return_fields) is not list:
             raise ValueError(f'in validate_query_fields, return_fields value must be a list, and it was "{type(return_fields)}"')
@@ -125,3 +140,5 @@ class SQL_Builder(Kwargs_To_Self):
         for where_field in query_conditions.keys():
             if where_field not in valid_fields:
                 raise ValueError(f'in validate_query_fields, invalid, invalid return_field: "{where_field}"')
+
+        return self

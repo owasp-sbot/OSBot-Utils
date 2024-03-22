@@ -2,6 +2,7 @@ import inspect
 from unittest import TestCase
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.Sqlite__Table   import Sqlite__Table, SQL_TABLE__MODULE_NAME__ROW_SCHEMA, ROW_BASE_CLASS
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects                  import type_full_name
 
 TEST_TABLE_NAME       = 'an_table'
@@ -177,7 +178,10 @@ class test_Sqlite__Table(TestCase):
             with self.assertRaises(Exception) as context:
                 _.select_rows_where(bad_var=123)
             assert context.exception.args[0] == 'in select_rows_where, the provided field is not valid: bad_var'
-            _.clear()
+            assert _.rows_delete_where(an_int=42).get('status') == 'ok'
+            assert _.rows_delete_where(an_int=12).get('status') == 'ok'
+            assert _.rows_delete_where(an_int=12).get('status') == 'ok'         # todo: see if we can find a way to return a different value when nothing was deleted
+            assert _.rows() == []
 
     def test_select_field_values(self):
         with self.table as _:

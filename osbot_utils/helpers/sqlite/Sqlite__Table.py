@@ -26,7 +26,7 @@ class Sqlite__Table(Kwargs_To_Self):
         return self.row_add(new_row)
 
     def clear(self):
-        sql_query = self.sql_builder().command_delete_table()
+        sql_query = self.sql_builder().command__delete_table()
         return self.cursor().execute_and_commit(sql_query)
 
     def create(self):
@@ -135,21 +135,6 @@ class Sqlite__Table(Kwargs_To_Self):
         sql_command,params = self.sql_builder().command_for_insert(record)
         return self.cursor().execute(sql_command, params)                    # Execute the SQL statement with the filtered data values
 
-    def validate_record_with_schema(self, record):
-        schema = self.fields__cached()
-
-        extra_keys = [key for key in record if key not in schema]                           # Check for keys in record that are not in the schema
-        if extra_keys:
-            return f'Validation error: Unrecognized keys {extra_keys} in record.'
-        return ''                                                                           # If we reach here, the record is valid
-
-    def rows_add(self, records, commit=True):           # todo: refactor to use row_add
-        for record in records:
-            self.row_add_record(record)
-        if commit:
-            self.cursor().commit()
-        return self
-
     def row_schema__create_from_current_field_types(self):
         exclude_field_id                 = True                                                                 # don't include the id field since in most cases the row_schema doesn't include it
         field_types                      = self.fields_types__cached(exclude_id=exclude_field_id)               # mapping with field name to field type (in python)
@@ -169,6 +154,18 @@ class Sqlite__Table(Kwargs_To_Self):
     def rows(self, fields_names=None):
         sql_query = self.sql_builder().query_for_fields(fields_names)
         return self.cursor().execute__fetch_all(sql_query)
+
+    def rows_add(self, records, commit=True):           # todo: refactor to use row_add
+        for record in records:
+            self.row_add_record(record)
+        if commit:
+            self.cursor().commit()
+        return self
+
+    def rows_delete_where(self, **query_conditions):
+        sql_query,params = self.sql_builder().command__delete_where(query_conditions)
+        return self.cursor().execute_and_commit(sql_query,params)
+
 
     def select_rows_where(self, **kwargs):
         sql_query, params = self.sql_builder().query_for_select_rows_where(**kwargs)
@@ -201,4 +198,12 @@ class Sqlite__Table(Kwargs_To_Self):
     def sql_builder(self):
         from osbot_utils.helpers.sqlite.sql_builder.SQL_Builder import SQL_Builder
         return SQL_Builder(table=self)
+
+    def validate_record_with_schema(self, record):                                          # todo: refactor out to a validator class
+        schema = self.fields__cached()
+
+        extra_keys = [key for key in record if key not in schema]                           # Check for keys in record that are not in the schema
+        if extra_keys:
+            return f'Validation error: Unrecognized keys {extra_keys} in record.'
+        return ''                                                                           # If we reach here, the record is valid
 

@@ -51,19 +51,29 @@ class test_SQL_Builder(TestCase):
         schema_obj.an_int = 123
         assert schema_obj.__locals__() == {'an_bytes': b'', 'an_int': 123, 'an_str': 'abc', 'id': 0}
 
-    def test_sql_command_delete_table(self):
-        assert self.sql_builder.command_delete_table() == 'DELETE FROM an_table'
+    def test_command_delete_table(self):
+        assert self.sql_builder.command__delete_table() == 'DELETE FROM an_table'
+
+    def test_command__delete_where(self):
+        query_conditions = dict(an_int=4)
+        sql_query, params = self.sql_builder.command__delete_where(query_conditions)
+        assert sql_query == 'DELETE FROM an_table WHERE an_int=?'
+        assert params    == [4]
+
+        with self.assertRaises(Exception) as context:
+            self.sql_builder.command__delete_where(dict(an_int_2=42))
+        assert context.exception.args[0] == 'in validate_query_fields, invalid, invalid return_field: "an_int_2"'
 
     def test_sql_command_for_insert(self):
         valid_field_names = self.table.fields_names__cached()
         assert valid_field_names == ['an_bytes', 'an_int', 'an_str', 'id']
-        assert self.sql_builder.command_for_insert({'id': 42}) == ('INSERT INTO an_table (id) VALUES (?)'           , [42])
-        assert self.sql_builder.command_for_insert({'id': 1, 'an_int':2}) == ('INSERT INTO an_table (id, an_int) VALUES (?, ?)', [1, 2])
-        assert self.sql_builder.command_for_insert({'id': None}) == ('INSERT INTO an_table (id) VALUES (?)'          , [None])
-        assert self.sql_builder.command_for_insert({}) is None
-        assert self.sql_builder.command_for_insert(None) is None
-        assert self.sql_builder.command_for_insert('') is None
-        assert self.sql_builder.command_for_insert('aaa') is None
+        assert self.sql_builder.command_for_insert({'id': 42}            ) == ('INSERT INTO an_table (id) VALUES (?)'           , [42  ])
+        assert self.sql_builder.command_for_insert({'id': 1, 'an_int':2 }) == ('INSERT INTO an_table (id, an_int) VALUES (?, ?)', [1, 2])
+        assert self.sql_builder.command_for_insert({'id': None          }) == ('INSERT INTO an_table (id) VALUES (?)'           , [None])
+        assert self.sql_builder.command_for_insert({}                    ) is None
+        assert self.sql_builder.command_for_insert(None                  ) is None
+        assert self.sql_builder.command_for_insert(''                    ) is None
+        assert self.sql_builder.command_for_insert('aaa'                 ) is None
         with self.assertRaises(Exception) as context:
             self.sql_builder.command_for_insert({None: 42})
         assert context.exception.args[0] == 'in sql_command_for_insert, there was a field_name "None" that did exist in the current table'
@@ -194,18 +204,20 @@ class test_SQL_Builder(TestCase):
         self.table.clear()
 
     def test_validate_query_fields(self):
+        validator = self.sql_builder.validator()
         def assert_validation_error(kwargs, expected_error):
             with self.assertRaises(ValueError) as context:
-                self.sql_builder.validate_query_fields(**kwargs)
+                validator.validate_query_fields(**kwargs)
             error = context.exception.args[0]
             assert error == expected_error, f"Expected: {expected_error}, Got: {error}"
 
-        # use case 1: bad table
-        payload = dict(target_table='a', return_fields=[], query_conditions={})
-        assert_validation_error(payload, 'in validate_query_fields, invalid target_table name: "a"')
+        # use case 1: no exception when default values are used
+        payload = dict(table=self.table, return_fields=[], query_conditions={})
+        assert validator.validate_query_fields(**payload) == validator
+
 
         # use case 2: return_fields not a list
-        payload['target_table' ] = self.table.table_name
+        payload['table'        ] = self.table
         payload['return_fields'] = 'not a list'
         expected_error           = "in validate_query_fields, return_fields value must be a list, and it was \"<class 'str'>\""
         assert_validation_error(payload, expected_error)
@@ -228,6 +240,6 @@ class test_SQL_Builder(TestCase):
 
         # use case 5: valid data
         payload['query_conditions'] = {'an_int': 42}
-        self.sql_builder.validate_query_fields(**payload)         # no exception raised
+        validator.validate_query_fields(**payload)         # no exception raised
 
 
