@@ -127,6 +127,11 @@ class Sqlite__Table(Kwargs_To_Self):
             raise Exception(f"in row_add the provided row_obj is not valid: {invalid_reason}")
         return self.row_add_record(row_obj.__dict__)
 
+    def row_add_and_commit(self, row_obj=None):
+        if self.row_add(row_obj).get('status') == 'ok':
+            self.commit()
+            return row_obj
+
     def row_add_record(self, record):
         validation_result = self.validate_record_with_schema(record)
         if validation_result:

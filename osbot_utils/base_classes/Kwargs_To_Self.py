@@ -296,7 +296,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
             return cls().deserialize_from_dict(json_data)
         return None
 
-
+# todo: see if it is possible to add recursive protection to this logic
 def serialize_to_dict(obj):
     if isinstance(obj, (str, int, float, bool, bytes)) or obj is None:
         return obj

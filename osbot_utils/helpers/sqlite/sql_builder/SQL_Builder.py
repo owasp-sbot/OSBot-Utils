@@ -104,7 +104,7 @@ class SQL_Builder(Kwargs_To_Self):
                         if field_type != field_types[field_name]:
                             invalid_reason = f'provided row_obj has a field {field_name} that has a field type {field_type} that does not match the current tables type of that field: {field_types[field_name]}'
                             break
-                    if invalid_reason  is '':
+                    if invalid_reason  == '':
                         for field_name, field_value in row_obj.__locals__().items():
                             if field_name not in field_types:
                                 invalid_reason = f'provided row_obj has a field that is not part of the current table: {field_name}'
