@@ -6,6 +6,7 @@ from osbot_utils.helpers.Print_Table                        import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database            import Sqlite__Database
 from osbot_utils.helpers.sqlite.Sqlite__Globals import DEFAULT_FIELD_NAME__ID, ROW_BASE_CLASS, SQL_TABLE__MODULE_NAME__ROW_SCHEMA
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
+from osbot_utils.utils.Json import json_load
 from osbot_utils.utils.Misc                                 import list_set
 from osbot_utils.utils.Objects                              import base_types, default_value
 from osbot_utils.utils.Str                                  import str_cap_snake_case
@@ -57,6 +58,12 @@ class Sqlite__Table(Kwargs_To_Self):
     @cache_on_self
     def fields__cached(self):
         return self.fields()
+
+    def fields_data__from_raw_json(self, target_field):                     # todo: see if this should be refactored into a Select/Data filtering class
+        fields_data = []
+        for raw_field_data in self.select_field_values(target_field):
+            fields_data.append(json_load(raw_field_data))
+        return fields_data
 
     def fields_types__cached(self, exclude_id=False):
         fields_types = {}
