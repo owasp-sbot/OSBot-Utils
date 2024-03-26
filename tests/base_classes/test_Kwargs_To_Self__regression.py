@@ -372,3 +372,19 @@ class test_Kwargs_To_Self__regression(TestCase):
         assert an_class.an_method__cached() == 42
         #assert an_class.__locals__       () == {'an_str': '', 'cache_on_self_an_method__cached__': 42}  # FIXED was BUG: cache method should not be here
         assert an_class.__locals__       () == {'an_str': ''}                                            # FIXED, cached value is not returned
+
+    def test__regression___base_attrib_value_not_overwritten(self):
+        class Base_Class(Kwargs_To_Self):
+            an_str : str  = 'an_str__base'
+            an_int : int  = 42
+            an_bool: bool = True
+
+        class An_Class(Base_Class):
+            an_str : str = 'changed on an_class'                # FIXED: BUG: this is not being changed
+            an_int : int = 84                                   # FIXED: BUG: this is not being changed
+            an_bool: bool = False                               # FIXED: BUG: this is not being changed
+
+        an_class = An_Class()
+
+        expected_values = {'an_bool': False, 'an_int': 84, 'an_str': 'changed on an_class'}
+        assert an_class.__locals__() == expected_values

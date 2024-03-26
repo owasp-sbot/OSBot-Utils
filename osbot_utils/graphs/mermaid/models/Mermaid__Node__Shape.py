@@ -16,7 +16,7 @@ class Mermaid__Node__Shape(Enum):
     rectangle           = ('['  , ']'  )        # Rectangle, used for process
     stadium             = ('([' , '])' )        # Stadium
     subroutine          = ('[[',  ']]' )        # Subroutine
-    trapezoid           = ('[/' , '\]' )        # Trapezoid, used for manual operations
+    trapezoid           = ('[/' , '\]' )        # Trapezoid, used for manual operations             # todo: figure out why this line is throwing the compile error of: SyntaxWarning: invalid escape sequence '\]'
     trapezoid_alt       = ('[\\', '/]' )        # Inverted trapezoid, also used for manual operations
 
     @staticmethod

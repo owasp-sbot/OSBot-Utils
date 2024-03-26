@@ -151,7 +151,8 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                         continue
                     if type(v) is functools._lru_cache_wrapper:                         # todo, find better way to handle edge cases like this one (which happens when the @cache decorator is used in a instance method that uses Kwargs_To_Self)
                         continue
-                    kwargs[k] = v
+                    if (k in kwargs) is False:                                          # do not set the value is it has already been set
+                        kwargs[k] = v
 
             for var_name, var_type in base_cls.__annotations__.items():
                 if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined

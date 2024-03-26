@@ -3,8 +3,10 @@ from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 INDENT_SIZE = 4
 
 class Tag__Base(Kwargs_To_Self):
-    indent   : int
-    tag_name : str
+    end_tag    : bool = True
+    indent     : int
+    tag_name   : str
+    inner_html : str
 
     new_line_before_elements : bool = True
     def render_attributes(self, attributes):
@@ -19,19 +21,31 @@ class Tag__Base(Kwargs_To_Self):
         html = f"{element_indent}<{self.tag_name}"
         if html_attributes:
             html += f" {html_attributes}"
-        html += ">"
-        if html_elements:
-            if self.new_line_before_elements:
-                html += "\n"
-            html += f"{html_elements}"
-            if self.new_line_before_elements:
-                html += "\n"
-        html += f"</{self.tag_name}>"
+        if self.end_tag:
+            html += ">"
+            if self.inner_html:
+                html += self.inner_html
+            if html_elements:
+                if self.new_line_before_elements:
+                    html += "\n"
+                html += f"{html_elements}"
+                if self.new_line_before_elements:
+                    html += "\n"
+                html += element_indent
+            html += f"</{self.tag_name}>"
+        else:
+            html += "/>"
+
         return html
 
     def render_elements(self, elements):
         html_elements = ""
-        for element in elements:
+        for index, element in enumerate(elements):
+            if index:
+                html_elements += '\n'
             html_element = element.render()
             html_elements += html_element
         return html_elements
+
+    def render(self):
+        return self.render_element({}, [])
