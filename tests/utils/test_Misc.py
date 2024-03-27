@@ -187,12 +187,14 @@ class test_Misc(TestCase):
 AAAAAAAAAAAAAAAAAAAALorem ipsum dolor
 sit amet, consectetur adipiscing elit,
 sed do eiusmod tempor incididunt ut
-labore et dolore magna aliqua."""
+labore et dolore magna aliqua.
+"""
 
         assert word_wrap(text, length=60) == """AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
 do eiusmod tempor incididunt ut labore et dolore magna
-aliqua."""
+aliqua.
+"""
 
 
     def test_word_wrap_escaped(self):

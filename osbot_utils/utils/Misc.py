@@ -443,7 +443,11 @@ def wait(seconds):
 
 def word_wrap(text,length = 40):
     if text:
-        return '\n'.join(textwrap.wrap(text, length))
+        wrapped_text = ""
+        for line in text.splitlines():                                  # handle case when there are newlines inside the text value
+            wrapped_text += '\n'.join(textwrap.wrap(line, length))
+            wrapped_text += '\n'
+        return wrapped_text
     return ''
 
 def word_wrap_escaped(text,length = 40):

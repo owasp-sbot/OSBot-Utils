@@ -8,7 +8,7 @@ from osbot_utils.utils.Status import log_exception
 
 logger_json = logging.getLogger()   # todo: start using this API for capturing error messages from methods bellow
 
-from osbot_utils.utils.Files import file_exists, temp_file, file_create_gz, file_create, load_file_gz, file_contents
+from osbot_utils.utils.Files import file_create_gz, file_create, load_file_gz, file_contents, file_lines, file_lines_gz
 
 
 def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=str, raise_exception=False):
@@ -26,6 +26,21 @@ def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=st
 
 def json_dumps_to_bytes(*args, **kwargs):
     return json_dumps(*args, **kwargs).encode()
+
+def json_lines_file_load(target_path):
+    raw_json = '['                                          # start the json array
+    lines    = file_lines(target_path)                      # get all lines from the file provided in target_path
+    raw_json += ','.join(lines)                             # add lines to raw_json split by json array separator
+    raw_json += ']'                                         # close the json array
+    return json_parse(raw_json)                             # convert json data into a python object
+
+def json_lines_file_load_gz(target_path):
+    raw_json = '['                                          # start the json array
+    lines    = file_lines_gz(target_path)                      # get all lines from the file provided in target_path
+    raw_json += ','.join(lines)                             # add lines to raw_json split by json array separator
+    raw_json += ']'                                         # close the json array
+    return json_parse(raw_json)                             # convert json data into a python object
+
 
 def json_sha_256(target):
     return str_sha256(json_dumps(target))

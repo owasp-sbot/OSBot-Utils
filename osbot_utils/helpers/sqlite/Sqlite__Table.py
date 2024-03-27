@@ -26,6 +26,10 @@ class Sqlite__Table(Kwargs_To_Self):
         new_row  = self.new_row_obj(row_data)
         return self.row_add(new_row)
 
+    def add_row_and_commit(self, **row_data):
+        new_row  = self.new_row_obj(row_data)
+        return self.row_add_and_commit(new_row)
+
     def clear(self):
         sql_query = self.sql_builder().command__delete_table()
         return self.cursor().execute_and_commit(sql_query)
@@ -178,6 +182,11 @@ class Sqlite__Table(Kwargs_To_Self):
         sql_query,params = self.sql_builder().command__delete_where(query_conditions)
         return self.cursor().execute_and_commit(sql_query,params)
 
+    def select_row_where(self, **kwargs):
+        rows = self.select_rows_where(**kwargs)                     # execute the query
+        if len(rows) == 1:                                          # only return a result if there is one row
+            return rows[0]
+        return None                                                 # return None if there no match or more than one match
 
     def select_rows_where(self, **kwargs):
         sql_query, params = self.sql_builder().query_for_select_rows_where(**kwargs)
