@@ -1,33 +1,47 @@
-from unittest import TestCase
-from unittest.mock import patch
+import logging
+from unittest                       import TestCase
+from osbot_utils                    import testing
+from osbot_utils.testing.Logging    import Logging
+from osbot_utils.testing.Stdout     import Stdout
 
-from osbot_utils import testing
-from osbot_utils.testing.Logging import Logging
 
 #todo see https://opensource.com/article/17/9/python-logging for more capabilities to add to this class
 
 class test_Logging(TestCase):
 
     def setUp(self):
+        self.logger = logging.getLogger()
+        self.original_handlers = self.logger.handlers[:]
+        self.logger.handlers = []
+
         self.logging = Logging()
 
-    # def test_is_pycharm_running(self):
-    #     assert self.logging.is_pycharm_running()
 
-    #todo: find way to mock/capture the output sent ot sys.stdout (since @patch('builtins.print') is not working)
+    def tearDown(self) -> None:
+        self.logger.handlers = self.original_handlers
+
     def test_enable_pycharm_logging(self):
-        self.logging.enable_pycharm_logging()
-        self.logging.info('aaaa')
-        self.logging.warning('aaaa')
-        self.logging.debug('aaaa')
-        self.logging.error('aaaa')
-        self.logging.critical('aaaa')
 
-        # simulate case when is_pycharm_running returns True (for example when running tests in CI pipeline)
-        self.logging.is_pycharm_running = lambda : True
+        with Stdout() as stdout:
+            self.logging.enable_pycharm_logging()
+            self.logging.info('aaaa')
+            self.logging.warning('aaaa')
+            self.logging.debug('aaaa')
+            self.logging.error('aaaa')
+            self.logging.critical('aaaa')
 
-        self.logging.enable_pycharm_logging()
-        self.logging.info('aaaa')
+            # simulate case when is_pycharm_running returns True (for example when running tests in CI pipeline)
+            self.logging.is_pycharm_running = lambda : True
+
+            self.logging.enable_pycharm_logging()
+            self.logging.info('aaaa')
+        assert stdout.value() == ('INFO - aaaa\n'
+                                  'WARNING - aaaa\n'
+                                  'DEBUG - aaaa\n'
+                                  'ERROR - aaaa\n'
+                                  'CRITICAL - aaaa\n'
+                                  'INFO - aaaa\n'
+                                  'INFO - aaaa\n')
 
 
 

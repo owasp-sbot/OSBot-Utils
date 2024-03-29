@@ -34,7 +34,7 @@ class test_Zip_Folder(TestCase):
                 assert is_folder(zip_file)    is False
                 assert temp_zip.target_zipped is True
 
-                pprint(temp_zip.files())
+                assert temp_zip.files() == []
 
         assert file_exists  (zip_file) is False
         assert is_file      (zip_file) is False

@@ -19,10 +19,8 @@ class test_Capture_Sqlite_Error(TestCase):
         @capture_sqlite_error
         def trigger_error():
             with sqlite3.connect(':memory:') as conn:
-                cursor = conn.cursor()
-                result = cursor.execute('aaaa')
-                pprint(result)
+                conn.cursor().execute('aaaa')
+
 
         trigger_error()
-
         assert sys_stdout.getvalue() == expected_output

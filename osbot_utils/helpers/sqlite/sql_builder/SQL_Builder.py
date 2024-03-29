@@ -5,6 +5,7 @@ from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
 
 class SQL_Builder(Kwargs_To_Self):
     table      : Sqlite__Table
+    limit      : int            = None                  # set it to None to make it explict that the limit is not set
 
     def validate_query_data(self):
         if self.table.row_schema is None:
@@ -23,7 +24,7 @@ class SQL_Builder(Kwargs_To_Self):
             raise ValueError(message)
 
         fields_str = ', '.join(field_names)                         # Construct the SQL query string
-        sql_query = f"SELECT {fields_str} FROM {self.table.table_name};"  # Join the valid field names with commas
+        sql_query = f"SELECT {fields_str} FROM {self.table.table_name}{self.sql_limit()};"  # Join the valid field names with commas
         return sql_query
 
     def command__delete_table(self):
@@ -64,6 +65,12 @@ class SQL_Builder(Kwargs_To_Self):
         if var_name:
             return f'SELECT COUNT(*) as {var_name} FROM {self.table.table_name}'
 
+    def sql_limit(self):
+        if self.limit is not None:
+            return f" LIMIT {self.limit}"
+        return ""
+
+    # todo: remove "sql_" from this method
     def sql_query_select_fields_with_conditions(self, return_fields, query_conditions):
         self.validator().validate_query_fields(self.table , return_fields, query_conditions)
         target_table = self.table.table_name

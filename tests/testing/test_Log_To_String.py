@@ -1,13 +1,18 @@
 import logging
-from unittest import TestCase
-
-from osbot_utils.testing.Log_To_String import Log_To_String
+from unittest                           import TestCase
+from osbot_utils.testing.Log_To_String  import Log_To_String
 
 
 class test_Log_To_String(TestCase):
+    original_handlers : list
 
     def setUp(self) -> None:
-        self.logger = logging.getLogger()
+        self.logger            = logging.getLogger()
+        self.original_handlers = self.logger.handlers[:]
+        self.logger.handlers   = []
+
+    def tearDown(self) -> None:
+        self.logger.handlers = self.original_handlers
 
     def add_test_log_entires(self):
         self.logger.critical('critical message')        # level 50

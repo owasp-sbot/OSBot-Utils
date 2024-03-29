@@ -80,13 +80,14 @@ class test_Mermain_Examples__FlowChart(TestCase):
 
     def test_example_8__node_shapes_a_stadium_shaped_node(self):
 
-        self.assert_on_exit      = True
-        self.print_on_exit       = True
-        self.print_expected_code = True
+        #self.assert_on_exit      = True
+        #self.print_on_exit       = True
+        #self.print_expected_code = True
 
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
             _.add_node(key='id1', label='This is the text in the box').shape_stadium().wrap_with_quotes(False)
+
 
     def test_example_9__node_shapes_a_node_in_a_subroutine(self):
         with self.mermaid as _:

@@ -23,7 +23,7 @@ class test_Lists(Unit_Test):
                                                      'not 42' : {'answer': 'not 42', 'key': 'key_1', 'value': 'value_2'}}
 
     def test_index_by_add_method(self):
-        self.result = type(self.get_data())
+        assert type(self.get_data()) is list
 
     def test_group_by(self):
         assert self.get_data(group_by='key'   ) == { 'key_1'  : [ {'answer': '42', 'key': 'key_1', 'value': 'value_1'},

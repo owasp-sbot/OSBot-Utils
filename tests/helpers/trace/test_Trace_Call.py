@@ -1,3 +1,5 @@
+import io
+from contextlib import redirect_stdout
 from pprint                                         import pprint
 from unittest                                       import TestCase
 from unittest.mock                                  import patch, call
@@ -70,25 +72,25 @@ class test_Trace_Call(TestCase):
 
     @patch('builtins.print')
     def test_decorator__trace_calls(self, builtins_print):
+        @trace_calls(include=['test', 'pprint'], print_traces=True)
+        def method_a():
+            method_b()
 
-            @trace_calls(include=['test', 'pprint'], print_traces=True)
-            def method_a():
-                method_b()
-
-            def method_b() :
+        def method_b() :
+            with redirect_stdout(io.StringIO()):                # capture the output of pprint so that it doesn't show in the logs
                 pprint('an message')
 
-            method_a()
+        method_a()
 
-            assert builtins_print.call_args_list == [call(),
-                                                     call('--------- CALL TRACER ----------'),
-                                                     call('Here are the 6 traces captured\n'),
-                                                     call('\x1b[1m📦  Trace Session\x1b[0m'),
-                                                     call('\x1b[1m│   └── 🔗️ method_a\x1b[0m'),
-                                                     call('\x1b[1m│       └── 🔗️ method_b\x1b[0m'),
-                                                     call('\x1b[1m│           └── 🔗️ pprint\x1b[0m'),
-                                                     call('\x1b[1m│               └── 🔗️ pprint\x1b[0m'),
-                                                     call('\x1b[1m└────────────────────── 🧩️ format\x1b[0m')] != []
+        assert builtins_print.call_args_list == [call(),
+                                                 call('--------- CALL TRACER ----------'),
+                                                 call('Here are the 6 traces captured\n'),
+                                                 call('\x1b[1m📦  Trace Session\x1b[0m'),
+                                                 call('\x1b[1m│   └── 🔗️ method_a\x1b[0m'),
+                                                 call('\x1b[1m│       └── 🔗️ method_b\x1b[0m'),
+                                                 call('\x1b[1m│           └── 🔗️ pprint\x1b[0m'),
+                                                 call('\x1b[1m│               └── 🔗️ pprint\x1b[0m'),
+                                                 call('\x1b[1m└────────────────────── 🧩️ format\x1b[0m')] != []
 
 
     def test_print_lines(self):
@@ -328,13 +330,17 @@ class test_Trace_Call(TestCase):
 
 
     def test__regression__trace_calls__decorator_fails_when_trace_capture_start_with_is_set_to_none(self):
+        with Patch_Print(print_calls=False, enabled=True) as _:
         #with self.assertRaises(Exception) as context:                          # FIXED: this is the exception that we expect to be raised
             @trace_calls()                                                      # FIXED: BUG this is where the exception will occur
             def method_a():                                                     # FIXED: i.e. on the setup of the call tracer for method_a()
                 pass                                                            # we will never get here (we got here and all good)
 
             method_a()                                                          # trigger the execution of the trace_calls decorator
-
+        assert _.call_args_list() == [call(),
+                                      call('--------- CALL TRACER ----------'),
+                                      call('Here are the 1 traces captured\n'),
+                                      call('\x1b[1m─── 📦  Trace Session\x1b[0m')]
         #assert str(context.exception) == "Invalid type for attribute 'with_duration_bigger_than'. Expected '<class 'float'>' but got '<class 'int'>'"    # confirm correct exception was raised
 
 

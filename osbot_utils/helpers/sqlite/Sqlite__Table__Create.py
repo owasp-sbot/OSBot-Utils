@@ -6,6 +6,8 @@ from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table, DEFAULT_FIELD_NAME__ID
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
+from osbot_utils.utils.Dev import pprint
+
 
 class Sqlite__Table__Create(Kwargs_To_Self):
     fields  : list[Sqlite__Field]
@@ -53,11 +55,11 @@ class Sqlite__Table__Create(Kwargs_To_Self):
     def create_table(self):
         sql_query = self.sql_for__create_table()
         if self.table.not_exists():
-            self.table.cursor().execute(sql_query)
+            result = self.table.cursor().execute(sql_query)
             return self.table.exists()
         return False
 
-    def create_table__from_row_schema(self, row_schema):
+    def create_table__from_row_schema(self, row_schema):  # todo add check if there is an index field (which is now supported since it clashes with the one that is added by default)
         self.add_fields_from_class(row_schema)
         self.table.row_schema = row_schema
         return self.create_table()

@@ -1,14 +1,9 @@
-from unittest import TestCase
-
-import pytest
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field__Type, Sqlite__Field
-from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import file_delete, file_exists
-from osbot_utils.utils.Misc import random_text
-from osbot_utils.utils.Objects import obj_info
+from unittest                                           import TestCase
+from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.Sqlite__Field           import Sqlite__Field
+from osbot_utils.helpers.sqlite.Sqlite__Table__Create   import Sqlite__Table__Create
+from osbot_utils.utils.Files                            import file_delete, file_exists
+from osbot_utils.utils.Misc                             import random_text
 
 FIELD_DATA__ID_INT_PK = dict(name="id", type="INTEGER", pk=True, autoincrement=True)
 

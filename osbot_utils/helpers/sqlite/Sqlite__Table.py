@@ -4,9 +4,9 @@ from osbot_utils.decorators.lists.index_by                  import index_by
 from osbot_utils.decorators.methods.cache_on_self           import cache_on_self
 from osbot_utils.helpers.Print_Table                        import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database            import Sqlite__Database
-from osbot_utils.helpers.sqlite.Sqlite__Globals import DEFAULT_FIELD_NAME__ID, ROW_BASE_CLASS, SQL_TABLE__MODULE_NAME__ROW_SCHEMA
+from osbot_utils.helpers.sqlite.Sqlite__Globals             import DEFAULT_FIELD_NAME__ID, ROW_BASE_CLASS, SQL_TABLE__MODULE_NAME__ROW_SCHEMA
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
-from osbot_utils.utils.Json import json_load
+from osbot_utils.utils.Json                                 import json_load
 from osbot_utils.utils.Misc                                 import list_set
 from osbot_utils.utils.Objects                              import base_types, default_value
 from osbot_utils.utils.Str                                  import str_cap_snake_case
@@ -167,8 +167,8 @@ class Sqlite__Table(Kwargs_To_Self):
         return self
 
 
-    def rows(self, fields_names=None):
-        sql_query = self.sql_builder().query_for_fields(fields_names)
+    def rows(self, fields_names=None, limit=None):
+        sql_query = self.sql_builder(limit=limit).query_for_fields(fields_names)
         return self.cursor().execute__fetch_all(sql_query)
 
     def rows_add(self, records, commit=True):           # todo: refactor to use row_add
@@ -216,9 +216,9 @@ class Sqlite__Table(Kwargs_To_Self):
         return result.get(var_name)
 
     @cache_on_self
-    def sql_builder(self):
+    def sql_builder(self, limit=None):
         from osbot_utils.helpers.sqlite.sql_builder.SQL_Builder import SQL_Builder
-        return SQL_Builder(table=self)
+        return SQL_Builder(table=self, limit=limit)
 
     def validate_record_with_schema(self, record):                                          # todo: refactor out to a validator class
         schema = self.fields__cached()
