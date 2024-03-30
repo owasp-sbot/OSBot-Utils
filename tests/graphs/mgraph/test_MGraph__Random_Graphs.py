@@ -17,7 +17,6 @@ class test_MGraph__Random_Graphs(TestCase):
         self.config        = self.ramdom_graphs.config
 
     def test_with_x_nodes_and_y_edges(self):
-        print()
         self.config.allow_circle_edges    = True            # need to set this or the test below will fail
         self.config.allow_duplicate_edges = True
         x = random_int(max=10)

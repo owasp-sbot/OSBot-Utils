@@ -31,11 +31,13 @@ class Test_Dev(TestCase):
         assert stdout.value() == "'aaa'\n'aaa'\n123\n"
 
     @patch('pprint.pprint')
-    def test_pprint__confirm_call_to_pprint_pprint(self, pprint_pprint):
-        assert Dev.pprint('1st'    )    == '1st'
-        assert Dev.pprint('2nd',123)    == ('2nd',123)
-        assert pprint_pprint.call_count == 3
-        pprint_pprint.assert_has_calls([call('1st', indent=2), call('2nd', indent=2),call(123, indent=2)])
+    def test__a_pprint__confirm_call_to_pprint_pprint(self, pprint_pprint):
+        with Stdout() as stdout:
+            assert Dev.pprint('1st'    )    == '1st'
+            assert Dev.pprint('2nd',123)    == ('2nd',123)
+            assert pprint_pprint.call_count == 3
+            pprint_pprint.assert_has_calls([call('1st', indent=2), call('2nd', indent=2),call(123, indent=2)])
+        assert stdout.value() == '\n\n'
 
 
     @patch('builtins.print')

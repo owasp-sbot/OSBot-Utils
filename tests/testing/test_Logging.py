@@ -5,6 +5,7 @@ from osbot_utils                    import testing
 from osbot_utils.testing.Logging    import Logging
 from osbot_utils.testing.Stdout     import Stdout
 from osbot_utils.utils.Misc import in_github_action
+from osbot_utils.utils.Status import osbot_status
 
 
 #todo see https://opensource.com/article/17/9/python-logging for more capabilities to add to this class
@@ -23,6 +24,7 @@ class test_Logging(TestCase):
         self.logger.handlers = self.original_handlers
 
     def test_enable_pycharm_logging(self):
+        osbot_status.clear_root_logger_handlers()
 
         with Stdout() as stdout:
             self.logging.enable_pycharm_logging()
@@ -47,7 +49,7 @@ class test_Logging(TestCase):
                                       'CRITICAL - 5 - aaaa\n'
                                       'INFO - 6 - aaaa\n'
                                       'INFO - 6 - aaaa\n')
-
+        osbot_status.restore_root_logger_handlers()
 
 
     def test_log_to_string(self):

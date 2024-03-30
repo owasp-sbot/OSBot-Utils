@@ -23,9 +23,6 @@ class An_Class:
 
 class test_cache_on_tmp(TestCase):
 
-    def setUp(self) -> None:
-        print()
-
     def test_cache_on_tmp(self):
 
         an_class = An_Class()
