@@ -1,10 +1,10 @@
 import logging
 from unittest                       import TestCase
 
-from osbot_playwright._extra_methdos_osbot import in_github_actions
 from osbot_utils                    import testing
 from osbot_utils.testing.Logging    import Logging
 from osbot_utils.testing.Stdout     import Stdout
+from osbot_utils.utils.Misc import in_github_action
 
 
 #todo see https://opensource.com/article/17/9/python-logging for more capabilities to add to this class
@@ -37,7 +37,7 @@ class test_Logging(TestCase):
 
             self.logging.enable_pycharm_logging()
             self.logging.info('6 - aaaa')
-        if in_github_actions():
+        if in_github_action():
             assert stdout.value() == 'INFO - 6 - aaaa\n'                # todo: figure out why this is the only one that is picked up in GitHub Actions
         else:
             assert stdout.value() == ('INFO - 1 - aaaa\n'
