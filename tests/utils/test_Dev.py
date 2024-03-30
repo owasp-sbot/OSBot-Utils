@@ -3,6 +3,7 @@ from unittest.mock          import patch, call
 
 import pytest
 
+from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Dev  import Dev
 
 class Test_Dev(TestCase):
@@ -21,11 +22,13 @@ class Test_Dev(TestCase):
 
     @patch('builtins.print')
     def test_pprint__confirm_call_to_builtins_print(self, builtins_print):
-        Dev.pprint('aaa')                                       # first call
-        Dev.pprint('aaa',123)                                   # 2nd call
-        assert builtins_print.call_count == 2                   # confirm two calls where made
-        builtins_print.assert_called_with()                     # confirm last call was made with no params
-        builtins_print.assert_has_calls([call(),call()])        # confirm values of two calls
+        with Stdout() as stdout:
+            Dev.pprint('aaa')                                       # first call
+            Dev.pprint('aaa',123)                                   # 2nd call
+            assert builtins_print.call_count == 2                   # confirm two calls where made
+            builtins_print.assert_called_with()                     # confirm last call was made with no params
+            builtins_print.assert_has_calls([call(),call()])        # confirm values of two calls
+        assert stdout.value() == "'aaa'\n'aaa'\n123\n"
 
     @patch('pprint.pprint')
     def test_pprint__confirm_call_to_pprint_pprint(self, pprint_pprint):

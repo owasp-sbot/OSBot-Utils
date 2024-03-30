@@ -229,7 +229,8 @@ class test_Files(TestCase):
                           suffix        = 'aa_'          ,
                           target_folder = folder_2.path())
             folder_3 = temp_folder(**kwargs)
-            pprint(folder_name(folder_3))
+            folder_name(folder_3).startswith('_bb')
+            folder_name(folder_3).endswith('aa_')
             assert 'aa_'  in folder_3
             assert folder_delete(folder_3) is True
 

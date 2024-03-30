@@ -118,8 +118,6 @@ class test_Objects(TestCase):
         assert list_contains_list(env_vars_list(), ['PATH', 'HOME', 'PWD']) is True
 
     def test_get_field(self):
-        print()
-        print(self.__module__)
         assert str(get_field(self, '__module__')) == "test_Objects"
         assert get_field({}, None               ) == None
         assert get_field({}, None, default=42   ) == 42

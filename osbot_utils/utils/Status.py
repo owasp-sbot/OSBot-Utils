@@ -5,10 +5,21 @@ from osbot_utils.utils.Python_Logger import Python_Logger
 
 class Status:
     def __init__(self):
-        self.logger             = Python_Logger().setup()
-        self.call_logger_method = False
+        self.logger               = Python_Logger().setup()
+        self.call_logger_method   = False
+        self.root_logger_handlers = None
         #self.logger.add_memory_logger()
 
+    def root_logger(self):
+        return self.logger.logger.parent
+
+    def clear_root_logger_handlers(self):
+        self.root_logger_handlers = self.root_logger().handlers
+        self.root_logger().handlers = []
+
+    def restore_root_logger_handlers(self):
+        if self.root_logger_handlers:
+            self.root_logger().handlers = self.root_logger_handlers
     def status_message(self, status, message:str=None, data=None, error=None):
         return  {  'data'   : data    ,
                    'error'  : error   ,

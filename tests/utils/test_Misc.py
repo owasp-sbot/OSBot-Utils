@@ -8,6 +8,7 @@ from unittest import TestCase
 import pytest
 from dotenv import load_dotenv
 from osbot_utils.fluent import Fluent_List
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import file_extension, file_contents
 from osbot_utils.utils.Misc import bytes_to_base64, base64_to_bytes, date_time_now, str_to_date, \
     get_random_color, is_number, none_or_empty, random_filename, random_port, random_number, random_string, \
@@ -18,7 +19,7 @@ from osbot_utils.utils.Misc import bytes_to_base64, base64_to_bytes, date_time_n
     lower, remove_multiple_spaces, split_spaces, sorted_set, upper, log_to_file, \
      time_now, time_str_milliseconds, url_encode, url_decode,  \
     size
-from osbot_utils.utils.Status import log_debug, log_error, log_info
+from osbot_utils.utils.Status import log_debug, log_error, log_info, osbot_logger, send_status_to_logger, osbot_status
 from osbot_utils.utils.Str import str_index
 
 
@@ -64,13 +65,16 @@ class test_Misc(TestCase):
         assert last_letter(""   ) is None
         assert last_letter(None ) is None
 
-    @pytest.mark.skip("todo: fix due to refactor of log_debug")
     def test_logger_add_handler__file(self):
+        osbot_status.clear_root_logger_handlers()
         log_file = log_to_file()
+        send_status_to_logger(True)
         log_debug('debug')
         log_error('error')
         log_info ('info')
-        assert file_contents(log_file) == 'error\ninfo\n'
+        expected_file_contents = '[osbot] [debug] debug\n[osbot] [error] error\n[osbot] [info] info\n'
+        assert file_contents(log_file) == expected_file_contents
+        osbot_status.restore_root_logger_handlers()
 
 
 
