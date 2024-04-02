@@ -12,15 +12,13 @@ class Tag__Head(Tag__Base):
         self.tag_name = 'head'
 
     def render(self):
-        attributes = {}
         elements   = []
         if self.title:
             title_element = Tag__Base(tag_name='title', inner_html=self.title, indent=self.indent + 1)
             elements.append(title_element)
         for link in self.links:
             link.indent  = self.indent + 1
-            #link.end_tag = False
             elements.append(link)
-
-        html = self.render_element( attributes, elements)
+        self.elements = elements
+        html = self.render_element()
         return html

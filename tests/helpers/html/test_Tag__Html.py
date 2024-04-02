@@ -1,7 +1,10 @@
+from html.parser import HTMLParser
 from unittest import TestCase
 
+from osbot_utils.helpers.html.Html_To_Dict import Html_To_Dict
 from osbot_utils.helpers.html.Tag__Html import Tag__Html
 from osbot_utils.helpers.html.Tag__Link import Tag__Link
+from osbot_utils.utils.Dev import pprint
 
 
 class test_Tag__Html(TestCase):
@@ -38,3 +41,26 @@ class test_Tag__Html(TestCase):
         <link/>
     </head>
 </html>"""
+
+    def test__html_with_title(self):
+        with self.html as _:
+            _.lang       = 'en'
+            _.head.title = 'an title'
+            _.head.links.append(Tag__Link())
+            assert _.render() == """<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>an title</title>
+        <link/>
+    </head>
+</html>"""
+
+        html = _.render()
+        html_to_dict = Html_To_Dict(html)
+        html_to_dict.convert()
+
+        assert html_to_dict.print(just_return_lines=True) == ['html (lang="en")',
+                                                              '    └── head\n'
+                                                              '        ├── title\n'
+                                                              '        └── link']
+

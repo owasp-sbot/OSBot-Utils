@@ -1,6 +1,9 @@
 from osbot_utils.helpers.html.Tag__Base import Tag__Base
 from osbot_utils.helpers.html.Tag__Head import Tag__Head
 
+ATTRIBUTES_NAMES__LINK = ['lang']
+
+
 class Tag__Html(Tag__Base):
     doc_type: bool = True
     head    : Tag__Head
@@ -12,7 +15,8 @@ class Tag__Html(Tag__Base):
         self.tag_name    = 'html'
 
     def render(self):
-        elements = [self.head]
+        self.elements = [self.head]
+        self.attributes = self.attributes_values(*ATTRIBUTES_NAMES__LINK)
         if self.doc_type:
             html = "<!DOCTYPE html>\n"
         else:
@@ -21,7 +25,7 @@ class Tag__Html(Tag__Base):
         if self.lang:
             attributes['lang'] = self.lang
 
-        html += self.render_element(attributes, elements)
+        html += self.render_element()
         return html
 
 
