@@ -1,6 +1,6 @@
 from osbot_utils.helpers.html.Tag__Base import Tag__Base
 
-ATTRIBUTES_NAMES__LINK = ['crossorigin', 'href', 'integrity', 'rel']
+ATTRIBUTES_NAMES__LINK = ['href', 'rel', 'integrity',  'crossorigin']
 
 class Tag__Link(Tag__Base):
     end_tag    : bool = False
@@ -9,6 +9,7 @@ class Tag__Link(Tag__Base):
     href       : str
     rel        : str
     integrity  : str
+
 
     def render(self):
         self.attributes = self.attributes_values(*ATTRIBUTES_NAMES__LINK)

@@ -1,3 +1,4 @@
+from osbot_utils.helpers.html.Dict_To_Html import HTML_SELF_CLOSING_TAGS
 from osbot_utils.helpers.html.Tag__Base import Tag__Base
 from osbot_utils.helpers.html.Tag__Body import Tag__Body
 from osbot_utils.helpers.html.Tag__Head import Tag__Head
@@ -31,9 +32,11 @@ class Dict_To_Tags:
         attrs      = element.get("attrs"      , {}    )
         children   = element.get("children"   , []    )
         data       = element.get("data"       , ''    )
+        end_tag    = tag_name not in HTML_SELF_CLOSING_TAGS
         tag_indent = indent + 1
-        tag_kwargs  = dict(tag_name  = tag_name   ,
+        tag_kwargs  = dict(tag_name  = tag_name    ,
                            attributes = attrs      ,
+                           end_tag    = end_tag    ,
                            indent     = tag_indent ,
                            inner_html = data       )
         tag        = target_tag(**tag_kwargs)

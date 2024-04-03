@@ -4,6 +4,7 @@ from packaging.tags import Tag
 
 from osbot_utils.helpers.html.Tag__Base import Tag__Base
 from osbot_utils.helpers.html.Tag__Link import Tag__Link
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import random_string
 
 
@@ -25,13 +26,15 @@ class test_Tag__Link(TestCase):
 
     def test_render(self):
         assert self.tag_link.render() == '<link/>'
-        href      = random_string(prefix='href')
-        integrity = random_string(prefix='integrity')
-        rel       = random_string(prefix='ref')
+        href        = random_string(prefix='href'       )
+        integrity   = random_string(prefix='integrity'  )
+        rel         = random_string(prefix='ref'        )
+        crossorigin = random_string(prefix='crossorigin')
 
         with self.tag_link as _:
-            _.href      = href
-            _.integrity = integrity
-            _.rel       = rel
-            assert _.attributes_values('href', 'integrity', 'rel') == dict(href=href, rel=rel, integrity=integrity)
-            assert self.tag_link.render() == f'<link href="{href}" integrity="{integrity}" rel="{rel}"/>'
+            _.href        = href
+            _.integrity   = integrity
+            _.rel         = rel
+            _.crossorigin = crossorigin
+            assert _.attributes_values('href', 'integrity', 'rel', 'crossorigin') == dict(href=href, rel=rel, integrity=integrity, crossorigin=crossorigin)
+            assert self.tag_link.render() == f'<link href="{href}" rel="{rel}" integrity="{integrity}" crossorigin="{crossorigin}"/>'
