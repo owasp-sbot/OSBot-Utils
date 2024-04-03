@@ -15,10 +15,10 @@ from osbot_utils.utils.Misc import bytes_to_base64, base64_to_bytes, date_time_n
     random_string_and_numbers, str_md5, random_uuid, to_int, wait, word_wrap, word_wrap_escaped, \
     convert_to_number, remove_html_tags, last_letter, random_text, random_password, split_lines, \
     under_debugger, base64_to_str, \
-    str_sha256, str_to_base64,  flist, ignore_warning__unclosed_ssl, list_set, \
+    str_sha256, str_to_base64, flist, ignore_warning__unclosed_ssl, list_set, \
     lower, remove_multiple_spaces, split_spaces, sorted_set, upper, log_to_file, \
-     time_now, time_str_milliseconds, url_encode, url_decode,  \
-    size
+    time_now, time_str_milliseconds, url_encode, url_decode, \
+    size, str_sha384, str_sha384_as_base64
 from osbot_utils.utils.Status import log_debug, log_error, log_info, osbot_logger, send_status_to_logger, osbot_status
 from osbot_utils.utils.Str import str_index
 
@@ -153,6 +153,14 @@ class test_Misc(TestCase):
     def test_sha256(self):
         assert str_sha256('admin') == '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'
         assert str_sha256(None   ) is  None
+
+    def test_str_sha384(self):
+        assert str_sha384('admin') == '9ca694a90285c034432c9550421b7b9dbd5c0f4b6673f05f6dbce58052ba20e4248041956ee8c9a2ec9f10290cdc0782'
+        assert str_sha384(None   ) is None
+
+    def test_str_sha384_as_base64(self):
+        assert str_sha384_as_base64('admin') == 'sha384-nKaUqQKFwDRDLJVQQht7nb1cD0tmc/BfbbzlgFK6IOQkgEGVbujJouyfECkM3AeC'
+        assert str_sha384_as_base64(None) is None
 
     def test_random_uuid(self):
         assert len(random_uuid()) == 36

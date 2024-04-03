@@ -38,6 +38,9 @@ def bytes_md5(bytes : bytes):
 def bytes_sha256(bytes : bytes):
     return hashlib.sha256(bytes).hexdigest()
 
+def bytes_sha384(bytes : bytes):
+    return hashlib.sha384(bytes).hexdigest()
+
 def base64_to_bytes(bytes_base64):
     if type(bytes_base64) is str:
         bytes_base64 = bytes_base64.encode()
@@ -258,6 +261,21 @@ def str_sha256(text: str):
         return bytes_sha256(text.encode())
         #return hashlib.sha256('{0}'.format(text).encode()).hexdigest()
     return None
+
+def str_sha384(text:str):
+    if text:
+        return bytes_sha384(text.encode())
+    return
+
+def str_sha384_as_base64(text:str, include_prefix=True):
+    if text:
+        hash_object = hashlib.sha384(text.encode())
+        digest      = hash_object.digest()                                  # Getting the digest of the hash
+        digest_base64 = base64.b64encode(digest).decode()                   # Converting the digest to Base64 encoding
+        if include_prefix:
+            return "sha384-" + digest_base64
+        return digest_base64
+    return
 
 def time_delta_to_str(time_delta):
     microseconds  = time_delta.microseconds
