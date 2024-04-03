@@ -8,12 +8,17 @@ class Tag__Base(Kwargs_To_Self):
     end_tag                  : bool = True
     indent                   : int
     tag_name                 : str
+    tag_classes              : list
     inner_html               : str
     new_line_before_elements : bool = True
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.locked()                                   # lock the object so that it is not possible to add new attributes via normal assigment
+
+    def append(self, *elements):
+        self.elements.extend(elements)
+        return self
 
     def attributes_values(self, *attributes_names):
         attributes = {}
@@ -25,7 +30,11 @@ class Tag__Base(Kwargs_To_Self):
         return attributes
 
     def render_attributes(self):
-        html_attributes = ' '.join([f'{key}="{value}"' for key, value in self.attributes.items()])
+        attributes = self.attributes.copy()
+        if self.tag_classes:
+            attributes['class'] = ' '.join(self.tag_classes)
+
+        html_attributes = ' '.join([f'{key}="{value}"' for key, value in attributes.items()])
         return html_attributes
 
     def render_element(self):
@@ -58,6 +67,7 @@ class Tag__Base(Kwargs_To_Self):
         for index, element in enumerate(self.elements):
             if index:
                 html_elements += '\n'
+            element.indent = self.indent + 1        # set the indent of the child element based on the current one
             html_element = element.render()
             html_elements += html_element
         return html_elements
