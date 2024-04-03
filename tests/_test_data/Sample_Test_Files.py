@@ -8,10 +8,13 @@ from tests._test_data import html_bootstrap_example__lines
 class Sample_Test_Files:
 
     def html_bootstrap_example(self):
-        return self.sample_file_contents('html_bootstrap_exampe.html')
+        return self.sample_file_contents('html_bootstrap_example.html')
 
     def html_bootstrap_example__lines(self):
         return html_bootstrap_example__lines.lines
+
+    def html_bootstrap_example__roundtrip(self):
+        return self.sample_file_contents('html_bootstrap_example__round_trip.html')
 
     def sample_file_contents(self,file_name):
         file_path = path_combine(self.path_test_files(), file_name)
