@@ -1,7 +1,6 @@
 from osbot_utils.helpers.html.Tag__Base import Tag__Base
-from osbot_utils.utils.Dev import pprint
 
-ATTRIBUTES_NAMES__LINK = ['href', 'integrity', 'rel']
+ATTRIBUTES_NAMES__LINK = ['crossorigin', 'href', 'integrity', 'rel']
 
 class Tag__Link(Tag__Base):
     end_tag    : bool = False

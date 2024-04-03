@@ -13,15 +13,18 @@ class test_Tag__Html(TestCase):
         self.html = Tag__Html()
 
     def test_render(self):
+        #self.html.print()
         assert self.html.render()  == """<!DOCTYPE html>
 <html>
     <head></head>
+    <body></body>
 </html>"""
 
     def test_render__without_doc_type(self):
         self.html.doc_type = False
         assert self.html.render() == """<html>
     <head></head>
+    <body></body>
 </html>"""
 
     def test_render__with_lang(self):
@@ -29,6 +32,7 @@ class test_Tag__Html(TestCase):
         self.html.lang     = 'en'
         assert self.html.render() == """<html lang="en">
     <head></head>
+    <body></body>
 </html>"""
 
     def test_render__with_title(self):
@@ -39,6 +43,7 @@ class test_Tag__Html(TestCase):
     <head>
         <title>an title</title>
     </head>
+    <body></body>
 </html>"""
 
     def test_render__with_title_and_empty_link(self):
@@ -52,6 +57,7 @@ class test_Tag__Html(TestCase):
         <title>an title</title>
         <link/>
     </head>
+    <body></body>
 </html>"""
 
     def test__html_with_title(self):
@@ -66,13 +72,14 @@ class test_Tag__Html(TestCase):
         <title>an title</title>
         <link/>
     </head>
+    <body></body>
 </html>"""
 
         html_to_dict = Html_To_Dict(html)
         html_to_dict.convert()
 
         assert html_to_dict.print(just_return_lines=True) == ['html (lang="en")',
-                                                              '    └── head\n'
-                                                              '        ├── title\n'
-                                                              '        └── link']
-
+                                                              '    ├── head\n'
+                                                              '    │   ├── title\n'
+                                                              '    │   └── link',
+                                                              '    └── body']
