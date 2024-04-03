@@ -1,4 +1,5 @@
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.utils.Files import file_create
 
 INDENT_SIZE = 4
 
@@ -28,6 +29,9 @@ class Tag__Base(Kwargs_To_Self):
                 if attribute_value:
                     attributes[attribute_name] = attribute_value
         return attributes
+
+    def save(self, file_path):
+        return file_create(file_path, self.render())
 
     def render_attributes(self):
         attributes = self.attributes.copy()
