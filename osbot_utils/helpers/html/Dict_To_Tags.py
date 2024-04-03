@@ -1,3 +1,4 @@
+from osbot_utils.helpers.html.Tag__Base import Tag__Base
 from osbot_utils.helpers.html.Tag__Head import Tag__Head
 from osbot_utils.helpers.html.Tag__Html import Tag__Html
 from osbot_utils.helpers.html.Tag__Link import Tag__Link
@@ -24,11 +25,19 @@ class Dict_To_Tags:
         if tag_name == 'link':
             return self.convert_to__tag__link(element)
 
-    def convert_to__tag__head(self, element):
+    def convert_to__tag(self, element, indent):
+        tag_name   = element.get("tag")
+        attrs      = element.get("attrs", {})
+        tag_indent = indent + 1
+        tag        = Tag__Base(tag_name=tag_name, attributes=attrs, indent=tag_indent)
+        return tag
+
+    def convert_to__tag__head(self, element, indent):
         attrs    = element.get("attrs"      , {}    )
         children = element.get("children"   , []    )
         print()
-        tag_head = Tag__Head(**attrs)
+        head_indent = indent+1
+        tag_head = Tag__Head(indent=head_indent, **attrs)
         for child in children:
             tag_name = child.get("tag"     )
             data     = child.get("data", "")
@@ -36,6 +45,8 @@ class Dict_To_Tags:
                 tag_head.title = data
             elif tag_name == 'link':
                 tag_head.links.append(self.convert_to__tag__link(child))
+            elif tag_name == 'meta':
+                tag_head.elements.append((self.convert_to__tag(child, indent=head_indent)))
             else:
                 print(f'[convert_to__tag__head] Unknown tag: {tag_name}')
         #pprint(tag_head.__locals__())
@@ -48,8 +59,7 @@ class Dict_To_Tags:
         for child in children:
             tag_name = child.get("tag" )
             if tag_name == 'head':
-                tag_html.head = self.convert_to__tag__head(child)
-                tag_html.head.indent = tag_html.indent + 1                  # Fix
+                tag_html.head = self.convert_to__tag__head(child, tag_html.indent)
         return tag_html
 
     def convert_to__tag__link(self, element):

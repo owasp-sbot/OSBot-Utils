@@ -15,11 +15,12 @@ class test_Tag__Link(TestCase):
     def test__init__(self):
         base_tag_values = Tag__Base().__locals__()
         expected_values = { **base_tag_values,
-                            'end_tag'   : False  ,
-                            'href'      : ''     ,
-                            'integrity' : ''     ,
-                            'rel'       : ''     ,
-                            'tag_name'  : 'link' }
+                            'end_tag'    : False  ,
+                            'crossorigin': ''     ,
+                            'href'       : ''     ,
+                            'integrity'  : ''     ,
+                            'rel'        : ''     ,
+                            'tag_name'   : 'link' }
         assert self.tag_link.__locals__() == expected_values
 
     def test_render(self):

@@ -6,19 +6,20 @@ from osbot_utils.utils.Dev import pprint
 class Tag__Head(Tag__Base):
     title    : str
     links    : list[Tag__Link]
+    meta     : list[Tag__Base]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.tag_name = 'head'
 
     def render(self):
-        elements   = []
+        #elements   = []
         if self.title:
             title_element = Tag__Base(tag_name='title', inner_html=self.title, indent=self.indent + 1)
-            elements.append(title_element)
+            self.elements.append(title_element)
         for link in self.links:
             link.indent  = self.indent + 1
-            elements.append(link)
-        self.elements = elements
+            self.elements.append(link)
+        #self.elements = elements
         html = self.render_element()
         return html
