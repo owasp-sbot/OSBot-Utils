@@ -9,8 +9,8 @@ class Tag__Html(Tag__Base):
     head    : Tag__Head
     lang    : str
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.head.indent = self.indent + 1
         self.tag_name    = 'html'
 

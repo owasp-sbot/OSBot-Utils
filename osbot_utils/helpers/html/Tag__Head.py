@@ -7,8 +7,8 @@ class Tag__Head(Tag__Base):
     title    : str
     links    : list[Tag__Link]
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.tag_name = 'head'
 
     def render(self):

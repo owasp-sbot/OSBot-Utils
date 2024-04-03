@@ -34,8 +34,3 @@ class test_Tag__Link(TestCase):
             _.rel       = rel
             assert _.attributes_values('href', 'integrity', 'rel') == dict(href=href, rel=rel, integrity=integrity)
             assert self.tag_link.render() == f'<link href="{href}" integrity="{integrity}" rel="{rel}"/>'
-
-    # <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css"
-    # rel="stylesheet"
-    # integrity="sha384-Qt9Hug5NfnQDGMoaQYXN1+PiQvda2v7deG6T2EFAv6PE3ZZdT8iV3J3JZK9Fiq1k"
-    # crossorigin="anonymous">
