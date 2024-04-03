@@ -1,5 +1,6 @@
 from osbot_utils.helpers.html.Tag__Base import Tag__Base
 from osbot_utils.helpers.html.Tag__Link import Tag__Link
+from osbot_utils.helpers.html.Tag__Style import Tag__Style
 from osbot_utils.utils.Dev import pprint
 
 
@@ -7,6 +8,7 @@ class Tag__Head(Tag__Base):
     title    : str
     links    : list[Tag__Link]
     meta     : list[Tag__Base]
+    style    : Tag__Style
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -24,6 +26,7 @@ class Tag__Head(Tag__Base):
         for link in self.links:
             link.indent  = self.indent + 1
             self.elements.append(link)
-        #self.elements = elements
+        if self.style.css():
+            self.elements.append(self.style)
         html = self.render_element()
         return html

@@ -10,6 +10,9 @@ class Tag__Style(Tag__Base):
         self.dict_to_css.add_css_entry(selector,data)
         return self
 
+    def css(self):
+        return self.dict_to_css.css
+
     def render(self):
         if self.dict_to_css.css:
             css_indent          = self.indent +1
