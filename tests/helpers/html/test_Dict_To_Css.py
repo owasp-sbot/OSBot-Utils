@@ -6,7 +6,7 @@ from osbot_utils.helpers.html.Dict_To_Css import Dict_To_Css
 
 class test_Dict_To_Css(TestCase):
 
-    expected_css_test = ('.base64-image {\n'
+    expected_css_text = ('.base64-image {\n'
                          '    width: 200px;\n'
                          '    height: auto;\n'
                          '    margin-bottom: 1rem;\n'
@@ -37,7 +37,7 @@ class test_Dict_To_Css(TestCase):
                                  ".var_name"     : {"font-size"      : "12px"            }}
         self.dict_to_css.css = css_data
 
-        assert self.dict_to_css.convert() == self.expected_css_test
+        assert self.dict_to_css.convert() == self.expected_css_text
 
     def test_convert__via_obj_assigment(self):
         css_data             = {}
@@ -50,7 +50,7 @@ class test_Dict_To_Css(TestCase):
                                      "padding"        : "10px"              }
         css_data[".bg-dark"     ] = {"font-size"      : "15px"              }
         css_data[".var_name"    ] = {"font-size"      : "12px"              }
-        assert self.dict_to_css.convert() == self.expected_css_test
+        assert self.dict_to_css.convert() == self.expected_css_text
 
     def test_add_css_entry(self):
         with self.dict_to_css as _:
@@ -61,5 +61,5 @@ class test_Dict_To_Css(TestCase):
                                                              "padding"        : "10px"             })
             _.add_css_entry(selector=".bg-dark"     , data={ "font-size"      : "15px"             })
             _.add_css_entry(selector=".var_name"    , data={ "font-size"      : "12px"             })
-            assert _.convert() == self.expected_css_test
+            assert _.convert() == self.expected_css_text
 
