@@ -108,13 +108,8 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
-    def __setattr__(self, *args, **kwargs):
+    def __setattr__(self, name, value):
         if self.__type_safety__:
-            if len(args) == 2:
-                name,value = args
-            else:
-                name = None
-                value = None
             if self.__lock_attributes__:
                 if not hasattr(self, name):
                     raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
@@ -131,7 +126,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                     if getattr(self, name) is not None:                         # unless it is already set to None
                         raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
-        super().__setattr__(*args, **kwargs)
+        super().__setattr__(name, value)
 
     def __attr_names__(self):
         return list_set(self.__locals__())
@@ -197,19 +192,8 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                         kwargs[k] = v
             # add the vars defined with the annotations
             for var_name, var_type in base_cls.__annotations__.items():
-                if hasattr(self, var_name):                                     # if the variable exists in self, use it (this prevents the multiple calls to default_value)
-                    var_value = getattr(self, var_name)
-                    kwargs[var_name] = var_value
-                # todo: check if code below is still in use, since there is no code coverage that hits it
-                elif hasattr(cls, var_name) is False:                           # if the attribute has not been defined in the class
-                    var_value = self.__default__value__(var_type)               # try to create (and use) its default value
-                    kwargs[var_name] = var_value
-                else:
-                    var_value = getattr(cls, var_name)                          # if it is defined, check the type
-                    if not isinstance(var_value, var_type):
-                        exception_message = (f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' "
-                                             f"of type '{type(var_value)}'")
-                        raise Exception(exception_message)
+                var_value        = getattr(self, var_name)
+                kwargs[var_name] = var_value
 
         return kwargs
 

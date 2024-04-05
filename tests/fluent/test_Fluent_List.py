@@ -9,6 +9,10 @@ class test_Fluent_List(TestCase):
         self.list        = ['a','c','f','z','b']
         self.fluent_list = Fluent_List(self.list)
 
+    def test_contains(self):
+        assert self.fluent_list.contains('' ) is False
+        assert self.fluent_list.contains('a') is True
+
     def test_index(self):
         assert self.fluent_list.index(0) == 'a'
         assert self.fluent_list.index(1) == 'c'

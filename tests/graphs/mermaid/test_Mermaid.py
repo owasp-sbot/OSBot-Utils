@@ -1,27 +1,18 @@
-from unittest import TestCase
+from unittest                               import TestCase
 
-from osbot_utils.graphs.mermaid.configs.Mermaid__Edge__Config import Mermaid__Edge__Config
-from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
-from osbot_utils.helpers.trace.Trace_Call import trace_calls
-from osbot_utils.utils.Dev import pprint
+from osbot_utils.graphs.mermaid.Mermaid__Edge                   import Mermaid__Edge
+from osbot_utils.graphs.mermaid.models.Mermaid__Diagram__Type   import Diagram__Type
+from osbot_utils.testing.Stdout                                 import Stdout
+from osbot_utils.testing.Temp_File                              import Temp_File
+from osbot_utils.graphs.mermaid.Mermaid                         import Mermaid, Diagram__Direction
 
-from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
-from osbot_utils.graphs.mermaid.Mermaid__Edge import Mermaid__Edge
-from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node, Mermaid__Node__Config
-from osbot_utils.graphs.mgraph.MGraph__Node     import MGraph__Node
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import type_mro, obj_data
-from osbot_utils.utils.Str                      import str_dedent
-from osbot_utils.graphs.mermaid.Mermaid         import Mermaid, Diagram__Direction, Diagram__Type
 
 class test_Mermaid(TestCase):
 
     def setUp(self):
         self.mermaid = Mermaid()
 
-
     def test__init__(self):
-
         with self.mermaid as _:
             expected_vars = {'logger'           : _.logger              ,
                              'graph'            : _.graph               ,
@@ -32,20 +23,65 @@ class test_Mermaid(TestCase):
             assert _.graph   .__class__.__name__ == 'Mermaid__Graph'
             assert _.renderer.__class__.__name__ == 'Mermaid__Renderer'
 
+    def test_add_directive(self):
+        with self.mermaid as _:
+            _.set_diagram_type(Diagram__Type.flowchart)
+            _.add_directive('init: {"flowchart": {"htmlLabels": false}} ')
+            _.add_node(key='markdown', label='This **is** _Markdown_').markdown()
 
+            assert _.code() ==  ('%%{init: {"flowchart": {"htmlLabels": false}} }%%\n'
+                                 'flowchart LR\n'
+                                 '    markdown["`This **is** _Markdown_`"]\n')
+    def test_add_edge(self):
+        with self.mermaid as _:
+            from_node_key = 'from_key'
+            to_node_key   =  'to_key'
+            edge          = _.add_edge(from_node_key=from_node_key, to_node_key=to_node_key, label='an_label', attributes={'answer': '42'})
+            nodes_by_id   = _.graph.data().nodes__by_key()
+            from_node     = nodes_by_id.get(from_node_key)
+            to_node       = nodes_by_id.get(to_node_key)
 
-
+            assert from_node.key == from_node_key
+            assert to_node.key   == to_node_key
+            assert type(edge)        == Mermaid__Edge
+            assert edge.__locals__() == { 'attributes': {'answer': '42'} ,
+                                          'config'    : edge.config      ,
+                                          'from_node': from_node         ,
+                                          'label'    : 'an_label'        ,
+                                          'to_node'  : to_node           }
     def test_config(self):
         assert self.mermaid.renderer.config.add_nodes is True
 
+    def test_print_code(self):
+        self.mermaid.add_edge(from_node_key='from_node', to_node_key='to_node')
+        with Stdout() as stdout:
+            self.mermaid.print_code()
+        assert stdout.value() == ('graph LR\n'
+                                  '    from_node["from_node"]\n'
+                                  '    to_node["to_node"]\n'
+                                  '\n'
+                                  '    from_node --> to_node\n')
 
     def test_set_direction(self):
         with self.mermaid as _:
             assert _.renderer is not None
             assert _.set_direction(Diagram__Direction.LR) is _
             assert _.renderer.diagram_direction == Diagram__Direction.LR
+            assert _.set_direction('RL') is _
+            assert _.renderer.diagram_direction == Diagram__Direction.RL
 
-
+    def test_save(self):
+        with Temp_File() as temp_file:
+            assert temp_file.delete()
+            with self.mermaid as _:
+                _.add_node(key='abc')
+                _.add_node(key='xyz')
+                _.add_edge('abc', 'xyz')
+                assert temp_file.exists() is False
+                _.save(target_file=temp_file.path())
+                assert temp_file.exists() is True
+                assert _.code()           in temp_file.contents()
+                assert _.code_markdown()  == temp_file.contents()
 
 
 

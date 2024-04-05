@@ -12,11 +12,13 @@ from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
 from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
 from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
 from osbot_utils.testing.Catch                  import Catch
+from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Json import json_dumps
 from osbot_utils.utils.Misc import random_string, list_set
 from osbot_utils.utils.Objects import obj_info, obj_data, default_value, obj_is_type_union_compatible, \
     obj_attribute_annotation
+from tests.testing.test_Profiler import An_Class
 
 
 class Test_Kwargs_To_Self(TestCase):
@@ -52,6 +54,23 @@ class Test_Kwargs_To_Self(TestCase):
 
         assert self.Config_Class.__cls_kwargs__() == self.Config_Class().__cls_kwargs__()
         assert self.Extra_Config.__cls_kwargs__() == self.Extra_Config().__cls_kwargs__()
+
+        # handle current edge case for supporting the functools.cache decorator (in __cls_kwargs__)
+        # todo: understand better this scenario and if there is a better way to handle
+        import functools
+        from functools import cache
+
+        class An_Class(Kwargs_To_Self):
+            @cache
+            def with_cache(self):
+                pass
+
+        an_class = An_Class()
+
+        assert type(An_Class.with_cache) == functools._lru_cache_wrapper
+        assert type(an_class.with_cache) == types.MethodType
+
+
 
 
     def test__cls_kwargs__with_optional_attributes(self):
@@ -102,6 +121,28 @@ class Test_Kwargs_To_Self(TestCase):
         self.assertEqual(self.Config_Class().__default_kwargs__(), expected_defaults)
         self.assertNotEqual(instance.attribute1, self.Config_Class().__default_kwargs__()['attribute1'])
 
+    def test_locked(self):
+        class An_Class(Kwargs_To_Self):
+            an_str  : str = '42'
+
+        an_class = An_Class()
+        an_class.before_lock = 42
+        assert an_class.__lock_attributes__ == False
+        assert an_class.__locals__() == {'an_str': '42', 'before_lock': 42}
+        an_class.locked()
+        assert an_class.__lock_attributes__ == True
+        with self.assertRaises(Exception) as context:
+            an_class.after_lock = 43
+        assert context.exception.args[0] == ("'[Object Locked] Current object is locked (with __lock_attributes__=True) "
+                                              'which prenvents new attributes allocations (i.e. setattr calls). In this '
+                                              "case  An_Class' object has no attribute 'after_lock'")
+        assert an_class.__locals__() == {'an_str': '42', 'before_lock': 42}
+        an_class.locked(False)
+        assert an_class.__lock_attributes__ == False
+        an_class.after_lock = 43
+
+        assert an_class.__locals__() == {'after_lock': 43, 'an_str': '42', 'before_lock': 42}
+
     def test_serialize_to_dict__enum(self):
         class An_Enum(Enum):
             value_1 = auto()
@@ -132,6 +173,7 @@ class Test_Kwargs_To_Self(TestCase):
 
 
     def test_deserialize_from_dict(self):
+        #check handing of enums
         class An_Enum(Enum):
             value_1 = auto()
             value_2 = auto()
@@ -145,6 +187,36 @@ class Test_Kwargs_To_Self(TestCase):
 
         an_class.deserialize_from_dict(an_class_dict)
         assert an_class.json() == an_class_dict
+
+
+        #check handing of base classes
+        class An_Base_Class(Kwargs_To_Self):
+            in_base  : str
+
+        class An_Parent_Class(An_Base_Class):
+           in_parent : str
+
+        an_parent_dict  = {'in_base': 'base', 'in_parent': 'parent'}
+        an_parent_class = An_Parent_Class()
+        an_parent_class.deserialize_from_dict(an_parent_dict)
+        assert an_parent_class.json() == an_parent_dict
+
+        # check nested objects
+        class An_Class_1(Kwargs_To_Self):
+            in_class_1 : str
+
+        class An_Class_2(Kwargs_To_Self):
+            an_class_1 : An_Class_1
+            in_class_2 : str
+
+        an_class_1_dict = {'an_class_1': {'in_class_1': 'data_1'}, 'in_class_2': 'data_2'}
+        an_class_2 = An_Class_2()
+        an_class_2.deserialize_from_dict(an_class_1_dict)
+        assert an_class_2.json() == an_class_1_dict
+
+        with Stdout() as stdout:
+            an_class_2.print()
+        assert stdout.value() == "\n{'an_class_1': {'in_class_1': 'data_1'}, 'in_class_2': 'data_2'}\n"
 
     def test_from_json(self):
         class An_Enum(Enum):

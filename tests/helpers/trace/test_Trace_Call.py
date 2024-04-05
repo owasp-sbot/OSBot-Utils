@@ -208,7 +208,7 @@ class test_Trace_Call(TestCase):
                                                  call('\x1b[1m│   └── 🔗️ random_filename\x1b[0m'),
                                                  call('\x1b[1m└────────── 🧩️ file_extension_fix\x1b[0m')] != []
 
-        assert list_set(self.handler.stats.frames_stats()) == ['codecs', 'genericpath', 'os',
+        assert list_set(self.handler.stats.frames_stats()) == ['abc', 'codecs', 'genericpath', 'os',
                                                                'osbot_utils', 'posixpath', 'random', 'shutil',
                                                                'tempfile', 'test_Trace_Call']
 
