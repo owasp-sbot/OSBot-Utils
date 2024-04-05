@@ -77,17 +77,17 @@ flowchart TD
     id1[/This is the text in the box/]
     """
 
-    example_16__node_shapes_parallelogram_alt = """
+    example_16__node_shapes_parallelogram_alt = r"""
 flowchart TD
     id1[\This is the text in the box\]
     """
 
-    example_17__node_shapes_trapezoid = """
+    example_17__node_shapes_trapezoid = r"""
 flowchart TD
     A[/Christmas\]
     """
 
-    example_18__node_shapes_trapezoid_alt = """
+    example_18__node_shapes_trapezoid_alt = r"""
 flowchart TD
     B[\Go shopping/]
     """
