@@ -69,7 +69,7 @@ class test_Objects(TestCase):
         assert default_value(int      ) == 0
         assert default_value(bool     ) is False
         assert default_value(float    ) == 0.0
-        assert default_value(str      ) is ''
+        assert default_value(str      ) == ''
         assert default_value(list     ) == []
         assert default_value(dict     ) == {}
         assert default_value(complex  ) == 0j

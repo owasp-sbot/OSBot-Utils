@@ -1,19 +1,19 @@
 # todo: find a way to add these documentations strings to a separate location so that
 #       the code is not polluted with them (like in the example below)
-#       the data is avaiable in IDE's code complete
+#       the data is available in IDE's code complete
 import functools
 import inspect
 import types
-from enum import Enum, EnumMeta, EnumType
-from typing import get_origin, get_args
+from enum                                       import Enum, EnumMeta, EnumType
+from typing                                     import get_origin, get_args
 
-from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Json import json_parse
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
-    raise_exception_on_obj_type_annotation_mismatch, obj_info, obj_is_attribute_annotation_of_type, enum_from_value, \
-    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, obj_attribute_annotation
+from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
+from osbot_utils.utils.Dev                      import pprint
+from osbot_utils.utils.Json                     import json_parse
+from osbot_utils.utils.Misc                     import list_set
+from osbot_utils.utils.Objects                  import default_value, value_type_matches_obj_annotation_for_attr, \
+    raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
+    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
@@ -88,12 +88,12 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                        setting an undefined attribute.
 
         """
-        if 'disable_type_safety' in kwargs:                                 # special
+        if 'disable_type_safety' in kwargs:                                 # special case
             self.__type_safety__ = kwargs['disable_type_safety'] is False
             del kwargs['disable_type_safety']
 
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
-            if value is not None:                                           # when the value is explicity set to None on the class static vars, we can't check for type safety
+            if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
                 raise_exception_on_obj_type_annotation_mismatch(self, key, value)
             setattr(self, key, value)
 
@@ -112,7 +112,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
         if self.__type_safety__:
             if self.__lock_attributes__:
                 if not hasattr(self, name):
-                    raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
+                    raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prevents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
 
             if value is not None:
                 check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
@@ -202,10 +202,11 @@ class Kwargs_To_Self:               # todo: check if the description below is st
         kwargs = {}
         # Update with instance-specific values
         for key, value in self.__default_kwargs__().items():
-            if hasattr(self, key):
-                kwargs[key] = self.__getattribute__(key)
-            else:
-                kwargs[key] = value
+            kwargs[key] = self.__getattribute__(key)
+            # if hasattr(self, key):
+            #     kwargs[key] = self.__getattribute__(key)
+            # else:
+            #     kwargs[key] = value                                   # todo: see if this is stil a valid scenario
         return kwargs
 
 
@@ -277,7 +278,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     def from_json(cls, json_data):
         if type(json_data) is str:
             json_data = json_parse(json_data)
-        if json_data:                                           # if there is not data or is {} then don't create an object (since this could be caused by bad data being provided)
+        if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
             return cls().deserialize_from_dict(json_data)
         return None
 

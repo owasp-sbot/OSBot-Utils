@@ -85,8 +85,8 @@ class test_Lists(TestCase):
         self.assertRaises (Exception, list_find, 'a', None)
 
     def test_list_first(self):
-        assert list_first(['a ','b']             ) is 'a '
-        assert list_first(['a', 'b'], strip=True) is 'a'
+        assert list_first(['a ','b']                ) == 'a '
+        assert list_first(['a', 'b'], strip=True) == 'a'
         assert list_first([]) is None
 
     def test_list_get(self):

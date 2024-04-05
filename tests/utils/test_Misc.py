@@ -148,7 +148,7 @@ class test_Misc(TestCase):
 
     def test_md5(self):
         assert str_md5('admin') == '21232f297a57a5a743894a0e4a801fc3'
-        assert str_md5(None   ) is ''
+        assert str_md5(None   ) == ''
 
     def test_sha256(self):
         assert str_sha256('admin') == '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'
