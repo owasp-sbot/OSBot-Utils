@@ -44,7 +44,7 @@ class test_Mermain_Examples__FlowChart(TestCase):
             _.add_node(key='id', label='This ❤ Unicode')
 
 
-    def test_example_4__a_node_with_markdown_formating(self):
+    def test_example_4__a_node_with_markdown_formatting(self):
         with self.mermaid as _:
             _.set_diagram_type(Diagram__Type.flowchart)
             _.add_directive('init: {"flowchart": {"htmlLabels": false}} ')

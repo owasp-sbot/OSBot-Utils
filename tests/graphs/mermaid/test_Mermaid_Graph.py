@@ -11,6 +11,7 @@ from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.utils.Files import file_contents
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Objects import base_classes, base_types
 from osbot_utils.graphs.mgraph.MGraph import MGraph
 from osbot_utils.graphs.mgraph.MGraphs                        import MGraphs
@@ -22,15 +23,16 @@ class test_Mermaid_MGraph(TestCase):
 
     def setUp(self):
         self.mgraph        = MGraphs().new__random(x_nodes=4,y_edges=4)
-        self.mermaid_graph = Mermaid__Graph().cast(self.mgraph)
+        self.mermaid_graph = Mermaid__Graph()#.cast(self.mgraph)
 
 
-    # def test__init__(self):
-    #     assert type(self.mermaid_graph) is Mermaid__Graph
-    #     assert base_types(self.mermaid_graph) == [MGraph, Kwargs_To_Self, object]
-    #     assert hasattr(self.mermaid_graph, "convert_nodes") is True
-    #     assert hasattr(self.mgraph       , "convert_nodes") is False
-    #
+    def test__init__(self):
+        assert type(self.mermaid_graph) is Mermaid__Graph
+        assert base_types(self.mermaid_graph) == [MGraph, Kwargs_To_Self, object]
+        assert list_set(self.mermaid_graph.__locals__()) == ['config', 'edges', 'key', 'mermaid_code', 'nodes']
+        # assert hasattr(self.mermaid_graph, "convert_nodes") is True
+        # assert hasattr(self.mgraph       , "convert_nodes") is False
+
     # def test_code(self):
     #     with Stdout() as stdout:
     #         with self.mermaid_graph as _:

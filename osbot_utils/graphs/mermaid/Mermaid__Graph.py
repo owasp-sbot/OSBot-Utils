@@ -17,9 +17,9 @@ class Mermaid__Graph(MGraph):
     #     self.__dict__ = mgraph.__dict__
     #     self.convert_nodes().convert_edges()
 
-    def cast(self, source):     # todo: find a better name for this, since this is reverse of cast
-        self.__dict__ = source.__dict__
-        return self
+    # def cast(self, source):
+    #     self.__dict__ = source.__dict__
+    #     return self
 
     # def add_edge(self, **kwargs):
     #     #new_edge = super().add_edge(*args, **kwargs)

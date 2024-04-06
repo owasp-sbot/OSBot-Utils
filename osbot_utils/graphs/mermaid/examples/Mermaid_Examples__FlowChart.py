@@ -13,7 +13,7 @@ flowchart LR
 flowchart LR
     id["This ❤ Unicode"]    
     """
-    example_4__a_node_with_markdown_formating = """
+    example_4__a_node_with_markdown_formatting = """
 %%{init: {"flowchart": {"htmlLabels": false}} }%%
 flowchart LR
     markdown["`This **is** _Markdown_`"]
