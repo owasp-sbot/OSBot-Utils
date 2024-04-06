@@ -13,15 +13,15 @@ class MGraph__Edge(Kwargs_To_Self):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def __repr__(self):
-        return self.__str__()
+    # def __repr__(self):
+    #     return self.__str__()
 
     def __str__(self):
         return f'[Graph Edge] from "{self.from_node.key}" to "{self.to_node.key}" '
 
-    def cast(self, source):
-        self.__dict__ = source.__dict__
-        return self
+    # def cast(self, source):
+    #     self.__dict__ = source.__dict__
+    #     return self
 
     def data(self):
         return self.__locals__()             # todo: see if there is a better way to do this (specialy as the edge objects gets more features and attributes)

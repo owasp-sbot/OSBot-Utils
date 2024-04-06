@@ -1,4 +1,6 @@
 from unittest                               import TestCase
+
+from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Misc                 import random_text
 from osbot_utils.graphs.mgraph.MGraph import MGraph
 
@@ -35,3 +37,14 @@ class test_MGraph(TestCase):
             assert new_edge.from_node    == from_node
             assert new_edge.to_node      == to_node
             assert new_edge.__locals__() == {'attributes': {}, 'from_node': from_node, 'label':'', 'to_node': to_node}
+
+            with Stdout() as stdout:
+                _.print()
+            assert stdout.value() == ('\n'
+                                      '\n'
+                                      '┌───────────────────────────────────────────┐\n'
+                                      '│ key               │ edges                 │\n'
+                                      '├───────────────────────────────────────────┤\n'
+                                     f"│ {from_node.key  } │ ['{to_node.key    }'] │\n"
+                                     f'│ {to_node.key    } │ []                    │\n'
+                                      '└───────────────────────────────────────────┘\n')

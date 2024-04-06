@@ -43,9 +43,10 @@ class MGraph(Kwargs_To_Self):
     #     if format == 'pickle':
     #         return pickle_save_to_file(self)
 
-    def save(self):
-        from osbot_utils.graphs.mgraph.MGraph__Serializer import MGraph__Serializer        # due to circular dependency
-        return MGraph__Serializer(mgraph=self).save()
+    #todo: add save that return saved object
+    # def save(self):
+    #     from osbot_utils.graphs.mgraph.MGraph__Serializer import MGraph__Serializer        # due to circular dependency
+    #     return MGraph__Serializer(mgraph=self).save()
 
     def print(self):
         print()

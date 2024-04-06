@@ -40,7 +40,6 @@ class MGraph__Serializer(Kwargs_To_Self):
             return self.save_to_pickle()
         if self.mode == Serialization_Mode.YAML:
             return self.save_to_yaml()
-        return False
 
     def save_to_json(self):
         graph_data = self.mgraph.data().graph_data()
