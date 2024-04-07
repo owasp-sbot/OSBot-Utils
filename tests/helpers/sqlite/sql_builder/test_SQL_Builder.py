@@ -108,6 +108,28 @@ class test_SQL_Builder(TestCase):
         assert _(['an_int'], {'an_int': None}) == ('SELECT an_int FROM an_table WHERE an_int=?', [None])
 
 
+    def test_sql_query_update_with_conditions(self):
+        update_fields    = {'an_int': 12}
+        query_conditions = {'an_str': '42'}
+        _ = self.sql_builder.sql_query_update_with_conditions
+        assert _(update_fields, query_conditions) == ('UPDATE an_table SET an_int=? WHERE an_str=?', [12, '42'])
+
+        update_fields = {}
+        assert _(update_fields, query_conditions) is None
+        update_fields = {'an_int': 12}
+        query_conditions = {}
+        assert _(update_fields, query_conditions) is None
+
+        update_fields = {'aaaaaa': 12}
+        with self.assertRaises(ValueError) as context:
+            _(update_fields, query_conditions)
+        assert context.exception.args[0] == 'in validate_query_fields, invalid, invalid return_field: "aaaaaa"'
+        update_fields    = {'an_int': 12}
+        query_conditions = {'bbbb': '42'}
+        with self.assertRaises(ValueError) as context:
+            _(update_fields, query_conditions)
+        assert context.exception.args[0] == 'in validate_query_fields, invalid, invalid return_field: "bbbb"'
+
     def test__regression__vulnerability__multiple_sqli_in__query_select_fields_from_table_with_conditions(self):
 
         current_table_name = self.table.table_name
@@ -119,7 +141,7 @@ class test_SQL_Builder(TestCase):
            return_fields               = ['bb']
            sql_query__no_payloads      = 'SELECT bb FROM aa WHERE an_name=?'
            assert vulnerable_function(return_fields,query_conditions) == (sql_query__no_payloads, [None])
-        #assert context.exception.args[0] == 'in validate_query_fields, invalid target_table name: "aa"' != ''
+        assert context.exception.args[0] == 'in validate_query_fields, invalid target_table name: "aa"' != ''
         self.table.table_name = current_table_name
 
         self.table.fields__cached(reload_cache=True) # need to reset this value because "self.table.table_name= 'aa'" above corrupted this value

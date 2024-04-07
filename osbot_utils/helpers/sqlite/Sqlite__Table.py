@@ -166,6 +166,9 @@ class Sqlite__Table(Kwargs_To_Self):
         self.row_schema = self.row_schema__create_from_current_field_types()
         return self
 
+    def row_update(self, update_fields, query_conditions ):
+        sql_query, params = self.sql_builder().sql_query_update_with_conditions(update_fields, query_conditions)
+        return self.cursor().execute_and_commit(sql_query, params)
 
     def rows(self, fields_names=None, limit=None):
         sql_query = self.sql_builder(limit=limit).query_for_fields(fields_names)
@@ -173,7 +176,10 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def rows_add(self, records, commit=True):           # todo: refactor to use row_add
         for record in records:
-            self.row_add_record(record)
+            if type(record) is dict:
+                self.row_add_record(record)
+            else:
+                self.row_add(row_obj=record)
         if commit:
             self.cursor().commit()
         return self

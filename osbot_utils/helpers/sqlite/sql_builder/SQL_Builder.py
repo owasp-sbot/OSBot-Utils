@@ -97,6 +97,20 @@ class SQL_Builder(Kwargs_To_Self):
         sql_query = f"SELECT * FROM {self.table.table_name} WHERE {where_clause}" # Construct the full SQL query
         return sql_query, params
 
+    def sql_query_update_with_conditions(self, update_fields, query_conditions):
+        update_keys     = list(update_fields.keys())            # todo: refactor self.validate_query_fields to use a more generic value for these fields
+        condition_keys  = list(query_conditions.keys())
+        self.validator().validate_query_fields(self.table, update_keys, query_conditions)
+        target_table = self.table.table_name
+        if target_table and update_fields and query_conditions:
+            update_clause   = ', '.join([f"{key}=?" for key in update_keys])
+            where_clause    = ' AND '.join([f"{field}=?" for field in condition_keys])
+            sql_query       = f"UPDATE {target_table} SET {update_clause} WHERE {where_clause}"
+
+            # The parameters for the SQL execution must include both the update values and the condition values, in the correct order.
+            params = list(update_fields.values()) + list(query_conditions.values())
+            return sql_query, params
+
     def validate_row_obj(self, row_obj):
         field_types = self.table.fields_types__cached()
         invalid_reason = ""
@@ -132,6 +146,7 @@ class SQL_Builder(Kwargs_To_Self):
 
 class SQL_Query__Validator:
 
+    # todo: refactor this method to use a more generic value for these return_fields since it is already being used in two use cases: return fields and update fields
     def validate_query_fields(self, table, return_fields, query_conditions):
         target_table = table.table_name
         valid_fields = table.fields_names__cached(include_star_field=True)

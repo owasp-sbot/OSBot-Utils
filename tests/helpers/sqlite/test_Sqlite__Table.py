@@ -159,6 +159,43 @@ class test_Sqlite__Table(TestCase):
             assert type_full_name(current_obj) == 'test_Sqlite__Table.An_Table_Class'
             assert type_full_name(dynamic_obj) == f'{SQL_TABLE__MODULE_NAME__ROW_SCHEMA}.Row_Schema__An_Table'
 
+    def test_row_update(self):
+        with self.table as _:
+            row_obj_1 = _.new_row_obj()
+            row_obj_2 = _.new_row_obj(dict(an_str='A', an_int=42))
+            _.rows_add([row_obj_1,row_obj_2])
+            assert _.rows() == [ {'an_bytes': b'', 'an_int': 0 , 'an_str': '' , 'id': 1},
+                                 {'an_bytes': b'', 'an_int': 42, 'an_str': 'A', 'id': 2}]
+
+            result = _.row_update({'an_int':11}, {'id': 1})
+            assert result.get('status') == 'ok'
+            assert _.rows() == [ {'an_bytes': b'', 'an_int': 11, 'an_str': ''  , 'id': 1},
+                                 {'an_bytes': b'', 'an_int': 42, 'an_str': 'A' , 'id': 2}]
+
+            result = _.row_update({'an_int': 12, 'an_str':'12'}, {'an_int': 11})
+            assert result.get('status') == 'ok'
+            assert _.rows() == [ {'an_bytes': b'', 'an_int': 12, 'an_str': '12', 'id': 1},
+                                 {'an_bytes': b'', 'an_int': 42, 'an_str': 'A' , 'id': 2}]
+
+            result = _.row_update({'an_int': 12, 'an_str': '12'}, {'an_str': 'B'})
+            assert result.get('status') == 'ok'
+            assert _.rows() == [ {'an_bytes': b'', 'an_int': 12, 'an_str': '12', 'id': 1},
+                                 {'an_bytes': b'', 'an_int': 42, 'an_str': 'A' , 'id': 2}]
+
+            result = _.row_update({'an_int': 12, 'an_str': '12'}, {'an_str': 'A', 'id':1})
+            assert result.get('status') == 'ok'
+            assert _.rows() == [ {'an_bytes': b'', 'an_int': 12, 'an_str': '12', 'id': 1},
+                                 {'an_bytes': b'', 'an_int': 42, 'an_str': 'A' , 'id': 2}]
+
+            result = _.row_update({'an_int': 12, 'an_str': '12'}, {'an_str': 'A', 'id': 2})
+            assert result.get('status') == 'ok'
+            assert _.rows() == [ {'an_bytes': b'', 'an_int': 12, 'an_str': '12', 'id': 1},
+                                 {'an_bytes': b'', 'an_int': 12, 'an_str': '12' , 'id': 2}]
+        self.table.clear()
+
+
+
+
     def test_rows(self):
         size = 10
         test_data = self.create_test_data(size)
