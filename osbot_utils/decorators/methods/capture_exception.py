@@ -5,7 +5,6 @@ from osbot_utils.utils.Dev import pprint
 def capture_exception(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        return_value = None
         with Capture_Exception() as context:
             return_value = func(*args, **kwargs)
         if context.error_occurred:
@@ -24,7 +23,7 @@ class Capture_Exception:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_val:  # If any exception occurred
+        if exc_val:
             self.error_occurred = True
             last_frame = traceback.extract_tb(exc_tb)[-1]
             self.error_details = {
@@ -34,6 +33,4 @@ class Capture_Exception:
                                     'line': last_frame.lineno  }
             }
             return True
-            # You can print the error details here or handle it as needed
-            # Returning False to allow the exception to propagate
         return False
