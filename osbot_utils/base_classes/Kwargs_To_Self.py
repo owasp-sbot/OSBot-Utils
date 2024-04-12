@@ -95,6 +95,11 @@ class Kwargs_To_Self:               # todo: check if the description below is st
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
             if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
                 raise_exception_on_obj_type_annotation_mismatch(self, key, value)
+            if hasattr(self, key):
+                existing_value = getattr(self, key)
+                if existing_value is not None:
+                    setattr(self, key, existing_value)
+                    continue
             setattr(self, key, value)
 
         for (key, value) in kwargs.items():                             # overwrite with values provided in ctor

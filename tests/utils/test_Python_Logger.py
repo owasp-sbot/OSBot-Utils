@@ -6,9 +6,6 @@ from logging import Logger, LogRecord
 from logging.handlers import MemoryHandler
 from unittest import TestCase
 from unittest.mock import patch
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.utils.Files import file_lines, file_exists, file_contents, file_delete
 from osbot_utils.utils.Lists import list_set_dict
 from osbot_utils.utils.Objects import obj_dict, obj_items

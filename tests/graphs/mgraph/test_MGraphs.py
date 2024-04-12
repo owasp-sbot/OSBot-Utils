@@ -4,10 +4,6 @@ from unittest import TestCase
 import pytest
 
 from osbot_utils.graphs.mgraph.MGraph__Config import MGraph__Config
-from osbot_utils.utils.Misc import random_number
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.graphs.mgraph.MGraphs import MGraphs
 
 

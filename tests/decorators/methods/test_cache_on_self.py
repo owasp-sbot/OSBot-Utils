@@ -1,7 +1,4 @@
 from unittest import TestCase
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self, cache_on_self__get_cache_in_key, \
     CACHE_ON_SELF_KEY_PREFIX, cache_on_self__args_to_str, cache_on_self__kwargs_to_str
 from osbot_utils.testing.Catch import Catch

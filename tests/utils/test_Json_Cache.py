@@ -1,7 +1,5 @@
 from datetime import datetime
 from unittest import TestCase
-
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import file_exists, file_contents, file_contents_gz
 from osbot_utils.utils.Json import json_dump
 from osbot_utils.utils.Json_Cache import Json_Cache

@@ -1,9 +1,7 @@
-import builtins
 import types
 from unittest import TestCase
 
 from osbot_utils.decorators.classes.singleton import singleton
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import random_string
 from osbot_utils.utils.Objects import type_full_name
 

@@ -1,9 +1,4 @@
 from unittest import TestCase
-
-from osbot_utils.utils.Objects import obj_info
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.testing.Patch_Print import Patch_Print
 
 

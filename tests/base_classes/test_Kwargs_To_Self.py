@@ -150,8 +150,6 @@ class Test_Kwargs_To_Self(TestCase):
         an_class_dict = {'an_dict': {}, 'an_enum': 'an_value', 'an_int': 42, 'an_list': [], 'an_str': '42'}
         an_class_a      = An_Class_A()
         assert an_class_a.serialize_to_dict() == an_class_dict
-
-
         obj_to_serialize = 3 + 4j  # A complex number which will not serialise
         with self.assertRaises(TypeError) as context:
             serialize_to_dict(obj_to_serialize)

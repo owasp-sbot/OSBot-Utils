@@ -7,9 +7,6 @@ from osbot_utils.utils.Misc import random_text, list_set, in_github_action
 
 from osbot_utils.testing.Temp_File import Temp_File
 from osbot_utils.utils.Files import file_exists, file_delete, file_extension, file_contents
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.testing.Temp_Folder import Temp_Folder
 from osbot_utils.testing.Temp_Zip_In_Memory import Temp_Zip_In_Memory
 from osbot_utils.utils.Zip import zip_files_to_bytes, zip_file_list, zip_bytes_file_list, zip_bytes_to_file, \

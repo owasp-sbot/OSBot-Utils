@@ -1,8 +1,6 @@
 from unittest import TestCase
 
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
 from osbot_utils.utils.Misc import list_set
 

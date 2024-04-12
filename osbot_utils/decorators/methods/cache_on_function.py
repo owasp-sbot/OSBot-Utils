@@ -3,8 +3,6 @@ from functools import wraps
 
 from osbot_utils.utils.Misc import str_md5
 
-#from osbot_utils.utils.Dev import pprint
-
 CACHE_ON_SELF_KEY_PREFIX = 'cache_on_function'
 CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
                             complex, str]

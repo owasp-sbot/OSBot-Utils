@@ -8,9 +8,6 @@ from osbot_utils.graphs.mgraph.MGraph__Data import MGraph__Data
 from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
 from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Misc import list_set
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.graphs.mgraph.MGraph__Random_Graphs import MGraph__Random_Graphs
 
 

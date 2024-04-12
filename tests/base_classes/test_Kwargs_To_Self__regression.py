@@ -15,6 +15,33 @@ from osbot_utils.utils.Objects import default_value, obj_attribute_annotation
 
 class test_Kwargs_To_Self__regression(TestCase):
 
+    def test_regression_base_class_attributes_set_to_null_when_super_is_used(self):
+        class Base_Class(Kwargs_To_Self):
+            an_int : int
+            an_str : str
+
+            def __init__(self):
+                self.an_int = 42
+                self.an_str = '42'
+                super().__init__()
+
+        class An_Class(Base_Class):
+            an_int : int
+            an_str : str
+
+            def __init__(self):
+                super().__init__()
+                self.an_int = 43
+
+
+        an_class   = An_Class()
+        base_class = Base_Class()
+
+        assert an_class.__dict__       == {'an_int': 43, 'an_str': '42' }       # FIXED: BUG lost value assigned in Base_Class
+        assert an_class.__locals__()   == {'an_int': 43, 'an_str': '42' }       # FIXED: BUG lost value assigned in Base_Class
+        assert base_class.__dict__     == {'an_int': 42, 'an_str': '42' }       # FIXED: BUG lost value assigned in Base_Class
+        assert base_class.__locals__() == {'an_int': 42, 'an_str': '42' }       # FIXED: BUG lost value assigned in Base_Class
+
     def test__regression__default_value_is_not_cached(self):                    # FIXED: this is a test that confirms a BUG the currently exists in the default_value method
 
         class An_Class(Kwargs_To_Self):

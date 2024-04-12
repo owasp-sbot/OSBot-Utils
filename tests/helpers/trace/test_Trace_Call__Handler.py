@@ -1,8 +1,5 @@
 import sys
 from unittest                                           import TestCase
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.testing.Temp_File import Temp_File
 
 from osbot_utils.helpers.trace.Trace_Call import Trace_Call

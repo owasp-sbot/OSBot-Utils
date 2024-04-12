@@ -1,22 +1,10 @@
-import io
-from contextlib import redirect_stdout
 from unittest import TestCase
-from unittest.mock import patch
-
-from osbot_utils.graphs.mermaid.Mermaid__Edge import Mermaid__Edge
-from osbot_utils.testing.Temp_File import Temp_File
-
-from osbot_utils.testing.Stdout import Stdout
-from osbot_utils.utils.Dev import pprint
-
-from osbot_utils.utils.Files import file_contents
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Objects import base_classes, base_types
 from osbot_utils.graphs.mgraph.MGraph import MGraph
 from osbot_utils.graphs.mgraph.MGraphs                        import MGraphs
 from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
-from osbot_utils.graphs.mermaid.Mermaid__Node    import Mermaid__Node
 
 
 class test_Mermaid_MGraph(TestCase):

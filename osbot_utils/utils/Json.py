@@ -166,3 +166,6 @@ str_to_json                  = Json.loads
 
 load_file_json               = json_load_file
 load_file_json_gz            = json_load_file_gz
+
+to_json_str                  = json_dumps
+from_json_str                = json_loads

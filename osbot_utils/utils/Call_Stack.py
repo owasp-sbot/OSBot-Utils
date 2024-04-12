@@ -1,9 +1,6 @@
 import linecache
 import sys
 import traceback
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.helpers.CPrint              import CPrint
 from osbot_utils.helpers.Print_Table         import Print_Table, CHAR_TABLE_HORIZONTAL, CHAR_TABLE_TOP_LEFT, CHAR_TABLE_VERTICAL, CHAR_TABLE_BOTTOM_LEFT
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self

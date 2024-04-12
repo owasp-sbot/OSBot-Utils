@@ -1,8 +1,5 @@
 import ast
 import inspect
-
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Objects import obj_info
 from osbot_utils.utils.Str import str_dedent
 
 

@@ -13,6 +13,7 @@ import warnings
 from datetime import datetime, timedelta, UTC
 from secrets    import token_bytes
 from time import sleep
+from typing import Iterable, T
 from urllib.parse import  quote_plus, unquote_plus
 
 #from dateutil import parser
@@ -311,7 +312,6 @@ def time_to_str(datetime_value, time_format='%H:%M:%S.%f', milliseconds_numbers=
 
 def timestamp_utc_now():
     return int(datetime.utcnow().timestamp() * 1000)
-    #return int(datetime.utcnow().strftime('%s')) * 1000
 
 def timestamp_utc_now_less_delta(days=0,hours=0, minutes=0, seconds=0):
     date_time = date_time_now_less_time_delta(days=days,hours=hours, minutes=minutes, seconds=seconds, return_str=False)
@@ -408,7 +408,7 @@ def split_lines(text):
 def split_spaces(target):
     return remove_multiple_spaces(target).split(' ')
 
-def sorted_set(target : object):
+def sorted_set(target : Iterable[T]):
     if target:
         return sorted(set(target))
     return []

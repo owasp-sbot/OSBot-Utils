@@ -1,6 +1,4 @@
-from pprint import pprint
 from unittest import TestCase
-
 from osbot_utils.decorators.methods.catch import catch
 
 

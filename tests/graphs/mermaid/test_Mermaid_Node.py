@@ -4,8 +4,6 @@ from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid
 from osbot_utils.graphs.mermaid.models.Mermaid__Node__Shape import Mermaid__Node__Shape
 from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.utils.Misc import list_set
 
 from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
