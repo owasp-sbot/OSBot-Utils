@@ -103,11 +103,14 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
     def invoke(self, target, target_kwargs):
         return self.invoke_with_cache(target, target_kwargs)
 
+    def invoke_target(self, target, target_kwargs):
+        return target(**target_kwargs)
+
     def invoke_with_cache(self, target, target_kwargs, request_data=None):
         if self.enabled is False:
             if self.cache_only_mode:
                 return None
-            return target(**target_kwargs)
+            return self.invoke_target(target, target_kwargs)
         if request_data is None:
             request_data  = self.cache_request_data(**target_kwargs)
         cache_entry   = self.cache_entry(request_data)
@@ -119,7 +122,7 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
                 if response_data_json:
                     return json_loads(response_data_json)
         if self.cache_only_mode is False:
-            response_data = target(**target_kwargs)
+            response_data = self.invoke_target(target, target_kwargs)
             self.cache_add(request_data=request_data, response_data=response_data)
             return response_data
 

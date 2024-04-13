@@ -2,6 +2,7 @@ import builtins
 import os
 import types
 import unittest
+from io import BytesIO
 from typing import Optional, Union
 from unittest import TestCase
 from unittest.mock import patch, call
@@ -15,7 +16,7 @@ from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
     obj_base_classes, obj_base_classes_names, env_vars_list, are_types_compatible_for_assigment, type_mro, \
-    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr
+    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, pickle_save_to_bytes, pickle_load_from_bytes
 
 
 class test_Objects(TestCase):
@@ -191,6 +192,15 @@ class test_Objects(TestCase):
         assert obj_items ({}) == []
         assert obj_keys  ({}) == []
         assert obj_values({}) == []
+
+
+    def test_pickle_save_to_bytes__pickle_load_from_bytes(self):
+        an_object     = {"answer" : 42 }
+        pickled_data  = pickle_save_to_bytes(an_object)
+        pickle_data   = pickle_load_from_bytes(pickled_data)
+
+        assert type(pickled_data)  is bytes
+        assert pickle_data         == an_object
 
     def test_value_type_matches_obj_annotation_for_union_attr(self):
 
