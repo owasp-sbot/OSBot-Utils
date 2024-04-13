@@ -6,7 +6,7 @@ from osbot_utils.utils.Files import current_temp_folder, path_combine
 
 ENV_NAME_PATH_LOCAL_DBS        = 'PATH_LOCAL_DBS'
 
-class Sqlite__Local_DB(Sqlite__Database):
+class Sqlite__DB__Local(Sqlite__Database):
     db_name     : str
     table_name  : str
     table_schema: type
