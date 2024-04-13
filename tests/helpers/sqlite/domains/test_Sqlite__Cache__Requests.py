@@ -11,7 +11,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import temp_file, current_temp_folder, parent_folder, file_exists, file_not_exists
 from osbot_utils.utils.Json import from_json_str, json_dump, to_json_str, json_loads, json_dumps
 from osbot_utils.utils.Misc import random_text, list_set, random_string, str_sha256
-from osbot_utils.utils.Objects import base_types
+from osbot_utils.utils.Objects import base_types, pickle_load_from_bytes, pickle_save_to_bytes
 
 
 class test_Sqlite__Cache__Requests(TestCase):
@@ -183,6 +183,25 @@ class test_Sqlite__Cache__Requests(TestCase):
             _.only_from_cache(False)
             assert _.cache_only_mode is False
 
+    def test_response_data_serialize(self):
+        with self.sqlite_cache_requests as _:
+            assert _.pickle_response == False
+            response_data_original_1   = {'an_str': 'an_str', 'an_int': 42}
+            response_data_serialised_1 = _.response_data_serialize(response_data_original_1)
+            assert type(response_data_serialised_1) is dict
+            assert response_data_original_1         == response_data_serialised_1
+
+            _.pickle_response = True
+            response_data_original_2   = {'an_str': 'an_str', 'an_int': 42}
+            response_data_serialised_2 = _.response_data_serialize(response_data_original_2)
+            assert type(response_data_serialised_2) is bytes
+            assert response_data_serialised_2 == pickle_save_to_bytes(response_data_original_2)
+            assert response_data_original_2   == pickle_load_from_bytes(response_data_serialised_2)
+
+
+    def test_response_data_for__request_hash(self):
+        assert self.sqlite_cache_requests.response_data_for__request_hash('aaaa') == {}
+
 
     def test_requests_data__all(self):
         count = 2
@@ -192,9 +211,6 @@ class test_Sqlite__Cache__Requests(TestCase):
             for requests_data in _.requests_data__all():
                 assert list_set(requests_data) == ['_comments','_hash', '_id', 'an_dict', 'an_key']
             assert _.cache_table().size() == count
-
-    def test_response_data_for__request_hash(self):
-        assert self.sqlite_cache_requests.response_data_for__request_hash('aaaa') == {}
 
 
     def test_setup(self):

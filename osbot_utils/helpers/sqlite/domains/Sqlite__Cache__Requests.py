@@ -3,14 +3,16 @@ from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests import Sqlite__DB__
 from osbot_utils.utils.Json import json_dumps, json_loads
 from osbot_utils.utils.Lists import list_group_by
 from osbot_utils.utils.Misc import str_sha256, timestamp_utc_now
+from osbot_utils.utils.Objects import pickle_save_to_bytes
 
 
 class Sqlite__Cache__Requests(Kwargs_To_Self):
-    add_timestamp  : bool            = True
-    enabled        : bool            = True
-    update_mode    : bool            = False
-    cache_only_mode: bool            = False
+    add_timestamp  : bool                 = True
+    enabled        : bool                 = True
+    update_mode    : bool                 = False
+    cache_only_mode: bool                 = False
     sqlite_bedrock : Sqlite__DB__Requests = None
+    pickle_response: bool                 = False
 
     def __init__(self, db_path=None, db_name=None, table_name=None):
         self.sqlite_bedrock = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
@@ -122,16 +124,23 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
                 if response_data:
                     return self.response_data_deserialize(response_data)
         if self.cache_only_mode is False:
-            response_data = self.invoke_target(target, target_kwargs)
+            response_data_raw = self.invoke_target(target, target_kwargs)
+            response_data     = self.response_data_serialize(response_data_raw)
             self.cache_add(request_data=request_data, response_data=response_data)
             return response_data
-
-    def response_data_deserialize(self, response_data):
-        return json_loads(response_data)
 
     def only_from_cache(self, value=True):
         self.cache_only_mode = value
         return self
+
+    def response_data_deserialize(self, response_data):
+        return json_loads(response_data)
+
+    def response_data_serialize(self, response_data):
+        if self.pickle_response:
+            return pickle_save_to_bytes(response_data)
+        return response_data
+
 
     def response_data_for__request_hash(self, request_hash):
         rows = self.rows_where__request_hash(request_hash)
