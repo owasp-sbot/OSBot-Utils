@@ -1,8 +1,7 @@
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
-from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
-from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
+from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.Sqlite__Database            import Sqlite__Database
+from osbot_utils.helpers.sqlite.Sqlite__Table__Create       import Sqlite__Table__Create
+from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
 
 
 class Sqlite__DB__Json(Kwargs_To_Self):

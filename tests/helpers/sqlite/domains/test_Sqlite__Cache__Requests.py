@@ -1,17 +1,14 @@
-from unittest import TestCase
-from unittest.mock import Mock
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests import Sqlite__Cache__Requests
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local import Sqlite__DB__Local
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests import Sqlite__DB__Requests, SQLITE_TABLE__REQUESTS
+from unittest                                                           import TestCase
+from osbot_utils.base_classes.Kwargs_To_Self                            import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.Sqlite__Database                        import Sqlite__Database
+from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests         import Sqlite__Cache__Requests
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local               import Sqlite__DB__Local
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests            import Sqlite__DB__Requests, SQLITE_TABLE__REQUESTS
 from osbot_utils.helpers.sqlite.domains.schemas.Schema__Table__Requests import Schema__Table__Requests
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import temp_file, current_temp_folder, parent_folder, file_exists, file_not_exists
-from osbot_utils.utils.Json import from_json_str, json_dump, to_json_str, json_loads, json_dumps
-from osbot_utils.utils.Misc import random_text, list_set, random_string, str_sha256
-from osbot_utils.utils.Objects import base_types, pickle_load_from_bytes, pickle_save_to_bytes
+from osbot_utils.utils.Files                                            import temp_file, current_temp_folder, parent_folder, file_exists, file_not_exists
+from osbot_utils.utils.Json                                             import from_json_str, json_dump, to_json_str, json_loads, json_dumps
+from osbot_utils.utils.Misc                                             import random_text, list_set, random_string, str_sha256
+from osbot_utils.utils.Objects                                          import base_types, pickle_load_from_bytes, pickle_save_to_bytes
 
 
 class test_Sqlite__Cache__Requests(TestCase):
@@ -67,7 +64,7 @@ class test_Sqlite__Cache__Requests(TestCase):
                 assert list_set(response_data)            == ['target_kwargs']
                 assert response_data.get('target_kwargs') == request_data
                 assert list_set(entry)                    == ['cache_hits', 'comments', 'id', 'latest', 'request_data',
-                                                              'request_hash', 'response_data', 'response_hash', 'timestamp']
+                                                              'request_hash', 'response_bytes','response_data', 'response_hash', 'timestamp']
 
             self.add_test_requests(3)
             assert len(_.cache_entries()) == 13
@@ -86,6 +83,7 @@ class test_Sqlite__Cache__Requests(TestCase):
                                  'latest'         : False                ,
                                  'request_data'   : request_data_json    ,
                                  'request_hash'   : request_data_sha256  ,
+                                 'response_bytes' : b''                  ,
                                  'response_data'  : response_data_json   ,
                                  'response_hash'  : response_data_sha256 ,
                                  'timestamp'      : 0                    }           # BUG: todo: value not being set
@@ -146,11 +144,12 @@ class test_Sqlite__Cache__Requests(TestCase):
         response_data            = {'the': 'return value'}
         request_data             = self.sqlite_cache_requests.cache_request_data(model_id=model_id, body=body)
         new_cache_entry          = self.sqlite_cache_requests.create_new_cache_data(request_data, response_data)
-        expected_new_cache_entry = {'request_data' : json_dumps(request_data)                                           ,
-                                    'request_hash' : 'ca5d4c0d8e0db3653762a9d2aed540ee5d5b8d11e5379bb6f27c34436e8239a5' ,
-                                    'response_data': json_dumps(response_data)                                          ,
-                                    'response_hash': '69e330ec7bf6334aa41ecaf56797fa86345d3cf85da4c622821aa42d4bee1799' ,
-                                    'timestamp'    :  0                                                                 }
+        expected_new_cache_entry = {'request_data'  : json_dumps(request_data)                                           ,
+                                    'request_hash'  : 'ca5d4c0d8e0db3653762a9d2aed540ee5d5b8d11e5379bb6f27c34436e8239a5' ,
+                                    'response_bytes': b''                                                                ,
+                                    'response_data' : json_dumps(response_data)                                          ,
+                                    'response_hash' : '69e330ec7bf6334aa41ecaf56797fa86345d3cf85da4c622821aa42d4bee1799' ,
+                                    'timestamp'     :  0                                                                 }
         expected_new_cache_obj   = { **expected_new_cache_entry,
                                      'comments': '',
                                      'cache_hits': 0        ,
@@ -198,7 +197,8 @@ class test_Sqlite__Cache__Requests(TestCase):
             assert response_data_serialised_2 == pickle_save_to_bytes(response_data_original_2)
             assert response_data_original_2   == pickle_load_from_bytes(response_data_serialised_2)
 
-            assert response_data_original_2 == _.response_data_deserialize(response_data_serialised_2)
+            cache_entry = {'response_bytes' : response_data_serialised_2}
+            assert response_data_original_2 == _.response_data_deserialize(cache_entry)
 
 
 
@@ -228,15 +228,16 @@ class test_Sqlite__Cache__Requests(TestCase):
 
             assert _.exists()   is True
             assert _.row_schema is Schema__Table__Requests
-            assert _.schema__by_name_type() == { 'cache_hits'   : 'INTEGER' ,
-                                                 'comments'     : 'TEXT'    ,
-                                                 'id'           : 'INTEGER' ,
-                                                 'latest'       : 'BOOLEAN' ,
-                                                 'request_data' : 'TEXT'    ,
-                                                 'request_hash' : 'TEXT'    ,
-                                                 'response_data': 'TEXT'    ,
-                                                 'response_hash': 'TEXT'    ,
-                                                 'timestamp'    : 'INTEGER' }
+            assert _.schema__by_name_type() == { 'cache_hits'    : 'INTEGER' ,
+                                                 'comments'      : 'TEXT'    ,
+                                                 'id'            : 'INTEGER' ,
+                                                 'latest'        : 'BOOLEAN' ,
+                                                 'request_data'  : 'TEXT'    ,
+                                                 'request_hash'  : 'TEXT'    ,
+                                                 'response_bytes': 'BLOB'    ,
+                                                 'response_data' : 'TEXT'    ,
+                                                 'response_hash' : 'TEXT'    ,
+                                                 'timestamp'     : 'INTEGER' }
             assert _.indexes() == ['idx__requests__request_hash']
 
 

@@ -1,9 +1,8 @@
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests import Sqlite__DB__Requests
-from osbot_utils.utils.Json import json_dumps, json_loads
-from osbot_utils.utils.Lists import list_group_by
-from osbot_utils.utils.Misc import str_sha256, timestamp_utc_now
-from osbot_utils.utils.Objects import pickle_save_to_bytes, pickle_load_from_bytes
+from osbot_utils.base_classes.Kwargs_To_Self                    import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests    import Sqlite__DB__Requests
+from osbot_utils.utils.Json                                     import json_dumps, json_loads
+from osbot_utils.utils.Misc                                     import str_sha256, timestamp_utc_now
+from osbot_utils.utils.Objects                                  import pickle_save_to_bytes, pickle_load_from_bytes
 
 
 class Sqlite__Cache__Requests(Kwargs_To_Self):
@@ -58,17 +57,24 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
     def create_new_cache_data(self, request_data, response_data):
         request_data_json  = json_dumps(request_data)
         request_data_hash  = str_sha256(request_data_json)
-        response_data_json = json_dumps(response_data)
-        response_data_hash = str_sha256(response_data_json)
         if self.add_timestamp:
             timestamp = timestamp_utc_now()
         else:
             timestamp = 0
-        return dict(request_data  = request_data_json   ,
-                    request_hash  = request_data_hash   ,
-                    response_data = response_data_json  ,
-                    response_hash = response_data_hash  ,
-                    timestamp     = timestamp           )
+        cache_cata = dict(request_data   = request_data_json   ,
+                          request_hash   = request_data_hash   ,
+                          response_bytes = b''                 ,
+                          response_data  = ''                  ,
+                          response_hash  = ''                  ,
+                          timestamp      = timestamp           )
+        if self.pickle_response:
+            cache_cata['response_bytes'] = response_data
+        else:
+            response_data_json = json_dumps(response_data)
+            response_data_hash = str_sha256(response_data_json)
+            cache_cata['response_data'] = response_data_json
+            cache_cata['response_hash'] = response_data_hash
+        return cache_cata
 
     def create_new_cache_obj(self, request_data, response_data):
         new_row_data = self.create_new_cache_data(request_data, response_data)
@@ -120,23 +126,27 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             if self.update_mode is True:
                 self.cache_delete(request_data)
             else:
-                response_data = cache_entry.get('response_data')
-                if response_data:
-                    return self.response_data_deserialize(response_data)
+                #response_data = cache_entry.get('response_data')
+                #if response_data:
+                return self.response_data_deserialize(cache_entry)
         if self.cache_only_mode is False:
-            response_data_raw = self.invoke_target(target, target_kwargs)
-            response_data     = self.response_data_serialize(response_data_raw)
+            response_data_obj = self.invoke_target(target, target_kwargs)
+            response_data     = self.response_data_serialize(response_data_obj)
             self.cache_add(request_data=request_data, response_data=response_data)
-            return response_data
+            return response_data_obj
 
     def only_from_cache(self, value=True):
         self.cache_only_mode = value
         return self
 
-    def response_data_deserialize(self, response_data):
+    def response_data_deserialize(self, cache_entry):
         if self.pickle_response:
-            return pickle_load_from_bytes(response_data)
-        return json_loads(response_data)
+            response_bytes = cache_entry.get('response_bytes')
+            response_data_obj =  pickle_load_from_bytes(response_bytes)
+        else:
+            response_data = cache_entry.get('response_data')
+            response_data_obj = json_loads(response_data)
+        return response_data_obj
 
     def response_data_serialize(self, response_data):
         if self.pickle_response:
@@ -147,9 +157,8 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
     def response_data_for__request_hash(self, request_hash):
         rows = self.rows_where__request_hash(request_hash)
         if len(rows) > 0:
-            row = rows[0]
-            response_data     = row.get('response_data')
-            response_data_obj = self.response_data_deserialize(response_data)
+            cache_entry       = rows[0]
+            response_data_obj = self.response_data_deserialize(cache_entry)
             return response_data_obj
         return {}
 

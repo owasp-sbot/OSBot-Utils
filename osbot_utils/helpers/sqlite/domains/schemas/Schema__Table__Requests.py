@@ -5,6 +5,7 @@ class Schema__Table__Requests(Kwargs_To_Self):
     request_data  : str
     response_hash : str
     response_data : str
+    response_bytes: bytes
     cache_hits    : int                         # todo: to implement
     timestamp     : int
     latest        : bool                        # todo: add native bool support to sqlite

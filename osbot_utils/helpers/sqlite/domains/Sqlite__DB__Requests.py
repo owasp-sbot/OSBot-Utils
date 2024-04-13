@@ -1,4 +1,4 @@
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local import Sqlite__DB__Local
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local               import Sqlite__DB__Local
 from osbot_utils.helpers.sqlite.domains.schemas.Schema__Table__Requests import Schema__Table__Requests
 
 SQLITE_TABLE__REQUESTS = 'requests'
