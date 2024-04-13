@@ -3,7 +3,7 @@ from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests import Sqlite__DB__
 from osbot_utils.utils.Json import json_dumps, json_loads
 from osbot_utils.utils.Lists import list_group_by
 from osbot_utils.utils.Misc import str_sha256, timestamp_utc_now
-from osbot_utils.utils.Objects import pickle_save_to_bytes
+from osbot_utils.utils.Objects import pickle_save_to_bytes, pickle_load_from_bytes
 
 
 class Sqlite__Cache__Requests(Kwargs_To_Self):
@@ -134,6 +134,8 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         return self
 
     def response_data_deserialize(self, response_data):
+        if self.pickle_response:
+            return pickle_load_from_bytes(response_data)
         return json_loads(response_data)
 
     def response_data_serialize(self, response_data):

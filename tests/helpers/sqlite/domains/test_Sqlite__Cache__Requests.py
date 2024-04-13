@@ -198,6 +198,9 @@ class test_Sqlite__Cache__Requests(TestCase):
             assert response_data_serialised_2 == pickle_save_to_bytes(response_data_original_2)
             assert response_data_original_2   == pickle_load_from_bytes(response_data_serialised_2)
 
+            assert response_data_original_2 == _.response_data_deserialize(response_data_serialised_2)
+
+
 
     def test_response_data_for__request_hash(self):
         assert self.sqlite_cache_requests.response_data_for__request_hash('aaaa') == {}
