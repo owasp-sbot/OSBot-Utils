@@ -79,10 +79,9 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
     def cache_table__clear(self):
         return self.cache_table().clear()
 
-    def cache_request_data(self, model_id, body):
-        request_data = dict(model        = model_id     ,
-                            body         = body         )
-        return request_data
+    def cache_request_data(self, **target_kwargs):
+        return target_kwargs
+
 
     def delete_where_request_data(self, request_data):                                      # todo: check if it is ok to use the request_data as a query target, or if we should use the request_hash variable
         if type(request_data) is dict:                                                      # if we get an request_data obj
@@ -101,7 +100,10 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         self.enabled = True
         return self
 
-    def invoke_with_cache(self, target,target_kwargs, request_data=None):
+    def invoke(self, target, target_kwargs):
+        return self.invoke_with_cache(target, target_kwargs)
+
+    def invoke_with_cache(self, target, target_kwargs, request_data=None):
         if self.enabled is False:
             if self.cache_only_mode:
                 return None
