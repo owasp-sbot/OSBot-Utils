@@ -151,17 +151,6 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             requests_data.append(request_data_obj)
         return requests_data
 
-    def requests_data__by_model_id(self):
-        values        = self.requests_data__all()
-        group_by      = 'model'
-        requests_data = list_group_by(values=values, group_by=group_by)
-        if 'None' in requests_data:                         # if there are other entries in the cache
-            del requests_data['None']                       # don't include them
-        return requests_data
-
-    def requests_data__with_model_id(self, model_id):
-        return self.requests_data__by_model_id().get(model_id, [])
-
     def rows_where(self, **kwargs):
         return self.cache_table().select_rows_where(**kwargs)
 
