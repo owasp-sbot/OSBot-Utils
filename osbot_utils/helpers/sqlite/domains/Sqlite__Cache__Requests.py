@@ -118,13 +118,16 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             if self.update_mode is True:
                 self.cache_delete(request_data)
             else:
-                response_data_json = cache_entry.get('response_data')
-                if response_data_json:
-                    return json_loads(response_data_json)
+                response_data = cache_entry.get('response_data')
+                if response_data:
+                    return self.response_data_deserialize(response_data)
         if self.cache_only_mode is False:
             response_data = self.invoke_target(target, target_kwargs)
             self.cache_add(request_data=request_data, response_data=response_data)
             return response_data
+
+    def response_data_deserialize(self, response_data):
+        return json_loads(response_data)
 
     def only_from_cache(self, value=True):
         self.cache_only_mode = value
@@ -135,7 +138,7 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         if len(rows) > 0:
             row = rows[0]
             response_data     = row.get('response_data')
-            response_data_obj = json_loads(response_data)
+            response_data_obj = self.response_data_deserialize(response_data)
             return response_data_obj
         return {}
 
