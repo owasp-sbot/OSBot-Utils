@@ -126,8 +126,6 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             if self.update_mode is True:
                 self.cache_delete(request_data)
             else:
-                #response_data = cache_entry.get('response_data')
-                #if response_data:
                 return self.response_data_deserialize(cache_entry)
         if self.cache_only_mode is False:
             response_data_obj = self.invoke_target(target, target_kwargs)
