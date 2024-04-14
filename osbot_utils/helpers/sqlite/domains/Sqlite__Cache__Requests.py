@@ -10,11 +10,11 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
     enabled        : bool                 = True
     update_mode    : bool                 = False
     cache_only_mode: bool                 = False
-    sqlite_bedrock : Sqlite__DB__Requests = None
+    sqlite_requests : Sqlite__DB__Requests = None
     pickle_response: bool                 = False
 
     def __init__(self, db_path=None, db_name=None, table_name=None):
-        self.sqlite_bedrock = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
+        self.sqlite_requests = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
         super().__init__()
 
 
@@ -82,7 +82,7 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         return new_row_obj
 
     def cache_table(self):
-        return self.sqlite_bedrock.table_requests()
+        return self.sqlite_requests.table_requests()
 
     def cache_table__clear(self):
         return self.cache_table().clear()
