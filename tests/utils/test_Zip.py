@@ -1,8 +1,6 @@
 from unittest import TestCase
 
 from osbot_utils.testing.Temp_Zip import Temp_Zip
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.testing.Temp_Folder import Temp_Folder
 from osbot_utils.utils.Misc import random_string
 
@@ -15,8 +13,6 @@ class test_Zip(TestCase):
 
     def test_folder_zip(self):
         folder = temp_folder_with_temp_file(file_contents=random_string())
-        print()
-
         zip_file = folder_zip(folder)
 
         assert file_exists   (zip_file) is True

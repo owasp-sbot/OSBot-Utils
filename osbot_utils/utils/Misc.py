@@ -10,9 +10,10 @@ import textwrap
 import re
 import uuid
 import warnings
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from secrets    import token_bytes
 from time import sleep
+from typing import Iterable, T
 from urllib.parse import  quote_plus, unquote_plus
 
 #from dateutil import parser
@@ -37,6 +38,9 @@ def bytes_md5(bytes : bytes):
 
 def bytes_sha256(bytes : bytes):
     return hashlib.sha256(bytes).hexdigest()
+
+def bytes_sha384(bytes : bytes):
+    return hashlib.sha384(bytes).hexdigest()
 
 def base64_to_bytes(bytes_base64):
     if type(bytes_base64) is str:
@@ -89,7 +93,8 @@ def date_now(use_utc=True, return_str=True):
 
 def date_time_now(use_utc=True, return_str=True, milliseconds_numbers=0, date_time_format='%Y-%m-%d %H:%M:%S.%f'):
     if use_utc:
-        value = datetime.utcnow()        # todo: this has been marked for depreciation in python 11
+        value = datetime.now(UTC)
+        #value = datetime.utcnow()        # todo: this has been marked for depreciation in python 11
         # value = datetime.now(UTC)      #       but this doesn't seem to work in python 10.x : E   ImportError: cannot import name 'UTC' from 'datetime' (/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/datetime.py)
 
     else:
@@ -258,6 +263,21 @@ def str_sha256(text: str):
         #return hashlib.sha256('{0}'.format(text).encode()).hexdigest()
     return None
 
+def str_sha384(text:str):
+    if text:
+        return bytes_sha384(text.encode())
+    return
+
+def str_sha384_as_base64(text:str, include_prefix=True):
+    if text:
+        hash_object = hashlib.sha384(text.encode())
+        digest      = hash_object.digest()                                  # Getting the digest of the hash
+        digest_base64 = base64.b64encode(digest).decode()                   # Converting the digest to Base64 encoding
+        if include_prefix:
+            return "sha384-" + digest_base64
+        return digest_base64
+    return
+
 def time_delta_to_str(time_delta):
     microseconds  = time_delta.microseconds
     milliseconds  = int(microseconds / 1000)
@@ -292,7 +312,6 @@ def time_to_str(datetime_value, time_format='%H:%M:%S.%f', milliseconds_numbers=
 
 def timestamp_utc_now():
     return int(datetime.utcnow().timestamp() * 1000)
-    #return int(datetime.utcnow().strftime('%s')) * 1000
 
 def timestamp_utc_now_less_delta(days=0,hours=0, minutes=0, seconds=0):
     date_time = date_time_now_less_time_delta(days=days,hours=hours, minutes=minutes, seconds=seconds, return_str=False)
@@ -389,7 +408,7 @@ def split_lines(text):
 def split_spaces(target):
     return remove_multiple_spaces(target).split(' ')
 
-def sorted_set(target : object):
+def sorted_set(target : Iterable[T]):
     if target:
         return sorted(set(target))
     return []
@@ -442,7 +461,11 @@ def wait(seconds):
 
 def word_wrap(text,length = 40):
     if text:
-        return '\n'.join(textwrap.wrap(text, length))
+        wrapped_text = ""
+        for line in text.splitlines():                                  # handle case when there are newlines inside the text value
+            wrapped_text += '\n'.join(textwrap.wrap(line, length))
+            wrapped_text += '\n'
+        return wrapped_text
     return ''
 
 def word_wrap_escaped(text,length = 40):

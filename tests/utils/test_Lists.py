@@ -1,7 +1,4 @@
 from unittest import TestCase
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.utils.Lists import list_empty, list_first, list_not_empty, array_add, array_find, array_get, array_pop, \
     array_pop_and_trim, chunks, list_chunks, list_delete, list_lower, tuple_to_list, list_add, list_find, list_get, \
     list_pop, list_pop_and_trim, list_contains_list, list_filter, list_filter_starts_with, list_filter_contains, \
@@ -85,8 +82,8 @@ class test_Lists(TestCase):
         self.assertRaises (Exception, list_find, 'a', None)
 
     def test_list_first(self):
-        assert list_first(['a ','b']             ) is 'a '
-        assert list_first(['a', 'b'], strip=True) is 'a'
+        assert list_first(['a ','b']                ) == 'a '
+        assert list_first(['a', 'b'], strip=True) == 'a'
         assert list_first([]) is None
 
     def test_list_get(self):

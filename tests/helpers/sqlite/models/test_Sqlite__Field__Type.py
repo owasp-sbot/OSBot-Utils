@@ -14,6 +14,7 @@ class test_Sqlite__Field__Type(TestCase):
 
     def test__init__(self):
         assert Sqlite__Field__Type.enum_map() == { 'BLOB'   : bytes    ,
+                                                   'BOOLEAN': bool     ,                            # todo check for support
                                                    'DECIMAL': Decimal  ,
                                                    'INTEGER': int      ,
                                                    'NUMERIC': 'numeric',                            # todo see if there is a better way to handle this use of 'numeric', (or if it is even needed)
@@ -22,6 +23,7 @@ class test_Sqlite__Field__Type(TestCase):
                                                    'UNKNOWN': NoneType }
 
         assert Sqlite__Field__Type.type_map() ==  { 'numeric': Sqlite__Field__Type.NUMERIC  ,       # todo see if there is a better way to handle this use of 'numeric', (or if it is even needed)
+                                                    bool     : Sqlite__Field__Type.BOOLEAN  ,
                                                     Decimal  : Sqlite__Field__Type.DECIMAL  ,
                                                     bytes    : Sqlite__Field__Type.BLOB     ,
                                                     int      : Sqlite__Field__Type.INTEGER  ,

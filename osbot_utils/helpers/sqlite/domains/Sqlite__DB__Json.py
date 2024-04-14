@@ -1,8 +1,7 @@
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
-from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
-from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
+from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.Sqlite__Database            import Sqlite__Database
+from osbot_utils.helpers.sqlite.Sqlite__Table__Create       import Sqlite__Table__Create
+from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
 
 
 class Sqlite__DB__Json(Kwargs_To_Self):
@@ -31,7 +30,7 @@ class Sqlite__DB__Json(Kwargs_To_Self):
     def create_table_from_json_data(self, json_data):
         self.create_fields_from_json_data(json_data)
         if self.table_create.create_table():
-            self.table_create.table.row_add(json_data)
+            self.table_create.table.row_add_record(json_data)
             return self.table_create.table
 
     #def add_data_to_data_from_json_data(self, json_data):

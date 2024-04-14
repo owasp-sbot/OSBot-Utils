@@ -10,10 +10,7 @@ from osbot_utils.utils.Misc import list_set
 
 from osbot_utils.graphs.mgraph.MGraphs import MGraphs
 from osbot_utils.helpers.Random_Seed import Random_Seed
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.graphs.mgraph.MGraph__Serializer import MGraph__Serializer, Serialization_Mode
-
 
 class test_MGraph__Serializer(TestCase):
 
@@ -22,6 +19,9 @@ class test_MGraph__Serializer(TestCase):
         with Random_Seed(enabled=False):
             self.mgraph        = MGraphs().new__random(graph_key=self.graph_key)              # todo: see if we need to make this non-random
         self.graph_serializer = MGraph__Serializer(mgraph = self.mgraph)
+
+    def tearDown(self):
+        self.graph_serializer.local_cache.cache_delete()
 
 
     def test__init__(self):
@@ -45,8 +45,13 @@ class test_MGraph__Serializer(TestCase):
 
 
     def test_save(self):
-        result = self.mgraph.save()
-        assert result == '...pickle save - to be implemented...'            # todo: implement this test
+        with self.graph_serializer as _:
+            assert _.save() == '...pickle save - to be implemented...'              # todo: implement this test
+            _.mode = Serialization_Mode.YAML
+            assert _.save() == '...yaml save - to be implemented...'                # todo: implement this test
+            _.mode = Serialization_Mode.JSON
+            assert _.save() == True
+
 
     def test_save_to_json(self):
         with self.graph_serializer as _:

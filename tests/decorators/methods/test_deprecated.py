@@ -1,8 +1,5 @@
-from pprint import pprint
 from unittest import TestCase
 from unittest.mock import patch, call
-
-from osbot_utils.decorators.methods.catch import catch
 from osbot_utils.decorators.methods.depreciated import deprecated
 
 

@@ -1,19 +1,19 @@
 # todo: find a way to add these documentations strings to a separate location so that
 #       the code is not polluted with them (like in the example below)
-#       the data is avaiable in IDE's code complete
+#       the data is available in IDE's code complete
 import functools
 import inspect
 import types
-from enum import Enum, EnumMeta, EnumType
-from typing import get_origin, get_args
+from enum                                       import Enum, EnumMeta, EnumType
+from typing                                     import get_origin, get_args
 
-from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Json import json_parse
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
-    raise_exception_on_obj_type_annotation_mismatch, obj_info, obj_is_attribute_annotation_of_type, enum_from_value, \
-    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, obj_attribute_annotation
+from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
+from osbot_utils.utils.Dev                      import pprint
+from osbot_utils.utils.Json                     import json_parse
+from osbot_utils.utils.Misc                     import list_set
+from osbot_utils.utils.Objects                  import default_value, value_type_matches_obj_annotation_for_attr, \
+    raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
+    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr
 
 immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
 
@@ -72,7 +72,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     """
 
     __lock_attributes__ = False
-    #__type_safety__   = False
+    __type_safety__     = True
 
     def __init__(self, **kwargs):
         """
@@ -88,10 +88,18 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                        setting an undefined attribute.
 
         """
+        if 'disable_type_safety' in kwargs:                                 # special case
+            self.__type_safety__ = kwargs['disable_type_safety'] is False
+            del kwargs['disable_type_safety']
 
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
-            if value is not None:                                           # when the value is explicity set to None on the class static vars, we can't check for type safety
+            if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
                 raise_exception_on_obj_type_annotation_mismatch(self, key, value)
+            if hasattr(self, key):
+                existing_value = getattr(self, key)
+                if existing_value is not None:
+                    setattr(self, key, existing_value)
+                    continue
             setattr(self, key, value)
 
         for (key, value) in kwargs.items():                             # overwrite with values provided in ctor
@@ -105,29 +113,25 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
-    def __setattr__(self, *args, **kwargs):
-        if len(args) == 2:
-            name,value = args
-        else:
-            name = None
-            value = None
-        if self.__lock_attributes__:
-            if not hasattr(self, name):
-                raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prenvents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
+    def __setattr__(self, name, value):
+        if self.__type_safety__:
+            if self.__lock_attributes__:
+                if not hasattr(self, name):
+                    raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prevents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
 
-        if value is not None:
-            check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
-            check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
-            if (check_1 is False and check_2 is None  or
-                check_1 is None  and check_2 is False or
-                check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
-                raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
-        else:
-            if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
-                if getattr(self, name) is not None:                         # unless it is already set to None
-                    raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+            if value is not None:
+                check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
+                check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
+                if (check_1 is False and check_2 is None  or
+                    check_1 is None  and check_2 is False or
+                    check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
+                    raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+            else:
+                if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
+                    if getattr(self, name) is not None:                         # unless it is already set to None
+                        raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
-        super().__setattr__(*args, **kwargs)
+        super().__setattr__(name, value)
 
     def __attr_names__(self):
         return list_set(self.__locals__())
@@ -147,7 +151,8 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                         continue
                     if type(v) is functools._lru_cache_wrapper:                         # todo, find better way to handle edge cases like this one (which happens when the @cache decorator is used in a instance method that uses Kwargs_To_Self)
                         continue
-                    kwargs[k] = v
+                    if (k in kwargs) is False:                                          # do not set the value is it has already been set
+                        kwargs[k] = v
 
             for var_name, var_type in base_cls.__annotations__.items():
                 if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
@@ -192,19 +197,8 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                         kwargs[k] = v
             # add the vars defined with the annotations
             for var_name, var_type in base_cls.__annotations__.items():
-                if hasattr(self, var_name):                                     # if the variable exists in self, use it (this prevents the multiple calls to default_value)
-                    var_value = getattr(self, var_name)
-                    kwargs[var_name] = var_value
-                # todo: check if code below is still in use, since there is no code coverage that hits it
-                elif hasattr(cls, var_name) is False:                           # if the attribute has not been defined in the class
-                    var_value = self.__default__value__(var_type)               # try to create (and use) its default value
-                    kwargs[var_name] = var_value
-                else:
-                    var_value = getattr(cls, var_name)                          # if it is defined, check the type
-                    if not isinstance(var_value, var_type):
-                        exception_message = (f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' "
-                                             f"of type '{type(var_value)}'")
-                        raise Exception(exception_message)
+                var_value        = getattr(self, var_name)
+                kwargs[var_name] = var_value
 
         return kwargs
 
@@ -213,10 +207,11 @@ class Kwargs_To_Self:               # todo: check if the description below is st
         kwargs = {}
         # Update with instance-specific values
         for key, value in self.__default_kwargs__().items():
-            if hasattr(self, key):
-                kwargs[key] = self.__getattribute__(key)
-            else:
-                kwargs[key] = value
+            kwargs[key] = self.__getattribute__(key)
+            # if hasattr(self, key):
+            #     kwargs[key] = self.__getattribute__(key)
+            # else:
+            #     kwargs[key] = value                                   # todo: see if this is stil a valid scenario
         return kwargs
 
 
@@ -230,6 +225,10 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                     if k.startswith('__') is False:
                         kwargs[k] = v
         return kwargs
+
+    @classmethod
+    def __schema__(cls):
+        return cls.__annotations__
 
     # global methods added to any class that base classes this
     # todo: see if there should be a prefix on these methods, to make it easier to spot them
@@ -284,11 +283,11 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     def from_json(cls, json_data):
         if type(json_data) is str:
             json_data = json_parse(json_data)
-        if json_data:                                           # if there is not data or is {} then don't create an object (since this could be caused by bad data being provided)
+        if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
             return cls().deserialize_from_dict(json_data)
         return None
 
-
+# todo: see if it is possible to add recursive protection to this logic
 def serialize_to_dict(obj):
     if isinstance(obj, (str, int, float, bool, bytes)) or obj is None:
         return obj

@@ -1,7 +1,4 @@
 from unittest import TestCase
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.helpers.Dict_To_Attr import Dict_To_Attr
 
 

@@ -2,9 +2,6 @@ import json
 from unittest import TestCase
 
 from osbot_utils.testing.Temp_Folder import Temp_Folder
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.testing.Temp_Zip    import Temp_Zip
 from osbot_utils.utils.Files import is_file, file_exists, is_folder, folder_exists
 from osbot_utils.utils.Objects import obj_data
@@ -34,7 +31,7 @@ class test_Zip_Folder(TestCase):
                 assert is_folder(zip_file)    is False
                 assert temp_zip.target_zipped is True
 
-                pprint(temp_zip.files())
+                assert temp_zip.files() == []
 
         assert file_exists  (zip_file) is False
         assert is_file      (zip_file) is False

@@ -1,6 +1,4 @@
-from pprint import pprint
 from unittest import TestCase
-
 from osbot_utils.decorators.methods.cache import cache
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.testing.Catch import Catch

@@ -82,7 +82,6 @@ class test_Sqlite__Field(TestCase):
         assert Sqlite__Field(**sqlite_field__use_case_10).text_for_create_table() == sqlite_field__sql_text_10
 
     def test_fix_from_json_data(self):
-        print()
         for type_type, mapped_type in Sqlite__Field__Type.type_map().items():
             json_data = {'type': type_type }
             result = Sqlite__Field.fix_from_json_data(json_data)

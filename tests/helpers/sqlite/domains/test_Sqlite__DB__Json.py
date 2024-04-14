@@ -16,7 +16,6 @@ class test_Sqlite__DB__Json(TestCase):
         self.json_db      = Sqlite__DB__Json()
         self.database     = self.json_db.database
         self.table_create =  self.json_db.table_create
-        print()
 
     def json_data__dict(self):
         class Data_Set(Kwargs_To_Self):

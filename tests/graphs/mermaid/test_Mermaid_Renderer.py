@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from osbot_utils.graphs.mermaid.Mermaid             import Diagram__Direction, Diagram__Type, Mermaid
 from osbot_utils.graphs.mermaid.Mermaid__Renderer   import Mermaid__Renderer
+from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Str                          import str_dedent
 
 
@@ -9,7 +10,7 @@ class test_Mermaid_Renderer(TestCase):
 
     def setUp(self):
         self.mermaid  = Mermaid()
-        self.renderer = Mermaid__Renderer()
+        self.renderer = self.mermaid.renderer
 
     def test__init__(self):
         with self.renderer as _:
@@ -52,3 +53,35 @@ class test_Mermaid_Renderer(TestCase):
 
             assert expected_code ==_.code()
             #file_path = self.mermaid.save()
+
+            assert expected_code == _.code()
+            with Stdout() as stdout:
+                _.print_code()
+            assert stdout.value() == expected_code + '\n'
+            assert _.renderer.mermaid_code == expected_code.splitlines()
+
+            _.renderer.reset_code()
+            assert _.renderer.mermaid_code == []
+
+            assert expected_code == _.code()
+
+    def test_code__more_cases(self):
+        with self.mermaid as _:
+            _.add_directive('init: {"flowchart": {"htmlLabels": false}} ')
+            assert _.code() == ('%%{init: {"flowchart": {"htmlLabels": false}} }%%\n'
+                                'graph LR\n')
+
+            _.add_node(key='markdown', label='This **is** _Markdown_').markdown()
+
+            _.renderer.code_create(_.nodes(), _.edges(),recreate=True)
+            assert _.code() == ('%%{init: {"flowchart": {"htmlLabels": false}} }%%\n'
+                                'graph LR\n'
+                                '    markdown["`This **is** _Markdown_`"]\n')
+
+            assert self.renderer.diagram_type == Diagram__Type.graph
+
+
+
+
+
+

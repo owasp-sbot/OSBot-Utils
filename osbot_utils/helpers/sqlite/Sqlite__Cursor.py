@@ -26,11 +26,26 @@ class Sqlite__Cursor(Kwargs_To_Self):
         except Exception as error:
             return status_exception(error=f'{error}')
 
-    def execute__fetch_all(self,sql_query):
-        self.execute(sql_query=sql_query)
+    def execute_and_commit(self, sql_query, *params):                   # todo: refactor this with the execute method
+        try:
+            self.cursor().execute(sql_query, *params)
+            self.connection().commit()
+            return status_ok()
+        except Exception as error:
+            return status_exception(error=f'{error}')
+
+    def execute__fetch_all(self,sql_query, *params):
+        self.execute(sql_query,*params)
         return self.cursor().fetchall()
 
-    def fetchone(self):
+    def execute__fetch_one(self,sql_query, *params):
+        self.execute(sql_query, *params)
+        return self.cursor().fetchone()
+
+    def fetch_all(self):
+        return self.cursor().fetchall()
+
+    def fetch_one(self):
         return self.cursor().fetchone()
 
     def table_create(self, table_name, fields):

@@ -6,9 +6,6 @@ from unittest import TestCase
 from osbot_utils.utils.Objects import obj_info
 
 from osbot_utils.utils.Files import parent_folder
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.utils.Functions import function_file, function_folder, function_name, function_module, function_args, \
     function_source_code, get_line_number, is_callable, method_params, module_file, module_folder, module_full_name, \
     module_name, signature, python_file, type_file, function_line_number, method_line_number

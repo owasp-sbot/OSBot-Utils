@@ -66,12 +66,12 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
             self.json_db.create_table_from_schema(table_name, table_schema)
         return self
 
-    def database(self):
+    def database(self):                         # todo: need to refactor this code based from the creation of the database to the use of it
         return self.json_db.database
 
     @cache_on_self
     def load_db_from_disk(self):
-        db_chinook = Sqlite__Database(db_path=PATH__DB__CHINOOK)
+        db_chinook = Sqlite__Database(db_path=PATH__DB__CHINOOK, auto_schema_row=True)          # set the auto_schema_row so that we have a row_schema defined for all tables
         return db_chinook
         # db_chinook.connect()
         # return db_chinook.table(self.table_name)
@@ -83,7 +83,7 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
         path_chinook_data = path_combine(self.path_sqlite_sample_data_sets(), FOLDER_NAME__CHINOOK_DATA)
         return folder_create(path_chinook_data)
 
-    def path_sqlite_sample_data_sets(self):         # todo: refactor to sqlite_sample_data_sets helper class
+    def path_sqlite_sample_data_sets(self):                     # todo: refactor to sqlite_sample_data_sets helper class
         path_data_sets = path_combine(current_temp_folder(), FOLDER_NAME__SQLITE_DATA_SETS)
         return folder_create(path_data_sets)
 
@@ -91,10 +91,13 @@ class Sqlite__Sample_Data__Chinook(Kwargs_To_Self):
         return path_combine(self.path_chinook_data(), FILE_NAME__TABLES_SCHEMAS_FIELDS)
 
     def table__genre(self):
-        return self.load_db_from_disk().table('Genre')
+        return self.load_db_from_disk().table('Genre')          # todo: refactor to sqlite_sample_data_sets helper class
 
     def table__track(self):
-        return self.load_db_from_disk().table('Track')
+        return self.load_db_from_disk().table('Track')          # todo: refactor to sqlite_sample_data_sets helper class
+
+    # def tables(self):
+    #     return self.load_db_from_disk().tables()
 
     def tables_schemas_fields_from_data(self):
         path_tables_schemas_fields = self.path_tables_schemas_fields()

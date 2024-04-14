@@ -10,10 +10,6 @@ class MGraph__Node(Kwargs_To_Self):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # if not self.label:
-        #     self.label = random_id()
-        # if not self.key:
-        #     self.key = self.label
         if not self.key:
             self.key = random_id()
         if not self.label:

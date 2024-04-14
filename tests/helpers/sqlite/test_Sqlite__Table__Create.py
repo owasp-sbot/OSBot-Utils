@@ -1,13 +1,9 @@
-from unittest import TestCase
-
-import pytest
-
-from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field__Type, Sqlite__Field
-from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import file_delete, file_exists
-from osbot_utils.utils.Misc import random_text
-from osbot_utils.utils.Objects import obj_info
+from unittest                                           import TestCase
+from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.Sqlite__Field           import Sqlite__Field
+from osbot_utils.helpers.sqlite.Sqlite__Table__Create   import Sqlite__Table__Create
+from osbot_utils.utils.Files                            import file_delete, file_exists
+from osbot_utils.utils.Misc                             import random_text
 
 FIELD_DATA__ID_INT_PK = dict(name="id", type="INTEGER", pk=True, autoincrement=True)
 
@@ -72,6 +68,24 @@ class test_Sqlite__Table__Create(TestCase):
             _.database().save_to(target_file)
             assert file_exists(target_file) is True
 
+    def test_create_table_from_class(self):
+        class Sqlite__Bedrock__Row(Kwargs_To_Self):
+            request_hash  : str
+            request_data  : str
+            response_hash : str
+            response_data : str
+            cache_hits    : int
+            timestamp     : int
+            latest        : int
+
+        with self.table_create as _:
+            _.create_table__from_row_schema(Sqlite__Bedrock__Row)
+            _.table.row_add(Sqlite__Bedrock__Row(request_hash='abc', cache_hits=41))
+            _.table.row_add(Sqlite__Bedrock__Row(request_hash='def', cache_hits=42))
+            _.table.row_add(Sqlite__Bedrock__Row(request_hash='xyz', cache_hits=43))
+        assert _.table.rows() == [{'cache_hits': 41, 'id': 1, 'latest': 0, 'request_data': '', 'request_hash': 'abc', 'response_data': '', 'response_hash': '', 'timestamp': 0},
+                                  {'cache_hits': 42, 'id': 2, 'latest': 0, 'request_data': '', 'request_hash': 'def', 'response_data': '', 'response_hash': '', 'timestamp': 0},
+                                  {'cache_hits': 43, 'id': 3, 'latest': 0, 'request_data': '', 'request_hash': 'xyz', 'response_data': '', 'response_hash': '', 'timestamp': 0}]
 
 
 

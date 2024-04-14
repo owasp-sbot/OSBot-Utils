@@ -1,14 +1,7 @@
-from pprint import pprint
 from unittest import TestCase
-
-from osbot_utils.utils.Misc import str_md5
-
+from osbot_utils.utils.Misc import str_md5, random_string
 from osbot_utils.utils.Files import file_name
-
-from osbot_utils.utils.Json import json_load_file_gz
-
 from osbot_utils.testing.Profiler import Profiler
-
 from osbot_utils.decorators.methods.cache_on_tmp import cache_on_tmp
 
 
@@ -22,9 +15,6 @@ class An_Class:
         return an_param
 
 class test_cache_on_tmp(TestCase):
-
-    def setUp(self) -> None:
-        print()
 
     def test_cache_on_tmp(self):
 
@@ -59,3 +49,11 @@ class test_cache_on_tmp(TestCase):
 
         temp_file_name= f'An_Class_an_function_with_params_{str_md5(param)}.gz'
         assert file_name(cache_on_tmp_self.last_cache_path) == temp_file_name
+
+    def test_test_cache_on_tmp__on_static_method(self):
+        @cache_on_tmp()
+        def an_method():
+            return random_string(prefix='an_method')
+
+        assert an_method() == an_method()
+

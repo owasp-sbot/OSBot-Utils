@@ -1,16 +1,12 @@
 import json
 import ssl
 
-import osbot_utils.utils.Http
 from http.server import BaseHTTPRequestHandler
-from pprint import pprint
 from unittest import TestCase
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, call
 from urllib.parse import parse_qs
 
-from osbot_utils.testing.Duration import Duration
-
-from osbot_utils.utils.Objects import obj_info, class_full_name, obj_data
+from osbot_utils.utils.Objects import class_full_name, obj_data
 
 from osbot_utils.utils.Json import json_dumps_to_bytes
 from osbot_utils.testing.Temp_Web_Server import Temp_Web_Server
@@ -40,24 +36,22 @@ class test_Http(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        with Duration():
-            cls.temp_web_server = Temp_Web_Server(http_handler=Custom_Handler_For_Http_Tests)
-            cls.temp_web_server.start()
-            cls.local_url      = cls.temp_web_server.url()
-            cls.local_host     = cls.temp_web_server.host
-            cls.local_port     = cls.temp_web_server.port
-            cls.url_png        = cls.temp_web_server.url(Custom_Handler_For_Http_Tests.HTTP_GET_IMAGE_PATH)
-            cls.headers        = {"Accept": "application/json"}
-            cls.data           = "aaa=42&bbb=123"
-            cls.data_json      = {"aaa": 42, "bbb": "123"}
-            assert cls.temp_web_server.GET() == Custom_Handler_For_Http_Tests.HTTP_GET_HTML
-            cls.add_expected_log()
+        cls.temp_web_server = Temp_Web_Server(http_handler=Custom_Handler_For_Http_Tests)
+        cls.temp_web_server.start()
+        cls.local_url      = cls.temp_web_server.url()
+        cls.local_host     = cls.temp_web_server.host
+        cls.local_port     = cls.temp_web_server.port
+        cls.url_png        = cls.temp_web_server.url(Custom_Handler_For_Http_Tests.HTTP_GET_IMAGE_PATH)
+        cls.headers        = {"Accept": "application/json"}
+        cls.data           = "aaa=42&bbb=123"
+        cls.data_json      = {"aaa": 42, "bbb": "123"}
+        assert cls.temp_web_server.GET() == Custom_Handler_For_Http_Tests.HTTP_GET_HTML
+        cls.add_expected_log()
 
     @classmethod
     def tearDownClass(cls) -> None:
-        with Duration():
-            cls.temp_web_server.stop()
-            assert cls.temp_web_server.http_handler.captured_logs == cls.expected_logs
+        cls.temp_web_server.stop()
+        assert cls.temp_web_server.http_handler.captured_logs == cls.expected_logs
 
     def test__setUp(self):
         assert self.temp_web_server.server_port_open() is True

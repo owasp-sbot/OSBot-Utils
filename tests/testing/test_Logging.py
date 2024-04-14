@@ -1,34 +1,55 @@
-from unittest import TestCase
-from unittest.mock import patch
+import logging
+from unittest                       import TestCase
 
-from osbot_utils import testing
-from osbot_utils.testing.Logging import Logging
+from osbot_utils                    import testing
+from osbot_utils.testing.Logging    import Logging
+from osbot_utils.testing.Stdout     import Stdout
+from osbot_utils.utils.Misc import in_github_action
+from osbot_utils.utils.Status import osbot_status
+
 
 #todo see https://opensource.com/article/17/9/python-logging for more capabilities to add to this class
 
 class test_Logging(TestCase):
 
     def setUp(self):
+        self.logger = logging.getLogger()
+        self.original_handlers = self.logger.handlers[:]
+        self.logger.handlers = []
+
         self.logging = Logging()
 
-    # def test_is_pycharm_running(self):
-    #     assert self.logging.is_pycharm_running()
 
-    #todo: find way to mock/capture the output sent ot sys.stdout (since @patch('builtins.print') is not working)
+    def tearDown(self) -> None:
+        self.logger.handlers = self.original_handlers
+
     def test_enable_pycharm_logging(self):
-        self.logging.enable_pycharm_logging()
-        self.logging.info('aaaa')
-        self.logging.warning('aaaa')
-        self.logging.debug('aaaa')
-        self.logging.error('aaaa')
-        self.logging.critical('aaaa')
+        osbot_status.clear_root_logger_handlers()
 
-        # simulate case when is_pycharm_running returns True (for example when running tests in CI pipeline)
-        self.logging.is_pycharm_running = lambda : True
+        with Stdout() as stdout:
+            self.logging.enable_pycharm_logging()
+            self.logging.info('1 - aaaa')
+            self.logging.warning('2 - aaaa')
+            self.logging.debug('3 - aaaa')
+            self.logging.error('4 - aaaa')
+            self.logging.critical('5 - aaaa')
 
-        self.logging.enable_pycharm_logging()
-        self.logging.info('aaaa')
+            # simulate case when is_pycharm_running returns True (for example when running tests in CI pipeline)
+            self.logging.is_pycharm_running = lambda : True
 
+            self.logging.enable_pycharm_logging()
+            self.logging.info('6 - aaaa')
+        if in_github_action():
+            assert stdout.value() == 'INFO - 6 - aaaa\n'                # todo: figure out why this is the only one that is picked up in GitHub Actions
+        else:
+            assert stdout.value() == ('INFO - 1 - aaaa\n'
+                                      'WARNING - 2 - aaaa\n'
+                                      'DEBUG - 3 - aaaa\n'
+                                      'ERROR - 4 - aaaa\n'
+                                      'CRITICAL - 5 - aaaa\n'
+                                      'INFO - 6 - aaaa\n'
+                                      'INFO - 6 - aaaa\n')
+        osbot_status.restore_root_logger_handlers()
 
 
     def test_log_to_string(self):

@@ -1,10 +1,7 @@
 from unittest import TestCase
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.utils.Files import current_temp_folder, file_exists, file_name
-
 from osbot_utils.base_classes.Kwargs_To_Disk import Kwargs_To_Disk
+from osbot_utils.utils.Misc import list_set
 
 
 class test_Kwargs_To_Disk(TestCase):
@@ -40,22 +37,22 @@ class test_Kwargs_To_Disk(TestCase):
 
     def test___getattr__(self):
         local_cache = self.kwargs_to_disk._local_cache
-        assert local_cache.data() == {}
+        assert local_cache.data()           == {}
 
-        assert self.kwargs_to_disk.an_var is None                   # confirm that the value is not set
-        local_cache.set('an_var', 42)                               # set the value via the cache
-        assert self.kwargs_to_disk.an_var is 42                     # confirm that the value is now set
+        assert self.kwargs_to_disk.an_var   is None                     # confirm that the value is not set
+        local_cache.set('an_var', 42)                                   # set the value via the cache
+        assert self.kwargs_to_disk.an_var   == 42                       # confirm that the value is now set
 
     def test___setattr__(self):
         local_cache = self.kwargs_to_disk._local_cache
-        assert local_cache.data() == {}
-        assert self.kwargs_to_disk.an_var is None
+        assert local_cache.data()           == {}
+        assert self.kwargs_to_disk.an_var   is None
         self.kwargs_to_disk.an_var = 42
-        assert local_cache.data() == {'an_var': 42}
-        assert self.kwargs_to_disk.an_var is 42
+        assert local_cache.data()           == {'an_var': 42}
+        assert self.kwargs_to_disk.an_var   == 42
         local_cache.set('an_var', 'changed')
-        assert local_cache.data() == {'an_var': 'changed'}
-        assert self.kwargs_to_disk.an_var is 'changed'
+        assert local_cache.data()           == {'an_var': 'changed'}
+        assert self.kwargs_to_disk.an_var   == 'changed'
 
     def test__class_that_uses_Kwargs_To_Disk(self):
 
@@ -74,3 +71,19 @@ class test_Kwargs_To_Disk(TestCase):
         assert an_class.name            == 'some name'
         assert an_class._cache_data  () == {'name': 'some name'}
         assert an_class._cache_delete() is True
+
+    def test__class_with_private_values(self):
+        class An_Class(Kwargs_To_Disk):
+            pass
+
+        print()
+        an_class = An_Class()
+        an_class.name          = 'an value'
+        an_class._private_name = 'an private value'
+
+        assert an_class.name                         == 'an value'
+        assert an_class._private_name                == 'an private value'             # this is a bit weird since this line doesn't hit the def __getattr__(self, key):
+        assert an_class.__getattr__('_private_name') == 'an private value'             # but this one does
+        assert list_set(an_class.__dict__)           == ['_cache_name', '_local_cache', '_private_name']
+        assert an_class._cache_data()                == {'name': 'an value'}
+        assert an_class._cache_delete()              is True

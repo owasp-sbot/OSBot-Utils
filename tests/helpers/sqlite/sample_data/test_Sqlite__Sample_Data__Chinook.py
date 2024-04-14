@@ -1,13 +1,16 @@
 from unittest import TestCase
 
 from osbot_utils.helpers.Print_Table import Print_Table
+from osbot_utils.helpers.sqlite.Sqlite__Table import SQL_TABLE__MODULE_NAME__ROW_SCHEMA
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
-    FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS
+    FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS, PATH__DB__CHINOOK
 from osbot_utils.testing.Duration import Duration
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, folder_create
+from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, folder_create, \
+    file_not_exists
 from osbot_utils.utils.Json import json_from_file
 from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Str import str_cap_snake_case
 
 
 class test_Sqlite__Sample_Data__Chinook(TestCase):
@@ -22,8 +25,9 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
                                                   'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track']
 
     def test_create_tables(self):
-        self.chinook_sqlite.create_tables()
-        self.chinook_sqlite.save()
+        if file_not_exists(PATH__DB__CHINOOK):
+            self.chinook_sqlite.create_tables()
+            self.chinook_sqlite.save()
 
 
 
@@ -66,12 +70,19 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
         data_from__db_chinook = self.chinook_sqlite.load_db_from_disk()
 
         for table in data_from__db_chinook.tables():
-            table_name   = table.table_name
-            table_fields = table.fields_names__cached(execute_id=True)
+            table_name            = table.table_name
+            table_fields          = table.fields_names__cached(exclude_id=True)
             table_data__from_db   = table.rows(table_fields)
             table_data__from_json = data_from__json_file.get(table_name)
+            table_row_schema      = table.row_schema
             assert len(table_data__from_db) > 0
             assert table_data__from_db == table_data__from_json
+
+            assert table_row_schema is not None
+            assert table_row_schema.__name__     == f'Row_Schema__{str_cap_snake_case(table_name)}'
+            assert table_row_schema.__module__   == SQL_TABLE__MODULE_NAME__ROW_SCHEMA
+            assert table_row_schema.__schema__() == table.fields_types__cached(exclude_id=True)
+
 
 
     def test_json_loads_file_from_disk(self):

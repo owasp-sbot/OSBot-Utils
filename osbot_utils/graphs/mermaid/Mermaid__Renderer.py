@@ -42,10 +42,11 @@ class Mermaid__Renderer(Kwargs_To_Self):
 
 
     def graph_header(self):
-        if type(self.diagram_type.value) is str:
-            value = self.diagram_type.value
-        else:
-            value = self.diagram_type.name
+        # if type(self.diagram_type.value) is str:
+        #     value = self.diagram_type.value
+        # else:
+        #     value = self.diagram_type.name
+        value = self.diagram_type.name
         return f'{value} {self.diagram_direction.name}'
 
     def reset_code(self):

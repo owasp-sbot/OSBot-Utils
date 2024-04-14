@@ -1,7 +1,8 @@
-from unittest import TestCase
-from osbot_utils.utils.Files import temp_file, file_not_exists, file_exists, file_delete
-from osbot_utils.testing.Log_To_String import Log_To_String
-from osbot_utils.utils.Png import save_png_bytes_to_file, logger_png, save_png_base64_to_file
+from unittest                           import TestCase
+from osbot_utils.utils.Files            import temp_file, file_not_exists, file_exists, file_delete
+from osbot_utils.testing.Log_To_String  import Log_To_String
+from osbot_utils.utils.Png              import save_png_bytes_to_file, logger_png, save_png_base64_to_file
+from osbot_utils.utils.Status           import osbot_status
 
 # from 'https://via.placeholder.com/1.png?text=sample-png'
 TEST_PNG_BYTES = (b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01'
@@ -12,6 +13,14 @@ TEST_PNG_BYTES = (b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\
 
 
 class test_Png(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        osbot_status.clear_root_logger_handlers()
+
+    @classmethod
+    def tearDownClass(self):
+        osbot_status.clear_root_logger_handlers()
 
     def setUp(self):
         self.path_temp_png = temp_file('.png')          # temp file path
@@ -39,6 +48,4 @@ class test_Png(TestCase):
 
         with Log_To_String(logger_png) as log_to_string:
             assert save_png_base64_to_file(png_data="aaaaa_bbbbbb") is None
-            print()
-            print(log_to_string.contents())
             assert log_to_string.contents() == 'png save error: Incorrect padding\naaaaa_bbbbbb\n'

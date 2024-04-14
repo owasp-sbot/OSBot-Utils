@@ -5,9 +5,8 @@ from osbot_utils.graphs.mgraph.MGraph__Edge    import MGraph__Edge
 from osbot_utils.graphs.mgraph.MGraph__Node    import MGraph__Node
 
 
-
+# todo add support for storing the data in sqlite so that we get the ability to search nodes and edges
 class MGraph(Kwargs_To_Self):
-
     config : MGraph__Config
     edges  : list[MGraph__Edge]
     key    : str
@@ -44,9 +43,10 @@ class MGraph(Kwargs_To_Self):
     #     if format == 'pickle':
     #         return pickle_save_to_file(self)
 
-    def save(self):
-        from osbot_utils.graphs.mgraph.MGraph__Serializer import MGraph__Serializer        # due to circular dependency
-        return MGraph__Serializer(mgraph=self).save()
+    #todo: add save that return saved object
+    # def save(self):
+    #     from osbot_utils.graphs.mgraph.MGraph__Serializer import MGraph__Serializer        # due to circular dependency
+    #     return MGraph__Serializer(mgraph=self).save()
 
     def print(self):
         print()

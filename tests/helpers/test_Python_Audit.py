@@ -1,17 +1,7 @@
 import sys
 from unittest import TestCase
 from unittest.mock import call, patch
-
-import pytest
-from osbot_utils.utils.Call_Stack import Call_Stack
-
 from osbot_utils.testing.Patch_Print import Patch_Print
-from osbot_utils.utils.Dev import pprint
-
-from osbot_utils.testing.Temp_File import Temp_File
-
-from osbot_utils.utils.Files import current_temp_folder, folder_exists
-
 from osbot_utils.helpers.Python_Audit import Python_Audit
 
 
@@ -47,12 +37,12 @@ class test_Python_Audit(TestCase):
             self.python_audit.print()
 
         assert _.call_args_list() == [call(),
- call('┌─────────────────────────────────────────┐'),
- call('│ index │ event   │ args   │ stack        │'),
- call('├─────────────────────────────────────────┤'),
- call("│ 0     │ event-1 │ args-1 │ {'depth': 1} │"),
- call("│ 1     │ event-2 │ args-2 │ {'depth': 1} │"),
- call('└─────────────────────────────────────────┘')]
+                                      call('┌─────────────────────────────────────────┐'),
+                                      call('│ index │ event   │ args   │ stack        │'),
+                                      call('├─────────────────────────────────────────┤'),
+                                      call("│ 0     │ event-1 │ args-1 │ {'depth': 1} │"),
+                                      call("│ 1     │ event-2 │ args-2 │ {'depth': 1} │"),
+                                      call('└─────────────────────────────────────────┘')]
 
 
 
@@ -61,21 +51,17 @@ class test_Python_Audit(TestCase):
             assert self.python_audit.start() is self.python_audit
             assert add_audit_hook.call_args_list == [call(self.python_audit.hook_callback)]
 
-    @pytest.mark.skip("this can't be run in CI since there isn't a way to remove the audit callback method")
-    def test_start_skipped(self):
-
-        assert self.python_audit.start() is self.python_audit
-        with Temp_File():
-            pass
-            #requests.get("https://www.google.com/404")
-
-        #self.python_audit.print()
-
-        assert self.python_audit.events_by_type() == { 'open'            : 2,
-                                                       'os.mkdir'        : 1,
-                                                       'os.remove'       : 1,
-                                                       'os.rmdir'        : 1,
-                                                       'os.scandir'      : 1,
-                                                       'shutil.rmtree'   : 1,
-                                                       'tempfile.mkdtemp': 1}
+    # @pytest.mark.skip("this can't be run in CI since there isn't a way to remove the audit callback method")
+    # def test_start_skipped(self):
+    #     assert self.python_audit.start() is self.python_audit
+    #     with Temp_File():
+    #         pass
+    #
+    #     assert self.python_audit.events_by_type() == { 'open'            : 2,
+    #                                                    'os.mkdir'        : 1,
+    #                                                    'os.remove'       : 1,
+    #                                                    'os.rmdir'        : 1,
+    #                                                    'os.scandir'      : 1,
+    #                                                    'shutil.rmtree'   : 1,
+    #                                                    'tempfile.mkdtemp': 1}
 

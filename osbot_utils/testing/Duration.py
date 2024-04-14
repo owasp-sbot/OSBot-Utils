@@ -35,7 +35,8 @@ class Duration:
         self.end_time           = None
         self.duration           = None
         self.print_stack        = print_stack
-        self.call_stack         = Call_Stack()
+        if True or print_stack:
+            self.call_stack     = Call_Stack()
 
     def __enter__(self):
         if self.print_stack:

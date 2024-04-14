@@ -39,6 +39,8 @@ text_white      = lambda text: f"{WHITE}{text}{RESET}"
 text_none       = lambda text: f"{text}"
 text_color      = lambda text, color: f"{color}{text}{RESET}"
 
+
+
 class Trace_Call__Print_Traces(Kwargs_To_Self):
 
     config: Trace_Call__Config
@@ -96,7 +98,7 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                 else:
                     print(f"{padding}       {text_grey(index):12} {text_olive(line)}")
 
-    def print_traces(self, view_model, trace_capture_source_code = False):
+    def print_traces(self, view_model):
         print()
         print("--------- CALL TRACER ----------")
         print(f"Here are the {len(view_model)} traces captured\n")
@@ -125,7 +127,7 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
             if self.config.print_duration:
                 duration         = item.get('duration',0) * 1000                    # todo: see if this can be optimised with the similar call below
                 duration_rounded = round(duration, 3)
-                padding_duration = self.config.padding_duration - len(formatted_line)
+                padding_duration = self.config.print_padding_duration - len(formatted_line)
                 duration_text    = "{:>{},.3f}ms".format(duration_rounded, padding_duration)
                 formatted_line += f' {text_grey(duration_text)} '
 
@@ -134,7 +136,8 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                 if duration < self.config.with_duration_bigger_than:
                     continue
 
-            if trace_capture_source_code:       # todo: refactor to use value from self.config
+            if False and self.config.trace_capture_source_code:       # todo: fix show caller funcionality
+
                 if self.config.show_caller:
                     print(f"{prefix}{tree_branch}🔼️{text_bold(source_code_caller)}")
                     print(f"{prefix}{tree_branch}➡️{emoji} {text_grey(node_text)}")
@@ -153,9 +156,9 @@ class Trace_Call__Print_Traces(Kwargs_To_Self):
                 if idx == 0 or (self.config.show_parent_info is False or self.config.show_method_class is True):                            # Handle the first line and conditional parent info differently
                     print(f"{text_bold(formatted_line)}")                                                  # Don't add "|" to the first line
                 else:
-                    padding = " " * (60 - len(formatted_line))
+                    padding = " " * (self.config.print_padding_parent_info - len(formatted_line))
 
-                    print(f"{text_bold(formatted_line)} {padding}{parent_info}")
+                    print(f"{text_bold(formatted_line)} {padding}         {parent_info}")
 
             if self.config.trace_capture_lines:
                 self.print_lines(item.get('lines'), f'{prefix}{tree_branch}')

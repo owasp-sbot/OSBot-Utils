@@ -1,7 +1,9 @@
 # todo add tests
 import inspect
+import io
 import json
 import os
+import pickle
 import types
 from typing import get_origin, Union, get_args
 
@@ -293,6 +295,13 @@ def value_type_matches_obj_annotation_for_union_attr(target, attr_name, value):
         args = get_args(attribute_annotation)                               # Get the argument types
         return value_type in args
     return None                                                             # if it is not an Union type just return None (to give an indication to the caller that the comparison was not made)
+
+
+def pickle_save_to_bytes(target: object) -> bytes:
+    return pickle.dumps(target)
+
+def pickle_load_from_bytes(pickled_data: bytes):
+    return pickle.loads(pickled_data)
 
 
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):

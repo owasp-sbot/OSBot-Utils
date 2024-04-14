@@ -1,8 +1,5 @@
 from unittest import TestCase
 from unittest.mock import patch, call
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.utils.Misc import list_set
 
 from osbot_utils.helpers.CPrint import CPrint, Colors

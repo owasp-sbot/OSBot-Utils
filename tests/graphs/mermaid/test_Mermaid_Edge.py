@@ -1,8 +1,6 @@
 from unittest import TestCase
 
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
 from osbot_utils.utils.Misc import list_set
 
@@ -18,19 +16,24 @@ class test_Mermaid_Edge(TestCase):
         assert type(self.mermaid_edge) is Mermaid__Edge
         assert list_set(self.mermaid_edge.__dict__) == ['attributes', 'config', 'from_node', 'label', 'to_node']
 
-    # def test_code(self):
-    #     from_node = self.mermaid_edge.from_node
-    #     to_node   = self.mermaid_edge.to_node
-    #     assert self.mermaid_edge.code() == f'{from_node.key} --> {to_node.key}'
-    #     from_node.label = 'from node'
-    #     to_node.label   = 'to node'
-    #     assert self.mermaid_edge.code() == f'{from_node.key} --> {to_node.key}'
-    #     self.mermaid_edge.label = 'link_type'
-    #     assert self.mermaid_edge.code() == f'{from_node.key} --"{self.mermaid_edge.label}"--> {to_node.key}'
-    #
-    # def test_convert_nodes(self):
-    #     assert type(self.mermaid_edge.from_node) is Mermaid__Node
-    #     assert type(self.mermaid_edge.to_node  ) is Mermaid__Node
+    def test_render_edge(self):
+        from_node = self.mermaid_edge.from_node
+        to_node   = self.mermaid_edge.to_node
+        assert self.mermaid_edge.render_edge() == f'    {from_node.key} --> {to_node.key}'
+        from_node.label = 'from node'
+        to_node.label   = 'to node'
+        assert self.mermaid_edge.render_edge() == f'    {from_node.key} --> {to_node.key}'
+        self.mermaid_edge.label = 'link_type'
+        assert self.mermaid_edge.render_edge() == f'    {from_node.key} --"{self.mermaid_edge.label}"--> {to_node.key}'
+        self.mermaid_edge.edge_mode__lr_using_pipe()
+        assert self.mermaid_edge.render_edge() == f'    {from_node.key} -->|{self.mermaid_edge.label}| {to_node.key}'
+        self.mermaid_edge.output_node_to()
+        assert self.mermaid_edge.render_edge() == f'    {from_node.key} -->|{self.mermaid_edge.label}| {to_node.key}["to node"]'
+
+
+    def test_convert_nodes(self):
+        assert type(self.mermaid_edge.from_node) is Mermaid__Node
+        assert type(self.mermaid_edge.to_node  ) is Mermaid__Node
 
     def test__config__edge__output_node_from(self):
         with Mermaid() as _:

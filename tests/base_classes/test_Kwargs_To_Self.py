@@ -1,22 +1,14 @@
 import types
-import unittest
-from enum import Enum, auto
-from typing import Union, Optional
-from unittest import TestCase
-from unittest.mock import patch, MagicMock
-
-from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
-from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
-from osbot_utils.graphs.mermaid.Mermaid import Mermaid
-from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
-from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
-from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
+from enum                                       import Enum, auto
+from typing                                     import Union, Optional
+from unittest                                   import TestCase
+from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self, serialize_to_dict
+from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.testing.Catch                  import Catch
-from osbot_utils.utils.Dev                      import pprint
-from osbot_utils.utils.Json import json_dumps
-from osbot_utils.utils.Misc import random_string, list_set
-from osbot_utils.utils.Objects import obj_info, obj_data, default_value, obj_is_type_union_compatible, \
-    obj_attribute_annotation
+from osbot_utils.testing.Stdout                 import Stdout
+from osbot_utils.utils.Json                     import json_dumps
+from osbot_utils.utils.Misc                     import random_string, list_set
+from osbot_utils.utils.Objects                  import obj_data
 
 
 class Test_Kwargs_To_Self(TestCase):
@@ -53,12 +45,32 @@ class Test_Kwargs_To_Self(TestCase):
         assert self.Config_Class.__cls_kwargs__() == self.Config_Class().__cls_kwargs__()
         assert self.Extra_Config.__cls_kwargs__() == self.Extra_Config().__cls_kwargs__()
 
+        # handle current edge case for supporting the functools.cache decorator (in __cls_kwargs__)
+        # todo: understand better this scenario and if there is a better way to handle
+        from functools import cache
 
-    def test__cls_kwargs__with_optional_attributes(self):
-        class TestEnum(Enum):
-            FIRST = auto()
-            SECOND = auto()
+        class An_Class(Kwargs_To_Self):
+            @cache
+            def with_cache(self):
+                pass
 
+        an_class = An_Class()
+
+        assert type(An_Class.with_cache).__name__ == '_lru_cache_wrapper'
+        assert type(an_class.with_cache) == types.MethodType
+
+
+    def test___cls_kwargs____with_multiple_levels_of_base_classes(self):
+        class Base_Class                       :  pass                         # a base class
+        class Implements_Base_Class(Base_Class): pass                          # is used as a base class here
+        class An_Class(Kwargs_To_Self):                                        # now when a new class
+            an_var: Base_Class                                                 # creates a var using the base class
+        class Extends_An_Class(An_Class):                                      # and another class uses it has a base class
+            an_var: Implements_Base_Class
+
+        assert list_set(Extends_An_Class.__cls_kwargs__()) == ['an_var']
+
+    def test___cls_kwargs__with_optional_attributes(self):
         class Immutable_Types_Class(Kwargs_To_Self):
             a_int       : int       = 1
             a_float     : float     = 1.0
@@ -102,6 +114,51 @@ class Test_Kwargs_To_Self(TestCase):
         self.assertEqual(self.Config_Class().__default_kwargs__(), expected_defaults)
         self.assertNotEqual(instance.attribute1, self.Config_Class().__default_kwargs__()['attribute1'])
 
+    def test_locked(self):
+        class An_Class(Kwargs_To_Self):
+            an_str  : str = '42'
+
+        an_class = An_Class()
+        an_class.before_lock = 42
+        assert an_class.__lock_attributes__ == False
+        assert an_class.__locals__() == {'an_str': '42', 'before_lock': 42}
+        an_class.locked()
+        assert an_class.__lock_attributes__ == True
+        with self.assertRaises(Exception) as context:
+            an_class.after_lock = 43
+        assert context.exception.args[0] == ("'[Object Locked] Current object is locked (with __lock_attributes__=True) "
+                                              'which prevents new attributes allocations (i.e. setattr calls). In this '
+                                              "case  An_Class' object has no attribute 'after_lock'")
+        assert an_class.__locals__() == {'an_str': '42', 'before_lock': 42}
+        an_class.locked(False)
+        assert an_class.__lock_attributes__ == False
+        an_class.after_lock = 43
+
+        assert an_class.__locals__() == {'after_lock': 43, 'an_str': '42', 'before_lock': 42}
+
+    def test_serialize_to_dict(self):
+        class An_Enum_A(Enum):
+            an_value = 1
+
+        class An_Class_A(Kwargs_To_Self):
+            an_str : str = '42'
+            an_int : int = 42
+            an_list : list
+            an_dict : dict
+            an_enum : An_Enum_A = An_Enum_A.an_value
+
+        an_class_dict = {'an_dict': {}, 'an_enum': 'an_value', 'an_int': 42, 'an_list': [], 'an_str': '42'}
+        an_class_a      = An_Class_A()
+        assert an_class_a.serialize_to_dict() == an_class_dict
+        obj_to_serialize = 3 + 4j  # A complex number which will not serialise
+        with self.assertRaises(TypeError) as context:
+            serialize_to_dict(obj_to_serialize)
+        assert context.exception.args[0] == "Type <class 'complex'> not serializable"
+
+        with self.assertRaises(TypeError) as context:
+            serialize_to_dict(TestCase)
+        assert context.exception.args[0] == "Type <class 'builtin_function_or_method'> not serializable"
+
     def test_serialize_to_dict__enum(self):
         class An_Enum(Enum):
             value_1 = auto()
@@ -132,6 +189,7 @@ class Test_Kwargs_To_Self(TestCase):
 
 
     def test_deserialize_from_dict(self):
+        #check handing of enums
         class An_Enum(Enum):
             value_1 = auto()
             value_2 = auto()
@@ -145,6 +203,36 @@ class Test_Kwargs_To_Self(TestCase):
 
         an_class.deserialize_from_dict(an_class_dict)
         assert an_class.json() == an_class_dict
+
+
+        #check handing of base classes
+        class An_Base_Class(Kwargs_To_Self):
+            in_base  : str
+
+        class An_Parent_Class(An_Base_Class):
+           in_parent : str
+
+        an_parent_dict  = {'in_base': 'base', 'in_parent': 'parent'}
+        an_parent_class = An_Parent_Class()
+        an_parent_class.deserialize_from_dict(an_parent_dict)
+        assert an_parent_class.json() == an_parent_dict
+
+        # check nested objects
+        class An_Class_1(Kwargs_To_Self):
+            in_class_1 : str
+
+        class An_Class_2(Kwargs_To_Self):
+            an_class_1 : An_Class_1
+            in_class_2 : str
+
+        an_class_1_dict = {'an_class_1': {'in_class_1': 'data_1'}, 'in_class_2': 'data_2'}
+        an_class_2 = An_Class_2()
+        an_class_2.deserialize_from_dict(an_class_1_dict)
+        assert an_class_2.json() == an_class_1_dict
+
+        with Stdout() as stdout:
+            an_class_2.print()
+        assert stdout.value() == "\n{'an_class_1': {'in_class_1': 'data_1'}, 'in_class_2': 'data_2'}\n"
 
     def test_from_json(self):
         class An_Enum(Enum):
@@ -168,7 +256,10 @@ class Test_Kwargs_To_Self(TestCase):
         assert an_class_from_json.json()  == an_class_json
         assert an_class_from_str .json()  == an_class_json
 
-    def test__default__value__(self):
+    def test___attr_names__(self):
+        assert self.Config_Class().__attr_names__() == ['attribute1', 'attribute2', 'callable_attr_1']
+
+    def test___default__value__(self):
         _ = Kwargs_To_Self.__default__value__
         assert      _(str      )  == ''
         assert      _(int      )  == 0
@@ -193,7 +284,7 @@ class Test_Kwargs_To_Self(TestCase):
             _(list[str]).append(42)                     # like an int, we will get a Type Safety exception :)
         assert context.exception.args[0] == "In Type_Safe__List: Invalid type for item: Expected 'str', but got 'int'"
 
-    def test__kwargs__(self):
+    def test___kwargs__(self):
         assert self.Config_Class().__kwargs__() == { 'attribute1'     : 'default_value',
                                                      'attribute2'     : True           ,
                                                      'callable_attr_1': print          }
@@ -255,7 +346,7 @@ class Test_Kwargs_To_Self(TestCase):
         assert config_1.__kwargs__() == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print }
         assert config_2.__kwargs__() == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print}
 
-        assert obj_data(config_1) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': f"{print}" }        # obj_doesn't pick up functions (unless explicity told to)
+        assert obj_data(config_1) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': f"{print}" }        # obj doesn't pick up functions (unless explicitly told to)
         assert obj_data(config_2) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': f"{print}"}
 
         new_value           = random_string(prefix='new_value_')
@@ -308,7 +399,7 @@ class Test_Kwargs_To_Self(TestCase):
         config_2 = self.Config_Class(attribute1=random_value)
 
         assert config_1.__default_kwargs__() == default_kwargs
-        assert config_2.__default_kwargs__() == default_kwargs  # __default_kwargs__ should not been affeced
+        assert config_2.__default_kwargs__() == default_kwargs  # __default_kwargs__ should not been affected
         assert config_2.__kwargs__()         == config_2_kwargs
 
         # confirm that we can't set variables that are not defined in __kwargs__
@@ -324,7 +415,7 @@ class Test_Kwargs_To_Self(TestCase):
         extra_config_1  = self.Extra_Config()
         default_locals  = {**default_kwargs, 'callable_attr_2': extra_config_1.callable_attr_2, 'local_attribute_4': '123', 'local_callable_attr_4': print}
 
-        assert extra_config_1.__locals__() == default_locals        # todo: check if this is still a bug: "since locals should have all vars"
+        assert extra_config_1.__locals__() == default_locals
 
         extra_config_1.local_attribute_4 = '___changed__'
         assert extra_config_1.__locals__() == {**default_locals, 'local_attribute_4': '___changed__'}
@@ -391,14 +482,20 @@ class Test_Kwargs_To_Self(TestCase):
             not_an_int: int = "an str"
 
         expected_error= "Catch: <class 'Exception'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
-        with Catch(expect_exception=True, expected_error=expected_error) as catch:
+        with Catch(expect_exception=True, expected_error=expected_error):
             An_Bad_Type().__default_kwargs__()
 
         expected_error = "Catch: <class 'Exception'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
         with Catch(expect_exception=True, expected_error=expected_error):
             An_Bad_Type().__default_kwargs__()
 
-    def test___init__pics_up_types_with_values(self):
+    def test___init___disable_type_safety(self):
+        assert self.Config_Class(                         ).__type_safety__ is True
+        assert self.Config_Class(disable_type_safety=True ).__type_safety__ is False
+        assert self.Config_Class(disable_type_safety=False).__type_safety__ is True
+
+
+    def test___init___pics_up_types_with_values(self):
 
         class An_Class(Kwargs_To_Self):
             attribute_1 = 'default_value'
@@ -443,7 +540,7 @@ class Test_Kwargs_To_Self(TestCase):
                         "with only the following immutable types being supported: "
                         "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
                         "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
-        with Catch(expect_exception=True, expected_error = expected_error) as catch:
+        with Catch(expect_exception=True, expected_error = expected_error):
             An_Class()
 
         class An_Class_2(Kwargs_To_Self):
@@ -456,6 +553,28 @@ class Test_Kwargs_To_Self(TestCase):
                         "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
         with Catch(expect_exception=True, expected_error=expected_error):
             An_Class_2()
+
+    def test___init___prevents_new_attributes(self):
+        with self.assertRaises(Exception) as context:
+            self.Config_Class(aaaa=123)
+        assert context.exception.args[0] == ("Config_Class has no attribute 'aaaa' and cannot be assigned the value '123'. "
+                                             'Use Config_Class.__default_kwargs__() see what attributes are available')
+
+    def test___set__attr__(self):
+        class An_Class(Kwargs_To_Self):
+            an_str : str
+        an_class = An_Class()
+        assert an_class.json() == {'an_str': ''}
+        expected_message = "Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>'"
+        with self.assertRaises(Exception) as context_1:
+            an_class.an_str = 42
+        assert context_1.exception.args[0] == expected_message
+
+        expected_message_2 = "Can't set None, to a variable that is already set. Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'NoneType'>'"
+        with self.assertRaises(Exception) as context_2:
+            an_class.an_str = None
+        assert context_2.exception.args[0] == expected_message_2
+
 
 
     def test_merge_with(self):

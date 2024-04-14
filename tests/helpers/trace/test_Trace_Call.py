@@ -1,3 +1,5 @@
+import io
+from contextlib import redirect_stdout
 from pprint                                         import pprint
 from unittest                                       import TestCase
 from unittest.mock                                  import patch, call
@@ -70,25 +72,25 @@ class test_Trace_Call(TestCase):
 
     @patch('builtins.print')
     def test_decorator__trace_calls(self, builtins_print):
+        @trace_calls(include=['test', 'pprint'], print_traces=True)
+        def method_a():
+            method_b()
 
-            @trace_calls(include=['test', 'pprint'], print_traces=True)
-            def method_a():
-                method_b()
-
-            def method_b() :
+        def method_b() :
+            with redirect_stdout(io.StringIO()):                # capture the output of pprint so that it doesn't show in the logs
                 pprint('an message')
 
-            method_a()
+        method_a()
 
-            assert builtins_print.call_args_list == [call(),
-                                                     call('--------- CALL TRACER ----------'),
-                                                     call('Here are the 6 traces captured\n'),
-                                                     call('\x1b[1m📦  Trace Session\x1b[0m'),
-                                                     call('\x1b[1m│   └── 🔗️ method_a\x1b[0m'),
-                                                     call('\x1b[1m│       └── 🔗️ method_b\x1b[0m'),
-                                                     call('\x1b[1m│           └── 🔗️ pprint\x1b[0m'),
-                                                     call('\x1b[1m│               └── 🔗️ pprint\x1b[0m'),
-                                                     call('\x1b[1m└────────────────────── 🧩️ format\x1b[0m')] != []
+        assert builtins_print.call_args_list == [call(),
+                                                 call('--------- CALL TRACER ----------'),
+                                                 call('Here are the 6 traces captured\n'),
+                                                 call('\x1b[1m📦  Trace Session\x1b[0m'),
+                                                 call('\x1b[1m│   └── 🔗️ method_a\x1b[0m'),
+                                                 call('\x1b[1m│       └── 🔗️ method_b\x1b[0m'),
+                                                 call('\x1b[1m│           └── 🔗️ pprint\x1b[0m'),
+                                                 call('\x1b[1m│               └── 🔗️ pprint\x1b[0m'),
+                                                 call('\x1b[1m└────────────────────── 🧩️ format\x1b[0m')] != []
 
 
     def test_print_lines(self):
@@ -162,9 +164,9 @@ class test_Trace_Call(TestCase):
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 4 traces captured\n'),
                                                  call('\x1b[1m📦  Trace Session\x1b[0m'),
-                                                 call('\x1b[1m│   ├── 🧩️ dummy_function\x1b[0m                                    test_Trace_Call'),
-                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                  test_Trace_Call'),
-                                                 call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m                                test_Trace_Call')] != []
+                                                 call('\x1b[1m│   ├── 🧩️ dummy_function\x1b[0m                                             test_Trace_Call'),
+                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                           test_Trace_Call'),
+                                                 call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m                                         test_Trace_Call')] != []
 
 
     def test__check_that_stats_catches_exception_stats(self):
@@ -206,12 +208,11 @@ class test_Trace_Call(TestCase):
                                                  call('\x1b[1m│   └── 🔗️ random_filename\x1b[0m'),
                                                  call('\x1b[1m└────────── 🧩️ file_extension_fix\x1b[0m')] != []
 
-        assert list_set(self.handler.stats.frames_stats()) == ['codecs', 'genericpath', 'os',
+        assert list_set(self.handler.stats.frames_stats()) == ['abc', 'codecs', 'genericpath', 'os',
                                                                'osbot_utils', 'posixpath', 'random', 'shutil',
-                                                               'tempfile', 'test_Trace_Call', 'typing']
+                                                               'tempfile', 'test_Trace_Call']
 
-        assert self.handler.stats.frames_stats().get('osbot_utils') == { 'base_classes': {'Kwargs_To_Self': {'__setattr__': 1}},
-                                                                         'helpers': {'trace': {'Trace_Call': {'__exit__': 1, 'on_exit': 1, 'stop': 1}}},
+        assert self.handler.stats.frames_stats().get('osbot_utils') == { 'helpers': {'trace': {'Trace_Call': {'__exit__': 1, 'on_exit': 1, 'stop': 1}}},
                                                                          'testing': {'Temp_File': {'__enter__': 2, '__exit__': 2, '__init__': 2}},
                                                                          'utils': {'Files': {'delete': 2,
                                                                                              'exists': 4,
@@ -223,11 +224,7 @@ class test_Trace_Call(TestCase):
                                                                                              'path_combine': 2,
                                                                                              'temp_folder': 2,
                                                                                              'write': 2},
-                                                                                   'Misc': {'random_filename': 2},
-                                                                                   'Objects': { 'are_types_compatible_for_assigment'              : 1,
-                                                                                                'obj_attribute_annotation'                        : 1,
-                                                                                                'value_type_matches_obj_annotation_for_attr'      : 1,
-                                                                                                'value_type_matches_obj_annotation_for_union_attr':1 }}}
+                                                                                   'Misc': {'random_filename': 2}}}
 
     def test__config_print_traces_on_exit(self):
         self.config.print_traces_on_exit = True
@@ -260,9 +257,8 @@ class test_Trace_Call(TestCase):
 
         expected_calls = [ ''                                                ,
                            '--------- CALL TRACER ----------'                ,
-                           'Here are the 8 traces captured\n'                ,
+                           'Here are the 7 traces captured\n'                ,
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
-                           '\x1b[1m│   ├── 🧩️ __setattr__\x1b[0m'            ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
                            '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'    ,
                            '\x1b[1m│   │   ├── 🧩️ set_config\x1b[0m'         ,
@@ -334,13 +330,17 @@ class test_Trace_Call(TestCase):
 
 
     def test__regression__trace_calls__decorator_fails_when_trace_capture_start_with_is_set_to_none(self):
+        with Patch_Print(print_calls=False, enabled=True) as _:
         #with self.assertRaises(Exception) as context:                          # FIXED: this is the exception that we expect to be raised
             @trace_calls()                                                      # FIXED: BUG this is where the exception will occur
             def method_a():                                                     # FIXED: i.e. on the setup of the call tracer for method_a()
                 pass                                                            # we will never get here (we got here and all good)
 
             method_a()                                                          # trigger the execution of the trace_calls decorator
-
+        assert _.call_args_list() == [call(),
+                                      call('--------- CALL TRACER ----------'),
+                                      call('Here are the 1 traces captured\n'),
+                                      call('\x1b[1m─── 📦  Trace Session\x1b[0m')]
         #assert str(context.exception) == "Invalid type for attribute 'with_duration_bigger_than'. Expected '<class 'float'>' but got '<class 'int'>'"    # confirm correct exception was raised
 
 

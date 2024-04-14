@@ -1,9 +1,6 @@
 import traceback
 from io import StringIO
 from unittest import TestCase
-from unittest.mock import patch
-
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Functions import type_file
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Objects import obj_data
@@ -68,7 +65,6 @@ class test_Status(TestCase):
             #assert last_message.get('funcName')           =='send_status_message'
             assert last_message.get('levelno')            == expected_level
 
-            #pprint(last_message)
 
         # test status_* methods
         send_status_message(message_type='critical' , target_method=status_critical , expected_level=50)
@@ -147,6 +143,5 @@ class test_Status(TestCase):
         def print_stack_trace(depth=None):
             for entry in traceback.extract_stack(limit=depth):
                 assert type(entry) == traceback.FrameSummary
-                #print(entry)
 
         method_a()
