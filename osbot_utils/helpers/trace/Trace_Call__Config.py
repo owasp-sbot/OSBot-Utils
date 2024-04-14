@@ -39,7 +39,7 @@ class Trace_Call__Config(Kwargs_To_Self):
 
     def __init__(self, **wargs):
         super().__init__(**wargs)
-        self.locked()
+        #self.locked()
 
     def all(self, up_to_depth=0, print_traces=True):
         self.trace_capture_all    = True

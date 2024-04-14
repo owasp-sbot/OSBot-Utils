@@ -196,8 +196,7 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def select_rows_where(self, **kwargs):
         sql_query, params = self.sql_builder().query_for_select_rows_where(**kwargs)
-        # Execute the query and return the results
-        return self.cursor().execute__fetch_all(sql_query, params)
+        return self.cursor().execute__fetch_all(sql_query, params)                      # Execute the query and return the results
 
     def select_field_values(self, field_name):
         if field_name not in self.fields__cached():
@@ -234,3 +233,12 @@ class Sqlite__Table(Kwargs_To_Self):
             return f'Validation error: Unrecognized keys {extra_keys} in record.'
         return ''                                                                           # If we reach here, the record is valid
 
+    # query helpers
+    def contains(self, **kwargs):
+        return len(self.where(**kwargs)) > 0
+
+    def not_contains(self, **kwargs):
+        return self.contains(**kwargs) is False
+
+    def where(self, **kwargs):
+        return self.select_rows_where(**kwargs)

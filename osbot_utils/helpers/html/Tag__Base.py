@@ -15,7 +15,7 @@ class Tag__Base(Kwargs_To_Self):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.locked()                                   # lock the object so that it is not possible to add new attributes via normal assigment
+        #self.locked()                                   # lock the object so that it is not possible to add new attributes via normal assigment
 
     def append(self, *elements):
         self.elements.extend(elements)

@@ -71,8 +71,8 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                             that are already defined in the class to be set.
     """
 
-    __lock_attributes__ = False
-    __type_safety__     = True
+    #__lock_attributes__ = False
+    #__type_safety__     = True
 
     def __init__(self, **kwargs):
         """
@@ -88,9 +88,9 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                        setting an undefined attribute.
 
         """
-        if 'disable_type_safety' in kwargs:                                 # special case
-            self.__type_safety__ = kwargs['disable_type_safety'] is False
-            del kwargs['disable_type_safety']
+        # if 'disable_type_safety' in kwargs:                                 # special case
+        #     self.__type_safety__ = kwargs['disable_type_safety'] is False
+        #     del kwargs['disable_type_safety']
 
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
             if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
@@ -114,10 +114,10 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
     def __setattr__(self, name, value):
-        if self.__type_safety__:
-            if self.__lock_attributes__:
-                if not hasattr(self, name):
-                    raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prevents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
+        # if self.__type_safety__:
+        #     if self.__lock_attributes__:
+        #         if not hasattr(self, name):
+        #             raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prevents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
 
             if value is not None:
                 check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
@@ -131,7 +131,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                     if getattr(self, name) is not None:                         # unless it is already set to None
                         raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
-        super().__setattr__(name, value)
+            super().__setattr__(name, value)
 
     def __attr_names__(self):
         return list_set(self.__locals__())
@@ -242,9 +242,9 @@ class Kwargs_To_Self:               # todo: check if the description below is st
         self.__dict__.update(original_attrs)                                                        # Reassign the original attributes back to self.
         return self
 
-    def locked(self, value=True):                                   # todo: figure out best way to do this (maybe???)
-        self.__lock_attributes__ = value                            #     : update, with the latest changes were we don't show internals on __locals__() this might be a good way to do this
-        return self
+    # def locked(self, value=True):                                   # todo: figure out best way to do this (maybe???)
+    #     self.__lock_attributes__ = value                            #     : update, with the latest changes were we don't show internals on __locals__() this might be a good way to do this
+    #     return self
 
     def reset(self):
         for k,v in self.__cls_kwargs__().items():
