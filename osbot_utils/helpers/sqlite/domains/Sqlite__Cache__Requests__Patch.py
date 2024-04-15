@@ -24,6 +24,9 @@ class Sqlite__Cache__Requests__Patch(Sqlite__Cache__Requests):
         self.patch_restore()
         return
 
+    def delete(self):
+        return self.sqlite_requests.delete()
+
     def proxy_method(self, *args, **kwargs):
         request_data  = self.request_data (*args, **kwargs)
         target_kwargs = self.target_kwargs(*args, **kwargs)

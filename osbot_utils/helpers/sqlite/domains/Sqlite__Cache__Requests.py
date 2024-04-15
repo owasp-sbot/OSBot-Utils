@@ -1,3 +1,5 @@
+import types
+
 from osbot_utils.base_classes.Kwargs_To_Self                    import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests    import Sqlite__DB__Requests
 from osbot_utils.utils.Json                                     import json_dumps, json_loads
@@ -6,12 +8,13 @@ from osbot_utils.utils.Objects                                  import pickle_sa
 
 
 class Sqlite__Cache__Requests(Kwargs_To_Self):
-    add_timestamp  : bool                 = True
-    enabled        : bool                 = True
-    update_mode    : bool                 = False
-    cache_only_mode: bool                 = False
-    sqlite_requests : Sqlite__DB__Requests = None
-    pickle_response: bool                 = False
+    add_timestamp    : bool                 = True
+    enabled          : bool                 = True
+    update_mode      : bool                 = False
+    cache_only_mode  : bool                 = False
+    sqlite_requests  : Sqlite__DB__Requests = None
+    pickle_response  : bool                 = False
+    on_invoke_target : types.FunctionType
 
     def __init__(self, db_path=None, db_name=None, table_name=None):
         self.sqlite_requests = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
@@ -112,7 +115,10 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         return self.invoke_with_cache(target, target_args, target_kwargs)
 
     def invoke_target(self, target, target_args, target_kwargs):
-        raw_response = target(*target_args, **target_kwargs)
+        if self.on_invoke_target:
+            raw_response = self.on_invoke_target(target, target_args, target_kwargs)
+        else:
+            raw_response = target(*target_args, **target_kwargs)
         return self.transform_raw_response(raw_response)
 
     def invoke_with_cache(self, target, target_args, target_kwargs, request_data=None):

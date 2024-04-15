@@ -22,8 +22,8 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
     def test__init__(self):
         _ = self.requests_cache                 # we can't use the with context here since it auto applies the patch
 
-        assert _.__attr_names__() == ['add_timestamp', 'cache_only_mode', 'db_name','enabled','pickle_response',
-                                      'sqlite_requests','table_name','target_class','target_function',
+        assert _.__attr_names__() == ['add_timestamp', 'cache_only_mode', 'db_name','enabled','on_invoke_target',
+                                      'pickle_response', 'sqlite_requests','table_name','target_class','target_function',
                                       'target_function_name','update_mode']
         assert type(_.target_class)     is object               # default value for object
         assert _.target_function        is None                 # default value for types.FunctionType
