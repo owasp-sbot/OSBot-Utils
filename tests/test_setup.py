@@ -29,6 +29,7 @@ EXPECTED_PACKAGES = ['_to_remove'                                ,
                      'osbot_utils.helpers.sqlite.models'         ,
                      'osbot_utils.helpers.sqlite.sample_data'    ,
                      'osbot_utils.helpers.sqlite.sql_builder'    ,
+                     'osbot_utils.helpers.sqlite.tables'         ,
                      'osbot_utils.helpers.trace'                 ,
                      'osbot_utils.testing'                       ,
                      'osbot_utils.utils'                         ]

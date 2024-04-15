@@ -16,9 +16,9 @@ class Sqlite__Table(Kwargs_To_Self):
     table_name: str
     row_schema: type
 
-    def _table_create(self):                        # todo: Sqlite__Table__Create needs to be refactored (since that was created before we had support for table_class )
+    def _table_create(self):                                                                 # todo: Sqlite__Table__Create needs to be refactored (since that was created before we had support for table_class )
         from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
-        table_create = Sqlite__Table__Create(self.table_name)                               # todo: fix this workflow
+        table_create = Sqlite__Table__Create(self.table_name)                                # todo: fix this workflow
         table_create.table = self
         return table_create                                                                            #       since it is weird to have to overwrite the table vale of Sqlite__Table__Create
 
