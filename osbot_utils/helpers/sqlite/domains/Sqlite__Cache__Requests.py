@@ -50,8 +50,8 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         result           = self.cache_table().row_update(update_fields, query_conditions)
         return result
 
-    def cache_entry_for_request_params(self, **target_kwargs):
-        request_data = self.cache_request_data(**target_kwargs)
+    def cache_entry_for_request_params(self, *args, **target_kwargs):
+        request_data = self.cache_request_data(*args, **target_kwargs)
         return self.cache_entry(request_data)
 
     def create_new_cache_data(self, request_data, response_data):
@@ -87,8 +87,8 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
     def cache_table__clear(self):
         return self.cache_table().clear()
 
-    def cache_request_data(self, **target_kwargs):
-        return target_kwargs
+    def cache_request_data(self, *args, **target_kwargs):
+        return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
 
 
     def delete_where_request_data(self, request_data):                                      # todo: check if it is ok to use the request_data as a query target, or if we should use the request_hash variable
@@ -108,19 +108,20 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         self.enabled = True
         return self
 
-    def invoke(self, target, target_kwargs):
-        return self.invoke_with_cache(target, target_kwargs)
+    def invoke(self, target, target_args, target_kwargs):
+        return self.invoke_with_cache(target, target_args, target_kwargs)
 
-    def invoke_target(self, target, target_kwargs):
-        return target(**target_kwargs)
+    def invoke_target(self, target, target_args, target_kwargs):
+        raw_response = target(*target_args, **target_kwargs)
+        return self.transform_raw_response(raw_response)
 
-    def invoke_with_cache(self, target, target_kwargs, request_data=None):
+    def invoke_with_cache(self, target, target_args, target_kwargs, request_data=None):
         if self.enabled is False:
             if self.cache_only_mode:
                 return None
-            return self.invoke_target(target, target_kwargs)
+            return self.invoke_target(target, target_args, target_kwargs)
         if request_data is None:
-            request_data  = self.cache_request_data(**target_kwargs)
+            request_data  = self.cache_request_data(*target_args, **target_kwargs)
         cache_entry   = self.cache_entry(request_data)
         if cache_entry:
             if self.update_mode is True:
@@ -128,7 +129,7 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             else:
                 return self.response_data_deserialize(cache_entry)
         if self.cache_only_mode is False:
-            response_data_obj = self.invoke_target(target, target_kwargs)
+            response_data_obj = self.invoke_target(target, target_args, target_kwargs)
             response_data     = self.response_data_serialize(response_data_obj)
             self.cache_add(request_data=request_data, response_data=response_data)
             return response_data_obj
@@ -183,6 +184,9 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
 
     def rows_where__request_hash(self, request_hash):
         return self.rows_where(request_hash=request_hash)
+
+    def transform_raw_response(self, raw_response):
+        return raw_response
 
     def update(self, value=True):
         self.update_mode = value

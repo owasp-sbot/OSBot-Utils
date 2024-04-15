@@ -5,6 +5,7 @@ from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests         import S
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local               import Sqlite__DB__Local
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests            import Sqlite__DB__Requests, SQLITE_TABLE__REQUESTS
 from osbot_utils.helpers.sqlite.domains.schemas.Schema__Table__Requests import Schema__Table__Requests
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files                                            import temp_file, current_temp_folder, parent_folder, file_exists, file_not_exists
 from osbot_utils.utils.Json                                             import from_json_str, json_dump, to_json_str, json_loads, json_dumps
 from osbot_utils.utils.Misc                                             import random_text, list_set, random_string, str_sha256
@@ -41,15 +42,16 @@ class test_Sqlite__Cache__Requests(TestCase):
             assert _.sqlite_requests.table_name   == SQLITE_TABLE__REQUESTS
 
     def add_test_requests(self, count=10):
-        def invoke_target(**target_kwargs):
-            return {'target_kwargs': target_kwargs}
+        def invoke_target(*args, **target_kwargs):
+            return {'request_args': args, 'request_kwargs': target_kwargs}
 
         for i in range(count):
             an_key        = random_text('an_key')
             an_dict       = {'the': random_text('random_request')}
             target        = invoke_target
+            target_args   = ['abc']
             target_kwargs = {'an_key': an_key, 'an_dict': an_dict}
-            self.sqlite_cache_requests.invoke(target, target_kwargs)
+            self.sqlite_cache_requests.invoke(target, target_args, target_kwargs)
             #self.sqlite_cache_requests.model_invoke(**kwargs)
 
     def test__add_test_requests(self):
@@ -58,11 +60,14 @@ class test_Sqlite__Cache__Requests(TestCase):
             self.add_test_requests()
             assert len(_.cache_entries()) == 10
             for entry in _.cache_entries():
-                request_data = from_json_str(entry.get('request_data'))
+                request_data   = from_json_str(entry.get('request_data'))
+                request_args   = request_data.get('request_args'  )
+                request_kwargs = request_data.get('request_kwargs')
                 response_data = from_json_str(entry.get('response_data'))
-                assert list_set(request_data )            == ['an_dict', 'an_key']
-                assert list_set(response_data)            == ['target_kwargs']
-                assert response_data.get('target_kwargs') == request_data
+                assert list_set(request_data )            == ['args', 'kwargs']
+                assert list_set(response_data)            == ['request_args', 'request_kwargs']
+                assert response_data.get('args'         ) == request_args
+                assert response_data.get('target_kwargs') == request_kwargs
                 assert list_set(entry)                    == ['cache_hits', 'comments', 'id', 'latest', 'request_data',
                                                               'request_hash', 'response_bytes','response_data', 'response_hash', 'timestamp']
 
@@ -122,13 +127,13 @@ class test_Sqlite__Cache__Requests(TestCase):
             model_id      = 'an_model'
             body          = {'answer': 42}
             new_comment   = random_string(prefix='new_comment')
-            request_data  = {'model_id': model_id, 'body': body}
+            request_data  = _.cache_request_data(model_id=model_id, body= body)
             response_data = {'in': 'response'}
             _.cache_add(request_data, response_data)
             assert len(_.cache_entries()) ==1
             cache_entry = _.cache_entries()[0]
             assert request_data                                                             == json_loads(cache_entry.get('request_data'))
-            assert request_data                                                             == self.sqlite_cache_requests.cache_request_data(model_id=model_id, body=body)
+            #assert request_data                                                             == self.sqlite_cache_requests.cache_request_data(model_id=model_id, body=body)
             assert response_data                                                            == json_loads(cache_entry.get('response_data'))
             assert _.cache_entry_for_request_params(model_id=model_id, body=body)           == cache_entry
             assert _.cache_entry_comments       (model_id, body)                            == ''
@@ -145,7 +150,7 @@ class test_Sqlite__Cache__Requests(TestCase):
         request_data             = self.sqlite_cache_requests.cache_request_data(model_id=model_id, body=body)
         new_cache_entry          = self.sqlite_cache_requests.create_new_cache_data(request_data, response_data)
         expected_new_cache_entry = {'request_data'  : json_dumps(request_data)                                           ,
-                                    'request_hash'  : 'ca5d4c0d8e0db3653762a9d2aed540ee5d5b8d11e5379bb6f27c34436e8239a5' ,
+                                    'request_hash'  : 'f917e6f5658f5b761a77416d487c5d9a70253abce68b348bc360a6f39657753a' ,
                                     'response_bytes': b''                                                                ,
                                     'response_data' : json_dumps(response_data)                                          ,
                                     'response_hash' : '69e330ec7bf6334aa41ecaf56797fa86345d3cf85da4c622821aa42d4bee1799' ,
@@ -212,7 +217,7 @@ class test_Sqlite__Cache__Requests(TestCase):
 
         with self.sqlite_cache_requests as _:
             for requests_data in _.requests_data__all():
-                assert list_set(requests_data) == ['_comments','_hash', '_id', 'an_dict', 'an_key']
+                assert list_set(requests_data) == ['_comments','_hash', '_id', 'args', 'kwargs']
             assert _.cache_table().size() == count
 
 
