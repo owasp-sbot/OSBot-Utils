@@ -8,13 +8,14 @@ from osbot_utils.utils.Objects                                  import pickle_sa
 
 
 class Sqlite__Cache__Requests(Kwargs_To_Self):
-    add_timestamp    : bool                 = True
-    enabled          : bool                 = True
-    update_mode      : bool                 = False
-    cache_only_mode  : bool                 = False
-    sqlite_requests  : Sqlite__DB__Requests = None
-    pickle_response  : bool                 = False
-    on_invoke_target : types.FunctionType
+    add_timestamp     : bool                 = True
+    enabled           : bool                 = True
+    update_mode       : bool                 = False
+    cache_only_mode   : bool                 = False
+    sqlite_requests   : Sqlite__DB__Requests = None
+    pickle_response   : bool                 = False
+    capture_exceptions: bool                 = False                # once this is working, it might be more useful to have this set to true
+    on_invoke_target  : types.FunctionType
 
     def __init__(self, db_path=None, db_name=None, table_name=None):
         self.sqlite_requests = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
@@ -135,10 +136,20 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             else:
                 return self.response_data_deserialize(cache_entry)
         if self.cache_only_mode is False:
+            return self.invoke_target__and_add_to_cache(request_data, target, target_args, target_kwargs)
+
+
+    def invoke_target__and_add_to_cache(self,request_data, target, target_args, target_kwargs):
+        try:
             response_data_obj = self.invoke_target(target, target_args, target_kwargs)
             response_data     = self.response_data_serialize(response_data_obj)
             self.cache_add(request_data=request_data, response_data=response_data)
             return response_data_obj
+        except Exception as exception:
+            if self.capture_exceptions:
+                response_data     = self.response_data_serialize(exception)
+                self.cache_add(request_data=request_data, response_data=response_data)
+            raise exception
 
     def only_from_cache(self, value=True):
         self.cache_only_mode = value
@@ -157,7 +168,6 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         if self.pickle_response:
             return pickle_save_to_bytes(response_data)
         return response_data
-
 
     def response_data_for__request_hash(self, request_hash):
         rows = self.rows_where__request_hash(request_hash)
