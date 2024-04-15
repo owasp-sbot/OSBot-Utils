@@ -1,5 +1,4 @@
 import types
-
 from osbot_utils.base_classes.Kwargs_To_Self                    import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests    import Sqlite__DB__Requests
 from osbot_utils.utils.Json                                     import json_dumps, json_loads
@@ -15,6 +14,7 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
     sqlite_requests   : Sqlite__DB__Requests = None
     pickle_response   : bool                 = False
     capture_exceptions: bool                 = False                # once this is working, it might be more useful to have this set to true
+    exception_classes : list
     on_invoke_target  : types.FunctionType
 
     def __init__(self, db_path=None, db_name=None, table_name=None):
@@ -162,6 +162,12 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         else:
             response_data = cache_entry.get('response_data')
             response_data_obj = json_loads(response_data)
+        if self.capture_exceptions:
+            if (type(response_data_obj) is Exception or                     # raise if it is an exception
+                type(response_data_obj) in self.exception_classes):         # or if one of the types that have been set as being exception classes
+                    raise response_data_obj
+            # else:
+            #     pprint(type(response_data_obj))
         return response_data_obj
 
     def response_data_serialize(self, response_data):
