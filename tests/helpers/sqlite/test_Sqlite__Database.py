@@ -9,6 +9,7 @@ from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database, SQLITE_DATABASE_PATH__IN_MEMORY, \
     FOLDER_NAME_TEMP_DATABASES, TEMP_DATABASE__FILE_NAME_PREFIX, TEMP_DATABASE__FILE_EXTENSION
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
+from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Config import Sqlite__Table__Config
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import file_exists, parent_folder, current_temp_folder, folder_name, folder_exists, \
     file_extension, file_name
@@ -142,6 +143,20 @@ class test_Sqlite__Database(TestCase):
         table      = self.database.table(table_name)
         assert type(table) is Sqlite__Table
         assert table.exists() is False
+
+    def test_table_config(self):
+        with self.database.table_config() as _:
+            assert type(_) is Sqlite__Table__Config
+            assert _.exists()       is True
+            assert _.config_data()  == {}
+            assert _.data()         == {}
+            _.set_value('abc', 123)
+            assert _.config_data()  == {'abc': 123}                 # will have updated value
+            assert _.data()         == {}                           # will still return {} since this is cached value
+
+        with self.database.table_config() as _:
+            assert _.config_data()  == {'abc': 123}
+            assert _.data()         == {'abc': 123}                 # after reload the values will now be there
 
     def test_tables(self):
         assert self.database.tables() == []

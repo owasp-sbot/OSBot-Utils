@@ -141,7 +141,7 @@ class Sqlite__Table(Kwargs_To_Self):
     def row_add_and_commit(self, row_obj=None):
         if self.row_add(row_obj).get('status') == 'ok':
             self.commit()
-            return row_obj
+            return row_obj                                      # this allows the original callers to see the actual object that was added to the table
 
     def row_add_record(self, record):
         validation_result = self.validate_record_with_schema(record)
@@ -198,6 +198,10 @@ class Sqlite__Table(Kwargs_To_Self):
         sql_query, params = self.sql_builder().query_for_select_rows_where(**kwargs)
         return self.cursor().execute__fetch_all(sql_query, params)                      # Execute the query and return the results
 
+    def select_rows_where_one(self, **kwargs):
+        sql_query, params = self.sql_builder().query_for_select_rows_where(**kwargs)
+        return self.cursor().execute__fetch_one(sql_query, params)                      # Execute the query and return the results
+
     def select_field_values(self, field_name):
         if field_name not in self.fields__cached():
             raise ValueError(f'in select_all_vales_from_field, the provide field_name "{field_name}" does not exist in the current table "{self.table_name}"')
@@ -235,10 +239,14 @@ class Sqlite__Table(Kwargs_To_Self):
 
     # query helpers
     def contains(self, **kwargs):
-        return len(self.where(**kwargs)) > 0
+        result = self.where_one(**kwargs)
+        return result is not None
 
     def not_contains(self, **kwargs):
         return self.contains(**kwargs) is False
 
     def where(self, **kwargs):
         return self.select_rows_where(**kwargs)
+
+    def where_one(self, **kwargs):
+        return self.select_rows_where_one(**kwargs)
