@@ -24,7 +24,7 @@ class test_Sqlite__Table__Nodes(TestCase):
         with self.table_nodes.database as _:
             assert _.exists()  is True
             assert _.in_memory is True
-            assert _.db_path   == None
+            assert _.db_path   is None
 
     def test_add_node(self):
         with self.table_nodes as _:
