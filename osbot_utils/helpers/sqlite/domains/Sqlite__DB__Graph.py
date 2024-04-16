@@ -37,7 +37,7 @@ class Sqlite__DB__Graph(Sqlite__DB__Local):
         return Sqlite__Table__Nodes(database=self).setup()
 
     def setup(self):
-        self.table_config()
+        #self.table_config()                    # wire this up when I have a use case for it
         self.table_nodes()
         self.table_edges()
         return self

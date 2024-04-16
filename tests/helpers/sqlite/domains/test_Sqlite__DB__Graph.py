@@ -27,8 +27,7 @@ class test_Sqlite__DB__Graph(TestCase):
             assert _.in_memory              is False
             assert parent_folder(_.db_path) == current_temp_folder()
             assert file_name    (_.db_path) == TEST_DB_GRAPH__DB_NAME
-            assert _.tables_names()         == ['config', 'idx__config__key'     ,
-                                                'nodes' , 'idx__nodes__key'      ,
+            assert _.tables_names()         == ['nodes' , 'idx__nodes__key'      ,
                                                 'edges' ,'idx__edges__source_key', 'idx__edges__target_key']
 
     def test_add_edge(self):

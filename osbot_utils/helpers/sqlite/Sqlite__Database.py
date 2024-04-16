@@ -104,11 +104,11 @@ class Sqlite__Database(Kwargs_To_Self):
             table.row_schema__set_from_field_types()                            # todo: see if we shouldn't just propagate the auto_schema_row to the Sqlite__Table and do that on the ctor
         return table
 
-    def table_config(self):
-        from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Config import Sqlite__Table__Config
-        table_config = Sqlite__Table__Config(database=self)
-        table_config.setup()
-        return table_config
+    # def table_config(self):
+    #     from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Config import Sqlite__Table__Config
+    #     table_config = Sqlite__Table__Config(database=self)
+    #     table_config.setup()
+    #     return table_config
 
     def table__sqlite_master(self):
         return self.table('sqlite_master')

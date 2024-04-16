@@ -144,19 +144,19 @@ class test_Sqlite__Database(TestCase):
         assert type(table) is Sqlite__Table
         assert table.exists() is False
 
-    def test_table_config(self):
-        with self.database.table_config() as _:
-            assert type(_) is Sqlite__Table__Config
-            assert _.exists()       is True
-            assert _.config_data()  == {}
-            assert _.data()         == {}
-            _.set_value('abc', 123)
-            assert _.config_data()  == {'abc': 123}                 # will have updated value
-            assert _.data()         == {}                           # will still return {} since this is cached value
-
-        with self.database.table_config() as _:
-            assert _.config_data()  == {'abc': 123}
-            assert _.data()         == {'abc': 123}                 # after reload the values will now be there
+    # def test_table_config(self):
+    #     with self.database.table_config() as _:
+    #         assert type(_) is Sqlite__Table__Config
+    #         assert _.exists()       is True
+    #         assert _.config_data()  == {}
+    #         assert _.data()         == {}
+    #         _.set_value('abc', 123)
+    #         assert _.config_data()  == {'abc': 123}                 # will have updated value
+    #         assert _.data()         == {}                           # will still return {} since this is cached value
+    #
+    #     with self.database.table_config() as _:
+    #         assert _.config_data()  == {'abc': 123}
+    #         assert _.data()         == {'abc': 123}                 # after reload the values will now be there
 
     def test_tables(self):
         assert self.database.tables() == []
