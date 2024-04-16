@@ -21,7 +21,6 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         self.sqlite_requests = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
         super().__init__()
 
-
     def cache_add(self, request_data, response_data):
         new_row_obj = self.create_new_cache_obj(request_data, response_data)
         return self.cache_table().row_add_and_commit(new_row_obj)

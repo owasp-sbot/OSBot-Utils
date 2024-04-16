@@ -38,7 +38,7 @@ class test_Sqlite__Cache__Requests(TestCase):
             assert base_types(_)                  == [Kwargs_To_Self, object]
             assert type      (_.sqlite_requests)  is Sqlite__DB__Requests
             assert base_types(_.sqlite_requests)  == [Sqlite__DB__Local, Sqlite__Database, Kwargs_To_Self, object]
-            assert _.sqlite_requests.db_name      == ''
+            assert _.sqlite_requests.db_name.startswith('db_local_')
             assert _.sqlite_requests.table_name   == SQLITE_TABLE__REQUESTS
 
     def add_test_requests(self, count=10):
