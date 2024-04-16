@@ -21,6 +21,9 @@ class test_Sqlite__DB__Graph(TestCase):
     def tearDownClass(cls):
         assert cls.db_graph.delete() is True
 
+    def tearDown(self):
+        self.db_graph.clear()
+
     def test__init__(self):
         with self.db_graph as _:
             assert _.exists()               is True

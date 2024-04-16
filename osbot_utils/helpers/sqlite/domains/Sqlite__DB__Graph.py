@@ -19,6 +19,10 @@ class Sqlite__DB__Graph(Sqlite__DB__Local):
     def add_node(self, key, value=None, properties=None):
         return self.table_nodes().add_node(key, value, properties)
 
+    def clear(self):
+        self.table_edges().clear()
+        self.table_nodes().clear()
+
     def edges(self):
         return self.table_edges().edges()
 
