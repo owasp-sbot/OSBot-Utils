@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.tables.Sqite__Table__Nodes import Sqlite__Table__Nodes, SQLITE__TABLE_NAME__NODES
+from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Nodes import Sqlite__Table__Nodes, SQLITE__TABLE_NAME__NODES
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects import obj_to_bytes
 
@@ -30,7 +30,8 @@ class test_Sqlite__Table__Nodes(TestCase):
         with self.table_nodes as _:
             assert _.allow_duplicate_keys is True
             assert _.add_timestamp        is False
-            assert _.rows() == []
+            assert _.rows () == []
+            assert _.nodes() == []
 
             row_obj_1 = _.add_node('key-1')
             assert row_obj_1.__dict__ == {'key': 'key-1', 'properties': b'\x80\x04N.', 'timestamp':0,  'value': b'\x80\x04N.'}
@@ -49,8 +50,9 @@ class test_Sqlite__Table__Nodes(TestCase):
             assert _.nodes()          == [{'id': 1, 'key': 'key-1', 'properties': None        , 'timestamp': 0, 'value': None            },
                                           {'id': 2, 'key': 'key-2', 'properties': None        , 'timestamp': 0, 'value': 'an_value'      },
                                           {'id': 3, 'key': 'key-2', 'properties': {'with': 42}, 'timestamp': 0, 'value': 'duplicated-key'}]
-            assert _.keys() == ['key-1', 'key-2']
-            assert _.size() == 3
+            assert _.nodes()          == _.rows()
+            assert _.keys()           == ['key-1', 'key-2']
+            assert _.size()           == 3
 
     def test_add_node__no_duplicates(self):
         with self.table_nodes as _:

@@ -76,7 +76,7 @@ class test_Kwargs_To_Disk(TestCase):
         class An_Class(Kwargs_To_Disk):
             pass
 
-        print()
+        #print()
         an_class = An_Class()
         an_class.name          = 'an value'
         an_class._private_name = 'an private value'

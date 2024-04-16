@@ -1,5 +1,5 @@
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local import Sqlite__DB__Local
-from osbot_utils.helpers.sqlite.tables.Sqite__Table__Nodes import Sqlite__Table__Nodes
+from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Nodes import Sqlite__Table__Nodes
 
 
 class Sqlite__DB__Graph(Sqlite__DB__Local):

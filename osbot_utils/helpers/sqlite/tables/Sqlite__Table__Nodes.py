@@ -4,7 +4,6 @@ from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.Lists import unique
 from osbot_utils.utils.Misc import timestamp_utc_now
-from osbot_utils.utils.Objects import pickle_save_to_bytes, obj_to_bytes, bytes_to_obj
 
 SQLITE__TABLE_NAME__NODES = 'nodes'
 
