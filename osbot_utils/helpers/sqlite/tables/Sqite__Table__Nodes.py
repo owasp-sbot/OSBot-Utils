@@ -1,6 +1,8 @@
+from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.utils.Lists import unique
 from osbot_utils.utils.Misc import timestamp_utc_now
 from osbot_utils.utils.Objects import pickle_save_to_bytes, obj_to_bytes, bytes_to_obj
 
@@ -13,7 +15,8 @@ class Schema__Table__Nodes(Kwargs_To_Self):
     timestamp : int
 
 class Sqlite__Table__Nodes(Sqlite__Table):
-    add_timestamp: bool = True
+    add_timestamp       : bool = True
+    allow_duplicate_keys: bool = True
 
     def __init__(self, **kwargs):
         self.table_name = SQLITE__TABLE_NAME__NODES
@@ -21,8 +24,11 @@ class Sqlite__Table__Nodes(Sqlite__Table):
         super().__init__(**kwargs)
 
     def add_node(self, key, value=None, properties=None):
+        if self.allow_duplicate_keys is False:
+            if self.contains(key=key):
+                return None
         row_data = self.create_node_data(key,value, properties)
-        return self.add_row(**row_data)
+        return self.add_row_and_commit(**row_data)
 
     def create_node_data(self, key, value=None, properties=None):
 
@@ -39,6 +45,17 @@ class Sqlite__Table__Nodes(Sqlite__Table):
             node_data['value'     ] = bytes_to_obj(node_data.get('value'     ))
             node_data['properties'] = bytes_to_obj(node_data.get('properties'))
             return node_data
+
+    @index_by
+    def nodes(self):
+        nodes = []
+        for row in self.rows():
+            node = self.deserialize_sqlite_node_data(row)
+            nodes.append(node)
+        return nodes
+
+    def keys(self):
+        return unique(self.select_field_values('key'))
 
     def setup(self):
         if self.exists() is False:
