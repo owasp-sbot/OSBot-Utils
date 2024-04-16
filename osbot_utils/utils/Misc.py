@@ -13,11 +13,8 @@ import warnings
 from datetime import datetime, timedelta, UTC
 from secrets    import token_bytes
 from time import sleep
-from typing import Iterable, T
+from typing import Iterable
 from urllib.parse import  quote_plus, unquote_plus
-
-#from dateutil import parser
-from dotenv     import load_dotenv
 
 def ansi_text_visible_length(text):
     ansi_escape = re.compile(r'\x1b\[[0-9;]*m')         # This regex matches the escape sequences used for text formatting
@@ -33,14 +30,14 @@ def attr_value_from_module_name(module_name, attr_name, default_value=None):
         return getattr(module, attr_name)
     return default_value
 
-def bytes_md5(bytes : bytes):
-    return hashlib.md5(bytes).hexdigest()
+def bytes_md5(target : bytes):
+    return hashlib.md5(target).hexdigest()
 
-def bytes_sha256(bytes : bytes):
-    return hashlib.sha256(bytes).hexdigest()
+def bytes_sha256(target : bytes):
+    return hashlib.sha256(target).hexdigest()
 
-def bytes_sha384(bytes : bytes):
-    return hashlib.sha384(bytes).hexdigest()
+def bytes_sha384(target : bytes):
+    return hashlib.sha384(target).hexdigest()
 
 def base64_to_bytes(bytes_base64):
     if type(bytes_base64) is str:
@@ -50,8 +47,8 @@ def base64_to_bytes(bytes_base64):
 def base64_to_str(target, encoding='ascii'):
     return bytes_to_str(base64_to_bytes(target), encoding=encoding)
 
-def bytes_to_base64(bytes):
-    return base64.b64encode(bytes).decode()
+def bytes_to_base64(target):
+    return base64.b64encode(target).decode()
 
 def bytes_to_str(target, encoding='ascii'):
     return target.decode(encoding=encoding)
@@ -115,12 +112,12 @@ def date_time_less_time_delta(date_time, days=0, hours=0, minutes=0, seconds=0, 
     return new_date_time
 
 def date_time_now_less_time_delta(days=0,hours=0, minutes=0, seconds=0, date_time_format='%Y-%m-%d %H:%M:%S', return_str=True):
-    return date_time_less_time_delta(datetime.utcnow(),days=days, hours=hours, minutes=minutes, seconds=seconds,date_time_format=date_time_format, return_str=return_str)
+    return date_time_less_time_delta(datetime.now(UTC),days=days, hours=hours, minutes=minutes, seconds=seconds,date_time_format=date_time_format, return_str=return_str)
 
 def date_to_str(date, date_format='%Y-%m-%d'):
     return date.strftime(date_format)
 
-#note: this is here at the moment due to a circular dependency with lists and objecs
+#note: this is here at the moment due to a circular dependency with lists and objects
 def list_set(target):
     if hasattr(target, '__iter__'):
         return sorted(list(set(target)))
@@ -219,7 +216,6 @@ def logger_add_handler__file(log_file=None):
     log_file = log_file or temp_file(extension=".log")
     logger_add_handler(logging.FileHandler(filename=log_file))
     return log_file
-    #logging.basicConfig(level=logging.DEBUG, filename='myapp.log', format='%(asctime)s %(levelname)s:%(message)s')
 
 def logger_set_level(level):
     logger().setLevel(level)
@@ -260,7 +256,6 @@ def print_time_now(use_utc=True):
 def str_sha256(text: str):
     if text:
         return bytes_sha256(text.encode())
-        #return hashlib.sha256('{0}'.format(text).encode()).hexdigest()
     return None
 
 def str_sha384(text:str):
@@ -301,7 +296,7 @@ def time_delta_in_days_hours_or_minutes(time_delta):
 
 def time_now(use_utc=True, milliseconds_numbers=1):
     if use_utc:
-        datetime_now = datetime.utcnow()
+        datetime_now = datetime.now(UTC)
     else:
         datetime_now = datetime.now()
     return time_to_str(datetime_value=datetime_now,milliseconds_numbers=milliseconds_numbers)
@@ -311,7 +306,7 @@ def time_to_str(datetime_value, time_format='%H:%M:%S.%f', milliseconds_numbers=
     return time_str_milliseconds(datetime_str=time_str, datetime_format=time_format, milliseconds_numbers=milliseconds_numbers)
 
 def timestamp_utc_now():
-    return int(datetime.utcnow().timestamp() * 1000)
+    return int(datetime.now(UTC).timestamp() * 1000)
 
 def timestamp_utc_now_less_delta(days=0,hours=0, minutes=0, seconds=0):
     date_time = date_time_now_less_time_delta(days=days,hours=hours, minutes=minutes, seconds=seconds, return_str=False)
@@ -408,7 +403,7 @@ def split_lines(text):
 def split_spaces(target):
     return remove_multiple_spaces(target).split(' ')
 
-def sorted_set(target : Iterable[T]):
+def sorted_set(target : Iterable):
     if target:
         return sorted(set(target))
     return []
@@ -448,7 +443,7 @@ def url_decode(data):
         return unquote_plus(data)
 
 def utc_now():
-    return datetime.utcnow()
+    return datetime.now(UTC)
 
 def upper(target : str):
     if target:
