@@ -12,7 +12,7 @@ class test_Sqlite__Table__Nodes(TestCase):
         cls.table_edges = Sqlite__Table__Edges()
         cls.database     = cls.table_edges.database
         cls.table_edges.setup()
-        cls.table_edges.add_timestamp = False
+        cls.table_edges.set_timestamp = False
 
     def tearDown(self):
         self.table_edges.clear()                     # remove any nodes created during test
@@ -26,9 +26,9 @@ class test_Sqlite__Table__Nodes(TestCase):
 
     def test_add_edge(self):
         with self.table_edges as _:
-            assert _.add_timestamp        is False
-            assert _.rows () == []
-            assert _.edges() == []
+            assert _.set_timestamp is False
+            assert _.rows ()       == []
+            assert _.edges()       == []
 
             row_obj_1 = _.add_edge('key-1', 'key-2')
             assert row_obj_1.__dict__ == { 'properties' : b'\x80\x04N.' ,

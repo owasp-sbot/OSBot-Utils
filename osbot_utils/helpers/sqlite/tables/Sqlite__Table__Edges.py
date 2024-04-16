@@ -13,8 +13,8 @@ class Schema__Table__Edges(Kwargs_To_Self):
     timestamp  : int
 
 class Sqlite__Table__Edges(Sqlite__Table):
-    add_timestamp       : bool = True
     auto_pickle_blob    : bool = True
+    set_timestamp       : bool = True
 
     def __init__(self, **kwargs):
         self.table_name = SQLITE__TABLE_NAME__EDGES
@@ -31,7 +31,7 @@ class Sqlite__Table__Edges(Sqlite__Table):
                       'target_key' : target_key              ,
                       'value'      : value                   ,
                       'properties' : properties              }
-        if self.add_timestamp:
+        if self.set_timestamp:
             node_data['timestamp'] = timestamp_utc_now()
         return node_data
 

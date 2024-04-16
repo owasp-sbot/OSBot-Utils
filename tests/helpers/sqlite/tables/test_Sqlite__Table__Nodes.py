@@ -15,7 +15,7 @@ class test_Sqlite__Table__Nodes(TestCase):
         cls.table_nodes = Sqlite__Table__Nodes()
         cls.database     = cls.table_nodes.database
         cls.table_nodes.setup()
-        cls.table_nodes.add_timestamp = False
+        cls.table_nodes.set_timestamp = False
 
     def tearDown(self):
         self.table_nodes.clear()                     # remove any nodes created during test
@@ -28,8 +28,8 @@ class test_Sqlite__Table__Nodes(TestCase):
 
     def test_add_node(self):
         with self.table_nodes as _:
-            assert _.allow_duplicate_keys is True
-            assert _.add_timestamp        is False
+            assert _.allow_duplicate_keys is False
+            assert _.set_timestamp        is False
             assert _.rows () == []
             assert _.nodes() == []
 
@@ -44,6 +44,7 @@ class test_Sqlite__Table__Nodes(TestCase):
                                           {'id': 2, 'key': 'key-2', 'properties': None, 'timestamp': 0, 'value': 'an_value'}]
             assert _.keys()           == ['key-1', 'key-2']
 
+            _.allow_duplicate_keys = True       # so that we can add the duplicated entry below
             row_obj_3 = _.add_node('key-2', 'duplicated-key', properties={'with': 42})
             assert row_obj_3.__dict__ == {'key'        : 'key-2', 'properties' : obj_to_bytes({'with': 42}    ),
                                           'timestamp'  : 0      , 'value'      : obj_to_bytes('duplicated-key')}
@@ -53,10 +54,10 @@ class test_Sqlite__Table__Nodes(TestCase):
             assert _.nodes()          == _.rows()
             assert _.keys()           == ['key-1', 'key-2']
             assert _.size()           == 3
+            _.allow_duplicate_keys = False
 
     def test_add_node__no_duplicates(self):
         with self.table_nodes as _:
-            _.allow_duplicate_keys = False
             assert _.add_node('key-1').key == 'key-1'               # add once
             assert _.add_node('key-1')     is None                  # trying to add again, will fail (since the node already exists)
             assert _.size() == 1

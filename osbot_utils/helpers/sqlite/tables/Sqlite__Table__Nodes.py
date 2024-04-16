@@ -14,9 +14,9 @@ class Schema__Table__Nodes(Kwargs_To_Self):
     timestamp : int
 
 class Sqlite__Table__Nodes(Sqlite__Table):
-    add_timestamp       : bool = True
-    allow_duplicate_keys: bool = True
+    allow_duplicate_keys: bool = False
     auto_pickle_blob    : bool = True
+    set_timestamp       : bool = True
 
     def __init__(self, **kwargs):
         self.table_name = SQLITE__TABLE_NAME__NODES
@@ -34,7 +34,7 @@ class Sqlite__Table__Nodes(Sqlite__Table):
         node_data =  {'key'        : key                     ,
                       'value'      : value                   ,
                       'properties' : properties              }
-        if self.add_timestamp:
+        if self.set_timestamp:
             node_data['timestamp'] = timestamp_utc_now()
         return node_data
 
