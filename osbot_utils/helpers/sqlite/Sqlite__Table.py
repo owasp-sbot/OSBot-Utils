@@ -11,7 +11,7 @@ from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json                                 import json_load
 from osbot_utils.utils.Misc                                 import list_set
-from osbot_utils.utils.Objects import base_types, default_value, bytes_to_obj
+from osbot_utils.utils.Objects import base_types, default_value, bytes_to_obj, obj_to_bytes
 from osbot_utils.utils.Str                                  import str_cap_snake_case
 
 class Sqlite__Table(Kwargs_To_Self):
@@ -134,12 +134,26 @@ class Sqlite__Table(Kwargs_To_Self):
         if self.row_schema:
             new_obj = self.row_schema()
             if row_data and ROW_BASE_CLASS in base_types(new_obj):
+                row_data = self.parse_new_row_data(row_data)
                 new_obj.update_from_kwargs(**row_data)
             return new_obj
 
     def not_exists(self):
         return self.exists() is False
 
+    def parse_new_row_data(self, row_data):
+        if row_data:
+            if self.auto_pickle_blob:
+                fields = self.fields__cached()
+                picked_row_data = {}
+                for field_name, field_value in row_data.items():
+                    field_type = fields.get(field_name, {}).get('type')
+                    if field_type == 'BLOB':
+                        picked_row_data[field_name] = obj_to_bytes(field_value)
+                    else:
+                        picked_row_data[field_name] = field_value
+                return picked_row_data
+        return row_data
     def parse_row(self, row):
         if row and self.auto_pickle_blob:
             fields = self.fields__cached()

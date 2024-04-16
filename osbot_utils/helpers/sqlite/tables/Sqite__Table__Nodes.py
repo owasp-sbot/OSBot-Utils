@@ -32,29 +32,16 @@ class Sqlite__Table__Nodes(Sqlite__Table):
         return self.add_row_and_commit(**row_data)
 
     def create_node_data(self, key, value=None, properties=None):
-
-        node_data =  {'key'        : key,
-                      'value'      : obj_to_bytes(value     ),
-                      'properties' : obj_to_bytes(properties)}
+        node_data =  {'key'        : key                     ,
+                      'value'      : value                   ,
+                      'properties' : properties              }
         if self.add_timestamp:
             node_data['timestamp'] = timestamp_utc_now()
         return node_data
 
-    # def deserialize_sqlite_node_data(self, sqlite_node_data:dict):
-    #     if type(sqlite_node_data) is dict:
-    #         node_data = sqlite_node_data.copy()
-    #         node_data['value'     ] = bytes_to_obj(node_data.get('value'     ))
-    #         node_data['properties'] = bytes_to_obj(node_data.get('properties'))
-    #         return node_data
-
     @index_by
     def nodes(self):
         return self.rows()
-        # nodes = []
-        # for row in self.rows():
-        #     node = self.deserialize_sqlite_node_data(row)
-        #     nodes.append(node)
-        # return nodes
 
     def keys(self):
         return unique(self.select_field_values('key'))
