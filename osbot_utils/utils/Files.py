@@ -329,7 +329,7 @@ class Files:
     def safe_file_name(file_name):
         if type(file_name) is not str:
             file_name = f"{file_name}"
-        return re.sub(r'[^a-zA-Z0-9_.]', '_',file_name or '')
+        return re.sub(r'[^a-zA-Z0-9_.-]', '_',file_name or '')
 
     @staticmethod
     def save(contents, path=None, extension=None):

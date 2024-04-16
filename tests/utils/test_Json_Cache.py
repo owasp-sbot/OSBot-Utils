@@ -52,13 +52,13 @@ class test_Json_Cache(TestCase):
         cache_keys = date_time_from
         with Json_Cache(cache_type='abc', cache_keys=cache_keys) as _:
             assert _.path_cache_folder() == '/tmp/json_cache/abc'
-            assert _.path_cache_file()   == '/tmp/json_cache/abc/--2023_02_08_11_00_00.json.gz'
+            assert _.path_cache_file()   == '/tmp/json_cache/abc/--2023-02-08_11_00_00.json.gz'
 
         date_time_to = datetime(2023, 2, 8, 11, 00, 0)
         cache_keys = [date_time_from, date_time_to]
         with Json_Cache(cache_type='abc', cache_keys=cache_keys) as _:
             assert _.path_cache_folder() == '/tmp/json_cache/abc'
-            assert _.path_cache_file()   == '/tmp/json_cache/abc/--2023_02_08_11_00_00--2023_02_08_11_00_00.json.gz'
+            assert _.path_cache_file()   == '/tmp/json_cache/abc/--2023-02-08_11_00_00--2023-02-08_11_00_00.json.gz'
             _.save({'answer': 42})
             assert _.delete() is True
 

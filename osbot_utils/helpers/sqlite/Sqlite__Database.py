@@ -33,6 +33,9 @@ class Sqlite__Database(Kwargs_To_Self):
             return True
         return False
 
+    def config(self, key):
+        return self.table_config().data().get(key)
+
     @cache_on_self
     def connect(self):
         connection_string      = self.connection_string()
