@@ -36,7 +36,10 @@ class test_Sqlite__Table(TestCase):
         return [{'an_str': f'an_str_{i}', 'an_int': i} for i in range(size)]
 
     def test__init__(self):
-        expected_vars = dict(database=self.table.database, table_name=TEST_TABLE_NAME, row_schema=self.table.row_schema)
+        expected_vars = dict(auto_pickle_blob = False                ,
+                             database         = self.table.database  ,
+                             table_name       = TEST_TABLE_NAME      ,
+                             row_schema       = self.table.row_schema)
         assert self.table.__locals__() == expected_vars
 
     def test_add_row(self):

@@ -1,3 +1,5 @@
+import re
+
 from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
 from osbot_utils.decorators.lists.filter_list               import filter_list
 from osbot_utils.decorators.lists.index_by                  import index_by
@@ -6,19 +8,28 @@ from osbot_utils.helpers.Print_Table                        import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database            import Sqlite__Database
 from osbot_utils.helpers.sqlite.Sqlite__Globals             import DEFAULT_FIELD_NAME__ID, ROW_BASE_CLASS, SQL_TABLE__MODULE_NAME__ROW_SCHEMA
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json                                 import json_load
 from osbot_utils.utils.Misc                                 import list_set
-from osbot_utils.utils.Objects                              import base_types, default_value
+from osbot_utils.utils.Objects import base_types, default_value, bytes_to_obj
 from osbot_utils.utils.Str                                  import str_cap_snake_case
 
 class Sqlite__Table(Kwargs_To_Self):
-    database  : Sqlite__Database
-    table_name: str
-    row_schema: type
+    database        : Sqlite__Database
+    table_name      : str
+    row_schema      : type
+    auto_pickle_blob: bool = False
 
-    def _table_create(self):                                                                 # todo: Sqlite__Table__Create needs to be refactored (since that was created before we had support for table_class )
+    def __setattr__(self, key, value):
+        if key =='table_name':                                                              # SQL injection protection
+            if re.search(r'[^a-zA-Z0-9_-]',value):                                  # make sure table name cannot be used to inject SQL, str_safe uses r'[^a-zA-Z0-9_-]' regex, i.e. only allows letter, numbers and the chars - _
+                raise ValueError( "Invalid table name. Table names can only contain alphanumeric characters, numbers, underscores, and hyphens.")
+
+        super().__setattr__(key, value)
+
+    def _table_create(self):                                                                         # todo: Sqlite__Table__Create needs to be refactored (since that was created before we had support for table_class )
         from osbot_utils.helpers.sqlite.Sqlite__Table__Create import Sqlite__Table__Create
-        table_create = Sqlite__Table__Create(self.table_name)                                # todo: fix this workflow
+        table_create       = Sqlite__Table__Create(self.table_name)                                  # todo: fix this workflow
         table_create.table = self
         return table_create                                                                            #       since it is weird to have to overwrite the table vale of Sqlite__Table__Create
 
@@ -115,7 +126,7 @@ class Sqlite__Table(Kwargs_To_Self):
         table_sqlite_master = self.database.table__sqlite_master()
         table_type        = 'index'
         query_conditions  = {'type': table_type, 'tbl_name': self.table_name}
-        sql_query, params = table_sqlite_master.sql_builder().sql_query_select_fields_with_conditions(return_fields, query_conditions)
+        sql_query, params = table_sqlite_master.sql_builder().query_select_fields_with_conditions(return_fields, query_conditions)
         rows              = table_sqlite_master.cursor().execute__fetch_all(sql_query, params)
         return table_sqlite_master.list_of_field_name_from_rows(rows, field_name)
 
@@ -128,6 +139,18 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def not_exists(self):
         return self.exists() is False
+
+    def parse_row(self, row):
+        if row and self.auto_pickle_blob:
+            fields = self.fields__cached()
+            for field_name, field_value in row.items():
+                field_type = fields.get(field_name, {}).get('type')
+                if field_type == 'BLOB':
+                    row[field_name] = bytes_to_obj(field_value)
+        return row
+
+    def parse_rows(self, rows):
+        return [self.parse_row(row) for row in rows]
 
     def print(self, **kwargs):
         return Print_Table(**kwargs).print(self.rows())
@@ -172,7 +195,8 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def rows(self, fields_names=None, limit=None):
         sql_query = self.sql_builder(limit=limit).query_for_fields(fields_names)
-        return self.cursor().execute__fetch_all(sql_query)
+        rows = self.cursor().execute__fetch_all(sql_query)
+        return self.parse_rows(rows)
 
     def rows_add(self, records, commit=True):           # todo: refactor to use row_add
         for record in records:
@@ -196,17 +220,21 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def select_rows_where(self, **kwargs):
         sql_query, params = self.sql_builder().query_for_select_rows_where(**kwargs)
-        return self.cursor().execute__fetch_all(sql_query, params)                      # Execute the query and return the results
+        rows = self.cursor().execute__fetch_all(sql_query, params)                      # Execute the query and return the results
+        return self.parse_rows(rows)
 
     def select_rows_where_one(self, **kwargs):
         sql_query, params = self.sql_builder().query_for_select_rows_where(**kwargs)
-        return self.cursor().execute__fetch_one(sql_query, params)                      # Execute the query and return the results
+        row = self.cursor().execute__fetch_one(sql_query, params)                      # Execute the query and return the results
+        return self.parse_row(row)
 
     def select_field_values(self, field_name):
         if field_name not in self.fields__cached():
             raise ValueError(f'in select_all_vales_from_field, the provide field_name "{field_name}" does not exist in the current table "{self.table_name}"')
-        sql_query  = self.sql_builder().query_for_select_field_name(field_name)
-        all_rows   = self.cursor().execute__fetch_all(sql_query)        # Execute the SQL query and get all rows
+
+        sql_query  = self.sql_builder().query_for_fields([field_name])
+        rows       = self.cursor().execute__fetch_all(sql_query)        # Execute the SQL query and get all rows
+        all_rows   = self.parse_rows(rows)
         all_values = [row[field_name] for row in all_rows]              # Extract the desired field from each row in the result set
         return all_values
 
@@ -219,10 +247,9 @@ class Sqlite__Table(Kwargs_To_Self):
         return {item.get('name'): item.get('type') for item in self.schema()}
 
     def size(self):
-        var_name = 'size'
-        sql_query = self.sql_builder().query_for_size(var_name)
+        sql_query = self.sql_builder().query_for_size()
         result = self.cursor().execute__fetch_one(sql_query)
-        return result.get(var_name)
+        return result.get('size')
 
     @cache_on_self
     def sql_builder(self, limit=None):

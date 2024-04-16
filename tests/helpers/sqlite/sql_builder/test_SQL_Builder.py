@@ -88,18 +88,11 @@ class test_SQL_Builder(TestCase):
         assert self.sql_builder.query_for_fields(['an_str']) == 'SELECT an_str FROM an_table;'
         assert self.sql_builder.query_for_fields(['an_str', 'id']) == 'SELECT an_str, id FROM an_table;'
 
-    def test_sql_query_for_select_field_name(self):
-        assert self.sql_builder.query_for_select_field_name('a') == 'SELECT a FROM an_table;'
-        assert self.sql_builder.query_for_select_field_name('') is None
-        assert self.sql_builder.query_for_select_field_name(None) is None
-
     def test_sql_query_for_size(self):
-        assert self.sql_builder.query_for_size('a') == 'SELECT COUNT(*) as a FROM an_table'
-        assert self.sql_builder.query_for_size('') is None
-        assert self.sql_builder.query_for_size(None) is None
+        assert self.sql_builder.query_for_size() == 'SELECT COUNT(*) as size FROM an_table'
 
     def test_sql_query_select_fields_from_table_with_conditions(self):
-        _ = self.sql_builder.sql_query_select_fields_with_conditions
+        _ = self.sql_builder.query_select_fields_with_conditions
         #assert _(None, None) is None
         #assert _(None, None) is None
         #assert _('bb', None) is None
@@ -135,7 +128,7 @@ class test_SQL_Builder(TestCase):
         current_table_name = self.table.table_name
         self.table.table_name = 'aa'
         with self.assertRaises(ValueError) as context:                                                                              # FIXED: exception is now raised
-           vulnerable_function         = self.sql_builder.sql_query_select_fields_with_conditions
+           vulnerable_function         = self.sql_builder.query_select_fields_with_conditions
            var_name                    = 'an_name'
            query_conditions            = {var_name: None}
            return_fields               = ['bb']
@@ -153,7 +146,8 @@ class test_SQL_Builder(TestCase):
             sql_query__sqli_on_table_name         = f'SELECT bb FROM {table_name_with_sqli} WHERE an_name=?'
             assert sql_query__sqli_on_table_name == 'SELECT bb FROM another_table -- WHERE an_name=?'
             assert vulnerable_function(return_fields, query_conditions) == (sql_query__sqli_on_table_name, [None])
-        assert context.exception.args[0] == 'in validate_query_fields, invalid target_table name: "another_table --"'
+        #assert context.exception.args[0] == 'in validate_query_fields, invalid target_table name: "another_table --"'
+        assert context.exception.args[0] == 'Invalid table name. Table names can only contain alphanumeric characters, numbers, underscores, and hyphens.'      # to take into account that now the validation occurs on the setter for table.table_name
 
         # case 2: SQLi payload on return_fields
         with self.assertRaises(ValueError) as context:                                                                              # FIXED: exception is now raised
@@ -176,7 +170,7 @@ class test_SQL_Builder(TestCase):
 
     def test__regression__vulnerability__sqli_in__query_select_fields_from_table_with_conditions(self):
         def get_sql_query(field_name,param_value):
-            vunerable_function =self.sql_builder.sql_query_select_fields_with_conditions
+            vunerable_function =self.sql_builder.query_select_fields_with_conditions
             return_fields      = ['*']
             query_conditions   = { field_name : param_value}
             sql_query,params   = vunerable_function(return_fields, query_conditions)

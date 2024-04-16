@@ -17,6 +17,7 @@ class Schema__Table__Nodes(Kwargs_To_Self):
 class Sqlite__Table__Nodes(Sqlite__Table):
     add_timestamp       : bool = True
     allow_duplicate_keys: bool = True
+    auto_pickle_blob    : bool = True
 
     def __init__(self, **kwargs):
         self.table_name = SQLITE__TABLE_NAME__NODES
@@ -39,20 +40,21 @@ class Sqlite__Table__Nodes(Sqlite__Table):
             node_data['timestamp'] = timestamp_utc_now()
         return node_data
 
-    def deserialize_sqlite_node_data(self, sqlite_node_data:dict):
-        if type(sqlite_node_data) is dict:
-            node_data = sqlite_node_data.copy()
-            node_data['value'     ] = bytes_to_obj(node_data.get('value'     ))
-            node_data['properties'] = bytes_to_obj(node_data.get('properties'))
-            return node_data
+    # def deserialize_sqlite_node_data(self, sqlite_node_data:dict):
+    #     if type(sqlite_node_data) is dict:
+    #         node_data = sqlite_node_data.copy()
+    #         node_data['value'     ] = bytes_to_obj(node_data.get('value'     ))
+    #         node_data['properties'] = bytes_to_obj(node_data.get('properties'))
+    #         return node_data
 
     @index_by
     def nodes(self):
-        nodes = []
-        for row in self.rows():
-            node = self.deserialize_sqlite_node_data(row)
-            nodes.append(node)
-        return nodes
+        return self.rows()
+        # nodes = []
+        # for row in self.rows():
+        #     node = self.deserialize_sqlite_node_data(row)
+        #     nodes.append(node)
+        # return nodes
 
     def keys(self):
         return unique(self.select_field_values('key'))

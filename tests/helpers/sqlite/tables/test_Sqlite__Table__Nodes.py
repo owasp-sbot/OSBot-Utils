@@ -65,25 +65,25 @@ class test_Sqlite__Table__Nodes(TestCase):
             assert _.create_node_data('an_key') == {'key': 'an_key', 'properties': b'\x80\x04N.'     , 'value': b'\x80\x04N.'}
             assert _.create_node_data('an_key') == {'key': 'an_key', 'properties': obj_to_bytes(None), 'value': obj_to_bytes(None)}
 
-    def test_deserialize_sqlite_node_data(self):
-        with self.table_nodes as _:
-            node_data_2        = dict(key='an_key', value='an_string', properties={'a': 42})
-            node_data_3        = dict(key='an_key', value=b'now using bytes an no properties')
-            node_data_4        = dict(key='an_key', properties = {'and': 'no value'})
-            node_data_5        = dict(key='an_key', value={'value': 'as object', 'an_int': 42})
-            sqlite_node_data_1 = _.create_node_data('an_key')
-            sqlite_node_data_2 = _.create_node_data(**node_data_2)
-            sqlite_node_data_3 = _.create_node_data(**node_data_3)
-            sqlite_node_data_4 = _.create_node_data(**node_data_4)
-            sqlite_node_data_5 = _.create_node_data(**node_data_5)
-            assert _.deserialize_sqlite_node_data(None) is None
-            assert _.deserialize_sqlite_node_data({}                ) == {'properties': None, 'value': None}
-            assert _.deserialize_sqlite_node_data(dict(key='a')     ) == {'key':'a', 'properties': None, 'value': None}
-            assert _.deserialize_sqlite_node_data(sqlite_node_data_1) == {'key': 'an_key', 'properties': None, 'value': None}
-            assert _.deserialize_sqlite_node_data(sqlite_node_data_2) == node_data_2
-            assert _.deserialize_sqlite_node_data(sqlite_node_data_3) == dict(**node_data_3, properties=None)
-            assert _.deserialize_sqlite_node_data(sqlite_node_data_4) == dict(**node_data_4, value     =None)
-            assert _.deserialize_sqlite_node_data(sqlite_node_data_5) == dict(**node_data_5, properties=None)
+    # def test_deserialize_sqlite_node_data(self):
+    #     with self.table_nodes as _:
+    #         node_data_2        = dict(key='an_key', value='an_string', properties={'a': 42})
+    #         node_data_3        = dict(key='an_key', value=b'now using bytes an no properties')
+    #         node_data_4        = dict(key='an_key', properties = {'and': 'no value'})
+    #         node_data_5        = dict(key='an_key', value={'value': 'as object', 'an_int': 42})
+    #         sqlite_node_data_1 = _.create_node_data('an_key')
+    #         sqlite_node_data_2 = _.create_node_data(**node_data_2)
+    #         sqlite_node_data_3 = _.create_node_data(**node_data_3)
+    #         sqlite_node_data_4 = _.create_node_data(**node_data_4)
+    #         sqlite_node_data_5 = _.create_node_data(**node_data_5)
+    #         assert _.deserialize_sqlite_node_data(None) is None
+    #         assert _.deserialize_sqlite_node_data({}                ) == {'properties': None, 'value': None}
+    #         assert _.deserialize_sqlite_node_data(dict(key='a')     ) == {'key':'a', 'properties': None, 'value': None}
+    #         assert _.deserialize_sqlite_node_data(sqlite_node_data_1) == {'key': 'an_key', 'properties': None, 'value': None}
+    #         assert _.deserialize_sqlite_node_data(sqlite_node_data_2) == node_data_2
+    #         assert _.deserialize_sqlite_node_data(sqlite_node_data_3) == dict(**node_data_3, properties=None)
+    #         assert _.deserialize_sqlite_node_data(sqlite_node_data_4) == dict(**node_data_4, value     =None)
+    #         assert _.deserialize_sqlite_node_data(sqlite_node_data_5) == dict(**node_data_5, properties=None)
 
 
     def test___init__(self):
