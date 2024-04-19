@@ -116,8 +116,9 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     def __setattr__(self, name, value):
         # if self.__type_safety__:
         #     if self.__lock_attributes__:
-        #         if not hasattr(self, name):
-        #             raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prevents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
+            # todo: this can't work on all, current hypothesis is that this will work for the values that are explicitly set
+            # if not hasattr(self, name):
+            #     raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prevents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
 
             if value is not None:
                 check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
