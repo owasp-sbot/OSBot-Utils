@@ -4,6 +4,7 @@
 import functools
 import inspect
 import types
+from decimal import Decimal
 from enum                                       import Enum, EnumMeta, EnumType
 from typing                                     import get_origin, get_args
 
@@ -290,7 +291,7 @@ class Kwargs_To_Self:               # todo: check if the description below is st
 
 # todo: see if it is possible to add recursive protection to this logic
 def serialize_to_dict(obj):
-    if isinstance(obj, (str, int, float, bool, bytes)) or obj is None:
+    if isinstance(obj, (str, int, float, bool, bytes, Decimal)) or obj is None:
         return obj
     elif isinstance(obj, Enum):
         return obj.name
