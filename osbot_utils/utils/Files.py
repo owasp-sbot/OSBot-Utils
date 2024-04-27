@@ -86,11 +86,11 @@ class Files:
         return sorted(result)
 
     @staticmethod
-    def files_names(files : list):
+    def files_names(files : list, check_if_exists=True):
         result = []
         for file in files:
             if is_file(file):
-                result.append(file_name(file))
+                result.append(file_name(file, check_if_exists=check_if_exists))
         return result
 
     @staticmethod
