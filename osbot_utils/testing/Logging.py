@@ -11,10 +11,15 @@ DEFAULT_LOG_LEVEL  = logging.DEBUG
 
 class Logging:
 
-    def __init__(self, target=None, log_level: int = None, log_format=None):
+    def __init__(self, target=None, log_level: int = None, log_format=None, log_to_console=False):
         self.target     = target
         self.log_level  = log_level  or DEFAULT_LOG_LEVEL
         self.log_format = log_format or DEFAULT_LOG_FORMAT
+        if log_to_console:
+            self.log_to_sys_stdout()
+
+    def __enter__(self): return self
+    def __exit__ (self, exc_type, exc_val, exc_tb): pass
 
     def add_stream_handler(self, stream):
         stream_handler = logging.StreamHandler(stream=stream)
