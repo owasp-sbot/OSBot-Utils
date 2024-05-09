@@ -108,8 +108,17 @@ class Files:
             return os.path.basename(path)
 
     @staticmethod
-    def file_extension(path):
+    def file_name_without_extension(path):
         if path:
+            path_file_name = file_name(path)
+            extension = file_extension(path_file_name)
+            if extension:
+                return path_file_name.replace(extension, '')
+
+
+    @staticmethod
+    def file_extension(path):
+        if path and '.' in path:
             return os.path.splitext(path)[1]
         return ''
 
@@ -449,6 +458,7 @@ file_lines                     = Files.lines
 file_lines_gz                  = Files.lines_gz
 file_md5                       = Files.contents_md5
 file_name                      = Files.file_name
+file_name_without_extension    = Files.file_name_without_extension
 file_not_exists                = Files.not_exists
 file_open                      = Files.open
 file_open_gz                   = Files.open_gz

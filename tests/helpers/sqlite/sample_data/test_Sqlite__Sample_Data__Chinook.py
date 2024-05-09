@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+import pytest
+
 from osbot_utils.helpers.Print_Table import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Table import SQL_TABLE__MODULE_NAME__ROW_SCHEMA
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
@@ -120,7 +122,7 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
                                      'Milliseconds', 'Name', 'TrackId', 'UnitPrice', 'id']
         #table__genre.print(max_cell_size=50)
 
-
+    @pytest.mark.skip("move to integration test since this test will download the chinook data set")
     def test__check__chinook_data__schema(self):
         expected_schemas = { 'Genre'         : { 'GenreId'        : 'INTEGER' , 'Name'              : 'TEXT'     },
                              'MediaType'     : { 'MediaTypeId'    : 'INTEGER' , 'Name'              : 'TEXT'     },
