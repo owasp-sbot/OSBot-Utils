@@ -1,7 +1,9 @@
 from osbot_utils.utils.Misc import timestamp_utc_now
 
+
 class capture_duration():
     def __init__(self):
+        self.duration        = None
         self.start_timestamp = None
         self.end_timestamp   = None
         self.seconds         = None
@@ -18,3 +20,14 @@ class capture_duration():
 
     def data(self):
         return dict(start = self.start_timestamp, end = self.end_timestamp, seconds = self.seconds)
+
+    def print(self):
+        print()
+        print(f'action took: {self.seconds} seconds')
+
+class print_duration(capture_duration):
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        result = super().__exit__(exc_type, exc_val, exc_tb)
+        self.print()
+        return result

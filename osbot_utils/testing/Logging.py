@@ -58,8 +58,8 @@ class Logging:
         stream_handler.setFormatter(formatter)
         return formatter
 
-    def set_logger_level(self):
-        self.logger().setLevel(self.log_level)
+    def set_logger_level(self, level=None):
+        self.logger().setLevel(level or self.log_level)
 
 
     def info    (self,message, *args, **kwargs): self.logger().info     (message, *args, **kwargs)

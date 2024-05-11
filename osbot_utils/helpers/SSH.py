@@ -4,6 +4,7 @@ from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.context_managers.capture_duration import capture_duration
 from osbot_utils.decorators.lists.group_by import group_by
 from osbot_utils.decorators.lists.index_by import index_by
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Misc import timestamp_utc_now
 from osbot_utils.utils.Process import start_process
 from osbot_utils.utils.Status import status_error
@@ -14,6 +15,9 @@ class SSH(Kwargs_To_Self):
     ssh_key_user      : str
     strict_host_check : bool = False
 
+    def exec(self, command):
+        return self.execute_command__return_stdout(command)
+
     def execute_command(self, command):
         if self.ssh_host and self.ssh_key_file and self.ssh_key_user and command:             # todo: add check to see if ssh executable exists (this check can be cached)
             ssh_args = self.execute_command_args(command)
@@ -23,24 +27,34 @@ class SSH(Kwargs_To_Self):
             return result
         return status_error(error='in execute_command not all required vars were setup')
 
-    def execute_command_args(self, command=None):
+    def execute_ssh_args(self, command=None):
         ssh_args = []
         if self.strict_host_check is False:
-            ssh_args += ['-o', 'StrictHostKeyChecking=no']          # todo: add support for updating the local hosts file so that we dont need to do this that often
+            ssh_args += ['-o',
+                         'StrictHostKeyChecking=no']  # todo: add support for updating the local hosts file so that we dont need to do this that often
         if self.ssh_key_file:
             ssh_args += ['-i', self.ssh_key_file]
+        return ssh_args
 
+    def execute_command_args(self, command=None):
+        ssh_args = self.execute_ssh_args()
         if self.ssh_host:
-            if self.ssh_key_user:
-                ssh_args += [f'{self.ssh_key_user}@{self.ssh_host}']
-            else:
-                ssh_args += [f'{self.ssh_host}'                    ]
+            ssh_args += [self.execute_command_target_host()]
         if command:
            ssh_args += [command]
         return ssh_args
 
+    def execute_command_target_host(self):
+        if self.ssh_key_user:
+            return f'{self.ssh_key_user}@{self.ssh_host}'
+        else:
+            return f'{self.ssh_host}'
+
     def execute_command__return_stdout(self, command):
         return self.execute_command(command).get('stdout').strip()
+
+    def execute_command__return_stderr(self, command):
+        return self.execute_command(command).get('stderr').strip()
 
     @index_by
     @group_by
@@ -49,6 +63,11 @@ class SSH(Kwargs_To_Self):
         return self.parse_stdout_to_dict(stdout)
 
     # helpers for common linux methods
+
+    def cat(self, path=''):
+        command = f'cat {path}'
+        return self.execute_command__return_stdout(command)
+
     @index_by
     def disk_space(self):
         command           = "df -h"
@@ -57,15 +76,27 @@ class SSH(Kwargs_To_Self):
         disk_space        = self.parse_stdout_to_dict(stdout_disk_space)
         return disk_space
 
+    def find(self, path=''):
+        command = f'find {path}'
+        return self.execute_command__return_stdout(command)
+
     def ls(self, path=''):
         command = f'ls {path}'
         ls_raw  = self.execute_command__return_stdout(command)
         return ls_raw.splitlines()
 
+    def mkdir(self, folder):
+        command = f'mkdir -p {folder}'
+        return self.execute_command__return_stdout(command)
+
     def memory_usage(self):
         command = "free -h"
         memory_usage_raw = self.execute_command__return_stdout(command)     # todo: add fix for data parsing issue
         return memory_usage_raw.splitlines()
+
+    def rm(self, path=''):
+        command = f'rm {path}'
+        return self.execute_command__return_stderr(command)
 
     def running_processes(self,**kwargs):
         command = "ps aux"
@@ -95,6 +126,18 @@ class SSH(Kwargs_To_Self):
         command = f'which {target}'                                     # todo: security-vuln: add protection against code injection
         return self.execute_command__return_stdout(command)
 
+    def whoami(self):
+        command = f'whoami'                                     # todo: security-vuln: add protection against code injection
+        return self.execute_command__return_stdout(command)
+
+    # print helpers
+    def print_ls(self, path=''):
+        pprint(self.ls(path))
+        return self
+
+    def print_exec(self, command=''):
+        pprint(self.exec(command))
+        return self
     # def ifconfig(self):
     #     command = "export PATH=$PATH:/sbin && ifconfig"               # todo add example with PATH modification
     #     return self.execute_command__return_stdout(command)

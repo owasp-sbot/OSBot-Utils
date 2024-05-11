@@ -69,7 +69,7 @@ class Files:
 
     @staticmethod
     def exists(path):
-        return is_file(path)
+        return is_file(str(path))
         # if path and is_file(path):
         #     return os.path.exists(path)
         # return False
@@ -291,7 +291,7 @@ class Files:
 
     @staticmethod
     def not_exists(path):
-        return os.path.exists(path) is False
+        return os.path.exists(str(path)) is False
 
     @staticmethod
     def open(path, mode='r'):

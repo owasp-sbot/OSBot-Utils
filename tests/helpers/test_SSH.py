@@ -4,6 +4,7 @@ from unittest                   import TestCase
 from dotenv                     import load_dotenv
 from osbot_utils.helpers.SSH    import SSH
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Files import file_name
 from osbot_utils.utils.Misc import list_set
 
 ENV_VAR_TEST_OSBOT__SSH_HOST      = 'TEST_OSBOT__SSH_HOST'
@@ -96,7 +97,7 @@ class test_SSH(TestCase):
         assert self.ssh.which('bash')  == '/usr/bin/bash'
 
 
-    @pytest.mark.skip(reason="just PoC (with worked :) ")
+    @pytest.mark.skip(reason="just PoC (which worked great:) ")
     def test__workflow__install_python(self):
         command ='sudo yum install python3-pip -y'
         result = self.ssh.execute_command__return_stdout(command)
@@ -109,4 +110,5 @@ class test_SSH(TestCase):
         command = 'python3 -m flask --version'
         result = self.ssh.execute_command__return_stdout(command)
         assert result == 'Python 3.9.16\nFlask 3.0.3\nWerkzeug 3.0.3'
+
 
