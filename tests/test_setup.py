@@ -8,9 +8,7 @@ from osbot_utils.utils.Files        import parent_folder
 from osbot_utils.utils.Version      import Version
 
 
-EXPECTED_PACKAGES = ['_to_remove'                                ,
-                     '_to_remove.trace'                          ,
-                     'osbot_utils'                               ,
+EXPECTED_PACKAGES = ['osbot_utils'                               ,
                      'osbot_utils.base_classes'                  ,
                      'osbot_utils.context_managers'              ,
                      'osbot_utils.decorators'                    ,
