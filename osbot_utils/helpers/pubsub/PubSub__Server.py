@@ -23,7 +23,6 @@ class PubSub__Server(Event__Queue):
 
     def handle_event(self, event):
         self.events.append(event)
-        self.log(f'.... got an event...: {event} ')
         return True
 
     def log(self, message):
@@ -31,11 +30,6 @@ class PubSub__Server(Event__Queue):
         return self
 
     def new_client(self):
-        return PubSub__Client(queue__events = self.queue)
-
-    def run_thread(self):
-        self.log('STARTING SERVER')
-        super().run_thread()
-        self.log("STOPPING server")
+        return PubSub__Client(event_queue = self)
 
 
