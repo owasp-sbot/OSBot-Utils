@@ -33,13 +33,9 @@ class PubSub__Server(Event__Queue):
     def new_client(self):
         return PubSub__Client(queue__events = self.queue)
 
-    def stop(self):
-        self.running = False
-
     def run_thread(self):
         self.log('STARTING SERVER')
         super().run_thread()
         self.log("STOPPING server")
 
-    def wait_for_thread_ends(self):
-        self.thread.join()
+
