@@ -6,15 +6,17 @@ import sys
 
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 
-DEFAULT_LOG_FORMAT = '%(levelname)s - %(message)s'
-DEFAULT_LOG_LEVEL  = logging.DEBUG
-
+#DEFAULT_LOG_FORMAT  = '%(asctime)s.%(msecs)03d %(levelname)s - %(message)s'
+DEFAULT_LOG_FORMAT  = '%(levelname)s - %(message)s'
+DEFAULT_LOG_LEVEL   = logging.DEBUG
+DEFAULT_DATE_FORMAT = '%M:%S'
 class Logging:
 
-    def __init__(self, target=None, log_level: int = None, log_format=None, log_to_console=False):
-        self.target     = target
-        self.log_level  = log_level  or DEFAULT_LOG_LEVEL
-        self.log_format = log_format or DEFAULT_LOG_FORMAT
+    def __init__(self, target=None, log_level: int = None, log_format=None, log_to_console=False, date_format=None):
+        self.target      = target
+        self.log_level   = log_level   or DEFAULT_LOG_LEVEL
+        self.log_format  = log_format  or DEFAULT_LOG_FORMAT
+        self.date_format = date_format or DEFAULT_DATE_FORMAT
         if log_to_console:
             self.log_to_sys_stdout()
 
@@ -54,9 +56,14 @@ class Logging:
 
 
     def set_format(self, stream_handler):
-        formatter = logging.Formatter(self.log_format)
+        formatter = logging.Formatter(fmt=self.log_format, datefmt=self.date_format)
         stream_handler.setFormatter(formatter)
         return formatter
+
+    def set_format_on_all_handlers(self):
+        for handler in logging.root.handlers[:]:
+            handler.setFormatter(logging.Formatter(fmt=self.log_format, datefmt=self.date_format))
+        return self
 
     def set_logger_level(self, level=None):
         self.logger().setLevel(level or self.log_level)

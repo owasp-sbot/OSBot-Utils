@@ -168,7 +168,7 @@ class test_Python_Logger(TestCase):
         assert type(log_record) is LogRecord
 
         # note: asctime below is only showing when pytest_configure is set and configures config.option.log_format
-        assert list_set_dict(log_record) == [ 'args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename',
+        assert list_set_dict(log_record) == [ 'args', 'created', 'exc_info', 'exc_text', 'filename',
                                               'funcName', 'levelname', 'levelno', 'lineno', 'message',
                                               'module', 'msecs', 'msg', 'name', 'pathname', 'process',
                                               'processName', 'relativeCreated', 'stack_info', 'taskName', 'thread', 'threadName']
@@ -225,7 +225,7 @@ class test_Python_Logger(TestCase):
             assert log_entry.get('levelno'  ) == levelno
             assert log_entry.get('message'  ) == message
             # note: asctime below is only showing when pytest_configure is set and configures config.option.log_format
-            assert list_set(log_entry) == [ 'args',  'asctime', 'created',  'exc_info',  'exc_text',  'filename',  'funcName',  'levelname',  'levelno',  'lineno',  'message',  'module',  'msecs',  'msg',  'name',  'pathname',  'process',  'processName',  'relativeCreated',  'stack_info',  'taskName', 'thread',  'threadName' ]
+            assert list_set(log_entry) == [ 'args', 'created',  'exc_info',  'exc_text',  'filename',  'funcName',  'levelname',  'levelno',  'lineno',  'message',  'module',  'msecs',  'msg',  'name',  'pathname',  'process',  'processName',  'relativeCreated',  'stack_info',  'taskName', 'thread',  'threadName' ]
 
         assert_log(critical_logs, 'CRITICAL', 50, 'critical message')
         assert_log(debug_logs   , 'DEBUG'   , 10, 'debug message'   )
