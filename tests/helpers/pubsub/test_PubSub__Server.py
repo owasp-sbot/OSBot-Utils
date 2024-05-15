@@ -4,6 +4,9 @@ from osbot_utils.helpers.pubsub.PubSub__Client import PubSub__Client
 from osbot_utils.helpers.pubsub.PubSub__Server import PubSub__Server
 from osbot_utils.helpers.pubsub.PubSub__Sqlite import PubSub__Sqlite
 from osbot_utils.helpers.pubsub.schemas.Schema__Event import Schema__Event
+from osbot_utils.helpers.pubsub.schemas.Schema__Event__Join_Room import Schema__Event__Join_Room
+from osbot_utils.helpers.pubsub.schemas.Schema__Event__Leave_Room import Schema__Event__Leave_Room
+from osbot_utils.helpers.pubsub.schemas.Schema__Event__Message import Schema__Event__Message
 from osbot_utils.testing.Logging import DEFAULT_LOG_FORMAT
 from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Dev import pprint
@@ -44,7 +47,7 @@ class test_PubSub__Server(TestCase):
 
         message_1 = 'hello from the client!!!!!'
         data_1    = {'we':'can also send dict'}
-        event_3   = Schema__Event(event_message='an message')
+        event_3   = Schema__Event__Message(event_message='an message')
 
         with self.server as _:
             _.log_events = True
@@ -55,7 +58,7 @@ class test_PubSub__Server(TestCase):
             event_2  = client.send_data   (data_1   )
             result_3 = client.send_event  (event_3  )
 
-            _.wait_micro_seconds()
+            _.wait_micro_seconds(1000)
 
             assert _.events == [event_1, event_2, event_3]
             assert result_3 is True
@@ -84,23 +87,26 @@ class test_PubSub__Server(TestCase):
 
     def test_client_join_room__client_leave_room(self):
         with (self.server as _):
-            room_name  = random_text('room_name')
-            client_1   = _.new_client()
-            client_2 = _.new_client()
-            assert _.rooms == {}
-            _.client_join_room(client_1, room_name)
-            assert _.rooms[room_name] == {client_1}
-            _.client_join_room(client_1, room_name)
-            assert _.rooms[room_name] == {client_1}
-            _.client_join_room(client_2, room_name)
-            assert _.rooms[room_name] == {client_1, client_2}
+            room_name        = random_text('room_name')
+            client_1         = _.new_client()
+            client_2         = _.new_client()
+            join_room_event  = Schema__Event__Join_Room(room_name=room_name)
+            leave_room_event = Schema__Event__Leave_Room(room_name=room_name)
 
-            _.client_leave_room(client_1, room_name)
-            assert _.rooms[room_name] == {client_2}
-            _.client_leave_room(client_1, room_name)
-            assert _.rooms[room_name] == {client_2}
-            _.client_leave_room(client_2, room_name)
-            assert _.rooms[room_name] == set()
+            assert _.rooms == {}
+            _.client_join_room(client_1, join_room_event)
+            assert _.rooms[room_name].clients == {client_1}
+            _.client_join_room(client_1, join_room_event)
+            assert _.rooms[room_name].clients == {client_1}
+            _.client_join_room(client_2, join_room_event)
+            assert _.rooms[room_name].clients == {client_1, client_2}
+
+            _.client_leave_room(client_1, leave_room_event)
+            assert _.rooms[room_name].clients == {client_2}
+            _.client_leave_room(client_1, leave_room_event)
+            assert _.rooms[room_name].clients == {client_2}
+            _.client_leave_room(client_2, leave_room_event)
+            assert _.rooms[room_name].clients == set()
 
     def test_client_join_room__client_leave_room__via_events(self):
         print()
@@ -112,12 +118,12 @@ class test_PubSub__Server(TestCase):
             client_1.join_room(room_name)
             client_2.join_room(room_name)
             _.wait_micro_seconds()                            # this needs to be higher if we do anything inside those client_* methods :)
-            assert _.room(room_name) == {client_1, client_2}
+            assert _.room(room_name).clients == {client_1, client_2}
 
             client_1.leave_room(room_name)
             client_2.leave_room(room_name)
             _.wait_micro_seconds()
-            assert _.room(room_name) == set()
+            assert _.room(room_name).clients == set()
 
 
 

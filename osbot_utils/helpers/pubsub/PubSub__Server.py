@@ -4,11 +4,13 @@ from queue import Queue
 
 from osbot_utils.helpers.pubsub.Event__Queue                        import Event__Queue
 from osbot_utils.helpers.pubsub.PubSub__Client                      import PubSub__Client
+from osbot_utils.helpers.pubsub.PubSub__Room import PubSub__Room
 from osbot_utils.helpers.pubsub.schemas.Schema__Event               import Schema__Event
 from osbot_utils.helpers.pubsub.schemas.Schema__Event__Connect      import Schema__Event__Connect
 from osbot_utils.helpers.pubsub.schemas.Schema__Event__Leave_Room   import Schema__Event__Leave_Room
 from osbot_utils.helpers.pubsub.schemas.Schema__Event__Disconnect   import Schema__Event__Disconnect
 from osbot_utils.helpers.pubsub.schemas.Schema__Event__Join_Room    import Schema__Event__Join_Room
+from osbot_utils.helpers.pubsub.schemas.Schema__Event__Message import Schema__Event__Message
 from osbot_utils.testing.Logging                                    import Logging
 from osbot_utils.utils.Dev                                          import pprint
 
@@ -16,8 +18,8 @@ from osbot_utils.utils.Dev                                          import pprin
 class PubSub__Server(Event__Queue):
     #pubsub_db: PubSub__Sqlite
     clients          : dict
-    clients_connected: set
-    rooms            : dict[str, set[PubSub__Client]]
+    clients_connected: set[PubSub__Client]
+    rooms            : dict[str, PubSub__Room]
     logging          : Logging
 
     def __init__ (self):
@@ -38,11 +40,18 @@ class PubSub__Server(Event__Queue):
     def client_disconnect(self, client):
         self.clients_connected.discard(client)
 
-    def client_join_room(self, client, room_name):
-        self.room(room_name).add(client)
+    def client_join_room(self, client, event):
+        room_name = event.room_name
+        if room_name:
+            self.room(room_name).clients.add(client)
 
-    def client_leave_room(self, client, room_name):
-        self.room(room_name).discard(client)
+    def client_message(self, client, event):
+        pass
+
+    def client_leave_room(self, client, event):
+        room_name = event.room_name
+        if room_name:
+            self.room(room_name).clients.discard(client)
 
     def get_client(self, client_id):
         return self.clients.get(client_id)
@@ -53,10 +62,11 @@ class PubSub__Server(Event__Queue):
         if client:
             if   event_type is Schema__Event__Connect    : self.client_connect   (client)
             elif event_type is Schema__Event__Disconnect : self.client_disconnect(client)
-            elif event_type is Schema__Event__Join_Room  : self.client_join_room (client, event.room_name)
-            elif event_type is Schema__Event__Leave_Room : self.client_leave_room(client, event.room_name)
+            elif event_type is Schema__Event__Join_Room  : self.client_join_room (client, event)
+            elif event_type is Schema__Event__Leave_Room : self.client_leave_room(client, event)
+            elif event_type is Schema__Event__Message    : self.client_message   (client, event)
             else:
-                pprint(f'NOT FOUND : {event_type}')
+                return False
 
         if self.log_events:
             self.events.append(event)
@@ -73,7 +83,9 @@ class PubSub__Server(Event__Queue):
 
     def room(self, room_name):
         if room_name not in self.rooms:
-            self.rooms[room_name] = set()
+            new_room = PubSub__Room(room_name=room_name)
+            self.rooms[room_name] = new_room
+
         return self.rooms.get(room_name)
 
 

@@ -5,6 +5,7 @@ from threading                                  import Thread
 from typing import Any
 
 from osbot_utils.helpers.pubsub.schemas.Schema__Event import Schema__Event
+from osbot_utils.helpers.pubsub.schemas.Schema__Event__Message import Schema__Event__Message
 from osbot_utils.utils                                import Misc
 from osbot_utils.base_classes.Kwargs_To_Self          import Kwargs_To_Self
 from osbot_utils.utils.Misc import random_text, wait_for, timestamp_utc_now, random_guid
@@ -55,12 +56,12 @@ class Event__Queue(Kwargs_To_Self):
     def send_data(self, event_data, **kwargs):
         if type(event_data) is not dict:
             event_data = {'data': event_data}
-        new_event = self.new_event_obj(event_data=event_data, **kwargs)
+        new_event = Schema__Event__Message(event_data=event_data, **kwargs)
         if self.send_event(new_event):
             return new_event
 
     def send_message(self, message, **kwargs):
-        new_event = self.new_event_obj(event_message=str(message), **kwargs)
+        new_event = Schema__Event__Message(event_message=str(message), **kwargs)
         if self.send_event(new_event):
             return new_event
 

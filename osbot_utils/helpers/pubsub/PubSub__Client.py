@@ -39,10 +39,11 @@ class PubSub__Client(Kwargs_To_Self):
         return self
 
     def send_data(self, event_data, **kwargs):
-        return self.event_queue.send_data(event_data, **kwargs)
+        return self.event_queue.send_data(event_data, connection_id=self.client_id, **kwargs)
 
     def send_event(self, event : Schema__Event):
+        event.connection_id = self.client_id
         return self.event_queue.send_event(event)
 
     def send_message(self, message, **kwargs):
-        return self.event_queue.send_message(message, **kwargs)
+        return self.event_queue.send_message(message, connection_id=self.client_id, **kwargs)
