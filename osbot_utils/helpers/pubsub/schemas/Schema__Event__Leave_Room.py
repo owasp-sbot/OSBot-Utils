@@ -3,5 +3,6 @@ from osbot_utils.helpers.pubsub.schemas.Schema__Event import Schema__Event
 from osbot_utils.utils.Misc import random_guid
 
 
-class Schema__Event__Disconnect(Schema__Event):
-    event_type : str  = 'disconnect'
+class Schema__Event__Leave_Room(Schema__Event):
+    event_type : str = 'leave-room'
+    room_name  : str

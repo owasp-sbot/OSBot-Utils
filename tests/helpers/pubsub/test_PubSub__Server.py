@@ -7,7 +7,7 @@ from osbot_utils.helpers.pubsub.schemas.Schema__Event import Schema__Event
 from osbot_utils.testing.Logging import DEFAULT_LOG_FORMAT
 from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import wait_for
+from osbot_utils.utils.Misc import wait_for, random_text
 
 
 class test_PubSub__Server(TestCase):
@@ -34,6 +34,7 @@ class test_PubSub__Server(TestCase):
                                                   'queue'            : _.queue      ,
                                                   'queue_name'       : _.queue_name ,
                                                   'queue_timeout'    : 1.0          ,
+                                                  'rooms'            : {}           ,
                                                   'running'          : True         ,
                                                   'thread'           : _.thread     }
 
@@ -67,18 +68,57 @@ class test_PubSub__Server(TestCase):
             assert _.get_client(client_id) == client
             assert _.clients[client_id] == client
 
-    def test_client_connect_and_disconnect(self):
+    def test_client_connect_and_disconnect__via_events(self):
         with (self.server as _):
 
             client = _.new_client()
 
             client.connect()
-            _.wait_micro_seconds()
+            _.wait_micro_seconds(10)
+
             assert client in _.clients_connected
 
             client.disconnect()
             _.wait_micro_seconds()
             assert client not in _.clients_connected        # BUG
+
+    def test_client_join_room__client_leave_room(self):
+        with (self.server as _):
+            room_name  = random_text('room_name')
+            client_1   = _.new_client()
+            client_2 = _.new_client()
+            assert _.rooms == {}
+            _.client_join_room(client_1, room_name)
+            assert _.rooms[room_name] == {client_1}
+            _.client_join_room(client_1, room_name)
+            assert _.rooms[room_name] == {client_1}
+            _.client_join_room(client_2, room_name)
+            assert _.rooms[room_name] == {client_1, client_2}
+
+            _.client_leave_room(client_1, room_name)
+            assert _.rooms[room_name] == {client_2}
+            _.client_leave_room(client_1, room_name)
+            assert _.rooms[room_name] == {client_2}
+            _.client_leave_room(client_2, room_name)
+            assert _.rooms[room_name] == set()
+
+    def test_client_join_room__client_leave_room__via_events(self):
+        print()
+        with self.server as _:
+            room_name = random_text('room_name')
+            client_1 = _.new_client()
+            client_2 = _.new_client()
+
+            client_1.join_room(room_name)
+            client_2.join_room(room_name)
+            _.wait_micro_seconds()                            # this needs to be higher if we do anything inside those client_* methods :)
+            assert _.room(room_name) == {client_1, client_2}
+
+            client_1.leave_room(room_name)
+            client_2.leave_room(room_name)
+            _.wait_micro_seconds()
+            assert _.room(room_name) == set()
+
 
 
 

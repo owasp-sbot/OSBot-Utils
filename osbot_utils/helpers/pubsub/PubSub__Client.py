@@ -5,6 +5,8 @@ from osbot_utils.helpers.pubsub.Event__Queue import Event__Queue
 from osbot_utils.helpers.pubsub.schemas.Schema__Event import Schema__Event
 from osbot_utils.helpers.pubsub.schemas.Schema__Event__Connect import Schema__Event__Connect
 from osbot_utils.helpers.pubsub.schemas.Schema__Event__Disconnect import Schema__Event__Disconnect
+from osbot_utils.helpers.pubsub.schemas.Schema__Event__Join_Room import Schema__Event__Join_Room
+from osbot_utils.helpers.pubsub.schemas.Schema__Event__Leave_Room import Schema__Event__Leave_Room
 from osbot_utils.utils.Misc import random_guid
 
 
@@ -24,6 +26,16 @@ class PubSub__Client(Kwargs_To_Self):
     def disconnect(self):
         event_connect = Schema__Event__Disconnect(connection_id=self.client_id)
         self.send_event(event_connect)
+        return self
+
+    def join_room(self, room_name):
+        event  = Schema__Event__Join_Room(connection_id=self.client_id, room_name=room_name)
+        self.send_event(event)
+        return self
+
+    def leave_room(self, room_name):
+        event  = Schema__Event__Leave_Room(connection_id=self.client_id, room_name=room_name)
+        self.send_event(event)
         return self
 
     def send_data(self, event_data, **kwargs):

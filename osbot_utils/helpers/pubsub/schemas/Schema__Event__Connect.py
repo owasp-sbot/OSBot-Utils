@@ -4,4 +4,4 @@ from osbot_utils.utils.Misc import random_guid
 
 
 class Schema__Event__Connect(Schema__Event):
-    event_type   : str = 'Connect'
+    event_type : str  = 'connect'
