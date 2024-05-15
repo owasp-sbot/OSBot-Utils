@@ -11,8 +11,9 @@ from osbot_utils.utils.Misc import random_guid
 
 
 class PubSub__Client(Kwargs_To_Self):
-    event_queue : Event__Queue
-    client_id   : str
+    event_queue       : Event__Queue
+    client_id         : str
+    received_messages : list[str]           # todo: fix this to be Events/Messages received via event_queue
 
     def __init__(self, **kwargs):
         self.client_id = kwargs.get('client_id') or random_guid()
@@ -47,3 +48,6 @@ class PubSub__Client(Kwargs_To_Self):
 
     def send_message(self, message, **kwargs):
         return self.event_queue.send_message(message, connection_id=self.client_id, **kwargs)
+
+    def receive_message(self, message):
+        self.received_messages.append(message)      # todo: fix this to be Events/Messages received via event_queue

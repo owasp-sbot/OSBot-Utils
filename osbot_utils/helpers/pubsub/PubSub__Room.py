@@ -8,6 +8,6 @@ class PubSub__Room(Kwargs_To_Self):
     room_name  : str
     clients    : set[PubSub__Client]
 
-    def send_message(self, message):
+    def send_to_clients__message(self, message):
         for client in self.clients:
-            client.send_message(message)
+            client.receive_message(message)

@@ -125,6 +125,32 @@ class test_PubSub__Server(TestCase):
             _.wait_micro_seconds()
             assert _.room(room_name).clients == set()
 
+    def test_client_receive_messages__via_room(self):
+        with self.server as _:
+            message_1 = 'hello both clients'
+            message_2 = 'now only to client 2'
+            room_name = random_text('room_name')
+            room      = _.room(room_name)
+            client_1  = _.new_client()
+            client_2  = _.new_client()
+
+            client_1.join_room(room_name)
+            client_2.join_room(room_name)
+            _.wait_micro_seconds(10)
+
+            room.send_to_clients__message(message_1)             #  todo: fix this to be Events/Messages received via event_queue
+            _.wait_micro_seconds(10)
+
+            client_1.leave_room(room_name)
+            _.wait_micro_seconds(10)
+
+            room.send_to_clients__message(message_2)
+
+            assert client_1.received_messages == [message_1]
+            assert client_2.received_messages == [message_1, message_2]
+
+
+
 
 
 
