@@ -5,6 +5,7 @@ from osbot_utils.utils.Dev import pprint
 def capture_exception(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
+        return_value = None
         with Capture_Exception() as context:
             return_value = func(*args, **kwargs)
         if context.error_occurred:
