@@ -23,6 +23,20 @@ class test_PubSub__Server(TestCase):
     def tearDownClass(cls):
         cls.server.logging.log_format = DEFAULT_LOG_FORMAT
 
+    def test__init__(self):
+        with self.server as _:
+            assert self.server.__locals__() == {  'clients'          : {}           ,
+                                                  'clients_connected': set()        ,
+                                                  'event_class'      : Schema__Event,
+                                                  'events'           : []           ,
+                                                  'log_events'       : False        ,
+                                                  'logging'          : _.logging    ,
+                                                  'queue'            : _.queue      ,
+                                                  'queue_name'       : _.queue_name ,
+                                                  'queue_timeout'    : 1.0          ,
+                                                  'running'          : True         ,
+                                                  'thread'           : _.thread     }
+
     def test_client_send_event(self):
         print()
         print()
@@ -32,6 +46,7 @@ class test_PubSub__Server(TestCase):
         event_3   = Schema__Event(event_message='an message')
 
         with self.server as _:
+            _.log_events = True
             _.queue_timeout = 0.001
             client = _.new_client()
             assert isinstance(client, PubSub__Client)
@@ -43,6 +58,28 @@ class test_PubSub__Server(TestCase):
 
             assert _.events == [event_1, event_2, event_3]
             assert result_3 is True
+
+    def test_new_client(self):
+        with self.server as _:
+            client    = _.new_client()
+            client_id = client.client_id
+            assert isinstance(client, PubSub__Client)
+            assert _.get_client(client_id) == client
+            assert _.clients[client_id] == client
+
+    def test_client_connect_and_disconnect(self):
+        with (self.server as _):
+
+            client = _.new_client()
+
+            client.connect()
+            _.wait_micro_seconds()
+            assert client in _.clients_connected
+
+            client.disconnect()
+            _.wait_micro_seconds()
+            assert client not in _.clients_connected        # BUG
+
 
 
 

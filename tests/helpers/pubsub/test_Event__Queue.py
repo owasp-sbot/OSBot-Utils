@@ -83,7 +83,7 @@ class test_Event_Queue(TestCase):
             event_1 = _.send_message(message_1)
             event_2 = _.send_message(message_2, event_target='some target')
             event_3 = _.new_event_obj()
-            event_4 = _.new_event_obj(timestamp=123, event_id='an-event_id', topic_id='an-topic-id')
+            event_4 = _.new_event_obj(timestamp=123, event_id='an-event_id', connection_id='an-topic-id')
             assert _.send_event(event_3) is True
             assert _.send_event(event_4) is True
             assert _.send_event('aaaaa') is False
@@ -97,39 +97,39 @@ class test_Event_Queue(TestCase):
                                       'event_target' : ''               ,
                                       'event_type'   : ''               ,
                                       'timestamp'    : event_1.timestamp,
-                                      'topic_id'     : '' }
+                                      'connection_id': '' }
             assert event_2.json() == {'event_data'  : {}                ,
                                       'event_id'     : event_2.event_id ,
                                       'event_message': message_2        ,
                                       'event_target' : 'some target'    ,
                                       'event_type'   : ''               ,
                                       'timestamp'    : event_2.timestamp,
-                                      'topic_id'     : ''               }
+                                      'connection_id': ''               }
             assert event_3.json() == {'event_data'  : {}                ,
                                       'event_id'     : event_3.event_id ,
                                       'event_message': ''               ,
                                       'event_target' : ''               ,
                                       'event_type'   : ''               ,
                                       'timestamp'    : event_3.timestamp,
-                                      'topic_id'     : ''               }
+                                      'connection_id': ''               }
             assert event_4.json() == {'event_data'  : {}                ,
                                       'event_id'     : 'an-event_id'    ,
                                       'event_message': ''               ,
                                       'event_target' : ''               ,
                                       'event_type'   : ''               ,
                                       'timestamp'    : 123              ,
-                                      'topic_id'     : 'an-topic-id'    }
+                                      'connection_id': 'an-topic-id'    }
             assert event_5.json() == {'event_data'   : data_1            ,
                                       'event_id'     : event_5.event_id ,
                                       'event_message': ''               ,
                                       'event_target' : ''               ,
                                       'event_type'   : ''               ,
                                       'timestamp'    : event_5.timestamp,
-                                      'topic_id'     : ''    }
+                                      'connection_id': ''    }
             assert event_6.json() == {'event_data'  : {'data': data_2}  ,
                                       'event_id'     :  event_6.event_id,
                                       'event_message': ''               ,
                                       'event_target' : ''               ,
                                       'event_type'   : ''               ,
                                       'timestamp'    : event_6.timestamp,
-                                      'topic_id'     : ''               }
+                                      'connection_id': ''               }
