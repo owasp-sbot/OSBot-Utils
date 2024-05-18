@@ -474,9 +474,11 @@ convert_to_float    = convert_to_number
 datetime_now               = date_time_now
 datetime_to_str            = date_time_to_str
 datetime_from_timestamp    = timestamp_to_datetime
+datetime_utc_now           = utc_now
 date_time_to_timestamp     = datetime_to_timestamp
 date_time_from_timestamp   = timestamp_to_datetime
 date_time_from_time_stamp  = timestamp_to_datetime
+date_time_utc_now          = utc_now
 
 
 new_guid            = random_uuid
