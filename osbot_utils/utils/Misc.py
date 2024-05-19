@@ -491,5 +491,6 @@ random_int          = random_number
 random_guid         = random_uuid
 random_value        = random_string
 
+time_utc            = time_now
 wait_for            = wait
 
