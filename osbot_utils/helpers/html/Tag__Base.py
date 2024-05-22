@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.Files import file_create
 
@@ -29,6 +31,15 @@ class Tag__Base(Kwargs_To_Self):
                 if attribute_value:
                     attributes[attribute_name] = attribute_value
         return attributes
+
+    def elements__by_tag_name(self):
+        result = defaultdict(list)
+        for element in self.elements:
+            result[element.tag_name].append(element)
+        return dict(result)
+
+    def elements__with_tag_name(self, tag_name):
+        return self.elements__by_tag_name().get(tag_name)
 
     def save(self, file_path):
         return file_create(file_path, self.render())
