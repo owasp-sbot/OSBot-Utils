@@ -3,10 +3,10 @@ from html.parser import HTMLParser
 class Html_To_Dict(HTMLParser):
     def __init__(self, html):
         super().__init__()
-        self.root = None            # No root initially
+        self.root    = None            # No root initially
         self.current = None         # No current node at the start
-        self.stack = []             # Empty stack for hierarchy management
-        self.html = html
+        self.stack   = []             # Empty stack for hierarchy management
+        self.html    = html or ''
 
     def convert(self):
         self.feed(self.html)
