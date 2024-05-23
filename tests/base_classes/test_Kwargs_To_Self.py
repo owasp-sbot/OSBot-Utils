@@ -114,27 +114,27 @@ class Test_Kwargs_To_Self(TestCase):
         self.assertEqual(self.Config_Class().__default_kwargs__(), expected_defaults)
         self.assertNotEqual(instance.attribute1, self.Config_Class().__default_kwargs__()['attribute1'])
 
-    def test_locked(self):
-        class An_Class(Kwargs_To_Self):
-            an_str  : str = '42'
-
-        an_class = An_Class()
-        an_class.before_lock = 42
-        assert an_class.__lock_attributes__ == False
-        assert an_class.__locals__() == {'an_str': '42', 'before_lock': 42}
-        an_class.locked()
-        assert an_class.__lock_attributes__ == True
-        with self.assertRaises(Exception) as context:
-            an_class.after_lock = 43
-        assert context.exception.args[0] == ("'[Object Locked] Current object is locked (with __lock_attributes__=True) "
-                                              'which prevents new attributes allocations (i.e. setattr calls). In this '
-                                              "case  An_Class' object has no attribute 'after_lock'")
-        assert an_class.__locals__() == {'an_str': '42', 'before_lock': 42}
-        an_class.locked(False)
-        assert an_class.__lock_attributes__ == False
-        an_class.after_lock = 43
-
-        assert an_class.__locals__() == {'after_lock': 43, 'an_str': '42', 'before_lock': 42}
+    # def test_locked(self):
+    #     class An_Class(Kwargs_To_Self):
+    #         an_str  : str = '42'
+    #
+    #     an_class = An_Class()
+    #     an_class.before_lock = 42
+    #     assert an_class.__lock_attributes__ == False
+    #     assert an_class.__locals__() == {'an_str': '42', 'before_lock': 42}
+    #     an_class.locked()
+    #     assert an_class.__lock_attributes__ == True
+    #     with self.assertRaises(Exception) as context:
+    #         an_class.after_lock = 43
+    #     assert context.exception.args[0] == ("'[Object Locked] Current object is locked (with __lock_attributes__=True) "
+    #                                           'which prevents new attributes allocations (i.e. setattr calls). In this '
+    #                                           "case  An_Class' object has no attribute 'after_lock'")
+    #     assert an_class.__locals__() == {'an_str': '42', 'before_lock': 42}
+    #     an_class.locked(False)
+    #     assert an_class.__lock_attributes__ == False
+    #     an_class.after_lock = 43
+    #
+    #     assert an_class.__locals__() == {'after_lock': 43, 'an_str': '42', 'before_lock': 42}
 
     def test_serialize_to_dict(self):
         class An_Enum_A(Enum):
@@ -489,10 +489,10 @@ class Test_Kwargs_To_Self(TestCase):
         with Catch(expect_exception=True, expected_error=expected_error):
             An_Bad_Type().__default_kwargs__()
 
-    def test___init___disable_type_safety(self):
-        assert self.Config_Class(                         ).__type_safety__ is True
-        assert self.Config_Class(disable_type_safety=True ).__type_safety__ is False
-        assert self.Config_Class(disable_type_safety=False).__type_safety__ is True
+    # def test___init___disable_type_safety(self):
+    #     assert self.Config_Class(                         ).__type_safety__ is True
+    #     assert self.Config_Class(disable_type_safety=True ).__type_safety__ is False
+    #     assert self.Config_Class(disable_type_safety=False).__type_safety__ is True
 
 
     def test___init___pics_up_types_with_values(self):

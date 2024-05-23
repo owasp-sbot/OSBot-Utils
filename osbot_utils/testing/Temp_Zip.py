@@ -1,5 +1,5 @@
 from osbot_utils.testing.Temp_Folder import Temp_Folder
-from osbot_utils.utils.Files import Files, is_folder, file_exists
+from osbot_utils.utils.Files import Files, is_folder, file_exists, file_name
 from osbot_utils.utils.Zip import zip_folder, zip_file_list
 
 
@@ -27,12 +27,19 @@ class Temp_Zip():
     def __repr__(self):
         return f"<Temp_Zip: {self.path()}>"
 
+    def file_name(self):
+        return file_name(self.zip_file)
+
     def path(self):
         return self.zip_file
 
     def files(self):
         return zip_file_list(self.zip_file)
 
+    def print_path(self):
+        print()
+        print(self.path())
+        return self
 
     def zip_file_exists(self):
         return file_exists(self.zip_file)

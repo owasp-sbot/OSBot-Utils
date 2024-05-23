@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch, call
 
-
+import pytest
 
 from osbot_utils.utils.Files                            import folder_exists, current_temp_folder
 from osbot_utils.helpers.trace.Trace_Call               import Trace_Call
@@ -29,6 +29,7 @@ class test_Trace_Call__Print_Lines(TestCase):
 
         return self.trace_call.view_data()
 
+    @pytest.mark.skip("needs fixing since line numbers will change often with code changes")
     def test_print_lines(self):
         view_model = self.create_view_model()
         print_lines = Trace_Call__Print_Lines(config=self.config, view_model=view_model)

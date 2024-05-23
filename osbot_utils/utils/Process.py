@@ -62,6 +62,7 @@ kill_process  = Process.stop
 run_process   = Process.run
 exec_open     = Process.exec_open
 exec_process  = Process.run
+process_run   = Process.run
 start_process = Process.run
 stop_process  = Process.stop
 

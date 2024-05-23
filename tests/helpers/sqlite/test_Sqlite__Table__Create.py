@@ -69,7 +69,7 @@ class test_Sqlite__Table__Create(TestCase):
             assert file_exists(target_file) is True
 
     def test_create_table_from_class(self):
-        class Sqlite__Bedrock__Row(Kwargs_To_Self):
+        class Sqlite__Requests__Row(Kwargs_To_Self):
             request_hash  : str
             request_data  : str
             response_hash : str
@@ -79,10 +79,10 @@ class test_Sqlite__Table__Create(TestCase):
             latest        : int
 
         with self.table_create as _:
-            _.create_table__from_row_schema(Sqlite__Bedrock__Row)
-            _.table.row_add(Sqlite__Bedrock__Row(request_hash='abc', cache_hits=41))
-            _.table.row_add(Sqlite__Bedrock__Row(request_hash='def', cache_hits=42))
-            _.table.row_add(Sqlite__Bedrock__Row(request_hash='xyz', cache_hits=43))
+            _.create_table__from_row_schema(Sqlite__Requests__Row)
+            _.table.row_add(Sqlite__Requests__Row(request_hash='abc', cache_hits=41))
+            _.table.row_add(Sqlite__Requests__Row(request_hash='def', cache_hits=42))
+            _.table.row_add(Sqlite__Requests__Row(request_hash='xyz', cache_hits=43))
         assert _.table.rows() == [{'cache_hits': 41, 'id': 1, 'latest': 0, 'request_data': '', 'request_hash': 'abc', 'response_data': '', 'response_hash': '', 'timestamp': 0},
                                   {'cache_hits': 42, 'id': 2, 'latest': 0, 'request_data': '', 'request_hash': 'def', 'response_data': '', 'response_hash': '', 'timestamp': 0},
                                   {'cache_hits': 43, 'id': 3, 'latest': 0, 'request_data': '', 'request_hash': 'xyz', 'response_data': '', 'response_hash': '', 'timestamp': 0}]

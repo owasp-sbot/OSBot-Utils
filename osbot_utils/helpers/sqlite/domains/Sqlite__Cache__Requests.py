@@ -1,3 +1,4 @@
+import types
 from osbot_utils.base_classes.Kwargs_To_Self                    import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests    import Sqlite__DB__Requests
 from osbot_utils.utils.Json                                     import json_dumps, json_loads
@@ -6,17 +7,19 @@ from osbot_utils.utils.Objects                                  import pickle_sa
 
 
 class Sqlite__Cache__Requests(Kwargs_To_Self):
-    add_timestamp  : bool                 = True
-    enabled        : bool                 = True
-    update_mode    : bool                 = False
-    cache_only_mode: bool                 = False
-    sqlite_bedrock : Sqlite__DB__Requests = None
-    pickle_response: bool                 = False
+    add_timestamp     : bool                 = True
+    enabled           : bool                 = True
+    update_mode       : bool                 = False
+    cache_only_mode   : bool                 = False
+    sqlite_requests   : Sqlite__DB__Requests = None
+    pickle_response   : bool                 = False
+    capture_exceptions: bool                 = False                # once this is working, it might be more useful to have this set to true
+    exception_classes : list
+    on_invoke_target  : types.FunctionType
 
     def __init__(self, db_path=None, db_name=None, table_name=None):
-        self.sqlite_bedrock = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
+        self.sqlite_requests = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
         super().__init__()
-
 
     def cache_add(self, request_data, response_data):
         new_row_obj = self.create_new_cache_obj(request_data, response_data)
@@ -50,8 +53,8 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         result           = self.cache_table().row_update(update_fields, query_conditions)
         return result
 
-    def cache_entry_for_request_params(self, **target_kwargs):
-        request_data = self.cache_request_data(**target_kwargs)
+    def cache_entry_for_request_params(self, *args, **target_kwargs):
+        request_data = self.cache_request_data(*args, **target_kwargs)
         return self.cache_entry(request_data)
 
     def create_new_cache_data(self, request_data, response_data):
@@ -82,13 +85,13 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         return new_row_obj
 
     def cache_table(self):
-        return self.sqlite_bedrock.table_requests()
+        return self.sqlite_requests.table_requests()
 
     def cache_table__clear(self):
         return self.cache_table().clear()
 
-    def cache_request_data(self, **target_kwargs):
-        return target_kwargs
+    def cache_request_data(self, *args, **target_kwargs):
+        return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
 
 
     def delete_where_request_data(self, request_data):                                      # todo: check if it is ok to use the request_data as a query target, or if we should use the request_hash variable
@@ -108,19 +111,23 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         self.enabled = True
         return self
 
-    def invoke(self, target, target_kwargs):
-        return self.invoke_with_cache(target, target_kwargs)
+    def invoke(self, target, target_args, target_kwargs):
+        return self.invoke_with_cache(target, target_args, target_kwargs)
 
-    def invoke_target(self, target, target_kwargs):
-        return target(**target_kwargs)
+    def invoke_target(self, target, target_args, target_kwargs):
+        if self.on_invoke_target:
+            raw_response = self.on_invoke_target(target, target_args, target_kwargs)
+        else:
+            raw_response = target(*target_args, **target_kwargs)
+        return self.transform_raw_response(raw_response)
 
-    def invoke_with_cache(self, target, target_kwargs, request_data=None):
+    def invoke_with_cache(self, target, target_args, target_kwargs, request_data=None):
         if self.enabled is False:
             if self.cache_only_mode:
                 return None
-            return self.invoke_target(target, target_kwargs)
+            return self.invoke_target(target, target_args, target_kwargs)
         if request_data is None:
-            request_data  = self.cache_request_data(**target_kwargs)
+            request_data  = self.cache_request_data(*target_args, **target_kwargs)
         cache_entry   = self.cache_entry(request_data)
         if cache_entry:
             if self.update_mode is True:
@@ -128,10 +135,20 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             else:
                 return self.response_data_deserialize(cache_entry)
         if self.cache_only_mode is False:
-            response_data_obj = self.invoke_target(target, target_kwargs)
+            return self.invoke_target__and_add_to_cache(request_data, target, target_args, target_kwargs)
+
+
+    def invoke_target__and_add_to_cache(self,request_data, target, target_args, target_kwargs):
+        try:
+            response_data_obj = self.invoke_target(target, target_args, target_kwargs)
             response_data     = self.response_data_serialize(response_data_obj)
             self.cache_add(request_data=request_data, response_data=response_data)
             return response_data_obj
+        except Exception as exception:
+            if self.capture_exceptions:
+                response_data     = self.response_data_serialize(exception)
+                self.cache_add(request_data=request_data, response_data=response_data)
+            raise exception
 
     def only_from_cache(self, value=True):
         self.cache_only_mode = value
@@ -144,13 +161,18 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         else:
             response_data = cache_entry.get('response_data')
             response_data_obj = json_loads(response_data)
+        if self.capture_exceptions:
+            if (type(response_data_obj) is Exception or                     # raise if it is an exception
+                type(response_data_obj) in self.exception_classes):         # or if one of the types that have been set as being exception classes
+                    raise response_data_obj
+            # else:
+            #     pprint(type(response_data_obj))
         return response_data_obj
 
     def response_data_serialize(self, response_data):
         if self.pickle_response:
             return pickle_save_to_bytes(response_data)
         return response_data
-
 
     def response_data_for__request_hash(self, request_hash):
         rows = self.rows_where__request_hash(request_hash)
@@ -183,6 +205,9 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
 
     def rows_where__request_hash(self, request_hash):
         return self.rows_where(request_hash=request_hash)
+
+    def transform_raw_response(self, raw_response):
+        return raw_response
 
     def update(self, value=True):
         self.update_mode = value

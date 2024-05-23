@@ -57,21 +57,15 @@ class SQL_Builder(Kwargs_To_Self):
     def query_for_fields(self, field_names: list = None):
         return self.select_for_fields(field_names)
 
-    def query_for_select_field_name(self, field_name):
-        if field_name:
-            return f"SELECT {field_name} FROM {self.table.table_name};"  # Construct the SQL query
-
-    def query_for_size(self, var_name):
-        if var_name:
-            return f'SELECT COUNT(*) as {var_name} FROM {self.table.table_name}'
+    def query_for_size(self):
+        return f'SELECT COUNT(*) as size FROM {self.table.table_name}'
 
     def sql_limit(self):
         if self.limit is not None:
-            return f" LIMIT {self.limit}"
+            return f" LIMIT {int(self.limit)}"
         return ""
 
-    # todo: remove "sql_" from this method
-    def sql_query_select_fields_with_conditions(self, return_fields, query_conditions):
+    def query_select_fields_with_conditions(self, return_fields, query_conditions):
         self.validator().validate_query_fields(self.table , return_fields, query_conditions)
         target_table = self.table.table_name
         if target_table and return_fields and query_conditions:
@@ -92,7 +86,6 @@ class SQL_Builder(Kwargs_To_Self):
             params.append(query_value)                                                                      # Append the query value to the parameters list
             where_clauses.append(f"{field_name} = ?")                                                       # Append the corresponding WHERE clause part, using a placeholder for the value
         where_clause = ' AND '.join(where_clauses)                                                          # Join the individual parts of the WHERE clause with 'AND'
-
 
         sql_query = f"SELECT * FROM {self.table.table_name} WHERE {where_clause}" # Construct the full SQL query
         return sql_query, params

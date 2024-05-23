@@ -69,7 +69,7 @@ class Files:
 
     @staticmethod
     def exists(path):
-        return is_file(path)
+        return is_file(str(path))
         # if path and is_file(path):
         #     return os.path.exists(path)
         # return False
@@ -86,11 +86,11 @@ class Files:
         return sorted(result)
 
     @staticmethod
-    def files_names(files : list):
+    def files_names(files : list, check_if_exists=True):
         result = []
         for file in files:
             if is_file(file):
-                result.append(file_name(file))
+                result.append(file_name(file, check_if_exists=check_if_exists))
         return result
 
     @staticmethod
@@ -108,8 +108,17 @@ class Files:
             return os.path.basename(path)
 
     @staticmethod
-    def file_extension(path):
+    def file_name_without_extension(path):
         if path:
+            path_file_name = file_name(path)
+            extension = file_extension(path_file_name)
+            if extension:
+                return path_file_name.replace(extension, '')
+
+
+    @staticmethod
+    def file_extension(path):
+        if path and '.' in path:
             return os.path.splitext(path)[1]
         return ''
 
@@ -282,7 +291,7 @@ class Files:
 
     @staticmethod
     def not_exists(path):
-        return os.path.exists(path) is False
+        return os.path.exists(str(path)) is False
 
     @staticmethod
     def open(path, mode='r'):
@@ -329,7 +338,7 @@ class Files:
     def safe_file_name(file_name):
         if type(file_name) is not str:
             file_name = f"{file_name}"
-        return re.sub(r'[^a-zA-Z0-9_.]', '_',file_name or '')
+        return re.sub(r'[^a-zA-Z0-9_.-]', '_',file_name or '')
 
     @staticmethod
     def save(contents, path=None, extension=None):
@@ -449,6 +458,7 @@ file_lines                     = Files.lines
 file_lines_gz                  = Files.lines_gz
 file_md5                       = Files.contents_md5
 file_name                      = Files.file_name
+file_name_without_extension    = Files.file_name_without_extension
 file_not_exists                = Files.not_exists
 file_open                      = Files.open
 file_open_gz                   = Files.open_gz

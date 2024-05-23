@@ -1,13 +1,9 @@
 import inspect
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.decorators.lists.filter_list import filter_list
-from osbot_utils.decorators.lists.index_by import index_by
-from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field
-from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table, DEFAULT_FIELD_NAME__ID
-from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
-from osbot_utils.utils.Dev import pprint
-
+from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
+from osbot_utils.decorators.lists.filter_list               import filter_list
+from osbot_utils.helpers.sqlite.Sqlite__Field               import Sqlite__Field
+from osbot_utils.helpers.sqlite.Sqlite__Table               import Sqlite__Table, DEFAULT_FIELD_NAME__ID
+from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
 
 class Sqlite__Table__Create(Kwargs_To_Self):
     fields  : list[Sqlite__Field]
@@ -55,7 +51,7 @@ class Sqlite__Table__Create(Kwargs_To_Self):
     def create_table(self):
         sql_query = self.sql_for__create_table()
         if self.table.not_exists():
-            result = self.table.cursor().execute(sql_query)
+            self.table.cursor().execute(sql_query)
             return self.table.exists()
         return False
 

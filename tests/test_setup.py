@@ -8,10 +8,9 @@ from osbot_utils.utils.Files        import parent_folder
 from osbot_utils.utils.Version      import Version
 
 
-EXPECTED_PACKAGES = ['_to_remove'                                ,
-                     '_to_remove.trace'                          ,
-                     'osbot_utils'                               ,
+EXPECTED_PACKAGES = ['osbot_utils'                               ,
                      'osbot_utils.base_classes'                  ,
+                     'osbot_utils.context_managers'              ,
                      'osbot_utils.decorators'                    ,
                      'osbot_utils.decorators.classes'            ,
                      'osbot_utils.decorators.lists'              ,
@@ -23,12 +22,15 @@ EXPECTED_PACKAGES = ['_to_remove'                                ,
                      'osbot_utils.helpers.ast'                   ,
                      'osbot_utils.helpers.ast.nodes'             ,
                      'osbot_utils.helpers.html'                  ,
+                     'osbot_utils.helpers.pubsub'                ,
+                     'osbot_utils.helpers.pubsub.schemas'        ,
                      'osbot_utils.helpers.sqlite'                ,
                      'osbot_utils.helpers.sqlite.domains'        ,
                      'osbot_utils.helpers.sqlite.domains.schemas',
                      'osbot_utils.helpers.sqlite.models'         ,
                      'osbot_utils.helpers.sqlite.sample_data'    ,
                      'osbot_utils.helpers.sqlite.sql_builder'    ,
+                     'osbot_utils.helpers.sqlite.tables'         ,
                      'osbot_utils.helpers.trace'                 ,
                      'osbot_utils.testing'                       ,
                      'osbot_utils.utils'                         ]

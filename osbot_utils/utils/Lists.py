@@ -58,6 +58,9 @@ def list_first(list, strip=False):
             value = value.strip()
         return value
 
+def list_in_list(source : list, target: list):
+    return set(source).issubset(set(target))
+
 def list_get(array, position=None, default=None):
     if type(array) is list:
         if type(position) is int and position >=0 :

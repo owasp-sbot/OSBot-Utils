@@ -61,6 +61,8 @@ class Dict_To_Tags:
                 tag_head.links.append(self.convert_to__tag__link(child))
             elif tag_name == 'meta':
                 tag_head.elements.append((self.convert_to__tag(Tag__Base, child, indent=head_indent)))
+            elif tag_name == 'style':
+                tag_head.elements.append((self.convert_to__tag(Tag__Base, child, indent=head_indent)))      # todo: add proper roundtrip of css data into Tag__Style (which already exists)
             else:
                 print(f'[convert_to__tag__head] Unknown tag: {tag_name}')
         #pprint(tag_head.__locals__())
