@@ -38,6 +38,11 @@ class Logging:
                 self.target = self.target.__name__
         return logging.getLogger(self.target)
 
+    def enable_log_to_console(self, log_level=logging.INFO):
+        self.log_to_sys_stdout()
+        self.set_logger_level(log_level)
+        return self
+
     def enable_pycharm_logging(self):
         if self.is_pycharm_running():
             self.log_to_sys_stdout()
