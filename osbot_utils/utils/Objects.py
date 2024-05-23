@@ -329,6 +329,8 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
 # helper duplicate methods
 base_types          = base_classes
 
+full_type_name      = class_full_name
+
 obj_list_set        = obj_keys
 obj_info            = print_object_members
 obj_methods         = print_object_methods
