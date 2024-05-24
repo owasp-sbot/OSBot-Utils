@@ -9,7 +9,7 @@ Powerful Python util methods and classes that simplify common apis and tasks.
 
 ## Install - Release 1.x
 
-**for main branch**: add to requirements.txt
+**for main branch**: just get it from pypi
 
 ```
 pip install osbot-utils
