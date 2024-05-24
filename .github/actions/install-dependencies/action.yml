@@ -28,8 +28,6 @@ runs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           poetry install
-          poetry check
-          poetry show
       - name: Install Test dependencies
         shell: bash
         run: |
