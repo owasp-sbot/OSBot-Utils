@@ -67,7 +67,9 @@ runs:
     - name: Update Version in pyproject.toml
       shell: bash
       run: |
-        sed -i "s/version = \".*\"/version = \"$NEW_TAG\"/" pyproject.toml
+        #sed -i "s/version = \".*\"/version = \"$NEW_TAG\"/" pyproject.toml
+        sed -i "s/\(version[[:space:]]*=[[:space:]]*\)\".*\"/\1\"$NEW_TAG\"/" pyproject.toml
+
 
     - name: Commit and push changes
       shell: bash
