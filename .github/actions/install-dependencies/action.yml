@@ -28,9 +28,6 @@ runs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           poetry install
-          echo ">>>>>> BEFORE:::  $GITHUB_ENV"
-          echo "export PATH=$(poetry env info --path)/bin:\$PATH" >> $GITHUB_ENV
-          echo ">>>>>> AFTER:::  $GITHUB_ENV"
       - name: Install Test dependencies
         shell: bash
         run: |

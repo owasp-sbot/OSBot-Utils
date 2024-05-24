@@ -12,11 +12,11 @@ inputs:
 runs:
     using: 'composite'
     steps:
-      - name: Install dependency directly here using pip
+      - name: Install poetry dependencies (again)
         shell: bash
         run: |
-          # pip install python-dotenv
-          echo ">>>>>> AFTER:::  $GITHUB_ENV"
+          export PATH="$HOME/.local/bin:$PATH"
+          poetry install
       - name: Run tests with pytest (with coverage)
         shell: bash
         run: |                    
