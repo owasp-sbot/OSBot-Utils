@@ -47,8 +47,6 @@ class test_MGraph__Serializer(TestCase):
     def test_save(self):
         with self.graph_serializer as _:
             assert _.save() == '...pickle save - to be implemented...'              # todo: implement this test
-            _.mode = Serialization_Mode.YAML
-            assert _.save() == '...yaml save - to be implemented...'                # todo: implement this test
             _.mode = Serialization_Mode.JSON
             assert _.save() == True
 
@@ -62,10 +60,6 @@ class test_MGraph__Serializer(TestCase):
     def test_save_to_pickle(self):
         with self.graph_serializer as _:
             assert _.save_to_pickle() == '...pickle save - to be implemented...'
-
-    def test_save_to_yaml(self):
-        with self.graph_serializer as _:
-            assert _.save_to_yaml() == '...yaml save - to be implemented...'
 
 #     def test_mermaid(self):
 #         file_name = 'test_mermaid.md'

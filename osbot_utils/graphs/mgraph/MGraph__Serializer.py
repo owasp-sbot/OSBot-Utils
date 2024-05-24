@@ -9,7 +9,6 @@ from osbot_utils.graphs.mgraph.MGraph import MGraph
 class Serialization_Mode(Enum):
     JSON    = auto()
     PICKLE  = auto()
-    YAML    = auto()
 
 class MGraph__Serializer(Kwargs_To_Self):
 
@@ -32,8 +31,6 @@ class MGraph__Serializer(Kwargs_To_Self):
             return self.save_to_json()
         if self.mode == Serialization_Mode.PICKLE:
             return self.save_to_pickle()
-        if self.mode == Serialization_Mode.YAML:
-            return self.save_to_yaml()
 
     def save_to_json(self):
         graph_data = self.mgraph.data().graph_data()
@@ -44,6 +41,3 @@ class MGraph__Serializer(Kwargs_To_Self):
     def save_to_pickle(self):
         #obj_info(self.local_cache)
         return '...pickle save - to be implemented...'
-
-    def save_to_yaml(self):
-        return '...yaml save - to be implemented...'

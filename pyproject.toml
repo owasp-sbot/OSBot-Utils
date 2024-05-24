@@ -1,6 +1,6 @@
 [tool.poetry]
 name        = "osbot_utils"
-version     = "v1.7.0"
+version     = "v1.7.1"
 description = "OWASP Security Bot - Utils"
 authors     = ["Dinis Cruz <dinis.cruz@owasp.org>"]
 license     = "MIT"
@@ -9,9 +9,8 @@ homepage    = "https://github.com/owasp-sbot/OSBot-Utils"
 repository  = "https://github.com/owasp-sbot/OSBot-Utils"
 
 [tool.poetry.dependencies]
-python          = "*"
+python          = "^3.11"
 python-dotenv   = "*"
-pyyaml          = "*"
 
 [build-system]
 requires        = ["poetry-core>=1.0.0"]
