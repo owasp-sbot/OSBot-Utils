@@ -3,15 +3,17 @@ name: Publish to PyPI
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Run Unit Tests"]
-    branches: [aaaaaa]
+    workflows: ["Increment Tag - Main branch"]
+    branches: [main]
     types:
       - completed
 
 permissions:
   id-token: write
+
 jobs:
-  build:
+  build-and-publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build distribution 📦
     runs-on: ubuntu-latest
 
