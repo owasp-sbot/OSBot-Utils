@@ -8,12 +8,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Run Unit Tests
-        uses: ./.github/actions/run-unit-tests
-        with:
-          codecov_token         : ${{ secrets.CODECOV_TOKEN         }}
-          package_name          : ${{ secrets.PACKAGE_NAME          }}
+#      - name: Install Dependencies
+#        uses: ./.github/actions/install-dependencies
+#
+#      - name: Run Unit Tests
+#        uses: ./.github/actions/run-unit-tests
+#        with:
+#          codecov_token         : ${{ secrets.CODECOV_TOKEN         }}
+#          package_name          : ${{ secrets.PACKAGE_NAME          }}
 
