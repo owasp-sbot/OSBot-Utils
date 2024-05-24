@@ -33,4 +33,5 @@ runs:
       - name: Install Test dependencies
         shell: bash
         run: |
+          pip install -e .
           pip install pytest pytest-cov coveralls
