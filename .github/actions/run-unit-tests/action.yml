@@ -15,11 +15,11 @@ runs:
       - name: Install dependency directly here using pip
         shell: bash
         run: |
-          pip install python-dotenv
+          # pip install python-dotenv
+          echo ">>>>>> AFTER:::  $GITHUB_ENV"
       - name: Run tests with pytest (with coverage)
         shell: bash
-        run: |          
-          export PATH="$HOME/.local/bin:$PATH"
+        run: |                    
           coverage run --source=${{ inputs.package_name }} -m pytest -v -s --durations=0 --ignore=tests_* tests
       - name: Print coverage report
         shell: bash
