@@ -426,7 +426,12 @@ class Files:
 
 # todo: refactor the methods above into static methods
 
-
+def stream_to_file(stream, path=None):
+    if path is None:                        # if path is not defined
+        path = Files.temp_file()            # save it to a temp file
+    with open(path, 'wb') as file:          # Write the content to the file
+        file.write(stream.read())
+    return path
 
 # helper methods
 # todo: all all methods above (including the duplicated mappings at the top)
