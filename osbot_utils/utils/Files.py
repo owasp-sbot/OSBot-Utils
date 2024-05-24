@@ -424,7 +424,10 @@ class Files:
             file.write(contents)
         return path
 
-# todo: refactor the methods above into static methods
+# todo: refactor the methods above into static methods (as bellow)
+
+def stream_to_bytes(stream):
+    return stream.read()
 
 def stream_to_file(stream, path=None):
     if path is None:                        # if path is not defined
