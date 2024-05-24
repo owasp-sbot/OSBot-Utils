@@ -4,21 +4,32 @@ description: 'Install Dependencies'
 runs:
     using: 'composite'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Python 3.x
         uses: actions/setup-python@v4
         with:
-          python-version: 3.12.2
-      - name: Cache pip dependencies
-        uses: actions/cache@v3
+          python-version: 3.12
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          path: |
+            ~/.cache/pypoetry
+            ~/.cache/pip
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
-              ${{ runner.os }}-pip-
+              ${{ runner.os }}-poetry-
+      - name: Install Poetry
+        shell: bash
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
       - name: Install dependencies
         shell: bash
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          export PATH="$HOME/.local/bin:$PATH"
+          poetry install
+      - name: Install Test dependencies
+        shell: bash
+        run: |
           pip install -e .
+          pip install pytest pytest-cov coveralls

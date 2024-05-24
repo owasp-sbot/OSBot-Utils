@@ -12,6 +12,5 @@ In this class you will find the following helper classes:
 - Process
 - Temp_File
 - Unzip_File
-- Yaml
 - Zip_Folder
 """

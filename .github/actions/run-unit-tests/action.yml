@@ -14,7 +14,7 @@ runs:
     steps:
       - name: Run tests with pytest (with coverage)
         shell: bash
-        run: |
+        run: |               
           coverage run --source=${{ inputs.package_name }} -m pytest -v -s --durations=0 --ignore=tests_* tests
       - name: Print coverage report
         shell: bash
