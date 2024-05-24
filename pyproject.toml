@@ -9,7 +9,7 @@ homepage    = "https://github.com/owasp-sbot/OSBot-Utils"
 repository  = "https://github.com/owasp-sbot/OSBot-Utils"
 
 [tool.poetry.dependencies]
-python          = "^3.11"
+python          = "*"
 python-dotenv   = "*"
 pyyaml          = "*"
 
