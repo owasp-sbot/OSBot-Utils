@@ -1,8 +1,0 @@
-#python-dotenv
-#pyyaml
-
-# for development
-#pytest
-#coveralls
-#pdoc3
-#setuptools
