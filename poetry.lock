@@ -14,10 +14,7 @@ files = [
 [package.extras]
 cli = ["click (>=5.0)"]
 
-[extras]
-testing = []
-
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "51cb8485427cd59831210995b5c0f2fee425fec6ec2c4196c5f9ec4726ad599d"
+content-hash = "745f54642cce0c23c39184136697d3f6d583bfc80c70630100c8165e8e5b8c43"

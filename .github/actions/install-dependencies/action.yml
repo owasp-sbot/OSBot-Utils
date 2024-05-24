@@ -28,3 +28,7 @@ runs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           poetry install
+      - name: Install Test dependencies
+        shell: bash
+        run: |
+          pip install pytest pytest-cov coveralls

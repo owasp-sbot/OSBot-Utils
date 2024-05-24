@@ -12,8 +12,10 @@ repository  = "https://github.com/owasp-sbot/OSBot-Utils"
 python          = "^3.11"
 python-dotenv   = "*"
 
-[tool.poetry.extras]
-testing         = ["pytest", "pytest-cov", "coveralls"]
+#[tool.poetry.group.test.dependencies]
+#pytest          = "*"
+#pytest-cov      = "*"
+#coveralls       = "*"
 
 
 [build-system]
