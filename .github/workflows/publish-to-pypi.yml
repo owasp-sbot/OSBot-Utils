@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows: ["Increment Tag - Main branch"]
-    branches: [main]
     types:
       - completed
 
@@ -13,6 +12,7 @@ permissions:
 
 jobs:
   build-and-publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build distribution 📦
     runs-on: ubuntu-latest
 
