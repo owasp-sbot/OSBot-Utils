@@ -12,9 +12,13 @@ inputs:
 runs:
     using: 'composite'
     steps:
-      - name: Run tests with pytest (with coverage)
+      - name: Install dependency directly here using pip
         shell: bash
         run: |
+          pip install python-dotenv
+      - name: Run tests with pytest (with coverage)
+        shell: bash
+        run: |          
           export PATH="$HOME/.local/bin:$PATH"
           coverage run --source=${{ inputs.package_name }} -m pytest -v -s --durations=0 --ignore=tests_* tests
       - name: Print coverage report
