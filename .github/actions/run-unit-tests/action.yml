@@ -15,11 +15,17 @@ runs:
       - name: Install poetry dependencies (again)
         shell: bash
         run: |
+          ls $HOME
+          ls $HOME/.local/bin
+          pwd
           export PATH="$HOME/.local/bin:$PATH"
           poetry install
+          poetry check
+          poetry show
       - name: Run tests with pytest (with coverage)
         shell: bash
-        run: |                    
+        run: |     
+          pytest -v -s --durations=0 tests
           coverage run --source=${{ inputs.package_name }} -m pytest -v -s --durations=0 --ignore=tests_* tests
       - name: Print coverage report
         shell: bash

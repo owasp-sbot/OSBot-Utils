@@ -18,18 +18,18 @@ runs:
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
               ${{ runner.os }}-poetry-
-#      - name: Install Poetry
-#        shell: bash
-#        run: |
-#          curl -sSL https://install.python-poetry.org | python3 -
-#          export PATH="$HOME/.local/bin:$PATH"
-
-      - name: Install poetry and its dependencies
+      - name: Install Poetry
         shell: bash
         run: |
-          #export PATH="$HOME/.local/bin:$PATH"
-          pip install poetry
+          curl -sSL https://install.python-poetry.org | python3 -
+          export PATH="$HOME/.local/bin:$PATH"
+      - name: Install dependencies
+        shell: bash
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
           poetry install
+          poetry check
+          poetry show
       - name: Install Test dependencies
         shell: bash
         run: |
