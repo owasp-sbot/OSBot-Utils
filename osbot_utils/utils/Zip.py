@@ -1,11 +1,40 @@
+import gzip
 import io
 import os
 import shutil
+import tarfile
 import zipfile
 from os.path import abspath
 
 from osbot_utils.utils.Files import temp_folder, folder_files, temp_file, is_file
 
+def gz_tar_bytes_file_list(gz_bytes):
+    gz_buffer_from_bytes = io.BytesIO(gz_bytes)
+    with gzip.GzipFile(fileobj=gz_buffer_from_bytes, mode='rb') as gz:
+        decompressed_data = gz.read()
+        tar_buffer_from_bytes = io.BytesIO(decompressed_data)                       # Assuming the decompressed data is a tag file, process it
+        with tarfile.open(fileobj=tar_buffer_from_bytes, mode='r:') as tar:
+            return sorted(tar.getnames())
+
+def gz_tar_bytes_get_file(gz_bytes, tar_file_path):
+    gz_buffer_from_bytes = io.BytesIO(gz_bytes)
+    with gzip.GzipFile(fileobj=gz_buffer_from_bytes, mode='rb') as gz:
+        decompressed_data = gz.read()
+        tar_buffer_from_bytes = io.BytesIO(decompressed_data)
+        with tarfile.open(fileobj=tar_buffer_from_bytes, mode='r:') as tar:
+            extracted_file = tar.extractfile(tar_file_path)
+            if extracted_file:
+                return extracted_file.read()
+            else:
+                raise FileNotFoundError(f"The file {tar_file_path} was not found in the tar archive.")
+
+def gz_zip_bytes_file_list(gz_bytes):
+    gz_buffer_from_bytes = io.BytesIO(gz_bytes)
+    with gzip.GzipFile(fileobj=gz_buffer_from_bytes, mode='rb') as gz:
+        decompressed_data = gz.read()
+        zip_buffer_from_bytes = io.BytesIO(decompressed_data)                   # Assuming the decompressed data is a zip file, process it
+        with zipfile.ZipFile(zip_buffer_from_bytes, 'r') as zf:
+            return sorted(zf.namelist())
 
 def unzip_file(zip_file, target_folder=None, format='zip'):
     target_folder = target_folder or temp_folder()
