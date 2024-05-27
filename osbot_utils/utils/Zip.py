@@ -57,6 +57,14 @@ def zip_bytes_get_file(zip_bytes, zip_file_path):
     with zipfile.ZipFile(zip_buffer, 'r') as zf:
         return zf.read(zip_file_path)
 
+def zip_bytes_extract_to_folder(zip_bytes, target_folder=None):
+    target_folder = target_folder or temp_folder()              # Use the provided target folder or create a temporary one
+    zip_buffer = io.BytesIO(zip_bytes)                          # Create a BytesIO buffer from the zip bytes
+    with zipfile.ZipFile(zip_buffer, 'r') as zf:          # Open the zip file from the buffer
+        zf.extractall(target_folder)                            # Extract all files to the target folder
+    return target_folder                                        # Return the path of the target folder
+
+
 def zip_bytes_file_list(zip_bytes):
     zip_buffer_from_bytes = io.BytesIO(zip_bytes)
     with zipfile.ZipFile(zip_buffer_from_bytes, 'r') as zf:
