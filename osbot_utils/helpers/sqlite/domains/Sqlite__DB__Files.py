@@ -28,8 +28,11 @@ class Sqlite__DB__Files(Sqlite__DB__Local):
         return Sqlite__Table__Files(database=self).setup()
 
     @index_by
-    def files(self):
-        return self.table_files().files()
+    def files(self,include_contents=False):
+        return self.table_files().files(include_contents=include_contents)
+
+    def files__with_content(self):
+        return self.files(include_contents=True)
 
     def files__by_path(self):
         return self.files(index_by='path')
