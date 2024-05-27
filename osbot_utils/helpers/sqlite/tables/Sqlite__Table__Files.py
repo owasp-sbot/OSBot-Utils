@@ -1,6 +1,6 @@
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
-from osbot_utils.utils.Misc import timestamp_utc_now
+from osbot_utils.utils.Misc import timestamp_utc_now, bytes_sha256, str_sha256
 from osbot_utils.utils.Status import status_warning, status_ok
 
 SQLITE__TABLE_NAME__FILES = 'files'
@@ -24,9 +24,23 @@ class Sqlite__Table__Files(Sqlite__Table):
     def add_file(self, path, contents=None, metadata= None):
         if self.contains(path=path):                                                    # don't allow multiple entries for the same file path (until we add versioning support)
             return status_warning(f"File not added, since file with path '{path}' already exists in the database")
+        if metadata is None:
+            metadata = {}
+        metadata.update(self.create_contents_metadata(contents))
         row_data    = self.create_node_data(path, contents, metadata)
         new_row_obj = self.add_row_and_commit(**row_data)
         return status_ok(message='file added', data= new_row_obj)
+
+    def create_contents_metadata(self, contents):
+        file_size       = len(contents)
+        file_is_binary = type(contents) is bytes
+        if file_is_binary:
+            file_hash  = bytes_sha256(contents)
+        else:
+            file_hash = str_sha256(str(contents))
+        return dict(file_contents=dict(hash      = file_hash      ,
+                                       is_binary = file_is_binary ,
+                                       size      = file_size      ))
 
     def delete_file(self, path):
         if self.not_contains(path=path):                                                    # don't allow multiple entries for the same file path (until we add versioning support)
