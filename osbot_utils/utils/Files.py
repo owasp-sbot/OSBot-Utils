@@ -21,7 +21,7 @@ class Files:
     def copy(source:str, destination:str) -> str:
         if file_exists(source):                                     # make sure source file exists
             destination_parent_folder = parent_folder(destination)  # get target parent folder
-            folder_create(destination_parent_folder)                # ensure targer folder exists       # todo: check if this is still needed (we should be using a copy method that creates the required fodlers)
+            folder_create(destination_parent_folder)                # ensure target folder exists       # todo: check if this is still needed (we should be using a copy method that creates the required fodlers)
             return shutil.copy(source, destination)                 # copy file and returns file destination
 
     @staticmethod
@@ -308,7 +308,11 @@ class Files:
     @staticmethod
     def path_combine(path1, path2):
         if type(path1) in [str, Path] and type(path2) in [str, Path]:
-            return abspath(join(str(path1), str(path2)))
+            parent_path = str(path1)
+            sub_path    = str(path2)
+            if sub_path.startswith('/'):
+                sub_path = sub_path[1:]
+            return abspath(join(parent_path,sub_path))
 
     @staticmethod
     def parent_folder(path):
@@ -426,6 +430,14 @@ class Files:
 
 # todo: refactor the methods above into static methods (as bellow)
 
+def file_move(source_file, target_file):
+    if file_exists(source_file):
+        file_copy(source_file, target_file)
+        if file_exists(target_file):
+            if file_delete(source_file):
+                return True
+    return False
+
 def folders_names_in_folder(target):
     folders = folders_in_folder(target)
     return folders_names(folders)
@@ -443,6 +455,7 @@ def stream_to_file(stream, path=None):
 # helper methods
 # todo: all all methods above (including the duplicated mappings at the top)
 
+bytes_to_file                  = Files.write_bytes
 create_folder                  = Files.folder_create
 create_folder_in_parent        = Files.folder_create_in_parent
 create_temp_file               = Files.write
@@ -477,6 +490,7 @@ file_open_gz                   = Files.open_gz
 file_open_bytes                = Files.open_bytes
 file_to_base64                 = Files.file_to_base64
 file_from_base64               = Files.file_from_base64
+file_from_bytes                = Files.write_bytes
 file_save                      = Files.save
 file_sha256                    = Files.contents_sha256
 file_size                      = Files.file_size

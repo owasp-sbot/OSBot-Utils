@@ -6,7 +6,8 @@ import tarfile
 import zipfile
 from os.path import abspath
 
-from osbot_utils.utils.Files import temp_folder, folder_files, temp_file, is_file
+from osbot_utils.utils.Files import temp_folder, folder_files, temp_file, is_file, file_copy, file_move
+
 
 def gz_tar_bytes_file_list(gz_bytes):
     gz_buffer_from_bytes = io.BytesIO(gz_bytes)
@@ -97,6 +98,11 @@ def zip_files_to_bytes(target_files, root_folder=None):
 
 def zip_folder(root_dir, format='zip'):
     return shutil.make_archive(base_name=root_dir, format=format, root_dir=root_dir)
+
+def zip_folder_to_file (root_dir, target_file):
+    zip_file = zip_folder(root_dir)
+    return file_move(zip_file, target_file)
+
 
 def zip_folder_to_bytes(root_dir):      # todo add unit test
     zip_buffer = io.BytesIO()                                                   # Create a BytesIO buffer to hold the zipped file
