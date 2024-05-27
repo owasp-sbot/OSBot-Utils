@@ -426,6 +426,10 @@ class Files:
 
 # todo: refactor the methods above into static methods (as bellow)
 
+def folders_names_in_folder(target):
+    folders = folders_in_folder(target)
+    return folders_names(folders)
+
 def stream_to_bytes(stream):
     return stream.read()
 
