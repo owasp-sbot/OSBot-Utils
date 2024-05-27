@@ -5,7 +5,7 @@ from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Files import Sqlite__Table
 from osbot_utils.utils.Dev import pprint
 
 
-class test_test_Sqlite__Table__Nodes(TestCase):
+class test_Sqlite__Table__Files(TestCase):
     table_files: Sqlite__Table__Files
     database   : Sqlite__Database
 
@@ -27,14 +27,37 @@ class test_test_Sqlite__Table__Nodes(TestCase):
 
     def test_add_file(self):
         with self.table_files as _:
+            file_path                     = 'file/path/file.text'
+            expected_file_row_no_contents = { 'id': 1, 'metadata': {'a': 42}, 'path': file_path, 'timestamp': 0}
+            expected_file_row             = {'contents': 'some contents', **expected_file_row_no_contents}
             assert _.set_timestamp        is False
             assert _.rows () == []
             assert _.files() == []
-            new_row  = _.add_file('file/path/file.text', 'some contents', {'a': 42})
-            assert new_row.__dict__ == { 'contents' : b'\x80\x04\x95\x11\x00\x00\x00\x00\x00\x00\x00\x8c\rsome contents\x94.',
-                                         'metadata' : b'\x80\x04\x95\n\x00\x00\x00\x00\x00\x00\x00}\x94\x8c\x01a\x94K*s.',
-                                         'path'     : 'file/path/file.text'     ,
-                                         'timestamp': 0                         }
+            result      = _.add_file(file_path, 'some contents', {'a': 42})
+            status      = result.get('status')
+            new_row_obj = result.get('data')
+            assert new_row_obj.__dict__ == { 'contents' : b'\x80\x04\x95\x11\x00\x00\x00\x00\x00\x00\x00\x8c\rsome contents\x94.',
+                                             'metadata' : b'\x80\x04\x95\n\x00\x00\x00\x00\x00\x00\x00}\x94\x8c\x01a\x94K*s.',
+                                             'path'     : 'file/path/file.text'     ,
+                                            'timestamp': 0                         }
 
-            assert _.files() == [{'contents': 'some contents', 'id': 1, 'metadata': {'a': 42}, 'path': 'file/path/file.text', 'timestamp': 0}]
-            assert _.add_file('file/path/file.text')  is None
+            assert _.files(include_contents=True ) == [expected_file_row            ]
+            assert _.files(include_contents=False) == [expected_file_row_no_contents]
+            assert _.files(                      ) == [expected_file_row_no_contents]
+            assert _.add_file('file/path/file.text')   == {'data'   : None      ,
+                                                           'error'  : None      ,
+                                                           'message': "File not added, since file with path 'file/path/file.text' "
+                                                                      'already exists in the database',
+                                                           'status' : 'warning' }
+
+            assert _.rows       ()                                   == _.files(include_contents=True)
+            assert _.file_exists(file_path                        )  is True
+            assert _.file       (file_path                        )  == expected_file_row
+            assert _.file       (file_path, include_contents=False)  == expected_file_row_no_contents
+            assert _.file_without_contents(file_path              )  == expected_file_row_no_contents
+
+            assert _.delete_file(file_path) == {'data': None, 'error': None, 'message': 'file deleted', 'status': 'ok'}
+            assert _.files      ()          == []
+            assert _.rows       ()          == []
+            assert _.file       (file_path) is None
+            assert _.file_exists(file_path) is False

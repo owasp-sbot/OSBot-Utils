@@ -11,12 +11,22 @@ class Sqlite__DB__Files(Sqlite__DB__Local):
     def add_file(self, path, contents=None, metadata=None):
         return self.table_files().add_file(path, contents, metadata)
 
+    def delete_file(self, path):
+        return self.table_files().delete_file(path)
+
+    def file(self, path, include_contents=True):
+        return self.table_files().file(path, include_contents=include_contents)
+
+    def file_exists(self, path):
+        return self.table_files().file_exists(path)
+
     @cache_on_self
     def table_files(self):
         return Sqlite__Table__Files(database=self).setup()
 
     def files(self):
         return self.table_files().files()
+
 
     def setup(self):
         self.table_files()
