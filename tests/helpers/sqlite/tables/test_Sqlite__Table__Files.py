@@ -28,7 +28,10 @@ class test_Sqlite__Table__Files(TestCase):
     def test_add_file(self):
         with self.table_files as _:
             file_path                     = 'file/path/file.text'
-            expected_file_row_no_contents = { 'id': 1, 'metadata': {'a': 42}, 'path': file_path, 'timestamp': 0}
+            file_contents_metadata        =  {'hash'     : 'b9e6fc6474139fd230ff8a7a9699484c015cb585e1537efad21ae5edf7f79832',
+                                              'is_binary': False,
+                                              'size'     : 13}
+            expected_file_row_no_contents = { 'id': 1, 'metadata': {'a': 42, 'file_contents': file_contents_metadata}, 'path': file_path, 'timestamp': 0}
             expected_file_row             = {'contents': 'some contents', **expected_file_row_no_contents}
             assert _.set_timestamp        is False
             assert _.rows () == []
@@ -37,7 +40,10 @@ class test_Sqlite__Table__Files(TestCase):
             status      = result.get('status')
             new_row_obj = result.get('data')
             assert new_row_obj.__dict__ == { 'contents' : b'\x80\x04\x95\x11\x00\x00\x00\x00\x00\x00\x00\x8c\rsome contents\x94.',
-                                             'metadata' : b'\x80\x04\x95\n\x00\x00\x00\x00\x00\x00\x00}\x94\x8c\x01a\x94K*s.',
+                                             'metadata' : b'\x80\x04\x95\x7f\x00\x00\x00\x00\x00\x00\x00}\x94(\x8c\x01'
+                                                          b'a\x94K*\x8c\rfile_contents\x94}\x94(\x8c\x04hash\x94\x8c@b9e6'
+                                                          b'fc6474139fd230ff8a7a9699484c015cb585e1537efad21ae5edf7f79832'
+                                                          b'\x94\x8c\tis_binary\x94\x89\x8c\x04size\x94K\ruu.',
                                              'path'     : 'file/path/file.text'     ,
                                             'timestamp': 0                         }
 
