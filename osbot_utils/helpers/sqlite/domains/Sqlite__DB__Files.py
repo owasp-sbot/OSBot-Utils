@@ -14,15 +14,18 @@ class Sqlite__DB__Files(Sqlite__DB__Local):
 
     def clear_table(self):
         self.table_files().clear()
+
     def delete_file(self, path):
         return self.table_files().delete_file(path)
 
-    def file(self, path, include_contents=True):
+    def file(self, path, include_contents=False):
         return self.table_files().file(path, include_contents=include_contents)
 
     def file_exists(self, path):
         return self.table_files().file_exists(path)
 
+    def file_names(self):
+        return self.table_files().select_field_values('path')
     @cache_on_self
     def table_files(self):
         return Sqlite__Table__Files(database=self).setup()
