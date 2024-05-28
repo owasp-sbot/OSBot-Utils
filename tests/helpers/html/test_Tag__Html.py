@@ -1,5 +1,8 @@
+import sys
 from html.parser import HTMLParser
 from unittest import TestCase
+
+import pytest
 
 from osbot_utils.helpers.html.Html_To_Dict import Html_To_Dict
 from osbot_utils.helpers.html.Tag__Html import Tag__Html
@@ -8,6 +11,11 @@ from osbot_utils.utils.Dev import pprint
 
 
 class test_Tag__Html(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
 
     def setUp(self):
         self.html = Tag__Html()

@@ -1,6 +1,9 @@
+import sys
 from typing import Optional, Union
 from unittest import TestCase
 from unittest.mock import patch
+
+import pytest
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
@@ -16,6 +19,10 @@ from osbot_utils.utils.Objects import default_value, obj_attribute_annotation
 class test_Kwargs_To_Self__regression(TestCase):
 
     def test_regression_base_class_attributes_set_to_null_when_super_is_used(self):
+
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping test that doesn't work on 3.8 or lower")
+
         class Base_Class(Kwargs_To_Self):
             an_int : int
             an_str : str

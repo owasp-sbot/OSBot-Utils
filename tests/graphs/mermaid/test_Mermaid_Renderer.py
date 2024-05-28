@@ -1,4 +1,7 @@
+import sys
 from unittest import TestCase
+
+import pytest
 
 from osbot_utils.graphs.mermaid.Mermaid             import Diagram__Direction, Diagram__Type, Mermaid
 from osbot_utils.graphs.mermaid.Mermaid__Renderer   import Mermaid__Renderer
@@ -7,6 +10,11 @@ from osbot_utils.utils.Str                          import str_dedent
 
 
 class test_Mermaid_Renderer(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
 
     def setUp(self):
         self.mermaid  = Mermaid()

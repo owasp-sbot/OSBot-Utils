@@ -1,4 +1,7 @@
+import sys
 from unittest import TestCase
+
+import pytest
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid
@@ -11,6 +14,11 @@ from osbot_utils.utils.Objects import type_mro
 
 
 class test_Mermaid_Node(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
 
     def setUp(self):
         self.mermaid_node = Mermaid__Node()

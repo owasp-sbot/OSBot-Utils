@@ -1,4 +1,7 @@
+import sys
 from unittest import TestCase
+
+import pytest
 
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid
 from osbot_utils.graphs.mermaid.Mermaid__Edge import Mermaid__Edge
@@ -10,6 +13,11 @@ from osbot_utils.utils.Objects import obj_data
 
 
 class test__regression__mermaid(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
 
     def test__regression__Mermaid_Node__config_is_not_being_set(self):
         new_node_1 = Mermaid__Node()
