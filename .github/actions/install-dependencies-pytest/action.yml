@@ -31,6 +31,13 @@ runs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-test.txt') }}
           restore-keys: |
               ${{ runner.os }}-pip-
+
+      - name: Use pinned requirements for Python 3.13
+        if: matrix.python-version == '3.13.0-beta.1'
+        shell: bash
+        run: | 
+          cp ./requirements-test.3.13.0-beta.1.txt ./requirements-test.txt            
+
       - name: Install dependencies from requirements.txt
         if: hashFiles('**/requirements.txt') != ''
         shell: bash
