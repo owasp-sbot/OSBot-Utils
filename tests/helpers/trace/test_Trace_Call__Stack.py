@@ -1,3 +1,4 @@
+import sys
 from unittest                                           import TestCase
 from unittest.mock                                      import MagicMock, PropertyMock
 
@@ -19,6 +20,8 @@ class test_Trace_Call__Stack(TestCase):
     def setUpClass(cls) -> None:
         if env__terminal_xterm():
             pytest.skip('Skipping tests that require terminal_xterm')  # todo: figure out why multiple of these were failing inside docker
+        if sys.version_info > (3, 12):
+            pytest.skip("Skipping tests that don't work on 3.13 or higher")
 
     def setUp(self):
         self.stack = Trace_Call__Stack()

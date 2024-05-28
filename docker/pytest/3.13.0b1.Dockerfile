@@ -1,4 +1,3 @@
-# Dockerfile for Python 3.12.3
 FROM python:3.13.0b1-slim
 
 # Set working directory
