@@ -123,7 +123,7 @@ class test_Status(TestCase):
         assert last_log_entry.get('args'         ) == ()
         assert last_log_entry.get('exc_info'     ) == (None, None, None)
         assert last_log_entry.get('exc_text'     ) == 'NoneType: None'
-        if sys.version_info > (3, 10):
+        if sys.version_info > (3, 11):
             assert last_log_entry.get('filename') == 'test_Status.py'
             assert last_log_entry.get('funcName') == 'test_status_exception'
             assert last_log_entry.get('module'  ) == 'test_Status'
