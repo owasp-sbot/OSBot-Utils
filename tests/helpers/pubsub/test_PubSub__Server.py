@@ -122,7 +122,7 @@ class test_PubSub__Server(TestCase):
 
             client_1.leave_room(room_name)
             client_2.leave_room(room_name)
-            _.wait_micro_seconds()
+            _.wait_micro_seconds(30)                            # there are some cases where 10 microseconds is not enough
             assert _.room(room_name).clients == set()
 
     def test_client_receive_messages__via_room(self):

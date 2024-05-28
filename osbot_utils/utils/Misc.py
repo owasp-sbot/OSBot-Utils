@@ -10,11 +10,18 @@ import textwrap
 import re
 import uuid
 import warnings
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta
 from secrets    import token_bytes
 from time import sleep
 from typing import Iterable
 from urllib.parse import  quote_plus, unquote_plus
+
+
+if sys.version_info >= (3, 11):
+    from datetime import UTC
+else:
+    from datetime import timezone           # For versions before 3.11, we need to use a different method or library to handle UTC
+    UTC = timezone.utc
 
 def ansi_text_visible_length(text):
     ansi_escape = re.compile(r'\x1b\[[0-9;]*m')         # This regex matches the escape sequences used for text formatting

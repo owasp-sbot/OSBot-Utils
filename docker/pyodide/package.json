@@ -1,0 +1,12 @@
+{
+  "name": "pyodide-shell",
+  "version": "1.0.0",
+  "description": "Pyodide Python shell with osbot-utils",
+  "main": "pyodide_shell.js",
+  "scripts": {
+    "start": "node pyodide_shell.js"
+  },
+  "dependencies": {
+    "pyodide": "^0.26.0"
+  }
+}
