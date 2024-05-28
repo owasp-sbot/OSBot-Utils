@@ -25,18 +25,29 @@ def env_vars(reload_vars=False):
         data[key] = vars[key]
     return data
 
-def load_dotenv():
-    directories = all_parent_folders(include_path=True)                     # Define the possible directories to search for the .env file (which is this and all parent folders)
-    for directory in directories:                                           # Iterate through the directories and load the .env file if found
-        env_path = os.path.join(directory, '.env')                          # Define the path to the .env file
-        if os.path.exists(env_path):                                        # if we found one
-            with open(env_path) as f:                                       # process it
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith('#'):                    # Strip whitespace and ignore comments
-                        continue
-                    key, value = line.split(sep='=', maxsplit=1)            # Split the line into key and value
-                    value = strip_quotes(value.strip())                     # handle case when the value is in quotes
-                    os.environ[key.strip()] = value.strip()                 # Set the environment variable
-            break                                                           # Stop after loading the first .env file
+def env_load_from_file(path, override=False):
+    if os.path.exists(path):
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):                # Strip whitespace and ignore comments
+                    continue
+                key, value = line.split(sep='=', maxsplit=1)        # Split the line into key and value
+                value = strip_quotes(value.strip())                 # Handle case when the value is in quotes
+                if override or key.strip() not in os.environ:       # Set the environment variable
+                    os.environ[key.strip()] = value.strip()
 
+def load_dotenv(dotenv_path=None, override=False):
+    if dotenv_path:                                                 # If a specific dotenv path is provided, load from it
+        env_load_from_file(dotenv_path, override)
+    else:
+        directories = all_parent_folders(include_path=True)         # Define the possible directories to search for the .env file (which is this and all parent folders)
+        for directory in directories:                               # Iterate through the directories and load the .env file if found
+            env_path = os.path.join(directory, '.env')              # Define the path to the .env file
+            if os.path.exists(env_path):                            # If we found one
+                env_load_from_file(env_path, override)              # Process it
+                break                                               # Stop after loading the first .env file                                                     # Stop after loading the first .env file
+
+
+
+env_load = load_dotenv

@@ -2,13 +2,10 @@ import builtins
 import os
 import types
 import unittest
-from io import BytesIO
-from typing import Optional, Union
-from unittest import TestCase
-from unittest.mock import patch, call
+from typing         import Optional, Union
+from unittest       import TestCase
+from unittest.mock  import patch, call
 
-from dotenv import load_dotenv
-from osbot_utils.utils.Lists import list_contains_list
 
 from osbot_utils.utils.Misc import random_int, list_set
 from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, \
@@ -20,9 +17,6 @@ from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_
 
 
 class test_Objects(TestCase):
-
-    def setUp(self):
-        load_dotenv()                                       # todo: replace this with equivalent load_dotenv funcionality (since it is an extra import and all we currenty use of it is to load the .env file into memory)
 
     def test_are_types_compatible_for_assigment(self):
         assert are_types_compatible_for_assigment(source_type=int      , target_type=int      ) is True
@@ -51,7 +45,6 @@ class test_Objects(TestCase):
     def test_class_full_name(self):
         assert class_full_name(self       ) == 'test_Objects.test_Objects'
         assert class_full_name(TestCase   ) == 'builtins.type'
-        assert class_full_name(load_dotenv) == 'builtins.function'
 
     def test_class_name(self):
         assert class_name(TestCase)   == "type"

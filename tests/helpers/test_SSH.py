@@ -1,11 +1,9 @@
 import pytest
 from os                         import environ
 from unittest                   import TestCase
-from dotenv                     import load_dotenv
 from osbot_utils.helpers.SSH    import SSH
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import file_name
-from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Dev      import pprint
+from osbot_utils.utils.Misc     import list_set
 
 ENV_VAR_TEST_OSBOT__SSH_HOST      = 'TEST_OSBOT__SSH_HOST'
 ENV_VAR_TEST_OSBOT__SSH_KEY_FILE  = 'TEST_OSBOT__SSH_KEY_FILE'
