@@ -3,7 +3,7 @@ name: Increment Tag - Dev branch
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Run Unit Tests"]
+    workflows: ["Run Tests - Unit"]
     branches: [dev]
     types:
       - completed
@@ -13,10 +13,10 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Increment Tag (for DEV)
-        uses: ./.github/actions/increment-tag-dev
+      - uses: actions/checkout@v4 #
+      - name: Increment Tag - Dev
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/increment-tag-dev@main
         with:
-          package_name: ${{ secrets.PACKAGE_NAME          }}
+          package_name: 'osbot_utils'
 
 

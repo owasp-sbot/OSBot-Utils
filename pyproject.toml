@@ -16,6 +16,7 @@ python-dotenv   = "*"
 #pytest          = "*"
 #pytest-cov      = "*"
 #coveralls       = "*"
+#pytest = "^8.2.1"
 
 
 [build-system]

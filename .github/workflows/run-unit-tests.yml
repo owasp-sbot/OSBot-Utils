@@ -8,12 +8,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        uses: ./.github/actions/install-dependencies
+      - name: Install Dependencies (using Poetry)
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/install-dependencies-poetry@main
 
       - name: Run Unit Tests
-        uses: ./.github/actions/run-unit-tests
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/run-unit-tests@main
         with:
-          codecov_token         : ${{ secrets.CODECOV_TOKEN         }}
-          package_name          : ${{ secrets.PACKAGE_NAME          }}
-
+          package_name          : 'osbot_utils'
+          codecov_token         : ${{ secrets.CODECOV_TOKEN          }}
