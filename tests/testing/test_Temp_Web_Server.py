@@ -1,7 +1,11 @@
+import sys
 from http                                   import server
 from http.server                            import SimpleHTTPRequestHandler
 from unittest                               import TestCase
 from unittest.mock                          import call
+
+import pytest
+
 from osbot_utils.testing.Patch_Print        import Patch_Print
 from osbot_utils.testing.Stderr             import Stderr
 from osbot_utils.testing.Temp_File          import Temp_File
@@ -16,6 +20,9 @@ class test_Temp_Web_Server(TestCase):
         pass
 
     def test__enter__leave__(self):
+        if sys.version_info < (3, 11):
+            pytest.skip("Skipping test that doesn't work on 3.10 or lower")
+            
         if not in_github_action():              # skipp locally since this now takes 500ms which is 30% of the total test time (and since we will still execute this in the CI pipeline it is ok to skip locally)
            return
         host        = "127.0.0.1"
