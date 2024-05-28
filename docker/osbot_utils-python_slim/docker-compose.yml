@@ -1,0 +1,9 @@
+services:
+  osbot_utils:
+    build:
+      context: ../..
+      dockerfile: ./docker/osbot_utils-python_slim/Dockerfile
+    image: diniscruz/osbot_utils-python_slim
+    container_name: osbot_utils_container
+    stdin_open: true
+    tty: true
