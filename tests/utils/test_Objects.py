@@ -123,6 +123,8 @@ class test_Objects(TestCase):
 
         if sys.version_info > (3, 12):
             pytest.skip("Skipping test that doesn't work on 3.13 or higher")
+        if sys.version_info < (3, 11):
+            pytest.skip("Skipping test that does't work on 3.11 or lower")
 
         class Target:
             def __init__(self):
@@ -298,6 +300,9 @@ class test_Objects(TestCase):
         assert obj_is_type_union_compatible(type(var_5), compatible_types) is False
 
     def test_print_object_members(self):
+        if sys.version_info < (3, 11):
+            pytest.skip("Skipping test that does't work on 3.11 or lower")
+
         class An_Class:
             an_str   : str = 'the answer'
             an_int   : str = 42

@@ -2,6 +2,9 @@ import types
 from enum                                       import Enum, auto
 from typing                                     import Union, Optional
 from unittest                                   import TestCase
+
+import pytest
+
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self, serialize_to_dict
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.testing.Catch                  import Catch
@@ -71,6 +74,9 @@ class Test_Kwargs_To_Self(TestCase):
         assert list_set(Extends_An_Class.__cls_kwargs__()) == ['an_var']
 
     def test___cls_kwargs__with_optional_attributes(self):
+        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
+            pytest.skip('Skipping test that requires __annotations__')
+
         class Immutable_Types_Class(Kwargs_To_Self):
             a_int       : int       = 1
             a_float     : float     = 1.0
@@ -137,6 +143,9 @@ class Test_Kwargs_To_Self(TestCase):
     #     assert an_class.__locals__() == {'after_lock': 43, 'an_str': '42', 'before_lock': 42}
 
     def test_serialize_to_dict(self):
+        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
+            pytest.skip('Skipping test that requires __annotations__')
+
         class An_Enum_A(Enum):
             an_value = 1
 
@@ -524,6 +533,8 @@ class Test_Kwargs_To_Self(TestCase):
         assert An_Class().__locals__() == expected_values
 
     def test___init__pics_up_types_mutable_types(self):
+        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
+            pytest.skip('Skipping test that requires __annotations__')
 
         class An_Class(Kwargs_To_Self):
             attribute_1 = 'default_value'

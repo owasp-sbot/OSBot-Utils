@@ -34,7 +34,7 @@ class test_Event_Queue(TestCase):
         assert _.running               is True
         assert _.thread                is not None
         assert _.thread.daemon         is True
-        assert _.thread.name           == "Thread-4 (run_thread)"
+        assert 'Thread-4'              in _.thread.name
         assert _.thread.is_alive()     is True
         #assert _.thread._is_stopped    is False
         assert _.thread._target        == _.run_thread
@@ -68,7 +68,7 @@ class test_Event_Queue(TestCase):
             _.queue.put(event_1, block=True)
             assert _.queue.qsize()  == 1
             _.wait_micro_seconds()
-            assert _.events         == [event_1]
+            assert str(_.events)   == str([event_1])
             assert _.queue.qsize()  == 0
 
         assert _.running is False

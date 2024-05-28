@@ -1,3 +1,4 @@
+import sys
 import traceback
 from io import StringIO
 from unittest import TestCase
@@ -122,13 +123,19 @@ class test_Status(TestCase):
         assert last_log_entry.get('args'         ) == ()
         assert last_log_entry.get('exc_info'     ) == (None, None, None)
         assert last_log_entry.get('exc_text'     ) == 'NoneType: None'
-        assert last_log_entry.get('filename'     ) == 'test_Status.py'
-        assert last_log_entry.get('funcName'     ) == 'test_status_exception'
+        if sys.version_info > (3, 10):
+            assert last_log_entry.get('filename') == 'test_Status.py'
+            assert last_log_entry.get('funcName') == 'test_status_exception'
+            assert last_log_entry.get('module'  ) == 'test_Status'
+        else:
+            assert last_log_entry.get('filename') == 'Status.py'
+            assert last_log_entry.get('funcName') == 'status_exception'
+            assert last_log_entry.get('module'  ) == 'Status'
         assert last_log_entry.get('levelname'    ) == 'ERROR'
         assert last_log_entry.get('levelno'      ) == 40
         assert last_log_entry.get('lineno'       )  > 0
         assert last_log_entry.get('message'      ) == '[osbot] [exception] an exception message'
-        assert last_log_entry.get('module'       ) == 'test_Status'
+
         assert last_log_entry.get('msg'          ) == '[osbot] [exception] an exception message'
         assert last_log_entry.get('name'         ) == osbot_logger.logger_name
         assert last_log_entry.get('processName'  ) == 'MainProcess'

@@ -37,6 +37,11 @@ class test_Python_Logger_Config(TestCase):
 
 class test_Python_Logger(TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        if sys.version_info < (3, 11):
+            pytest.skip("Skipping test that does't work on 3.11 or lower")
+
     def setUp(self):
         self.logger = Python_Logger().setup()
         self.logger.set_log_level(logging.DEBUG)

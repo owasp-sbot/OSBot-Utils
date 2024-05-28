@@ -1,11 +1,13 @@
-from decimal import Decimal
-from types import NoneType
-from unittest import TestCase
+import sys
+import types
+from decimal                                                import Decimal
+from unittest                                               import TestCase
+from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
 
-from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Objects import obj_info
-
+if sys.version_info >= (3, 10):
+    NoneType = types.NoneType
+else:
+    NoneType = type(None)
 
 class test_Sqlite__Field__Type(TestCase):
 

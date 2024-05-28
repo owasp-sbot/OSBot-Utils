@@ -3,9 +3,10 @@
 #       the data is available in IDE's code complete
 import functools
 import inspect
+import sys
 import types
 from decimal import Decimal
-from enum                                       import Enum, EnumMeta, EnumType
+from enum                                       import Enum, EnumMeta
 from typing                                     import get_origin, get_args
 
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
@@ -16,7 +17,19 @@ from osbot_utils.utils.Objects                  import default_value, value_type
     raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
     obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr
 
-immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta)
+# if sys.version_info >= (3, 11):
+#     EnumType = (Enum, EnumMeta)
+#     #from enum import EnumType  # Only available in Python 3.10 and later
+# else:
+#     EnumType = None  # or define a mock/fallback EnumType if needed
+
+
+if sys.version_info >= (3, 10):
+    NoneType = types.NoneType
+else:
+    NoneType = type(None)
+
+immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, NoneType, EnumMeta)
 
 
 #todo: see if we can also add type safety to method execution
@@ -115,25 +128,28 @@ class Kwargs_To_Self:               # todo: check if the description below is st
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
     def __setattr__(self, name, value):
-        # if self.__type_safety__:
+        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
+            return super().__setattr__(name, value)
+
+            # if self.__type_safety__:
         #     if self.__lock_attributes__:
             # todo: this can't work on all, current hypothesis is that this will work for the values that are explicitly set
             # if not hasattr(self, name):
             #     raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prevents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
 
-            if value is not None:
-                check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
-                check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
-                if (check_1 is False and check_2 is None  or
-                    check_1 is None  and check_2 is False or
-                    check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
-                    raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
-            else:
-                if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
-                    if getattr(self, name) is not None:                         # unless it is already set to None
-                        raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+        if value is not None:
+            check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
+            check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
+            if (check_1 is False and check_2 is None  or
+                check_1 is None  and check_2 is False or
+                check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
+                raise Exception(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+        else:
+            if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
+                if getattr(self, name) is not None:                         # unless it is already set to None
+                    raise Exception(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
-            super().__setattr__(name, value)
+        super().__setattr__(name, value)
 
     def __attr_names__(self):
         return list_set(self.__locals__())
@@ -156,24 +172,25 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                     if (k in kwargs) is False:                                          # do not set the value is it has already been set
                         kwargs[k] = v
 
-            for var_name, var_type in base_cls.__annotations__.items():
-                if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
-                    if var_name in kwargs:
-                        continue
-                    var_value = cls.__default__value__(var_type)
-                    kwargs[var_name] = var_value
-                else:
-                    var_value = getattr(base_cls, var_name)
-                    if var_value is not None:                                                                   # allow None assignments on ctor since that is a valid use case
-                        if var_type and not isinstance(var_value, var_type):                                    # check type
-                            exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
-                            raise Exception(exception_message)
-                        if var_type not in immutable_types and var_name.startswith('__') is False:              # if var_type is not one of the immutable_types or is an __ internal
-                            #todo: fix type safety bug that I believe is caused here
-                            if obj_is_type_union_compatible(var_type, immutable_types) is False:                # if var_type is not something like Optional[Union[int, str]]
-                                if type(var_type) not in immutable_types:
-                                    exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{immutable_types}'"
-                                    raise Exception(exception_message)
+            if hasattr(base_cls,'__annotations__'):  # can only do type safety checks if the class does not have annotations
+                for var_name, var_type in base_cls.__annotations__.items():
+                    if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
+                        if var_name in kwargs:
+                            continue
+                        var_value = cls.__default__value__(var_type)
+                        kwargs[var_name] = var_value
+                    else:
+                        var_value = getattr(base_cls, var_name)
+                        if var_value is not None:                                                                   # allow None assignments on ctor since that is a valid use case
+                            if var_type and not isinstance(var_value, var_type):                                    # check type
+                                exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
+                                raise Exception(exception_message)
+                            if var_type not in immutable_types and var_name.startswith('__') is False:              # if var_type is not one of the immutable_types or is an __ internal
+                                #todo: fix type safety bug that I believe is caused here
+                                if obj_is_type_union_compatible(var_type, immutable_types) is False:                # if var_type is not something like Optional[Union[int, str]]
+                                    if type(var_type) not in immutable_types:
+                                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{immutable_types}'"
+                                        raise Exception(exception_message)
             if include_base_classes is False:
                 break
         return kwargs
@@ -198,9 +215,10 @@ class Kwargs_To_Self:               # todo: check if the description below is st
                     if not isinstance(v, classmethod):
                         kwargs[k] = v
             # add the vars defined with the annotations
-            for var_name, var_type in base_cls.__annotations__.items():
-                var_value        = getattr(self, var_name)
-                kwargs[var_name] = var_value
+            if hasattr(base_cls,'__annotations__'):  # can only do type safety checks if the class does not have annotations
+                for var_name, var_type in base_cls.__annotations__.items():
+                    var_value        = getattr(self, var_name)
+                    kwargs[var_name] = var_value
 
         return kwargs
 
@@ -230,7 +248,9 @@ class Kwargs_To_Self:               # todo: check if the description below is st
 
     @classmethod
     def __schema__(cls):
-        return cls.__annotations__
+        if hasattr(cls,'__annotations__'):  # can only do type safety checks if the class does not have annotations
+            return cls.__annotations__
+        return {}
 
     # global methods added to any class that base classes this
     # todo: see if there should be a prefix on these methods, to make it easier to spot them
@@ -256,8 +276,9 @@ class Kwargs_To_Self:               # todo: check if the description below is st
         """Update instance attributes with values from provided keyword arguments."""
         for key, value in kwargs.items():
             if value is not None:
-                if value_type_matches_obj_annotation_for_attr(self, key, value) is False:
-                    raise Exception(f"Invalid type for attribute '{key}'. Expected '{self.__annotations__.get(key)}' but got '{type(value)}'")
+                if hasattr(self,'__annotations__'):  # can only do type safety checks if the class does not have annotations
+                    if value_type_matches_obj_annotation_for_attr(self, key, value) is False:
+                        raise Exception(f"Invalid type for attribute '{key}'. Expected '{self.__annotations__.get(key)}' but got '{type(value)}'")
                 setattr(self, key, value)
         return self
 
@@ -267,12 +288,14 @@ class Kwargs_To_Self:               # todo: check if the description below is st
             if hasattr(self, key) and isinstance(getattr(self, key), Kwargs_To_Self):
                 getattr(self, key).deserialize_from_dict(value)                         # Recursive call for complex nested objects
             else:
-                if obj_is_attribute_annotation_of_type(self, key, EnumType):            # handle the case when the value is an Enum
-                    enum_type = getattr(self, '__annotations__').get(key)
-                    if type(value) is not enum_type:                                    # if the value is not already of the target type
-                        value = enum_from_value(enum_type, value)                       # try to resolve the value into the enum
+                if hasattr(self, '__annotations__'):  # can only do type safety checks if the class does not have annotations
+                    if obj_is_attribute_annotation_of_type(self, key, EnumMeta):            # Handle the case when the value is an Enum
+                        enum_type = getattr(self, '__annotations__').get(key)
+                        if type(value) is not enum_type:                                    # If the value is not already of the target type
+                            value = enum_from_value(enum_type, value)                       # Try to resolve the value into the enum
 
                 setattr(self, key, value)                                               # Direct assignment for primitive types and other structures
+
         return self
 
     def serialize_to_dict(self):                        # todo: see if we need this method or if the .json() is enough

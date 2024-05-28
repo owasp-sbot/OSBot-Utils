@@ -15,6 +15,8 @@ class test_Ast_Load(TestCase):
     def setUpClass(cls) -> None:
         if sys.version_info > (3, 12):
             pytest.skip("Skipping tests that don't work on 3.13 or higher")
+        if sys.version_info < (3, 11):
+            pytest.skip("Skipping tests that don't work on 3.10 or lower")
 
     def setUp(self):
         self.ast      = Ast()

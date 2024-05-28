@@ -1,8 +1,13 @@
+import sys
+import types
 from decimal import Decimal
 from enum import Enum, auto
-from types import NoneType
-
 from osbot_utils.decorators.methods.cache import cache
+
+if sys.version_info >= (3, 10):
+    NoneType = types.NoneType
+else:
+    NoneType = type(None)
 
 
 class Sqlite__Field__Type(Enum):
