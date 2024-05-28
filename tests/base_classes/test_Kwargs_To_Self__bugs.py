@@ -1,6 +1,8 @@
 from typing import Optional, Union
 from unittest import TestCase
 
+import pytest
+
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
 
 class test_Kwargs_To_Self__bugs(TestCase):
@@ -30,6 +32,9 @@ class test_Kwargs_To_Self__bugs(TestCase):
         assert context.exception.args[0] == expected_message
 
     def test__bug__check_type_safety_assignments____on_ctor__union(self):
+        if not hasattr(self, '__annotations__'):
+            pytest.skip('skipping test since __annotations__ is not available')
+
         an_bool_value = True
         an_int_value  = 42
         an_str_value  = 'an_str_value'

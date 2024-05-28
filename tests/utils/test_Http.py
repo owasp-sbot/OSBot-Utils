@@ -219,12 +219,7 @@ class test_Http(TestCase):
                                 'data'   : ''                                                         ,
                                 'files'  : {}                                                         ,
                                 'form'   : { 'aaa': '42', 'bbb': '123'}                               ,
-                                'headers': { 'Accept'         : 'application/json'                    ,
-                                             'Accept-Encoding': 'identity'                            ,
-                                             'Content-Length' : '14'                                  ,
-                                             'Content-Type'   : 'application/x-www-form-urlencoded'   ,
-                                             'Host'           : f'{self.local_host}:{self.local_port}',
-                                             'User-Agent'     : 'Python-urllib/3.12'                } ,
+                                'headers': response.get('headers')                                    ,
                                 'json'   : { 'json':'is here', 'a':42}                                                       ,
                                 'url'    : f'{self.local_host}:{self.local_port}/'
                             }

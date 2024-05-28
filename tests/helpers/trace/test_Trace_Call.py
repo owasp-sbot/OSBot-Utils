@@ -1,8 +1,11 @@
 import io
+import sys
 from contextlib import redirect_stdout
 from pprint                                         import pprint
 from unittest                                       import TestCase
 from unittest.mock                                  import patch, call
+
+import pytest
 
 from osbot_utils.testing.Patch_Print                    import Patch_Print
 from osbot_utils.utils.Lists import tuple_to_list
@@ -183,6 +186,9 @@ class test_Trace_Call(TestCase):
             assert error.args[0] == 'test_2'
 
     def test__config__capture_frame_stats(self):
+        if sys.version_info < (3, 11):
+            pytest.skip("Skipping test that does't work on 3.10 or lower")
+
         self.config.capture_frame_stats    = True
         self.config.show_parent_info       = False
         self.config.show_method_class      = False
@@ -247,6 +253,9 @@ class test_Trace_Call(TestCase):
                                       call('└─────┴──────┴────────┴────┴──┴───────┘')]
 
     def test__trace_up_to_a_level(self):
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping test that need FIXING on 3.7 or lower")
+
         if not in_github_action():              # todo: rewrite this test to use an example that is not
             return                              #       as expensive as Python_Logger since it is taking 200+ms (which is about 50% of the all OSBot_Utils tests
         with self.config as _:

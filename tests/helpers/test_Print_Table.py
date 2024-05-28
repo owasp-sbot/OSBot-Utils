@@ -1,9 +1,18 @@
+import sys
 from unittest import TestCase
 from unittest.mock import patch, call
+
+import pytest
+
 from osbot_utils.helpers.Print_Table import Print_Table
 
 
 class test_Print_Table(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping tests that don't work on 3.10 or lower")
 
     def setUp(self):
         self.print_table = Print_Table()

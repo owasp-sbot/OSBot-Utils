@@ -26,8 +26,8 @@ class Profiler:
                 item[arg_name] = self.add_values(option, value)
             else:
                 if profile_options.get(arg_name):
-                    if arg_name == 'f_locals':
-                        item[arg_name] = value.copy()           # create a copy of the var
+                    if arg_name == 'f_locals' and sys.version_info < (3, 13):    # todo: figure out why in 3.13 the value.copy doesn't work
+                        item[arg_name] = value.copy()                            # create a copy of the var
                     else:
                         item[arg_name] = value
         return item

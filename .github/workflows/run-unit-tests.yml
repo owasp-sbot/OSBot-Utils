@@ -5,17 +5,20 @@ on:
 jobs:
   run-tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.7.17, 3.8.18, 3.9.19, 3.10.14, 3.11.9, 3.12.3 , 3.13.0-beta.1 ]
+
     steps:
       - uses: actions/checkout@v4
 
-#      - name: Install Dependencies (using Poetry)
-#        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/install-dependencies-poetry@main
-
       - name: Install Dependencies (using Pip)
         uses: ./.github/actions/install-dependencies-pytest
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Run Unit Tests
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/run-unit-tests@main
         with:
           package_name          : 'osbot_utils'
-          codecov_token         : ${{ secrets.CODECOV_TOKEN          }}
+          #codecov_token         : ${{ secrets.CODECOV_TOKEN          }}

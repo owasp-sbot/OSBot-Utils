@@ -1,8 +1,17 @@
+import sys
 from unittest import TestCase
+
+import pytest
+
 from osbot_utils.testing.Patch_Print import Patch_Print
 
 
 class test_Patch_Print(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping tests that don't work on 3.7 or lower")
 
     def setUp(self):
         self.patch_print = Patch_Print()

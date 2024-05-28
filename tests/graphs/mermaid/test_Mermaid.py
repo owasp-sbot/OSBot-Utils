@@ -1,4 +1,7 @@
+import sys
 from unittest                               import TestCase
+
+import pytest
 
 from osbot_utils.graphs.mermaid.Mermaid__Edge                   import Mermaid__Edge
 from osbot_utils.graphs.mermaid.models.Mermaid__Diagram__Type   import Diagram__Type

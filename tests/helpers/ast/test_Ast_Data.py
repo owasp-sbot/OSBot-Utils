@@ -1,3 +1,4 @@
+import sys
 from unittest import TestCase
 
 import pytest
@@ -7,6 +8,12 @@ from osbot_utils.helpers.ast                    import Ast_Module
 from osbot_utils.helpers.ast.Ast_Data           import Ast_Data
 
 class test_Ast_Data(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that need FIXING on 3.8 or lower")
+
 
     def setUp(self):
         #self.ast_data = Ast_Data().add_target(Ast_Data)

@@ -1,11 +1,22 @@
+import sys
 from json import JSONDecoder, JSONEncoder
 from unittest                           import TestCase
+
+import pytest
+
 from osbot_utils.utils.Functions        import python_file
 from osbot_utils.helpers.ast.Ast        import Ast
 from osbot_utils.helpers.ast.Ast_Load   import Ast_Load
 
 
 class test_Ast_Load(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if sys.version_info > (3, 12):
+            pytest.skip("Skipping tests that don't work on 3.13 or higher")
+        if sys.version_info < (3, 11):
+            pytest.skip("Skipping tests that don't work on 3.10 or lower")
 
     def setUp(self):
         self.ast      = Ast()

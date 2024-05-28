@@ -28,6 +28,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./docker/osbot_utils-python_slim/Dockerfile
+          file: ./docker/python_slim/Dockerfile
           push: true
           tags: diniscruz/osbot_utils:latest

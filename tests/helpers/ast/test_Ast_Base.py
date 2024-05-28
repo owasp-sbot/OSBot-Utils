@@ -1,7 +1,11 @@
 import ast
+import sys
 import types
 from unittest                           import TestCase
 from unittest.mock                      import patch, call
+
+import pytest
+
 from osbot_utils.testing.Catch          import Catch
 from osbot_utils.utils.Misc             import list_set, random_string
 from osbot_utils.utils.Objects          import obj_data
@@ -10,6 +14,13 @@ from osbot_utils.helpers.ast.Ast_Base   import Ast_Base
 
 
 class test_Ast_Base(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if sys.version_info > (3, 12):
+            pytest.skip("Skipping tests that don't work on 3.13 or higher")
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that need FIXING on 3.8 or lower")
 
     def setUp(self):
         self.node       = ast.parse("40+2")

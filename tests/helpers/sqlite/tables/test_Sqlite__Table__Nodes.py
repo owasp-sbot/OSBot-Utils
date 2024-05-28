@@ -1,4 +1,7 @@
+import sys
 from unittest import TestCase
+
+import pytest
 
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
 from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Nodes import Sqlite__Table__Nodes, SQLITE__TABLE_NAME__NODES
@@ -12,6 +15,9 @@ class test_Sqlite__Table__Nodes(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping tests that don't work on 3.7 or lower")
+
         cls.table_nodes = Sqlite__Table__Nodes()
         cls.database     = cls.table_nodes.database
         cls.table_nodes.setup()

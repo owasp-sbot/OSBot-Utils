@@ -1,7 +1,11 @@
+import sys
 import types
 from enum                                       import Enum, auto
 from typing                                     import Union, Optional
 from unittest                                   import TestCase
+
+import pytest
+
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self, serialize_to_dict
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.testing.Catch                  import Catch
@@ -34,6 +38,9 @@ class Test_Kwargs_To_Self(TestCase):
             pass
 
     def test___cls_kwargs__(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping test that doesn't work on 3.8 or lower")
+
         assert self.Config_Class.__cls_kwargs__(include_base_classes=False) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print }
         assert self.Config_Class.__cls_kwargs__(include_base_classes=True ) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print }
         assert self.Extra_Config.__cls_kwargs__(include_base_classes=False) == {'attribute3': 'another_value',                     'callable_attr_2': print }
@@ -71,6 +78,9 @@ class Test_Kwargs_To_Self(TestCase):
         assert list_set(Extends_An_Class.__cls_kwargs__()) == ['an_var']
 
     def test___cls_kwargs__with_optional_attributes(self):
+        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
+            pytest.skip('Skipping test that requires __annotations__')
+
         class Immutable_Types_Class(Kwargs_To_Self):
             a_int       : int       = 1
             a_float     : float     = 1.0
@@ -137,6 +147,9 @@ class Test_Kwargs_To_Self(TestCase):
     #     assert an_class.__locals__() == {'after_lock': 43, 'an_str': '42', 'before_lock': 42}
 
     def test_serialize_to_dict(self):
+        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
+            pytest.skip('Skipping test that requires __annotations__')
+
         class An_Enum_A(Enum):
             an_value = 1
 
@@ -260,6 +273,9 @@ class Test_Kwargs_To_Self(TestCase):
         assert self.Config_Class().__attr_names__() == ['attribute1', 'attribute2', 'callable_attr_1']
 
     def test___default__value__(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping test that needs FIXING on 3.8 or lower")
+
         _ = Kwargs_To_Self.__default__value__
         assert      _(str      )  == ''
         assert      _(int      )  == 0
@@ -524,6 +540,8 @@ class Test_Kwargs_To_Self(TestCase):
         assert An_Class().__locals__() == expected_values
 
     def test___init__pics_up_types_mutable_types(self):
+        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
+            pytest.skip('Skipping test that requires __annotations__')
 
         class An_Class(Kwargs_To_Self):
             attribute_1 = 'default_value'

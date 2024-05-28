@@ -1,3 +1,5 @@
+from typing import List
+
 from osbot_utils.base_classes.Kwargs_To_Self                        import Kwargs_To_Self
 from osbot_utils.graphs.mermaid.configs.Mermaid__Render__Config import Mermaid__Render__Config
 from osbot_utils.graphs.mermaid.models.Mermaid__Diagram_Direction   import Diagram__Direction
@@ -6,7 +8,7 @@ from osbot_utils.graphs.mermaid.models.Mermaid__Diagram__Type       import Diagr
 
 class Mermaid__Renderer(Kwargs_To_Self):
     config            : Mermaid__Render__Config
-    mermaid_code      : list
+    mermaid_code      : List
     diagram_direction : Diagram__Direction = Diagram__Direction.LR
     diagram_type      : Diagram__Type      = Diagram__Type.graph
 

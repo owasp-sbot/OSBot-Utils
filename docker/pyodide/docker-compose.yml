@@ -1,0 +1,9 @@
+services:
+  osbot_utils:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: diniscruz/osbot_utils-pyodide
+    container_name: osbot-utils-pyodide_container
+    stdin_open: true
+    tty: true

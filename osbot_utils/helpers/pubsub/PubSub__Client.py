@@ -1,4 +1,5 @@
 from queue import Queue
+from typing import List
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.pubsub.Event__Queue import Event__Queue
@@ -13,7 +14,7 @@ from osbot_utils.utils.Misc import random_guid
 class PubSub__Client(Kwargs_To_Self):
     event_queue       : Event__Queue
     client_id         : str
-    received_messages : list[str]           # todo: fix this to be Events/Messages received via event_queue
+    received_messages : List[str]           # todo: fix this to be Events/Messages received via event_queue
 
     def __init__(self, **kwargs):
         self.client_id = kwargs.get('client_id') or random_guid()

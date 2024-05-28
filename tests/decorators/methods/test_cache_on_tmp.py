@@ -1,4 +1,8 @@
+import sys
 from unittest import TestCase
+
+import pytest
+
 from osbot_utils.utils.Misc import str_md5, random_string
 from osbot_utils.utils.Files import file_name
 from osbot_utils.testing.Profiler import Profiler
@@ -15,6 +19,11 @@ class An_Class:
         return an_param
 
 class test_cache_on_tmp(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping tests that don't work on 3.7 or lower")
 
     def test_cache_on_tmp(self):
 

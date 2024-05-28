@@ -1,4 +1,7 @@
+import sys
 from unittest import TestCase
+
+import pytest
 
 from osbot_utils.graphs.mermaid.Mermaid             import Diagram__Direction, Diagram__Type, Mermaid
 from osbot_utils.graphs.mermaid.Mermaid__Renderer   import Mermaid__Renderer

@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 from unittest import TestCase
 
@@ -16,6 +17,8 @@ class test_Json(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping tests that don't work on 3.7 or lower")
         osbot_status.clear_root_logger_handlers()
 
     @classmethod

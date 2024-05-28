@@ -1,4 +1,7 @@
+import sys
 from unittest import TestCase
+
+import pytest
 
 from osbot_utils.helpers.html.Dict_To_Html import Dict_To_Html
 from osbot_utils.helpers.html.Dict_To_Tags import Dict_To_Tags
@@ -9,6 +12,10 @@ from tests._test_data.Sample_Test_Files import Sample_Test_Files
 
 class test_Dict_To_Tags(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
 
     def test_convert(self):
         sample_test_files = Sample_Test_Files()

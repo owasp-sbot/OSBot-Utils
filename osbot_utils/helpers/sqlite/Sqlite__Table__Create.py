@@ -1,4 +1,6 @@
 import inspect
+from typing import List
+
 from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
 from osbot_utils.decorators.lists.filter_list               import filter_list
 from osbot_utils.helpers.sqlite.Sqlite__Field               import Sqlite__Field
@@ -6,7 +8,7 @@ from osbot_utils.helpers.sqlite.Sqlite__Table               import Sqlite__Table
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
 
 class Sqlite__Table__Create(Kwargs_To_Self):
-    fields  : list[Sqlite__Field]
+    fields  : List[Sqlite__Field]
     table   : Sqlite__Table
 
     def __init__(self, table_name):
@@ -21,7 +23,7 @@ class Sqlite__Table__Create(Kwargs_To_Self):
             return True
         return False
 
-    def add_fields(self, fields_data:list[dict]):
+    def add_fields(self, fields_data:List[dict]):
         results = []
         if fields_data:
             for field_data in fields_data:

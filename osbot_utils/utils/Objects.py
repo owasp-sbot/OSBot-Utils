@@ -4,11 +4,32 @@ import io
 import json
 import os
 import pickle
+import sys
 import types
-from typing import get_origin, Union, get_args
+import typing
+from typing import Union
 
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Str  import str_unicode_escape, str_max_width
+
+# Backport implementations of get_origin and get_args for Python 3.7
+if sys.version_info < (3, 8):
+    def get_origin(tp):
+        if isinstance(tp, typing._GenericAlias):
+            return tp.__origin__
+        elif tp is typing.Generic:
+            return typing.Generic
+        else:
+            return None
+
+    def get_args(tp):
+        if isinstance(tp, typing._GenericAlias):
+            return tp.__args__
+        else:
+            return ()
+else:
+    from typing import get_origin, get_args
+
 
 def are_types_compatible_for_assigment(source_type, target_type):
     if source_type is target_type:

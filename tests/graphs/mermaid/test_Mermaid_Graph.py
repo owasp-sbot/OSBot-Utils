@@ -1,10 +1,14 @@
+import sys
 from unittest import TestCase
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import base_classes, base_types
-from osbot_utils.graphs.mgraph.MGraph import MGraph
-from osbot_utils.graphs.mgraph.MGraphs                        import MGraphs
-from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
+
+import pytest
+
+from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
+from osbot_utils.utils.Misc                         import list_set
+from osbot_utils.utils.Objects                      import base_classes, base_types
+from osbot_utils.graphs.mgraph.MGraph               import MGraph
+from osbot_utils.graphs.mgraph.MGraphs              import MGraphs
+from osbot_utils.graphs.mermaid.Mermaid__Graph      import Mermaid__Graph
 
 
 class test_Mermaid_MGraph(TestCase):

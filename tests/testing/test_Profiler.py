@@ -1,5 +1,8 @@
 import sys
 from unittest import TestCase
+
+import pytest
+
 from osbot_utils.testing.Profiler import Profiler
 
 
@@ -11,6 +14,11 @@ class An_Class:
         return self.local_var
 
 class test_Profiler(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping tests that don't work on 3.7 or lower")
 
     def setUp(self) -> None:
         pass

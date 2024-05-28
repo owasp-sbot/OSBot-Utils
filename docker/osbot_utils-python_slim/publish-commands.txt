@@ -1,3 +1,0 @@
-docker login -u diniscruz
-docker tag osbot_utils-python_slim diniscruz/osbot_utils:latest
-docker push diniscruz/osbot_utils:latest
