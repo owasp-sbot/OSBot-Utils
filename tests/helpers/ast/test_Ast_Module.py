@@ -90,6 +90,9 @@ class test_Ast_Module(TestCase):
         #pprint(ast_module.info())
 
     def test_all_nodes__in_source_code(self):
+        if sys.version_info < (3, 11):
+            pytest.skip("Skipping test that doesn't work on 3.10 or lower")
+
         target_python_file = python_file(JSONDecoder)
         source_code        = file_contents(target_python_file)
         module             = self.ast.parse(source_code)
