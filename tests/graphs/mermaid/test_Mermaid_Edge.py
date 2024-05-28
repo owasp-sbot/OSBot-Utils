@@ -1,3 +1,4 @@
+import sys
 from unittest import TestCase
 
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid

@@ -36,7 +36,7 @@ class test_Event_Queue(TestCase):
         assert _.thread.daemon         is True
         assert _.thread.name           == "Thread-4 (run_thread)"
         assert _.thread.is_alive()     is True
-        assert _.thread._is_stopped    is False
+        #assert _.thread._is_stopped    is False
         assert _.thread._target        == _.run_thread
         assert _.thread._args          == ()
         assert _.thread._kwargs        == {}
@@ -46,11 +46,11 @@ class test_Event_Queue(TestCase):
         assert _.stop()                 == _
         assert _.running               is False
         assert _.thread.is_alive()     is True
-        assert _.thread._is_stopped    is False
+        #assert _.thread._is_stopped    is False
 
         assert _.wait_for_thread_ends() is _
         assert _.thread.is_alive()     is False
-        assert _.thread._is_stopped    is True
+        #assert _.thread._is_stopped    is True              # doesn't exist in python 3.13
 
     def test_handle_event(self):
 

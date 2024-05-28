@@ -1,17 +1,16 @@
-from enum import auto, Enum
-
+from enum import Enum
 
 class Diagram__Type(Enum):
-    class_diagram                = auto()
-    entity_relationship_diagram  = auto()
-    flowchart                    = auto()
-    gantt                        = auto()
-    git_graph                    = auto()
-    graph                        = auto()
-    mermaid_map                  = auto()
-    mindmap                      = auto()
-    pie_chart                    = auto()
-    requirement_diagram          = auto()
-    sequence_diagram             = "sequenceDiagram"
-    state_diagram                = 'stateDiagram-v2'
-    user_journey                 = auto()
+    class_diagram                = "class_diagram"
+    entity_relationship_diagram  = "entity_relationship_diagram"
+    flowchart                    = "flowchart"
+    gantt                        = "gantt"
+    git_graph                    = "git_graph"
+    graph                        = "graph"
+    mermaid_map                  = "mermaid_map"
+    mindmap                      = "mindmap"
+    pie_chart                    = "pie_chart"
+    requirement_diagram          = "requirement_diagram"
+    sequence_diagram             = "sequenceDiagram"             # these are different from the others
+    state_diagram                = "stateDiagram-v2"             # these are different from the others
+    user_journey                 = "user_journey"

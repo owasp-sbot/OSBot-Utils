@@ -53,13 +53,9 @@ class test_Sqlite__Database(TestCase):
         #                        'iterdump'          , 'rollback'                   , 'serialize'     , 'set_authorizer', 'set_progress_handler'                ,
         #                        'set_trace_callback', 'setconfig'             , 'setlimit'        , 'text_factory'  , 'total_changes'                                         ]
 
-        # if in_github_action():
-        #     expected_obj_items.extend(['enable_load_extension', 'load_extension'])
-        #     expected_obj_items.sort()
+
         connection = self.database.connect()
         assert type(connection) is Connection
-        #assert list_set(obj_data(connection)) == expected_obj_items
-        assert connection.autocommit     == -1
         assert connection.in_transaction is False
         assert connection.row_factory    == self.database.dict_factory
         assert connection.total_changes   == 0

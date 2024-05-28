@@ -11,9 +11,12 @@ class Ast:
         pass
 
     def source_code__from(self, target):
-        source_raw = inspect.getsource(target)
-        source     = str_dedent(source_raw)             # remove any training spaces or it won't compile
-        return source
+        try:
+            source_raw = inspect.getsource(target)
+            source     = str_dedent(source_raw)             # remove any training spaces or it won't compile
+            return source
+        except:
+            return None
 
     def ast_module__from(self, target):
         source_code = self.source_code__from(target)

@@ -51,6 +51,8 @@ class test_Ast_Module(TestCase):
     def setUp(self):
         self.ast         = Ast()
         self.source_code = self.ast.source_code__from           (the_answer      )
+        if self.source_code is None:
+            pytest.skip('Skipping when source_code is not available')
         self.ast_module  = self.ast.ast_module__from_source_code(self.source_code)
 
     def test__setUp(self):

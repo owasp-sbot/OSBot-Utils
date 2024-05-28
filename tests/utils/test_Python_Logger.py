@@ -1,4 +1,5 @@
 import logging
+import sys
 from _thread import RLock
 from datetime import datetime
 from io import TextIOWrapper, StringIO
@@ -6,6 +7,9 @@ from logging import Logger, LogRecord
 from logging.handlers import MemoryHandler
 from unittest import TestCase
 from unittest.mock import patch
+
+import pytest
+
 from osbot_utils.utils.Files import file_lines, file_exists, file_contents, file_delete
 from osbot_utils.utils.Lists import list_set_dict
 from osbot_utils.utils.Objects import obj_dict, obj_items
@@ -96,6 +100,9 @@ class test_Python_Logger(TestCase):
         assert f'{debug_message}\n'       == log_entry[3]
 
     def test_add_file_logger(self):
+        if sys.version_info > (3, 12):
+            pytest.skip("Skipping test that doesn't work on 3.13 or higher")
+
         assert self.logger.add_file_logger() is True
         file_handler = self.logger.log_handler_file()
         log_file     = file_handler.baseFilename

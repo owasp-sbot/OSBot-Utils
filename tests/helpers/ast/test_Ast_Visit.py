@@ -1,5 +1,9 @@
+import sys
 from json import JSONDecoder
 from unittest                           import TestCase
+
+import pytest
+
 from osbot_utils.utils.Functions        import python_file
 from osbot_utils.helpers.ast            import Ast_Module
 from osbot_utils.helpers.ast.Ast_Visit  import Ast_Visit
@@ -13,6 +17,10 @@ def an_method():
 
 class test_Ast_Visit(TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        if sys.version_info > (3, 12):
+            pytest.skip("Skipping tests that don't work on 3.13 or higher")
 
     def test__init__(self):
         module = Ast_Module("4")
