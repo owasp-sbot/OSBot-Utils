@@ -1,7 +1,9 @@
+import os
 from unittest                import TestCase
 
 from osbot_utils.testing.Temp_File import Temp_File
 from osbot_utils.testing.Temp_Folder import Temp_Folder
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import Files, path_combine, parent_folder, path_current, save_bytes_as_file, file_bytes, \
     temp_file, file_create, file_delete, file_exists, file_contents, file_copy, file_contents_as_bytes, file_name, \
     folder_name, folder_files, file_not_exists, temp_folder, folder_copy, path_append, folder_exists, folder_create, \
@@ -10,12 +12,25 @@ from osbot_utils.utils.Files import Files, path_combine, parent_folder, path_cur
     file_lines, file_create_gz, file_lines_gz, parent_folder_combine, file_write_bytes, file_open_bytes, \
     file_contents_md5, \
     file_contents_sha256, create_folder_in_parent, sub_folders, safe_file_name, files_find, is_file, is_folder, \
-    temp_filename, current_folder, folder_delete
+    temp_filename, current_folder, folder_delete, all_parent_folders
 from osbot_utils.utils.Misc   import random_bytes, random_string, remove, bytes_md5, str_to_bytes, bytes_sha256
 from osbot_utils.utils.Zip import zip_files, zip_file_list, unzip_file
 
 
 class test_Files(TestCase):
+
+    def test_all_parent_folders(self):
+        folders = all_parent_folders()
+        assert len(folders) == len(os.getcwd().split('/')) -1
+        assert all_parent_folders('/aaa/bb/ccc') == ['/aaa/bb', '/aaa', '/']
+        assert all_parent_folders('/aaa/bb'    ) == ['/aaa', '/']
+        assert all_parent_folders('/aaa'       ) == [ '/']
+        assert all_parent_folders('/aaa\bb/ccc') == ['/aaa\x08b', '/']
+
+        assert all_parent_folders('/aaa/bb/ccc', include_path=True) == ['/aaa/bb/ccc', '/aaa/bb', '/aaa', '/']
+        assert all_parent_folders('/aaa/bb'    , include_path=True) == ['/aaa/bb', '/aaa', '/']
+        assert all_parent_folders('/aaa'       , include_path=True) == ['/aaa', '/']
+        assert all_parent_folders('/aaa\bb/ccc', include_path=True) == ['/aaa\x08b/ccc','/aaa\x08b', '/']
 
     def test_file_bytes(self):
         bytes     = random_bytes()

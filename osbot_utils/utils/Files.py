@@ -430,6 +430,25 @@ class Files:
 
 # todo: refactor the methods above into static methods (as bellow)
 
+def all_parent_folders(path=None, include_path=False):
+    if path is None:
+        path = os.getcwd()
+    parent_directories = []
+
+    # Optionally include the starting path
+    if include_path:
+        parent_directories.append(path)
+
+    while True:                                         # Split the path into parts
+        path, tail = os.path.split(path)
+        if tail:
+            parent_directories.append(path)
+        else:
+            if path and path not in parent_directories:  # to handle the root path case
+                parent_directories.append(path)
+            break
+
+    return parent_directories
 def file_move(source_file, target_file):
     if file_exists(source_file):
         file_copy(source_file, target_file)

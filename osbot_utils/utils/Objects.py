@@ -7,8 +7,6 @@ import pickle
 import types
 from typing import get_origin, Union, get_args
 
-from dotenv import load_dotenv
-
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Str  import str_unicode_escape, str_max_width
 
@@ -88,24 +86,6 @@ def enum_from_value(enum_type, value):
     except KeyError:
         raise ValueError(f"Value '{value}' is not a valid member of {enum_type.__name__}.")     # Handle the case where the value does not match any Enum member
 
-def env_value(var_name):
-    return env_vars().get(var_name, None)
-
-def env_vars_list():
-    return list_set(env_vars())
-
-def env_vars(reload_vars=False):
-    """
-    if reload_vars reload data from .env file
-    then return dictionary with current environment variables
-    """
-    if reload_vars:
-        load_dotenv()
-    vars = os.environ
-    data = {}
-    for key in vars:
-        data[key] = vars[key]
-    return data
 
 def get_field(target, field, default=None):
     if target is not None:

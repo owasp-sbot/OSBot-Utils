@@ -12,10 +12,10 @@ from osbot_utils.utils.Lists import list_contains_list
 
 from osbot_utils.utils.Misc import random_int, list_set
 from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, \
-    obj_dict, env_value, env_vars, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \
+    obj_dict, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
-    obj_base_classes, obj_base_classes_names, env_vars_list, are_types_compatible_for_assigment, type_mro, \
+    obj_base_classes, obj_base_classes_names, are_types_compatible_for_assigment, type_mro, \
     obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, pickle_save_to_bytes, pickle_load_from_bytes
 
 
@@ -99,22 +99,6 @@ class test_Objects(TestCase):
         assert dict_1 == {'b': 2, 'c': 3}
         assert dict_remove(dict_1, ['a','b']) == {'c': 3}
         assert dict_1 == { 'c': 3}
-
-    def test_env_value(self):
-        assert env_value("ENV_VAR_1") == "ENV_VAR_1_VALUE"
-
-    def test_env_vars(self):
-        os.environ.__setitem__("ENV_VAR_FROM_CODE", "ENV_VAR_FROM_CODE_VALUE")
-        loaded_env_vars = env_vars(reload_vars=True)
-        assert loaded_env_vars.get("ENV_VAR_1"        ) == 'ENV_VAR_1_VALUE'
-        assert loaded_env_vars.get("ENV_VAR_2"        ) == 'ENV_VAR_2_VALUE'
-        assert loaded_env_vars.get("ENV_VAR_FROM_CODE") == 'ENV_VAR_FROM_CODE_VALUE'
-
-    def test_env_vars_list(self):
-        assert env_vars_list().__contains__("ENV_VAR_1")
-        assert env_vars_list().__contains__("ENV_VAR_2")
-        assert env_vars_list() == sorted(set(env_vars()))
-        assert list_contains_list(env_vars_list(), ['PATH', 'HOME', 'PWD']) is True
 
     def test_get_field(self):
         assert str(get_field(self, '__module__')) == "test_Objects"

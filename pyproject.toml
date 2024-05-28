@@ -10,7 +10,7 @@ repository  = "https://github.com/owasp-sbot/OSBot-Utils"
 
 [tool.poetry.dependencies]
 python          = "^3.11"
-python-dotenv   = "*"
+
 
 #[tool.poetry.group.test.dependencies]
 #pytest          = "*"
