@@ -37,6 +37,18 @@ def env_load_from_file(path, override=False):
                 if override or key.strip() not in os.environ:       # Set the environment variable
                     os.environ[key.strip()] = value.strip()
 
+def env_unload_from_file(path):
+    if os.path.exists(path):
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):  # Strip whitespace and ignore comments
+                    continue
+                key, _ = line.split(sep='=', maxsplit=1)  # Split the line into key and value
+                key = key.strip()
+                if key in os.environ:  # Remove the environment variable if it exists
+                    del os.environ[key]
+
 def load_dotenv(dotenv_path=None, override=False):
     if dotenv_path:                                                 # If a specific dotenv path is provided, load from it
         env_load_from_file(dotenv_path, override)
@@ -48,6 +60,17 @@ def load_dotenv(dotenv_path=None, override=False):
                 env_load_from_file(env_path, override)              # Process it
                 break                                               # Stop after loading the first .env file                                                     # Stop after loading the first .env file
 
+
+def unload_dotenv(dotenv_path=None):
+    if dotenv_path:                                                 # If a specific dotenv path is provided, unload from it
+        env_unload_from_file(dotenv_path)
+    else:
+        directories = all_parent_folders(include_path=True)         # Define the possible directories to search for the .env file (which is this and all parent folders)
+        for directory in directories:                               # Iterate through the directories and unload the .env file if found
+            env_path = os.path.join(directory, '.env')              # Define the path to the .env file
+            if os.path.exists(env_path):                            # If we found one
+                env_unload_from_file(env_path)                      # Process it
+                break                                               # Stop after unloading the first .env file
 
 
 env_load = load_dotenv
