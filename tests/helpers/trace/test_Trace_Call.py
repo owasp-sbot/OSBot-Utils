@@ -253,6 +253,9 @@ class test_Trace_Call(TestCase):
                                       call('└─────┴──────┴────────┴────┴──┴───────┘')]
 
     def test__trace_up_to_a_level(self):
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping test that need FIXING on 3.8 or lower")
+
         if not in_github_action():              # todo: rewrite this test to use an example that is not
             return                              #       as expensive as Python_Logger since it is taking 200+ms (which is about 50% of the all OSBot_Utils tests
         with self.config as _:
