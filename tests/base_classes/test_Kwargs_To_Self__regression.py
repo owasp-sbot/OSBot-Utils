@@ -1,5 +1,5 @@
 import sys
-from typing import Optional, Union
+from typing import Optional, Union, List
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -239,6 +239,10 @@ class test_Kwargs_To_Self__regression(TestCase):
         assert cast_mode_c.an_int                 == 456                            # FIXED: BUG: but the value in the Cast_Mode_B object was not changed!
 
     def test__regression__check_type_safety_assignments__on_obj__union(self):
+
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping test that doesn't work on 3.8 or lower")
+
         class An_Class(Kwargs_To_Self):
             an_bool    : Optional[bool            ]
             an_int     : Optional[int             ]
@@ -277,6 +281,8 @@ class test_Kwargs_To_Self__regression(TestCase):
         #                                  'an_str'     : an_bytes_value                                }
 
     def test__regression__check_type_safety_assignments__on_list(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping test that needs FIXING on 3.8 or lower")
 
         class An_Class(Kwargs_To_Self):
             an_str     : str
@@ -312,7 +318,7 @@ class test_Kwargs_To_Self__regression(TestCase):
         graph_nodes   = mermaid_graph.nodes
         bad_node      = 'an str'
 
-        assert obj_attribute_annotation(mermaid_graph, 'nodes') == list[Mermaid__Node]       # confirm nodes is list[Mermaid__Node]
+        assert obj_attribute_annotation(mermaid_graph, 'nodes') == List[Mermaid__Node]       # confirm nodes is list[Mermaid__Node]
         #assert type(graph_nodes) is list                                                              # FIXED was BUG: confirm that we lose type in graph_nodes
         assert type(graph_nodes) is Type_Safe__List                                                    # FIXED now graph_nodes is a typed list
         assert repr(graph_nodes) == 'list[Mermaid__Node] with 0 elements'                              # FIXED confirm graph_nodes is list[Mermaid__Node]

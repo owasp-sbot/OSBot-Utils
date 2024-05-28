@@ -1,6 +1,7 @@
 import queue
 from threading import Thread
 from queue import Queue
+from typing import Set, Dict
 
 from osbot_utils.helpers.pubsub.Event__Queue                        import Event__Queue
 from osbot_utils.helpers.pubsub.PubSub__Client                      import PubSub__Client
@@ -17,9 +18,9 @@ from osbot_utils.utils.Dev                                          import pprin
 
 class PubSub__Server(Event__Queue):
     #pubsub_db: PubSub__Sqlite
-    clients          : dict
-    clients_connected: set[PubSub__Client]
-    rooms            : dict[str, PubSub__Room]
+    clients          : Dict
+    clients_connected: Set[PubSub__Client]
+    rooms            : Dict[str, PubSub__Room]
     logging          : Logging
 
     def __init__ (self):

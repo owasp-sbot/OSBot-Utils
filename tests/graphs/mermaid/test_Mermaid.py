@@ -12,11 +12,6 @@ from osbot_utils.graphs.mermaid.Mermaid                         import Mermaid, 
 
 class test_Mermaid(TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        if sys.version_info < (3, 9):
-            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
-
     def setUp(self):
         self.mermaid = Mermaid()
 

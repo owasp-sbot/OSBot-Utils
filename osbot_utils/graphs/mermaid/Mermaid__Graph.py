@@ -1,3 +1,5 @@
+from typing import List
+
 from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
 from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
 from osbot_utils.graphs.mermaid.Mermaid__Edge import Mermaid__Edge
@@ -6,9 +8,9 @@ from osbot_utils.graphs.mgraph.MGraph import MGraph
 
 
 class Mermaid__Graph(MGraph):
-    edges        : list[Mermaid__Edge]
-    mermaid_code : list
-    nodes        : list[Mermaid__Node]
+    edges        : List[Mermaid__Edge]
+    mermaid_code : List
+    nodes        : List[Mermaid__Node]
 
     # def __init__(self, mgraph=None):
     #     super().__init__()

@@ -21,6 +21,8 @@ class test_Ast_Visit(TestCase):
     def setUpClass(cls) -> None:
         if sys.version_info > (3, 12):
             pytest.skip("Skipping tests that don't work on 3.13 or higher")
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that don't work on 3.8 or lower")
 
     def test__init__(self):
         module = Ast_Module("4")

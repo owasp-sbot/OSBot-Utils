@@ -72,7 +72,7 @@ class test_PubSub__Server(TestCase):
             assert _.clients[client_id] == client
 
     def test_client_connect_and_disconnect__via_events(self):
-        with (self.server as _):
+        with self.server as _:
 
             client = _.new_client()
 
@@ -86,7 +86,7 @@ class test_PubSub__Server(TestCase):
             assert client not in _.clients_connected        # BUG
 
     def test_client_join_room__client_leave_room(self):
-        with (self.server as _):
+        with self.server as _:
             room_name        = random_text('room_name')
             client_1         = _.new_client()
             client_2         = _.new_client()

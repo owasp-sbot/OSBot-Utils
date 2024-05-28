@@ -3,20 +3,15 @@ from unittest import TestCase
 
 import pytest
 
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import base_classes, base_types
-from osbot_utils.graphs.mgraph.MGraph import MGraph
-from osbot_utils.graphs.mgraph.MGraphs                        import MGraphs
-from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
+from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
+from osbot_utils.utils.Misc                         import list_set
+from osbot_utils.utils.Objects                      import base_classes, base_types
+from osbot_utils.graphs.mgraph.MGraph               import MGraph
+from osbot_utils.graphs.mgraph.MGraphs              import MGraphs
+from osbot_utils.graphs.mermaid.Mermaid__Graph      import Mermaid__Graph
 
 
 class test_Mermaid_MGraph(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        if sys.version_info < (3, 9):
-            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
 
     def setUp(self):
         self.mgraph        = MGraphs().new__random(x_nodes=4,y_edges=4)

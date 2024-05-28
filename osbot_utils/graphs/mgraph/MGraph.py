@@ -1,3 +1,5 @@
+from typing import List
+
 from osbot_utils.utils.Misc import random_text, lower
 from osbot_utils.base_classes.Kwargs_To_Self   import Kwargs_To_Self
 from osbot_utils.graphs.mgraph.MGraph__Config  import MGraph__Config
@@ -8,9 +10,9 @@ from osbot_utils.graphs.mgraph.MGraph__Node    import MGraph__Node
 # todo add support for storing the data in sqlite so that we get the ability to search nodes and edges
 class MGraph(Kwargs_To_Self):
     config : MGraph__Config
-    edges  : list[MGraph__Edge]
+    edges  : List[MGraph__Edge]
     key    : str
-    nodes  : list[MGraph__Node]
+    nodes  : List[MGraph__Node]
 
 
     def __init__(self, **kwargs):

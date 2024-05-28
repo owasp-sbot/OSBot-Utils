@@ -5,9 +5,10 @@ import functools
 import inspect
 import sys
 import types
+import typing
 from decimal import Decimal
 from enum                                       import Enum, EnumMeta
-from typing                                     import get_origin, get_args
+from typing import get_origin, get_args, List
 
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.utils.Dev                      import pprint
@@ -197,6 +198,18 @@ class Kwargs_To_Self:               # todo: check if the description below is st
 
     @classmethod
     def __default__value__(cls, var_type):
+        if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
+            return set()
+        if get_origin(var_type) is set:
+            return set()                                        # todo: add Type_Safe__Set
+
+        if var_type is typing.Dict:
+            return {}
+        if get_origin(var_type) is dict:
+            return {}                                           # todo: add Type_Safe__Dict
+
+        if var_type is typing.List:
+            return []  # handle case when List was used with no type information provided
         if get_origin(var_type) is list:                        # if we have list defined as list[type]
             item_type = get_args(var_type)[0]                   #    get the type that was defined
             return Type_Safe__List(expected_type=item_type)     #    and used it as expected_type in Type_Safe__List
@@ -318,7 +331,7 @@ def serialize_to_dict(obj):
         return obj
     elif isinstance(obj, Enum):
         return obj.name
-    elif isinstance(obj, list):
+    elif isinstance(obj, list) or isinstance(obj, List):
         return [serialize_to_dict(item) for item in obj]
     elif isinstance(obj, dict):
         return {key: serialize_to_dict(value) for key, value in obj.items()}

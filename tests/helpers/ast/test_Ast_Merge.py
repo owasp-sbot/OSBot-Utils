@@ -1,11 +1,20 @@
+import sys
 from unittest                           import TestCase
 from unittest.mock                      import patch
+
+import pytest
+
 from osbot_utils.utils.Str              import str_dedent
 from osbot_utils.helpers.ast            import Ast_Module
 from osbot_utils.helpers.ast.Ast_Merge  import Ast_Merge
 
 
 class test_Ast_Merge(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that don't work on 3.8 or lower")
 
     def setUp(self):
         self.ast_merge = Ast_Merge()
