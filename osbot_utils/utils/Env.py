@@ -1,10 +1,23 @@
 # In Misc.py
 import os
+from sys import platform
 
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import all_parent_folders
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Str import strip_quotes
 
+def env__home_root():
+    return os.getenv('HOME') == '/root'
+
+def env__terminal_xterm():
+    return os.getenv('TERM') == 'xterm'
+
+def env__not_terminal_xterm():
+    return not env__terminal_xterm()
+
+def platform_darwin():
+    return platform == 'darwin'
 
 def env_value(var_name):
     return env_vars().get(var_name, None)

@@ -1,0 +1,27 @@
+services:
+#  python-3.9.19:
+#    build:
+#      context: ../..
+#      dockerfile: ./docker/pytest/3.9.19.Dockerfile
+#    volumes:
+#      - ../..:/app
+#
+#  python-3.10.14:
+#    build:
+#      context: ../..
+#      dockerfile: ./docker/pytest/3.10.14.Dockerfile
+#    volumes:
+#      - ../..:/app
+#
+#  python-3.11.9:
+#    build:
+#      context: ../..
+#      dockerfile: ./docker/pytest/3.11.9.Dockerfile
+#    volumes:
+#      - ../..:/app
+  python-3.12.3:
+    build:
+      context: ../..
+      dockerfile: ./docker/pytest/3.12.3.Dockerfile
+    volumes:
+      - ../..:/app
