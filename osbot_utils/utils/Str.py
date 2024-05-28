@@ -3,12 +3,18 @@ from html import escape, unescape
 
 from osbot_utils.utils.Files import safe_file_name
 
+# todo: refactor this this class all str related methods (mainly from the Misc class)
 
-def html_escape(value):
+def html_escape(value: str):
     return escape(value)
 
-def html_unescape(value):
+def html_unescape(value: str):
     return unescape(value)
+
+def strip_quotes(value: str):                           # Remove surrounding quotes (single or double)
+    if (value.startswith("'") and value.endswith("'")) or (value.startswith('"') and value.endswith('"')):
+        return value[1:-1]
+    return value
 
 def str_dedent(value, strip=True):
     result = textwrap.dedent(value)

@@ -85,3 +85,6 @@ class Sqlite__Cursor(Kwargs_To_Self):
         all_rows   = self.cursor().fetchall()
         all_values = [cell.get(cell_name) for cell in all_rows]
         return all_values
+
+    def vacuum(self):
+        return self.execute("VACUUM")

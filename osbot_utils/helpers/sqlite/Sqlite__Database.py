@@ -130,8 +130,11 @@ class Sqlite__Database(Kwargs_To_Self):
             table_names.append('sqlite_master')
         return table_names
 
+    def purge_database(self):       # this fells like a better name than vacuum :)
+        return self.vacuum()
 
-
+    def vacuum(self):
+        return self.cursor().vacuum()
 
 
 

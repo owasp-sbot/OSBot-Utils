@@ -1,11 +1,41 @@
+import gzip
 import io
 import os
 import shutil
+import tarfile
 import zipfile
 from os.path import abspath
 
-from osbot_utils.utils.Files import temp_folder, folder_files, temp_file, is_file
+from osbot_utils.utils.Files import temp_folder, folder_files, temp_file, is_file, file_copy, file_move
 
+
+def gz_tar_bytes_file_list(gz_bytes):
+    gz_buffer_from_bytes = io.BytesIO(gz_bytes)
+    with gzip.GzipFile(fileobj=gz_buffer_from_bytes, mode='rb') as gz:
+        decompressed_data = gz.read()
+        tar_buffer_from_bytes = io.BytesIO(decompressed_data)                       # Assuming the decompressed data is a tag file, process it
+        with tarfile.open(fileobj=tar_buffer_from_bytes, mode='r:') as tar:
+            return sorted(tar.getnames())
+
+def gz_tar_bytes_get_file(gz_bytes, tar_file_path):
+    gz_buffer_from_bytes = io.BytesIO(gz_bytes)
+    with gzip.GzipFile(fileobj=gz_buffer_from_bytes, mode='rb') as gz:
+        decompressed_data = gz.read()
+        tar_buffer_from_bytes = io.BytesIO(decompressed_data)
+        with tarfile.open(fileobj=tar_buffer_from_bytes, mode='r:') as tar:
+            extracted_file = tar.extractfile(tar_file_path)
+            if extracted_file:
+                return extracted_file.read()
+            else:
+                raise FileNotFoundError(f"The file {tar_file_path} was not found in the tar archive.")
+
+def gz_zip_bytes_file_list(gz_bytes):
+    gz_buffer_from_bytes = io.BytesIO(gz_bytes)
+    with gzip.GzipFile(fileobj=gz_buffer_from_bytes, mode='rb') as gz:
+        decompressed_data = gz.read()
+        zip_buffer_from_bytes = io.BytesIO(decompressed_data)                   # Assuming the decompressed data is a zip file, process it
+        with zipfile.ZipFile(zip_buffer_from_bytes, 'r') as zf:
+            return sorted(zf.namelist())
 
 def unzip_file(zip_file, target_folder=None, format='zip'):
     target_folder = target_folder or temp_folder()
@@ -27,6 +57,14 @@ def zip_bytes_get_file(zip_bytes, zip_file_path):
     zip_buffer = io.BytesIO(zip_bytes)
     with zipfile.ZipFile(zip_buffer, 'r') as zf:
         return zf.read(zip_file_path)
+
+def zip_bytes_extract_to_folder(zip_bytes, target_folder=None):
+    target_folder = target_folder or temp_folder()              # Use the provided target folder or create a temporary one
+    zip_buffer = io.BytesIO(zip_bytes)                          # Create a BytesIO buffer from the zip bytes
+    with zipfile.ZipFile(zip_buffer, 'r') as zf:          # Open the zip file from the buffer
+        zf.extractall(target_folder)                            # Extract all files to the target folder
+    return target_folder                                        # Return the path of the target folder
+
 
 def zip_bytes_file_list(zip_bytes):
     zip_buffer_from_bytes = io.BytesIO(zip_bytes)
@@ -60,6 +98,11 @@ def zip_files_to_bytes(target_files, root_folder=None):
 
 def zip_folder(root_dir, format='zip'):
     return shutil.make_archive(base_name=root_dir, format=format, root_dir=root_dir)
+
+def zip_folder_to_file (root_dir, target_file):
+    zip_file = zip_folder(root_dir)
+    return file_move(zip_file, target_file)
+
 
 def zip_folder_to_bytes(root_dir):      # todo add unit test
     zip_buffer = io.BytesIO()                                                   # Create a BytesIO buffer to hold the zipped file

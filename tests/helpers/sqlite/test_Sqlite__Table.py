@@ -121,12 +121,22 @@ class test_Sqlite__Table(TestCase):
 
     def test_row_add(self):
         with self.table as _:
+            expected_row_1 = {'an_bytes': b'', 'an_int': 0 , 'an_str': '' , 'id': 1}
+            expected_row_2 = {'an_bytes': b'', 'an_int': 42, 'an_str': 'A', 'id': 2}
             row_obj_1 = self.table.new_row_obj()
             row_obj_2 = self.table.new_row_obj(dict(an_str='A', an_int=42))
             assert self.table.row_add(row_obj_1) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
             assert self.table.row_add(row_obj_2) == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
-            assert self.table.rows() == [{'an_bytes': b'', 'an_int': 0 , 'an_str': '' , 'id': 1},
-                                         {'an_bytes': b'', 'an_int': 42, 'an_str': 'A', 'id': 2}]
+            assert self.table.rows() == [expected_row_1,
+                                         expected_row_2]
+            assert self.table.row({'an_int':'A'}) is None
+            assert self.table.row({'an_int': 0 }) == expected_row_1
+            assert self.table.row({'an_int': 42}) == expected_row_2
+            assert self.table.row({'an_str':'A'}) == expected_row_2
+
+            assert self.table.row(where={'an_int': 0}, fields=['an_bytes'         ]) == {'an_bytes': b''}
+            assert self.table.row(where={'an_int': 0}, fields=['an_bytes','an_int']) == {'an_bytes': b'',  'an_int': 0}
+            assert self.table.row(where={'an_int': 0}, fields=['*'                ]) == expected_row_1
             assert self.table.size() == 2
             assert self.table.clear() == {'data': None, 'error': None, 'message': '', 'status': 'ok'}
             assert self.table.size() == 0

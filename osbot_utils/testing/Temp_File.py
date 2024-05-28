@@ -1,11 +1,11 @@
-from osbot_utils.utils.Files import Files, file_delete, folder_delete_all, files_list, file_create, file_name, \
+from osbot_utils.utils.Files import Files, file_delete, folder_delete_all, files_list, file_create, \
     parent_folder, file_exists, file_contents
 from osbot_utils.utils.Misc import random_filename
 
 
 class Temp_File:
-    def __init__(self, contents='...', extension='tmp'):
-        self.tmp_file            = random_filename(extension)
+    def __init__(self, contents='...', extension='tmp',file_name=None, ):
+        self.tmp_file            = file_name or random_filename(extension)
         self.tmp_folder          = None
         self.file_path           = None
         self.original_contents   = contents
@@ -30,7 +30,7 @@ class Temp_File:
         return file_exists(self.file_path)
 
     def file_name(self):
-        return file_name(self.path())
+        return Files.file_name(self.path())
 
     def files_in_folder(self):
         return files_list(self.tmp_folder)

@@ -5,7 +5,6 @@ import time
 import warnings
 from unittest import TestCase
 
-from dotenv import load_dotenv
 from osbot_utils.fluent import Fluent_List
 from osbot_utils.utils.Files import file_extension, file_contents
 from osbot_utils.utils.Misc import bytes_to_base64, base64_to_bytes, date_time_now, str_to_date, \
@@ -22,9 +21,6 @@ from osbot_utils.utils.Str import str_index
 
 
 class test_Misc(TestCase):
-
-    def setUp(self):
-        load_dotenv()
 
     def test_base64_to_bytes__bytes_to_base64(self):
         bytes        = b"\x89PNG__"

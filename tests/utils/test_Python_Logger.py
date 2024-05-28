@@ -54,8 +54,8 @@ class test_Python_Logger(TestCase):
         loggers = list_set(self.logger.manager_get_loggers())
         assert len(loggers) > 5
         assert self.logger.logger_name  in loggers
-        assert 'dotenv'                 in loggers
-        assert 'dotenv.main'            in loggers
+        assert 'Logging'                in loggers
+        assert 'Python_Logger__Mermaid' in loggers
 
     def test_setup(self):                           # setup is called as part of the Unit Tests setUp() with default values
         config = self.logger.config

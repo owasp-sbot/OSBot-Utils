@@ -130,6 +130,7 @@ class Sqlite__Table(Kwargs_To_Self):
         rows              = table_sqlite_master.cursor().execute__fetch_all(sql_query, params)
         return table_sqlite_master.list_of_field_name_from_rows(rows, field_name)
 
+
     def new_row_obj(self, row_data=None):
         if self.row_schema:
             new_obj = self.row_schema()
@@ -154,6 +155,7 @@ class Sqlite__Table(Kwargs_To_Self):
                         picked_row_data[field_name] = field_value
                 return picked_row_data
         return row_data
+
     def parse_row(self, row):
         if row and self.auto_pickle_blob:
             fields = self.fields__cached()
@@ -168,6 +170,14 @@ class Sqlite__Table(Kwargs_To_Self):
 
     def print(self, **kwargs):
         return Print_Table(**kwargs).print(self.rows())
+
+    def row(self, where, fields=None):
+        if fields is None:
+            return self.select_row_where(**where)
+
+        sql_query, params = self.sql_builder(limit=1).query_select_fields_with_conditions(fields, where)
+        row               = self.cursor().execute__fetch_one(sql_query, params)
+        return self.parse_row(row)
 
     def row_add(self, row_obj=None):
         invalid_reason = self.sql_builder().validate_row_obj(row_obj)
