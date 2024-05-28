@@ -21,4 +21,4 @@ jobs:
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/run-unit-tests@main
         with:
           package_name          : 'osbot_utils'
-          codecov_token         : ${{ secrets.CODECOV_TOKEN          }}
+          #codecov_token         : ${{ secrets.CODECOV_TOKEN          }}
