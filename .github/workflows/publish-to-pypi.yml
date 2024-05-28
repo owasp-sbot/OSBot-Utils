@@ -17,6 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Dependencies
-        uses: ./.github/actions/publish-to-pypi
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/publish-to-pypi@main
         with:
           PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
