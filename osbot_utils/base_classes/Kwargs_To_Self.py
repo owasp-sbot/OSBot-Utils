@@ -8,7 +8,7 @@ import types
 import typing
 from decimal import Decimal
 from enum                                       import Enum, EnumMeta
-from typing import get_origin, get_args, List
+from typing                                     import List
 
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.utils.Dev                      import pprint
@@ -18,12 +18,23 @@ from osbot_utils.utils.Objects                  import default_value, value_type
     raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
     obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr
 
-# if sys.version_info >= (3, 11):
-#     EnumType = (Enum, EnumMeta)
-#     #from enum import EnumType  # Only available in Python 3.10 and later
-# else:
-#     EnumType = None  # or define a mock/fallback EnumType if needed
+# Backport implementations of get_origin and get_args for Python 3.7
+if sys.version_info < (3, 8):
+    def get_origin(tp):
+        if isinstance(tp, typing._GenericAlias):
+            return tp.__origin__
+        elif tp is typing.Generic:
+            return typing.Generic
+        else:
+            return None
 
+    def get_args(tp):
+        if isinstance(tp, typing._GenericAlias):
+            return tp.__args__
+        else:
+            return ()
+else:
+    from typing import get_origin, get_args
 
 if sys.version_info >= (3, 10):
     NoneType = types.NoneType

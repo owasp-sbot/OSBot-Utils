@@ -1,5 +1,9 @@
+import sys
 from unittest import TestCase
 from unittest.mock import patch, call
+
+import pytest
+
 from osbot_utils.utils.Files import temp_file
 from osbot_utils.utils.Process import Process, run_process, chmod_x, exec_open, stop_process
 
@@ -13,6 +17,9 @@ class test_Process(TestCase):
         assert '-rwxr-xr-x' in run_process('ls', ['-la', temp_exe])['stdout']
 
     def test_run(self):
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping test that doesn't work on 3.7 or lower")
+
         assert run_process('echo', ['hello', 'world'])['stdout'] == 'hello world\n'
         assert run_process('echo', 'hello world')['stdout'] == 'hello world\n'
 

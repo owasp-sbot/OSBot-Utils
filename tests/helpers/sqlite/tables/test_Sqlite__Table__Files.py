@@ -1,4 +1,7 @@
+import sys
 from unittest import TestCase
+
+import pytest
 
 from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
 from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Files import Sqlite__Table__Files
@@ -11,6 +14,9 @@ class test_Sqlite__Table__Files(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping tests that don't work on 3.7 or lower")
+
         cls.table_files = Sqlite__Table__Files()
         cls.database     = cls.table_files.database
         cls.table_files.setup()

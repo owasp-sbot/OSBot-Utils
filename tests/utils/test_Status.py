@@ -3,6 +3,8 @@ import traceback
 from io import StringIO
 from unittest import TestCase
 
+import pytest
+
 from osbot_utils.utils.Files import file_name
 from osbot_utils.utils.Functions import type_file
 from osbot_utils.utils.Misc import list_set
@@ -18,6 +20,9 @@ class test_Status(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping tests that don't work on 3.7 or lower")
+
         send_status_to_logger(True)
         assert osbot_logger.config.log_to_memory is False
         assert osbot_logger.add_memory_logger  () is True

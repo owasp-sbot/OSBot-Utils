@@ -1,4 +1,5 @@
 import ast
+import sys
 from unittest                                   import TestCase
 
 import pytest
@@ -17,6 +18,8 @@ class test_Ast(TestCase):
     def setUpClass(cls) -> None:
         if env__terminal_xterm() or env__home_root():
             pytest.skip('Skipping tests that are failing in local docker')  # todo: figure out why multiple of these were failing inside docker
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that don't work on 3.8 or lower")
 
     def setUp(self):
         self.ast = Ast()

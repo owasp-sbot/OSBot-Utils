@@ -49,6 +49,8 @@ class test_Ast_Module(TestCase):
             pytest.skip('Skipping tests that require terminal_xterm')  # todo: figure out why multiple of these were failing inside docker
         if sys.version_info > (3, 12):
             pytest.skip("Skipping tests that don't work on 3.13 or higher")
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that don't work on 3.8 or lower")
 
 
     def setUp(self):

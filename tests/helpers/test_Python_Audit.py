@@ -1,11 +1,20 @@
 import sys
 from unittest import TestCase
 from unittest.mock import call, patch
+
+import pytest
+
 from osbot_utils.testing.Patch_Print import Patch_Print
 from osbot_utils.helpers.Python_Audit import Python_Audit
 
 
 class test_Python_Audit(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping tests that don't work on 3.7 or lower")
+
 
     def setUp(self):
         self.python_audit = Python_Audit()

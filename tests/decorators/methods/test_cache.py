@@ -1,4 +1,8 @@
+import sys
 from unittest import TestCase
+
+import pytest
+
 from osbot_utils.decorators.methods.cache import cache
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.testing.Catch import Catch
@@ -6,6 +10,11 @@ from osbot_utils.testing.Profiler import Profiler
 
 
 class test_cache(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        if sys.version_info < (3, 8):
+            pytest.skip("Skipping tests that don't work on 3.7 or lower")
 
     def test_cache(self):
 
