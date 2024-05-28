@@ -155,7 +155,7 @@ class test_Trace_Call__Stack(TestCase):
     def test_map_source_code(self):
         if sys.version_info < (3, 11):
             pytest.skip("Skipping test that doesn't work on 3.10 or lower")
-            
+
         sample_frame    = call_stack_current_frame()
         map_source_code = self.stack.map_source_code
         config          = self.stack.config
