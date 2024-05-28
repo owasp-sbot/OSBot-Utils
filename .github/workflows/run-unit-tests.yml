@@ -12,11 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-#      - name: Install Dependencies (using Poetry)
-#        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/install-dependencies-poetry@main
-
       - name: Install Dependencies (using Pip)
         uses: ./.github/actions/install-dependencies-pytest
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Run Unit Tests
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/run-unit-tests@main

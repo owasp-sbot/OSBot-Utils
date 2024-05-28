@@ -1,14 +1,22 @@
 name       : Install Dependencies (using Pip)
 description: 'Install Dependencies (using Pip)'
 
+inputs:
+  python-version:
+    description: 'The Python version to use'
+    required: false
+    default: '3.12'
+
 runs:
     using: 'composite'
     steps:
       - uses: actions/checkout@v4
-      - name: Install Python 3.x
+
+      - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+            python-version: ${{ inputs.python-version }}
+            
       - name: Cache pip dependencies
         uses: actions/cache@v4
         with:
