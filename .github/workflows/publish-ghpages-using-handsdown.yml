@@ -44,8 +44,9 @@ jobs:
           pip install handsdown mkdocs mkdocs-material
 
       - name: Generate docs with Handsdown
-        run: |
-          handsdown --external `git config --get remote.origin.url` -o docs --cleanup --theme material          
+        run: |          
+          handsdown --external `git config --get remote.origin.url` -o docs --theme=material --create-configs
+
           mkdocs build
           pwd
           ls -la docs
