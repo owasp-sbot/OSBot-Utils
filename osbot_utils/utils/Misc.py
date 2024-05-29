@@ -238,6 +238,9 @@ def lower(target : str):
         return target.lower()
     return ""
 
+def not_in_github_action():
+    return in_github_action() is False
+
 def size(target=None):
     if target and hasattr(target, '__len__'):
         return len(target)

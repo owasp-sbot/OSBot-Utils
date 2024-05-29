@@ -1,5 +1,5 @@
 # Stage 1: Build the wheel
-FROM python:3.11-slim as builder
+FROM python:3.12.3-slim as builder
 
 ## Install dependencies for building
 #RUN apt-get update && apt-get install -y build-essential
@@ -23,7 +23,7 @@ COPY ./osbot_utils ./osbot_utils
 RUN poetry build -f wheel
 
 # Stage 2: Create a minimal runtime image
-FROM python:3.11-slim
+FROM python:3.12.3-slim
 
 # Set working directory
 WORKDIR /app

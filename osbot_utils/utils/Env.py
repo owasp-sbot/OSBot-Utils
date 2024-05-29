@@ -45,6 +45,8 @@ def env_load_from_file(path, override=False):
                 line = line.strip()
                 if not line or line.startswith('#'):                # Strip whitespace and ignore comments
                     continue
+                if line.startswith('export '):                      # if the line starts with export, we can ignore it and continue
+                    line = line[7:]
                 key, value = line.split(sep='=', maxsplit=1)        # Split the line into key and value
                 value = strip_quotes(value.strip())                 # Handle case when the value is in quotes
                 if override or key.strip() not in os.environ:       # Set the environment variable

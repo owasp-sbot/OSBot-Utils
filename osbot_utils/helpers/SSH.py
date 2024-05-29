@@ -5,6 +5,7 @@ from osbot_utils.context_managers.capture_duration import capture_duration
 from osbot_utils.decorators.lists.group_by import group_by
 from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Functions import function_source_code
 from osbot_utils.utils.Misc import timestamp_utc_now
 from osbot_utils.utils.Process import start_process
 from osbot_utils.utils.Status import status_error
@@ -26,6 +27,26 @@ class SSH(Kwargs_To_Self):
             result['duration']  = duration.data()
             return result
         return status_error(error='in execute_command not all required vars were setup')
+
+    def execute_python__code(self, python_code, python_executable='python3'):
+        python_command  = f"{python_executable} -c \"{python_code}\""
+        return self.execute_command(python_command)
+
+    def execute_python__code__return_stdout(self, *args, **kwargs):
+        return self.execute_python__code(*args, **kwargs).get('stdout').strip()
+
+    def execute_python__function(self, function, python_executable='python3'):
+        function_name   = function.__name__
+        function_code   = function_source_code(function)
+        exec_code       = f"{function_code}\nresult= {function_name}(); print(result)"
+        python_command  = f"{python_executable} -c \"{exec_code}\""
+        return self.execute_command(python_command)
+
+    def execute_python__function__return_stderr(self, *args, **kwargs):
+        return self.execute_python__function(*args, **kwargs).get('stderr').strip()
+
+    def execute_python__function__return_stdout(self, *args, **kwargs):
+        return self.execute_python__function(*args, **kwargs).get('stdout').strip()
 
     def execute_ssh_args(self, command=None):
         ssh_args = []
