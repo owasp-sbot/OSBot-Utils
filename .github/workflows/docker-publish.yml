@@ -1,11 +1,12 @@
 name: Build and Push Docker Image
 
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows: ["Increment Tag - Main branch"]
-    types:
-      - completed
+  push
+#  workflow_dispatch:
+#  workflow_run:
+#    workflows: ["Increment Tag - Main branch"]
+#    types:
+#      - completed
 
 jobs:
   build-and-push:
@@ -24,10 +25,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN    }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image (diniscruz/osbot_utils:latest)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./docker/python_slim/Dockerfile
           push: true
           tags: diniscruz/osbot_utils:latest
+
+      - name: Build and push Docker image (diniscruz/osbot_utils:latest-pyodide)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/python_slim/Dockerfile
+          push: true
+          tags: diniscruz/osbot_utils:latest-pyodide

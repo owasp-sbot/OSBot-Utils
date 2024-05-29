@@ -1,0 +1,12 @@
+services:
+  pyodide-web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/app/index.html
+      - ./repl.js:/usr/share/nginx/html/app/repl.js
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    environment:
+      - NGINX_PORT=80
+    container_name: pyodide-web-container

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Python REPL with Pyodide</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.0/full/pyodide.js"></script>
+    <script src="simple-repl.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+        #output {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background: #f0f0f0;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Python REPL with osbot-utils</h1>
+    <textarea id="code-input" placeholder="Enter Python code here...">
+# simple osbot-utils example, just press enter to execute (print statement will show in the browser's console)
+
+from osbot_utils.utils.Dev import pprint
+result=pprint('Hello from the browser');
+f'the return value was: "{result}"'
+    </textarea>
+    <button onclick="runCode()">Run</button>
+    <div id="output"></div>
+</body>
+</html>
