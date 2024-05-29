@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: diniscruz/osbot_utils-pyodide
-    container_name: osbot-utils-pyodide_container
+    image: diniscruz/osbot_utils-pyodide_shell
+    container_name: osbot_utils-pyodide_shell-container
     stdin_open: true
     tty: true
