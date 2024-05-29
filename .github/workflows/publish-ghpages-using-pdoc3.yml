@@ -2,14 +2,12 @@
 name: Build and Deploy GitHub Page (using pdoc3)
 
 on:
-  push:
-#on:
-#  workflow_dispatch:
-#  workflow_run:
-#    workflows: ["Run Tests - Unit"]
-#    branches: [main]
-#    types:
-#      - completed
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Run Tests - Unit"]
+    branches: [main]
+    types:
+      - completed
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
