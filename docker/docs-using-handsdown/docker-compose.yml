@@ -1,0 +1,10 @@
+services:
+  handsdown-docs:
+    build:
+      context: ../..
+      dockerfile: ./docker/docs-using-handsdown/Dockerfile
+    ports:
+      - "8000:8000"
+    container_name: handsdown-docs-container
+    command: >
+      sh -c "handsdown -o docs --theme=material --create-configs && mkdocs serve -a 0.0.0.0:8000"
