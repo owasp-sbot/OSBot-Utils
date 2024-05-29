@@ -1,5 +1,9 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Build and Deploy GitHub Page (using pdoc3)
+# todo: fis thiss since this is NOT working since there are no html pages created, just a bunch of html pages
+#       here is a the run https://github.com/owasp-sbot/OSBot-Utils/actions/runs/9283736677
+#       it works ok in the docs-using-handsdown dockerfile, but that is because we are calling mkdocs serve -a 0.0.0.0:8000"
+#       using gdocs for now (once revisiting this, see if these are still the best ones to use). specially since we might want to use a full Static Site Generator here
+
+name: Build and Deploy GitHub Page (using handsdown)
 
 on:
   push
@@ -38,18 +42,24 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
-        run: |
-          # python -m pip install --upgrade pip
-          # pip install -r requirements.txt
-          pip install pdoc3
-      - name: Build docs
-        run: |
-          pdoc3 --html osbot_utils --output-dir docs
+
+
+      - name: Install dependencies (for handsdown)
+        run: |                
+          pip install handsdown mkdocs mkdocs-material
+
+      - name: Generate docs with Handsdown
+        run: |          
+          handsdown --external `git config --get remote.origin.url` -o docs --theme=material --create-configs
+
+          mkdocs build
+          pwd
+          ls -la docs
+          ls -la docs/osbot_utils
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'docs/osbot_utils'
+          path: 'docs'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

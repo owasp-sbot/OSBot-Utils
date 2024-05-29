@@ -1,13 +1,13 @@
-name: Build and Deploy GitHub Page (using handsdown)
+# Simple workflow for deploying static content to GitHub Pages
+name: Build and Deploy GitHub Page (using pdoc3)
 
 on:
-  push
-
-#  push:
-#    branches: [main]
-
-  # Allows you to run this workflow manually from the Actions tab
-#  workflow_dispatch:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Run Tests - Unit"]
+    branches: [main]
+    types:
+      - completed
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -37,24 +37,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-
-      - name: Install dependencies (for handsdown)
-        run: |                
-          pip install handsdown mkdocs mkdocs-material
-
-      - name: Generate docs with Handsdown
-        run: |          
-          handsdown --external `git config --get remote.origin.url` -o docs --theme=material --create-configs
-
-          mkdocs build
-          pwd
-          ls -la docs
-          ls -la docs/osbot_utils
+      - name: Install dependencies
+        run: |
+          # python -m pip install --upgrade pip
+          # pip install -r requirements.txt
+          pip install pdoc3
+      - name: Build docs
+        run: |
+          pdoc3 --html osbot_utils --output-dir docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'docs'
+          path: 'docs/osbot_utils'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
