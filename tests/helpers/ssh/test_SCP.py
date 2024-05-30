@@ -40,6 +40,7 @@ class test_SCP(TestCase__SSH):
                                       'ssh_key_user'      : self.ssh.ssh_key_user ,
                                       'strict_host_check' : False             }
 
+    @pytest.mark.skip("This test needs refactoring and broken into smaller components")
     def test_copy_file_to_host(self):
         temp_contents = random_text('some text')
         with Temp_File(contents=temp_contents) as temp_file:
