@@ -19,12 +19,12 @@ jobs:
         id: ssh-key
         run: |
           ssh-keygen -t rsa -b 4096 -f /tmp/ssh_key -N ""
-          echo "::set-output name=private_key::$(cat /tmp/ssh_key)"
-          echo "::set-output name=public_key::$(cat /tmp/ssh_key.pub)"
+          ssh_key_pub=$(cat /tmp/ssh_key.pub)
+          echo "::set-output name=public_key::${ssh_key_pub}"
 
       - name: Start Docker container
         run: |
-          docker run -d --name test_container -e AUTHORIZED_KEYS="$(cat /tmp/ssh_key.pub)" diniscruz/python_with_ssh
+          docker run -d --name test_container -e AUTHORIZED_KEYS="$(cat /tmp/ssh_key.pub)" --platform linux/arm64 diniscruz/python_with_ssh
 
       - name: Wait for Docker container to be ready
         run: sleep 10
