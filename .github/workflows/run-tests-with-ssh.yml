@@ -27,7 +27,10 @@ jobs:
           docker run -d -p 22222:22 --name test_container -e AUTHORIZED_KEYS="$(cat /tmp/ssh_key.pub)" --platform linux/arm64 diniscruz/python_with_ssh
 
       - name: Wait for Docker container to be ready
-        run: sleep 10
+        run: |
+          docker ps
+          sleep 10
+          docker ps
 
       - name: Run a simple SSH command
         run: |
