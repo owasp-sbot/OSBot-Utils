@@ -1,17 +1,15 @@
-import os
 from os import environ
-from unittest import TestCase
 
 import pytest
 
-from osbot_utils.helpers.ssh.SCP        import SCP
-from osbot_utils.helpers.ssh.TestCase__SSH import TestCase__SSH
-from osbot_utils.testing.Temp_File      import Temp_File
-from osbot_utils.testing.Temp_Folder    import Temp_Folder
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Env              import load_dotenv
-from osbot_utils.utils.Files import file_name, file_exists, file_contents, file_delete, path_combine
-from osbot_utils.utils.Misc             import random_text
+from osbot_utils.helpers.ssh.SCP            import SCP
+from osbot_utils.helpers.ssh.TestCase__SSH  import TestCase__SSH
+from osbot_utils.testing.Temp_File          import Temp_File
+from osbot_utils.testing.Temp_Folder        import Temp_Folder
+from osbot_utils.utils.Dev                  import pprint
+from osbot_utils.utils.Env                  import load_dotenv
+from osbot_utils.utils.Files                import file_name, file_exists, file_contents, file_delete, path_combine
+from osbot_utils.utils.Misc                 import random_text
 
 ENV_VAR_TEST_OSBOT__SSH_HOST      = 'SSH__HOST'
 ENV_VAR_TEST_OSBOT__SSH_KEY_FILE  = 'SSH__KEY_FILE__FILE'
@@ -62,6 +60,9 @@ class test_SCP(TestCase__SSH):
             self.scp.copy_folder_as_zip_to_host(temp_folder, unzip_to_folder)
             print()
             scp_files = self.scp.exec(f'cd {unzip_to_folder}; find . -type f | sed "s|^\./||"')
+
+            # try this to remove the warning from the line above
+            # scp_files = self.scp.exec(f"cd {unzip_to_folder}; find . -type f | sed 's|^\\./||'")
             assert sorted(temp_folder.files()) == sorted(scp_files.splitlines())
 
             self.scp.print_ls()

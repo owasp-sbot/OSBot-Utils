@@ -1,13 +1,12 @@
 import sys
-from tomllib import TOMLDecodeError
-from unittest import TestCase
-
 import pytest
-
-from osbot_utils.utils.Dev import pprint
+from unittest               import TestCase
 from osbot_utils.utils.Json import json_parse
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Toml import dict_to_toml, toml_to_dict
+
+if sys.version_info >= (3, 11):
+    from tomllib import TOMLDecodeError
 
 
 class test_Toml(TestCase):
