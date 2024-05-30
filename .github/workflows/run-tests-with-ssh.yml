@@ -37,13 +37,22 @@ jobs:
       - name: Viewing docker logs
         run: |          
           docker ps          
+          echo ======= docker logs =======
           docker logs test_container
+          echo ======= docker logs =======
+
+      - name: Install test dependencies
+        run: |
+          pip install pytest
+          pip install -e .
 
       - name: Run tests (will go here)
-        run: |
-          ls -la
-          python --version
-          pytest tests/utils/test_Assert.py
+        env:
+          SSH__PORT: 22222
+          SSH__KEY_FILE: /tmp/ssh_key
+          SSH__USER: root
+        run: |                    
+          pytest tests/helpers/ssh
 
       - name: Stop and remove Docker container
         run: |
