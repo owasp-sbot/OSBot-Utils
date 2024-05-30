@@ -33,12 +33,21 @@ class SSH(Kwargs_To_Self):
         if ssh_key_user:
             self.ssh_key_user = ssh_key_user
 
+    def ssh_setup_ok(self):
+        # todo: add check to see if ssh executable exists (this check can be cached)
+        if self.ssh_host and self.ssh_key_file and self.ssh_key_user:
+            return True
+        return False
+
+    def ssh_not__setup_ok(self):
+        return self.ssh_setup_ok() is False
+
     # execution & other commands # todo refactor into separate class
     def exec(self, command):
         return self.execute_command__return_stdout(command)
 
     def execute_command(self, command):
-        if self.ssh_host and self.ssh_key_file and self.ssh_key_user and command:             # todo: add check to see if ssh executable exists (this check can be cached)
+        if self.ssh_setup_ok()  and command:
             ssh_args = self.execute_command_args(command)
             with capture_duration() as duration:
                 result          = start_process("ssh", ssh_args)                                 # execute command using subprocess.run(...)
@@ -90,10 +99,10 @@ class SSH(Kwargs_To_Self):
             return f'{self.ssh_host}'
 
     def execute_command__return_stdout(self, command):
-        return self.execute_command(command).get('stdout').strip()
+        return self.execute_command(command).get('stdout', '').strip()
 
     def execute_command__return_stderr(self, command):
-        return self.execute_command(command).get('stderr').strip()
+        return self.execute_command(command).get('stderr', '').strip()
 
     @index_by
     @group_by

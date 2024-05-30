@@ -490,9 +490,11 @@ date_time_from_timestamp   = timestamp_to_datetime
 date_time_from_time_stamp  = timestamp_to_datetime
 date_time_utc_now          = utc_now
 
+hash_sha256         = str_sha256
 
 new_guid            = random_uuid
 
+sha_256             = str_sha256
 str_lines           = split_lines
 str_remove          = remove
 
