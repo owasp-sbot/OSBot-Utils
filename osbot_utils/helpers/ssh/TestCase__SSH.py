@@ -1,9 +1,10 @@
 from unittest import TestCase
 
 import osbot_utils
-from osbot_utils.helpers.ssh.SSH import SSH
-from osbot_utils.utils.Env import load_dotenv
-from osbot_utils.utils.Files import path_combine
+from osbot_utils.helpers.ssh.SSH                    import SSH
+from osbot_utils.helpers.ssh.SSH__Cache__Requests   import SSH__Cache__Requests
+from osbot_utils.utils.Env                          import load_dotenv
+from osbot_utils.utils.Files                        import path_combine
 
 ENV_FILE__WITH_ENV_VARS           = "../.ssh.env"
 
@@ -14,6 +15,12 @@ class TestCase__SSH(TestCase):
     def setUpClass(cls):
         cls.load_dotenv()
         cls.ssh = SSH().setup()
+        cls.cache = SSH__Cache__Requests()
+        cls.cache.patch_apply()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.cache.patch_restore()
 
     @staticmethod
     def load_dotenv():

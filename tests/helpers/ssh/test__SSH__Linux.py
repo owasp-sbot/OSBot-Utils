@@ -12,6 +12,10 @@ class test__SSH_Linux(TestCase__SSH):
 
 
     def test_echo(self):
+        #self.cache.cache_table__clear()
         with self.ssh_linux as _:
             assert _.echo('hello world') == 'hello world'
+
+        #pprint(self.cache.cache_entries())
+        pprint(self.cache.requests_data__all())
 

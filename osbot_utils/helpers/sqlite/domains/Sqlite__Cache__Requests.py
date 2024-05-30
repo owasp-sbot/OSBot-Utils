@@ -4,6 +4,7 @@ from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests    import Sqlite__D
 from osbot_utils.utils.Json                                     import json_dumps, json_loads
 from osbot_utils.utils.Misc                                     import str_sha256, timestamp_utc_now
 from osbot_utils.utils.Objects                                  import pickle_save_to_bytes, pickle_load_from_bytes
+from osbot_utils.utils.Toml import toml_to_dict
 
 
 class Sqlite__Cache__Requests(Kwargs_To_Self):
@@ -31,6 +32,9 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         return self.cache_table().rows_delete_where(request_hash=request_data_sha256)
 
     def cache_entries(self):
+        return self.cache_table().rows()
+
+    def cache_entries__requests(self):
         return self.cache_table().rows()
 
     def cache_entry(self, request_data):
@@ -189,10 +193,11 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             request_data     = row.get('request_data')
             request_hash     = row.get('request_hash')
             request_comments = row.get('comments')
-            request_data_obj = json_loads(request_data)
-            request_data_obj['_id'      ] = req_id
-            request_data_obj['_hash'    ] = request_hash
-            request_data_obj['_comments'] = request_comments
+
+            request_data_obj = dict(request_data = request_data    ,
+                                    _id          = req_id          ,
+                                    _hash        =  request_hash   ,
+                                    _comments    = request_comments)
 
             requests_data.append(request_data_obj)
         return requests_data

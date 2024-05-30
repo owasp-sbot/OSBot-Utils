@@ -8,8 +8,10 @@ from osbot_utils.helpers.ssh.SSH__Cache__Requests import SSH__Cache__Requests, S
     SQLITE_TABLE_NAME__SSH_REQUESTS
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import temp_file, current_temp_folder, parent_folder, file_extension
+from osbot_utils.utils.Json import to_json_str
 from osbot_utils.utils.Misc import bytes_to_str, str_sha256, sha_256
 from osbot_utils.utils.Objects import base_types, pickle_load_from_bytes, pickle_from_bytes, pickle_to_bytes
+from osbot_utils.utils.Toml import dict_to_toml
 
 
 class test_SSH__Cache__Requests(TestCase):
@@ -66,10 +68,13 @@ class test_SSH__Cache__Requests(TestCase):
         assert SSH.execute_command.__qualname__ == 'SSH.execute_command'
 
     def test_invoke_target(self):
+        mock_ssh_host          = '127.0.0.1'
         mock_path              = '/aaa'
         mock_files             = ['/ccc', '/ddd']
+        expected_request_data  = to_json_str(dict_to_toml({'args': ('/aaa',), 'kwargs': {}, 'ssh_host': '127.0.0.1'}))
         expected_response_data = {'files': mock_files, 'path': mock_path}
         expected_response_bytes = pickle_to_bytes(expected_response_data)
+        expected_request_hash   = sha_256(expected_request_data)
 
         def on_invoke_target(*args):
             return {'files': mock_files,
@@ -81,26 +86,14 @@ class test_SSH__Cache__Requests(TestCase):
 
             assert _.cache_entries() == []
 
-            ssh = SSH().setup()
+            ssh = SSH(ssh_host= mock_ssh_host).setup()
             ssh.execute_command__return_stdout(mock_path)
-            cache_entry = _.cache_entries()[0]
 
+            cache_entry = _.cache_entries()[0]
             assert len(_.cache_entries()) == 1
-            response_data = pickle_from_bytes(cache_entry.get('response_bytes'))
+
+            response_data          = pickle_from_bytes(cache_entry.get('response_bytes'))
             assert response_data == expected_response_data
-            expected_request_data = ('{\n'
-                                      '    "args": [\n'
-                                      f'        "{str(ssh)}",\n'
-                                      '        "/aaa"\n'
-                                      '    ],\n'
-                                      '    "kwargs": {}\n'
-                                      '}')
-            expected_request_hash = sha_256(expected_request_data)
-            assert type(response_data        )  is dict
-            assert type(expected_response_data) is dict
-            assert response_data           == expected_response_data                        # these are the same
-            #assert expected_response_bytes == pickle_to_bytes(response_data         )       # this works
-            #assert expected_response_bytes == pickle_to_bytes(expected_response_data)       # this fails
 
             assert cache_entry == { 'cache_hits'    : 0                      ,
                                     'comments'      : ''                     ,

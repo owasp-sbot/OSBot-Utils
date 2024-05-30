@@ -13,7 +13,7 @@ def dict_to_toml(data, indent_level=0):
         if isinstance(value, dict):
             toml_str += f"{indent}[{key}]\n"
             toml_str += dict_to_toml(value, indent_level + 1)
-        elif isinstance(value, list):
+        elif isinstance(value, (list, tuple, set)):
             toml_str += f"{indent}{key} = [\n"
             for item in value:
                 toml_str += f"{indent}    {repr(item)},\n"

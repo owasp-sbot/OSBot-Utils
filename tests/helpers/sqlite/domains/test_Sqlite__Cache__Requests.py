@@ -217,7 +217,7 @@ class test_Sqlite__Cache__Requests(TestCase):
 
         with self.sqlite_cache_requests as _:
             for requests_data in _.requests_data__all():
-                assert list_set(requests_data) == ['_comments','_hash', '_id', 'args', 'kwargs']
+                assert list_set(requests_data) == ['_comments','_hash', '_id', 'request_data']
             assert _.cache_table().size() == count
 
 
