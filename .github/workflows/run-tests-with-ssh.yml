@@ -32,14 +32,7 @@ jobs:
           echo "-------- in the host -------"
           ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 echo "SSH connection successful"
           ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 whoami
-          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 pwd
-                        
-      - name: Viewing docker logs
-        run: |          
-          docker ps          
-          echo ======= docker logs =======
-          docker logs test_container
-          echo ======= docker logs =======
+          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 pwd                     
 
       - name: Install test dependencies
         run: |
@@ -48,11 +41,18 @@ jobs:
 
       - name: Run tests (will go here)
         env:
+          SSH__HOST: localhost
           SSH__PORT: 22222
           SSH__KEY_FILE: /tmp/ssh_key
           SSH__USER: root
         run: |                    
           pytest tests/helpers/ssh
+
+      - name: Viewing docker logs
+        run: |           
+          echo ======= docker logs =======
+          docker logs test_container
+          echo ======= docker logs =======
 
       - name: Stop and remove Docker container
         run: |
