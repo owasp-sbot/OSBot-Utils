@@ -26,21 +26,16 @@ jobs:
         run: |
           docker run -d -p 22222:22 --name test_container -e AUTHORIZED_KEYS="${{ steps.ssh-key.outputs.public_key }}" diniscruz/python_with_ssh
 
-      - name: Wait for Docker container to be ready
-        run: |
-          ls -la /tmp
-          docker ps
-          sleep 10
-          docker ps
-          docker logs test_container
-
       - name: Run a simple SSH command
-
         run: |
           ls -la /tmp          
           chmod 600 /tmp/ssh_key
           ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 echo "SSH connection successful"
                         
+      - name: Viewing docker logs
+        run: |          
+          docker ps          
+          docker logs test_container
 
 #      - name: Run tests
 #        run: |
