@@ -5,6 +5,7 @@ from osbot_utils.context_managers.capture_duration import capture_duration
 from osbot_utils.decorators.lists.group_by import group_by
 from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Env import get_env
 from osbot_utils.utils.Functions import function_source_code
 from osbot_utils.utils.Misc import timestamp_utc_now
 from osbot_utils.utils.Process import start_process
@@ -16,6 +17,23 @@ class SSH(Kwargs_To_Self):
     ssh_key_user      : str
     strict_host_check : bool = False
 
+    # setup commands             # todo refactor into separate class
+    def setup(self):
+        self.setup_using_env_vars()
+        return self
+
+    def setup_using_env_vars(self):         # move this to a CONFIG class (see code in SSH__Health_Check)
+        ssh_host = get_env('SSH__HOST')
+        ssh_key_file = get_env('SSH__KEY_FILE__FILE')
+        ssh_key_user = get_env('SSH__KEY_FILE__USER')
+        if ssh_host:
+            self.ssh_host = ssh_host
+        if ssh_key_file:
+            self.ssh_key_file = ssh_key_file
+        if ssh_key_user:
+            self.ssh_key_user = ssh_key_user
+
+    # execution & other commands # todo refactor into separate class
     def exec(self, command):
         return self.execute_command__return_stdout(command)
 

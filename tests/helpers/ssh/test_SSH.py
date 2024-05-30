@@ -1,36 +1,41 @@
 import pytest
-from os                         import environ
-from unittest                   import TestCase
-from osbot_utils.helpers.SSH    import SSH
-from osbot_utils.utils.Dev      import pprint
-from osbot_utils.utils.Misc     import list_set
+from os                           import environ
+from unittest                     import TestCase
+from osbot_utils.helpers.ssh.SSH  import SSH
+from osbot_utils.helpers.ssh.TestCase__SSH import TestCase__SSH
+from osbot_utils.utils.Dev        import pprint
+from osbot_utils.utils.Env import load_dotenv
+from osbot_utils.utils.Misc       import list_set
 
-ENV_VAR_TEST_OSBOT__SSH_HOST      = 'TEST_OSBOT__SSH_HOST'
-ENV_VAR_TEST_OSBOT__SSH_KEY_FILE  = 'TEST_OSBOT__SSH_KEY_FILE'
-ENV_VAR_TEST_OSBOT__SSH_KEY_USER  = 'TEST_OSBOT__SSH_KEY_USER'
+ENV_VAR_TEST_OSBOT__SSH_HOST      = 'SSH__HOST'
+ENV_VAR_TEST_OSBOT__SSH_KEY_FILE  = 'SSH__KEY_FILE__FILE'
+ENV_VAR_TEST_OSBOT__SSH_KEY_USER  = 'SSH__KEY_FILE__USER'
 
-class test_SSH(TestCase):
-    ssh      : SSH
-    ssh_host       : str
-    ssh_key_file  : str
-    ssh_key_user  : str
+ENV_FILE__WITH_ENV_VARS           = "../../../.ssh.env"
+
+class test_SSH(TestCase__SSH):
+    #ssh      : SSH
+    #ssh_host       : str
+    #ssh_key_file  : str
+    #ssh_key_user  : str
 
     @classmethod
     def setUpClass(cls):
-        #load_dotenv(dotenv_path='../../.local.env',override=True)       # todo: find a better solution for this use of ../../.local.env
-        cls.ssh_host     = environ.get(ENV_VAR_TEST_OSBOT__SSH_HOST    )
-        cls.ssh_key_file = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_FILE)
-        cls.ssh_key_user = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_USER)
-        if not cls.ssh_host:
+        super().setUpClass()
+        # load_dotenv(dotenv_path=ENV_FILE__WITH_ENV_VARS)
+        # cls.ssh_host     = environ.get(ENV_VAR_TEST_OSBOT__SSH_HOST    )
+        # cls.ssh_key_file = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_FILE)
+        # cls.ssh_key_user = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_USER)
+        if not cls.ssh.ssh_host:
             pytest.skip("SSH host not set")
-        cls.ssh = SSH(ssh_host=cls.ssh_host, ssh_key_file=cls.ssh_key_file, ssh_key_user=cls.ssh_key_user)
+
 
     def test__init__(self):
         with self.ssh as _:
-            assert _.__locals__() == {'ssh_host'          : self.ssh_host     ,
-                                      'ssh_key_file'      : self.ssh_key_file ,
-                                      'ssh_key_user'      : self.ssh_key_user ,
-                                      'strict_host_check' : False             }
+            assert _.__locals__() == {'ssh_host'          : self.ssh.ssh_host     ,
+                                      'ssh_key_file'      : self.ssh.ssh_key_file ,
+                                      'ssh_key_user'      : self.ssh.ssh_key_user ,
+                                      'strict_host_check' : False                 }
 
     def test_execute_command(self):
         assert self.ssh.execute_command(None) == { 'data' : None, 'message': '', 'status': 'error' ,
@@ -50,12 +55,12 @@ class test_SSH(TestCase):
     def test_execute_command_args(self):
         command = 'an_linux_command'
         ssh_args  = self .ssh.execute_command_args(command=command)
-        assert ssh_args == [ '-o'                                  ,
-                             'StrictHostKeyChecking=no'            ,
-                             '-i'                                  ,
-                             self.ssh_key_file                     ,
-                             f'{self.ssh_key_user}@{self.ssh_host}',
-                             command                               ]
+        assert ssh_args == [ '-o'                                          ,
+                             'StrictHostKeyChecking=no'                    ,
+                             '-i'                                          ,
+                             self.ssh.ssh_key_file                         ,
+                             f'{self.ssh.ssh_key_user}@{self.ssh.ssh_host}',
+                             command                                       ]
 
     # helpers for common linux methods
 

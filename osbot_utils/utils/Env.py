@@ -3,7 +3,7 @@ import os
 from sys import platform
 
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import all_parent_folders
+from osbot_utils.utils.Files import all_parent_folders, file_exists
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Str import strip_quotes
 
@@ -39,7 +39,7 @@ def env_vars(reload_vars=False):
     return data
 
 def env_load_from_file(path, override=False):
-    if os.path.exists(path):
+    if file_exists(path):
         with open(path) as f:
             for line in f:
                 line = line.strip()
@@ -89,3 +89,4 @@ def unload_dotenv(dotenv_path=None):
 
 
 env_load = load_dotenv
+get_env  = os.getenv

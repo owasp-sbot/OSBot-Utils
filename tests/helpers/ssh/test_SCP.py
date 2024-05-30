@@ -1,20 +1,25 @@
+import os
 from os import environ
 from unittest import TestCase
 
 import pytest
 
-from osbot_utils.helpers.SCP            import SCP
+from osbot_utils.helpers.ssh.SCP        import SCP
+from osbot_utils.helpers.ssh.TestCase__SSH import TestCase__SSH
 from osbot_utils.testing.Temp_File      import Temp_File
 from osbot_utils.testing.Temp_Folder    import Temp_Folder
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Env              import load_dotenv
-from osbot_utils.utils.Files            import file_name, file_exists, file_contents, file_delete
+from osbot_utils.utils.Files import file_name, file_exists, file_contents, file_delete, path_combine
 from osbot_utils.utils.Misc             import random_text
 
-ENV_VAR_TEST_OSBOT__SSH_HOST      = 'TEST_OSBOT__SSH_HOST'
-ENV_VAR_TEST_OSBOT__SSH_KEY_FILE  = 'TEST_OSBOT__SSH_KEY_FILE'
-ENV_VAR_TEST_OSBOT__SSH_KEY_USER  = 'TEST_OSBOT__SSH_KEY_USER'
+ENV_VAR_TEST_OSBOT__SSH_HOST      = 'SSH__HOST'
+ENV_VAR_TEST_OSBOT__SSH_KEY_FILE  = 'SSH__KEY_FILE__FILE'
+ENV_VAR_TEST_OSBOT__SSH_KEY_USER  = 'SSH__KEY_FILE__USER'
 
-class test_SCP(TestCase):
+
+
+class test_SCP(TestCase__SSH):
     scp           : SCP
     ssh_host      : str
     ssh_key_file  : str
@@ -22,7 +27,7 @@ class test_SCP(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        load_dotenv(dotenv_path='../../.local.env',override=True)       # todo: find a better solution for this use of ../../.local.env
+        super().setUpClass()
         cls.ssh_host     = environ.get(ENV_VAR_TEST_OSBOT__SSH_HOST    )
         cls.ssh_key_file = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_FILE)
         cls.ssh_key_user = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_USER)
