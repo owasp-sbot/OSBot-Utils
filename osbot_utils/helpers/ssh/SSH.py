@@ -19,7 +19,7 @@ ENV_VAR__SSH__STRICT_HOST_CHECK = 'SSH__STRICT_HOST_CHECK'
 
 class SSH(Kwargs_To_Self):
     ssh_host          : str
-    ssh_port          : int
+    ssh_port          : int  = 22
     ssh_key_file      : str
     ssh_key_user      : str
     strict_host_check : bool = False
@@ -59,6 +59,12 @@ class SSH(Kwargs_To_Self):
     def exec(self, command):
         return self.execute_command__return_stdout(command)
 
+    def exec__print(self, command):
+        result = self.execute_command__return_stdout(command)
+        self.print_header_for_command(command)
+        print(result)
+        return result
+
     def execute_command(self, command):
         if self.ssh_setup_ok()  and command:
             ssh_args = self.execute_command_args(command)
@@ -67,6 +73,12 @@ class SSH(Kwargs_To_Self):
             result['duration']  = duration.data()
             return result
         return status_error(error='in execute_command not all required vars were setup')
+
+    def execute_command__print(self, command):
+        self.print_header_for_command(command)
+        result = self.execute_command(command)
+        pprint(result)
+        return result
 
     def execute_python__code(self, python_code, python_executable='python3'):
         python_command  = f"{python_executable} -c \"{python_code}\""
@@ -198,8 +210,15 @@ class SSH(Kwargs_To_Self):
         return self
 
     def print_exec(self, command=''):
-        pprint(self.exec(command))
-        return self
+        return self.exec__print(command)
+
+    def print_header_for_command(self, command):
+        print('\n')
+        print('*' * (30 + len(command)))
+        print(f'******   stdout for: {command}   ******')
+        print('*' * (30 + len(command)))
+        print()
+
     # def ifconfig(self):
     #     command = "export PATH=$PATH:/sbin && ifconfig"               # todo add example with PATH modification
     #     return self.execute_command__return_stdout(command)

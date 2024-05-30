@@ -18,9 +18,9 @@ ENV_VAR_TEST_OSBOT__SSH_KEY_USER  = 'SSH__KEY_FILE__USER'
 
 class test_SCP(TestCase__SSH):
     scp           : SCP
-    ssh_host      : str
-    ssh_key_file  : str
-    ssh_key_user  : str
+    # ssh_host      : str
+    # ssh_key_file  : str
+    # ssh_key_user  : str
 
     @classmethod
     def setUpClass(cls):
@@ -30,13 +30,14 @@ class test_SCP(TestCase__SSH):
         # if not cls.ssh_host:
         #     pytest.skip("SSH host not set")
         super().setUpClass()
-        cls.scp = SCP(ssh_host=cls.ssh_host, ssh_key_file=cls.ssh_key_file, ssh_key_user=cls.ssh_key_user)
+        cls.scp = SCP(ssh_host=cls.ssh.ssh_host, ssh_key_file=cls.ssh.ssh_key_file, ssh_key_user=cls.ssh.ssh_key_user, ssh_port=cls.ssh.ssh_port)
 
     def test__init__(self):
         with self.scp as _:
-            assert _.__locals__() == {'ssh_host'          : self.ssh_host     ,
-                                      'ssh_key_file'      : self.ssh_key_file ,
-                                      'ssh_key_user'      : self.ssh_key_user ,
+            assert _.__locals__() == {'ssh_host'          : self.ssh.ssh_host     ,
+                                      'ssh_port'          : self.ssh.ssh_port     ,
+                                      'ssh_key_file'      : self.ssh.ssh_key_file ,
+                                      'ssh_key_user'      : self.ssh.ssh_key_user ,
                                       'strict_host_check' : False             }
 
     def test_copy_file_to_host(self):
@@ -56,16 +57,15 @@ class test_SCP(TestCase__SSH):
 
     def test_copy_folder_as_zip_to_host(self):
         with Temp_Folder(temp_files_to_add=10) as temp_folder:
-            unzip_to_folder = random_text('_unzipped/',lowercase=True)
+            if 'UnZip' in self.ssh.exec('unzip -v') is False:
+                pytest.skip("unzip command not available in the target host")
+
+            unzip_to_folder = random_text('_unzipped/', lowercase=True)
+
             self.scp.copy_folder_as_zip_to_host(temp_folder, unzip_to_folder)
-            print()
-            scp_files = self.scp.exec(f'cd {unzip_to_folder}; find . -type f | sed "s|^\./||"')
 
-            # try this to remove the warning from the line above
-            # scp_files = self.scp.exec(f"cd {unzip_to_folder}; find . -type f | sed 's|^\\./||'")
-            assert sorted(temp_folder.files()) == sorted(scp_files.splitlines())
-
-            self.scp.print_ls()
-            self.scp.print_ls('_unzipped')
-            self.scp.print_exec(f'ls -la {unzip_to_folder}')
+            scp_files = self.ssh.exec(f"find {unzip_to_folder} -type f")
+            scp_files = [scp_file.replace(f'{unzip_to_folder}/', '') for scp_file in scp_files.splitlines()]
+            assert sorted(temp_folder.files()) == sorted(scp_files)
+            self.ssh.execute_command(f'rm -rf {unzip_to_folder}')
 
