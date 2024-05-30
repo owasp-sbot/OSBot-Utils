@@ -22,40 +22,44 @@ jobs:
         id: ssh-key
         run: |
           ssh-keygen -t rsa -b 4096 -f /tmp/ssh_key -N ""
-          ssh_key_pub=$(cat /tmp/ssh_key.pub)
-          echo "::set-output name=public_key::${ssh_key_pub}"
-
+#          ssh_key_pub=$(cat /tmp/ssh_key.pub)
+#          echo "::set-output name=public_key::${ssh_key_pub}"
+          chmod 600 /tmp/ssh_key
       - name: Start Docker container
         run: |
           docker run -d -p 22222:22 --name test_container -e AUTHORIZED_KEYS="$(cat /tmp/ssh_key.pub)" diniscruz/python_with_ssh
 
-      - name: Run a simple SSH command
-        run: |          
-          chmod 600 /tmp/ssh_key
-          echo "-------- in the host -------"
-          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 echo "SSH connection successful"
-          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 whoami
-          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 pwd                     
+#      - name: Run a simple SSH command
+#        run: |
+#
+#          echo "-------- in the host -------"
+#          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 echo "SSH connection successful"
+#          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 whoami
+#          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 pwd
 
       - name: Install test dependencies
         run: |
           pip install pytest
           pip install -e .
 
-      - name: Run tests (will go here)
+      - name: Run tests (targeted at 'python_with_ssh' docker container) )
         env:
           SSH__HOST: localhost
           SSH__PORT: 22222
           SSH__KEY_FILE: /tmp/ssh_key
           SSH__USER: root
         run: |                    
-          pytest tests/helpers/ssh
+          pytest tests/helpers/ssh          
 
       - name: Viewing docker logs
         run: |           
           echo ======= docker logs =======
           docker logs test_container
           echo ======= docker logs =======
+
+      - name: Run tests (all in osbot-utils)
+        run: |
+          pytest tests
 
       - name: Stop and remove Docker container
         run: |
