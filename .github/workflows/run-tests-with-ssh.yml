@@ -1,0 +1,44 @@
+name: Run tests (aimed at SSH server)
+
+on:
+  push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+
+      - name: Generate SSH key
+        id: ssh-key
+        run: |
+          ssh-keygen -t rsa -b 4096 -f /tmp/ssh_key -N ""
+          echo "::set-output name=private_key::$(cat /tmp/ssh_key)"
+          echo "::set-output name=public_key::$(cat /tmp/ssh_key.pub)"
+
+      - name: Start Docker container
+        run: |
+          docker run -d --name test_container -e AUTHORIZED_KEYS="$(cat /tmp/ssh_key.pub)" diniscruz/python_with_ssh
+
+      - name: Wait for Docker container to be ready
+        run: sleep 10
+
+      - name: Run a simple SSH command
+        run: |
+          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 2222 echo "SSH connection successful"
+
+#      - name: Run tests
+#        run: |
+#          # Add your test commands here
+#          docker exec test_container <your_test_command>
+
+      - name: Stop and remove Docker container
+        run: |
+          docker stop test_container
+          docker rm test_container
