@@ -71,7 +71,7 @@ class test_SSH__Cache__Requests(TestCase):
         assert SSH.execute_command.__qualname__ == 'SSH.execute_command'
 
     def test_invoke_target(self):
-        mock_ssh_host          = get_env(ENV_VAR__SSH__HOST)
+        mock_ssh_host          = get_env(ENV_VAR__SSH__HOST, '')
         mock_path              = '/aaa'
         mock_files             = ['/ccc', '/ddd']
         expected_request_data  = to_json_str(dict_to_toml({'args': ('/aaa',), 'kwargs': {}, 'ssh_host': mock_ssh_host}))
