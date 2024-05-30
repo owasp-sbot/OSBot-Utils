@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows: ["Run Tests - Unit"]
-    branches: [main]
     types:
       - completed
 
