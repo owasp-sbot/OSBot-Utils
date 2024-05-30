@@ -10,12 +10,6 @@ from osbot_utils.utils.Env import get_env
 
 class test_SSH__Health_Check(TestCase__SSH):
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        if not cls.ssh.ssh_host:
-            pytest.skip("SSH host not set")
-
     def setUp(self):
         self.ssh_health_check = SSH__Health_Check().setup()
 

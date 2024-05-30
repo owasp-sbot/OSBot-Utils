@@ -21,13 +21,11 @@ class test_SSH(TestCase__SSH):
 
     @classmethod
     def setUpClass(cls):
-        super().setUpClass()
         # load_dotenv(dotenv_path=ENV_FILE__WITH_ENV_VARS)
         # cls.ssh_host     = environ.get(ENV_VAR_TEST_OSBOT__SSH_HOST    )
         # cls.ssh_key_file = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_FILE)
         # cls.ssh_key_user = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_USER)
-        if not cls.ssh.ssh_host:
-            pytest.skip("SSH host not set")
+        super().setUpClass()
 
 
     def test__init__(self):

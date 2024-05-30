@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+import pytest
+
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests import Sqlite__Cache__Requests
 from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests__Patch import Sqlite__Cache__Requests__Patch
@@ -12,7 +14,6 @@ from osbot_utils.utils.Json import to_json_str
 from osbot_utils.utils.Misc import bytes_to_str, str_sha256, sha_256
 from osbot_utils.utils.Objects import base_types, pickle_load_from_bytes, pickle_from_bytes, pickle_to_bytes
 from osbot_utils.utils.Toml import dict_to_toml
-
 
 class test_SSH__Cache__Requests(TestCase):
     cache_ssh_requests : SSH__Cache__Requests
@@ -27,6 +28,7 @@ class test_SSH__Cache__Requests(TestCase):
     def tearDownClass(cls):
         cls.cache_ssh_requests.delete()
         assert cls.cache_ssh_requests.sqlite_requests.exists() is False
+        assert SSH.execute_command.__qualname__ == 'SSH.execute_command'
 
     def test__init__(self):
         with self.cache_ssh_requests as _:

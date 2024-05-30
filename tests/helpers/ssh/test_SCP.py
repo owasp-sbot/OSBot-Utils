@@ -18,7 +18,6 @@ ENV_VAR_TEST_OSBOT__SSH_KEY_FILE  = 'SSH__KEY_FILE__FILE'
 ENV_VAR_TEST_OSBOT__SSH_KEY_USER  = 'SSH__KEY_FILE__USER'
 
 
-
 class test_SCP(TestCase__SSH):
     scp           : SCP
     ssh_host      : str
@@ -27,12 +26,12 @@ class test_SCP(TestCase__SSH):
 
     @classmethod
     def setUpClass(cls):
-        super().setUpClass()
         cls.ssh_host     = environ.get(ENV_VAR_TEST_OSBOT__SSH_HOST    )
         cls.ssh_key_file = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_FILE)
         cls.ssh_key_user = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_USER)
         if not cls.ssh_host:
             pytest.skip("SSH host not set")
+        super().setUpClass()
         cls.scp = SCP(ssh_host=cls.ssh_host, ssh_key_file=cls.ssh_key_file, ssh_key_user=cls.ssh_key_user)
 
     def test__init__(self):

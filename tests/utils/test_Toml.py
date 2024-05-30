@@ -6,6 +6,7 @@ import pytest
 
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json import json_parse
+from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Toml import dict_to_toml, toml_to_dict
 
 
@@ -122,5 +123,7 @@ class test_Toml(TestCase):
         #     toml_to_dict(dict_to_toml(dict_with_set))
         # assert context.exception.args == ("Expected '=' after a key in a key/value pair (at line 1, column 14)",)
 
-        dict_with_set__roundtrip = {'an_set': ['a', 'b'] }                                  # FIXED: with fix now the tuple becomes a list
-        assert dict_with_set__roundtrip == toml_to_dict(dict_to_toml(dict_with_set))
+        expected_dict_with_set__roundtrip = {'an_set': ['a', 'b'] }                                  # FIXED: with fix now the tuple becomes a list
+        dict_with_set__roundtrip          = toml_to_dict(dict_to_toml(dict_with_set))
+        assert list_set(dict_with_set__roundtrip)== list_set(expected_dict_with_set__roundtrip)
+        assert list_set(dict_with_set__roundtrip.get('an_set')) == list_set(expected_dict_with_set__roundtrip.get('an_set'))
