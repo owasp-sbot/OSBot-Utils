@@ -1,0 +1,25 @@
+services:
+  python_with_ssh:
+    build: .
+    ports:
+      - "22222:22"
+    image: diniscruz/python_with_ssh
+    container_name: container__python_with_ssh
+    environment:
+      - AUTHORIZED_KEYS=${AUTHORIZED_KEYS}
+
+# run this before to set the current default key
+# export AUTHORIZED_KEYS="$(cat ~/.ssh/id_rsa.pub)"
+# echo "${AUTHORIZED_KEYS}"
+# export AUTHORIZED_KEYS="$(cat ~/.ssh/id_ed25519.pub)"
+
+
+# docker hub publish notes
+# docker login
+# docker build -t diniscruz/python_with_ssh .
+# docker push diniscruz/python_with_ssh:latest
+
+# command to run in host to start the container and allow the user with $SSH_KEY_TO_ALLOW to connect
+# export SSH_KEY_TO_ALLOW=~/.ssh/{name}.pub
+# export AUTHORIZED_KEYS="$(cat $SSH_KEY_TO_ALLOW)"
+# docker run -d -it --rm -p 22222:22 --platform linux/arm64 --env AUTHORIZED_KEYS diniscruz/python_with_ssh

@@ -5,10 +5,11 @@ import pytest
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests import Sqlite__Cache__Requests
 from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests__Patch import Sqlite__Cache__Requests__Patch
-from osbot_utils.helpers.ssh.SSH import SSH
+from osbot_utils.helpers.ssh.SSH import SSH, ENV_VAR__SSH__HOST
 from osbot_utils.helpers.ssh.SSH__Cache__Requests import SSH__Cache__Requests, SQLITE_DB_NAME__SSH_REQUESTS_CACHE, \
     SQLITE_TABLE_NAME__SSH_REQUESTS
 from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Env import get_env
 from osbot_utils.utils.Files import temp_file, current_temp_folder, parent_folder, file_extension
 from osbot_utils.utils.Json import to_json_str
 from osbot_utils.utils.Misc import bytes_to_str, str_sha256, sha_256
@@ -70,10 +71,10 @@ class test_SSH__Cache__Requests(TestCase):
         assert SSH.execute_command.__qualname__ == 'SSH.execute_command'
 
     def test_invoke_target(self):
-        mock_ssh_host          = '127.0.0.1'
+        mock_ssh_host          = get_env(ENV_VAR__SSH__HOST)
         mock_path              = '/aaa'
         mock_files             = ['/ccc', '/ddd']
-        expected_request_data  = to_json_str(dict_to_toml({'args': ('/aaa',), 'kwargs': {}, 'ssh_host': '127.0.0.1'}))
+        expected_request_data  = to_json_str(dict_to_toml({'args': ('/aaa',), 'kwargs': {}, 'ssh_host': mock_ssh_host}))
         expected_response_data = {'files': mock_files, 'path': mock_path}
         expected_response_bytes = pickle_to_bytes(expected_response_data)
         expected_request_hash   = sha_256(expected_request_data)

@@ -424,6 +424,11 @@ def str_to_base64(target):
 def str_to_bytes(target):
     return target.encode()
 
+def str_to_bool(value):
+    if type(value) is str:
+        return value.lower() in ('true', '1', 'yes')
+    return False
+
 def str_to_date(str_date, format='%Y-%m-%d %H:%M:%S.%f'):
     return datetime.strptime(str_date,format)
 

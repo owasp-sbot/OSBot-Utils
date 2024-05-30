@@ -7,12 +7,19 @@ from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Env import get_env
 from osbot_utils.utils.Functions import function_source_code
-from osbot_utils.utils.Misc import timestamp_utc_now
+from osbot_utils.utils.Misc import timestamp_utc_now, str_to_bool, str_to_int
 from osbot_utils.utils.Process import start_process
 from osbot_utils.utils.Status import status_error
 
+ENV_VAR__SSH__HOST              = 'SSH__HOST'
+ENV_VAR__SSH__PORT              = 'SSH__PORT'
+ENV_VAR__SSH__KEY_FILE          = 'SSH__KEY_FILE'
+ENV_VAR__SSH__USER              = 'SSH__USER'
+ENV_VAR__SSH__STRICT_HOST_CHECK = 'SSH__STRICT_HOST_CHECK'
+
 class SSH(Kwargs_To_Self):
     ssh_host          : str
+    ssh_port          : int
     ssh_key_file      : str
     ssh_key_user      : str
     strict_host_check : bool = False
@@ -23,15 +30,21 @@ class SSH(Kwargs_To_Self):
         return self
 
     def setup_using_env_vars(self):         # move this to a CONFIG class (see code in SSH__Health_Check)
-        ssh_host = get_env('SSH__HOST')
-        ssh_key_file = get_env('SSH__KEY_FILE__FILE')
-        ssh_key_user = get_env('SSH__KEY_FILE__USER')
+        ssh_host              = get_env(ENV_VAR__SSH__HOST               )
+        ssh_port              = get_env(ENV_VAR__SSH__PORT              )
+        ssh_key_file          = get_env(ENV_VAR__SSH__KEY_FILE          )
+        ssh_key_user          = get_env(ENV_VAR__SSH__USER              )
+        ssh_strict_host_check = get_env(ENV_VAR__SSH__STRICT_HOST_CHECK )
         if ssh_host:
             self.ssh_host = ssh_host
+        if ssh_port:
+            self.ssh_port = str_to_int(ssh_port)
         if ssh_key_file:
             self.ssh_key_file = ssh_key_file
         if ssh_key_user:
             self.ssh_key_user = ssh_key_user
+        if ssh_strict_host_check is not None:
+            self.strict_host_check = str_to_bool(ssh_strict_host_check)
 
     def ssh_setup_ok(self):
         # todo: add check to see if ssh executable exists (this check can be cached)
@@ -75,11 +88,12 @@ class SSH(Kwargs_To_Self):
     def execute_python__function__return_stdout(self, *args, **kwargs):
         return self.execute_python__function(*args, **kwargs).get('stdout').strip()
 
-    def execute_ssh_args(self, command=None):
+    def execute_ssh_args(self):
         ssh_args = []
+        if self.ssh_port:
+            ssh_args += ['-p', str(self.ssh_port)]
         if self.strict_host_check is False:
-            ssh_args += ['-o',
-                         'StrictHostKeyChecking=no']  # todo: add support for updating the local hosts file so that we dont need to do this that often
+            ssh_args += ['-o', 'StrictHostKeyChecking=no']  # todo: add support for updating the local hosts file so that we dont need to do this that often
         if self.ssh_key_file:
             ssh_args += ['-i', self.ssh_key_file]
         return ssh_args
