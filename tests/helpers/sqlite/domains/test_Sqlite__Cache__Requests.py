@@ -155,18 +155,18 @@ class test_Sqlite__Cache__Requests(TestCase):
         response_data            = {'the': 'return value'}
         request_data             = self.sqlite_cache_requests.cache_request_data(model_id=model_id, body=body)
         new_cache_entry          = self.sqlite_cache_requests.create_new_cache_data(request_data, response_data)
-        expected_new_cache_entry = {'request_data'  : json_dumps(request_data)                                           ,
-                                    'request_hash'  : 'f917e6f5658f5b761a77416d487c5d9a70253abce68b348bc360a6f39657753a' ,
-                                    'response_bytes': b''                                                                ,
-                                    'response_data' : json_dumps(response_data)                                          ,
-                                    'response_hash' : '69e330ec7bf6334aa41ecaf56797fa86345d3cf85da4c622821aa42d4bee1799' ,
-                                    'response_type' : ''                                                                 ,
-                                    'timestamp'     :  0                                                                 }
+        expected_new_cache_entry = { 'comments'     : ''                                                                  ,
+                                     'metadata'     : ''                                                                  ,
+                                     'request_data'  : json_dumps(request_data)                                           ,
+                                     'request_hash'  : 'f917e6f5658f5b761a77416d487c5d9a70253abce68b348bc360a6f39657753a' ,
+                                     'request_type'  : ''                                                                 ,
+                                     'response_bytes': b''                                                                ,
+                                     'response_data' : json_dumps(response_data)                                          ,
+                                     'response_hash' : '69e330ec7bf6334aa41ecaf56797fa86345d3cf85da4c622821aa42d4bee1799' ,
+                                     'response_type' : ''                                                                 ,
+                                     'source'        : ''                                                                 ,
+                                     'timestamp'     :  0                                                                 }
         expected_new_cache_obj   = { **expected_new_cache_entry,
-                                     'comments'     : '',
-                                     'metadata'     : '',
-                                     'request_type' : '',
-                                     'source'       : '',
                                      'timestamp'    : 0 }
         assert new_cache_entry == expected_new_cache_entry
         new_cache_obj = self.sqlite_cache_requests.cache_table().new_row_obj(new_cache_entry)

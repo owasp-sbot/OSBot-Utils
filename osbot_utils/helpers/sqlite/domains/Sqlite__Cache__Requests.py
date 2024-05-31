@@ -66,12 +66,16 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             timestamp = timestamp_utc_now()
         else:
             timestamp = 0
-        cache_cata = dict(request_data   = request_data_json   ,
+        cache_cata = dict(comments       = ''                  ,
+                          metadata       = ''                  ,
+                          request_data   = request_data_json   ,
                           request_hash   = request_data_hash   ,
+                          request_type   = ''                  ,
                           response_bytes = b''                 ,
                           response_data  = ''                  ,
                           response_hash  = ''                  ,
                           response_type  = ''                  ,
+                          source         = ''                  ,
                           timestamp      = timestamp           )
         if self.pickle_response:
             cache_cata['response_bytes'] = response_data
