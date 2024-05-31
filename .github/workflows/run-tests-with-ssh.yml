@@ -22,23 +22,11 @@ jobs:
         id: ssh-key
         run: |
           ssh-keygen -t rsa -b 4096 -f /tmp/ssh_key -N ""
-          chmod 600 /tmp/ssh_key
-          
-          #          ssh_key_pub=$(cat /tmp/ssh_key.pub)
-          #          echo "::set-output name=public_key::${ssh_key_pub}"
-          
+          chmod 600 /tmp/ssh_key          
 
       - name: Start Docker container
         run: |
           docker run -d -p 22222:22 --name test_container -e AUTHORIZED_KEYS="$(cat /tmp/ssh_key.pub)" diniscruz/python_with_ssh
-
-#      - name: Run a simple SSH command
-#        run: |
-#
-#          echo "-------- in the host -------"
-#          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 echo "SSH connection successful"
-#          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 whoami
-#          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key root@localhost -p 22222 pwd
 
       - name: Install test dependencies
         run: |
