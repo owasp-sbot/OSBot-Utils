@@ -33,6 +33,9 @@ class test_SSH(TestCase__SSH):
                                       'strict_host_check' : False                 }
 
     def test_execute_command(self):
+        result_ssh_host_remove = self.ssh.remove_server_ssh_host_fingerprint()          # todo: find a better place to run this
+        pprint(result_ssh_host_remove)                                                  #       doing this here because we were getting this in the execute_command below:   'stderr': "Warning: Permanently added '[localhost]:22222' (ED25519) to the list of "
+
         assert self.ssh.execute_command(None) == { 'data' : None, 'message': '', 'status': 'error' ,
                                                    'error': 'in execute_command not all required vars were setup'}
         command = 'uname'

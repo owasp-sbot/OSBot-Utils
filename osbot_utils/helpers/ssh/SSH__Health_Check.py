@@ -15,15 +15,6 @@ ENV_VARS__FOR_SSH = {'ssh_host'         : ENV_VAR__SSH__HOST              ,
 
 class SSH__Health_Check(SSH):
 
-    def update_server_ssh_host_fingerprint(self):
-        cmd_ssh_keyscan = "ssh-keygen"
-        cmd_remove_host = ['-R', '[localhost]:22222']
-       # ssh_know_hosts__before = file_contents('~/.ssh/known_hosts')
-        #cmd_add_host = ['-p','22222', 'localhost', '>>' , '~/.ssh/known_hosts']
-        ssh_know_hosts__after = file_contents('~/.ssh/known_hosts')
-        #re
-        return run_process(cmd_ssh_keyscan, cmd_remove_host)
-
     def check_connection(self):
         text_message = 'test connection'  #random_text('echo')
         response = self.execute_command(f'echo {text_message}')

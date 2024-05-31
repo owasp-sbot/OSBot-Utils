@@ -8,7 +8,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Env import get_env
 from osbot_utils.utils.Functions import function_source_code
 from osbot_utils.utils.Misc import timestamp_utc_now, str_to_bool, str_to_int
-from osbot_utils.utils.Process import start_process
+from osbot_utils.utils.Process import start_process, run_process
 from osbot_utils.utils.Status import status_error
 
 ENV_VAR__SSH__HOST              = 'SSH__HOST'
@@ -210,6 +210,13 @@ class SSH(Kwargs_To_Self):
         print(f'******   stdout for: {command}   ******')
         print('*' * (30 + len(command)))
         print()
+
+    def remove_server_ssh_host_fingerprint(self):           # todo: refactor to utils class
+        cmd_ssh_keyscan = "ssh-keygen"
+        cmd_remove_host = ['-R', f'[{self.ssh_host}]:{self.ssh_port}']
+        return run_process(cmd_ssh_keyscan, cmd_remove_host)
+
+
 
     # def ifconfig(self):
     #     command = "export PATH=$PATH:/sbin && ifconfig"               # todo add example with PATH modification
