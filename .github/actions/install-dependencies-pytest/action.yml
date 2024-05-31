@@ -48,4 +48,4 @@ runs:
         if: hashFiles('**/dev/requirements-test.txt') != ''
         shell: bash
         run: |          
-          pip install -r requirements-test.txt
+          pip install -r ./dev/requirements-test.txt
