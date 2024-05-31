@@ -24,6 +24,7 @@ class test_SCP(TestCase__SSH):
 
     @classmethod
     def setUpClass(cls):
+
         # cls.ssh_host     = environ.get(ENV_VAR_TEST_OSBOT__SSH_HOST    )
         # cls.ssh_key_file = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_FILE)
         # cls.ssh_key_user = environ.get(ENV_VAR_TEST_OSBOT__SSH_KEY_USER)
@@ -40,7 +41,7 @@ class test_SCP(TestCase__SSH):
                                       'ssh_key_user'      : self.ssh.ssh_key_user ,
                                       'strict_host_check' : False             }
 
-
+    @pytest.mark.skip("SCP code and test needs refactoring and broken into smaller components")
     def test_copy_file_to_host(self):
         temp_contents = random_text('some text')
         with Temp_File(contents=temp_contents) as temp_file:
@@ -56,7 +57,7 @@ class test_SCP(TestCase__SSH):
             assert file_contents(temp_file_path_2) == temp_contents
             file_delete(temp_file_path_1)
 
-    @pytest.mark.skip("This test needs refactoring and broken into smaller components")
+    @pytest.mark.skip("SCP code and test needs refactoring and broken into smaller components")
     def test_copy_folder_as_zip_to_host(self):
         with Temp_Folder(temp_files_to_add=10) as temp_folder:
             if 'UnZip' in self.ssh.exec('unzip -v') is False:

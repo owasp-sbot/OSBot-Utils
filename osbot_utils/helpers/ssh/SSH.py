@@ -136,32 +136,20 @@ class SSH(Kwargs_To_Self):
         stdout = self.execute_command(command).get('stdout').strip()
         return self.parse_stdout_to_dict(stdout)
 
+    @index_by
+    @group_by
+    def execute_command__return_list(self, command):
+        stdout = self.execute_command(command).get('stdout').strip()
+        return self.parse_stdout_to_list(stdout)
+
     # helpers for common linux methods
 
-    def cat(self, path=''):
-        command = f'cat {path}'
-        return self.execute_command__return_stdout(command)
 
-    @index_by
-    def disk_space(self):
-        command           = "df -h"
-        stdout            = self.execute_command__return_stdout(command)
-        stdout_disk_space = stdout.replace('Mounted on', 'Mounted_on')              # todo, find a better way to do this
-        disk_space        = self.parse_stdout_to_dict(stdout_disk_space)
-        return disk_space
 
-    def find(self, path=''):
-        command = f'find {path}'
-        return self.execute_command__return_stdout(command)
 
-    def ls(self, path=''):
-        command = f'ls {path}'
-        ls_raw  = self.execute_command__return_stdout(command)
-        return ls_raw.splitlines()
 
-    def mkdir(self, folder):
-        command = f'mkdir -p {folder}'
-        return self.execute_command__return_stdout(command)
+
+
 
     def memory_usage(self):
         command = "free -h"
@@ -195,6 +183,10 @@ class SSH(Kwargs_To_Self):
             result.append(entry)
 
         return result
+
+    def parse_stdout_to_list(self, stdout):  # todo: add support for more ways to split the data
+        lines = stdout.splitlines()
+        return lines
 
     def which(self, target):
         command = f'which {target}'                                     # todo: security-vuln: add protection against code injection

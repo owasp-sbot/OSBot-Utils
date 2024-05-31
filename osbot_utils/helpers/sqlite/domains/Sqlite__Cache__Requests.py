@@ -9,6 +9,7 @@ from osbot_utils.utils.Toml import toml_to_dict
 
 class Sqlite__Cache__Requests(Kwargs_To_Self):
     add_timestamp     : bool                 = True
+    add_source_location:bool                 = True
     enabled           : bool                 = True
     update_mode       : bool                 = False
     cache_only_mode   : bool                 = False
@@ -32,9 +33,6 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         return self.cache_table().rows_delete_where(request_hash=request_data_sha256)
 
     def cache_entries(self):
-        return self.cache_table().rows()
-
-    def cache_entries__requests(self):
         return self.cache_table().rows()
 
     def cache_entry(self, request_data):
@@ -73,6 +71,7 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
                           response_bytes = b''                 ,
                           response_data  = ''                  ,
                           response_hash  = ''                  ,
+                          response_type  = ''                  ,
                           timestamp      = timestamp           )
         if self.pickle_response:
             cache_cata['response_bytes'] = response_data
@@ -201,6 +200,22 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
 
             requests_data.append(request_data_obj)
         return requests_data
+
+    def response_data__all(self):
+        responses_data = []
+        for row in self.cache_table().rows():
+            req_id           = row.get('id')
+            response_data     = row.get('response_data')
+            response_hash     = row.get('response_hash')
+
+            response_data_obj = dict(response_data = response_data    ,
+                                    _id            = req_id          ,
+                                    _hash          = response_hash   )
+
+            responses_data.append(response_data_obj)
+        return responses_data
+
+
 
     def rows_where(self, **kwargs):
         return self.cache_table().select_rows_where(**kwargs)

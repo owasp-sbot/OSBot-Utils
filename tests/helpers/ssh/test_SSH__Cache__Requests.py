@@ -34,22 +34,24 @@ class test_SSH__Cache__Requests(TestCase):
     def test__init__(self):
         with self.cache_ssh_requests as _:
 
-            assert _.__attr_names__()                         == ['add_timestamp', 'cache_only_mode', 'capture_exceptions', 'db_name','enabled',
-                                                                  'exception_classes', 'on_invoke_target', 'pickle_response', 'print_requests','sqlite_requests',
-                                                                  'table_name','target_class', 'target_function', 'target_function_name','update_mode']
+            assert _.__attr_names__()                         == [ 'add_source_location', 'add_timestamp', 'cache_only_mode', 'capture_exceptions', 'db_name','enabled',
+                                                                   'exception_classes', 'on_invoke_target', 'pickle_response', 'print_requests','sqlite_requests',
+                                                                   'table_name','target_class', 'target_function', 'target_function_name','update_mode']
             assert _.db_name                                  == SQLITE_DB_NAME__SSH_REQUESTS_CACHE
             assert _.table_name                               == SQLITE_TABLE_NAME__SSH_REQUESTS
             assert _.sqlite_requests.exists()                 is True
             assert _.cache_entries()                          == []
-            assert _.cache_table().new_row_obj().__locals__() == {'cache_hits'      : 0     ,
-                                                                  'comments'        : ''    ,
-                                                                  'latest'          : False ,
-                                                                  'request_data'    : ''    ,
-                                                                  'request_hash'    : ''    ,
-                                                                  'response_bytes'  : b''   ,
-                                                                  'response_data'   : ''    ,
-                                                                  'response_hash'   : ''    ,
-                                                                  'timestamp'       : 0     }
+            assert _.cache_table().new_row_obj().__locals__() == {'comments'        : '' ,
+                                                                  'metadata'        : '' ,
+                                                                  'request_data'    : '' ,
+                                                                  'request_hash'    : '' ,
+                                                                  'request_type'    : '' ,
+                                                                  'response_bytes'  : b'',
+                                                                  'response_data'   : '' ,
+                                                                  'response_hash'   : '' ,
+                                                                  'response_type'   : '' ,
+                                                                  'source'          : '' ,
+                                                                  'timestamp'       : 0  }
             assert parent_folder (_.sqlite_requests.db_path)  == current_temp_folder()
             assert file_extension(_.sqlite_requests.db_path)  == '.sqlite'
             assert base_types(_)                              == [Sqlite__Cache__Requests__Patch ,
@@ -98,13 +100,15 @@ class test_SSH__Cache__Requests(TestCase):
             response_data          = pickle_from_bytes(cache_entry.get('response_bytes'))
             assert response_data == expected_response_data
 
-            assert cache_entry == { 'cache_hits'    : 0                      ,
-                                    'comments'      : ''                     ,
-                                    'id'            : 1                      ,
-                                    'latest'        : 0                      ,
-                                    'request_data'  : expected_request_data  ,
-                                    'request_hash'  : expected_request_hash  ,
-                                    'response_bytes': expected_response_bytes,
-                                    'response_data' : ''                     ,
-                                    'response_hash' : ''                     ,
-                                    'timestamp'     : 0                      }
+            assert cache_entry == { 'comments'       : ''                     ,
+                                    'id'             : 1                      ,
+                                    'metadata'       : ''                     ,
+                                    'request_data'   : expected_request_data  ,
+                                    'request_hash'   : expected_request_hash  ,
+                                    'request_type'   : ''                     ,
+                                    'response_bytes' : expected_response_bytes,
+                                    'response_data'  : ''                     ,
+                                    'response_hash'  : ''                     ,
+                                    'response_type'  : ''                     ,
+                                    'source'         : ''                     ,
+                                    'timestamp'      : 0                      }

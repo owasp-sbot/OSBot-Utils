@@ -25,25 +25,21 @@ class test_Sqlite__Cache__Requests(TestCase):
         assert file_exists  (cls.temp_db_path)                                 is True
 
     @classmethod
-    def tearDownClass(cls):    #file_delete(cls.temp_db_path)
+    def tearDownClass(cls):
         cls.sqlite_cache_requests.sqlite_requests.delete()
         assert file_not_exists(cls.temp_db_path) is True
 
     def tearDown(self):
         self.sqlite_cache_requests.cache_table().clear()
 
-    def test___init__(self):
-        with self.sqlite_cache_requests as _:
-            assert type      (_)                  is Sqlite__Cache__Requests
-            assert base_types(_)                  == [Kwargs_To_Self, object]
-            assert type      (_.sqlite_requests)  is Sqlite__DB__Requests
-            assert base_types(_.sqlite_requests)  == [Sqlite__DB__Local, Sqlite__Database, Kwargs_To_Self, object]
-            assert _.sqlite_requests.db_name.startswith('db_local_')
-            assert _.sqlite_requests.table_name   == SQLITE_TABLE__REQUESTS
+    # test's helper  methods
 
     def add_test_requests(self, count=10):
         def invoke_target(*args, **target_kwargs):
-            return {'request_args': args, 'request_kwargs': target_kwargs}
+            return {'type'          : 'response'                       ,
+                    'source'        : 'add_test_requests.invoke_target',
+                    'request_args'  : args                             ,
+                    'request_kwargs': target_kwargs                    }
 
         for i in range(count):
             an_key        = random_text('an_key')
@@ -52,7 +48,6 @@ class test_Sqlite__Cache__Requests(TestCase):
             target_args   = ['abc']
             target_kwargs = {'an_key': an_key, 'an_dict': an_dict}
             self.sqlite_cache_requests.invoke(target, target_args, target_kwargs)
-            #self.sqlite_cache_requests.model_invoke(**kwargs)
 
     def test__add_test_requests(self):
         with self.sqlite_cache_requests as _:
@@ -65,15 +60,25 @@ class test_Sqlite__Cache__Requests(TestCase):
                 request_kwargs = request_data.get('request_kwargs')
                 response_data = from_json_str(entry.get('response_data'))
                 assert list_set(request_data )            == ['args', 'kwargs']
-                assert list_set(response_data)            == ['request_args', 'request_kwargs']
+                assert list_set(response_data)            == ['request_args', 'request_kwargs', 'source', 'type']
                 assert response_data.get('args'         ) == request_args
                 assert response_data.get('target_kwargs') == request_kwargs
-                assert list_set(entry)                    == ['cache_hits', 'comments', 'id', 'latest', 'request_data',
-                                                              'request_hash', 'response_bytes','response_data', 'response_hash', 'timestamp']
-
+                assert list_set(entry)                    == ['comments', 'id', 'metadata', 'request_data', 'request_hash',
+                                                              'request_type', 'response_bytes', 'response_data', 'response_hash',
+                                                              'response_type', 'source', 'timestamp']
             self.add_test_requests(3)
             assert len(_.cache_entries()) == 13
 
+    # Sqlite__Cache__Requests: methods tests
+
+    def test___init__(self):
+        with self.sqlite_cache_requests as _:
+            assert type      (_)                  is Sqlite__Cache__Requests
+            assert base_types(_)                  == [Kwargs_To_Self, object]
+            assert type      (_.sqlite_requests)  is Sqlite__DB__Requests
+            assert base_types(_.sqlite_requests)  == [Sqlite__DB__Local, Sqlite__Database, Kwargs_To_Self, object]
+            assert _.sqlite_requests.db_name.startswith('db_local_')
+            assert _.sqlite_requests.table_name   == SQLITE_TABLE__REQUESTS
 
     def test_cache_add(self):
         self.sqlite_cache_requests.sqlite_requests.table_requests__reset()
@@ -83,18 +88,19 @@ class test_Sqlite__Cache__Requests(TestCase):
         response_data        = {'the':'response_data'}
         response_data_json   = json_dump(response_data)
         response_data_sha256 = str_sha256(response_data_json)
-        expected_new_row     = { 'cache_hits'     : 0                    ,
-                                 'comments'       : ''                   ,
-                                 'latest'         : False                ,
+        expected_new_row     = { 'comments'       : ''                   ,
+                                 'metadata'       : ''                   ,
                                  'request_data'   : request_data_json    ,
                                  'request_hash'   : request_data_sha256  ,
+                                 'request_type'   : ''                   ,
                                  'response_bytes' : b''                  ,
                                  'response_data'  : response_data_json   ,
                                  'response_hash'  : response_data_sha256 ,
-                                 'timestamp'      : 0                    }           # BUG: todo: value not being set
+                                 'response_type'  : ''                   ,
+                                 'source'         : ''                   ,
+                                 'timestamp'      : 0                    }
         expected_row_entry   = { **expected_new_row                      ,
-                                 'id'            : 1                     ,
-                                 'latest'        : 0                     }           # BUG: todo: need to add support for converting db's int value into the BOOL equivalent
+                                 'id'            : 1                     }
 
         new_row = self.sqlite_cache_requests.cache_add(request_data, response_data)
         assert new_row.json() == expected_new_row
@@ -154,12 +160,14 @@ class test_Sqlite__Cache__Requests(TestCase):
                                     'response_bytes': b''                                                                ,
                                     'response_data' : json_dumps(response_data)                                          ,
                                     'response_hash' : '69e330ec7bf6334aa41ecaf56797fa86345d3cf85da4c622821aa42d4bee1799' ,
+                                    'response_type' : ''                                                                 ,
                                     'timestamp'     :  0                                                                 }
         expected_new_cache_obj   = { **expected_new_cache_entry,
-                                     'comments': '',
-                                     'cache_hits': 0        ,
-                                     'latest'    : False    ,
-                                     'timestamp' : 0        }
+                                     'comments'     : '',
+                                     'metadata'     : '',
+                                     'request_type' : '',
+                                     'source'       : '',
+                                     'timestamp'    : 0 }
         assert new_cache_entry == expected_new_cache_entry
         new_cache_obj = self.sqlite_cache_requests.cache_table().new_row_obj(new_cache_entry)
         assert new_cache_obj.__locals__() == expected_new_cache_obj
@@ -170,6 +178,15 @@ class test_Sqlite__Cache__Requests(TestCase):
         assert new_cache_entry.get('timestamp') != 0
         assert new_cache_entry.get('timestamp') > 0
         self.sqlite_cache_requests.add_timestamp = False
+
+    def test_create_new_cache_data__pickle_response_is_True(self):
+        row_count = 2
+        with self.sqlite_cache_requests as _:
+            assert _.pickle_response is False    # default value
+            _.pickle_response = True
+            self.add_test_requests(2)
+            assert len(_.response_data__all()) == 2
+            _.pickle_response = False
 
     def test_disable(self):
         with self.sqlite_cache_requests as _:
@@ -233,15 +250,17 @@ class test_Sqlite__Cache__Requests(TestCase):
 
             assert _.exists()   is True
             assert _.row_schema is Schema__Table__Requests
-            assert _.schema__by_name_type() == { 'cache_hits'    : 'INTEGER' ,
-                                                 'comments'      : 'TEXT'    ,
+            assert _.schema__by_name_type() == { 'comments'      : 'TEXT'    ,
                                                  'id'            : 'INTEGER' ,
-                                                 'latest'        : 'BOOLEAN' ,
+                                                 'metadata'      : 'TEXT'    ,
                                                  'request_data'  : 'TEXT'    ,
                                                  'request_hash'  : 'TEXT'    ,
+                                                 'request_type'  : 'TEXT'    ,
                                                  'response_bytes': 'BLOB'    ,
                                                  'response_data' : 'TEXT'    ,
                                                  'response_hash' : 'TEXT'    ,
+                                                 'response_type' : 'TEXT'    ,
+                                                 'source'        : 'TEXT'    ,
                                                  'timestamp'     : 'INTEGER' }
             assert _.indexes() == ['idx__requests__request_hash']
 

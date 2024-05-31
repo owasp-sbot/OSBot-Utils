@@ -61,16 +61,6 @@ class test_SSH(TestCase__SSH):
 
     # helpers for common linux methods
 
-    def test_disk_space(self):
-        disk_space = self.ssh.disk_space(index_by='Mounted_on')
-        assert '/dev' in list_set(disk_space)
-        for _, disk_details in disk_space.items():
-            assert list_set(disk_details) == ['Avail', 'Filesystem', 'Mounted_on', 'Size', 'Use%', 'Used']
-
-    def test_ls(self):
-        ls_on_root =  self.ssh.ls('/')
-        assert 'bin'   in ls_on_root
-        assert 'media' in ls_on_root
 
     def test_memory_usage(self):
         memory_usage = self.ssh.memory_usage()

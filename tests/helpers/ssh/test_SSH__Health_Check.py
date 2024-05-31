@@ -21,7 +21,6 @@ class test_SSH__Health_Check(TestCase__SSH):
             assert result.get('status') == 'ok'
 
     def test_check_connection(self):
-
         with self.ssh_health_check as _:
             result = _.check_connection()
             assert result.get('status') == 'ok'

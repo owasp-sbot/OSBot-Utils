@@ -125,7 +125,7 @@ def date_to_str(date, date_format='%Y-%m-%d'):
     return date.strftime(date_format)
 
 #note: this is here at the moment due to a circular dependency with lists and objects
-def list_set(target):
+def list_set(target: object) -> object:
     if hasattr(target, '__iter__'):
         return sorted(list(set(target)))
     return []

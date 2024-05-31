@@ -21,7 +21,7 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
     def test__init__(self):
         _ = self.requests_cache                 # we can't use the with context here since it auto applies the patch
 
-        assert _.__attr_names__() == ['add_timestamp', 'cache_only_mode', 'capture_exceptions', 'db_name','enabled',
+        assert _.__attr_names__() == ['add_source_location', 'add_timestamp', 'cache_only_mode', 'capture_exceptions', 'db_name','enabled',
                                       'exception_classes', 'on_invoke_target', 'pickle_response', 'sqlite_requests',
                                       'table_name','target_class','target_function', 'target_function_name','update_mode']
         assert type(_.target_class)     is object               # default value for object
@@ -31,14 +31,16 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
         assert _.table_name.startswith('requests_table_')
         assert _.sqlite_requests.exists() is True
         assert _.cache_entries() == []
-        assert _.cache_table().new_row_obj().__locals__() == {'cache_hits'      : 0     ,
-                                                              'comments'        : ''    ,
-                                                              'latest'          : False ,
+        assert _.cache_table().new_row_obj().__locals__() == {'comments'        : ''    ,
+                                                              'metadata'        : ''    ,
                                                               'request_data'    : ''    ,
                                                               'request_hash'    : ''    ,
+                                                              'request_type'    : ''    ,
                                                               'response_bytes'  : b''   ,
                                                               'response_data'   : ''    ,
                                                               'response_hash'   : ''    ,
+                                                              'response_type'   : ''    ,
+                                                              'source'          : ''    ,
                                                               'timestamp'       : 0     }
         assert parent_folder(_.sqlite_requests.db_path) == current_temp_folder()
         assert file_name    (_.sqlite_requests.db_path).startswith('requests_cache_')
@@ -80,15 +82,17 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
         expected_request_hash     = str_sha256(expected_request_data)
         expected_response_bytes   = pickle_save_to_bytes(expected_response)
 
-        expected_cache_entry   = {'cache_hits'     : 0                      ,
-                                   'comments'      : ''                     ,
+        expected_cache_entry   = { 'comments'      : ''                     ,
                                    'id'            : 1                      ,
-                                   'latest'        : 0                      ,
+                                   'metadata'      : ''                     ,
                                    'request_data'  : expected_request_data  ,
                                    'request_hash'  : expected_request_hash  ,
+                                   'request_type'  : ''                     ,
                                    'response_bytes': expected_response_bytes,
                                    'response_data' : ''                     ,
                                    'response_hash' : ''                     ,
+                                   'response_type' : ''                     ,
+                                   'source'        : ''                     ,
                                    'timestamp'     : 0                      }
 
         with self.requests_cache as _:

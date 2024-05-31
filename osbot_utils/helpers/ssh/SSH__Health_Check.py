@@ -25,7 +25,7 @@ class SSH__Health_Check(SSH):
         return run_process(cmd_ssh_keyscan, cmd_remove_host)
 
     def check_connection(self):
-        text_message = random_text('echo')
+        text_message = 'test connection'  #random_text('echo')
         response = self.execute_command(f'echo {text_message}')
         if response.get('status') == 'ok':
             stderr = response.get('stderr').strip()
