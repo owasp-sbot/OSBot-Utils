@@ -2,7 +2,9 @@ from osbot_utils.helpers.ssh.SSH import SSH, ENV_VAR__SSH__HOST, ENV_VAR__SSH__P
     ENV_VAR__SSH__USER, ENV_VAR__SSH__STRICT_HOST_CHECK
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Env import get_env
+from osbot_utils.utils.Files import file_contents
 from osbot_utils.utils.Misc import list_set, random_text
+from osbot_utils.utils.Process import run_process
 from osbot_utils.utils.Status import status_ok, status_error
 
 ENV_VARS__FOR_SSH = {'ssh_host'         : ENV_VAR__SSH__HOST              ,
@@ -12,6 +14,15 @@ ENV_VARS__FOR_SSH = {'ssh_host'         : ENV_VAR__SSH__HOST              ,
                      'strict_host_check': ENV_VAR__SSH__STRICT_HOST_CHECK }
 
 class SSH__Health_Check(SSH):
+
+    def update_server_ssh_host_fingerprint(self):
+        cmd_ssh_keyscan = "ssh-keygen"
+        cmd_remove_host = ['-R', '[localhost]:22222']
+       # ssh_know_hosts__before = file_contents('~/.ssh/known_hosts')
+        #cmd_add_host = ['-p','22222', 'localhost', '>>' , '~/.ssh/known_hosts']
+        ssh_know_hosts__after = file_contents('~/.ssh/known_hosts')
+        #re
+        return run_process(cmd_ssh_keyscan, cmd_remove_host)
 
     def check_connection(self):
         text_message = random_text('echo')

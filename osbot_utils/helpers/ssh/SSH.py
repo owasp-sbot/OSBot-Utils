@@ -105,7 +105,7 @@ class SSH(Kwargs_To_Self):
         if self.ssh_port:
             ssh_args += ['-p', str(self.ssh_port)]
         if self.strict_host_check is False:
-            ssh_args += ['-o', 'StrictHostKeyChecking=no']  # todo: add support for updating the local hosts file so that we dont need to do this that often
+            ssh_args += ['-o', 'StrictHostKeyChecking=no']
         if self.ssh_key_file:
             ssh_args += ['-i', self.ssh_key_file]
         return ssh_args

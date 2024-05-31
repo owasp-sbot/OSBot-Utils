@@ -6,6 +6,7 @@ from osbot_utils.helpers.ssh.SSH                    import ENV_VAR__SSH__HOST, E
     ENV_VAR__SSH__STRICT_HOST_CHECK, ENV_VAR__SSH__PORT
 from osbot_utils.helpers.ssh.SSH__Health_Check      import SSH__Health_Check
 from osbot_utils.helpers.ssh.TestCase__SSH          import TestCase__SSH
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Env                          import get_env
 
 
@@ -14,7 +15,13 @@ class test_SSH__Health_Check(TestCase__SSH):
     def setUp(self):
         self.ssh_health_check = SSH__Health_Check().setup()
 
+    def test_update_server_ssh_host_fingerprint(self):
+        with self.ssh_health_check as _:
+            result = _.update_server_ssh_host_fingerprint()
+            assert result.get('status') == 'ok'
+
     def test_check_connection(self):
+
         with self.ssh_health_check as _:
             result = _.check_connection()
             assert result.get('status') == 'ok'
