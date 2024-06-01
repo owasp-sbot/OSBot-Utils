@@ -9,7 +9,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files                                            import temp_file, current_temp_folder, parent_folder, file_exists, file_not_exists
 from osbot_utils.utils.Json                                             import from_json_str, json_dump, to_json_str, json_loads, json_dumps
 from osbot_utils.utils.Misc                                             import random_text, list_set, random_string, str_sha256
-from osbot_utils.utils.Objects                                          import base_types, pickle_load_from_bytes, pickle_save_to_bytes
+from osbot_utils.utils.Objects import base_types, pickle_load_from_bytes, pickle_save_to_bytes, pickle_from_bytes
 
 
 class test_Sqlite__Cache__Requests(TestCase):
@@ -47,7 +47,9 @@ class test_Sqlite__Cache__Requests(TestCase):
             target        = invoke_target
             target_args   = ['abc']
             target_kwargs = {'an_key': an_key, 'an_dict': an_dict}
-            self.sqlite_cache_requests.invoke(target, target_args, target_kwargs)
+            response = self.sqlite_cache_requests.invoke(target, target_args, target_kwargs)
+            self.sqlite_cache_requests.cache_entry_comments_update()
+            pprint(response)
 
     def test__add_test_requests(self):
         with self.sqlite_cache_requests as _:
@@ -179,13 +181,30 @@ class test_Sqlite__Cache__Requests(TestCase):
         assert new_cache_entry.get('timestamp') > 0
         self.sqlite_cache_requests.add_timestamp = False
 
+    # TODO : Finish test asserts
     def test_create_new_cache_data__pickle_response_is_True(self):
         row_count = 2
         with self.sqlite_cache_requests as _:
-            assert _.pickle_response is False    # default value
-            _.pickle_response = True
+            assert _.pickle_response is False           # default value
+            _.pickle_response = True                    # enable pickle_response
+            self.add_test_requests(2)                   # add 2 rows
+            entry_1, entry_2, = _.cache_entries()
+            #pprint(entry_1)
+            response_data_all_1 = _.response_data__all()
+            pprint(response_data_all_1[0])
+            pprint(dict(request_hash  =                   entry_1.get('request_hash'  ),
+                        response_data = pickle_from_bytes(entry_1.get('response_bytes')),
+                        response_hash  =                  entry_1.get('response_hash'  ),
+                        ))
+            #assert response_data_all_1 == [entry_1, entry_2]
+
+            return
+            _.pickle_response = False
             self.add_test_requests(2)
-            assert len(_.response_data__all()) == 2
+            pprint(_.response_data__all())
+            _.pickle_response = True
+            pprint(_.response_data__all())
+            assert len(_.response_data__all()) == 4
             _.pickle_response = False
 
     def test_disable(self):

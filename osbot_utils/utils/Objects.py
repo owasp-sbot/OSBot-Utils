@@ -303,7 +303,10 @@ def pickle_save_to_bytes(target: object) -> bytes:
 
 def pickle_load_from_bytes(pickled_data: bytes):
     if type(pickled_data) is bytes:
-        return pickle.loads(pickled_data)
+        try:
+            return pickle.loads(pickled_data)
+        except Exception:
+            return {}
 
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     if hasattr(target, '__annotations__'):

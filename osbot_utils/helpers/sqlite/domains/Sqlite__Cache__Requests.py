@@ -2,7 +2,7 @@ import types
 from osbot_utils.base_classes.Kwargs_To_Self                    import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests    import Sqlite__DB__Requests
 from osbot_utils.utils.Json                                     import json_dumps, json_loads
-from osbot_utils.utils.Misc                                     import str_sha256, timestamp_utc_now
+from osbot_utils.utils.Misc import str_sha256, timestamp_utc_now, bytes_sha256
 from osbot_utils.utils.Objects                                  import pickle_save_to_bytes, pickle_load_from_bytes
 from osbot_utils.utils.Toml import toml_to_dict
 
@@ -77,13 +77,32 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
                           response_type  = ''                  ,
                           source         = ''                  ,
                           timestamp      = timestamp           )
+
+        response_data_str   = ''
+        response_data_bytes = b''
         if self.pickle_response:
-            cache_cata['response_bytes'] = response_data
+            response_type             = 'pickle'
+            response_data_bytes       = response_data
+            response_data_hash        = bytes_sha256(response_data_bytes)
+
         else:
-            response_data_json = json_dumps(response_data)
-            response_data_hash = str_sha256(response_data_json)
-            cache_cata['response_data'] = response_data_json
-            cache_cata['response_hash'] = response_data_hash
+            if type(response_data)   is bytes:
+                response_type         = 'bytes'
+                response_data_bytes   =  response_data
+                response_data_hash    = bytes_sha256(response_data_bytes)
+            elif type(response_data) is dict:
+                response_type         = 'dict'
+                response_data_str     = json_dumps(response_data)
+                response_data_hash    = str_sha256(response_data_str)
+            else:
+                response_type         = 'str'
+                response_data_str     = str(response_data)
+                response_data_hash    = str_sha256(response_data_str)
+
+        cache_cata['response_bytes'] = response_data_bytes
+        cache_cata['response_data' ]  = response_data_str
+        cache_cata['response_hash' ]  = response_data_hash
+        cache_cata['response_type' ]  = response_type
         return cache_cata
 
     def create_new_cache_obj(self, request_data, response_data):
@@ -208,16 +227,22 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
     def response_data__all(self):
         responses_data = []
         for row in self.cache_table().rows():
-            req_id           = row.get('id')
-            response_data     = row.get('response_data')
-            response_hash     = row.get('response_hash')
-
-            response_data_obj = dict(response_data = response_data    ,
-                                    _id            = req_id          ,
-                                    _hash          = response_hash   )
-
+            response_data_obj = self.convert_row__to__response_data_obj(row)
             responses_data.append(response_data_obj)
         return responses_data
+
+    def convert_row__to__response_data_obj(self, row):
+        row_id            = row.get('id'           )
+        comments          = row.get('comments'     )
+        request_hash      = row.get('request_hash' )
+        response_hash     = row.get('response_hash')
+        response_data     = self.response_data_deserialize(row)
+        response_data_obj = dict( comments      = comments      ,
+                                  row_id        = row_id        ,
+                                  request_hash  = request_hash  ,
+                                  response_hash = response_hash ,
+                                  response_data = response_data )
+        return response_data_obj
 
 
 
