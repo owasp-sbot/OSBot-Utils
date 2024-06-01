@@ -23,9 +23,9 @@ class Sqlite__Cache__Requests(Type_Safe):
     exception_classes : list
     on_invoke_target  : types.FunctionType
 
-
     def __init__(self, db_path=None, db_name=None, table_name=None):
         self.sqlite_requests = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
+        super().__init__()
 
         kwargs__cache_actions = dict(cache_row_config = self.cache_row_config() ,
                                     cache_table      = self.cache_table()      )
@@ -34,54 +34,61 @@ class Sqlite__Cache__Requests(Type_Safe):
         kwargs__cache_data    = dict(cache_table      = self.cache_table()      )
         self.cache_data      = Sqlite__Cache__Requests__Data(**kwargs__cache_data)
 
-        super().__init__()
+        self.apply_refactoring_paches()
 
-    def cache_add(self, request_data, response_data):
-        return self.cache_actions.cache_add(request_data, response_data)
-        # new_row_obj = self.create_new_cache_obj(request_data, response_data)
-        # return self.cache_table().row_add_and_commit(new_row_obj)
+    def apply_refactoring_paches(self):
+        self.cache_add                      = self.cache_actions.cache_add
+        self.cache_delete                   = self.cache_actions.cache_delete
+        self.cache_entries                  = self.cache_data.cache_entries
+        self.cache_entry                    = self.cache_data.cache_entry
+        self.cache_entry_comments           = self.cache_data.cache_entry_comments
+        self.cache_entry_comments_update    = self.cache_data.cache_entry_comments_update
+        self.cache_entry_for_request_params = self.cache_data.cache_entry_for_request_params
+        self.cache_request_data             = self.cache_data.cache_request_data
 
-    def cache_delete(self, request_data):
-        return self.cache_actions.cache_delete(request_data)
-        # request_data        = json_dumps(request_data)
-        # request_data_sha256 = str_sha256(request_data)
-        # return self.cache_table().rows_delete_where(request_hash=request_data_sha256)
+    #def cache_add(self, request_data, response_data): return self.cache_actions.cache_add(request_data, response_data)
 
-    def cache_entries(self):
-        return self.cache_data.cache_entries()
-        #return self.cache_table().rows()
+    # def cache_delete(self, request_data):
+    #     return self.cache_actions.cache_delete(request_data)
+    #     # request_data        = json_dumps(request_data)
+    #     # request_data_sha256 = str_sha256(request_data)
+    #     # return self.cache_table().rows_delete_where(request_hash=request_data_sha256)
 
-    def cache_entry(self, request_data):
-        return self.cache_data.cache_entry(request_data)
-        # request_data        = json_dumps(request_data)
-        # request_data_sha256 = str_sha256(request_data)
-        # data                = self.cache_table().select_rows_where(request_hash=request_data_sha256)
-        # if len(data) > 0:                       # todo: add logic to handle (or log), where there are multiple entries with the same hash
-        #     return data[0]
-        # return {}
+    # def cache_entries(self):
+    #     return self.cache_data.cache_entries()
+    #     #return self.cache_table().rows()
 
-    def cache_entry_comments(self, *args, **target_kwargs):
-        return self.cache_data.cache_entry_comments(*args, **target_kwargs)
-        # cache_entry = self.cache_entry_for_request_params(*args, **target_kwargs)
+    # def cache_entry(self, request_data):
+    #     return self.cache_data.cache_entry(request_data)
+    #     # request_data        = json_dumps(request_data)
+    #     # request_data_sha256 = str_sha256(request_data)
+    #     # data                = self.cache_table().select_rows_where(request_hash=request_data_sha256)
+    #     # if len(data) > 0:                       # todo: add logic to handle (or log), where there are multiple entries with the same hash
+    #     #     return data[0]
+    #     # return {}
+
+    # def cache_entry_comments(self, *args, **target_kwargs):
+    #     return self.cache_data.cache_entry_comments(*args, **target_kwargs)
+    #     # cache_entry = self.cache_entry_for_request_params(*args, **target_kwargs)
         # return cache_entry.get('comments')
 
-    def cache_entry_comments_update(self, new_comments, *args, **target_kwargs):
-        return self.cache_data.cache_entry_comments_update(new_comments, *args, **target_kwargs)
-        # cache_entry      = self.cache_entry_for_request_params(*args, **target_kwargs)
-        # request_hash     = cache_entry.get('request_hash')
-        # update_fields    = dict(comments=new_comments)
-        # query_conditions = dict(request_hash=request_hash)
-        # result           = self.cache_table().row_update(update_fields, query_conditions)
-        # return result
-
-    def cache_entry_for_request_params(self, *args, **target_kwargs):
-        return self.cache_data.cache_entry_for_request_params(*args, **target_kwargs)
-        # request_data = self.cache_request_data(*args, **target_kwargs)
-        # return self.cache_entry(request_data)
-
-    def cache_request_data(self, *args, **target_kwargs):
-        return self.cache_data.cache_request_data(*args, **target_kwargs)
-        #return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
+    # def cache_entry_comments_update(self, new_comments, *args, **target_kwargs):
+    #     return self.cache_data.cache_entry_comments_update(new_comments, *args, **target_kwargs)
+    #     # cache_entry      = self.cache_entry_for_request_params(*args, **target_kwargs)
+    #     # request_hash     = cache_entry.get('request_hash')
+    #     # update_fields    = dict(comments=new_comments)
+    #     # query_conditions = dict(request_hash=request_hash)
+    #     # result           = self.cache_table().row_update(update_fields, query_conditions)
+    #     # return result
+    #
+    # def cache_entry_for_request_params(self, *args, **target_kwargs):
+    #     return self.cache_data.cache_entry_for_request_params(*args, **target_kwargs)
+    #     # request_data = self.cache_request_data(*args, **target_kwargs)
+    #     # return self.cache_entry(request_data)
+    #
+    # def cache_request_data(self, *args, **target_kwargs):
+    #     return self.cache_data.cache_request_data(*args, **target_kwargs)
+    #     #return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
 
     def cache_row_config(self):
         kwargs = dict(pickle_response = self.pickle_response ,
