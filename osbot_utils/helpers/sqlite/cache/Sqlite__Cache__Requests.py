@@ -26,14 +26,17 @@ class Sqlite__Cache__Requests(Type_Safe):
     def __init__(self, db_path=None, db_name=None, table_name=None):
         self.sqlite_requests = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
         super().__init__()
+        kwargs__cache_table    = dict(                        cache_table        = self.cache_table())
+        kwargs__cache_data     = dict(**kwargs__cache_table,  cache_request_data = self.cache_request_data )
+        kwargs__cache_row      = dict(**kwargs__cache_table,  config             = self.cache_row_config() )
 
-        kwargs__cache_actions = dict(cache_row_config = self.cache_row_config() ,
-                                    cache_table      = self.cache_table()      )
-        self.cache_actions   = Sqlite__Cache__Requests__Actions(**kwargs__cache_actions)
+        self.cache_row       = Sqlite__Cache__Requests__Row    (**kwargs__cache_row      )
+        self.cache_data      = Sqlite__Cache__Requests__Data   (**kwargs__cache_data     )
 
-        kwargs__cache_data    = dict(cache_table      = self.cache_table()      ,
-                                     cache_request_data = self.cache_request_data)
-        self.cache_data      = Sqlite__Cache__Requests__Data(**kwargs__cache_data)
+        kwargs__cache_actions = dict(**kwargs__cache_table, cache_row=self.cache_row)
+
+        self.cache_actions   = Sqlite__Cache__Requests__Actions(**kwargs__cache_actions  )
+
 
         self.apply_refactoring_paches()
 
@@ -45,47 +48,9 @@ class Sqlite__Cache__Requests(Type_Safe):
         self.cache_entry_comments           = self.cache_data.cache_entry_comments
         self.cache_entry_comments_update    = self.cache_data.cache_entry_comments_update
         self.cache_entry_for_request_params = self.cache_data.cache_entry_for_request_params
+        self.create_new_cache_obj           = self.cache_row.create_new_cache_obj
+        self.create_new_cache_row_data      = self.cache_actions.create_new_cache_row_data
 
-    #def cache_add(self, request_data, response_data): return self.cache_actions.cache_add(request_data, response_data)
-
-    # def cache_delete(self, request_data):
-    #     return self.cache_actions.cache_delete(request_data)
-    #     # request_data        = json_dumps(request_data)
-    #     # request_data_sha256 = str_sha256(request_data)
-    #     # return self.cache_table().rows_delete_where(request_hash=request_data_sha256)
-
-    # def cache_entries(self):
-    #     return self.cache_data.cache_entries()
-    #     #return self.cache_table().rows()
-
-    # def cache_entry(self, request_data):
-    #     return self.cache_data.cache_entry(request_data)
-    #     # request_data        = json_dumps(request_data)
-    #     # request_data_sha256 = str_sha256(request_data)
-    #     # data                = self.cache_table().select_rows_where(request_hash=request_data_sha256)
-    #     # if len(data) > 0:                       # todo: add logic to handle (or log), where there are multiple entries with the same hash
-    #     #     return data[0]
-    #     # return {}
-
-    # def cache_entry_comments(self, *args, **target_kwargs):
-    #     return self.cache_data.cache_entry_comments(*args, **target_kwargs)
-    #     # cache_entry = self.cache_entry_for_request_params(*args, **target_kwargs)
-        # return cache_entry.get('comments')
-
-    # def cache_entry_comments_update(self, new_comments, *args, **target_kwargs):
-    #     return self.cache_data.cache_entry_comments_update(new_comments, *args, **target_kwargs)
-    #     # cache_entry      = self.cache_entry_for_request_params(*args, **target_kwargs)
-    #     # request_hash     = cache_entry.get('request_hash')
-    #     # update_fields    = dict(comments=new_comments)
-    #     # query_conditions = dict(request_hash=request_hash)
-    #     # result           = self.cache_table().row_update(update_fields, query_conditions)
-    #     # return result
-    #
-    # def cache_entry_for_request_params(self, *args, **target_kwargs):
-    #     return self.cache_data.cache_entry_for_request_params(*args, **target_kwargs)
-    #     # request_data = self.cache_request_data(*args, **target_kwargs)
-    #     # return self.cache_entry(request_data)
-    #
 
     # this is the method that is current overwritten to create custom request data
     def cache_request_data(self, *args, **target_kwargs):
@@ -97,16 +62,7 @@ class Sqlite__Cache__Requests(Type_Safe):
         config  = Sqlite__Cache__Requests__Row__Config(**kwargs)
         return config
 
-    def create_new_cache_row_data(self, request_data, response_data):
-        return self.cache_actions.create_new_cache_row_data(request_data, response_data)
-        #cache_requests_row  = Sqlite__Cache__Requests__Row   (config=self.cache_row_config())
-        #new_row_data        = cache_requests_row.create_new_cache_row_data(request_data, response_data)
-        #return new_row_data
 
-    def create_new_cache_obj(self, request_data, response_data):
-        new_row_data = self.create_new_cache_row_data(request_data, response_data)
-        new_row_obj = self.cache_table().new_row_obj(new_row_data)
-        return new_row_obj
 
     def cache_table(self):
         return self.sqlite_requests.table_requests()
@@ -260,5 +216,5 @@ class Sqlite__Cache__Requests(Type_Safe):
 
     def set__add_timestamp(self, value):
         self.add_timestamp                                = value
-        self.cache_actions.cache_row_config.add_timestamp = value  # todo: remove this temp fix for passing in the timestamp
+        self.cache_row.config.add_timestamp = value  # todo: remove this temp fix for passing in the timestamp
         return self

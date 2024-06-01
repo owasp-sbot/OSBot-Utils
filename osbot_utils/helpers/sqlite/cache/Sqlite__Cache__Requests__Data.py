@@ -36,6 +36,3 @@ class Sqlite__Cache__Requests__Data(Type_Safe):
     def cache_entry_for_request_params(self, *args, **target_kwargs):
         request_data = self.cache_request_data(*args, **target_kwargs)
         return self.cache_entry(request_data)
-
-    # def cache_request_data(self, *args, **target_kwargs):
-    #     return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised

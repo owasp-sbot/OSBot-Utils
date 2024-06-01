@@ -186,7 +186,6 @@ class test_Sqlite__Cache__Requests(TestCase):
         assert new_cache_entry.get('timestamp') > 0
         self.sqlite_cache_requests.set__add_timestamp(False)
 
-        self.sqlite_cache_requests.cache_actions.cache_row_config.add_timestamp = self.sqlite_cache_requests.add_timestamp  # todo: remove this temp fix for passing in the timestamp
 
     # TODO : Finish test asserts
     def test_create_new_cache_data__pickle_response_is_True(self):
