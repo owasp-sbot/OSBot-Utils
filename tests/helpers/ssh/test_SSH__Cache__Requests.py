@@ -2,19 +2,18 @@ from unittest import TestCase
 
 import pytest
 
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests import Sqlite__Cache__Requests
-from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests__Patch import Sqlite__Cache__Requests__Patch
-from osbot_utils.helpers.ssh.SSH import SSH, ENV_VAR__SSH__HOST
-from osbot_utils.helpers.ssh.SSH__Cache__Requests import SSH__Cache__Requests, SQLITE_DB_NAME__SSH_REQUESTS_CACHE, \
+from osbot_utils.base_classes.Kwargs_To_Self                            import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests           import Sqlite__Cache__Requests
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Patch    import Sqlite__Cache__Requests__Patch
+from osbot_utils.helpers.ssh.SSH                                        import SSH, ENV_VAR__SSH__HOST
+from osbot_utils.helpers.ssh.SSH__Cache__Requests                       import SSH__Cache__Requests, SQLITE_DB_NAME__SSH_REQUESTS_CACHE, \
     SQLITE_TABLE_NAME__SSH_REQUESTS
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Env import get_env
-from osbot_utils.utils.Files import temp_file, current_temp_folder, parent_folder, file_extension
-from osbot_utils.utils.Json import to_json_str
-from osbot_utils.utils.Misc import bytes_to_str, str_sha256, sha_256, bytes_sha256
-from osbot_utils.utils.Objects import base_types, pickle_load_from_bytes, pickle_from_bytes, pickle_to_bytes
-from osbot_utils.utils.Toml import dict_to_toml
+from osbot_utils.utils.Env                                              import get_env
+from osbot_utils.utils.Files                                            import temp_file, current_temp_folder, parent_folder, file_extension
+from osbot_utils.utils.Json                                             import to_json_str
+from osbot_utils.utils.Misc                                             import bytes_to_str, str_sha256, sha_256, bytes_sha256
+from osbot_utils.utils.Objects                                          import base_types, pickle_load_from_bytes, pickle_from_bytes, pickle_to_bytes
+from osbot_utils.utils.Toml                                             import dict_to_toml
 
 class test_SSH__Cache__Requests(TestCase):
     cache_ssh_requests : SSH__Cache__Requests

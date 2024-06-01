@@ -1,8 +1,7 @@
 import types
 
-from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests import Sqlite__Cache__Requests
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import random_text
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests   import Sqlite__Cache__Requests
+from osbot_utils.utils.Misc                                     import random_text
 
 
 class Sqlite__Cache__Requests__Patch(Sqlite__Cache__Requests):
