@@ -18,3 +18,15 @@ class Sqlite__Cache__Requests__Config(Type_Safe):
     def enable(self):
         self.enabled = True
         return self
+
+    def only_from_cache(self, value=True):
+        self.cache_only_mode = value
+        return self
+
+    def set__add_timestamp(self, value):
+        self.add_timestamp = value
+        return self
+
+    def update(self, value=True):
+        self.update_mode = value
+        return self

@@ -28,11 +28,15 @@ class Sqlite__Cache__Requests(Type_Safe):
 
 
         kwargs__cache_table    = dict(                        cache_table        = self.cache_sqlite.cache_table())
-        kwargs__cache_data     = dict(**kwargs__cache_table,  cache_request_data = self.cache_request_data        )
-        kwargs__cache_row      = dict(**kwargs__cache_table,  config             = self.cache_config              )
 
+        kwargs__cache_data     = dict(**kwargs__cache_table,  cache_request_data = self.cache_request_data        ,
+                                                              cache_sqlite       = self.cache_sqlite              ,
+                                                              config             = self.cache_config              )
+        self.cache_data = Sqlite__Cache__Requests__Data(**kwargs__cache_data)
+
+        kwargs__cache_row      = dict(**kwargs__cache_table,  config             = self.cache_config              )
         self.cache_row       = Sqlite__Cache__Requests__Row    (**kwargs__cache_row   )
-        self.cache_data      = Sqlite__Cache__Requests__Data   (**kwargs__cache_data  )
+
 
 
         kwargs__cache_actions = dict(**kwargs__cache_table, cache_row=self.cache_row)
@@ -55,6 +59,11 @@ class Sqlite__Cache__Requests(Type_Safe):
         self.cache_entry_comments            = self.cache_data.cache_entry_comments
         self.cache_entry_comments_update     = self.cache_data.cache_entry_comments_update
         self.cache_entry_for_request_params  = self.cache_data.cache_entry_for_request_params
+        self.response_data_for__request_hash = self.cache_data.response_data_for__request_hash
+        self.requests_data__all              = self.cache_data.requests_data__all
+        self.response_data__all              = self.cache_data.response_data__all
+        self.response_data_deserialize       = self.cache_data.response_data_deserialize
+        self.response_data_serialize         = self.cache_data.response_data_serialize
 
         self.create_new_cache_obj            = self.cache_row.create_new_cache_obj
 
@@ -66,14 +75,16 @@ class Sqlite__Cache__Requests(Type_Safe):
 
         self.disable                         = self.cache_config.disable
         self.enable                          = self.cache_config.enable
+        self.only_from_cache                 = self.cache_config.only_from_cache
+        self.update                          = self.cache_config.update
+        self.set__add_timestamp              = self.cache_config.set__add_timestamp
 
         self.invoke                          = self.cache_invoke.invoke
         self.invoke_target                   = self.cache_invoke.invoke_target
         self.invoke_with_cache               = self.cache_invoke.invoke_with_cache
         self.invoke_target__and_add_to_cache = self.cache_invoke.invoke_target__and_add_to_cache
         self.transform_raw_response          = self.cache_invoke.transform_raw_response
-        self.response_data_deserialize       = self.cache_invoke.response_data_deserialize
-        self.response_data_serialize         = self.cache_invoke.response_data_serialize
+
 
 
     # FOR NOW: these methods cannot be refactored
@@ -82,68 +93,5 @@ class Sqlite__Cache__Requests(Type_Safe):
     def cache_request_data(self, *args, **target_kwargs):
         return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
 
-
     def set_on_invoke_target(self, on_invoke_target  : types.FunctionType):
         self.cache_invoke.on_invoke_target = on_invoke_target
-
-
-    # methods to refactor
-
-
-    def only_from_cache(self, value=True):
-        self.config.cache_only_mode = value
-        return self
-
-    def response_data_for__request_hash(self, request_hash):
-        rows = self.rows_where__request_hash(request_hash)
-        if len(rows) > 0:
-            cache_entry       = rows[0]
-            response_data_obj = self.response_data_deserialize(cache_entry)
-            return response_data_obj
-        return {}
-
-    def requests_data__all(self):
-        requests_data = []
-        for row in self.cache_table().rows():
-            req_id           = row.get('id')
-            request_data     = row.get('request_data')
-            request_hash     = row.get('request_hash')
-            request_comments = row.get('comments')
-
-            request_data_obj = dict(request_data = request_data    ,
-                                    _id          = req_id          ,
-                                    _hash        =  request_hash   ,
-                                    _comments    = request_comments)
-
-            requests_data.append(request_data_obj)
-        return requests_data
-
-    def response_data__all(self):
-        responses_data = []
-        for row in self.cache_table().rows():
-            response_data_obj = self.convert_row__to__response_data_obj(row)
-            responses_data.append(response_data_obj)
-        return responses_data
-
-    def convert_row__to__response_data_obj(self, row):
-        row_id            = row.get('id'           )
-        comments          = row.get('comments'     )
-        request_hash      = row.get('request_hash' )
-        response_hash     = row.get('response_hash')
-        response_data     = self.response_data_deserialize(row)
-        response_data_obj = dict( comments      = comments      ,
-                                  row_id        = row_id        ,
-                                  request_hash  = request_hash  ,
-                                  response_hash = response_hash ,
-                                  response_data = response_data )
-        return response_data_obj
-
-
-
-    def update(self, value=True):
-        self.config.update_mode = value
-        return self
-
-    def set__add_timestamp(self, value):
-        self.config.add_timestamp = value
-        return self
