@@ -60,7 +60,6 @@ class Sqlite__Cache__Requests(Type_Safe):
         self.cache_entry_comments_update     = self.cache_data.cache_entry_comments_update
         self.cache_entry_for_request_params  = self.cache_data.cache_entry_for_request_params
         self.response_data_for__request_hash = self.cache_data.response_data_for__request_hash
-        self.requests_data__all              = self.cache_data.requests_data__all
         self.response_data__all              = self.cache_data.response_data__all
         self.response_data_deserialize       = self.cache_data.response_data_deserialize
         self.response_data_serialize         = self.cache_data.response_data_serialize
@@ -95,3 +94,6 @@ class Sqlite__Cache__Requests(Type_Safe):
 
     def set_on_invoke_target(self, on_invoke_target  : types.FunctionType):
         self.cache_invoke.on_invoke_target = on_invoke_target
+
+    def requests_data__all(self):                                                       # currently overwritten by Bedrock__Cache
+        return self.cache_data.requests_data__all()
