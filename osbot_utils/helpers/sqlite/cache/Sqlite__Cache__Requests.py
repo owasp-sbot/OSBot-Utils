@@ -2,13 +2,11 @@ import types
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Actions      import Sqlite__Cache__Requests__Actions
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Data         import Sqlite__Cache__Requests__Data
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row__Config  import Sqlite__Cache__Requests__Row__Config
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row          import Sqlite__Cache__Requests__Row
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests                import Sqlite__DB__Requests
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row__Config  import Sqlite__Cache__Requests__Row__Config
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Sqlite       import Sqlite__Cache__Requests__Sqlite
 from osbot_utils.utils.Json                                                 import json_dumps, json_loads
-from osbot_utils.utils.Misc                                                 import str_sha256, timestamp_utc_now, bytes_sha256
 from osbot_utils.utils.Objects                                              import pickle_save_to_bytes, pickle_load_from_bytes
-from osbot_utils.utils.Toml                                                 import toml_to_dict
 
 
 class Sqlite__Cache__Requests(Type_Safe):
@@ -17,21 +15,27 @@ class Sqlite__Cache__Requests(Type_Safe):
     enabled           : bool                 = True
     update_mode       : bool                 = False
     cache_only_mode   : bool                 = False
-    sqlite_requests   : Sqlite__DB__Requests = None
     pickle_response   : bool                 = False
     capture_exceptions: bool                 = False                # once this is working, it might be more useful to have this set to true
     exception_classes : list
     on_invoke_target  : types.FunctionType
 
     def __init__(self, db_path=None, db_name=None, table_name=None):
-        self.sqlite_requests = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
         super().__init__()
-        kwargs__cache_table    = dict(                        cache_table        = self.cache_table())
+
+        kwargs__cache_sqlite   = dict(db_path=db_path, db_name=db_name, table_name=table_name)
+        self.cache_sqlite      = Sqlite__Cache__Requests__Sqlite (**kwargs__cache_sqlite)
+        self.sqlite_requests   = self.cache_sqlite.sqlite_requests
+
+
+        kwargs__cache_table    = dict(                        cache_table        = self.cache_table())              # todo refactor this whole section to a DI (DependencyInjection / Type_Registry class, which is the one responsible for creating these obejcts)
         kwargs__cache_data     = dict(**kwargs__cache_table,  cache_request_data = self.cache_request_data )
         kwargs__cache_row      = dict(**kwargs__cache_table,  config             = self.cache_row_config() )
 
-        self.cache_row       = Sqlite__Cache__Requests__Row    (**kwargs__cache_row      )
-        self.cache_data      = Sqlite__Cache__Requests__Data   (**kwargs__cache_data     )
+
+        self.cache_row       = Sqlite__Cache__Requests__Row    (**kwargs__cache_row   )
+        self.cache_data      = Sqlite__Cache__Requests__Data   (**kwargs__cache_data  )
+
 
         kwargs__cache_actions = dict(**kwargs__cache_table, cache_row=self.cache_row)
 
@@ -61,7 +65,6 @@ class Sqlite__Cache__Requests(Type_Safe):
                       add_timestamp   = self.add_timestamp )
         config  = Sqlite__Cache__Requests__Row__Config(**kwargs)
         return config
-
 
 
     def cache_table(self):
