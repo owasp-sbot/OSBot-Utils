@@ -8,7 +8,7 @@ from osbot_utils.utils.Misc import random_text
 class Sqlite__Cache__Requests__Patch(Sqlite__Cache__Requests):
     db_name             : str                = random_text('requests_cache_')
     table_name          : str                = random_text('requests_table_')
-    pickle_response     : bool               = True
+    pickle_response     : bool               = True                                     # todo: move this from this file since the pickle setting is not relevant to Sqlite__Cache__Requests__Patch (it should be set by who needs it )
     target_function     : types.FunctionType
     target_class        : object
     target_function_name: str

@@ -59,7 +59,7 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         request_data = self.cache_request_data(*args, **target_kwargs)
         return self.cache_entry(request_data)
 
-    def create_new_cache_data(self, request_data, response_data):
+    def create_new_cache_row_data(self, request_data, response_data):       # todo refactor this method into sub methods (one that map the request and one that maps the response)
         request_data_json  = json_dumps(request_data)
         request_data_hash  = str_sha256(request_data_json)
         if self.add_timestamp:
@@ -106,7 +106,7 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         return cache_cata
 
     def create_new_cache_obj(self, request_data, response_data):
-        new_row_data = self.create_new_cache_data(request_data, response_data)
+        new_row_data = self.create_new_cache_row_data(request_data, response_data)
         new_row_obj = self.cache_table().new_row_obj(new_row_data)
         return new_row_obj
 

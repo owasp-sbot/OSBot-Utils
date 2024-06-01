@@ -264,17 +264,17 @@ def print_time_now(use_utc=True):
     print(time_now(use_utc=use_utc))
 
 def str_sha256(text: str):
-    if text:
+    if type(text) is str:
         return bytes_sha256(text.encode())
     return None
 
 def str_sha384(text:str):
-    if text:
+    if type(text) is str:
         return bytes_sha384(text.encode())
     return
 
 def str_sha384_as_base64(text:str, include_prefix=True):
-    if text:
+    if type(text) is str:
         hash_object = hashlib.sha384(text.encode())
         digest      = hash_object.digest()                                  # Getting the digest of the hash
         digest_base64 = base64.b64encode(digest).decode()                   # Converting the digest to Base64 encoding

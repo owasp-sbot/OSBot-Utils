@@ -4,7 +4,7 @@ from osbot_utils.utils                                                  import H
 from osbot_utils.helpers.sqlite.domains.Sqlite__Cache__Requests__Patch  import Sqlite__Cache__Requests__Patch
 from osbot_utils.utils.Files                                            import parent_folder, current_temp_folder, file_name
 from osbot_utils.utils.Json                                             import to_json_str
-from osbot_utils.utils.Misc                                             import str_sha256
+from osbot_utils.utils.Misc import str_sha256, bytes_sha256
 from osbot_utils.utils.Objects                                          import pickle_save_to_bytes, pickle_load_from_bytes
 
 
@@ -81,6 +81,7 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
         expected_request_data     = to_json_str(expected_request_data_obj)
         expected_request_hash     = str_sha256(expected_request_data)
         expected_response_bytes   = pickle_save_to_bytes(expected_response)
+        expected_response_hash    = bytes_sha256(expected_response_bytes)
 
         expected_cache_entry   = { 'comments'      : ''                     ,
                                    'id'            : 1                      ,
@@ -90,8 +91,8 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
                                    'request_type'  : ''                     ,
                                    'response_bytes': expected_response_bytes,
                                    'response_data' : ''                     ,
-                                   'response_hash' : ''                     ,
-                                   'response_type' : ''                     ,
+                                   'response_hash' : expected_response_hash ,
+                                   'response_type' :  'pickle'              ,   # todo: BUG we should not be using pikle in this '__Patch' class,
                                    'source'        : ''                     ,
                                    'timestamp'     : 0                      }
 

@@ -48,8 +48,9 @@ class test_Sqlite__Cache__Requests(TestCase):
             target_args   = ['abc']
             target_kwargs = {'an_key': an_key, 'an_dict': an_dict}
             response = self.sqlite_cache_requests.invoke(target, target_args, target_kwargs)
-            self.sqlite_cache_requests.cache_entry_comments_update()
-            pprint(response)
+            # todo add comments to the entry
+            #self.sqlite_cache_requests.cache_entry_comments_update()
+            #pprint(response)
 
     def test__add_test_requests(self):
         with self.sqlite_cache_requests as _:
@@ -98,7 +99,7 @@ class test_Sqlite__Cache__Requests(TestCase):
                                  'response_bytes' : b''                  ,
                                  'response_data'  : response_data_json   ,
                                  'response_hash'  : response_data_sha256 ,
-                                 'response_type'  : ''                   ,
+                                 'response_type'  : 'dict'               ,
                                  'source'         : ''                   ,
                                  'timestamp'      : 0                    }
         expected_row_entry   = { **expected_new_row                      ,
@@ -159,7 +160,7 @@ class test_Sqlite__Cache__Requests(TestCase):
         body                     = {'the': 'request data'}
         response_data            = {'the': 'return value'}
         request_data             = self.sqlite_cache_requests.cache_request_data(model_id=model_id, body=body)
-        new_cache_entry          = self.sqlite_cache_requests.create_new_cache_data(request_data, response_data)
+        new_cache_entry          = self.sqlite_cache_requests.create_new_cache_row_data(request_data, response_data)
         expected_new_cache_entry = { 'comments'     : ''                                                                  ,
                                      'metadata'     : ''                                                                  ,
                                      'request_data'  : json_dumps(request_data)                                           ,
@@ -168,7 +169,7 @@ class test_Sqlite__Cache__Requests(TestCase):
                                      'response_bytes': b''                                                                ,
                                      'response_data' : json_dumps(response_data)                                          ,
                                      'response_hash' : '69e330ec7bf6334aa41ecaf56797fa86345d3cf85da4c622821aa42d4bee1799' ,
-                                     'response_type' : ''                                                                 ,
+                                     'response_type' : 'dict'                                                             ,
                                      'source'        : ''                                                                 ,
                                      'timestamp'     :  0                                                                 }
         expected_new_cache_obj   = { **expected_new_cache_entry,
@@ -179,7 +180,7 @@ class test_Sqlite__Cache__Requests(TestCase):
         assert self.sqlite_cache_requests.cache_entries() ==[]
 
         self.sqlite_cache_requests.add_timestamp = True
-        new_cache_entry = self.sqlite_cache_requests.create_new_cache_data(request_data, response_data)
+        new_cache_entry = self.sqlite_cache_requests.create_new_cache_row_data(request_data, response_data)
         assert new_cache_entry.get('timestamp') != 0
         assert new_cache_entry.get('timestamp') > 0
         self.sqlite_cache_requests.add_timestamp = False
@@ -200,9 +201,9 @@ class test_Sqlite__Cache__Requests(TestCase):
                         response_hash  =                  entry_1.get('response_hash'  ),
                         ))
             #assert response_data_all_1 == [entry_1, entry_2]
-
-            return
             _.pickle_response = False
+            return
+
             self.add_test_requests(2)
             pprint(_.response_data__all())
             _.pickle_response = True

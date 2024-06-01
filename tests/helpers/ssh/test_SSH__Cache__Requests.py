@@ -12,7 +12,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Env import get_env
 from osbot_utils.utils.Files import temp_file, current_temp_folder, parent_folder, file_extension
 from osbot_utils.utils.Json import to_json_str
-from osbot_utils.utils.Misc import bytes_to_str, str_sha256, sha_256
+from osbot_utils.utils.Misc import bytes_to_str, str_sha256, sha_256, bytes_sha256
 from osbot_utils.utils.Objects import base_types, pickle_load_from_bytes, pickle_from_bytes, pickle_to_bytes
 from osbot_utils.utils.Toml import dict_to_toml
 
@@ -80,6 +80,7 @@ class test_SSH__Cache__Requests(TestCase):
         expected_response_data = {'files': mock_files, 'path': mock_path}
         expected_response_bytes = pickle_to_bytes(expected_response_data)
         expected_request_hash   = sha_256(expected_request_data)
+        expected_response_hash  = bytes_sha256(expected_response_bytes)
 
         def on_invoke_target(*args):
             return {'files': mock_files,
@@ -108,7 +109,7 @@ class test_SSH__Cache__Requests(TestCase):
                                     'request_type'   : ''                     ,
                                     'response_bytes' : expected_response_bytes,
                                     'response_data'  : ''                     ,
-                                    'response_hash'  : ''                     ,
-                                    'response_type'  : ''                     ,
+                                    'response_hash'  : expected_response_hash ,
+                                    'response_type'  : 'pickle'               ,
                                     'source'         : ''                     ,
                                     'timestamp'      : 0                      }
