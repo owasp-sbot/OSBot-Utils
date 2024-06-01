@@ -1,4 +1,6 @@
 from unittest                                                           import TestCase
+
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Http                                             import GET
 from osbot_utils.utils                                                  import Http
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Patch    import Sqlite__Cache__Requests__Patch
@@ -72,7 +74,7 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
         self.requests_cache.target_class         = Http
         self.requests_cache.target_function      = GET
         self.requests_cache.target_function_name = 'GET'
-        self.requests_cache.on_invoke_target     =   on_invoke_target
+        self.requests_cache.set_on_invoke_target(on_invoke_target)
 
         self.requests_cache.set__add_timestamp(False)
 
@@ -118,7 +120,7 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
         self.requests_cache.target_class         = Http
         self.requests_cache.target_function      = GET
         self.requests_cache.target_function_name = 'GET'
-        self.requests_cache.on_invoke_target     = on_invoke_target
+        self.requests_cache.set_on_invoke_target(on_invoke_target)
 
         # with capture_exceptions set to False (default behaviour)
         with self.requests_cache as _:
@@ -131,6 +133,7 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
         # with capture_exceptions set to True
         with self.requests_cache as _:
             _.config.capture_exceptions = True
+
             assert _.cache_entries() == []
             with self.assertRaises(Exception) as context:
                 Http.GET('')
@@ -166,3 +169,28 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
     #             Http.GET('https://www.google.com/404')
     #
     #         assert len(_.cache_entries()) == 0
+
+
+    def test__bug__capture_exceptions__not_propagated_to_all_configs(self):
+        def check_value_in_config(target, attribute_name, expected_value):
+            current_value = getattr(target, attribute_name)
+            assert current_value == expected_value , f'expected value for {attribute_name} to be {expected_value} but got {current_value}'
+            return
+
+        def check_all_values_in_config(attribute_name, expected_value):
+            targets = [ self.requests_cache             .config ,
+                        self.requests_cache.cache_invoke.config ,
+                        self.requests_cache.cache_row   .config ,
+                        self.requests_cache.cache_sqlite.config ]
+            for target in targets:
+                check_value_in_config(target, attribute_name, expected_value)
+
+        check_all_values_in_config('capture_exceptions', False)
+
+        self.requests_cache.config.capture_exceptions = True
+
+        check_all_values_in_config('capture_exceptions', True)
+
+        self.requests_cache.config.capture_exceptions = False
+
+        check_all_values_in_config('capture_exceptions', False)

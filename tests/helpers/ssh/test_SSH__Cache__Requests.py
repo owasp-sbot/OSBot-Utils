@@ -87,7 +87,7 @@ class test_SSH__Cache__Requests(TestCase):
 
         with self.cache_ssh_requests as _:
             _.set__add_timestamp(False)
-            _.on_invoke_target = on_invoke_target
+            _.set_on_invoke_target(on_invoke_target)
 
             assert _.cache_entries() == []
 
