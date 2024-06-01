@@ -130,7 +130,7 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
 
         # with capture_exceptions set to True
         with self.requests_cache as _:
-            _.capture_exceptions = True
+            _.config.capture_exceptions = True
             assert _.cache_entries() == []
             with self.assertRaises(Exception) as context:
                 Http.GET('')

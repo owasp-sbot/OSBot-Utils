@@ -191,7 +191,7 @@ class test_Sqlite__Cache__Requests(TestCase):
     def test_create_new_cache_data__pickle_response_is_True(self):
         row_count = 2
         with self.sqlite_cache_requests as _:
-            assert _.pickle_response is False           # default value
+            assert _.config.pickle_response is False           # default value
             _.pickle_response = True                    # enable pickle_response
             self.add_test_requests(2)                   # add 2 rows
             entry_1, entry_2, = _.cache_entries()
@@ -217,29 +217,29 @@ class test_Sqlite__Cache__Requests(TestCase):
 
     def test_disable(self):
         with self.sqlite_cache_requests as _:
-            assert _.enabled is True
+            assert _.config.enabled is True
             _.disable()
-            assert _.enabled is False
+            assert _.config.enabled is False
             _.enable()
-            assert _.enabled is True
+            assert _.config.enabled is True
 
     def test_only_from_cache(self):
         with self.sqlite_cache_requests as _:
-            assert _.cache_only_mode is False
+            assert _.config.cache_only_mode is False
             _.only_from_cache()
-            assert _.cache_only_mode is True
+            assert _.config.cache_only_mode is True
             _.only_from_cache(False)
-            assert _.cache_only_mode is False
+            assert _.config.cache_only_mode is False
 
     def test_response_data_serialize(self):
         with self.sqlite_cache_requests as _:
-            assert _.pickle_response == False
+            assert _.config.pickle_response == False
             response_data_original_1   = {'an_str': 'an_str', 'an_int': 42}
             response_data_serialised_1 = _.response_data_serialize(response_data_original_1)
             assert type(response_data_serialised_1) is dict
             assert response_data_original_1         == response_data_serialised_1
 
-            _.pickle_response = True
+            _.config.pickle_response = True
             response_data_original_2   = {'an_str': 'an_str', 'an_int': 42}
             response_data_serialised_2 = _.response_data_serialize(response_data_original_2)
             assert type(response_data_serialised_2) is bytes
@@ -294,14 +294,14 @@ class test_Sqlite__Cache__Requests(TestCase):
 
     def test_update(self):
         with self.sqlite_cache_requests as _:
-            assert _.update_mode is False
+            assert _.config.update_mode is False
             _.update()
-            assert _.update_mode is True
+            assert _.config.update_mode is True
             _.update(False)
-            assert _.update_mode is False
+            assert _.config.update_mode is False
 
 
-    def test__bug__cache_request_data__overide_is_not_working(self):
+    def test__bug__cache_request_data__override_is_not_working(self):
 
         class Sqlite__Cache__Requests_2(Sqlite__Cache__Requests):
 
