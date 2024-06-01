@@ -19,7 +19,7 @@ class test_Sqlite__Cache__Requests(TestCase):
     def setUpClass(cls):
         cls.temp_db_path                        = temp_file(extension='sqlite')
         cls.sqlite_cache_requests               = Sqlite__Cache__Requests(db_path = cls.temp_db_path)       # the db_path to the tmp file path
-        cls.sqlite_cache_requests.add_timestamp = False                                                     # disabling timestamp since it complicates the test data verification below
+        cls.sqlite_cache_requests.set__add_timestamp(False)                                                 # disabling timestamp since it complicates the test data verification below
         assert parent_folder(cls.sqlite_cache_requests.sqlite_requests.db_path) == current_temp_folder()
         assert file_exists  (cls.temp_db_path)                                 is True
 
@@ -178,11 +178,14 @@ class test_Sqlite__Cache__Requests(TestCase):
         assert new_cache_obj.__locals__() == expected_new_cache_obj
         assert self.sqlite_cache_requests.cache_entries() ==[]
 
-        self.sqlite_cache_requests.add_timestamp = True
+        self.sqlite_cache_requests.set__add_timestamp(True)
+
         new_cache_entry = self.sqlite_cache_requests.create_new_cache_row_data(request_data, response_data)
         assert new_cache_entry.get('timestamp') != 0
         assert new_cache_entry.get('timestamp') > 0
-        self.sqlite_cache_requests.add_timestamp = False
+        self.sqlite_cache_requests.set__add_timestamp(False)
+
+        self.sqlite_cache_requests.cache_actions.cache_row_config.add_timestamp = self.sqlite_cache_requests.add_timestamp  # todo: remove this temp fix for passing in the timestamp
 
     # TODO : Finish test asserts
     def test_create_new_cache_data__pickle_response_is_True(self):

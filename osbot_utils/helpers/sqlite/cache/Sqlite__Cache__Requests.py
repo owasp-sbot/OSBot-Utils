@@ -1,5 +1,6 @@
 import types
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Actions import Sqlite__Cache__Requests__Actions
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row__Config  import Sqlite__Cache__Requests__Row__Config
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row          import Sqlite__Cache__Requests__Row
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests                import Sqlite__DB__Requests
@@ -21,13 +22,20 @@ class Sqlite__Cache__Requests(Type_Safe):
     exception_classes : list
     on_invoke_target  : types.FunctionType
 
+
     def __init__(self, db_path=None, db_name=None, table_name=None):
         self.sqlite_requests = Sqlite__DB__Requests(db_path=db_path, db_name=db_name, table_name=table_name)
+
+        kwargs_cache_actions = dict(cache_row_config = self.cache_row_config() ,
+                                    cache_table      = self.cache_table()      )
+        self.cache_actions   = Sqlite__Cache__Requests__Actions(**kwargs_cache_actions)
+
         super().__init__()
 
     def cache_add(self, request_data, response_data):
-        new_row_obj = self.create_new_cache_obj(request_data, response_data)
-        return self.cache_table().row_add_and_commit(new_row_obj)
+        return self.cache_actions.cache_add(request_data, response_data)
+        # new_row_obj = self.create_new_cache_obj(request_data, response_data)
+        # return self.cache_table().row_add_and_commit(new_row_obj)
 
     def cache_delete(self, request_data):
         request_data        = json_dumps(request_data)
@@ -68,9 +76,10 @@ class Sqlite__Cache__Requests(Type_Safe):
         return config
 
     def create_new_cache_row_data(self, request_data, response_data):
-        cache_requests_row  = Sqlite__Cache__Requests__Row   (config=self.cache_row_config())
-        new_row_data        = cache_requests_row.create_new_cache_row_data(request_data, response_data)
-        return new_row_data
+        return self.cache_actions.create_new_cache_row_data(request_data, response_data)
+        #cache_requests_row  = Sqlite__Cache__Requests__Row   (config=self.cache_row_config())
+        #new_row_data        = cache_requests_row.create_new_cache_row_data(request_data, response_data)
+        #return new_row_data
 
     def create_new_cache_obj(self, request_data, response_data):
         new_row_data = self.create_new_cache_row_data(request_data, response_data)
@@ -227,4 +236,9 @@ class Sqlite__Cache__Requests(Type_Safe):
 
     def update(self, value=True):
         self.update_mode = value
+        return self
+
+    def set__add_timestamp(self, value):
+        self.add_timestamp                                = value
+        self.cache_actions.cache_row_config.add_timestamp = value  # todo: remove this temp fix for passing in the timestamp
         return self

@@ -21,7 +21,7 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
     def test__init__(self):
         _ = self.requests_cache                 # we can't use the with context here since it auto applies the patch
 
-        assert _.__attr_names__() == ['add_source_location', 'add_timestamp', 'cache_only_mode', 'capture_exceptions', 'db_name','enabled',
+        assert _.__attr_names__() == ['add_source_location', 'add_timestamp', 'cache_actions', 'cache_only_mode', 'capture_exceptions', 'db_name','enabled',
                                       'exception_classes', 'on_invoke_target', 'pickle_response', 'sqlite_requests',
                                       'table_name','target_class','target_function', 'target_function_name','update_mode']
         assert type(_.target_class)     is object               # default value for object
@@ -73,7 +73,8 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
         self.requests_cache.target_function      = GET
         self.requests_cache.target_function_name = 'GET'
         self.requests_cache.on_invoke_target     =   on_invoke_target
-        self.requests_cache.add_timestamp        = False
+
+        self.requests_cache.set__add_timestamp(False)
 
         target_url                = 'https://www.google.com'
         expected_response         =  f"GET call with args = ('{target_url}',) and kwargs = {{}}"
