@@ -33,7 +33,7 @@ class test_SSH__Cache__Requests(TestCase):
     def test__init__(self):
         with self.cache_ssh_requests as _:
 
-            assert _.__attr_names__()                         == [ 'add_source_location', 'add_timestamp', 'cache_actions', 'cache_only_mode', 'capture_exceptions', 'db_name','enabled',
+            assert _.__attr_names__()                         == [ 'add_source_location', 'add_timestamp', 'cache_actions', 'cache_data', 'cache_only_mode', 'capture_exceptions', 'db_name','enabled',
                                                                    'exception_classes', 'on_invoke_target', 'pickle_response', 'print_requests','sqlite_requests',
                                                                    'table_name','target_class', 'target_function', 'target_function_name','update_mode']
             assert _.db_name                                  == SQLITE_DB_NAME__SSH_REQUESTS_CACHE
