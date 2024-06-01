@@ -1,13 +1,15 @@
 import types
-from osbot_utils.base_classes.Kwargs_To_Self                    import Kwargs_To_Self
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests    import Sqlite__DB__Requests
-from osbot_utils.utils.Json                                     import json_dumps, json_loads
-from osbot_utils.utils.Misc import str_sha256, timestamp_utc_now, bytes_sha256
-from osbot_utils.utils.Objects                                  import pickle_save_to_bytes, pickle_load_from_bytes
-from osbot_utils.utils.Toml import toml_to_dict
+from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row__Config  import Sqlite__Cache__Requests__Row__Config
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row          import Sqlite__Cache__Requests__Row
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests                import Sqlite__DB__Requests
+from osbot_utils.utils.Json                                                 import json_dumps, json_loads
+from osbot_utils.utils.Misc                                                 import str_sha256, timestamp_utc_now, bytes_sha256
+from osbot_utils.utils.Objects                                              import pickle_save_to_bytes, pickle_load_from_bytes
+from osbot_utils.utils.Toml                                                 import toml_to_dict
 
 
-class Sqlite__Cache__Requests(Kwargs_To_Self):
+class Sqlite__Cache__Requests(Type_Safe):
     add_timestamp     : bool                 = True
     add_source_location:bool                 = True
     enabled           : bool                 = True
@@ -59,51 +61,16 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
         request_data = self.cache_request_data(*args, **target_kwargs)
         return self.cache_entry(request_data)
 
-    def create_new_cache_row_data(self, request_data, response_data):       # todo refactor this method into sub methods (one that map the request and one that maps the response)
-        request_data_json  = json_dumps(request_data)
-        request_data_hash  = str_sha256(request_data_json)
-        if self.add_timestamp:
-            timestamp = timestamp_utc_now()
-        else:
-            timestamp = 0
-        cache_cata = dict(comments       = ''                  ,
-                          metadata       = ''                  ,
-                          request_data   = request_data_json   ,
-                          request_hash   = request_data_hash   ,
-                          request_type   = ''                  ,
-                          response_bytes = b''                 ,
-                          response_data  = ''                  ,
-                          response_hash  = ''                  ,
-                          response_type  = ''                  ,
-                          source         = ''                  ,
-                          timestamp      = timestamp           )
+    def cache_row_config(self):
+        kwargs = dict(pickle_response = self.pickle_response ,
+                      add_timestamp   = self.add_timestamp )
+        config  = Sqlite__Cache__Requests__Row__Config(**kwargs)
+        return config
 
-        response_data_str   = ''
-        response_data_bytes = b''
-        if self.pickle_response:
-            response_type             = 'pickle'
-            response_data_bytes       = response_data
-            response_data_hash        = bytes_sha256(response_data_bytes)
-
-        else:
-            if type(response_data)   is bytes:
-                response_type         = 'bytes'
-                response_data_bytes   =  response_data
-                response_data_hash    = bytes_sha256(response_data_bytes)
-            elif type(response_data) is dict:
-                response_type         = 'dict'
-                response_data_str     = json_dumps(response_data)
-                response_data_hash    = str_sha256(response_data_str)
-            else:
-                response_type         = 'str'
-                response_data_str     = str(response_data)
-                response_data_hash    = str_sha256(response_data_str)
-
-        cache_cata['response_bytes'] = response_data_bytes
-        cache_cata['response_data' ]  = response_data_str
-        cache_cata['response_hash' ]  = response_data_hash
-        cache_cata['response_type' ]  = response_type
-        return cache_cata
+    def create_new_cache_row_data(self, request_data, response_data):
+        cache_requests_row  = Sqlite__Cache__Requests__Row   (config=self.cache_row_config())
+        new_row_data        = cache_requests_row.create_new_cache_row_data(request_data, response_data)
+        return new_row_data
 
     def create_new_cache_obj(self, request_data, response_data):
         new_row_data = self.create_new_cache_row_data(request_data, response_data)

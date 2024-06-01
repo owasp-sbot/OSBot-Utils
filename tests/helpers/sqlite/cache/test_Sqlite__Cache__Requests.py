@@ -195,7 +195,7 @@ class test_Sqlite__Cache__Requests(TestCase):
             #pprint(entry_1)
             response_data_all_1 = _.response_data__all()
             _.pickle_response = False
-            
+
             # pprint(response_data_all_1[0])
             # pprint(dict(request_hash  =                   entry_1.get('request_hash'  ),
             #             response_data = pickle_from_bytes(entry_1.get('response_bytes')),

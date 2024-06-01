@@ -48,57 +48,7 @@ immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, None
 #      for example if we have an method like def add_node(self, title: str, call_index: int):
 #          throw an exception if the type of the value passed in is not the same as the one defined in the method
 
-class Kwargs_To_Self:               # todo: check if the description below is still relevant (since a lot has changed since it was created)
-    """
-    A mixin class to strictly assign keyword arguments to pre-defined instance attributes during initialization.
-
-    This base class provides an __init__ method that assigns values from keyword
-    arguments to instance attributes. If an attribute with the same name as a key
-    from the kwargs is defined in the class, it will be set to the value from kwargs.
-    If the key does not match any predefined attribute names, an exception is raised.
-
-    This behavior enforces strict control over the attributes of instances, ensuring
-    that only predefined attributes can be set at the time of instantiation and avoids
-    silent attribute creation which can lead to bugs in the code.
-
-    Usage:
-        class MyConfigurableClass(Kwargs_To_Self):
-            attribute1 = 'default_value'
-            attribute2 = True
-            attribute3 : str
-            attribute4 : list
-            attribute4 : int = 42
-
-            # Other methods can be added here
-
-        # Correctly override default values by passing keyword arguments
-        instance = MyConfigurableClass(attribute1='new_value', attribute2=False)
-
-        # This will raise an exception as 'attribute3' is not predefined
-        # instance = MyConfigurableClass(attribute3='invalid_attribute')
-
-        this will also assign the default value to any variable that has a type defined.
-        In the example above the default values (mapped by __default__kwargs__ and __locals__) will be:
-            attribute1 = 'default_value'
-            attribute2 = True
-            attribute3 = ''             # default value of str
-            attribute4 = []             # default value of list
-            attribute4 = 42             # defined value in the class
-
-    Note:
-        It is important that all attributes which may be set at instantiation are
-        predefined in the class. Failure to do so will result in an exception being
-        raised.
-
-    Methods:
-        __init__(**kwargs): The initializer that handles the assignment of keyword
-                            arguments to instance attributes. It enforces strict
-                            attribute assignment rules, only allowing attributes
-                            that are already defined in the class to be set.
-    """
-
-    #__lock_attributes__ = False
-    #__type_safety__     = True
+class Kwargs_To_Self:
 
     def __init__(self, **kwargs):
         """
