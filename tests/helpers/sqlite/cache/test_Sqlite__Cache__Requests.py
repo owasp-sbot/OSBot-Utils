@@ -5,6 +5,7 @@ from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests           import S
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local               import Sqlite__DB__Local
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests            import Sqlite__DB__Requests, SQLITE_TABLE__REQUESTS
 from osbot_utils.helpers.sqlite.domains.schemas.Schema__Table__Requests import Schema__Table__Requests
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files                                            import temp_file, current_temp_folder, parent_folder, file_exists, file_not_exists
 from osbot_utils.utils.Json                                             import from_json_str, json_dump, to_json_str, json_loads, json_dumps
 from osbot_utils.utils.Misc                                             import random_text, list_set, random_string, str_sha256
@@ -299,3 +300,37 @@ class test_Sqlite__Cache__Requests(TestCase):
             assert _.update_mode is True
             _.update(False)
             assert _.update_mode is False
+
+
+    def test__bug__cache_request_data__overide_is_not_working(self):
+
+        class Sqlite__Cache__Requests_2(Sqlite__Cache__Requests):
+
+            def cache_request_data(self,*args, **target_kwargs):                    # override this method to have a different cache_key_strategy
+                return dict(args = len(list(args)), kwargs = list_set(target_kwargs))
+
+        args                       = ('an_arg',)
+        kwargs                     = dict(an_kwarg='kwargs')
+        request_data               = {'args': ['an_arg'], 'kwargs': {'an_kwarg': 'kwargs'}}
+
+        sqlite__cache__requests__1 = Sqlite__Cache__Requests  ()
+        sqlite__cache__requests__2 = Sqlite__Cache__Requests_2()
+
+        request_data__1            = sqlite__cache__requests__1.cache_request_data(*args, **kwargs)
+        request_data__2            = sqlite__cache__requests__2.cache_request_data(*args, **kwargs)
+
+        #assert request_data__1    == request_data
+        assert request_data__2    == {'args': 1, 'kwargs': ['an_kwarg']}
+
+        sqlite__cache__requests__1.cache_add(request_data__1, {})
+        sqlite__cache__requests__2.cache_add(request_data__2, {})
+
+        row_1         = sqlite__cache__requests__1.cache_entries()[0]
+        row_2         = sqlite__cache__requests__2.cache_entries()[0]
+
+        cache_entry_1 = sqlite__cache__requests__1.cache_data.cache_entry_for_request_params(*args, **kwargs)
+        cache_entry_2 = sqlite__cache__requests__2.cache_data.cache_entry_for_request_params(*args, **kwargs)
+
+        assert cache_entry_1 == row_1                       # ok
+        assert cache_entry_2 == {}                          # BUG: this should be row_2
+        assert cache_entry_2 != row_2                       # BUG: this should be row_2

@@ -44,7 +44,6 @@ class Sqlite__Cache__Requests(Type_Safe):
         self.cache_entry_comments           = self.cache_data.cache_entry_comments
         self.cache_entry_comments_update    = self.cache_data.cache_entry_comments_update
         self.cache_entry_for_request_params = self.cache_data.cache_entry_for_request_params
-        self.cache_request_data             = self.cache_data.cache_request_data
 
     #def cache_add(self, request_data, response_data): return self.cache_actions.cache_add(request_data, response_data)
 
@@ -86,9 +85,11 @@ class Sqlite__Cache__Requests(Type_Safe):
     #     # request_data = self.cache_request_data(*args, **target_kwargs)
     #     # return self.cache_entry(request_data)
     #
-    # def cache_request_data(self, *args, **target_kwargs):
-    #     return self.cache_data.cache_request_data(*args, **target_kwargs)
-    #     #return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
+
+    # this is the method that is current overriden to create custom request data
+    def cache_request_data(self, *args, **target_kwargs):
+        return self.cache_data.cache_request_data(*args, **target_kwargs)
+        #return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
 
     def cache_row_config(self):
         kwargs = dict(pickle_response = self.pickle_response ,
