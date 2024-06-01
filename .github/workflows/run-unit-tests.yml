@@ -13,10 +13,23 @@ jobs:
           pwd
           ls -la
           ls -la /
-  
+
+  some-other-step:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check ok
+        run: |
+          pwd
+          ls -la
+          ls -la /
 
   run-tests:
     runs-on: ubuntu-latest
+    needs:
+      - checkout-code
+      - some-other-step
+      - 
     strategy:
       matrix:
         python-version: [ 3.7.17, 3.8.18, 3.9.19, 3.10.14, 3.11.9, 3.12.3 , 3.13.0-beta.1 ]
