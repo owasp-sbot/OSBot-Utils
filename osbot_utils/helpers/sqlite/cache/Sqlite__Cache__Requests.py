@@ -1,7 +1,7 @@
 import types
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Actions import Sqlite__Cache__Requests__Actions
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Data import Sqlite__Cache__Requests__Data
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Actions      import Sqlite__Cache__Requests__Actions
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Data         import Sqlite__Cache__Requests__Data
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row__Config  import Sqlite__Cache__Requests__Row__Config
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row          import Sqlite__Cache__Requests__Row
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests                import Sqlite__DB__Requests
@@ -31,7 +31,8 @@ class Sqlite__Cache__Requests(Type_Safe):
                                     cache_table      = self.cache_table()      )
         self.cache_actions   = Sqlite__Cache__Requests__Actions(**kwargs__cache_actions)
 
-        kwargs__cache_data    = dict(cache_table      = self.cache_table()      )
+        kwargs__cache_data    = dict(cache_table      = self.cache_table()      ,
+                                     cache_request_data = self.cache_request_data)
         self.cache_data      = Sqlite__Cache__Requests__Data(**kwargs__cache_data)
 
         self.apply_refactoring_paches()
@@ -86,10 +87,9 @@ class Sqlite__Cache__Requests(Type_Safe):
     #     # return self.cache_entry(request_data)
     #
 
-    # this is the method that is current overriden to create custom request data
+    # this is the method that is current overwritten to create custom request data
     def cache_request_data(self, *args, **target_kwargs):
-        return self.cache_data.cache_request_data(*args, **target_kwargs)
-        #return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
+        return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
 
     def cache_row_config(self):
         kwargs = dict(pickle_response = self.pickle_response ,

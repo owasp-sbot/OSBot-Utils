@@ -332,5 +332,6 @@ class test_Sqlite__Cache__Requests(TestCase):
         cache_entry_2 = sqlite__cache__requests__2.cache_data.cache_entry_for_request_params(*args, **kwargs)
 
         assert cache_entry_1 == row_1                       # ok
-        assert cache_entry_2 == {}                          # BUG: this should be row_2
-        assert cache_entry_2 != row_2                       # BUG: this should be row_2
+        # assert cache_entry_2 == {}                          # BUG: this should be row_2
+        # assert cache_entry_2 != row_2                       # BUG: this should be row_2
+        assert cache_entry_2 == row_2                       # BUG: this should be row_2

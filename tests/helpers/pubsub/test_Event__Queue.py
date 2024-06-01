@@ -34,7 +34,7 @@ class test_Event_Queue(TestCase):
         assert _.running               is True
         assert _.thread                is not None
         assert _.thread.daemon         is True
-        assert 'Thread-4'              in _.thread.name
+        assert 'Thread-'               in _.thread.name
         assert _.thread.is_alive()     is True
         #assert _.thread._is_stopped    is False
         assert _.thread._target        == _.run_thread

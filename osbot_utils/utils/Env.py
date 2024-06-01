@@ -1,11 +1,10 @@
-# In Misc.py
-import os
-from sys import platform
 
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import all_parent_folders, file_exists
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Str import strip_quotes
+import os
+import sys
+from sys                        import platform
+from osbot_utils.utils.Files    import all_parent_folders, file_exists
+from osbot_utils.utils.Misc     import list_set
+from osbot_utils.utils.Str      import strip_quotes
 
 def env__home_root():
     return os.getenv('HOME') == '/root'
@@ -64,6 +63,20 @@ def env_unload_from_file(path):
                 if key in os.environ:  # Remove the environment variable if it exists
                     del os.environ[key]
 
+def in_github_action():
+    return os.getenv('GITHUB_ACTIONS') == 'true'
+
+def in_python_debugger():
+    if sys.gettrace() is not None:              # Check for a trace function
+        return True
+
+    pycharm_hosted           = os.getenv('PYCHARM_HOSTED') == '1'                     # Check for PyCharm specific environment variables and other potential indicators
+    pydevd_load_values_async = os.getenv('PYDEVD_LOAD_VALUES_ASYNC') is not None
+    if pycharm_hosted and pydevd_load_values_async:
+        return True
+
+    return False
+
 def load_dotenv(dotenv_path=None, override=False):
     if dotenv_path:                                                 # If a specific dotenv path is provided, load from it
         env_load_from_file(dotenv_path, override)
@@ -74,6 +87,10 @@ def load_dotenv(dotenv_path=None, override=False):
             if os.path.exists(env_path):                            # If we found one
                 env_load_from_file(env_path, override)              # Process it
                 break                                               # Stop after loading the first .env file                                                     # Stop after loading the first .env file
+
+
+def not_in_github_action():
+    return in_github_action() is False
 
 
 def unload_dotenv(dotenv_path=None):

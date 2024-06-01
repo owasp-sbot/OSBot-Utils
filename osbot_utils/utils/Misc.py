@@ -148,8 +148,6 @@ def get_random_color(max=5):
     colors = ['skyblue', 'darkseagreen', 'palevioletred', 'coral', 'darkgray']
     return colors[random_number(0, max-1)]
 
-def in_github_action():
-    return os.getenv('GITHUB_ACTIONS') == 'true'
 
 def is_debugging():
     return sys.gettrace() is not None
@@ -238,8 +236,6 @@ def lower(target : str):
         return target.lower()
     return ""
 
-def not_in_github_action():
-    return in_github_action() is False
 
 def size(target=None):
     if target and hasattr(target, '__len__'):

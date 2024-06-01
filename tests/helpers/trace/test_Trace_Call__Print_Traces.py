@@ -1,9 +1,8 @@
+import pytest
 from unittest                                           import TestCase
 from unittest.mock                                      import patch, call
-
-import pytest
-
-from osbot_utils.utils.Misc import random_number, wait_for, in_github_action
+from osbot_utils.utils.Env                              import in_github_action
+from osbot_utils.utils.Misc                             import random_number, wait_for
 from osbot_utils.helpers.trace.Trace_Call               import Trace_Call
 from osbot_utils.helpers.trace.Trace_Call__Print_Traces import Trace_Call__Print_Traces
 from tests.helpers.trace.test_Trace_Call                import another_function

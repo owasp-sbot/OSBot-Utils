@@ -1,9 +1,13 @@
+import os
+import sys
 from unittest                                           import TestCase
 from unittest.mock                                      import patch, call
 from osbot_utils.helpers.trace.Trace_Call               import Trace_Call
 from osbot_utils.helpers.trace.Trace_Call__Stack        import Trace_Call__Stack
 from osbot_utils.helpers.trace.Trace_Call__Stack_Node   import Trace_Call__Stack_Node
 from osbot_utils.helpers.trace.Trace_Call__View_Model   import Trace_Call__View_Model
+from osbot_utils.testing.Pytest import skip__if_in_python_debugger
+from osbot_utils.utils.Env import env_vars, in_python_debugger
 from tests.helpers.trace.test_Trace_Call                import dummy_function, another_function
 
 class test_Trace_Call__View_Model(TestCase):
@@ -30,9 +34,10 @@ class test_Trace_Call__View_Model(TestCase):
         assert view_model[2]['method_name'] == 'another_function'        , "3rd function in view_model should be 'another_function'"
         assert view_model[3]['method_name'] == 'dummy_function'          , "4th function in view_model should be 'dummy_function'"
 
-
     @patch('builtins.print')
     def test_create__via_Trace_Call_with(self, builtins_print):
+        skip__if_in_python_debugger()
+
         with Trace_Call() as trace_call:
             trace_call.trace_call_handler.config.trace_capture_start_with = ['tests']
             trace_call.trace_call_print_traces.config.print_traces_on_exit = True  # To hit the 'print_traces' line in __exit__

@@ -1,3 +1,4 @@
+import types
 from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
 from osbot_utils.utils.Json import json_dumps
@@ -5,7 +6,8 @@ from osbot_utils.utils.Misc import str_sha256
 
 
 class Sqlite__Cache__Requests__Data(Type_Safe):
-    cache_table      : Sqlite__Table
+    cache_table        : Sqlite__Table
+    cache_request_data : types.MethodType
 
     def cache_entries(self):
         return self.cache_table.rows()
@@ -35,5 +37,5 @@ class Sqlite__Cache__Requests__Data(Type_Safe):
         request_data = self.cache_request_data(*args, **target_kwargs)
         return self.cache_entry(request_data)
 
-    def cache_request_data(self, *args, **target_kwargs):
-        return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
+    # def cache_request_data(self, *args, **target_kwargs):
+    #     return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
