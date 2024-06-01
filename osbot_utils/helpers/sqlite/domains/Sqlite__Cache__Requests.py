@@ -43,12 +43,12 @@ class Sqlite__Cache__Requests(Kwargs_To_Self):
             return data[0]
         return {}
 
-    def cache_entry_comments(self, model_id, body):
-        cache_entry = self.cache_entry_for_request_params(model_id=model_id, body=body)
+    def cache_entry_comments(self, *args, **target_kwargs):
+        cache_entry = self.cache_entry_for_request_params(*args, **target_kwargs)
         return cache_entry.get('comments')
 
-    def cache_entry_comments_update(self, model_id, body, new_comments):
-        cache_entry      = self.cache_entry_for_request_params(model_id=model_id, body=body)
+    def cache_entry_comments_update(self, new_comments, *args, **target_kwargs):
+        cache_entry      = self.cache_entry_for_request_params(*args, **target_kwargs)
         request_hash     = cache_entry.get('request_hash')
         update_fields    = dict(comments=new_comments)
         query_conditions = dict(request_hash=request_hash)
