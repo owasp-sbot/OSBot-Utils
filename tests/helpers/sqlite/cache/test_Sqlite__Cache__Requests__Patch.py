@@ -1,7 +1,4 @@
 from unittest                                                           import TestCase
-
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests import SQLITE_TABLE__REQUESTS
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Http                                             import GET
 from osbot_utils.utils                                                  import Http
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Patch    import Sqlite__Cache__Requests__Patch

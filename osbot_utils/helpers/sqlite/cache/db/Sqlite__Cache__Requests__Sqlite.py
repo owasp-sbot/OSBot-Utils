@@ -1,7 +1,7 @@
-from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Config import Sqlite__Cache__Requests__Config
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests import Sqlite__DB__Requests
-from osbot_utils.utils.Json import json_dumps
+from osbot_utils.base_classes.Type_Safe                                 import Type_Safe
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Config   import Sqlite__Cache__Requests__Config
+from osbot_utils.helpers.sqlite.cache.db.Sqlite__DB__Requests           import Sqlite__DB__Requests
+from osbot_utils.utils.Json                                             import json_dumps
 
 
 class Sqlite__Cache__Requests__Sqlite(Type_Safe):
