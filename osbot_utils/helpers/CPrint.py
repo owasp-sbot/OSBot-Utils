@@ -14,9 +14,7 @@ class CPrint(CFormat):
         return self
 
     def add_to_current_line(self, color_code, *args, **kwargs):
-        args              = [str(arg) for arg in args]                                           # Convert all non-string arguments to strings
-        text              = "".join(args)
-        self.current_line += self.text_with_colors(text,color_code)
+        self.current_line += self.text_with_colors(color_code, *args, **kwargs)
         self.apply_config_options()
         return self
 

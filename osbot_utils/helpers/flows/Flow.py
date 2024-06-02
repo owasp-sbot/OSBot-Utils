@@ -15,8 +15,6 @@ class Flow(Type_Safe):
     flow_name : str     = 'an flow name'
     logging: Logging
 
-    # def __init__(self, **kwargs):
-    #     super().__init__(**kwargs)
 
     def config_logger(self):
         with self.logging as _:

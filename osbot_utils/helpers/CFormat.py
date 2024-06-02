@@ -11,7 +11,7 @@ class CFormat_Colors:
     cyan            = "36"
     grey            = "38;5;15"
     green           = "32"
-    none            = "0"
+    none            = "0"           # no color # note: this is using the ascii color reset code, see if there are any side effects
     magenta         = "35"
     red             = "31"
     white           = "38;5;15"
@@ -43,10 +43,34 @@ class CFormat(CFormat_Colors, Type_Safe):
     def apply_color_code_to_text(self, color_code, *args, **kwargs):
         return self.text_with_colors(color_code, *args, **kwargs)
 
-    def text_with_colors(self, text, color_code):
+    def text_with_colors(self, color_code, *args, **kwargs):
+        args = [str(arg) for arg in args]  # Convert all non-string arguments to strings
+        text = "".join(args)
         if self.apply_colors:
             color_start      = f"\033[{color_code}m"                                            # ANSI color code start and end
             color_end        = "\033[0m"
             return f"{color_start}{text}{color_end}"
         else:
             return text
+
+cformat = CFormat()
+
+f_black          = cformat.black
+f_red            = cformat.red
+f_blue           = cformat.blue
+f_cyan           = cformat.cyan
+f_grey           = cformat.grey
+f_green          = cformat.green
+f_none           = cformat.none
+f_magenta        = cformat.magenta
+f_white          = cformat.white
+f_yellow         = cformat.yellow
+f_bright_black   = cformat.bright_black
+f_bright_red     = cformat.bright_red
+f_bright_green   = cformat.bright_green
+f_bright_yellow  = cformat.bright_yellow
+f_bright_blue    = cformat.bright_blue
+f_bright_magenta = cformat.bright_magenta
+f_bright_cyan    = cformat.bright_cyan
+f_bright_white   = cformat.bright_white
+f_dark_red       = cformat.dark_red

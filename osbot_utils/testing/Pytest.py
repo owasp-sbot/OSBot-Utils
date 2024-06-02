@@ -2,7 +2,7 @@ from osbot_utils.utils.Env import get_env, load_dotenv, in_python_debugger
 
 needs_load_dotenv = True
 
-def skip_pytest(message="Skipping pytest for some reason ¯\_o_/¯"):
+def skip_pytest(message=r"Skipping pytest for some reason ¯\_o_/¯"):
     import pytest                                                # we can only import this locally since this dependency doesn't exist in the main osbot_utils codebase
     pytest.skip(message)
 
