@@ -6,7 +6,7 @@ from osbot_utils.utils.Misc                                     import str_sha25
 
 
 
-class Sqlite__Cache__Requests__Row(Type_Safe):
+class Cache__Requests__Row(Type_Safe):
     config      : Cache__Requests__Config
     cache_table : Cache__Requests__Table
 

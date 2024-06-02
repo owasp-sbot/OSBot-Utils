@@ -1,13 +1,13 @@
-from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
-from osbot_utils.helpers.cache_requests.Cache__Requests__Table              import Cache__Requests__Table
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row          import Sqlite__Cache__Requests__Row
-from osbot_utils.utils.Json import json_dumps
-from osbot_utils.utils.Misc import str_sha256
+from osbot_utils.base_classes.Type_Safe                             import Type_Safe
+from osbot_utils.helpers.cache_requests.Cache__Requests__Row        import Cache__Requests__Row
+from osbot_utils.helpers.cache_requests.Cache__Requests__Table      import Cache__Requests__Table
+from osbot_utils.utils.Json                                         import json_dumps
+from osbot_utils.utils.Misc                                         import str_sha256
 
 
 class Sqlite__Cache__Requests__Actions(Type_Safe):
     cache_table      : Cache__Requests__Table
-    cache_row        : Sqlite__Cache__Requests__Row
+    cache_row        : Cache__Requests__Row
 
     def cache_add(self, request_data, response_data):
         new_row_obj = self.cache_row.create_new_cache_obj(request_data, response_data)

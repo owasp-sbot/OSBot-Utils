@@ -1,10 +1,10 @@
 import types
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
 from osbot_utils.helpers.cache_requests.Cache__Requests__Config             import Cache__Requests__Config
+from osbot_utils.helpers.cache_requests.Cache__Requests__Row import Cache__Requests__Row
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Actions      import Sqlite__Cache__Requests__Actions
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Data         import Sqlite__Cache__Requests__Data
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Invoke       import Sqlite__Cache__Requests__Invoke
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row          import Sqlite__Cache__Requests__Row
 from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Table     import Sqlite__Cache__Requests__Table
 from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Sqlite    import Sqlite__Cache__Requests__Sqlite
 
@@ -38,7 +38,7 @@ class Sqlite__Cache__Requests(Type_Safe):
         self.cache_data        = Sqlite__Cache__Requests__Data(**kwargs__cache_data)
 
         kwargs__cache_row      = dict(**kwargs__cache_table,  config             = self.cache_config              )
-        self.cache_row       = Sqlite__Cache__Requests__Row    (**kwargs__cache_row   )
+        self.cache_row         = Cache__Requests__Row    (**kwargs__cache_row   )
 
 
 
