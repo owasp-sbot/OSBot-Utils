@@ -1,12 +1,12 @@
-from osbot_utils.base_classes.Type_Safe                                 import Type_Safe
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Config   import Sqlite__Cache__Requests__Config
-from osbot_utils.helpers.sqlite.cache.db.Sqlite__DB__Requests           import Sqlite__DB__Requests
-from osbot_utils.utils.Json                                             import json_dumps
+from osbot_utils.base_classes.Type_Safe                        import Type_Safe
+from osbot_utils.helpers.sqlite.cache.Cache__Requests__Config  import Cache__Requests__Config
+from osbot_utils.helpers.sqlite.cache.db.Sqlite__DB__Requests  import Sqlite__DB__Requests
+from osbot_utils.utils.Json                                    import json_dumps
 
 
 class Sqlite__Cache__Requests__Sqlite(Type_Safe):
     sqlite_requests : Sqlite__DB__Requests              = None
-    config          : Sqlite__Cache__Requests__Config
+    config          : Cache__Requests__Config
     db_path         : str
     db_name         : str
     table_name      : str

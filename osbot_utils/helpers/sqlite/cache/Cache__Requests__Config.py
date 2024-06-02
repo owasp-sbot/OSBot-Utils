@@ -1,7 +1,7 @@
 from osbot_utils.base_classes.Type_Safe import Type_Safe
 
 
-class Sqlite__Cache__Requests__Config(Type_Safe):
+class Cache__Requests__Config(Type_Safe):
     add_timestamp       : bool   = True
     add_source_location  :bool    = True
     enabled             : bool   = True

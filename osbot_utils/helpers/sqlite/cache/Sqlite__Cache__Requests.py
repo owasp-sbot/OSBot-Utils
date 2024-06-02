@@ -1,11 +1,11 @@
 import types
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
+from osbot_utils.helpers.sqlite.cache.Cache__Requests__Config               import Cache__Requests__Config
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Actions      import Sqlite__Cache__Requests__Actions
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Config       import Sqlite__Cache__Requests__Config
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Data         import Sqlite__Cache__Requests__Data
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Invoke       import Sqlite__Cache__Requests__Invoke
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row          import Sqlite__Cache__Requests__Row
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Table import Sqlite__Cache__Requests__Table
+from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Table     import Sqlite__Cache__Requests__Table
 from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Sqlite    import Sqlite__Cache__Requests__Sqlite
 
 
@@ -19,7 +19,7 @@ class Sqlite__Cache__Requests(Type_Safe):
 
         # todo refactor this whole section to a DI (DependencyInjection / Type_Registry class, which is the one responsible for creating these objects in the right order of dependency)
 
-        self.cache_config       = Sqlite__Cache__Requests__Config()
+        self.cache_config       = Cache__Requests__Config()
         self.config             = self.cache_config
 
         kwargs__cache_sqlite   = dict(config=self.cache_config, db_path=self.db_path, db_name=self.db_name, table_name=self.table_name)

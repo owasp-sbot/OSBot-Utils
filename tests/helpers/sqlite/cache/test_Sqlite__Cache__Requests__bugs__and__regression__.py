@@ -1,8 +1,7 @@
 from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests import Sqlite__Cache__Requests
-from osbot_utils.helpers.sqlite.cache.TestCase__Sqlite__Cache__Requests import TestCase__Sqlite__Cache__Requests
-from osbot_utils.utils.Misc import list_set
+from osbot_utils.utils.Misc                                   import list_set
 
 
 class test_Sqlite__Cache__Requests(TestCase):

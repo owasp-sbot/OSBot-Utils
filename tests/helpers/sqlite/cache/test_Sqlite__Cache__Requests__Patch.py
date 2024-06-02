@@ -2,9 +2,8 @@ from unittest                                                           import T
 from osbot_utils.utils.Http                                             import GET
 from osbot_utils.utils                                                  import Http
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Patch    import Sqlite__Cache__Requests__Patch
-from osbot_utils.utils.Files                                            import parent_folder, current_temp_folder, file_name
 from osbot_utils.utils.Json                                             import to_json_str
-from osbot_utils.utils.Misc import str_sha256, bytes_sha256
+from osbot_utils.utils.Misc                                             import str_sha256, bytes_sha256
 from osbot_utils.utils.Objects                                          import pickle_save_to_bytes, pickle_load_from_bytes
 
 

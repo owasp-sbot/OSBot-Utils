@@ -1,11 +1,8 @@
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Config import Sqlite__Cache__Requests__Config
 from osbot_utils.helpers.sqlite.cache.TestCase__Sqlite__Cache__Requests import TestCase__Sqlite__Cache__Requests
 
 
 class test_Sqlite__Cache__Requests__Config(TestCase__Sqlite__Cache__Requests):
 
-    def setUp(self):
-        self.cache_request_config = Sqlite__Cache__Requests__Config()                    # todo: refactor tests below to use this one, instead of the one from self.sqlite_cache_requests
 
     def test_disable(self):
         with self.sqlite_cache_requests as _:
