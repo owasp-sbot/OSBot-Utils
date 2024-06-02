@@ -2,13 +2,13 @@ from osbot_utils.base_classes.Type_Safe import Type_Safe
 
 
 class Sqlite__Cache__Requests__Config(Type_Safe):
-    add_timestamp       : bool                 = True
-    add_source_location :bool                 = True
-    enabled             : bool                 = True
-    update_mode         : bool                 = False
-    cache_only_mode     : bool                 = False
-    pickle_response     : bool                 = False
-    capture_exceptions  : bool                 = False                # once this is working, it might be more useful to have this set to true
+    add_timestamp       : bool   = True
+    add_source_location  :bool    = True
+    enabled             : bool   = True
+    update_mode         : bool   = False
+    cache_only_mode     : bool   = False
+    pickle_response     : bool   = False
+    capture_exceptions  : bool   = False                # once this is working, it might be more useful to have this set to true
     exception_classes   : list
 
     def disable(self):

@@ -1,5 +1,6 @@
 from unittest                                                           import TestCase
 
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests import SQLITE_TABLE__REQUESTS
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Http                                             import GET
 from osbot_utils.utils                                                  import Http
@@ -15,10 +16,7 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
 
     def setUp(self):
         self.requests_cache = Sqlite__Cache__Requests__Patch()
-
-    def tearDown(self):
-        self.requests_cache.sqlite_requests.delete()
-        assert self.requests_cache.sqlite_requests.exists() is False
+        assert self.requests_cache.cache_table().database.in_memory is True
 
     def test__init__(self):
         _ = self.requests_cache                 # we can't use the with context here since it auto applies the patch
@@ -29,8 +27,8 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
         assert type(_.target_class)     is object               # default value for object
         assert _.target_function        is None                 # default value for types.FunctionType
         assert _.target_function_name   is ''                   # default value for str
-        assert _.db_name   .startswith('requests_cache_')
-        assert _.table_name.startswith('requests_table_')
+        assert _.db_name                == ''
+        assert _.table_name             == ''
         assert _.sqlite_requests.exists() is True
         assert _.cache_entries() == []
         assert _.cache_table().new_row_obj().__locals__() == {'comments'        : ''    ,
@@ -44,8 +42,8 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
                                                               'response_type'   : ''    ,
                                                               'source'          : ''    ,
                                                               'timestamp'       : 0     }
-        assert parent_folder(_.sqlite_requests.db_path) == current_temp_folder()
-        assert file_name    (_.sqlite_requests.db_path).startswith('requests_cache_')
+        assert _.sqlite_requests.db_path is None
+
 
     def test_patch_apply(self):
         expected_message = 'target_function, target_object and target_function_name must be set'

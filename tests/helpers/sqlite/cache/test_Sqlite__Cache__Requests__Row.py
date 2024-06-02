@@ -21,10 +21,10 @@ class test_Sqlite__Cache__Requests__Row(TestCase):
         cls.cache_config.set__add_timestamp(False)  # disabling timestamp since it complicates the test data verification below
 
     def test__init__(self):
-        assert self.cache_request_row.config                  == self.cache_config
-        assert self.cache_request_row.cache_table             == self.cache_table
-        assert self.cache_table.database.in_memory            is False                     # todo BUG : this should be in memory
-        assert file_exists(self.cache_table.database.db_path) is True                      # todo BUG : db_path should be empty
+        assert self.cache_request_row.config        == self.cache_config
+        assert self.cache_request_row.cache_table   == self.cache_table
+        assert self.cache_table.database.in_memory  is True
+        assert self.cache_table.database.db_path    is None
 
     def test_create_new_cache_row_data(self):
         model_id                 = 'aaaa'

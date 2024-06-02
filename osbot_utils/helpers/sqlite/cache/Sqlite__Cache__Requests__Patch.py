@@ -5,15 +5,14 @@ from osbot_utils.utils.Misc                                     import random_te
 
 
 class Sqlite__Cache__Requests__Patch(Sqlite__Cache__Requests):
-    db_name             : str                = random_text('requests_cache_')
-    table_name          : str                = random_text('requests_table_')
-    #pickle_response     : bool               = True                                     # todo: move this from this file since the pickle setting is not relevant to Sqlite__Cache__Requests__Patch (it should be set by who needs it )
+    db_name             : str                #= random_text('requests_cache_')
+    table_name          : str                #= random_text('requests_table_')             # todo : remove this so that we default to an in memory db
     target_function     : types.FunctionType
     target_class        : object
     target_function_name: str
 
-    def __init__(self, db_path=None):
-        super().__init__(db_path=db_path, db_name=self.db_name, table_name=self.table_name)
+    def __init__(self, db_name=None, table_name=None, db_path=None):
+        super().__init__(db_path=db_path, db_name=db_name, table_name=table_name)
         self.cache_config.pickle_response = True
 
     def __enter__(self):
@@ -23,6 +22,9 @@ class Sqlite__Cache__Requests__Patch(Sqlite__Cache__Requests):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.patch_restore()
         return
+
+    def database(self):
+        return self.cache_table().database
 
     def delete(self):
         return self.sqlite_requests.delete()

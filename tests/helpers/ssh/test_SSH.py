@@ -11,7 +11,7 @@ ENV_VAR_TEST_OSBOT__SSH_KEY_USER  = 'SSH__KEY_FILE__USER'
 ENV_FILE__WITH_ENV_VARS           = "../../../.ssh.env"
 
 class test_SSH(TestCase__SSH):
-    #ssh      : SSH
+    #ssh           : SSH
     #ssh_host       : str
     #ssh_key_file  : str
     #ssh_key_user  : str

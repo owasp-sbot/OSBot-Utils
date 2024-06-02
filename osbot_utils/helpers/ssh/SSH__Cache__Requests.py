@@ -16,10 +16,8 @@ class SSH__Cache__Requests(Sqlite__Cache__Requests__Patch):
         self.target_function_name   = "execute_command"
         self.db_name                = SQLITE_DB_NAME__SSH_REQUESTS_CACHE
         self.table_name             = SQLITE_TABLE_NAME__SSH_REQUESTS
-        #self.capture_exceptions     = True
-        #self.exception_classes      = [ClientError]
         self.print_requests         = False
-        super().__init__(db_path=db_path)
+        super().__init__(db_path=db_path)               # todo: I think the bug is here
 
     def invoke_target(self, target, target_args, target_kwargs):
         if self.print_requests:

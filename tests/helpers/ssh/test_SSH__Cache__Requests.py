@@ -5,11 +5,13 @@ import pytest
 from osbot_utils.base_classes.Kwargs_To_Self                            import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests           import Sqlite__Cache__Requests
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Patch    import Sqlite__Cache__Requests__Patch
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Requests            import SQLITE_TABLE__REQUESTS
 from osbot_utils.helpers.ssh.SSH                                        import SSH, ENV_VAR__SSH__HOST
 from osbot_utils.helpers.ssh.SSH__Cache__Requests                       import SSH__Cache__Requests, SQLITE_DB_NAME__SSH_REQUESTS_CACHE, \
     SQLITE_TABLE_NAME__SSH_REQUESTS
+from osbot_utils.utils.Dev                                              import pprint
 from osbot_utils.utils.Env                                              import get_env
-from osbot_utils.utils.Files                                            import temp_file, current_temp_folder, parent_folder, file_extension
+from osbot_utils.utils.Files                                            import temp_file, current_temp_folder, parent_folder, file_extension, file_name
 from osbot_utils.utils.Json                                             import to_json_str
 from osbot_utils.utils.Misc                                             import bytes_to_str, str_sha256, sha_256, bytes_sha256
 from osbot_utils.utils.Objects                                          import base_types, pickle_load_from_bytes, pickle_from_bytes, pickle_to_bytes
@@ -53,6 +55,7 @@ class test_SSH__Cache__Requests(TestCase):
                                                                   'timestamp'       : 0  }
             assert parent_folder (_.sqlite_requests.db_path)  == current_temp_folder()
             assert file_extension(_.sqlite_requests.db_path)  == '.sqlite'
+            assert _.sqlite_requests.in_memory                is False
             assert base_types(_)                              == [Sqlite__Cache__Requests__Patch ,
                                                                   Sqlite__Cache__Requests        ,
                                                                   Kwargs_To_Self                 ,
@@ -60,6 +63,7 @@ class test_SSH__Cache__Requests(TestCase):
             assert _.target_class                             == SSH
             assert _.target_function                          != SSH.execute_command
             assert _.target_function_name                     == "execute_command"
+
 
     def test___enter____exit__(self):
         assert SSH.execute_command == SSH.execute_command
@@ -112,3 +116,31 @@ class test_SSH__Cache__Requests(TestCase):
                                     'response_type'  : 'pickle'               ,
                                     'source'         : ''                     ,
                                     'timestamp'      : 0                      }
+
+    
+
+    def test__bug__db_name_does_not_match_db_path(self):
+        with self.cache_ssh_requests as _:
+            assert _.database().db_name    != _.db_name                                 # BUG, these should be the same
+            assert _.database().table_name != _.table_name
+            assert _.database().db_name    != file_name(_.database().db_path)           # BUG, these should be the same
+
+            assert _.db_name               == 'ssh_requests_cache.sqlite' == SQLITE_DB_NAME__SSH_REQUESTS_CACHE
+            assert _.table_name            == 'ssh_requests'              == SQLITE_TABLE_NAME__SSH_REQUESTS
+            assert _.database().table_name == 'requests'                  == SQLITE_TABLE__REQUESTS
+
+        ssh__cache__requests = SSH__Cache__Requests()
+        assert ssh__cache__requests.db_name    == SQLITE_DB_NAME__SSH_REQUESTS_CACHE
+        assert ssh__cache__requests.table_name == SQLITE_TABLE_NAME__SSH_REQUESTS
+        assert ssh__cache__requests.database().db_path   is None
+        assert ssh__cache__requests.database().in_memory is True
+        assert ssh__cache__requests.database().db_name.startswith('db_local_')
+        assert ssh__cache__requests.db_name != ssh__cache__requests.database().db_name      # BUG, these should be the same
+
+        sqlite__cache__requests__patch = Sqlite__Cache__Requests__Patch()
+        assert sqlite__cache__requests__patch.db_name    == ''
+        assert sqlite__cache__requests__patch.table_name == ''
+        assert sqlite__cache__requests__patch.database().db_path   is None
+        assert sqlite__cache__requests__patch.database().in_memory is True
+        assert sqlite__cache__requests__patch.database().db_name.startswith('db_local_')
+

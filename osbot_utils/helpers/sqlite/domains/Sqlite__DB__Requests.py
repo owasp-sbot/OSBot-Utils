@@ -1,7 +1,6 @@
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
+from osbot_utils.decorators.methods.cache_on_self                       import cache_on_self
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local               import Sqlite__DB__Local
 from osbot_utils.helpers.sqlite.domains.schemas.Schema__Table__Requests import Schema__Table__Requests
-from osbot_utils.utils.Misc import random_text
 
 SQLITE_TABLE__REQUESTS = 'requests'
 
@@ -12,9 +11,12 @@ class Sqlite__DB__Requests(Sqlite__DB__Local):
     def __init__(self,db_path=None, db_name=None, table_name=None):
         self.table_name   = table_name or SQLITE_TABLE__REQUESTS
         self.table_schema = Schema__Table__Requests
-        super().__init__(db_path=db_path, db_name=db_name)
+        in_memory         = not (db_path or db_name)
+        super().__init__(db_path=db_path, db_name=db_name, in_memory=in_memory)
         self.setup()
 
+    def __repr__(self):
+        return f'{self.__class__.__name__} [ db_name={self.db_name} | table_name={self.table_name} | in_memory={self.in_memory} ]'
     @cache_on_self
     def table_requests(self):
         return self.table(self.table_name)

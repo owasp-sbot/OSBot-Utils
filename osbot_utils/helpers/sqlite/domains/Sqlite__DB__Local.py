@@ -9,10 +9,14 @@ ENV_NAME_PATH_LOCAL_DBS = 'PATH_LOCAL_DBS'
 class Sqlite__DB__Local(Sqlite__Database):
     db_name: str
 
-    def __init__(self, db_path=None, db_name=None):
+    def __init__(self, db_path=None, db_name=None, in_memory=False):
+
         if hasattr(self, 'db_name') is False:
             self.db_name = db_name or random_text('db_local') + '.sqlite'
-        super().__init__(db_path=db_path or self.path_local_db())  # todo: add option to run this in memory, without creating a temp file
+        if in_memory:
+            super().__init__()
+        else:
+            super().__init__(db_path=db_path or self.path_local_db())  # todo: add option to run this in memory, without creating a temp file
 
     def path_db_folder(self):
         return environ.get(ENV_NAME_PATH_LOCAL_DBS) or current_temp_folder()
