@@ -1,4 +1,4 @@
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Data         import Sqlite__Cache__Requests__Data
+from osbot_utils.helpers.cache_requests.Cache__Requests__Data import Cache__Requests__Data
 from osbot_utils.helpers.sqlite.cache.TestCase__Sqlite__Cache__Requests     import TestCase__Sqlite__Cache__Requests
 from osbot_utils.utils.Json                                                 import json_loads
 from osbot_utils.utils.Misc import random_string, list_set
@@ -8,7 +8,7 @@ from osbot_utils.utils.Objects                                              impo
 class test_Sqlite__Cache__Requests__Data(TestCase__Sqlite__Cache__Requests):
 
     def setUp(self):
-        self.cache_request_data = Sqlite__Cache__Requests__Data()                    # todo: refactor tests below to use this one, instead of the one from self.sqlite_cache_requests
+        self.cache_request_data = Cache__Requests__Data()                    # todo: refactor tests below to use this one, instead of the one from self.sqlite_cache_requests
 
     def test_cache_entry_comments(self):
         with self.sqlite_cache_requests as _:

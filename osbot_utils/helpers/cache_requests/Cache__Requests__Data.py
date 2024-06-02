@@ -7,7 +7,7 @@ from osbot_utils.utils.Misc                                                 impo
 from osbot_utils.utils.Objects                                              import pickle_save_to_bytes, pickle_load_from_bytes
 
 
-class Sqlite__Cache__Requests__Data(Type_Safe):
+class Cache__Requests__Data(Type_Safe):
     cache_table        : Cache__Requests__Table
     cache_request_data : types.MethodType
     config             : Cache__Requests__Config

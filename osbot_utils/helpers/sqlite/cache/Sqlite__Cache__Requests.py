@@ -1,10 +1,10 @@
 import types
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
-from osbot_utils.helpers.cache_requests.Cache__Requests__Actions import Cache__Requests__Actions
+from osbot_utils.helpers.cache_requests.Cache__Requests__Actions            import Cache__Requests__Actions
 from osbot_utils.helpers.cache_requests.Cache__Requests__Config             import Cache__Requests__Config
+from osbot_utils.helpers.cache_requests.Cache__Requests__Data               import Cache__Requests__Data
+from osbot_utils.helpers.cache_requests.Cache__Requests__Invoke import Cache__Requests__Invoke
 from osbot_utils.helpers.cache_requests.Cache__Requests__Row                import Cache__Requests__Row
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Data         import Sqlite__Cache__Requests__Data
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Invoke       import Sqlite__Cache__Requests__Invoke
 from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Table     import Sqlite__Cache__Requests__Table
 from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Sqlite    import Sqlite__Cache__Requests__Sqlite
 
@@ -34,7 +34,7 @@ class Sqlite__Cache__Requests(Type_Safe):
 
         kwargs__cache_data     = dict(**kwargs__cache_table,  cache_request_data = self.cache_request_data        ,
                                                               config             = self.cache_config              )
-        self.cache_data        = Sqlite__Cache__Requests__Data(**kwargs__cache_data)
+        self.cache_data        = Cache__Requests__Data(**kwargs__cache_data)
 
         kwargs__cache_row      = dict(**kwargs__cache_table,  config             = self.cache_config              )
         self.cache_row         = Cache__Requests__Row    (**kwargs__cache_row   )
@@ -47,7 +47,7 @@ class Sqlite__Cache__Requests(Type_Safe):
         kwargs__cache_invoke  = dict(cache_data       = self.cache_data         ,
                                      cache_actions    = self.cache_actions      ,
                                      config           = self.cache_config       )
-        self.cache_invoke     = Sqlite__Cache__Requests__Invoke(**kwargs__cache_invoke)
+        self.cache_invoke     = Cache__Requests__Invoke(**kwargs__cache_invoke)
 
         self.apply_refactoring_patches()
 

@@ -3,13 +3,12 @@ import types
 from osbot_utils.base_classes.Type_Safe                                 import Type_Safe
 from osbot_utils.helpers.cache_requests.Cache__Requests__Actions        import Cache__Requests__Actions
 from osbot_utils.helpers.cache_requests.Cache__Requests__Config         import Cache__Requests__Config
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Data     import Sqlite__Cache__Requests__Data
+from osbot_utils.helpers.cache_requests.Cache__Requests__Data           import Cache__Requests__Data
 
 
-
-class Sqlite__Cache__Requests__Invoke(Type_Safe):
+class Cache__Requests__Invoke(Type_Safe):
     cache_actions    : Cache__Requests__Actions
-    cache_data       : Sqlite__Cache__Requests__Data
+    cache_data       : Cache__Requests__Data
     config           : Cache__Requests__Config
     on_invoke_target : types.FunctionType
 
