@@ -43,9 +43,7 @@ class test__SSH_Linux(TestCase__SSH):
             assert 'bin'   in ls_on_root
             assert 'media' in ls_on_root
 
-    @pytest.mark.skip("was failing in GH Actions")
     def test_mkdir(self):
-        #self.cache.disable()               # todo add support for cache caching based on source code
         folder_name = './an_folder_3'
         with self.ssh_linux as _:
             _.mkdir(folder_name)

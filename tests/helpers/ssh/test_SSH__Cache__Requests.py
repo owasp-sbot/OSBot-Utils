@@ -24,6 +24,7 @@ class test_SSH__Cache__Requests(TestCase):
     def setUpClass(cls):
         cls.temp_db_path = temp_file(extension='sqlite')
         cls.cache_ssh_requests = SSH__Cache__Requests(db_path=cls.temp_db_path)
+        cls.cache_ssh_requests.add_caller_signature_to_cache_key = False                # disable for these tests
 
     @classmethod
     def tearDownClass(cls):
