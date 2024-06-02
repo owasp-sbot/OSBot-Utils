@@ -3,7 +3,7 @@ import typing
 from functools import wraps
 
 from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.helpers.CFormat        import CFormat, f_dark_grey
+from osbot_utils.helpers.CFormat import CFormat, f_dark_grey, f_magenta
 from osbot_utils.testing.Stdout         import Stdout
 from osbot_utils.utils.Misc             import random_id, lower
 from osbot_utils.utils.Python_Logger    import Python_Logger
@@ -31,14 +31,17 @@ def flow(**flow_kwargs):
 
 
 class Flow(Type_Safe):
-    flow_id       : str
-    flow_name     : str
-    flow_target   : callable
-    logger       : Python_Logger
-    cformat       : CFormat
-    log_to_console: bool = False
-    log_to_memory : bool = True
-    return_value  : typing.Any
+    captured_exec_logs : list
+    flow_id            : str
+    flow_name          : str
+    flow_target        : callable
+    logger             : Python_Logger
+    cformat            : CFormat
+    log_to_console     : bool    = False
+    log_to_memory      : bool    = True
+    print_logs         : bool    = False
+    return_value       : typing.Any
+
 
     def config_logger(self):
         with self.logger as _:
@@ -46,8 +49,6 @@ class Flow(Type_Safe):
             _.set_log_format(log_format=FLOW__LOGGING__LOG_FORMAT, date_format=FLOW__LOGGING__DATE_FORMAT)
             if self.log_to_console:
                 _.add_console_logger()
-            if self.log_to_memory:
-                _.add_memory_logger()
 
 
     def debug(self, message):
@@ -58,15 +59,23 @@ class Flow(Type_Safe):
         self.debug(f"Created flow run '{self.f__flow_id()}' for flow '{self.f__flow_name()}'")
 
     def execute_flow(self, *args, **kwargs):
+        if self.log_to_memory:
+            self.logger.add_memory_logger()                                     # todo: move to method that does pre-execute tasks
+
         self.debug(f"Executing flow run '{self.f__flow_id()}''")
         try:
-            with Stdout() as _:
+            with Stdout() as stdout:
                 self.return_value = self.flow_target(*args, **kwargs)           # todo, capture *args, **kwargs in logs
-            self.info(_.value().strip())
-            self.debug(f"{f_dark_grey('return value')}: {self.return_value}")
         except Exception as error:
             self.logger.error(self.cformat.red(f"Error executing flow: {error}"))
+        self.log_captured_stdout(stdout)
+        self.debug(f"{f_dark_grey('return value')}: {self.return_value}")
         self.debug(f"Finished flow run '{self.f__flow_id()}''")
+
+        if self.log_to_memory:
+            self.captured_exec_logs = self.log_messages_with_colors()
+            self.logger.remove_memory_logger()                                  # todo: move to method that does post-execute tasks
+
     def f__flow_id(self):
         return self.cformat.green(self.flow_id)
 
@@ -76,13 +85,29 @@ class Flow(Type_Safe):
     def info(self, message):
         self.logger.info(message)
 
-    def log_messages(self):
-        log_messages_with_colors = self.logger.memory_handler_messages()
-        return ansis_to_texts(log_messages_with_colors)
+    def log_captured_stdout(self, stdout):
+        for line in stdout.value().splitlines():
+            if line:
+                self.info(f_magenta(line))
+        if self.print_logs:
+            print()
+            print()
+            self.print_log_messages()
 
-    def print_log_messages(self):
-        for message in self.log_messages():
-            print(message)
+
+    def log_messages(self):
+        return ansis_to_texts(self.log_messages_with_colors())
+
+    def log_messages_with_colors(self):
+        return self.logger.memory_handler_messages()
+
+    def print_log_messages(self, use_colors=True):
+        if use_colors:
+            for message in self.logger.memory_handler_messages():
+                print(message)
+        else:
+            for message in self.log_messages():
+                print(message)
         return self
     def random_flow_id(self):
         return lower(random_id(prefix=FLOW__RANDOM_ID__PREFIX))

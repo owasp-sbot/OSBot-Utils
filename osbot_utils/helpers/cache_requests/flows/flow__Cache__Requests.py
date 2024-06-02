@@ -1,16 +1,11 @@
 import functools
 
-
-def flow(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        print(f'FLOW  {func.__name__} with args: {args} and kwargs: {kwargs}')
-        return func(*args, **kwargs)
-    return wrapper
+from osbot_utils.helpers.flows.Flow import flow
 
 
 class flow__Cache_Requests:
 
-    @flow
+    @flow()
     def invoke_function(self, function, *args, **kwargs):
+        print('in invoke function')
         return function(*args, **kwargs)

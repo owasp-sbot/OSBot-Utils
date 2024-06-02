@@ -164,7 +164,7 @@ class Python_Logger(Type_Safe):
     def log_handler_file(self):
         return self.log_handler(logging.FileHandler)
 
-    def log_handler_memory(self):
+    def log_handler_memory(self):                                                   # todo: change how this memory logger works (see notes in the other memory logger methods in Python_Logger
         return self.log_handler(MemoryHandler)
 
     def log_handlers(self):
@@ -194,7 +194,7 @@ class Python_Logger(Type_Safe):
         self.config.log_to_console = True
         return self.add_handler_console()
 
-    def add_memory_logger(self):
+    def add_memory_logger(self):                                        # todo: figure out the exact workflow of this, since this memory logger is not tied to the current instance of Python_Logger (it's a global logger)
         self.config.log_to_memory = True
         return self.add_handler_memory()
 
@@ -202,7 +202,7 @@ class Python_Logger(Type_Safe):
         self.config.log_to_file = True
         return self.add_handler_file(path_log_file=path_log_file)
 
-    def remove_memory_logger(self):
+    def remove_memory_logger(self):                                     # todo: improve this workflow since this operating at the global loggers level, which means that this will get the first one, not the one from this python_Logger
         memory_logger = self.log_handler_memory()
         if self.log_handlers_remove(memory_logger):
             self.config.log_to_file = False
@@ -249,7 +249,9 @@ class Python_Logger(Type_Safe):
 
     def memory_handler_buffer(self):
         if self.config.log_to_memory:
-            return self.memory_handler().buffer
+            memory_handler = self.memory_handler()
+            if memory_handler:
+                return memory_handler.buffer
         return []
 
     def memory_handler_clear(self):

@@ -40,6 +40,8 @@ def are_types_compatible_for_assigment(source_type, target_type):
             return True
         if source_type is types.FunctionType:
             return True
+        if source_type is staticmethod:
+            return True
     if target_type is typing.Any:
         return True
     return False
