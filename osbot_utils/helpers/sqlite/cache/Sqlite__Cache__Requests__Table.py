@@ -8,6 +8,7 @@ class Sqlite__Cache__Requests__Table(Cache__Table):
     def __init__(self, **kwargs):
         super().__init__( **kwargs)
 
+        self.table_name           = self.cache_table.table_name
         self._table_create        = self.cache_table._table_create
         self.database             = self.cache_table.database
         self.clear                = self.cache_table.clear
