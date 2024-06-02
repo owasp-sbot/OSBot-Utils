@@ -1,4 +1,4 @@
-from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Actions  import Sqlite__Cache__Requests__Actions
+from osbot_utils.helpers.cache_requests.Cache__Requests__Actions import Cache__Requests__Actions
 from osbot_utils.helpers.sqlite.cache.TestCase__Sqlite__Cache__Requests import TestCase__Sqlite__Cache__Requests
 from osbot_utils.utils.Json                                             import json_dump, to_json_str
 from osbot_utils.utils.Misc                                             import random_string, str_sha256
@@ -7,7 +7,7 @@ from osbot_utils.utils.Misc                                             import r
 class test_Sqlite__Cache__Requests__Actions(TestCase__Sqlite__Cache__Requests):
 
     def setUp(self):
-        self.cache_request_actions = Sqlite__Cache__Requests__Actions()                     # todo: refactor tests below to use this one, instead of the one from self.sqlite_cache_requests
+        self.cache_requests_actions = Cache__Requests__Actions()                     # todo: refactor tests below to use this one, instead of the one from self.sqlite_cache_requests
 
     def test_cache_add(self):
         self.sqlite_cache_requests.sqlite_requests.table_requests__reset()                  # todo: do we still need this?
