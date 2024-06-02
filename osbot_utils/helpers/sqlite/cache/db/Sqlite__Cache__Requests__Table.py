@@ -1,5 +1,6 @@
-from osbot_utils.helpers.sqlite.Sqlite__Table                import Sqlite__Table
-from osbot_utils.helpers.sqlite.cache.Cache__Requests__Table import Cache__Requests__Table
+from osbot_utils.helpers.cache_requests.Cache__Requests__Table import Cache__Requests__Table
+from osbot_utils.helpers.sqlite.Sqlite__Table                  import Sqlite__Table
+
 
 
 class Sqlite__Cache__Requests__Table(Cache__Requests__Table):
