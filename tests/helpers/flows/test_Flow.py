@@ -16,10 +16,16 @@ class test_Flow(TestCase):
 
     def test_create_flow(self):
 
+        def an_flow():
+            print('this is inside the flow')
+
         print('\n\n\n')
         with self.flow as _:
             _.setup()
+            _.set_flow_target(an_flow)
+            _.set_flow_target(self.test_create_flow)
             _.create_flow()
+            _.execute_flow()
 
 
 

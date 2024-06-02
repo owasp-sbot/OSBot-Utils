@@ -38,7 +38,11 @@ def are_types_compatible_for_assigment(source_type, target_type):
         return True
     if target_type in source_type.__mro__:          # this means that the source_type has the target_type has of its base types
         return True
-
+    if target_type is callable:                     # handle case where callable was used as the target type
+        if source_type is types.MethodType:         #     and a method or function was used as the source type
+            return True
+        if source_type is types.FunctionType:
+            return True
     return False
 
 def are_types_magic_mock(source_type, target_type):

@@ -100,7 +100,7 @@ class Kwargs_To_Self:
             #     raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prevents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
 
         if value is not None:
-            check_1 = value_type_matches_obj_annotation_for_attr(self, name, value)
+            check_1 = value_type_matches_obj_annotation_for_attr      (self, name, value)
             check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
             if (check_1 is False and check_2 is None  or
                 check_1 is None  and check_2 is False or
