@@ -25,7 +25,7 @@ class test_Status(TestCase):
 
         send_status_to_logger(True)
         assert osbot_logger.config.log_to_memory is False
-        assert osbot_logger.add_memory_logger  () is True
+        assert osbot_logger.add_memory_logger  () is not None
         assert osbot_logger.config.log_to_memory is True
         assert type(osbot_status) is Status
         cls.osbot_status = osbot_status

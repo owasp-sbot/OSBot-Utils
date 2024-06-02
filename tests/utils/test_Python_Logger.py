@@ -148,13 +148,14 @@ class test_Python_Logger(TestCase):
     def test_add_memory_logger(self):
         mem_handler : MemoryHandler
         assert self.logger.config.log_to_memory is False
-        assert self.logger.add_handler_memory() is False
-        assert self.logger.add_memory_logger     () is True
+        assert self.logger.add_handler_memory() is None
+        mem_handler = self.logger.add_memory_logger()
 
-        mem_handler = self.logger.log_handler(MemoryHandler)
-
+        assert type(mem_handler)                is MemoryHandler
+        assert mem_handler                      == self.logger.log_handler(MemoryHandler)
         assert size(self.logger.log_handlers()) == 1
         assert mem_handler                      is not None
+
         obj_data = obj_dict(mem_handler)
         assert type(obj_data['lock'])   is RLock
 

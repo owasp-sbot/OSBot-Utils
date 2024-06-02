@@ -240,8 +240,7 @@ class Python_Logger(Type_Safe):
                 memory_handler = MemoryHandler(capacity=capacity, flushLevel=flush_level, target=target,flushOnClose=True)
                 memory_handler.setLevel(self.log_level())
                 self.logger.addHandler(memory_handler)
-                return True
-        return False
+                return memory_handler
 
     # Utils
 
@@ -259,6 +258,7 @@ class Python_Logger(Type_Safe):
             memory_handler.buffer = []
             return True
         return False
+
     def memory_handler_exceptions(self):
         return self.memory_handler_logs(index_by='levelname').get('EXCEPTIONS', {})
 
@@ -278,7 +278,11 @@ class Python_Logger(Type_Safe):
         return {}
 
     def memory_handler_messages(self):
-        return [log_entry.get('message') for log_entry in self.memory_handler_logs()]
+        messages = []
+        for log_entry in self.memory_handler_logs():
+            message = log_entry.get('message')  or log_entry.get('msg') or '(log message not found in log entry)' # todo: figure out the scenarios that lead to a value in 'msg' or in 'message'
+            messages.append(message)
+        return messages
 
     # Root logger
     def root_logger__clear_handlers(self):              # useful in some debugging sessinon

@@ -23,11 +23,6 @@ else:
     from datetime import timezone                       # For versions before 3.11, we need to use a different method or library to handle UTC
     UTC = timezone.utc
 
-def ansi_text_visible_length(text):
-    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')         # This regex matches the escape sequences used for text formatting
-    visible_text = ansi_escape.sub('', text)       # Remove the escape sequences
-    return len(visible_text)                            # Return the length of the remaining text
-
 def append_random_string(target, length=6, prefix='-'):
     return f'{target}{random_string(length, prefix)}'
 

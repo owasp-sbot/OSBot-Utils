@@ -9,6 +9,7 @@ from osbot_utils.testing.Logging        import Logging
 from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.utils.Misc import random_id, lower, wait_for
 from osbot_utils.utils.Python_Logger import Python_Logger
+from osbot_utils.utils.Str import ansis_to_texts
 
 FLOW__RANDOM_ID__PREFIX    = 'flow_id__'
 FLOW__RANDOM_NAME__PREFIX  = 'flow_name__'
@@ -21,7 +22,8 @@ class Flow(Type_Safe):
     flow_target   : callable
     logger       : Python_Logger
     cformat       : CFormat
-    log_to_console: bool = True
+    log_to_console: bool = False
+    log_to_memory : bool = True
 
     def config_logger(self):
         with self.logger as _:
@@ -29,6 +31,8 @@ class Flow(Type_Safe):
             _.set_log_format(log_format=FLOW__LOGGING__LOG_FORMAT, date_format=FLOW__LOGGING__DATE_FORMAT)
             if self.log_to_console:
                 _.add_console_logger()
+            if self.log_to_memory:
+                _.add_memory_logger()
 
 
     def debug(self, message):
@@ -58,6 +62,14 @@ class Flow(Type_Safe):
     def info(self, message):
         self.logger.info(message)
 
+    def log_messages(self):
+        log_messages_with_colors = self.logger.memory_handler_messages()
+        return ansis_to_texts(log_messages_with_colors)
+
+    def print_log_messages(self):
+        for message in self.log_messages():
+            print(message)
+        return self
     def random_flow_id(self):
         return lower(random_id(prefix=FLOW__RANDOM_ID__PREFIX))
 
