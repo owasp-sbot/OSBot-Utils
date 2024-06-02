@@ -1,20 +1,34 @@
 import logging
-import types
-from logging import Logger
+import typing
+from functools import wraps
 
 from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.helpers.CFormat import CFormat, f_grey, f_dark_grey
-from osbot_utils.helpers.trace.Trace_Call__Print_Traces import text_red, text_bold_red
-from osbot_utils.testing.Logging        import Logging
-from osbot_utils.testing.Stdout import Stdout
-from osbot_utils.utils.Misc import random_id, lower, wait_for
-from osbot_utils.utils.Python_Logger import Python_Logger
-from osbot_utils.utils.Str import ansis_to_texts
+from osbot_utils.helpers.CFormat        import CFormat, f_dark_grey
+from osbot_utils.testing.Stdout         import Stdout
+from osbot_utils.utils.Misc             import random_id, lower
+from osbot_utils.utils.Python_Logger    import Python_Logger
+from osbot_utils.utils.Str              import ansis_to_texts
 
 FLOW__RANDOM_ID__PREFIX    = 'flow_id__'
 FLOW__RANDOM_NAME__PREFIX  = 'flow_name__'
 FLOW__LOGGING__LOG_FORMAT  = '%(asctime)s.%(msecs)03d | %(levelname)-8s | %(message)s'
 FLOW__LOGGING__DATE_FORMAT = '%H:%M:%S'
+
+def flow(**flow_kwargs):
+
+    def decorator(function):
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+            with Flow(**flow_kwargs) as flow:
+                flow.set_flow_target(function)
+                flow.setup()
+                flow.create_flow()
+                flow.execute_flow(*args, **kwargs)
+                return flow.return_value
+
+        return wrapper
+    return decorator
+
 
 class Flow(Type_Safe):
     flow_id       : str
@@ -24,6 +38,7 @@ class Flow(Type_Safe):
     cformat       : CFormat
     log_to_console: bool = False
     log_to_memory : bool = True
+    return_value  : typing.Any
 
     def config_logger(self):
         with self.logger as _:
@@ -42,14 +57,13 @@ class Flow(Type_Safe):
         self.set_flow_name()
         self.debug(f"Created flow run '{self.f__flow_id()}' for flow '{self.f__flow_name()}'")
 
-    def execute_flow(self):
+    def execute_flow(self, *args, **kwargs):
         self.debug(f"Executing flow run '{self.f__flow_id()}''")
         try:
             with Stdout() as _:
-                return_value = self.flow_target()
+                self.return_value = self.flow_target(*args, **kwargs)           # todo, capture *args, **kwargs in logs
             self.info(_.value().strip())
-            self.debug(f"{f_dark_grey('return value')}: {return_value}")
-
+            self.debug(f"{f_dark_grey('return value')}: {self.return_value}")
         except Exception as error:
             self.logger.error(self.cformat.red(f"Error executing flow: {error}"))
         self.debug(f"Finished flow run '{self.f__flow_id()}''")
