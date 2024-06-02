@@ -1,9 +1,9 @@
 from unittest                                                            import TestCase
 
 from osbot_utils.helpers.cache_requests.Cache__Requests__Config          import Cache__Requests__Config
-from osbot_utils.helpers.cache_requests.Cache__Requests__Row import Cache__Requests__Row
-from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Table  import Sqlite__Cache__Requests__Table
-from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Sqlite import Sqlite__Cache__Requests__Sqlite
+from osbot_utils.helpers.cache_requests.Cache__Requests__Row             import Cache__Requests__Row
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Table     import Sqlite__Cache__Requests__Table
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Sqlite    import Sqlite__Cache__Requests__Sqlite
 from osbot_utils.utils.Json                                              import json_dumps
 
 
