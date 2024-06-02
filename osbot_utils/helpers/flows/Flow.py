@@ -2,6 +2,7 @@ import logging
 from logging import Logger
 
 from osbot_utils.base_classes.Type_Safe import Type_Safe
+from osbot_utils.helpers.CFormat import CFormat
 from osbot_utils.helpers.trace.Trace_Call__Print_Traces import text_red, text_bold_red
 from osbot_utils.testing.Logging        import Logging
 from osbot_utils.utils.Misc import random_id, lower, wait_for
@@ -27,7 +28,8 @@ class Flow(Type_Safe):
         return lower(random_id(prefix=FLOW__ID__PREFIX))
 
     def create_flow(self):
-        self.info(f"Created flow run '{text_bold_red(self.flow_id)}' for flow '{self.flow_name}'")
+        cformat = CFormat(auto_bold=True)
+        self.info(f"Created flow run '{cformat.blue(self.flow_id)}' for flow '{cformat.green(self.flow_name)}'")
 
     def execute_flow(self):
         self.info(f"executing flow run '{text_red(self.flow_id)}'")

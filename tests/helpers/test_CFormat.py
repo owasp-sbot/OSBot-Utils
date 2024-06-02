@@ -78,3 +78,55 @@ class Test_CFormat(TestCase):
             assert f_bright_cyan   (text) == _.bright_cyan   (text)
             assert f_bright_white  (text) == _.bright_white  (text)
             assert f_dark_red      (text) == _.dark_red      (text)
+
+    def test_auto_bold(self):
+        cformat = self.cformat
+        cformat.auto_bold = True
+        text = 'some text'
+        with self.cformat as _:
+            result = _.red(text)
+            assert result == "\033[1m\033[31m" + text + "\033[0m\033[0m"
+
+        cformat.auto_bold = False
+        with self.cformat as _:
+            result = _.red(text)
+            assert result == "\033[31m" + text + "\033[0m"
+
+
+    def test_rgb(self):
+        text = 'some text'
+        with self.cformat as _:
+            result = _.rgb(255, 0, 0, text)
+            assert result == "\033[38;2;255;0;0m" + text + "\033[0m"
+
+    def test_bg_rgb(self):
+        text = 'some text'
+        with self.cformat as _:
+            result = _.bg_rgb(0, 255, 0, text)
+            assert result == "\033[48;2;0;255;0m" + text + "\033[0m"
+
+    def test_cmyk(self):
+        text = 'some text'
+        with self.cformat as _:
+            result = _.cmyk(0, 100, 100, 0, text)
+            assert result == "\033[38;2;255;0;0m" + text + "\033[0m"
+
+    def test_bg_cmyk(self):
+        text = 'some text'
+        with self.cformat as _:
+            result = _.bg_cmyk(100, 0, 0, 0, text)
+            assert result == "\033[48;2;0;255;255m" + text + "\033[0m"
+
+    def test_hex_color(self):
+        cformat = self.cformat
+        text = 'some text'
+        with self.cformat as _:
+            result = _.hex("#1122BA", text)
+            assert result == "\033[38;2;17;34;186m" + text + "\033[0m"
+
+    def test_bg_hex_color(self):
+        cformat = self.cformat
+        text = 'some text'
+        with self.cformat as _:
+            result = _.bg_hex("#1122BA", text)
+            assert result == "\033[48;2;17;34;186m" + text + "\033[0m"

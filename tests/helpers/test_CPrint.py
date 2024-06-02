@@ -14,12 +14,16 @@ class test_CPrint(TestCase):
 
 
     def test__init__(self):
-        expected_colors = sorted(['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white',  'grey', 'none',
-                                  'bright_black', 'bright_red', 'bright_green', 'bright_yellow', 'bright_blue', 'bright_magenta', 'bright_cyan', 'bright_white',
-                                  'dark_red'])
+
+        expected_colors = sorted(['black', 'blink', 'blue', 'bold', 'bright_black', 'bright_blue', 'bright_cyan',
+                                  'bright_green', 'bright_magenta', 'bright_red', 'bright_white', 'bright_yellow',
+                                  'cyan', 'dark_red', 'double_underline', 'encircled', 'faint', 'framed', 'green',
+                                  'grey', 'inverse', 'italic', 'magenta', 'none', 'overlined', 'red', 'strikethrough',
+                                  'underline', 'white', 'yellow'])
         colors_in_colors = sorted([name for name in CFormat_Colors.__dict__ if not name.startswith('__')])
         assert colors_in_colors == expected_colors
-        assert list_set(self.cprint.__locals__()) == sorted(['apply_colors',
+        assert list_set(self.cprint.__locals__()) == sorted(['apply_colors'    ,
+                                                             'auto_bold'       ,
                                                              'auto_new_line'   ,
                                                              'auto_print'      ,
                                                              'clear_on_print'  ,
