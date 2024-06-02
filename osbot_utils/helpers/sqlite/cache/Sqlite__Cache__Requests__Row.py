@@ -10,6 +10,12 @@ class Sqlite__Cache__Requests__Row(Type_Safe):
     config      : Sqlite__Cache__Requests__Config
     cache_table : Sqlite__Table
 
+    # todo: duplicated method with Sqlite__Cache__Requests (which is the one that is being overwritten)
+    #       this need to change to use the 'cache_key' workflow
+    def cache_request_data(self, *args, **target_kwargs):
+        return {'args'  : list(args)    ,
+                'kwargs': target_kwargs }                   # convert the args tuple to a list since that is what it will be once it is serialised
+
     def create_new_cache_obj(self, request_data, response_data):
         new_row_data = self.create_new_cache_row_data(request_data, response_data)
         new_row_obj = self.cache_table.new_row_obj(new_row_data)
@@ -22,18 +28,14 @@ class Sqlite__Cache__Requests__Row(Type_Safe):
             timestamp = timestamp_utc_now()
         else:
             timestamp = 0
-        cache_cata = dict(comments       = ''                  ,
-                          metadata       = ''                  ,
-                          request_data   = request_data_json   ,
+        cache_cata = dict(request_data   = request_data_json   ,
                           request_hash   = request_data_hash   ,
-                          request_type   = ''                  ,
-                          response_bytes = b''                 ,
-                          response_data  = ''                  ,
-                          response_hash  = ''                  ,
-                          response_type  = ''                  ,
-                          source         = ''                  ,
                           timestamp      = timestamp           )
 
+        self.map_response_data(cache_cata, response_data)
+        return cache_cata
+
+    def map_response_data(self, cache_cata, response_data):
         response_data_str   = ''
         response_data_bytes = b''
         if self.config.pickle_response:
@@ -59,4 +61,4 @@ class Sqlite__Cache__Requests__Row(Type_Safe):
         cache_cata['response_data' ]  = response_data_str
         cache_cata['response_hash' ]  = response_data_hash
         cache_cata['response_type' ]  = response_type
-        return cache_cata
+

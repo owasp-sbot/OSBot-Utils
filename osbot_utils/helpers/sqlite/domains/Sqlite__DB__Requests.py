@@ -13,8 +13,6 @@ class Sqlite__DB__Requests(Sqlite__DB__Local):
         self.table_name   = table_name or SQLITE_TABLE__REQUESTS
         self.table_schema = Schema__Table__Requests
         super().__init__(db_path=db_path, db_name=db_name)
-        # if not self.table_name:
-        #     self.table_name = 'temp_table'
         self.setup()
 
     @cache_on_self

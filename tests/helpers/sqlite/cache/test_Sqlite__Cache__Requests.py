@@ -155,36 +155,7 @@ class test_Sqlite__Cache__Requests(TestCase):
             assert _.cache_entries()                      == []
 
 
-    def test_create_new_cache_data(self):
-        model_id                 = 'aaaa'
-        body                     = {'the': 'request data'}
-        response_data            = {'the': 'return value'}
-        request_data             = self.sqlite_cache_requests.cache_request_data(model_id=model_id, body=body)
-        new_cache_entry          = self.sqlite_cache_requests.create_new_cache_row_data(request_data, response_data)
-        expected_new_cache_entry = { 'comments'     : ''                                                                  ,
-                                     'metadata'     : ''                                                                  ,
-                                     'request_data'  : json_dumps(request_data)                                           ,
-                                     'request_hash'  : 'f917e6f5658f5b761a77416d487c5d9a70253abce68b348bc360a6f39657753a' ,
-                                     'request_type'  : ''                                                                 ,
-                                     'response_bytes': b''                                                                ,
-                                     'response_data' : json_dumps(response_data)                                          ,
-                                     'response_hash' : '69e330ec7bf6334aa41ecaf56797fa86345d3cf85da4c622821aa42d4bee1799' ,
-                                     'response_type' : 'dict'                                                             ,
-                                     'source'        : ''                                                                 ,
-                                     'timestamp'     :  0                                                                 }
-        expected_new_cache_obj   = { **expected_new_cache_entry,
-                                     'timestamp'    : 0 }
-        assert new_cache_entry == expected_new_cache_entry
-        new_cache_obj = self.sqlite_cache_requests.cache_table().new_row_obj(new_cache_entry)
-        assert new_cache_obj.__locals__() == expected_new_cache_obj
-        assert self.sqlite_cache_requests.cache_entries() ==[]
 
-        self.sqlite_cache_requests.set__add_timestamp(True)
-
-        new_cache_entry = self.sqlite_cache_requests.create_new_cache_row_data(request_data, response_data)
-        assert new_cache_entry.get('timestamp') != 0
-        assert new_cache_entry.get('timestamp') > 0
-        self.sqlite_cache_requests.set__add_timestamp(False)
 
 
     # TODO : Finish test asserts

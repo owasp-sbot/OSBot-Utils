@@ -5,7 +5,7 @@ from osbot_utils.utils.Json import json_dumps
 
 
 class Sqlite__Cache__Requests__Sqlite(Type_Safe):
-    sqlite_requests : Sqlite__DB__Requests = None
+    sqlite_requests : Sqlite__DB__Requests              = None
     config          : Sqlite__Cache__Requests__Config
     db_path         : str
     db_name         : str
