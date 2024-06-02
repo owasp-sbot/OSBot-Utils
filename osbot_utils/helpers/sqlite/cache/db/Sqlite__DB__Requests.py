@@ -17,6 +17,7 @@ class Sqlite__DB__Requests(Sqlite__DB__Local):
 
     def __repr__(self):
         return f'{self.__class__.__name__} [ db_name={self.db_name} | table_name={self.table_name} | in_memory={self.in_memory} ]'
+
     @cache_on_self
     def table_requests(self):
         return self.table(self.table_name)

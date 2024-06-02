@@ -1,12 +1,14 @@
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
 from osbot_utils.helpers.sqlite.Sqlite__Table                               import Sqlite__Table
+from osbot_utils.helpers.sqlite.cache.Cache__Table import Cache__Table
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row          import Sqlite__Cache__Requests__Row
 from osbot_utils.utils.Json import json_dumps
 from osbot_utils.utils.Misc import str_sha256
 
 
 class Sqlite__Cache__Requests__Actions(Type_Safe):
-    cache_table      : Sqlite__Table
+    #cache_table      : Sqlite__Table
+    cache_table      : Cache__Table
     cache_row        : Sqlite__Cache__Requests__Row
 
     def cache_add(self, request_data, response_data):

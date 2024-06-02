@@ -31,7 +31,7 @@ class test_Sqlite__Cache__Requests(TestCase__Sqlite__Cache__Requests):
             assert _.db_path != Sqlite__DB__Requests().path_local_db()
             assert _.db_path is None
 
-        with self.sqlite_cache_requests.cache_table() as _:
+        with self.sqlite_cache_requests.cache_table as _:
 
             _._table_create().add_fields_from_class(Schema__Table__Requests).sql_for__create_table()
 

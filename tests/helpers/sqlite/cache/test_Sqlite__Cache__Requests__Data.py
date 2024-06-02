@@ -91,4 +91,4 @@ class test_Sqlite__Cache__Requests__Data(TestCase__Sqlite__Cache__Requests):
         with self.sqlite_cache_requests as _:
             for requests_data in _.requests_data__all():
                 assert list_set(requests_data) == ['_comments','_hash', '_id', 'request_data']
-            assert _.cache_table().size() == count
+            assert _.cache_table.size() == count

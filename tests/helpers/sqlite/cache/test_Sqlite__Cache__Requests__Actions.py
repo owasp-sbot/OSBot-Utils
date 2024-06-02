@@ -39,7 +39,7 @@ class test_Sqlite__Cache__Requests__Actions(TestCase__Sqlite__Cache__Requests):
         new_row = self.sqlite_cache_requests.cache_add(request_data, response_data)
         assert new_row.json() == expected_new_row
 
-        with self.sqlite_cache_requests.cache_table() as _:
+        with self.sqlite_cache_requests.cache_table as _:
             rows = _.select_rows_where(request_hash=request_data_sha256)
             assert len(rows) == 1
             row = rows [0]

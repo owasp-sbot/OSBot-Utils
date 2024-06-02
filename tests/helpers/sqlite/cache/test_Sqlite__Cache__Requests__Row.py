@@ -1,6 +1,9 @@
 from unittest                                                            import TestCase
+
+from osbot_utils.helpers.sqlite.cache.Cache__Table import Cache__Table
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Config    import Sqlite__Cache__Requests__Config
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row       import Sqlite__Cache__Requests__Row
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Table import Sqlite__Cache__Requests__Table
 from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Sqlite import Sqlite__Cache__Requests__Sqlite
 from osbot_utils.utils.Json                                              import json_dumps
 
@@ -11,7 +14,7 @@ class test_Sqlite__Cache__Requests__Row(TestCase):
     def setUpClass(cls):
         cls.cache_config      = Sqlite__Cache__Requests__Config()
         cls.cache_sqlite      = Sqlite__Cache__Requests__Sqlite(config=cls.cache_config)
-        cls.cache_table       = cls.cache_sqlite.cache_table  ()
+        cls.cache_table       = Sqlite__Cache__Requests__Table (cache_table=cls.cache_sqlite.cache_table())
         cls.cache_request_row = Sqlite__Cache__Requests__Row   (config=cls.cache_config, cache_table=cls.cache_table)
 
         cls.cache_config.set__add_timestamp(False)  # disabling timestamp since it complicates the test data verification below

@@ -14,7 +14,7 @@ class TestCase__Sqlite__Cache__Requests(TestCase):
         assert cls.sqlite_cache_requests.sqlite_requests.in_memory is True    # confirm we have an in-memory db
 
     def tearDown(self):
-        self.sqlite_cache_requests.cache_table().clear()
+        self.sqlite_cache_requests.cache_table.clear()
 
     def add_test_requests(self, count=10):
         def invoke_target(*args, **target_kwargs):

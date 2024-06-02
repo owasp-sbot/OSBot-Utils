@@ -24,7 +24,7 @@ class Sqlite__Cache__Requests__Patch(Sqlite__Cache__Requests):
         return
 
     def database(self):
-        return self.cache_table().database
+        return self.cache_table.database
 
     def delete(self):
         return self.sqlite_requests.delete()

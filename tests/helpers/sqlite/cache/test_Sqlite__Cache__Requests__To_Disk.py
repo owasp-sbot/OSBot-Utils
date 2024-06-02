@@ -19,7 +19,7 @@ class test_Sqlite__Cache__Requests__To_Disk(TestCase):
         assert file_not_exists(cls.temp_db_path) is True
 
     def tearDown(self):
-        self.sqlite_cache_requests.cache_table().clear()
+        self.sqlite_cache_requests.cache_table.clear()
 
     def test__init__(self):
         with self.sqlite_cache_requests as _:

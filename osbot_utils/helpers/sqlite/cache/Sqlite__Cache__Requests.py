@@ -5,6 +5,7 @@ from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Config       impo
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Data         import Sqlite__Cache__Requests__Data
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Invoke       import Sqlite__Cache__Requests__Invoke
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Row          import Sqlite__Cache__Requests__Row
+from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Table import Sqlite__Cache__Requests__Table
 from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Sqlite    import Sqlite__Cache__Requests__Sqlite
 
 
@@ -24,16 +25,17 @@ class Sqlite__Cache__Requests(Type_Safe):
         kwargs__cache_sqlite   = dict(config=self.cache_config, db_path=self.db_path, db_name=self.db_name, table_name=self.table_name)
         self.cache_sqlite      = Sqlite__Cache__Requests__Sqlite (**kwargs__cache_sqlite)
         self.sqlite_requests   = self.cache_sqlite.sqlite_requests
-        self.cache_table       = self.cache_sqlite.cache_table
+
+        #self.cache_table       = self.cache_sqlite.cache_table
+        self.cache_table        = Sqlite__Cache__Requests__Table(cache_table=self.cache_sqlite.cache_table())
 
 
-
-        kwargs__cache_table    = dict(                        cache_table        = self.cache_sqlite.cache_table())
+        kwargs__cache_table    = dict(                        cache_table        = self.cache_table               )
 
         kwargs__cache_data     = dict(**kwargs__cache_table,  cache_request_data = self.cache_request_data        ,
                                                               cache_sqlite       = self.cache_sqlite              ,
                                                               config             = self.cache_config              )
-        self.cache_data = Sqlite__Cache__Requests__Data(**kwargs__cache_data)
+        self.cache_data        = Sqlite__Cache__Requests__Data(**kwargs__cache_data)
 
         kwargs__cache_row      = dict(**kwargs__cache_table,  config             = self.cache_config              )
         self.cache_row       = Sqlite__Cache__Requests__Row    (**kwargs__cache_row   )

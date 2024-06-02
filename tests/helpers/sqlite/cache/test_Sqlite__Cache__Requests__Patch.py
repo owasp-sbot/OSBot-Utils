@@ -13,7 +13,7 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
 
     def setUp(self):
         self.requests_cache = Sqlite__Cache__Requests__Patch()
-        assert self.requests_cache.cache_table().database.in_memory is True
+        assert self.requests_cache.cache_table.database.in_memory is True
 
     def test__init__(self):
         _ = self.requests_cache                 # we can't use the with context here since it auto applies the patch
@@ -28,17 +28,17 @@ class test_Sqlite__Cache__Requests__Patch(TestCase):
         assert _.table_name             == ''
         assert _.sqlite_requests.exists() is True
         assert _.cache_entries() == []
-        assert _.cache_table().new_row_obj().__locals__() == {'comments'        : ''    ,
-                                                              'metadata'        : ''    ,
-                                                              'request_data'    : ''    ,
-                                                              'request_hash'    : ''    ,
-                                                              'request_type'    : ''    ,
-                                                              'response_bytes'  : b''   ,
-                                                              'response_data'   : ''    ,
-                                                              'response_hash'   : ''    ,
-                                                              'response_type'   : ''    ,
-                                                              'source'          : ''    ,
-                                                              'timestamp'       : 0     }
+        assert _.cache_table.new_row_obj().__locals__() == {'comments'        : ''    ,
+                                                            'metadata'        : ''    ,
+                                                            'request_data'    : ''    ,
+                                                            'request_hash'    : ''    ,
+                                                            'request_type'    : ''    ,
+                                                            'response_bytes'  : b''   ,
+                                                            'response_data'   : ''    ,
+                                                            'response_hash'   : ''    ,
+                                                            'response_type'   : ''    ,
+                                                            'source'          : ''    ,
+                                                            'timestamp'       : 0     }
         assert _.sqlite_requests.db_path is None
 
 
