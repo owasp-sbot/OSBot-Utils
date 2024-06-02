@@ -2,7 +2,7 @@
 
 Powerful Python util methods and classes that simplify common apis and tasks.
 
-![Current Release](https://img.shields.io/badge/release-v1.17.36-blue)
+![Current Release](https://img.shields.io/badge/release-v1.17.37-blue)
 [![codecov](https://codecov.io/gh/owasp-sbot/OSBot-Utils/graph/badge.svg?token=GNVW0COX1N)](https://codecov.io/gh/owasp-sbot/OSBot-Utils)
 
 
