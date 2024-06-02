@@ -263,7 +263,7 @@ class test_Trace_Call(TestCase):
             pytest.skip("Skipping test that need FIXING on 3.7 or lower")
 
         if not in_github_action():              # todo: rewrite this test to use an example that is not
-            return                              #       as expensive as Python_Logger since it is taking 200+ms (which is about 50% of the all OSBot_Utils tests
+           return                              #       as expensive as Python_Logger since it is taking 200+ms (which is about 50% of the all OSBot_Utils tests
         with self.config as _:
             _.all()
             _.up_to_depth(2)
@@ -272,9 +272,10 @@ class test_Trace_Call(TestCase):
 
         expected_calls = [ ''                                                ,
                            '--------- CALL TRACER ----------'                ,
-                           'Here are the 7 traces captured\n'                ,
+                           'Here are the 8 traces captured\n'                ,
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
+                           '\x1b[1m│   │   ├── 🧩️ Python_Logger.__init__\x1b[0m',
                            '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'    ,
                            '\x1b[1m│   │   ├── 🧩️ set_config\x1b[0m'         ,
                            '\x1b[1m│   │   └── 🧩️ setup\x1b[0m'              ,
