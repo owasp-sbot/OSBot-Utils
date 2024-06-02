@@ -64,6 +64,10 @@ class test_SSH__Cache__Requests(TestCase):
             assert _.target_function                          != SSH.execute_command
             assert _.target_function_name                     == "execute_command"
 
+            assert _.table_name == _.database().table_name
+            assert _.db_name    == _.database().db_name
+
+
 
     def test___enter____exit__(self):
         assert SSH.execute_command == SSH.execute_command
@@ -117,25 +121,25 @@ class test_SSH__Cache__Requests(TestCase):
                                     'source'         : ''                     ,
                                     'timestamp'      : 0                      }
 
-    
+
 
     def test__bug__db_name_does_not_match_db_path(self):
         with self.cache_ssh_requests as _:
-            assert _.database().db_name    != _.db_name                                 # BUG, these should be the same
-            assert _.database().table_name != _.table_name
-            assert _.database().db_name    != file_name(_.database().db_path)           # BUG, these should be the same
+            assert _.database().db_name    == _.db_name                                 # FIXED     # BUG, these should be the same
+            assert _.database().table_name == _.table_name
+            assert _.database().db_name    != file_name(_.database().db_path)           # FIXED     # BUG, these should be the same
 
             assert _.db_name               == 'ssh_requests_cache.sqlite' == SQLITE_DB_NAME__SSH_REQUESTS_CACHE
             assert _.table_name            == 'ssh_requests'              == SQLITE_TABLE_NAME__SSH_REQUESTS
-            assert _.database().table_name == 'requests'                  == SQLITE_TABLE__REQUESTS
+            assert _.database().table_name != 'requests'                                # FIXED     # BUG, these should be the same
+
 
         ssh__cache__requests = SSH__Cache__Requests()
         assert ssh__cache__requests.db_name    == SQLITE_DB_NAME__SSH_REQUESTS_CACHE
         assert ssh__cache__requests.table_name == SQLITE_TABLE_NAME__SSH_REQUESTS
-        assert ssh__cache__requests.database().db_path   is None
-        assert ssh__cache__requests.database().in_memory is True
-        assert ssh__cache__requests.database().db_name.startswith('db_local_')
-        assert ssh__cache__requests.db_name != ssh__cache__requests.database().db_name      # BUG, these should be the same
+        assert ssh__cache__requests.database().db_path   is not None                    # FIXED     # BUG, this should be set
+        assert ssh__cache__requests.database().in_memory is False                       # FIXED     # BUG, this should be False
+        assert ssh__cache__requests.db_name == ssh__cache__requests.database().db_name  # FIXED     # BUG, these should be the same
 
         sqlite__cache__requests__patch = Sqlite__Cache__Requests__Patch()
         assert sqlite__cache__requests__patch.db_name    == ''

@@ -9,15 +9,17 @@ SQLITE_TABLE_NAME__SSH_REQUESTS    = 'ssh_requests'
 
 
 class SSH__Cache__Requests(Sqlite__Cache__Requests__Patch):
+    db_path    : str
+    db_name    : str =  SQLITE_DB_NAME__SSH_REQUESTS_CACHE
+    table_name : str =  SQLITE_TABLE_NAME__SSH_REQUESTS
 
-    def __init__(self, db_path=None):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.target_class           = SSH
         self.target_function        = SSH.execute_command
         self.target_function_name   = "execute_command"
-        self.db_name                = SQLITE_DB_NAME__SSH_REQUESTS_CACHE
-        self.table_name             = SQLITE_TABLE_NAME__SSH_REQUESTS
         self.print_requests         = False
-        super().__init__(db_path=db_path)               # todo: I think the bug is here
+
 
     def invoke_target(self, target, target_args, target_kwargs):
         if self.print_requests:
