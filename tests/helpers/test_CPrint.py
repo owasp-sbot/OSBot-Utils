@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch, call
 from osbot_utils.utils.Misc import list_set
 
-from osbot_utils.helpers.CPrint import CPrint, Colors
+from osbot_utils.helpers.CPrint import CPrint, CFormat_Colors
 from osbot_utils.testing.Patch_Print import Patch_Print
 
 
@@ -17,7 +17,7 @@ class test_CPrint(TestCase):
         expected_colors = sorted(['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white',  'grey', 'none',
                                   'bright_black', 'bright_red', 'bright_green', 'bright_yellow', 'bright_blue', 'bright_magenta', 'bright_cyan', 'bright_white',
                                   'dark_red'])
-        colors_in_colors = sorted([name for name in Colors.__dict__ if not name.startswith('__')])
+        colors_in_colors = sorted([name for name in CFormat_Colors.__dict__ if not name.startswith('__')])
         assert colors_in_colors == expected_colors
         assert list_set(self.cprint.__locals__()) == sorted(['apply_colors',
                                                              'auto_new_line'   ,
@@ -92,8 +92,8 @@ class test_CPrint(TestCase):
                 _.green('this is in green')
                 _.print()
 
-        assert patched_print.call_args_list() == [call(f'\x1b[{Colors.red  }mthis is in red\x1b[0m'  ),
-                                                  call(f'\x1b[{Colors.green}mthis is in green\x1b[0m')]
+        assert patched_print.call_args_list() == [call(f'\x1b[{CFormat_Colors.red  }mthis is in red\x1b[0m'),
+                                                  call(f'\x1b[{CFormat_Colors.green}mthis is in green\x1b[0m')]
 
         assert _.lines == ['\x1b[31mthis is in red\x1b[0m',
                            '\x1b[32mthis is in green\x1b[0m']

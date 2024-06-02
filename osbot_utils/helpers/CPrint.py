@@ -1,65 +1,22 @@
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.helpers.CFormat import CFormat, CFormat_Colors
 
 
-# note these attributes will be replaced by methods by CPrint. This is done like this in order to:
-#     - Have code complete on CPrint
-#     - not have the write the code for each of the methods
-#     - have a good and logical place to capture the ID of the color
-
-class Colors:
-    black           = "30"
-    blue            = "34"
-    cyan            = "36"
-    grey            = "38;5;15"
-    green           = "32"
-    none            = "0"
-    magenta         = "35"
-    red             = "31"
-    white           = "38;5;15"
-    yellow          = "33"
-    bright_black    = "90"
-    bright_red      = "91"
-    bright_green    = "92"
-    bright_yellow   = "93"
-    bright_blue     = "94"
-    bright_magenta  = "95"
-    bright_cyan     = "96"
-    bright_white    = "97"
-    dark_red        = "38;5;124"            # see https://github.com/fidian/ansi for a full list
-
-
-class CPrint(Colors, Kwargs_To_Self):
-    apply_colors   : bool = True
+class CPrint(CFormat):
     auto_new_line  : bool = True
     auto_print     : bool = True
     clear_on_print : bool = True
     current_line   : str
     lines          : list
 
-    def __getattribute__(self, name):                                                       # this will replace the attributes defined in colors with methods that will call add_to_current_line with the params provided
-        if name != '__getattribute__' and hasattr(Colors, name):                                                           # if name is one of the colors defined in Colors
-            def method(*args, **kwargs):                                                    # create a method to replace the attribute
-                return self.add_with_color(name, *args, **kwargs)                     # pass the data to add_with_color
-            return method
-        return super().__getattribute__(name)                                               # if the attribute name is not one of the attributes defined in colors, restore the normal behaviour of __getattribute__
-
-    def add_with_color(self, color_name, *args, **kwargs):
-        color_code = getattr(Colors, color_name)                                            # capture the color from the Colors class
-        self.add_to_current_line(color_code, *args, **kwargs)                         # add the color code to the current line
+    def apply_color_code_to_text(self, color_code, *args, **kwargs):
+        self.add_to_current_line(color_code, *args, **kwargs)
         return self
 
     def add_to_current_line(self, color_code, *args, **kwargs):
-        args             = [str(arg) for arg in args]                                           # Convert all non-string arguments to strings
-        text             = "".join(args)                                                        # Concatenate all arguments without a space (to have beter support for multi-prints per line)
-        if self.apply_colors:
-            color_start      = f"\033[{color_code}m"                                            # ANSI color code start and end
-            color_end        = "\033[0m"
-            kwargs['end']    = ''                                                               # remove the default print end (which is \n)
-
-            text_with_colors = f"{color_start}{text}{color_end}"
-            self.current_line += text_with_colors
-        else:
-            self.current_line += text
+        args              = [str(arg) for arg in args]                                           # Convert all non-string arguments to strings
+        text              = "".join(args)
+        self.current_line += self.text_with_colors(text,color_code)
         self.apply_config_options()
         return self
 

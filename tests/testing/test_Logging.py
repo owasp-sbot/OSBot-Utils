@@ -19,8 +19,8 @@ class test_Logging(TestCase):
         self.logger = logging.getLogger()
         self.original_handlers = self.logger.handlers[:]
         self.logger.handlers = []
-
         self.logging = Logging()
+        self.logging.set_logger_level(logging.DEBUG)
 
 
     def tearDown(self) -> None:
