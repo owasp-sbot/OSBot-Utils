@@ -43,16 +43,13 @@ class test_Status(TestCase):
         assert type(osbot_logger        ) is Python_Logger
         assert type(osbot_logger.config ) is Python_Logger_Config
         assert osbot_logger.logger_name.startswith('Python_Logger__') is True
-        assert obj_data(osbot_logger.config) == dict(elastic_host     = None  ,
-                                                     elastic_password = None  ,
-                                                     elastic_port     = None  ,
-                                                     elastic_username = None  ,
+        assert obj_data(osbot_logger.config) == dict(log_date_format  = '%M:%S',
                                                      log_format       = '%(asctime)s\\\\t|\\\\t%(name)s\\\\t|\\\\t%(levelname)s\\\\t|\\\\t%(message)s',
-                                                     log_level        = 10    ,
-                                                     log_to_console   = False ,
-                                                     log_to_file      = False ,
-                                                     log_to_memory    = True  ,
-                                                     path_logs        = None  )
+                                                     log_level        = 10     ,
+                                                     log_to_console   = False  ,
+                                                     log_to_file      = False  ,
+                                                     log_to_memory    = True   ,
+                                                     path_logs        = None   )
 
     def test__sending_different_types_of_status_messages(self):
 

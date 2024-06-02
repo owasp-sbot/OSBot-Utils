@@ -23,16 +23,13 @@ class test_Python_Logger_Config(TestCase):
         self.config = Python_Logger_Config()
 
     def test__init__(self):
-        assert obj_dict(self.config) == {'elastic_host'     : None  ,
-                                         'elastic_password' : None  ,
-                                         'elastic_port'     : None  ,
-                                         'elastic_username' : None  ,
-                                         'log_level'        : 10    ,
+        assert obj_dict(self.config) == {'log_date_format'  : '%M:%S',
+                                         'log_level'        : 10     ,
                                          'log_format'       : '%(asctime)s\t|\t%(name)s\t|\t%(levelname)s\t|\t%(message)s',
-                                         'log_to_console'   : False ,
-                                         'log_to_file'      : False ,
-                                         'log_to_memory'    : False ,
-                                         'path_logs'        : None  }
+                                         'log_to_console'   : False  ,
+                                         'log_to_file'      : False  ,
+                                         'log_to_memory'    : False  ,
+                                         'path_logs'        : None   }
 
 
 class test_Python_Logger(TestCase):

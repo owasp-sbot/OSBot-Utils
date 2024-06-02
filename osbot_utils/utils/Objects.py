@@ -1,8 +1,5 @@
 # todo add tests
 import inspect
-import io
-import json
-import os
 import pickle
 import sys
 import types

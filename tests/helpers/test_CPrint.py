@@ -17,7 +17,7 @@ class test_CPrint(TestCase):
 
         expected_colors = sorted(['black', 'blink', 'blue', 'bold', 'bright_black', 'bright_blue', 'bright_cyan',
                                   'bright_green', 'bright_magenta', 'bright_red', 'bright_white', 'bright_yellow',
-                                  'cyan', 'dark_red', 'double_underline', 'encircled', 'faint', 'framed', 'green',
+                                  'cyan', 'dark_red', 'dark_grey', 'double_underline', 'encircled', 'faint', 'framed', 'green',
                                   'grey', 'inverse', 'italic', 'magenta', 'none', 'overlined', 'red', 'strikethrough',
                                   'underline', 'white', 'yellow'])
         colors_in_colors = sorted([name for name in CFormat_Colors.__dict__ if not name.startswith('__')])

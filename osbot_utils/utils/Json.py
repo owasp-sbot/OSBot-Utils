@@ -1,15 +1,8 @@
 import json
-import gzip
-import logging
 import os
 
 from osbot_utils.utils.Misc import str_lines, str_md5, str_sha256
-from osbot_utils.utils.Status import log_exception
-
-logger_json = logging.getLogger()   # todo: start using this API for capturing error messages from methods bellow
-
 from osbot_utils.utils.Files import file_create_gz, file_create, load_file_gz, file_contents, file_lines, file_lines_gz
-
 
 def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=str, raise_exception=False):
     if python_object:
@@ -19,7 +12,7 @@ def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=st
             return json.dumps(python_object, default=default)
         except Exception as error:
             error_message = f'Error in load_json: {error}'
-            log_exception(message=error_message, error=error)
+            #log_exception(message=error_message, error=error)              # todo: find a better way to do this , since this never worked well
             if raise_exception:
                 raise error
 
@@ -89,7 +82,7 @@ class Json:
             try:
                 return json.loads(json_data)
             except Exception as error:
-                log_exception(message='Error in load_json', error=error)
+                #log_exception(message='Error in load_json', error=error)
                 if raise_exception:
                     raise error
 

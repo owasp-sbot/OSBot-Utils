@@ -6,10 +6,9 @@ import inspect
 import sys
 import types
 import typing
-from decimal import Decimal
+from decimal                                    import Decimal
 from enum                                       import Enum, EnumMeta
 from typing                                     import List
-
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Json                     import json_parse

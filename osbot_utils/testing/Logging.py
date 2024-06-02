@@ -10,6 +10,7 @@ from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 DEFAULT_LOG_FORMAT  = '%(levelname)s - %(message)s'
 DEFAULT_LOG_LEVEL   = logging.INFO
 DEFAULT_DATE_FORMAT = '%M:%S'
+
 class Logging:
 
     def __init__(self, target=None, log_level: int = None, log_format=None, log_to_console=False, date_format=None):

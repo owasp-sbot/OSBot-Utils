@@ -1,7 +1,6 @@
 import textwrap
-from html import escape, unescape
-
-from osbot_utils.utils.Files import safe_file_name
+from html                       import escape, unescape
+from osbot_utils.utils.Files    import safe_file_name
 
 # todo: refactor this this class all str related methods (mainly from the Misc class)
 

@@ -25,6 +25,8 @@ class CFormat_Colors:
     bright_cyan      = "96"
     bright_white     = "97"
     dark_red         = "38;5;124"            # see https://github.com/fidian/ansi for a full list
+    dark_grey        = "38;5;8"
+
     bold             = "1"         # ANSI escape code for bold
     italic           = "3"         # ANSI escape code for italic
     underline        = "4"         # ANSI escape code for underline
@@ -142,3 +144,4 @@ f_bright_magenta = cformat.bright_magenta
 f_bright_cyan    = cformat.bright_cyan
 f_bright_white   = cformat.bright_white
 f_dark_red       = cformat.dark_red
+f_dark_grey      = cformat.dark_grey
