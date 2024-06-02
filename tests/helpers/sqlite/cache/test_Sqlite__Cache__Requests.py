@@ -18,16 +18,9 @@ class test_Sqlite__Cache__Requests(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.temp_db_path                        = temp_file(extension='sqlite')
-        cls.sqlite_cache_requests               = Sqlite__Cache__Requests(db_path = cls.temp_db_path)       # the db_path to the tmp file path
+        cls.sqlite_cache_requests               = Sqlite__Cache__Requests()
         cls.sqlite_cache_requests.set__add_timestamp(False)                                                 # disabling timestamp since it complicates the test data verification below
-        assert parent_folder(cls.sqlite_cache_requests.sqlite_requests.db_path) == current_temp_folder()
-        assert file_exists  (cls.temp_db_path)                                 is True
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.sqlite_cache_requests.sqlite_requests.delete()
-        assert file_not_exists(cls.temp_db_path) is True
+        assert cls.sqlite_cache_requests.sqlite_requests.in_memory is True                                  # confirm we have an in-memory db
 
     def tearDown(self):
         self.sqlite_cache_requests.cache_table().clear()
@@ -240,7 +233,7 @@ class test_Sqlite__Cache__Requests(TestCase):
         with self.sqlite_cache_requests.sqlite_requests as _:
             assert type(_)   is Sqlite__DB__Requests
             assert _.db_path != Sqlite__DB__Requests().path_local_db()
-            assert _.db_path == self.temp_db_path
+            assert _.db_path is None
 
         with self.sqlite_cache_requests.cache_table() as _:
 
