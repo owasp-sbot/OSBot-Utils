@@ -1,7 +1,7 @@
 import types
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
 from osbot_utils.helpers.sqlite.cache.Cache__Requests__Config               import Cache__Requests__Config
-from osbot_utils.helpers.sqlite.cache.Cache__Table                          import Cache__Table
+from osbot_utils.helpers.sqlite.cache.Cache__Requests__Table                import Cache__Requests__Table
 from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Sqlite    import Sqlite__Cache__Requests__Sqlite
 from osbot_utils.utils.Json                                                 import json_dumps, json_loads
 from osbot_utils.utils.Misc                                                 import str_sha256
@@ -9,7 +9,7 @@ from osbot_utils.utils.Objects                                              impo
 
 
 class Sqlite__Cache__Requests__Data(Type_Safe):
-    cache_table        : Cache__Table
+    cache_table        : Cache__Requests__Table
     cache_sqlite       : Sqlite__Cache__Requests__Sqlite
     cache_request_data : types.MethodType
     config             : Cache__Requests__Config

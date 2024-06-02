@@ -1,8 +1,8 @@
-from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
-from osbot_utils.helpers.sqlite.cache.Cache__Table import Cache__Table
+from osbot_utils.helpers.sqlite.Sqlite__Table                import Sqlite__Table
+from osbot_utils.helpers.sqlite.cache.Cache__Requests__Table import Cache__Requests__Table
 
 
-class Sqlite__Cache__Requests__Table(Cache__Table):
+class Sqlite__Cache__Requests__Table(Cache__Requests__Table):
     cache_table : Sqlite__Table
 
     def __init__(self, **kwargs):
