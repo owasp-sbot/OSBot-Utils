@@ -2,7 +2,6 @@ import types
 from osbot_utils.base_classes.Type_Safe                                     import Type_Safe
 from osbot_utils.helpers.cache_requests.Cache__Requests__Config             import Cache__Requests__Config
 from osbot_utils.helpers.cache_requests.Cache__Requests__Table              import Cache__Requests__Table
-from osbot_utils.helpers.sqlite.cache.db.Sqlite__Cache__Requests__Sqlite    import Sqlite__Cache__Requests__Sqlite
 from osbot_utils.utils.Json                                                 import json_dumps, json_loads
 from osbot_utils.utils.Misc                                                 import str_sha256
 from osbot_utils.utils.Objects                                              import pickle_save_to_bytes, pickle_load_from_bytes
@@ -10,7 +9,6 @@ from osbot_utils.utils.Objects                                              impo
 
 class Sqlite__Cache__Requests__Data(Type_Safe):
     cache_table        : Cache__Requests__Table
-    cache_sqlite       : Sqlite__Cache__Requests__Sqlite
     cache_request_data : types.MethodType
     config             : Cache__Requests__Config
 
@@ -45,7 +43,7 @@ class Sqlite__Cache__Requests__Data(Type_Safe):
 
 
     def response_data_for__request_hash(self, request_hash):
-        rows = self.cache_sqlite.rows_where__request_hash(request_hash)
+        rows = self.cache_table.rows_where__request_hash(request_hash)
         if len(rows) > 0:
             cache_entry       = rows[0]
             response_data_obj = self.response_data_deserialize(cache_entry)
@@ -54,7 +52,7 @@ class Sqlite__Cache__Requests__Data(Type_Safe):
 
     def requests_data__all(self):
         requests_data = []
-        for row in self.cache_sqlite.cache_table().rows():
+        for row in self.cache_table.rows():
             req_id           = row.get('id')
             request_data     = row.get('request_data')
             request_hash     = row.get('request_hash')
@@ -70,7 +68,7 @@ class Sqlite__Cache__Requests__Data(Type_Safe):
 
     def response_data__all(self):
         responses_data = []
-        for row in self.cache_sqlite.cache_table().rows():
+        for row in self.cache_table.rows():
             response_data_obj = self.convert_row__to__response_data_obj(row)
             responses_data.append(response_data_obj)
         return responses_data

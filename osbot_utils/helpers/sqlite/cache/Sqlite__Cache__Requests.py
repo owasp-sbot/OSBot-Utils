@@ -33,7 +33,6 @@ class Sqlite__Cache__Requests(Type_Safe):
         kwargs__cache_table    = dict(                        cache_table        = self.cache_table               )
 
         kwargs__cache_data     = dict(**kwargs__cache_table,  cache_request_data = self.cache_request_data        ,
-                                                              cache_sqlite       = self.cache_sqlite              ,
                                                               config             = self.cache_config              )
         self.cache_data        = Sqlite__Cache__Requests__Data(**kwargs__cache_data)
 
@@ -69,11 +68,11 @@ class Sqlite__Cache__Requests(Type_Safe):
 
         self.create_new_cache_obj            = self.cache_row.create_new_cache_obj
 
-        self.cache_table__clear              = self.cache_sqlite.cache_table__clear
-        self.delete_where_request_data       = self.cache_sqlite.delete_where_request_data
-        self.rows_where                      = self.cache_sqlite.rows_where
-        self.rows_where__request_data        = self.cache_sqlite.rows_where__request_data
-        self.rows_where__request_hash        = self.cache_sqlite.rows_where__request_hash
+        self.cache_table__clear              = self.cache_table.cache_table__clear
+        self.delete_where_request_data       = self.cache_table.delete_where_request_data
+        self.rows_where                      = self.cache_table.rows_where
+        self.rows_where__request_data        = self.cache_table.rows_where__request_data
+        self.rows_where__request_hash        = self.cache_table.rows_where__request_hash
 
         self.disable                         = self.cache_config.disable
         self.enable                          = self.cache_config.enable
