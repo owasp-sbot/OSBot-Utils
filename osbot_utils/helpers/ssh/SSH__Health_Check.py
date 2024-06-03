@@ -1,10 +1,7 @@
-from osbot_utils.helpers.ssh.SSH import SSH, ENV_VAR__SSH__HOST, ENV_VAR__SSH__PORT, ENV_VAR__SSH__KEY_FILE, \
-    ENV_VAR__SSH__USER, ENV_VAR__SSH__STRICT_HOST_CHECK
-from osbot_utils.utils.Dev import pprint
+from osbot_utils.helpers.ssh.SSH__Execute import ENV_VAR__SSH__HOST, ENV_VAR__SSH__KEY_FILE, ENV_VAR__SSH__USER, \
+    ENV_VAR__SSH__PORT, ENV_VAR__SSH__STRICT_HOST_CHECK, SSH__Execute
 from osbot_utils.utils.Env import get_env
-from osbot_utils.utils.Files import file_contents
-from osbot_utils.utils.Misc import list_set, random_text
-from osbot_utils.utils.Process import run_process
+from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Status import status_ok, status_error
 
 ENV_VARS__FOR_SSH = {'ssh_host'         : ENV_VAR__SSH__HOST              ,
@@ -13,7 +10,7 @@ ENV_VARS__FOR_SSH = {'ssh_host'         : ENV_VAR__SSH__HOST              ,
                      'ssh_port'         : ENV_VAR__SSH__PORT              ,
                      'strict_host_check': ENV_VAR__SSH__STRICT_HOST_CHECK }
 
-class SSH__Health_Check(SSH):
+class SSH__Health_Check(SSH__Execute):
 
     def check_connection(self):
         text_message = 'test connection'  #random_text('echo')

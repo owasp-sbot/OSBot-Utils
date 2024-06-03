@@ -1,12 +1,13 @@
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.decorators.lists.index_by import index_by
 from osbot_utils.helpers.ssh.SSH import SSH
+from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists
 
 
 class SSH__Linux(Kwargs_To_Self):
-    ssh : SSH
+    ssh : SSH__Execute
 
     def cat(self, path=''):
         command = f'cat {path}'
@@ -43,6 +44,12 @@ class SSH__Linux(Kwargs_To_Self):
         ls_raw  = self.ssh.execute_command__return_stdout(command)
         return ls_raw.splitlines()
 
+    def memory_usage(self):
+        command = "free -h"
+        memory_usage_raw = self.ssh.execute_command__return_stdout(command)     # todo: add fix for data parsing issue
+        return memory_usage_raw.splitlines()
+
+
     def mkdir(self, folder):
         command = f'mkdir -p {folder}'
         return self.ssh.execute_command(command)
@@ -50,4 +57,20 @@ class SSH__Linux(Kwargs_To_Self):
     def rmdir(self, folder):
         command = f'rmdir {folder}'
         return self.ssh.execute_command(command)
+
+    def running_processes(self,**kwargs):
+        command = "ps aux"
+        return self.ssh.execute_command__return_dict(command, **kwargs)
+
+    def system_uptime(self):
+        command = "uptime"
+        uptime_raw = self.ssh.execute_command__return_stdout(command)
+        return uptime_raw.strip()
+
+    def uname(self):
+        return self.ssh.execute_command__return_stdout('uname')
+
+    def which(self, target):
+        command = f'which {target}'                                     # todo: security-vuln: add protection against code injection
+        return self.ssh.execute_command__return_stdout(command)
 

@@ -1,9 +1,6 @@
-from osbot_utils.helpers.Print_Table import Print_Table
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Patch    import Sqlite__Cache__Requests__Patch
-from osbot_utils.helpers.ssh.SSH                                        import SSH
+from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
 from osbot_utils.utils.Call_Stack import call_stack_frames_data
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import file_name
 from osbot_utils.utils.Json                                             import json_to_str, json_loads
 from osbot_utils.utils.Toml                                             import dict_to_toml, toml_to_dict
 
@@ -20,8 +17,8 @@ class SSH__Cache__Requests(Sqlite__Cache__Requests__Patch):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.target_class           = SSH
-        self.target_function        = SSH.execute_command
+        self.target_class           = SSH__Execute
+        self.target_function        = SSH__Execute.execute_command
         self.target_function_name   = "execute_command"
         self.print_requests         = False
 

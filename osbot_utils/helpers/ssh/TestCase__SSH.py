@@ -5,6 +5,7 @@ import pytest
 import osbot_utils
 from osbot_utils.helpers.ssh.SSH                    import SSH
 from osbot_utils.helpers.ssh.SSH__Cache__Requests   import SSH__Cache__Requests
+from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
 from osbot_utils.utils.Env                          import load_dotenv
 from osbot_utils.utils.Files                        import path_combine
 
@@ -17,7 +18,7 @@ class TestCase__SSH(TestCase):
     def setUpClass(cls):
         cls.load_dotenv()
         cls.ssh = SSH().setup()
-        if not cls.ssh.ssh_host:
+        if not cls.ssh.ssh_execute().ssh_host:
             pytest.skip("SSH host not set")
 
         cls.cache = SSH__Cache__Requests()
@@ -26,7 +27,7 @@ class TestCase__SSH(TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.cache.patch_restore()
-        assert SSH.execute_command.__qualname__ == 'SSH.execute_command'
+        assert SSH__Execute.execute_command.__qualname__ == 'SSH__Execute.execute_command'
 
     @staticmethod
     def load_dotenv():

@@ -1,4 +1,6 @@
 import pytest
+
+from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
 from osbot_utils.helpers.ssh.TestCase__SSH  import TestCase__SSH
 from osbot_utils.utils.Dev                  import pprint
 from osbot_utils.utils.Env                  import in_github_action
@@ -20,88 +22,7 @@ class test_SSH(TestCase__SSH):
     def setUpClass(cls):
         super().setUpClass()
 
-
-    def test__init__(self):
-        with self.ssh as _:
-            assert _.__locals__() == {'ssh_host'          : self.ssh.ssh_host     ,
-                                      'ssh_key_file'      : self.ssh.ssh_key_file ,
-                                      'ssh_key_user'      : self.ssh.ssh_key_user ,
-                                      'ssh_port'          : self.ssh.ssh_port     ,
-                                      'strict_host_check' : False                 }
-
-    def test_execute_command(self):
-        # result_ssh_host_remove = self.ssh.remove_server_ssh_host_fingerprint()          # todo: find a to handle the case when the
-        # pprint(result_ssh_host_remove)                                                  #       /home/runner/.ssh/known_hosts doesn't exist or has changed
-
-        assert self.ssh.execute_command(None) == { 'data' : None, 'message': '', 'status': 'error' ,
-                                                   'error': 'in execute_command not all required vars were setup'}
-        command = 'uname'
-        ssh_args = self.ssh.execute_command_args(command)
-        result   = self.ssh.execute_command(command)
-        if in_github_action():
-            stderr   =  "Warning: Permanently added '[localhost]:22222' (ED25519) to the list of known hosts.\r\n"
-        else:
-            stderr   = ''
-        assert result == { 'cwd'      : '.'                   ,
-                           'duration' : result.get('duration'),
-                           'error'    : None                  ,
-                           'kwargs'   : {'cwd': '.', 'stderr': -1, 'stdout': -1, 'timeout': None},
-                           'runParams': ['ssh'] + ssh_args    ,
-                           'status'   : 'ok'                  ,
-                           'stderr'   : stderr                ,
-                           'stdout'   : 'Linux\n'             }
-
-    def test_execute_command_args(self):
-        command = 'an_linux_command'
-        ssh_args  = self .ssh.execute_command_args(command=command)
-        assert ssh_args == [ '-p'                                          ,
-                             '22222'                                       ,
-                             '-o'                                          ,
-                             'StrictHostKeyChecking=no'                    ,
-                             '-i'                                          ,
-                             self.ssh.ssh_key_file                         ,
-                             f'{self.ssh.ssh_key_user}@{self.ssh.ssh_host}',
-                             command                                       ]
-
-    # helpers for common linux methods
-
-
-    def test_memory_usage(self):
-        memory_usage = self.ssh.memory_usage()
-        assert 'Mem:' in memory_usage[1]
-
-
-    def test_running_processes(self):
-        result = self.ssh.running_processes(index_by='COMMAND')
-        #assert '/usr/lib/systemd/systemd' in list_set(result) # in docker container we get a different list: '/usr/bin/ps'
-        for _, process_data in result.items():
-            assert list_set(process_data) == ['%CPU', '%MEM', 'COMMAND', 'PID' , 'RSS', 'START',
-                                              'STAT', 'TIME', 'TTY'    , 'USER', 'VSZ'         ]
-
-    def test_system_uptime(self):
-        uptime = self.ssh.system_uptime()
-        assert 'up' in uptime
-
-
-    def test_uname(self):
-        assert self.ssh.uname() == 'Linux'
-
-    def test_which(self):
-        assert self.ssh.which('bash')  == '/usr/bin/bash'
-
-
-    @pytest.mark.skip(reason="just PoC (which worked great:) ")
-    def test__workflow__install_python(self):
-        command ='sudo yum install python3-pip -y'
-        result = self.ssh.execute_command__return_stdout(command)
-        assert 'Complete!' in result
-
-        command = 'pip3 install Flask'
-        result = self.ssh.execute_command__return_stdout(command)
-        pprint('Flask' in result)
-
-        command = 'python3 -m flask --version'
-        result = self.ssh.execute_command__return_stdout(command)
-        assert result == 'Python 3.9.16\nFlask 3.0.3\nWerkzeug 3.0.3'
+    def test_ssh_execute(self):
+        assert type(self.ssh.ssh_execute()) is SSH__Execute
 
 

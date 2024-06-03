@@ -5,9 +5,10 @@ import pytest
 from osbot_utils.base_classes.Kwargs_To_Self                            import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests           import Sqlite__Cache__Requests
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Patch    import Sqlite__Cache__Requests__Patch
-from osbot_utils.helpers.ssh.SSH                                        import SSH, ENV_VAR__SSH__HOST
+from osbot_utils.helpers.ssh.SSH                                        import SSH
 from osbot_utils.helpers.ssh.SSH__Cache__Requests                       import SSH__Cache__Requests, SQLITE_DB_NAME__SSH_REQUESTS_CACHE, \
     SQLITE_TABLE_NAME__SSH_REQUESTS
+from osbot_utils.helpers.ssh.SSH__Execute import ENV_VAR__SSH__HOST, SSH__Execute
 from osbot_utils.utils.Dev                                              import pprint
 from osbot_utils.utils.Env                                              import get_env
 from osbot_utils.utils.Files                                            import temp_file, current_temp_folder, parent_folder, file_extension, file_name
@@ -30,7 +31,7 @@ class test_SSH__Cache__Requests(TestCase):
     def tearDownClass(cls):
         cls.cache_ssh_requests.delete()
         assert cls.cache_ssh_requests.sqlite_requests.exists() is False
-        assert SSH.execute_command.__qualname__ == 'SSH.execute_command'
+        assert SSH__Execute.execute_command.__qualname__ == 'SSH__Execute.execute_command'
 
     def test__init__(self):
         with self.cache_ssh_requests as _:
@@ -60,8 +61,8 @@ class test_SSH__Cache__Requests(TestCase):
                                                                   Sqlite__Cache__Requests        ,
                                                                   Kwargs_To_Self                 ,
                                                                   object                         ]
-            assert _.target_class                             == SSH
-            assert _.target_function                          != SSH.execute_command
+            assert _.target_class                             == SSH__Execute
+            assert _.target_function                          != SSH__Execute.execute_command
             assert _.target_function_name                     == "execute_command"
 
             assert _.table_name == _.database().table_name
@@ -70,14 +71,14 @@ class test_SSH__Cache__Requests(TestCase):
 
 
     def test___enter____exit__(self):
-        assert SSH.execute_command == SSH.execute_command
-        assert SSH.execute_command == self.cache_ssh_requests.target_function
-        assert SSH.execute_command.__qualname__ == 'SSH.execute_command'
+        assert SSH__Execute.execute_command == SSH__Execute.execute_command
+        assert SSH__Execute.execute_command == self.cache_ssh_requests.target_function
+        assert SSH__Execute.execute_command.__qualname__ == 'SSH__Execute.execute_command'
         with self.cache_ssh_requests  as _:
-            assert SSH.execute_command              != self.cache_ssh_requests.target_function
-            assert SSH.execute_command.__qualname__ == 'Sqlite__Cache__Requests__Patch.patch_apply.<locals>.proxy'
-        assert SSH.execute_command == self.cache_ssh_requests.target_function
-        assert SSH.execute_command.__qualname__ == 'SSH.execute_command'
+            assert SSH__Execute.execute_command              != self.cache_ssh_requests.target_function
+            assert SSH__Execute.execute_command.__qualname__ == 'Sqlite__Cache__Requests__Patch.patch_apply.<locals>.proxy'
+        assert SSH__Execute.execute_command == self.cache_ssh_requests.target_function
+        assert SSH__Execute.execute_command.__qualname__ == 'SSH__Execute.execute_command'
 
     def test_invoke_target(self):
         mock_ssh_host          = get_env(ENV_VAR__SSH__HOST, '')
@@ -99,7 +100,7 @@ class test_SSH__Cache__Requests(TestCase):
 
             assert _.cache_entries() == []
 
-            ssh = SSH(ssh_host= mock_ssh_host).setup()
+            ssh = SSH__Execute(ssh_host= mock_ssh_host).setup()
             ssh.execute_command__return_stdout(mock_path)
 
             cache_entry = _.cache_entries()[0]

@@ -3,6 +3,7 @@ from os import environ
 import pytest
 
 from osbot_utils.helpers.ssh.SCP            import SCP
+from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
 from osbot_utils.helpers.ssh.TestCase__SSH  import TestCase__SSH
 from osbot_utils.testing.Temp_File          import Temp_File
 from osbot_utils.testing.Temp_Folder        import Temp_Folder
@@ -18,6 +19,7 @@ ENV_VAR_TEST_OSBOT__SSH_KEY_USER  = 'SSH__KEY_FILE__USER'
 
 class test_SCP(TestCase__SSH):
     scp           : SCP
+    ssh_execute   : SSH__Execute
     # ssh_host      : str
     # ssh_key_file  : str
     # ssh_key_user  : str
@@ -31,14 +33,15 @@ class test_SCP(TestCase__SSH):
         # if not cls.ssh_host:
         #     pytest.skip("SSH host not set")
         super().setUpClass()
-        cls.scp = SCP(ssh_host=cls.ssh.ssh_host, ssh_key_file=cls.ssh.ssh_key_file, ssh_key_user=cls.ssh.ssh_key_user, ssh_port=cls.ssh.ssh_port)
+        cls.ssh_execute = cls.ssh.ssh_execute()
+        cls.scp = SCP(ssh_host=cls.ssh_execute.ssh_host, ssh_key_file=cls.ssh_execute.ssh_key_file, ssh_key_user=cls.ssh_execute.ssh_key_user, ssh_port=cls.ssh_execute.ssh_port)
 
     def test__init__(self):
         with self.scp as _:
-            assert _.__locals__() == {'ssh_host'          : self.ssh.ssh_host     ,
-                                      'ssh_port'          : self.ssh.ssh_port     ,
-                                      'ssh_key_file'      : self.ssh.ssh_key_file ,
-                                      'ssh_key_user'      : self.ssh.ssh_key_user ,
+            assert _.__locals__() == {'ssh_host'          : self.ssh_execute.ssh_host     ,
+                                      'ssh_port'          : self.ssh_execute.ssh_port     ,
+                                      'ssh_key_file'      : self.ssh_execute.ssh_key_file ,
+                                      'ssh_key_user'      : self.ssh_execute.ssh_key_user ,
                                       'strict_host_check' : False             }
 
     @pytest.mark.skip("SCP code and test needs refactoring and broken into smaller components")
