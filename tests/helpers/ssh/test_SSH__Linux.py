@@ -71,7 +71,6 @@ class test__SSH_Linux(TestCase__SSH):
 
     def test_running_processes(self):
         result = self.ssh_linux.running_processes(index_by='COMMAND')
-        #assert '/usr/lib/systemd/systemd' in list_set(result) # in docker container we get a different list: '/usr/bin/ps'
         for _, process_data in result.items():
             assert list_set(process_data) == ['%CPU', '%MEM', 'COMMAND', 'PID' , 'RSS', 'START',
                                               'STAT', 'TIME', 'TTY'    , 'USER', 'VSZ'         ]

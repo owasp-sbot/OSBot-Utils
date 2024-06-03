@@ -16,7 +16,6 @@ ENV_VAR__SSH__STRICT_HOST_CHECK = 'SSH__STRICT_HOST_CHECK'
 
 
 class SSH__Execute(Type_Safe):
-
     ssh_host          : str
     ssh_port          : int  = 22
     ssh_key_file      : str

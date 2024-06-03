@@ -82,7 +82,7 @@ class Sqlite__Cache__Requests(Type_Safe):
 
         self.invoke                          = self.cache_invoke.invoke
         self.invoke_target                   = self.cache_invoke.invoke_target
-        self.invoke_with_cache               = self.cache_invoke.invoke_with_cache
+        #self.invoke_with_cache               = self.cache_invoke.invoke_with_cache
         self.invoke_target__and_add_to_cache = self.cache_invoke.invoke_target__and_add_to_cache
         self.transform_raw_response          = self.cache_invoke.transform_raw_response
 
@@ -93,6 +93,9 @@ class Sqlite__Cache__Requests(Type_Safe):
     # this is the method that is current overwritten to create custom request data
     def cache_request_data(self, *args, **target_kwargs):
         return {'args': list(args), 'kwargs': target_kwargs}                                # convert the args tuple to a list since that is what it will be once it is serialised
+
+    def invoke_with_cache(self, *args, **target_kwargs):
+        return self.cache_invoke.invoke_with_cache(*args, **target_kwargs)
 
     def set_on_invoke_target(self, on_invoke_target  : types.FunctionType):
         self.cache_invoke.on_invoke_target = on_invoke_target

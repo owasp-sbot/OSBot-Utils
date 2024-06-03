@@ -3,6 +3,7 @@ from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
 from osbot_utils.helpers.ssh.SSH__Linux import SSH__Linux
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Functions import function_source_code
+from osbot_utils.utils.Lists import list_index_by
 
 PYTHON3__LINUX__INSTALLER = 'python3'
 
@@ -31,6 +32,10 @@ class SSH__Python(Type_Safe):
 
     def install_python3(self):
         return self.ssh_linux.apt_install(PYTHON3__LINUX__INSTALLER)
+
+    def pip_list(self):
+        pip_list = self.ssh_execute.execute_command__return_dict('pip list')
+        return list_index_by(pip_list, 'Package')
 
     def pip_install(self, package_name):
         return self.ssh_execute.execute_command__return_stdout(f'pip install {package_name}')

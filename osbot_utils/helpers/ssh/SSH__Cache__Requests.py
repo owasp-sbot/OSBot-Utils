@@ -1,7 +1,9 @@
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Patch    import Sqlite__Cache__Requests__Patch
 from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
 from osbot_utils.utils.Call_Stack import call_stack_frames_data
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json                                             import json_to_str, json_loads
+from osbot_utils.utils.Python_Logger import Python_Logger
 from osbot_utils.utils.Toml                                             import dict_to_toml, toml_to_dict
 
 SQLITE_DB_NAME__SSH_REQUESTS_CACHE = 'ssh_requests_cache.sqlite'
@@ -14,6 +16,8 @@ class SSH__Cache__Requests(Sqlite__Cache__Requests__Patch):
     db_name                           : str  = SQLITE_DB_NAME__SSH_REQUESTS_CACHE
     table_name                        : str  = SQLITE_TABLE_NAME__SSH_REQUESTS
     add_caller_signature_to_cache_key : bool = True
+    print_ssh_execution_stdout        : bool = False
+    logging                           : Python_Logger
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -21,12 +25,21 @@ class SSH__Cache__Requests(Sqlite__Cache__Requests__Patch):
         self.target_function        = SSH__Execute.execute_command
         self.target_function_name   = "execute_command"
         self.print_requests         = False
+        self.logging.add_console_logger()
 
 
     def invoke_target(self, target, target_args, target_kwargs):
         if self.print_requests:
             print(f'[invoke_target]: {target_args}')
         return super().invoke_target(target, target_args, target_kwargs)
+
+    def invoke_with_cache(self, **invoke_kwargs):
+        result = super().invoke_with_cache(**invoke_kwargs)
+        stdout = result.get('stdout')
+        if self.print_ssh_execution_stdout and stdout:
+            #print(stdout)
+            self.logging.info('\n\n' + stdout)
+        return result
 
     def request_data(self, *args, **kwargs):
         ssh                 = args[0]

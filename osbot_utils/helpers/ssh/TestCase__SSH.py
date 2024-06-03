@@ -12,7 +12,8 @@ from osbot_utils.utils.Files                        import path_combine
 ENV_FILE__WITH_ENV_VARS           = "../.ssh.env"
 
 class TestCase__SSH(TestCase):
-    ssh : SSH
+    ssh  : SSH
+    cache: SSH__Cache__Requests
 
     @classmethod
     def setUpClass(cls):
@@ -33,3 +34,18 @@ class TestCase__SSH(TestCase):
     def load_dotenv():
         env_file_path = path_combine(osbot_utils.path, ENV_FILE__WITH_ENV_VARS)
         load_dotenv(dotenv_path=env_file_path)
+
+    def cache_disable(self):
+        self.cache.disable()
+
+    def cache_update(self):
+        self.cache.update()
+
+    def ssh_execute(self):
+        return self.ssh.ssh_execute()
+
+    def ssh_linux(self):
+        return self.ssh.ssh_linux()
+
+    def ssh_python(self):
+        return self.ssh.ssh_python()

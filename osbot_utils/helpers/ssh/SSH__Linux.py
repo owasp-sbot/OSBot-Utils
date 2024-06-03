@@ -56,6 +56,13 @@ class SSH__Linux(Kwargs_To_Self):
         command = f'mkdir -p {folder}'
         return self.ssh_execute.execute_command(command)
 
+    def mv(self, source, destination):
+        command = f'mv {source} {destination}'
+        return self.ssh_execute.execute_command(command)
+
+    def pwd(self):
+        return self.ssh_execute.execute_command__return_stdout('pwd')
+
     def rm(self, path=''):
         command = f'rm {path}'
         return self.ssh_execute.execute_command__return_stderr(command)
