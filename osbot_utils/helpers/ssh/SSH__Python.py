@@ -1,5 +1,7 @@
 from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
+from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Functions import function_source_code
 
 
 class SSH__Python(Type_Safe):
@@ -16,8 +18,7 @@ class SSH__Python(Type_Safe):
         function_name   = function.__name__
         function_code   = function_source_code(function)
         exec_code       = f"{function_code}\nresult= {function_name}(); print(result)"
-        python_command  = f"{python_executable} -c \"{exec_code}\""
-        return self.execute_command(python_command)
+        return self.execute_python__code(exec_code)
 
     def execute_python__function__return_stderr(self, *args, **kwargs):
         return self.execute_python__function(*args, **kwargs).get('stderr').strip()
