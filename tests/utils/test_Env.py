@@ -4,11 +4,27 @@ from unittest import TestCase
 from osbot_utils.testing.Temp_File import Temp_File
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Env import env_value, env_vars, env_vars_list, load_dotenv, unload_dotenv, platform_darwin
-from osbot_utils.utils.Files import file_not_exists, file_exists
+from osbot_utils.utils.Files import file_not_exists, file_exists, file_create, file_delete
 from osbot_utils.utils.Lists import list_contains_list
 
 
 class test_Env(TestCase):
+    temp_env_file          = '.env'
+    temp_env_file_contents = """
+                ENV_VAR_1='ENV_VAR_1_VALUE'
+                ENV_VAR_2='ENV_VAR_2_VALUE'
+                """
+    @classmethod
+    def setUpClass(cls):
+        assert file_not_exists(test_Env.temp_env_file)
+        file_create(test_Env.temp_env_file, test_Env.temp_env_file_contents)
+
+    @classmethod
+    def tearDownClass(cls):
+        assert file_exists(test_Env.temp_env_file)
+        file_delete(test_Env.temp_env_file)
+        assert file_not_exists(test_Env.temp_env_file)
+
 
     def tearDown(self) -> None:
         unload_dotenv()

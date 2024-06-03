@@ -1,8 +1,8 @@
 from osbot_utils.utils.Lists import list_sorted
 from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
-from osbot_utils.utils.Misc                             import ansi_text_visible_length
 from osbot_utils.helpers.trace.Trace_Call__Config       import Trace_Call__Config
 from osbot_utils.helpers.trace.Trace_Call__Print_Traces import text_grey, text_bold_green, text_olive, text_light_grey
+from osbot_utils.utils.Str import ansi_text_visible_length
 
 
 class Trace_Call__Print_Lines(Kwargs_To_Self):

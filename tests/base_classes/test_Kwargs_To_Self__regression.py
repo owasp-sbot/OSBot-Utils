@@ -428,3 +428,25 @@ class test_Kwargs_To_Self__regression(TestCase):
 
         expected_values = {'an_bool': False, 'an_int': 84, 'an_str': 'changed on an_class'}
         assert an_class.__locals__() == expected_values
+
+
+    def test__regression__callable__not_supported(self):
+        class An_Class(Kwargs_To_Self):
+            an_callable: callable
+
+        def an_local_function():
+            pass
+
+        # checking with a method
+        assert An_Class(an_callable=self.test__regression__callable__not_supported).__locals__() == { 'an_callable': self.test__regression__callable__not_supported}
+        # checking with a function
+        assert An_Class(an_callable=an_local_function).__locals__()                              == { 'an_callable': an_local_function}
+
+        # the assets below where failing before the fix
+        # with self.assertRaises(Exception) as context:
+        #     An_Class(an_callable=self.test__regression__callable__not_supported)
+        # assert context.exception.args[0] == ("Invalid type for attribute 'an_callable'. Expected '<built-in function callable>' but got '<class 'method'>'")
+
+        # with self.assertRaises(Exception) as context:
+        #     An_Class(an_callable=an_local_function)
+        # assert context.exception.args[0] == ("Invalid type for attribute 'an_callable'. Expected '<built-in function callable>' but got '<class 'function'>'")

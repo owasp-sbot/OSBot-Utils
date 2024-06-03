@@ -1,8 +1,5 @@
 # todo add tests
 import inspect
-import io
-import json
-import os
 import pickle
 import sys
 import types
@@ -38,7 +35,15 @@ def are_types_compatible_for_assigment(source_type, target_type):
         return True
     if target_type in source_type.__mro__:          # this means that the source_type has the target_type has of its base types
         return True
-
+    if target_type is callable:                     # handle case where callable was used as the target type
+        if source_type is types.MethodType:         #     and a method or function was used as the source type
+            return True
+        if source_type is types.FunctionType:
+            return True
+        if source_type is staticmethod:
+            return True
+    if target_type is typing.Any:
+        return True
     return False
 
 def are_types_magic_mock(source_type, target_type):
@@ -303,7 +308,10 @@ def pickle_save_to_bytes(target: object) -> bytes:
 
 def pickle_load_from_bytes(pickled_data: bytes):
     if type(pickled_data) is bytes:
-        return pickle.loads(pickled_data)
+        try:
+            return pickle.loads(pickled_data)
+        except Exception:
+            return {}
 
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     if hasattr(target, '__annotations__'):
@@ -329,14 +337,16 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
 
 # helper duplicate methods
 base_types          = base_classes
+bytes_to_obj        = pickle_load_from_bytes
 
 full_type_name      = class_full_name
 
 obj_list_set        = obj_keys
 obj_info            = print_object_members
 obj_methods         = print_object_methods
-
 obj_to_bytes        = pickle_save_to_bytes
-bytes_to_obj        = pickle_load_from_bytes
+
+pickle_from_bytes   = pickle_load_from_bytes
+pickle_to_bytes     = pickle_save_to_bytes
 
 type_full_name      = class_full_name

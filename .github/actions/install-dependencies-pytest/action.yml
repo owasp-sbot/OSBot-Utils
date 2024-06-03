@@ -36,16 +36,16 @@ runs:
         if: matrix.python-version == '3.13.0-beta.1'
         shell: bash
         run: | 
-          cp ./requirements-test.3.13.0-beta.1.txt ./requirements-test.txt            
+          cp ./dev/ci_pipeline/python_3_13/requirements-test.3.13.0-beta.1.txt ./dev/requirements-test.txt            
 
       - name: Install dependencies from requirements.txt
-        if: hashFiles('**/requirements.txt') != ''
+        if: hashFiles('**/dev/requirements.txt') != ''
         shell: bash
         run: |          
           pip install -r requirements.txt
 
       - name: Install dependencies from requirements-test.txt
-        if: hashFiles('**/requirements-test.txt') != ''
+        if: hashFiles('**/dev/requirements-test.txt') != ''
         shell: bash
         run: |          
-          pip install -r requirements-test.txt
+          pip install -r ./dev/requirements-test.txt

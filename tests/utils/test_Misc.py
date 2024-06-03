@@ -15,7 +15,7 @@ from osbot_utils.utils.Misc import bytes_to_base64, base64_to_bytes, date_time_n
     str_sha256, str_to_base64, flist, ignore_warning__unclosed_ssl, list_set, \
     lower, remove_multiple_spaces, split_spaces, sorted_set, upper, log_to_file, \
     time_now, time_str_milliseconds, url_encode, url_decode, \
-    size, str_sha384, str_sha384_as_base64
+    size, str_sha384, str_sha384_as_base64, wait_for
 from osbot_utils.utils.Status import log_debug, log_error, log_info, osbot_logger, send_status_to_logger, osbot_status
 from osbot_utils.utils.Str import str_index
 
@@ -161,6 +161,8 @@ class test_Misc(TestCase):
         assert len(random_uuid().split('-')) == 5
 
     def test_time_now(self):
+        if time_now() not in date_time_now(milliseconds_numbers=2): # edge case
+            wait_for(0.1)
         assert time_now() in date_time_now(milliseconds_numbers=2)
         assert time_now(milliseconds_numbers=0) in date_time_now(milliseconds_numbers=0)
         assert time_now(milliseconds_numbers=2) in date_time_now(milliseconds_numbers=2)

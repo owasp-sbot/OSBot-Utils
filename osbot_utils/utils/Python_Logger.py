@@ -2,19 +2,21 @@ import inspect
 import logging
 import sys
 import types
-from logging          import Logger, StreamHandler, FileHandler
-from logging.handlers import MemoryHandler
+from logging                                                import Logger, StreamHandler, FileHandler
+from logging.handlers                                       import MemoryHandler
+from osbot_utils.base_classes.Type_Safe                     import Type_Safe
+from osbot_utils.decorators.lists.group_by                  import group_by
+from osbot_utils.decorators.lists.index_by                  import index_by
+from osbot_utils.decorators.methods.cache_on_function       import cache_on_function
+from osbot_utils.utils.Misc                                 import random_string
+from osbot_utils.utils.Files                                import temp_file
+from osbot_utils.utils.Objects                              import obj_dict
 
-from osbot_utils.decorators.lists.group_by import group_by
-from osbot_utils.decorators.lists.index_by import index_by
-from osbot_utils.decorators.methods.cache_on_function import cache_on_function
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-from osbot_utils.utils.Misc import random_string
-from osbot_utils.utils.Files import temp_file
-from osbot_utils.utils.Objects import obj_dict
+#DEFAULT_LOG_FORMAT  = '%(asctime)s.%(msecs)03d %(levelname)s - %(message)s'
 
 DEFAULT_LOG_LEVEL         = logging.DEBUG
 DEFAULT_LOG_FORMAT        = '%(asctime)s\t|\t%(name)s\t|\t%(levelname)s\t|\t%(message)s'
+DEFAULT_LOG_DATE_FORMAT   = '%M:%S'
 MEMORY_LOGGER_CAPACITY    = 1024*10
 MEMORY_LOGGER_FLUSH_LEVEL = logging.ERROR
 
@@ -29,10 +31,10 @@ MEMORY_LOGGER_FLUSH_LEVEL = logging.ERROR
 class Python_Logger_Config:
 
     def __init__(self):
-        self.elastic_host           = None
-        self.elastic_password       = None
-        self.elastic_port           = None
-        self.elastic_username       = None
+        # self.elastic_host           = None                     # this needs to be implemented in OSBot_Elastic
+        # self.elastic_password       = None
+        # self.elastic_port           = None
+        # self.elastic_username       = None
         #self.log_to_aws_s3          = False                     # todo
         #self.log_to_aws_cloud_trail = False                     # todo
         #self.log_to_aws_firehose    = False                     # todo
@@ -42,26 +44,27 @@ class Python_Logger_Config:
         self.log_to_memory          = False
         self.path_logs              = None
         self.log_format             = DEFAULT_LOG_FORMAT
+        self.log_date_format        = DEFAULT_LOG_DATE_FORMAT
         self.log_level              = DEFAULT_LOG_LEVEL
 
 
-class Python_Logger:
+class Python_Logger(Type_Safe):
     config      : Python_Logger_Config
     logger      : Logger
     logger_name : str
-    critical    : types.FunctionType        # these will be replaced by Python_Logger_Config.setup_log_methods
-    debug       : types.FunctionType
-    error       : types.FunctionType
-    exception   : types.FunctionType
-    info        : types.FunctionType
-    ok          : types.FunctionType
-    warning     : types.FunctionType
 
-    def __init__(self, logger_name= None, logger_config : Python_Logger_Config = None):
-        self.set_logger_name(logger_name)
-        #self.logger_name = logger_name or random_string(prefix="Python_Logger_")
-        self.set_config(logger_config)
-        # self.logger = None
+    critical    : types.MethodType        # these will be replaced by Python_Logger_Config.setup_log_methods
+    debug       : types.MethodType
+    error       : types.MethodType
+    exception   : types.MethodType
+    info        : types.MethodType
+    ok          : types.MethodType
+    warning     : types.MethodType
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.set_logger_name(self.logger_name)
+        self.set_config     (self.config     )
         self.setup()                            # todo: understand side effect of setting up logger on __init__
 
     def disable(self):
@@ -134,9 +137,11 @@ class Python_Logger:
             self.config = Python_Logger_Config()
         return self.config
 
-    def set_log_format(self, log_format):
+    def set_log_format(self, log_format=None, date_format=None):
         if log_format:
             self.config.log_format = log_format
+        if date_format:
+            self.config.log_date_format = date_format
 
     def set_log_level(self, level=None):
         level = level or self.config.log_level
@@ -159,7 +164,7 @@ class Python_Logger:
     def log_handler_file(self):
         return self.log_handler(logging.FileHandler)
 
-    def log_handler_memory(self):
+    def log_handler_memory(self):                                                   # todo: change how this memory logger works (see notes in the other memory logger methods in Python_Logger
         return self.log_handler(MemoryHandler)
 
     def log_handlers(self):
@@ -178,7 +183,7 @@ class Python_Logger:
         return self.log_handlers_remove(handler)
 
     def log_formatter(self):
-        return logging.Formatter(self.config.log_format)
+        return logging.Formatter(fmt=self.config.log_format, datefmt=self.config.log_date_format)
 
     def log_level(self):
         return self.config.log_level
@@ -189,7 +194,7 @@ class Python_Logger:
         self.config.log_to_console = True
         return self.add_handler_console()
 
-    def add_memory_logger(self):
+    def add_memory_logger(self):                                        # todo: figure out the exact workflow of this, since this memory logger is not tied to the current instance of Python_Logger (it's a global logger)
         self.config.log_to_memory = True
         return self.add_handler_memory()
 
@@ -197,7 +202,7 @@ class Python_Logger:
         self.config.log_to_file = True
         return self.add_handler_file(path_log_file=path_log_file)
 
-    def remove_memory_logger(self):
+    def remove_memory_logger(self):                                     # todo: improve this workflow since this operating at the global loggers level, which means that this will get the first one, not the one from this python_Logger
         memory_logger = self.log_handler_memory()
         if self.log_handlers_remove(memory_logger):
             self.config.log_to_file = False
@@ -235,16 +240,18 @@ class Python_Logger:
                 memory_handler = MemoryHandler(capacity=capacity, flushLevel=flush_level, target=target,flushOnClose=True)
                 memory_handler.setLevel(self.log_level())
                 self.logger.addHandler(memory_handler)
-                return True
-        return False
+                return memory_handler
 
     # Utils
+
     def memory_handler(self) -> MemoryHandler:
         return self.log_handler_memory()
 
     def memory_handler_buffer(self):
         if self.config.log_to_memory:
-            return self.memory_handler().buffer
+            memory_handler = self.memory_handler()
+            if memory_handler:
+                return memory_handler.buffer
         return []
 
     def memory_handler_clear(self):
@@ -253,6 +260,7 @@ class Python_Logger:
             memory_handler.buffer = []
             return True
         return False
+
     def memory_handler_exceptions(self):
         return self.memory_handler_logs(index_by='levelname').get('EXCEPTIONS', {})
 
@@ -272,8 +280,16 @@ class Python_Logger:
         return {}
 
     def memory_handler_messages(self):
-        return [log_entry.get('message') for log_entry in self.memory_handler_logs()]
+        messages = []
+        for log_entry in self.memory_handler_logs():
+            message = log_entry.get('message')  or log_entry.get('msg') or '(log message not found in log entry)' # todo: figure out the scenarios that lead to a value in 'msg' or in 'message'
+            messages.append(message)
+        return messages
 
+    # Root logger
+    def root_logger__clear_handlers(self):              # useful in some debugging sessinon
+        logging.root.handlers.clear()
+        return self
     # Logging methods
 
     # def debug    (self, msg='', *args, **kwargs): return self._log('debug'     , msg, *args, **kwargs)

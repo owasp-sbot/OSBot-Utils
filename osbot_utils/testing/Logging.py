@@ -8,8 +8,9 @@ from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 
 #DEFAULT_LOG_FORMAT  = '%(asctime)s.%(msecs)03d %(levelname)s - %(message)s'
 DEFAULT_LOG_FORMAT  = '%(levelname)s - %(message)s'
-DEFAULT_LOG_LEVEL   = logging.DEBUG
+DEFAULT_LOG_LEVEL   = logging.INFO
 DEFAULT_DATE_FORMAT = '%M:%S'
+
 class Logging:
 
     def __init__(self, target=None, log_level: int = None, log_format=None, log_to_console=False, date_format=None):
@@ -27,7 +28,7 @@ class Logging:
         stream_handler = logging.StreamHandler(stream=stream)
         self.logger().addHandler(stream_handler)
         self.set_logger_level()
-        self.set_format(stream_handler)
+        self.set_format_on_stream_handler(stream_handler)
 
         return stream_handler
 
@@ -38,7 +39,7 @@ class Logging:
                 self.target = self.target.__name__
         return logging.getLogger(self.target)
 
-    def enable_log_to_console(self, log_level=logging.INFO):
+    def enable_log_to_console(self, log_level=None):
         self.log_to_sys_stdout()
         self.set_logger_level(log_level)
         return self
@@ -60,7 +61,7 @@ class Logging:
         return self.add_stream_handler(log_stream)
 
 
-    def set_format(self, stream_handler):
+    def set_format_on_stream_handler(self, stream_handler):
         formatter = logging.Formatter(fmt=self.log_format, datefmt=self.date_format)
         stream_handler.setFormatter(formatter)
         return formatter
@@ -71,7 +72,16 @@ class Logging:
         return self
 
     def set_logger_level(self, level=None):
-        self.logger().setLevel(level or self.log_level)
+        if level:
+            self.log_level = level
+        self.logger().setLevel(self.log_level)
+
+    def set_log_format(self, log_format=None, date_format=None):
+        if log_format:
+            self.log_format  = log_format
+        if date_format:
+            self.date_format = date_format
+        return self
 
 
     def info    (self,message, *args, **kwargs): self.logger().info     (message, *args, **kwargs)

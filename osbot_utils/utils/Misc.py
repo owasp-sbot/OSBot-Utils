@@ -10,11 +10,11 @@ import textwrap
 import re
 import uuid
 import warnings
-from datetime import datetime, timedelta
-from secrets    import token_bytes
-from time import sleep
-from typing import Iterable
-from urllib.parse import  quote_plus, unquote_plus
+from datetime       import datetime, timedelta
+from secrets        import token_bytes
+from time           import sleep
+from typing         import Iterable
+from urllib.parse   import  quote_plus, unquote_plus
 
 
 if sys.version_info >= (3, 11):
@@ -22,11 +22,6 @@ if sys.version_info >= (3, 11):
 else:
     from datetime import timezone                       # For versions before 3.11, we need to use a different method or library to handle UTC
     UTC = timezone.utc
-
-def ansi_text_visible_length(text):
-    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')         # This regex matches the escape sequences used for text formatting
-    visible_text = ansi_escape.sub('', text)       # Remove the escape sequences
-    return len(visible_text)                            # Return the length of the remaining text
 
 def append_random_string(target, length=6, prefix='-'):
     return f'{target}{random_string(length, prefix)}'
@@ -125,7 +120,7 @@ def date_to_str(date, date_format='%Y-%m-%d'):
     return date.strftime(date_format)
 
 #note: this is here at the moment due to a circular dependency with lists and objects
-def list_set(target):
+def list_set(target: object) -> object:
     if hasattr(target, '__iter__'):
         return sorted(list(set(target)))
     return []
@@ -148,8 +143,6 @@ def get_random_color(max=5):
     colors = ['skyblue', 'darkseagreen', 'palevioletred', 'coral', 'darkgray']
     return colors[random_number(0, max-1)]
 
-def in_github_action():
-    return os.getenv('GITHUB_ACTIONS') == 'true'
 
 def is_debugging():
     return sys.gettrace() is not None
@@ -238,8 +231,6 @@ def lower(target : str):
         return target.lower()
     return ""
 
-def not_in_github_action():
-    return in_github_action() is False
 
 def size(target=None):
     if target and hasattr(target, '__len__'):
@@ -264,17 +255,17 @@ def print_time_now(use_utc=True):
     print(time_now(use_utc=use_utc))
 
 def str_sha256(text: str):
-    if text:
+    if type(text) is str:
         return bytes_sha256(text.encode())
     return None
 
 def str_sha384(text:str):
-    if text:
+    if type(text) is str:
         return bytes_sha384(text.encode())
     return
 
 def str_sha384_as_base64(text:str, include_prefix=True):
-    if text:
+    if type(text) is str:
         hash_object = hashlib.sha384(text.encode())
         digest      = hash_object.digest()                                  # Getting the digest of the hash
         digest_base64 = base64.b64encode(digest).decode()                   # Converting the digest to Base64 encoding
@@ -424,6 +415,11 @@ def str_to_base64(target):
 def str_to_bytes(target):
     return target.encode()
 
+def str_to_bool(value):
+    if type(value) is str:
+        return value.lower() in ('true', '1', 'yes')
+    return False
+
 def str_to_date(str_date, format='%Y-%m-%d %H:%M:%S.%f'):
     return datetime.strptime(str_date,format)
 
@@ -490,9 +486,11 @@ date_time_from_timestamp   = timestamp_to_datetime
 date_time_from_time_stamp  = timestamp_to_datetime
 date_time_utc_now          = utc_now
 
+hash_sha256         = str_sha256
 
 new_guid            = random_uuid
 
+sha_256             = str_sha256
 str_lines           = split_lines
 str_remove          = remove
 

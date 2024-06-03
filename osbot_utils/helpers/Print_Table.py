@@ -1,5 +1,5 @@
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.utils.Misc import ansi_text_visible_length
+from osbot_utils.utils.Str                   import ansi_text_visible_length
 
 raw_data = """|-------------------------------------------------------------------------------------|
 | BOTO3 REST calls (via BaseClient._make_api_call)                                    |

@@ -4,11 +4,11 @@ from unittest                       import TestCase
 import pytest
 
 from osbot_utils                    import testing
+from osbot_utils.utils.Env          import in_github_action
 from osbot_utils.testing.Logging    import Logging
 from osbot_utils.testing.Stdout     import Stdout
-from osbot_utils.utils.Env import env__terminal_xterm, env__home_root
-from osbot_utils.utils.Misc import in_github_action
-from osbot_utils.utils.Status import osbot_status
+from osbot_utils.utils.Env          import env__terminal_xterm, env__home_root
+from osbot_utils.utils.Status       import osbot_status
 
 
 #todo see https://opensource.com/article/17/9/python-logging for more capabilities to add to this class
@@ -19,8 +19,8 @@ class test_Logging(TestCase):
         self.logger = logging.getLogger()
         self.original_handlers = self.logger.handlers[:]
         self.logger.handlers = []
-
         self.logging = Logging()
+        self.logging.set_logger_level(logging.DEBUG)
 
 
     def tearDown(self) -> None:

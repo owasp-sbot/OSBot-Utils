@@ -1,0 +1,58 @@
+name: Run tests (aimed at SSH server)
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Run Tests - Unit"]
+    types:
+      - completed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate SSH key
+        id: ssh-key
+        run: |
+          ssh-keygen -t rsa -b 4096 -f /tmp/ssh_key -N ""
+          chmod 600 /tmp/ssh_key          
+
+      - name: Start Docker container
+        run: |
+          docker run -d -p 22222:22 --name test_container -e AUTHORIZED_KEYS="$(cat /tmp/ssh_key.pub)" diniscruz/python_with_ssh
+
+      - name: Install test dependencies
+        run: |
+          pip install pytest
+          pip install -e .
+
+      - name: Run tests (targeted at 'python_with_ssh' docker container) )
+        env:
+          SSH__HOST: localhost
+          SSH__PORT: 22222
+          SSH__KEY_FILE: /tmp/ssh_key
+          SSH__USER: root
+        run: |                    
+          pytest tests/helpers/ssh          
+
+      - name: Viewing docker logs
+        run: |           
+          echo ======= docker logs =======
+          docker logs test_container
+          echo ======= docker logs =======
+
+      - name: Run tests (all in osbot-utils)
+        run: |
+          pytest tests
+
+      - name: Stop and remove Docker container
+        run: |
+          docker stop test_container
+          docker rm test_container
