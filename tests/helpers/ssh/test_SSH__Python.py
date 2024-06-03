@@ -3,12 +3,16 @@ import pytest
 from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
 from osbot_utils.helpers.ssh.SSH__Python import SSH__Python
 from osbot_utils.helpers.ssh.TestCase__SSH import TestCase__SSH
+from osbot_utils.utils.Env import in_github_action
+
 
 class test_SSH__Python(TestCase__SSH):
     ssh_python = SSH__Python
 
     @classmethod
     def setUpClass(cls):
+        if in_github_action():
+            pytest.skip("current target doesn't have python well installed")  # todo: fix this workflow
         super().setUpClass()
         cls.ssh_python = cls.ssh.ssh_python()
 
