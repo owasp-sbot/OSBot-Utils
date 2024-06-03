@@ -11,9 +11,17 @@ from osbot_utils.utils.Misc import list_set
 class test__SSH_Linux(TestCase__SSH):
 
     def setUp(self):
-        self.ssh_linux = SSH__Linux(ssh=self.ssh.ssh_execute())
-        if self.ssh_linux.ssh.ssh_not__setup_ok():
+        self.ssh_linux = self.ssh.ssh_linux()
+        if self.ssh_linux.ssh_execute.ssh_not__setup_ok():
             self.skipTest('ssh is not setup or enabled')
+
+    def test_apt_update(self):
+        with self.ssh_linux as _:
+            assert 'Hit:1' in  _.apt_update()
+
+    def test_apt_install(self):
+        with self.ssh_linux as _:
+            _.apt_install('curl')           # todo add assert
 
     def test_disk_space(self):
         disk_space = self.ssh_linux.disk_space(index_by='Mounted_on')

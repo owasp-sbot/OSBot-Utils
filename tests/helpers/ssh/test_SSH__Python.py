@@ -50,3 +50,24 @@ print(sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
         #     function_return_value = _.execute_python__function__return_stderr(test_osbot_utils)
         #     pprint(function_return_value)
         #     #assert base64_to_str(function_return_value) == 'this will be base64 encoded!'
+
+    def test_install_python3(self):
+        with self.ssh_python as _:
+            result = _.install_python3()
+            assert 'libpython3' in result.get('stdout')
+
+
+    def test_pip_install(self):
+        with self.ssh_python as _:
+            result = _.pip_install('osbot-utils')
+            assert 'Successfully installed osbot-utils' in result
+
+    def test_pip_version(self):
+        with self.ssh_python as _:
+            result = _.pip_version()
+            assert result.startswith('pip 24.0')
+
+    def test_python_version(self):
+        with self.ssh_python as _:
+            result = _.python_version()
+            assert result == 'Python 3.12.2'
