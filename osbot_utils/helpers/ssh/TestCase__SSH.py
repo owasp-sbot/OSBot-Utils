@@ -1,7 +1,5 @@
 from unittest import TestCase
 
-import pytest
-
 import osbot_utils
 from osbot_utils.helpers.ssh.SSH                    import SSH
 from osbot_utils.helpers.ssh.SSH__Cache__Requests   import SSH__Cache__Requests
@@ -20,6 +18,7 @@ class TestCase__SSH(TestCase):
         cls.load_dotenv()
         cls.ssh = SSH().setup()
         if not cls.ssh.ssh_execute().ssh_host:
+            import pytest                           # we can only import this locally since this dependency doesn't exist in the main osbot_utils codebase
             pytest.skip("SSH host not set")
 
         cls.cache = SSH__Cache__Requests()
