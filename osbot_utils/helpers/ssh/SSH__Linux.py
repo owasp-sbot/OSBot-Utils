@@ -54,6 +54,10 @@ class SSH__Linux(Kwargs_To_Self):
         command = f'mkdir -p {folder}'
         return self.ssh.execute_command(command)
 
+    def rm(self, path=''):
+        command = f'rm {path}'
+        return self.ssh.execute_command__return_stderr(command)
+
     def rmdir(self, folder):
         command = f'rmdir {folder}'
         return self.ssh.execute_command(command)
@@ -74,3 +78,20 @@ class SSH__Linux(Kwargs_To_Self):
         command = f'which {target}'                                     # todo: security-vuln: add protection against code injection
         return self.ssh.execute_command__return_stdout(command)
 
+    def whoami(self):
+        command = f'whoami'
+        return self.ssh.execute_command__return_stdout(command)
+
+    # todo: add methods below (and respective tests)
+
+    # def ifconfig(self):
+    #     command = "export PATH=$PATH:/sbin && ifconfig"               # todo add example with PATH modification
+    #     return self.execute_command__return_stdout(command)
+
+    # def ifconfig(self):                                               # todo add command to execute in separate bash (see when it is needed)
+    #     command = "bash -l -c 'ifconfig'"
+    #     return self.execute_command__return_stdout(command)
+    # if port_forward:      # todo: add support for port forward   (this will need async execution)
+    #     local_port  = port_forward.get('local_port' )
+    #     remote_ip   = port_forward.get('remote_ip'  )
+    #     remote_port = port_forward.get('remote_port')
