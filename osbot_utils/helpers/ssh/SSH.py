@@ -13,6 +13,8 @@ class SSH(Type_Safe):       # todo: add ip_address to global vars here, and when
         self.ssh_execute().setup()
         return self
 
+    def exec(self,command):
+        return self.ssh_execute().execute_command(command)
     @cache_on_self
     def scp(self):
         kwargs = self.ssh_execute().__locals__()        # get the current ssh config details
