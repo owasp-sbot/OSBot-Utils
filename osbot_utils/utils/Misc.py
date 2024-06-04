@@ -384,6 +384,9 @@ def random_text(prefix:str=None,length:int=12, lowercase=False):
 def random_uuid():
     return str(uuid.uuid4())
 
+def random_uuid_short():
+    return str(uuid.uuid4())[0:6]
+
 def remove(target_string, string_to_remove):                        # todo: refactor to str_*
     return replace(target_string, string_to_remove, '')
 

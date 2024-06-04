@@ -21,6 +21,7 @@ class SSH__Execute(Type_Safe):
     ssh_key_file      : str
     ssh_key_user      : str
     strict_host_check : bool = False
+    print_after_exec  : bool = False
 
     # execution & other commands # todo refactor into separate class
     def exec(self, command):
@@ -29,7 +30,7 @@ class SSH__Execute(Type_Safe):
     def exec__print(self, command):
         result = self.execute_command__return_stdout(command)
         self.print_header_for_command(command)
-        print(result)
+        self.print_status__stderr__stdout(result)
         return result
 
     def execute_command(self, command):
@@ -38,13 +39,15 @@ class SSH__Execute(Type_Safe):
             with capture_duration() as duration:
                 result          = start_process("ssh", ssh_args)                                 # execute command using subprocess.run(...)
             result['duration']  = duration.data()
+            if self.print_after_exec:
+                self.print_status__stderr__stdout(result)
             return result
         return status_error(error='in execute_command not all required vars were setup')
 
     def execute_command__print(self, command):
         self.print_header_for_command(command)
         result = self.execute_command(command)
-        pprint(result)
+        self.print_status__stderr__stdout(result)
         return result
 
     def execute_ssh_args(self):
@@ -142,8 +145,14 @@ class SSH__Execute(Type_Safe):
     #     pprint(self.ls(path))
     #     return self
 
-    def print_exec(self, command=''):
-        return self.exec__print(command)
+    def print_status__stderr__stdout(self, result):
+        print()
+        print( '┌──────────────────────────────────────────')
+        print(f'├ command: {result.get("command")        }')
+        print(f'│ status : {result.get("status" ).strip()}')
+        print(f'│ stderr : {result.get("stderr" ).strip()}')
+        print(f'│ stdout : {result.get("stdout" ).strip()}')
+        return self
 
     def print_header_for_command(self, command):
         print('\n')
