@@ -17,11 +17,12 @@ class test_SSH(TestCase__SSH):
 
     def test__init__(self):
         with self.ssh_execute as _:
-            assert _.__locals__() == {'ssh_host'          : self.ssh_execute.ssh_host     ,
+            assert _.__locals__() == {'print_after_exec'  : False                         ,
+                                      'ssh_host'          : self.ssh_execute.ssh_host     ,
                                       'ssh_key_file'      : self.ssh_execute.ssh_key_file ,
                                       'ssh_key_user'      : self.ssh_execute.ssh_key_user ,
                                       'ssh_port'          : self.ssh_execute.ssh_port     ,
-                                      'strict_host_check' : False                        }
+                                      'strict_host_check' : False                         }
 
     def test_execute_command(self):
         # result_ssh_host_remove = self.ssh.remove_server_ssh_host_fingerprint()          # todo: find a to handle the case when the

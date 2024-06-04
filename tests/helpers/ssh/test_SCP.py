@@ -38,11 +38,12 @@ class test_SCP(TestCase__SSH):
 
     def test__init__(self):
         with self.scp as _:
-            assert _.__locals__() == {'ssh_host'          : self.ssh_execute.ssh_host     ,
+            assert _.__locals__() == {'print_after_exec'  : False                         ,
+                                      'ssh_host'          : self.ssh_execute.ssh_host     ,
                                       'ssh_port'          : self.ssh_execute.ssh_port     ,
                                       'ssh_key_file'      : self.ssh_execute.ssh_key_file ,
                                       'ssh_key_user'      : self.ssh_execute.ssh_key_user ,
-                                      'strict_host_check' : False             }
+                                      'strict_host_check' : False                         }
 
     @pytest.mark.skip("SCP code and test needs refactoring and broken into smaller components")
     def test_copy_file_to_host(self):
