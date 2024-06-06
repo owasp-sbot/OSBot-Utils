@@ -1,11 +1,17 @@
 import os
+from os.path import abspath
 from unittest import TestCase
 
-from osbot_utils.testing.Temp_File import Temp_File
+from osbot_utils.testing.Temp_Folder import Temp_Folder
+
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Env import env_value, env_vars, env_vars_list, load_dotenv, unload_dotenv, platform_darwin
-from osbot_utils.utils.Files import file_not_exists, file_exists, file_create, file_delete
-from osbot_utils.utils.Lists import list_contains_list
+
+from osbot_utils.testing.Temp_File  import Temp_File
+from osbot_utils.utils.Env import env_value, env_vars, env_vars_list, load_dotenv, unload_dotenv, platform_darwin, \
+    find_dotenv_file
+from osbot_utils.utils.Files import file_not_exists, file_exists, file_create, file_delete, file_full_path, \
+    parent_folder, current_temp_folder, path_combine
+from osbot_utils.utils.Lists        import list_contains_list
 
 
 class test_Env(TestCase):
@@ -49,6 +55,45 @@ class test_Env(TestCase):
             assert "ENV_VAR_2" in env_vars_list()
             assert env_vars_list() == sorted(set(env_vars()))
             assert list_contains_list(env_vars_list(), ['PATH', 'HOME', 'PWD']) is True
+
+    def test_find_dotenv_file(self):
+        assert find_dotenv_file() == file_full_path(test_Env.temp_env_file)                   # we should find the temp .env that was added to the current test folder
+        assert find_dotenv_file(parent_folder(path='.', use_full_path=True)) is None          # there should be no .env paths anywere in the current parent path folders
+        with Temp_Folder() as folder_a:
+            with Temp_Folder(parent_folder=folder_a.full_path) as folder_b:
+                with Temp_Folder(parent_folder=folder_b.full_path) as folder_c:
+                    env_file__in_folder_a = file_create(path_combine(folder_a.full_path, '.env'), 'TEMP__ENV_VAR_A=1')
+                    env_file__in_folder_b = file_create(path_combine(folder_b.full_path, '.env'), 'TEMP__ENV_VAR_B=1')
+                    env_file__in_folder_c = file_create(path_combine(folder_c.full_path, '.env'), 'TEMP__ENV_VAR_C=1')
+
+                    assert parent_folder(folder_c.full_path) == folder_b.full_path
+                    assert parent_folder(folder_b.full_path) == folder_a.full_path
+                    assert parent_folder(folder_a.full_path) == current_temp_folder()
+
+                    assert parent_folder(env_file__in_folder_a) == folder_a.full_path
+                    assert parent_folder(env_file__in_folder_b) == folder_b.full_path
+                    assert parent_folder(env_file__in_folder_c) == folder_c.full_path
+
+                    assert find_dotenv_file(folder_c.full_path) == env_file__in_folder_c
+                    assert find_dotenv_file(folder_b.full_path) == env_file__in_folder_b
+                    assert find_dotenv_file(folder_a.full_path) == env_file__in_folder_a
+
+                    file_delete(env_file__in_folder_c)
+                    assert find_dotenv_file(folder_c.full_path) == env_file__in_folder_b
+                    assert find_dotenv_file(folder_b.full_path) == env_file__in_folder_b
+                    assert find_dotenv_file(folder_a.full_path) == env_file__in_folder_a
+
+                    file_delete(env_file__in_folder_b)
+                    assert find_dotenv_file(folder_c.full_path) == env_file__in_folder_a
+                    assert find_dotenv_file(folder_b.full_path) == env_file__in_folder_a
+                    assert find_dotenv_file(folder_a.full_path) == env_file__in_folder_a
+
+                    file_delete(env_file__in_folder_a)
+                    assert find_dotenv_file(folder_c.full_path) is None
+                    assert find_dotenv_file(folder_b.full_path) is None
+                    assert find_dotenv_file(folder_a.full_path) is None
+
+
 
     def test_load_dotenv(self):
         env_file_data = """

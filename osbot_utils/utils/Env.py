@@ -63,30 +63,32 @@ def env_unload_from_file(path):
                 if key in os.environ:  # Remove the environment variable if it exists
                     del os.environ[key]
 
+def find_dotenv_file(start_path=None, env_file_to_find='.env'):
+    directories = all_parent_folders(path=start_path, include_path=True)  # Define the possible directories to search for the .env file (which is this and all parent folders)
+    for directory in directories:                                         # Iterate through the directories and load the .env file if found
+        env_path = os.path.join(directory,env_file_to_find)               # Define the path to the .env file
+        if os.path.exists(env_path):                                      # If we found one
+            return env_path                                               # return the path to the .env file
+
 def in_github_action():
     return os.getenv('GITHUB_ACTIONS') == 'true'
 
 def in_python_debugger():
     if sys.gettrace() is not None:              # Check for a trace function
         return True
-
     pycharm_hosted           = os.getenv('PYCHARM_HOSTED') == '1'                     # Check for PyCharm specific environment variables and other potential indicators
     pydevd_load_values_async = os.getenv('PYDEVD_LOAD_VALUES_ASYNC') is not None
     if pycharm_hosted and pydevd_load_values_async:
         return True
-
     return False
 
 def load_dotenv(dotenv_path=None, override=False):
-    if dotenv_path:                                                 # If a specific dotenv path is provided, load from it
+    if dotenv_path:                                             # If a specific dotenv path is provided, load from it
         env_load_from_file(dotenv_path, override)
     else:
-        directories = all_parent_folders(include_path=True)         # Define the possible directories to search for the .env file (which is this and all parent folders)
-        for directory in directories:                               # Iterate through the directories and load the .env file if found
-            env_path = os.path.join(directory, '.env')              # Define the path to the .env file
-            if os.path.exists(env_path):                            # If we found one
-                env_load_from_file(env_path, override)              # Process it
-                break                                               # Stop after loading the first .env file                                                     # Stop after loading the first .env file
+        env_file = find_dotenv_file()
+        if env_file:
+            env_load_from_file(env_file, override)              # Process it
 
 
 def not_in_github_action():

@@ -315,8 +315,10 @@ class Files:
             return abspath(join(parent_path,sub_path))
 
     @staticmethod
-    def parent_folder(path):
+    def parent_folder(path, use_full_path=False):
         if path:
+            if use_full_path:
+                path = file_full_path(path)
             return os.path.dirname(path)
 
     @staticmethod
@@ -429,6 +431,8 @@ class Files:
         return path
 
 # todo: refactor the methods above into static methods (as bellow)
+def absolute_path(path):
+    return abspath(path)
 
 def all_parent_folders(path=None, include_path=False):
     if path is None:
@@ -498,6 +502,7 @@ file_create_gz                 = Files.write_gz
 file_exists                    = Files.exists
 file_extension                 = Files.file_extension
 file_extension_fix             = Files.file_extension_fix
+file_full_path                 = absolute_path
 file_lines                     = Files.lines
 file_lines_gz                  = Files.lines_gz
 file_md5                       = Files.contents_md5
