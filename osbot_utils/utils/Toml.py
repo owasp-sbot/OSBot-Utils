@@ -43,3 +43,5 @@ def toml_to_dict(str_toml):
         raise NotImplementedError("TOML parsing is not supported in Python versions earlier than 3.11")
     return tomllib.loads(str_toml)
 
+
+toml_file_load = toml_dict_from_file
