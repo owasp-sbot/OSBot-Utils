@@ -82,7 +82,7 @@ def in_python_debugger():
         return True
     return False
 
-def load_dotenv(dotenv_path=None, override=False):
+def load_dotenv(dotenv_path=None, override=False):              # todo: add detection when we have already loaded the .env (so that we don't load it again)
     if dotenv_path:                                             # If a specific dotenv path is provided, load from it
         env_load_from_file(dotenv_path, override)
     else:

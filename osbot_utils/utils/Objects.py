@@ -211,7 +211,7 @@ def obj_base_classes_names(obj, show_module=False):
             names.append(base.__name__)
     return names
 
-def obj_data(target, name_width=30, value_width=100, show_private=False, show_internals=False, show_value_class=False, show_methods=False, only_show_methods=False):
+def obj_data(target, convert_value_to_str=True, name_width=30, value_width=100, show_private=False, show_internals=False, show_value_class=False, show_methods=False, only_show_methods=False):
     result = {}
     if show_internals:
         show_private = True                                     # show_private will skip all internals, so need to make sure it is True
@@ -226,11 +226,12 @@ def obj_data(target, name_width=30, value_width=100, show_private=False, show_in
             continue
         if only_show_methods:
             value = inspect.signature(value)
-        if value !=None and type(value) not in [bool, int, float]:
-            value       = str(value).encode('unicode_escape').decode("utf-8")
-            value       = str_unicode_escape(value)
-            value       = str_max_width(value, value_width)
-            name        = str_max_width(name, name_width)
+        if value is not None and type(value) not in [bool, int, float]:
+            if convert_value_to_str:
+                value       = str(value).encode('unicode_escape').decode("utf-8")
+                value       = str_unicode_escape(value)
+                value       = str_max_width(value, value_width)
+            name  = str_max_width(name, name_width)                                     # todo: look at the side effects of running this for all (at the moment if we do that we break the test_cache_on_self test)
         result[name] = value
     return result
 

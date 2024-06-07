@@ -4,17 +4,23 @@ from osbot_utils.utils.Misc import random_filename
 
 
 class Temp_File:
-    def __init__(self, contents='...', extension='tmp',file_name=None, ):
+    def __init__(self, contents='...', extension='tmp',file_name=None, return_file_path=False, create_file=True):
         self.tmp_file            = file_name or random_filename(extension)
         self.tmp_folder          = None
         self.file_path           = None
         self.original_contents   = contents
+        self.return_file_path    = return_file_path
+        self.create_file         = create_file
 
     def __enter__(self):
         self.tmp_folder = Files.temp_folder(prefix='temp_folder_')
         self.file_path = Files.path_combine(self.tmp_folder, self.tmp_file)
-        file_create(self.file_path, self.original_contents)
-        return self
+        if self.create_file:
+            file_create(self.file_path, self.original_contents)
+        if self.return_file_path:
+            return self.file_path
+        else:
+            return self
 
     def __exit__(self, type, value, traceback):
         file_delete      (self.file_path)
