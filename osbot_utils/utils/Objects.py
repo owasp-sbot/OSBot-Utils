@@ -226,12 +226,12 @@ def obj_data(target, convert_value_to_str=True, name_width=30, value_width=100, 
             continue
         if only_show_methods:
             value = inspect.signature(value)
-        if value !=None and type(value) not in [bool, int, float]:
+        if value is not None and type(value) not in [bool, int, float]:
             if convert_value_to_str:
                 value       = str(value).encode('unicode_escape').decode("utf-8")
                 value       = str_unicode_escape(value)
                 value       = str_max_width(value, value_width)
-        name  = str_max_width(name, name_width)
+            name  = str_max_width(name, name_width)                                     # todo: look at the side effects of running this for all (at the moment if we do that we break the test_cache_on_self test)
         result[name] = value
     return result
 
