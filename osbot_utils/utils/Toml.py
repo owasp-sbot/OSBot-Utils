@@ -1,5 +1,7 @@
 import sys
 
+from osbot_utils.utils.Files import file_create, file_contents
+
 if sys.version_info >= (3, 11):
     import tomllib
 else:
@@ -27,7 +29,17 @@ def dict_to_toml(data, indent_level=0):
 
     return toml_str
 
-def toml_to_dict(toml_string):
+def toml_dict_to_file(toml_file, data):
+    str_toml = dict_to_toml(data)
+    return file_create(toml_file, str_toml)
+
+def toml_dict_from_file(toml_file):
+    str_toml = file_contents(toml_file)
+    return toml_to_dict(str_toml)
+
+
+def toml_to_dict(str_toml):
     if tomllib is None:
         raise NotImplementedError("TOML parsing is not supported in Python versions earlier than 3.11")
-    return tomllib.loads(toml_string)
+    return tomllib.loads(str_toml)
+
