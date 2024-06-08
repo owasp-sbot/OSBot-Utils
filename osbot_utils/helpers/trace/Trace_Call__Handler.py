@@ -168,7 +168,7 @@ class Trace_Call__Handler(Kwargs_To_Self):
                     capture = False
 
                 for item in self.config.trace_ignore_start_with:                                       # Check if the module should be ignored
-                    if module.startswith(item):
+                    if module.startswith(item) or func_name.startswith(item):
                         capture = False
                         break
         return capture

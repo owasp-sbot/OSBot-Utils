@@ -11,7 +11,7 @@ from osbot_utils.helpers.trace.Trace_Call__View_Model       import Trace_Call__V
 
 
 def trace_calls(title         = None , print_traces = True , show_locals    = False, source_code          = False ,
-                ignore        = None , include      = None , show_path      = False, duration_bigger_than = 0     ,
+                ignore        = None , include      = None , show_path      = False, duration_bigger_than = 0     , trace_depth=0,
                 max_string    = None , show_types   = False, show_duration  = False ,# show_caller    = False     ,         # todo: add back when show_caller is working again
                 show_class    = False, contains     = None , show_internals = False, enabled              = True  ,
                 extra_data    = False, show_lines   = False, print_lines    = False, show_types_padding   = None  , duration_padding=None):
@@ -30,7 +30,8 @@ def trace_calls(title         = None , print_traces = True , show_locals    = Fa
                                  capture_extra_data=extra_data,
                                  print_padding_parent_info= show_types_padding, print_padding_duration=duration_padding,
                                  print_lines_on_exit=print_lines, trace_enabled=enabled,
-                                 trace_capture_lines=show_lines or print_lines)
+                                 trace_capture_lines=show_lines or print_lines,
+                                 trace_up_to_depth=trace_depth)
 
             config = (Trace_Call__Config().update_from_kwargs (**config_kwargs))
 

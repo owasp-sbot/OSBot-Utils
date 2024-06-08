@@ -99,7 +99,8 @@ class Python_Logger(Type_Safe):
     def setup(self, logger_name=None, log_level=None,add_console_logger=False, add_memory_logger=True):
         if logger_name:
             self.logger_name = logger_name
-        self.logger =  logging.getLogger(self.logger_name)
+        if self.logger is None:
+            self.logger =  logging.getLogger(self.logger_name)
         self.setup_log_methods()
         self.set_log_level(log_level)
         if add_console_logger:
