@@ -94,6 +94,9 @@ def load_dotenv(dotenv_path=None, override=False):              # todo: add dete
 def not_in_github_action():
     return in_github_action() is False
 
+def set_env(key, value):
+    os.environ[key] = value
+    return value
 
 def unload_dotenv(dotenv_path=None):
     if dotenv_path:                                                 # If a specific dotenv path is provided, unload from it
