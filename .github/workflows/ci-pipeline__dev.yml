@@ -1,0 +1,44 @@
+name       : CI Pipeline - DEV
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  GIT__BRANCH  : 'dev'
+  PACKAGE_NAME : 'osbot_utils'
+  RELEASE_TYPE : 'minor'
+
+jobs:
+
+  run-unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.7.17, 3.8.18, 3.9.19, 3.10.14, 3.11.9, 3.12.3 , 3.13.0-beta.1 ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Poetry - Install Dependencies
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/poetry__install@dev
+        with:
+          pip_install: '-r requirements-test.txt'
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run Unit Tests (using Poetry)
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/poetry__run-unit-tests@dev
+
+
+  increment-tag:
+    name: Increment Tag - DEV
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Increment Tag (for DEV)
+        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/git__increment-tag@dev
+        with:
+          release_type: ${{env.RELEASE_TYPE}}
+    needs:
+      - run-unit-tests
+
