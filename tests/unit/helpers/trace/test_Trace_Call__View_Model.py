@@ -6,9 +6,8 @@ from osbot_utils.helpers.trace.Trace_Call               import Trace_Call
 from osbot_utils.helpers.trace.Trace_Call__Stack        import Trace_Call__Stack
 from osbot_utils.helpers.trace.Trace_Call__Stack_Node   import Trace_Call__Stack_Node
 from osbot_utils.helpers.trace.Trace_Call__View_Model   import Trace_Call__View_Model
-from osbot_utils.testing.Pytest import skip__if_in_python_debugger
-from osbot_utils.utils.Env import env_vars, in_python_debugger
-from tests.helpers.trace.test_Trace_Call                import dummy_function, another_function
+from osbot_utils.testing.Pytest                         import skip__if_in_python_debugger
+from tests.unit.helpers.trace.test_Trace_Call           import dummy_function, another_function
 
 class test_Trace_Call__View_Model(TestCase):
 

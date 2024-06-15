@@ -17,7 +17,7 @@ from osbot_utils.helpers.trace.Trace_Call__Handler      import Trace_Call__Handl
 from osbot_utils.helpers.trace.Trace_Call__Stack        import Trace_Call__Stack
 from osbot_utils.helpers.trace.Trace_Call__Stack_Node   import Trace_Call__Stack_Node
 from osbot_utils.helpers.trace.Trace_Call__Stats        import Trace_Call__Stats
-from tests.helpers.trace.test_Trace_Call__Stack         import Frames_Test_Data
+from tests.unit.helpers.trace.test_Trace_Call__Stack         import Frames_Test_Data
 
 class test_Trace_Call__Handler(TestCase):
     @classmethod
