@@ -136,5 +136,6 @@ def zip_files(base_folder, file_pattern="*.*", target_file=None):
 
 
 # extra function's mappings
-file_unzip  = unzip_file
-folder_zip  = zip_folder
+file_unzip                = unzip_file
+folder_zip                = zip_folder
+zip_bytes_unzip_to_folder = zip_bytes_extract_to_folder

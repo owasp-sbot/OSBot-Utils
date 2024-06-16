@@ -4,7 +4,7 @@ from osbot_utils.utils.Misc import random_string
 
 from osbot_utils.utils.Files import path_combine, temp_folder_current, safe_file_name, folder_exists, folder_create, \
     folder_delete_recursively, files_list, file_create, folder_files, folders_recursive, files_find, files_recursive, \
-    temp_file_in_folder, create_folder, filter_parent_folder
+    temp_file_in_folder, create_folder, filter_parent_folder, file_contents
 from osbot_utils.utils.Zip import zip_folder
 
 
@@ -91,6 +91,10 @@ class Temp_Folder:
 
     def path(self):
         return self.full_path
+
+    def file_contents(self, target_file):
+        file_path = path_combine(self.full_path, target_file)
+        return file_contents(file_path)
 
     def files(self, show_parent_folder=False, include_folders=False):
         all_files = files_recursive(self.path(), include_folders=include_folders)
