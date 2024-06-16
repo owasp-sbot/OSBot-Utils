@@ -1,5 +1,6 @@
 from osbot_utils.testing.Temp_Folder import Temp_Folder
-from osbot_utils.utils.Files import Files, is_folder, file_exists, file_name
+from osbot_utils.utils.Files import Files, is_folder, file_exists, file_name, file_move_to_folder, file_move, \
+    file_move_to
 from osbot_utils.utils.Zip import zip_folder, zip_file_list
 
 
@@ -43,3 +44,6 @@ class Temp_Zip():
 
     def zip_file_exists(self):
         return file_exists(self.zip_file)
+
+    def move_to(self, target_file):
+        file_move_to(self.zip_file, target_file)

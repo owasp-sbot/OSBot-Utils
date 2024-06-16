@@ -198,7 +198,15 @@ class test_Files(TestCase):
 
 
     def test_path_combine(self):
-        assert path_combine('a', 'b') == f"{path_current()}/a/b"       # todo: add more use cases
+        assert path_combine('a'         , 'b'                   ) == f"{path_current()}/a/b"        # todo: add more use cases
+        assert path_combine("/home/user", "docs/file.txt"       ) == '/home/user/docs/file.txt'
+        assert path_combine("/home/user", "/docs/file.txt"      ) == '/home/user/docs/file.txt'     # check for bug where a / could be used to go to the root
+        assert path_combine("/home/user", "//docs/file.txt"     ) == '/home/user/docs/file.txt'
+        assert path_combine("/home/user", "///docs/file.txt"    ) == '/home/user/docs/file.txt'
+        assert path_combine("/home/user", "////docs/file.txt"   ) == '/home/user/docs/file.txt'
+        assert path_combine("/home/user", "../docs/file.txt"    ) == '/home/docs/file.txt'          # todo: document the fact that this function is vulnerable to path transversal (as a feature)
+        assert path_combine("/home/user", "../../docs/file.txt" ) == '/docs/file.txt'
+        assert path_combine("/home/user", "../../file.txt"      ) == '/file.txt'
 
 
     def test_pickle_save_to_file__pickle_load_from_file(self):
@@ -280,3 +288,4 @@ class test_Files(TestCase):
         assert folder_exists(path_combine(tmp_folder, child_folder)    ) == True
         assert folder_delete_all(tmp_folder                            ) == True
         assert folder_not_exists(path_combine(tmp_folder, child_folder)) == True
+

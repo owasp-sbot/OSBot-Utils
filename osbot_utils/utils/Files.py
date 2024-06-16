@@ -8,6 +8,8 @@ import shutil
 import tempfile
 from   os.path              import abspath, join
 from pathlib import Path, PosixPath
+from typing import Union
+
 from osbot_utils.utils.Misc import bytes_to_base64, base64_to_bytes, random_string
 
 
@@ -306,13 +308,24 @@ class Files:
         return Files.open(path, mode='rb')
 
     @staticmethod
-    def path_combine(path1, path2):
-        if type(path1) in [str, Path] and type(path2) in [str, Path]:
-            parent_path = str(path1)
-            sub_path    = str(path2)
-            if sub_path.startswith('/'):
-                sub_path = sub_path[1:]
-            return abspath(join(parent_path,sub_path))
+    # def path_combine(path1, path2):
+    #     if type(path1) in [str, Path] and type(path2) in [str, Path]:
+    #         parent_path = str(path1)
+    #         sub_path    = str(path2)
+    #         if sub_path.startswith('/'):
+    #             sub_path = sub_path[1:]
+    #         return abspath(join(parent_path,sub_path))
+
+    def path_combine(path1: Union[str, os.PathLike], path2: Union[str, os.PathLike]) -> str:
+        if path1 is None or path2 is None:
+            raise ValueError("Both paths must be provided")
+
+        parent_path = str(path1)
+        sub_path = str(path2)
+
+        sub_path = sub_path.lstrip('/')     # Remove leading slashes from sub_path
+
+        return abspath(join(parent_path, sub_path))
 
     @staticmethod
     def parent_folder(path, use_full_path=False):
@@ -451,8 +464,8 @@ def all_parent_folders(path=None, include_path=False):
             if path and path not in parent_directories:  # to handle the root path case
                 parent_directories.append(path)
             break
-
     return parent_directories
+
 def file_move(source_file, target_file):
     if file_exists(source_file):
         file_copy(source_file, target_file)
@@ -460,6 +473,14 @@ def file_move(source_file, target_file):
             if file_delete(source_file):
                 return True
     return False
+
+def file_move_to_folder(source_file, target_folder):
+    if file_exists(source_file):
+        if folder_exists(target_folder):
+            target_file = path_combine(target_folder, file_name(source_file))
+            if file_move(source_file, target_file):
+                return target_file
+
 
 def folders_names_in_folder(target):
     folders = folders_in_folder(target)
@@ -506,6 +527,7 @@ file_full_path                 = absolute_path
 file_lines                     = Files.lines
 file_lines_gz                  = Files.lines_gz
 file_md5                       = Files.contents_md5
+file_move_to                   = file_move
 file_name                      = Files.file_name
 file_name_without_extension    = Files.file_name_without_extension
 file_not_exists                = Files.not_exists
