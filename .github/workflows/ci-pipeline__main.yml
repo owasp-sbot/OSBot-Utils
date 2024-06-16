@@ -27,12 +27,12 @@ jobs:
 
 
   increment-tag:
-    name: Increment Tag - DEV
+    name: Increment Tag - MAIN
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Increment Tag (for DEV)
+      - name: Increment Tag (for MAIN)
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/git__increment-tag@dev
         with:
           release_type: ${{env.RELEASE_TYPE}}
