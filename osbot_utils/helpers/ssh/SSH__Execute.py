@@ -4,6 +4,7 @@ from osbot_utils.decorators.lists.group_by                  import group_by
 from osbot_utils.decorators.lists.index_by                  import index_by
 from osbot_utils.utils.Dev                                  import pprint
 from osbot_utils.utils.Env                                  import get_env
+from osbot_utils.utils.Http import is_port_open
 from osbot_utils.utils.Misc                                 import str_to_int, str_to_bool
 from osbot_utils.utils.Process import start_process, run_process
 from osbot_utils.utils.Status                               import status_error
@@ -140,10 +141,11 @@ class SSH__Execute(Type_Safe):
     def ssh_not__setup_ok(self):
         return self.ssh_setup_ok() is False
 
-    # print helpers
-    # def print_ls(self, path=''):
-    #     pprint(self.ls(path))
-    #     return self
+    def ssh_host_available(self):
+        return is_port_open(self.ssh_host, self.ssh_port)
+
+    def ssh_host_not_available(self):
+        return self.ssh_host_available() is False
 
     def print_status__stderr__stdout(self, result):
         print()

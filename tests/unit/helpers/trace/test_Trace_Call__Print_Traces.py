@@ -5,7 +5,7 @@ from osbot_utils.utils.Env                              import in_github_action
 from osbot_utils.utils.Misc                             import random_number, wait_for
 from osbot_utils.helpers.trace.Trace_Call               import Trace_Call
 from osbot_utils.helpers.trace.Trace_Call__Print_Traces import Trace_Call__Print_Traces
-from tests.helpers.trace.test_Trace_Call                import another_function
+from tests.unit.helpers.trace.test_Trace_Call           import another_function
 
 
 class test_Trace_Call__Print_Traces(TestCase):
@@ -73,8 +73,8 @@ class test_Trace_Call__Print_Traces(TestCase):
                                                  call('--------- CALL TRACER ----------'),
                                                  call('Here are the 3 traces captured\n'),
                                                  call('\x1b[1m📦  Trace Session\x1b[0m'),
-                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                           tests.helpers.trace.test_Trace_Call'),
-                                                 call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m                                         tests.helpers.trace.test_Trace_Call')]
+                                                 call('\x1b[1m│   └── 🔗️ another_function\x1b[0m                                           tests.unit.helpers.trace.test_Trace_Call'),
+                                                 call('\x1b[1m└────────── 🧩️ dummy_function\x1b[0m                                         tests.unit.helpers.trace.test_Trace_Call')]
 
 
         with patch('builtins.print') as mock_print:

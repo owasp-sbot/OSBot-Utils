@@ -12,8 +12,9 @@ class test__SSH_Linux(TestCase__SSH):
 
     def setUp(self):
         self.ssh_linux = self.ssh.ssh_linux()
-        if self.ssh_linux.ssh_execute.ssh_not__setup_ok():
-            self.skipTest('ssh is not setup or enabled')
+        with self.ssh_linux.ssh_execute as _:
+            if _.ssh_not__setup_ok() or _.ssh_host_not_available():
+                self.skipTest('ssh is not setup or enabled')
 
     def test_apt_update(self):
         if in_github_action():

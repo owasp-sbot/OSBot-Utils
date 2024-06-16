@@ -21,6 +21,10 @@ class TestCase__SSH(TestCase):
             import pytest                           # we can only import this locally since this dependency doesn't exist in the main osbot_utils codebase
             pytest.skip("SSH host not set")
 
+        with cls.ssh.ssh_execute() as _:
+            if _.ssh_not__setup_ok() or _.ssh_host_not_available():
+                cls.skipTest(cls, 'ssh is not setup or enabled')
+
         cls.cache = SSH__Cache__Requests()
         cls.cache.patch_apply()
 

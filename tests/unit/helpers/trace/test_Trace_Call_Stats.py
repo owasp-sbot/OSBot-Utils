@@ -1,6 +1,6 @@
 from unittest import TestCase
 from osbot_utils.helpers.trace.Trace_Call__Stats import Trace_Call__Stats
-from tests.helpers.trace.test_Trace_Call__Stack  import Frames_Test_Data
+from tests.unit.helpers.trace.test_Trace_Call__Stack  import Frames_Test_Data
 
 
 class test_Trace_Call_Stats(TestCase):
@@ -29,9 +29,6 @@ class test_Trace_Call_Stats(TestCase):
         stats.log_frame(test_frames.frame_1)
         stats.log_frame(test_frames.frame_2)
 
-        assert stats.frames_stats() == { 'tests':
-                                             { 'helpers':
-                                                   { 'trace':
-                                                         { 'test_Trace_Call__Stack': { 'get_frame_1': 1, 'get_frame_2': 1}}}}}
+        assert stats.frames_stats() == { 'tests':{'unit': { 'helpers': { 'trace': { 'test_Trace_Call__Stack': { 'get_frame_1': 1, 'get_frame_2': 1}}}}}}
 
 
