@@ -198,7 +198,7 @@ class Files:
         return path
 
     @staticmethod
-    def folder_create_in_parent(path, name):
+    def folder_create_in_parent(path, name):                # todo: revise the naming of this method, since it really doesn't have to do with 'parent' (it will depend on value of name)
         folder_path = path_combine(path, name)
         return folder_create(folder_path)
 
@@ -490,6 +490,15 @@ def file_move_to_folder(source_file, target_folder):
 def folders_names_in_folder(target):
     folders = folders_in_folder(target)
     return folders_names(folders)
+
+def parent_folder_create(target):
+    return folder_create(parent_folder(target))
+
+def parent_folder_exists(target):
+    return folder_exists(parent_folder(target))
+
+def parent_folder_not_exists(target):
+    return parent_folder_exists(target) is False
 
 def stream_to_bytes(stream):
     return stream.read()

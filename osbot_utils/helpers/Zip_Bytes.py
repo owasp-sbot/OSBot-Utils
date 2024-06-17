@@ -1,6 +1,6 @@
 from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import files_list
+from osbot_utils.utils.Files import files_list, file_create_from_bytes, temp_file, parent_folder, parent_folder_create
 from osbot_utils.utils.Zip import zip_bytes_empty, zip_bytes__files, zip_bytes__add_file, zip_bytes__add_files, \
     zip_bytes__replace_files, zip_bytes__replace_file, zip_bytes__file_list, zip_bytes__file, \
     zip_bytes__add_file__from_disk, zip_bytes__add_files__from_disk
@@ -58,6 +58,17 @@ class Zip_Bytes(Type_Safe):
     def replace_file(self, file_path, file_contents):
         self.zip_bytes = zip_bytes__replace_file(self.zip_bytes, file_path, file_contents)
         return self
+
+    def save(self, path=None):
+        if path is None:
+            path = temp_file(extension='.zip')
+        zip_file = file_create_from_bytes(bytes=self.zip_bytes, path=path)
+        return zip_file
+
+    def save_to(self, path):
+        parent_folder_create(path)           # make sure the parent folder exists
+        return self.save(path)
+
 
     def size(self):
         return len(self.files_list())
