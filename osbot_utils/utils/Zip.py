@@ -143,6 +143,12 @@ def zip_file__list(path_zip_file):
             return sorted(zip_file.namelist())
     return []
 
+def zip_file__files(path_zip_file):
+    if is_file(path_zip_file):
+        zip_bytes = file_contents_as_bytes(path_zip_file)
+        return zip_bytes__files(zip_bytes)
+    return []
+
 def zip_file__unzip(path_zip_file, target_folder=None, format='zip'):
     target_folder = target_folder or temp_folder()
     shutil.unpack_archive(path_zip_file, extract_dir=target_folder, format=format)
@@ -226,3 +232,4 @@ zip_bytes__get_file          = zip_bytes__file
 zip_bytes__unzip_to_folder   = zip_bytes__unzip
 
 zip_list_files               = zip_file__list
+zip_file__file_list          = zip_file__list

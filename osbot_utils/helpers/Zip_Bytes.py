@@ -3,7 +3,7 @@ from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import files_list, file_create_from_bytes, temp_file, parent_folder, parent_folder_create
 from osbot_utils.utils.Zip import zip_bytes_empty, zip_bytes__files, zip_bytes__add_file, zip_bytes__add_files, \
     zip_bytes__replace_files, zip_bytes__replace_file, zip_bytes__file_list, zip_bytes__file, \
-    zip_bytes__add_file__from_disk, zip_bytes__add_files__from_disk
+    zip_bytes__add_file__from_disk, zip_bytes__add_files__from_disk, zip_files, zip_file__files
 
 
 class Zip_Bytes(Type_Safe):
@@ -35,6 +35,11 @@ class Zip_Bytes(Type_Safe):
     def add_folder__from_disk(self, base_path, folder_to_add, pattern="*"):
         files_to_add = files_list(folder_to_add, pattern=pattern)
         return self.add_files__from_disk(base_path, files_to_add)
+
+    def add_from_zip_file(self, path_zip_file):
+        files_to_add = zip_file__files(path_zip_file)
+        self.add_files(files_to_add)
+        return self
 
     def empty(self):
         return self.size() == 0
