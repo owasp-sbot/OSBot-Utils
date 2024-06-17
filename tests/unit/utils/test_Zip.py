@@ -6,7 +6,7 @@ from osbot_utils.utils.Misc import random_string
 
 from osbot_utils.utils.Files import file_contents, folder_files, temp_folder_with_temp_file, file_exists, \
     file_extension, folder_exists, file_name
-from osbot_utils.utils.Zip import zip_file_list, unzip_file, folder_zip
+from osbot_utils.utils.Zip import zip_file__list, unzip_file, folder_zip
 
 
 class test_Zip(TestCase):
@@ -29,7 +29,7 @@ class test_Zip(TestCase):
 
         assert file_contents(source_files[0]) == file_contents(target_files[0])
 
-        assert zip_file_list(zip_file)        == ['temp_file.txt']
+        assert zip_file__list(zip_file) == ['temp_file.txt']
 
     def test_zip_file_list(self):
         with Temp_Folder() as temp_folder:

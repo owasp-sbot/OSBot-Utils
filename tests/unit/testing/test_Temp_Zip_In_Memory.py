@@ -8,7 +8,7 @@ from osbot_utils.testing.Temp_File              import Temp_File
 from osbot_utils.utils.Files                    import file_exists, file_delete, file_extension, file_contents
 from osbot_utils.testing.Temp_Folder            import Temp_Folder
 from osbot_utils.testing.Temp_Zip_In_Memory     import Temp_Zip_In_Memory
-from osbot_utils.utils.Zip                      import zip_file_list, zip_bytes_to_file, zip_bytes_get_file
+from osbot_utils.utils.Zip                      import zip_file__list, zip_bytes_to_file, zip_bytes__get_file
 
 
 class test_Temp_Zip_In_Memory(TestCase):
@@ -78,7 +78,7 @@ class test_Temp_Zip_In_Memory(TestCase):
                         assert path_test_file in unzipped_folder.files()
                         assert file_contents(path_test_file) == new_file_contents
 
-                file_contents_from_bytes = zip_bytes_get_file(_.zip_bytes(), new_file_name)
+                file_contents_from_bytes = zip_bytes__get_file(_.zip_bytes(), new_file_name)
                 assert file_contents_from_bytes.decode() == new_file_contents
 
     def test_create_zip_file(self):
@@ -96,7 +96,7 @@ class test_Temp_Zip_In_Memory(TestCase):
                 target_zip_file = _.create_zip_file()  # save in memory zip into disk
                 assert file_exists(target_zip_file)                             # make sure it exists
                 assert file_extension(target_zip_file) == '.zip'                # make sure it has the right extension
-                assert temp_folder.files() == zip_file_list(target_zip_file)    # confirm that all files inside temp_folder are inside the in memory zip file
+                assert temp_folder.files() == zip_file__list(target_zip_file)    # confirm that all files inside temp_folder are inside the in memory zip file
 
         assert file_delete(target_zip_file) is True                             # delete the zip file
 

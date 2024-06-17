@@ -1,7 +1,7 @@
 from osbot_utils.testing.Temp_Folder import Temp_Folder
 from osbot_utils.utils.Files import Files, is_folder, file_exists, file_name, file_move_to_folder, file_move, \
     file_move_to
-from osbot_utils.utils.Zip import zip_folder, zip_file_list
+from osbot_utils.utils.Zip import zip_folder, zip_file__list
 
 
 class Temp_Zip():
@@ -35,7 +35,7 @@ class Temp_Zip():
         return self.zip_file
 
     def files(self):
-        return zip_file_list(self.zip_file)
+        return zip_file__list(self.zip_file)
 
     def print_path(self):
         print()

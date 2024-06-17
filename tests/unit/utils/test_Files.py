@@ -14,7 +14,7 @@ from osbot_utils.utils.Files import Files, path_combine, parent_folder, path_cur
     file_contents_sha256, create_folder_in_parent, sub_folders, safe_file_name, files_find, is_file, is_folder, \
     temp_filename, current_folder, folder_delete, all_parent_folders
 from osbot_utils.utils.Misc   import random_bytes, random_string, remove, bytes_md5, str_to_bytes, bytes_sha256
-from osbot_utils.utils.Zip import zip_files, zip_file_list, unzip_file
+from osbot_utils.utils.Zip import zip_files, zip_file__list, unzip_file
 
 
 class test_Files(TestCase):
@@ -174,9 +174,9 @@ class test_Files(TestCase):
         assert(len(folder_files(target_b)) == 2)
 
         zipped_files = zip_files(target_a)
-        assert zip_file_list(zipped_files) == sorted([remove(file_a, folder_a + '/'),
-                                                      remove(file_b, folder_a + '/'),
-                                                      remove(file_c, folder_a + '/')])
+        assert zip_file__list(zipped_files) == sorted([remove(file_a, folder_a + '/'),
+                                                       remove(file_b, folder_a + '/'),
+                                                       remove(file_c, folder_a + '/')])
 
         path_pattern = f'{folder_a}/**/*.*'
         assert len(files_find(path_pattern)) == 8
