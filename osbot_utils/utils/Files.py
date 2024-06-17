@@ -81,7 +81,7 @@ class Files:
         return glob.glob(path_pattern, recursive=recursive)
 
     @staticmethod
-    def files(path, pattern= '*.*', only_files=True):
+    def files(path, pattern= '*', only_files=True):
         result = []
         for file in Path(path).rglob(pattern):
             if only_files and is_not_file(file):

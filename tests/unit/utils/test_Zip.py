@@ -40,10 +40,13 @@ class test_Zip(TestCase):
         with Zip_Bytes() as _:
             base_folder = parent_folder(osbot_utils.path)
             target_file = __file__
-            assert _.files              (                               ) == {}
-            assert _.add_file__from_disk(base_folder, target_file       ) == _
-            assert _.files_list         (                               ) == ['tests/unit/utils/test_Zip.py']
-            assert _.file               ('tests/unit/utils/test_Zip.py') == str_to_bytes(file_contents(target_file))
+            assert _.files              (                                  ) == {}
+            assert _.add_file__from_disk(target_file, base_path=base_folder) == _
+            assert _.files_list         (                                  ) == ['tests/unit/utils/test_Zip.py']
+            assert _.file               ('tests/unit/utils/test_Zip.py'    ) == str_to_bytes(file_contents(target_file))
+            assert _.add_file__from_disk(target_file                       ) == _
+            assert _.files_list         (                                  ) == ['test_Zip.py', 'tests/unit/utils/test_Zip.py']
+            assert _.file               ('test_Zip.py'                     ) == str_to_bytes(file_contents(target_file))
 
     def test_zip_bytes__add_files__from_disk(self):
         with Zip_Bytes() as _:

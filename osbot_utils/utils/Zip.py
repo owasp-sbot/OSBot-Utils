@@ -52,14 +52,17 @@ def zip_bytes__add_file(zip_bytes, zip_file_path, file_contents):               
 def zip_bytes__add_file__from_disk(zip_bytes, base_path, file_to_add):
     return zip_bytes__add_files__from_disk(zip_bytes, base_path, files_to_add=[file_to_add])
 
-def zip_bytes__add_files__from_disk(zip_bytes, base_path, files_to_add, replace_files=True):
+def zip_bytes__add_files__from_disk(zip_bytes, base_path, files_to_add, replace_files=True, path_prefix=None):
     zip_files_to_add = {}
     if base_path[:-1] != '/':
         base_path += "/"
+
     for file_to_add in files_to_add:
         if file_exists(file_to_add):
             file_contents = file_contents_as_bytes(file_to_add)
             zip_file_path = file_to_add.replace(base_path, '')
+            if path_prefix:
+                zip_file_path = path_prefix + zip_file_path
             zip_files_to_add[zip_file_path] = file_contents
 
     if replace_files:

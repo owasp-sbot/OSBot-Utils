@@ -17,11 +17,11 @@ class test_Zip_Bytes(TestCase):
             assert _.empty() is True
             base_folder   = osbot_utils.path
             target_folder = path_combine(base_folder, 'decorators')
-            _.add_folder__from_disk(base_folder, target_folder, pattern="*.py")
+            _.add_folder__from_disk( target_folder, ".*.py$")
             assert _.empty() is False
             assert _.size() == len(files_list(base_folder, pattern="decorators/**/*.py"))
-            assert 'decorators/methods/cache_on_self.py' in _.files_list()
-            assert '__init__.py' not in _.files_list()
+            assert 'methods/cache_on_self.py' in _.files_list()
+            assert '__init__.py'              in _.files_list()
 
     def test_add_from_zip_file(self):
         zip_file_1 = temp_file('.zip')

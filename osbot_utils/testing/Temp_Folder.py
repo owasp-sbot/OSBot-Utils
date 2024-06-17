@@ -96,6 +96,13 @@ class Temp_Folder:
         file_path = path_combine(self.full_path, target_file)
         return file_contents(file_path)
 
+    def files_contents(self):
+        result = {}
+        for file_path in self.files():
+            full_path         = path_combine(self.full_path, file_path)
+            result[file_path] = file_contents(full_path)
+        return result
+
     def files(self, show_parent_folder=False, include_folders=False):
         all_files = files_recursive(self.path(), include_folders=include_folders)
         if show_parent_folder:
