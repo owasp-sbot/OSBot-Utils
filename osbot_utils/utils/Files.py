@@ -81,10 +81,12 @@ class Files:
         return glob.glob(path_pattern, recursive=recursive)
 
     @staticmethod
-    def files(path, pattern= '*.*'):                        # todo: check behaviour and improve ability to detect file (vs folders)
+    def files(path, pattern= '*.*', only_files=True):
         result = []
         for file in Path(path).rglob(pattern):
-            result.append(str(file))                        # todo: see if there is a better way to do this conversion to string
+            if only_files and is_not_file(file):
+                continue
+            result.append(str(file))                                  # todo: see if there is a better way to do this conversion to string
         return sorted(result)
 
     @staticmethod
@@ -465,6 +467,9 @@ def all_parent_folders(path=None, include_path=False):
                 parent_directories.append(path)
             break
     return parent_directories
+
+def is_not_file(target):
+    return is_file(target) is False
 
 def file_move(source_file, target_file):
     if file_exists(source_file):
