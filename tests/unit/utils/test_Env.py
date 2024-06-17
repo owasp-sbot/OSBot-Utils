@@ -2,6 +2,8 @@ import os
 from os.path import abspath
 from unittest import TestCase
 
+import pytest
+
 from osbot_utils.testing.Temp_Folder import Temp_Folder
 
 from osbot_utils.utils.Dev import pprint
@@ -57,6 +59,9 @@ class test_Env(TestCase):
             assert list_contains_list(env_vars_list(), ['PATH', 'HOME', 'PWD']) is True
 
     def test_find_dotenv_file(self):
+        if find_dotenv_file(parent_folder(path='.', use_full_path=True)) is not None:
+            pytest.skip("this test can only be run when there are no .env files in the parent folders of the current folder")
+
         assert find_dotenv_file() == file_full_path(test_Env.temp_env_file)                   # we should find the temp .env that was added to the current test folder
         assert find_dotenv_file(parent_folder(path='.', use_full_path=True)) is None          # there should be no .env paths anywere in the current parent path folders
         with Temp_Folder() as folder_a:

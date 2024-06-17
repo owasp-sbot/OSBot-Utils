@@ -81,10 +81,12 @@ class Files:
         return glob.glob(path_pattern, recursive=recursive)
 
     @staticmethod
-    def files(path, pattern= '*.*'):                        # todo: check behaviour and improve ability to detect file (vs folders)
+    def files(path, pattern= '*.*', only_files=True):
         result = []
         for file in Path(path).rglob(pattern):
-            result.append(str(file))                        # todo: see if there is a better way to do this conversion to string
+            if only_files and is_not_file(file):
+                continue
+            result.append(str(file))                                  # todo: see if there is a better way to do this conversion to string
         return sorted(result)
 
     @staticmethod
@@ -196,7 +198,7 @@ class Files:
         return path
 
     @staticmethod
-    def folder_create_in_parent(path, name):
+    def folder_create_in_parent(path, name):                # todo: revise the naming of this method, since it really doesn't have to do with 'parent' (it will depend on value of name)
         folder_path = path_combine(path, name)
         return folder_create(folder_path)
 
@@ -466,6 +468,9 @@ def all_parent_folders(path=None, include_path=False):
             break
     return parent_directories
 
+def is_not_file(target):
+    return is_file(target) is False
+
 def file_move(source_file, target_file):
     if file_exists(source_file):
         file_copy(source_file, target_file)
@@ -485,6 +490,15 @@ def file_move_to_folder(source_file, target_folder):
 def folders_names_in_folder(target):
     folders = folders_in_folder(target)
     return folders_names(folders)
+
+def parent_folder_create(target):
+    return folder_create(parent_folder(target))
+
+def parent_folder_exists(target):
+    return folder_exists(parent_folder(target))
+
+def parent_folder_not_exists(target):
+    return parent_folder_exists(target) is False
 
 def stream_to_bytes(stream):
     return stream.read()

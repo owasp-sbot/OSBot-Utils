@@ -6,10 +6,13 @@ import tarfile
 import zipfile
 from os.path import abspath
 
-from osbot_utils.utils.Files import temp_folder, folder_files, temp_file, is_file, file_copy, file_move
+from osbot_utils.utils.Files import temp_folder, folder_files, temp_file, is_file, file_copy, file_move, file_exists, \
+    file_contents_as_bytes
 
+#########################
+# actions on gz_tar_bytes
 
-def gz_tar_bytes_file_list(gz_bytes):
+def gz_tar_bytes__file_list(gz_bytes):
     gz_buffer_from_bytes = io.BytesIO(gz_bytes)
     with gzip.GzipFile(fileobj=gz_buffer_from_bytes, mode='rb') as gz:
         decompressed_data = gz.read()
@@ -17,7 +20,7 @@ def gz_tar_bytes_file_list(gz_bytes):
         with tarfile.open(fileobj=tar_buffer_from_bytes, mode='r:') as tar:
             return sorted(tar.getnames())
 
-def gz_tar_bytes_get_file(gz_bytes, tar_file_path):
+def gz_tar_bytes__get_file(gz_bytes, tar_file_path):
     gz_buffer_from_bytes = io.BytesIO(gz_bytes)
     with gzip.GzipFile(fileobj=gz_buffer_from_bytes, mode='rb') as gz:
         decompressed_data = gz.read()
@@ -29,7 +32,10 @@ def gz_tar_bytes_get_file(gz_bytes, tar_file_path):
             else:
                 raise FileNotFoundError(f"The file {tar_file_path} was not found in the tar archive.")
 
-def gz_zip_bytes_file_list(gz_bytes):
+#########################
+# actions on gz_zip_bytes
+
+def gz_zip_bytes__file_list(gz_bytes):
     gz_buffer_from_bytes = io.BytesIO(gz_bytes)
     with gzip.GzipFile(fileobj=gz_buffer_from_bytes, mode='rb') as gz:
         decompressed_data = gz.read()
@@ -37,28 +43,90 @@ def gz_zip_bytes_file_list(gz_bytes):
         with zipfile.ZipFile(zip_buffer_from_bytes, 'r') as zf:
             return sorted(zf.namelist())
 
-def unzip_file(zip_file, target_folder=None, format='zip'):
-    target_folder = target_folder or temp_folder()
-    shutil.unpack_archive(zip_file, extract_dir=target_folder, format=format)
-    return target_folder
+#########################
+# actions on zipped bytes
 
-def zip_bytes_add_file(zip_bytes, zip_file_path, file_contents):
-    if type(file_contents) is str:
-        file_contents = file_contents.encode('utf-8')
-    elif type(file_contents) is not bytes:
-        return None
-    zip_buffer = io.BytesIO(zip_bytes)
+def zip_bytes__add_file(zip_bytes, zip_file_path, file_contents):                                       # todo: see if this is actually a valid use case (or if we should be using replace in all scenarios)
+    return zip_bytes__add_files(zip_bytes, {zip_file_path: file_contents})
+
+def zip_bytes__add_file__from_disk(zip_bytes, base_path, file_to_add):
+    return zip_bytes__add_files__from_disk(zip_bytes, base_path, files_to_add=[file_to_add])
+
+def zip_bytes__add_files__from_disk(zip_bytes, base_path, files_to_add, replace_files=True):
+    zip_files_to_add = {}
+    if base_path[:-1] != '/':
+        base_path += "/"
+    for file_to_add in files_to_add:
+        if file_exists(file_to_add):
+            file_contents = file_contents_as_bytes(file_to_add)
+            zip_file_path = file_to_add.replace(base_path, '')
+            zip_files_to_add[zip_file_path] = file_contents
+
+    if replace_files:
+        return zip_bytes__replace_files(zip_bytes, zip_files_to_add)
+    else:
+        return zip_bytes__add_files(zip_bytes, zip_files_to_add)                        # todo: see if this is actually a valid use case (or if we should be using replace in all scenarios)
+
+def zip_bytes__add_files(zip_bytes, files_to_add):                                      # todo: see if this is actually a valid use case (or if we should be using replace in all scenarios)
+    zip_buffer = io.BytesIO(zip_bytes)                                                  # Create a BytesIO buffer from the input zip bytes
+
     with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr(zip_file_path, file_contents)
+        for file_path, file_contents in files_to_add.items():
+            if isinstance(file_contents, str):
+                file_contents = file_contents.encode('utf-8')
+            elif not isinstance(file_contents, bytes):
+                continue
+            zf.writestr(file_path, file_contents)
 
     return zip_buffer.getvalue()
 
-def zip_bytes_get_file(zip_bytes, zip_file_path):
+def zip_bytes__file(zip_bytes, zip_file_path):
     zip_buffer = io.BytesIO(zip_bytes)
     with zipfile.ZipFile(zip_buffer, 'r') as zf:
-        return zf.read(zip_file_path)
+        if zip_file_path in zf.namelist():
+            return zf.read(zip_file_path)
 
-def zip_bytes_extract_to_folder(zip_bytes, target_folder=None):
+def zip_bytes__files(zip_bytes):
+    zip_buffer = io.BytesIO(zip_bytes)                      # Create a BytesIO buffer from the input zip bytes
+    files_dict = {}                                         # Create a dictionary to store file contents
+
+    with zipfile.ZipFile(zip_buffer, 'r') as zf:      # Open the zip file in read mode
+        for file_name in zf.namelist():                     # Iterate over each file in the zip archive
+            files_dict[file_name] = zf.read(file_name)      # Read the content of the file
+
+    return files_dict                                       # Return the dictionary with file contents
+
+def zip_bytes__file_list(zip_bytes):
+    zip_buffer_from_bytes = io.BytesIO(zip_bytes)
+    with zipfile.ZipFile(zip_buffer_from_bytes, 'r') as zf:
+        return sorted(zf.namelist())
+
+def zip_bytes__remove_file(zip_bytes, file_to_remove):
+    return zip_bytes__remove_files(zip_bytes, [file_to_remove])
+
+def zip_bytes__remove_files(zip_bytes, files_to_remove):
+    files_to_remove = set(files_to_remove)                                      # Convert files_to_remove to a set for faster lookup
+    zip_buffer      = io.BytesIO(zip_bytes)                                     # Create a BytesIO buffer from the input zip bytes
+    new_zip_buffer  = io.BytesIO()                                              # Create a new BytesIO buffer for the updated zip
+
+    with zipfile.ZipFile(zip_buffer, 'r') as original_zip:
+        with zipfile.ZipFile(new_zip_buffer, 'w') as new_zip:
+            for item in original_zip.infolist():                                # Iterate over each item in the original zip file
+                if item.filename not in files_to_remove:                        # Read the original content and write it to the new zip file
+                    new_zip.writestr(item, original_zip.read(item.filename))
+    return new_zip_buffer.getvalue()                                            # Get the updated zip content as bytes
+
+def zip_bytes__replace_file(zip_bytes, zip_file_path, file_contents):
+    files_to_replace = {zip_file_path: file_contents }
+    return zip_bytes__replace_files(zip_bytes, files_to_replace)
+
+def zip_bytes__replace_files(zip_bytes, files_to_replace):
+    zip_bytes__without_files       = zip_bytes__remove_files(zip_bytes               , set(files_to_replace))
+    zip_bytes__with_replaced_files = zip_bytes__add_files   (zip_bytes__without_files, files_to_replace     )
+    return zip_bytes__with_replaced_files
+
+
+def zip_bytes__unzip(zip_bytes, target_folder=None):
     target_folder = target_folder or temp_folder()              # Use the provided target folder or create a temporary one
     zip_buffer = io.BytesIO(zip_bytes)                          # Create a BytesIO buffer from the zip bytes
     with zipfile.ZipFile(zip_buffer, 'r') as zf:          # Open the zip file from the buffer
@@ -66,10 +134,33 @@ def zip_bytes_extract_to_folder(zip_bytes, target_folder=None):
     return target_folder                                        # Return the path of the target folder
 
 
-def zip_bytes_file_list(zip_bytes):
-    zip_buffer_from_bytes = io.BytesIO(zip_bytes)
-    with zipfile.ZipFile(zip_buffer_from_bytes, 'r') as zf:
-        return sorted(zf.namelist())
+########################
+# actions on zipped file
+
+def zip_file__list(path_zip_file):
+    if is_file(path_zip_file):
+        with zipfile.ZipFile(path_zip_file) as zip_file:
+            return sorted(zip_file.namelist())
+    return []
+
+def zip_file__files(path_zip_file):
+    if is_file(path_zip_file):
+        zip_bytes = file_contents_as_bytes(path_zip_file)
+        return zip_bytes__files(zip_bytes)
+    return []
+
+def zip_file__unzip(path_zip_file, target_folder=None, format='zip'):
+    target_folder = target_folder or temp_folder()
+    shutil.unpack_archive(path_zip_file, extract_dir=target_folder, format=format)
+    return target_folder
+
+# zip creation actions
+def zip_bytes_empty():
+
+    zip_buffer = io.BytesIO()                                               # Create a BytesIO buffer to hold the zip file
+    with zipfile.ZipFile(zip_buffer, mode='w') as _:                        # Use the zipfile.ZipFile class to create an empty zip file
+        pass                                                                # No files to add, so we just create the zip structure
+    return zip_buffer.getvalue()                                            # Get the zip file content as bytes
 
 def zip_bytes_to_file(zip_bytes, target_file=None):
     if target_file is None:
@@ -103,7 +194,6 @@ def zip_folder_to_file (root_dir, target_file):
     zip_file = zip_folder(root_dir)
     return file_move(zip_file, target_file)
 
-
 def zip_folder_to_bytes(root_dir):      # todo add unit test
     zip_buffer = io.BytesIO()                                                   # Create a BytesIO buffer to hold the zipped file
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:          # Create a ZipFile object with the buffer as the target
@@ -114,12 +204,6 @@ def zip_folder_to_bytes(root_dir):      # todo add unit test
                 zf.write(absolute_path, arcname)                                # Add the file to the zip file
     zip_buffer.seek(0)                                                          # Reset buffer position
     return zip_buffer
-
-def zip_file_list(path):
-    if is_file(path):
-        with zipfile.ZipFile(path) as zip_file:
-            return sorted(zip_file.namelist())
-    return []
 
 def zip_files(base_folder, file_pattern="*.*", target_file=None):
     base_folder = abspath(base_folder)
@@ -134,8 +218,18 @@ def zip_files(base_folder, file_pattern="*.*", target_file=None):
 
         return target_file
 
-
+###########################
 # extra function's mappings
-file_unzip                = unzip_file
-folder_zip                = zip_folder
-zip_bytes_unzip_to_folder = zip_bytes_extract_to_folder
+
+file_unzip                   = zip_file__unzip
+folder_zip                   = zip_folder
+
+unzip_file                   = zip_file__unzip
+
+zip_bytes__extract_to_folder = zip_bytes__unzip
+zip_bytes__file_contents     = zip_bytes__file
+zip_bytes__get_file          = zip_bytes__file
+zip_bytes__unzip_to_folder   = zip_bytes__unzip
+
+zip_list_files               = zip_file__list
+zip_file__file_list          = zip_file__list

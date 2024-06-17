@@ -3,7 +3,7 @@ import io
 from osbot_utils.testing.Temp_File import Temp_File
 from osbot_utils.testing.Temp_Folder import Temp_Folder
 from osbot_utils.utils.Files import is_file, is_folder, files_recursive, filter_parent_folder, temp_file
-from osbot_utils.utils.Zip import zip_files_to_bytes, zip_bytes_file_list, zip_bytes_add_file, zip_bytes_get_file
+from osbot_utils.utils.Zip import zip_files_to_bytes, zip_bytes__file_list, zip_bytes__add_file, zip_bytes__get_file
 
 
 class Temp_Zip_In_Memory:
@@ -76,14 +76,14 @@ class Temp_Zip_In_Memory:
         for items in self.targets_as_content:
             file_path     = items.get('file_path')
             file_contents = items.get('file_contents')
-            zip_bytes = zip_bytes_add_file(zip_bytes, file_path, file_contents)
+            zip_bytes = zip_bytes__add_file(zip_bytes, file_path, file_contents)
         return zip_bytes
 
     def zip_bytes_file_content(self, file_path):
-        return zip_bytes_get_file(self.zip_bytes(), file_path)
+        return zip_bytes__get_file(self.zip_bytes(), file_path)
 
     def zip_bytes_files(self):
-        return zip_bytes_file_list(self.zip_bytes())
+        return zip_bytes__file_list(self.zip_bytes())
 
     def zip_buffer(self):
         targets = self.target_files_with_root_folder()
