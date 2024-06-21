@@ -11,8 +11,8 @@ from osbot_utils.helpers.trace.Trace_Call__View_Model       import Trace_Call__V
 
 
 def trace_calls(title         = None , print_traces = True , show_locals    = False, source_code          = False ,
-                ignore        = None , include      = None , show_path      = False, duration_bigger_than = 0     , trace_depth=0,
-                max_string    = None , show_types   = False, show_duration  = False ,# show_caller    = False     ,         # todo: add back when show_caller is working again
+                ignore        = None , include      = None , show_path      = False, duration_bigger_than = 0     ,
+                trace_depth   = 0    , max_string   = None , show_types     = False, show_duration        = False , # show_caller    = False     ,         # todo: add back when show_caller is working again
                 show_class    = False, contains     = None , show_internals = False, enabled              = True  ,
                 extra_data    = False, show_lines   = False, print_lines    = False, show_types_padding   = None  , duration_padding=None):
     def decorator(func):
