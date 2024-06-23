@@ -6,10 +6,10 @@ from osbot_utils.utils.Files    import all_parent_folders, file_exists
 from osbot_utils.utils.Misc     import list_set
 from osbot_utils.utils.Str      import strip_quotes
 
-def env__home_root():
+def env__home_root():                           # todo: this should be refatored to be env__home__is__root
     return os.getenv('HOME') == '/root'
 
-def env__terminal_xterm():
+def env__terminal_xterm():                      # todo: this should be refatored to be env__terminal__is__xterm
     return os.getenv('TERM') == 'xterm'
 
 def env__not_terminal_xterm():
