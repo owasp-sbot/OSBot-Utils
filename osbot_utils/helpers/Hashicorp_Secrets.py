@@ -21,8 +21,8 @@ class Hashicorp_Secrets(Type_Safe):
     def hcp__access_token(self):                                                                    # todo: refactor to remove dependency on requests package (which is not part of the OSBOt_utils project)
         import requests
 
-        access_token = get_env(ENV_VAR__HCP_ACCESS_TOKEN)
-        if access_token is None:
+        access_token = get_env(ENV_VAR__HCP_ACCESS_TOKEN)                   # todo: add better way to detect when the access token as expired
+        if not access_token:
 
             client_id, client_secret = self.hcp__auth_details()
             token_url               = 'https://auth.idp.hashicorp.com/oauth2/token'
