@@ -6,7 +6,7 @@ import pytest
 
 from osbot_utils.helpers.ast.Ast                import Ast
 from osbot_utils.helpers.ast.nodes.Ast_Module   import Ast_Module
-from osbot_utils.utils.Env import env__terminal_xterm, env__home_root
+from osbot_utils.utils.Env import env__terminal__is__xterm, env__home__is__root
 
 
 def the_answer():
@@ -16,7 +16,7 @@ class test_Ast(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        if env__terminal_xterm() or env__home_root():
+        if env__terminal__is__xterm() or env__home__is__root():
             pytest.skip('Skipping tests that are failing in local docker')  # todo: figure out why multiple of these were failing inside docker
         if sys.version_info < (3, 9):
             pytest.skip("Skipping tests that don't work on 3.8 or lower")

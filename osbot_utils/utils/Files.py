@@ -340,6 +340,8 @@ class Files:
     def parent_folder_combine(file, path):
         return Files.path_combine(os.path.dirname(file),path)
 
+
+
     @staticmethod
     def pickle_save_to_file(object_to_save, path=None):
         path = path or temp_file(extension=".pickle")
@@ -491,11 +493,25 @@ def folders_names_in_folder(target):
     folders = folders_in_folder(target)
     return folders_names(folders)
 
+def path_combine_safe(base_path, file_location, raise_exception=False):                                  # handle possible directory transversal attacks
+    full_path            = os.path.join(base_path, file_location)                                       # Combine and normalize paths
+    normalised_base_path = os.path.normpath(base_path)
+    normalised_full_path = os.path.normpath(full_path)
+
+    if os.path.commonpath([normalised_base_path, normalised_full_path]) == normalised_base_path:        # Check for directory traversal
+        return normalised_full_path
+    if raise_exception:
+        raise ValueError("Invalid file location: directory traversal attempt detected.")
+    return None
+
 def parent_folder_create(target):
     return folder_create(parent_folder(target))
 
 def parent_folder_exists(target):
     return folder_exists(parent_folder(target))
+
+def parent_folder_name(target):
+    return folder_name(parent_folder(target))
 
 def parent_folder_not_exists(target):
     return parent_folder_exists(target) is False

@@ -6,7 +6,7 @@ import pytest
 
 from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
 from osbot_utils.utils.Call_Stack                       import call_stack_current_frame
-from osbot_utils.utils.Env import env__terminal_xterm
+from osbot_utils.utils.Env import env__terminal__is__xterm
 from osbot_utils.utils.Functions                        import method_line_number
 from osbot_utils.utils.Misc                             import random_string
 from osbot_utils.helpers.trace.Trace_Call__Handler      import DEFAULT_ROOT_NODE_NODE_TITLE
@@ -18,7 +18,7 @@ class test_Trace_Call__Stack(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        if env__terminal_xterm():
+        if env__terminal__is__xterm():
             pytest.skip('Skipping tests that require terminal_xterm')  # todo: figure out why multiple of these were failing inside docker
         if sys.version_info > (3, 12):
             pytest.skip("Skipping tests that don't work on 3.13 or higher")

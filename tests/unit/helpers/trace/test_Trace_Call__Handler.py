@@ -7,7 +7,7 @@ from osbot_utils.testing.Temp_File import Temp_File
 
 from osbot_utils.helpers.trace.Trace_Call import Trace_Call
 from osbot_utils.utils.Call_Stack                       import call_stack_current_frame
-from osbot_utils.utils.Env import env__terminal_xterm, env__home_root
+from osbot_utils.utils.Env import env__terminal__is__xterm, env__home__is__root
 from osbot_utils.utils.Functions                        import method_line_number
 from osbot_utils.utils.Misc                             import random_value, list_set
 from osbot_utils.utils.Objects                          import base_classes
@@ -22,7 +22,7 @@ from tests.unit.helpers.trace.test_Trace_Call__Stack         import Frames_Test_
 class test_Trace_Call__Handler(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        if env__terminal_xterm() or env__home_root():
+        if env__terminal__is__xterm() or env__home__is__root():
             pytest.skip('Skipping tests that are inside docker')  # todo: figure out why multiple of these were failing inside docker
         if sys.version_info > (3, 12):
             pytest.skip("Skipping tests that don't work on 3.13 or higher")
