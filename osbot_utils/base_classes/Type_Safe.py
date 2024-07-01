@@ -13,9 +13,10 @@ from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Json                     import json_parse
 from osbot_utils.utils.Misc                     import list_set
-from osbot_utils.utils.Objects                  import default_value, value_type_matches_obj_annotation_for_attr, \
+from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
     raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
-    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr
+    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, \
+    convert_dict_to_value_from_obj_annotation
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):
@@ -92,13 +93,9 @@ class Type_Safe:
         if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
             return super().__setattr__(name, value)
 
-            # if self.__type_safety__:
-        #     if self.__lock_attributes__:
-            # todo: this can't work on all, current hypothesis is that this will work for the values that are explicitly set
-            # if not hasattr(self, name):
-            #     raise AttributeError(f"'[Object Locked] Current object is locked (with __lock_attributes__=True) which prevents new attributes allocations (i.e. setattr calls). In this case  {type(self).__name__}' object has no attribute '{name}'") from None
-
         if value is not None:
+            if type(value) is dict:
+                value = convert_dict_to_value_from_obj_annotation(self, name, value)
             check_1 = value_type_matches_obj_annotation_for_attr      (self, name, value)
             check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
             if (check_1 is False and check_2 is None  or
