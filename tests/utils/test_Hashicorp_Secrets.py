@@ -6,7 +6,6 @@ from osbot_utils.helpers.Hashicorp_Secrets import Hashicorp_Secrets
 from osbot_utils.utils.Env                      import load_dotenv
 from osbot_utils.utils.Misc                     import list_set
 
-
 class test_Hashicorp_Secrets(TestCase):
 
     @classmethod

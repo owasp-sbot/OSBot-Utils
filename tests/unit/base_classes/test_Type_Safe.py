@@ -6,7 +6,7 @@ from unittest                                   import TestCase
 
 import pytest
 
-from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self, serialize_to_dict
+from osbot_utils.base_classes.Type_Safe import Type_Safe, serialize_to_dict
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.testing.Catch                  import Catch
 from osbot_utils.testing.Stdout                 import Stdout
@@ -15,9 +15,9 @@ from osbot_utils.utils.Misc                     import random_string, list_set
 from osbot_utils.utils.Objects                  import obj_data
 
 
-class Test_Kwargs_To_Self(TestCase):
+class test_Type_Safe(TestCase):
 
-    class Config_Class(Kwargs_To_Self):
+    class Config_Class(Type_Safe):
         attribute1      = 'default_value'
         attribute2      = True
         callable_attr_1 = print                                             # make it a callable to make sure we also pick up on __default_kwargs__ and__kwargs__
@@ -56,7 +56,7 @@ class Test_Kwargs_To_Self(TestCase):
         # todo: understand better this scenario and if there is a better way to handle
         from functools import cache
 
-        class An_Class(Kwargs_To_Self):
+        class An_Class(Type_Safe):
             @cache
             def with_cache(self):
                 pass
@@ -70,7 +70,7 @@ class Test_Kwargs_To_Self(TestCase):
     def test___cls_kwargs____with_multiple_levels_of_base_classes(self):
         class Base_Class                       :  pass                         # a base class
         class Implements_Base_Class(Base_Class): pass                          # is used as a base class here
-        class An_Class(Kwargs_To_Self):                                        # now when a new class
+        class An_Class(Type_Safe):                                        # now when a new class
             an_var: Base_Class                                                 # creates a var using the base class
         class Extends_An_Class(An_Class):                                      # and another class uses it has a base class
             an_var: Implements_Base_Class
@@ -81,7 +81,7 @@ class Test_Kwargs_To_Self(TestCase):
         if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
             pytest.skip('Skipping test that requires __annotations__')
 
-        class Immutable_Types_Class(Kwargs_To_Self):
+        class Immutable_Types_Class(Type_Safe):
             a_int       : int       = 1
             a_float     : float     = 1.0
             a_str       : str       = "string"
@@ -89,7 +89,7 @@ class Test_Kwargs_To_Self(TestCase):
             a_frozenset : frozenset = frozenset([1, 2])
             a_bytes     : bytes     = b"byte"
 
-        class With_Optional_And_Union(Kwargs_To_Self):
+        class With_Optional_And_Union(Type_Safe):
             optional_int    : Optional[int            ] = None
             union_str_float : Union   [str, float     ] = "string_or_float"
             union_with_none : Optional[Union[int, str]] = None
@@ -100,7 +100,7 @@ class Test_Kwargs_To_Self(TestCase):
         assert with_optional_and_union.__locals__() == {'optional_int': None, 'union_str_float': 'string_or_float', 'union_with_none': None}
 
     def test___default_kwargs__(self):
-        class An_Class(Kwargs_To_Self):
+        class An_Class(Type_Safe):
             attribute1 = 'default_value'
             attribute2 = True
 
@@ -125,7 +125,7 @@ class Test_Kwargs_To_Self(TestCase):
         self.assertNotEqual(instance.attribute1, self.Config_Class().__default_kwargs__()['attribute1'])
 
     # def test_locked(self):
-    #     class An_Class(Kwargs_To_Self):
+    #     class An_Class(Type_Safe):
     #         an_str  : str = '42'
     #
     #     an_class = An_Class()
@@ -153,7 +153,7 @@ class Test_Kwargs_To_Self(TestCase):
         class An_Enum_A(Enum):
             an_value = 1
 
-        class An_Class_A(Kwargs_To_Self):
+        class An_Class_A(Type_Safe):
             an_str : str = '42'
             an_int : int = 42
             an_list : list
@@ -177,7 +177,7 @@ class Test_Kwargs_To_Self(TestCase):
             value_1 = auto()
             value_2 = auto()
 
-        class An_Class(Kwargs_To_Self):
+        class An_Class(Type_Safe):
             an_str  : str
             an_enum : An_Enum
 
@@ -207,7 +207,7 @@ class Test_Kwargs_To_Self(TestCase):
             value_1 = auto()
             value_2 = auto()
 
-        class An_Class(Kwargs_To_Self):
+        class An_Class(Type_Safe):
             an_str  : str
             an_enum : An_Enum
 
@@ -219,7 +219,7 @@ class Test_Kwargs_To_Self(TestCase):
 
 
         #check handing of base classes
-        class An_Base_Class(Kwargs_To_Self):
+        class An_Base_Class(Type_Safe):
             in_base  : str
 
         class An_Parent_Class(An_Base_Class):
@@ -231,10 +231,10 @@ class Test_Kwargs_To_Self(TestCase):
         assert an_parent_class.json() == an_parent_dict
 
         # check nested objects
-        class An_Class_1(Kwargs_To_Self):
+        class An_Class_1(Type_Safe):
             in_class_1 : str
 
-        class An_Class_2(Kwargs_To_Self):
+        class An_Class_2(Type_Safe):
             an_class_1 : An_Class_1
             in_class_2 : str
 
@@ -252,7 +252,7 @@ class Test_Kwargs_To_Self(TestCase):
             value_1 = auto()
             value_2 = auto()
 
-        class An_Class(Kwargs_To_Self):
+        class An_Class(Type_Safe):
             an_str  : str
             an_enum : An_Enum
 
@@ -276,7 +276,7 @@ class Test_Kwargs_To_Self(TestCase):
         if sys.version_info < (3, 9):
             pytest.skip("Skipping test that needs FIXING on 3.8 or lower")
 
-        _ = Kwargs_To_Self.__default__value__
+        _ = Type_Safe.__default__value__
         assert      _(str      )  == ''
         assert      _(int      )  == 0
         assert      _(list     )  == []
@@ -331,7 +331,7 @@ class Test_Kwargs_To_Self(TestCase):
         an_int_value   = 42
         an_str_value   = 'an_str_value'
 
-        class An_Class(Kwargs_To_Self):
+        class An_Class(Type_Safe):
             an_bool    : Optional[bool            ]
             an_int     : Optional[int             ]
             an_str     : Optional[str             ]
@@ -419,7 +419,7 @@ class Test_Kwargs_To_Self(TestCase):
         assert config_2.__kwargs__()         == config_2_kwargs
 
         # confirm that we can't set variables that are not defined in __kwargs__
-        expected_error = ("Catch: <class 'Exception'> : Config_Class has no attribute 'extra_var' and "
+        expected_error = ("Catch: <class 'ValueError'> : Config_Class has no attribute 'extra_var' and "
                           "cannot be assigned the value 'aaa'. "
                           "Use Config_Class.__default_kwargs__() see what attributes are available")
         with Catch(expected_error=expected_error):
@@ -453,7 +453,7 @@ class Test_Kwargs_To_Self(TestCase):
 
     def test__default_kwargs__picks_up_mutable__vars(self):
 
-        class Class_With_Types(Kwargs_To_Self):
+        class Class_With_Types(Type_Safe):
             value_1 = None
             value_2 = 'a'
             value_3 = 1
@@ -494,14 +494,14 @@ class Test_Kwargs_To_Self(TestCase):
 
     def test__default_kwargs__picks_up_bad_types(self):
 
-        class An_Bad_Type(Kwargs_To_Self):
+        class An_Bad_Type(Type_Safe):
             not_an_int: int = "an str"
 
-        expected_error= "Catch: <class 'Exception'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
+        expected_error= "Catch: <class 'ValueError'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
         with Catch(expect_exception=True, expected_error=expected_error):
             An_Bad_Type().__default_kwargs__()
 
-        expected_error = "Catch: <class 'Exception'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
+        expected_error = "Catch: <class 'ValueError'> : variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
         with Catch(expect_exception=True, expected_error=expected_error):
             An_Bad_Type().__default_kwargs__()
 
@@ -513,7 +513,7 @@ class Test_Kwargs_To_Self(TestCase):
 
     def test___init___pics_up_types_with_values(self):
 
-        class An_Class(Kwargs_To_Self):
+        class An_Class(Type_Safe):
             attribute_1 = 'default_value'
             attribute_2 = True
             attribute_3 : bool = True
@@ -543,7 +543,7 @@ class Test_Kwargs_To_Self(TestCase):
         if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
             pytest.skip('Skipping test that requires __annotations__')
 
-        class An_Class(Kwargs_To_Self):
+        class An_Class(Type_Safe):
             attribute_1 = 'default_value'
             attribute_2 = True
             attribute_3 : str            # ok
@@ -554,18 +554,18 @@ class Test_Kwargs_To_Self(TestCase):
             attribute_7 : list = []      # should fail
 
         expected_error=("Catch: <class 'Exception'> : variable 'attribute_7' is defined "
-                        "as type '<class 'list'>' which is not supported by Kwargs_To_Self, "
+                        "as type '<class 'list'>' which is not supported by Type_Safe, "
                         "with only the following immutable types being supported: "
                         "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
                         "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
         with Catch(expect_exception=True, expected_error = expected_error):
             An_Class()
 
-        class An_Class_2(Kwargs_To_Self):
+        class An_Class_2(Type_Safe):
             attribute_8 : dict = {}
 
         expected_error=("Catch: <class 'Exception'> : variable 'attribute_8' is defined "
-                        "as type '<class 'dict'>' which is not supported by Kwargs_To_Self, "
+                        "as type '<class 'dict'>' which is not supported by Type_Safe, "
                         "with only the following immutable types being supported: "
                         "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
                         "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
@@ -579,7 +579,7 @@ class Test_Kwargs_To_Self(TestCase):
                                              'Use Config_Class.__default_kwargs__() see what attributes are available')
 
     def test___set__attr__(self):
-        class An_Class(Kwargs_To_Self):
+        class An_Class(Type_Safe):
             an_str : str
         an_class = An_Class()
         assert an_class.json() == {'an_str': ''}
@@ -596,7 +596,7 @@ class Test_Kwargs_To_Self(TestCase):
 
 
     def test_merge_with(self):
-        class Base_Class(Kwargs_To_Self):
+        class Base_Class(Type_Safe):
             an_int : int
 
         class Target_Class(Base_Class):

@@ -2,8 +2,11 @@ from typing import Optional, Union
 from unittest import TestCase
 
 import pytest
+from osbot_utils.base_classes.Type_Safe import Type_Safe
 
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.utils.Dev import pprint
+
 
 class test_Kwargs_To_Self__bugs(TestCase):
 
@@ -100,7 +103,7 @@ class test_Kwargs_To_Self__bugs(TestCase):
     def test__bug__check_type_safety_assignments__allows_bool_to_int(self):
         an_bool_value = True                                        # this is a bool
 
-        class Should_Raise_Exception(Kwargs_To_Self):               # a class that uses Kwargs_To_Self as a base class
+        class Should_Raise_Exception(Type_Safe):                     # a class that uses Kwargs_To_Self as a base class
             an_int: int = an_bool_value                             # BUG : the an_int variable is defined as an int, but it is assigned a bool
 
         should_raise_exception = Should_Raise_Exception()                                   # BUG an exception should have been raised
@@ -109,3 +112,31 @@ class test_Kwargs_To_Self__bugs(TestCase):
         assert type(an_bool_value                )    is bool                               # confirm an_bool_value is a bool
         assert type(should_raise_exception.an_int)    is bool                               # BUG:  confirming that an_int is a bool
         assert should_raise_exception.__annotations__ == {'an_int': int }                   # confirm that the an_int annotation is int
+
+    def test_bug__should_create_nested_objects_when_loading_dicts(self):                                     # Test method to verify the creation of nested objects from dictionaries.
+        class Class_A(Type_Safe):                                                                            # Define a nested class Class_A inheriting from Type_Safe.
+            an_int: int                                                                                      # Define an attribute 'an_int' of type int.
+            an_str: str                                                                                      # Define an attribute 'an_str' of type str.
+
+        class Class_B(Type_Safe):                                                                            # Define another nested class Class_B inheriting from Type_Safe.
+            an_bool: bool                                                                                    # Define an attribute 'an_bool' of type bool.
+            an_bytes: bytes                                                                                  # Define an attribute 'an_bytes' of type bytes.
+
+        class Class_C(Type_Safe):                                                                            # Define the main class Class_C inheriting from Type_Safe.
+            an_class_a: Class_A                                                                              # Define an attribute 'an_class_a' of type Class_A.
+            an_class_b: Class_B                                                                              # Define an attribute 'an_class_b' of type Class_B.
+
+        class_c = Class_C()                                                                                  # Instantiate an object of Class_C.
+        class_c_as_dict = { 'an_class_a': {'an_int' : 0    , 'an_str'  : '' },                               # Define a dictionary representing class_c with nested dictionaries.
+                            'an_class_b': {'an_bool': False, 'an_bytes': b''}}                               # Define attributes for nested Class_B in the dictionary.
+
+        assert class_c.json() == class_c_as_dict                                                             # Assert that the JSON representation of class_c matches the dictionary.
+        with self.assertRaises(ValueError) as context:                                                       # Assert that ValueError is raised during class instantiation with invalid types.
+            Class_C(**class_c_as_dict)                                                                       # BUG: Attempt to create a Class_C instance with the dictionary.
+
+        assert context.exception.args[0] == ("Invalid type for attribute 'an_class_a'. Expected '<class "    # Verify the exception message for invalid type of 'an_class_a'.
+                                             "'test_Kwargs_To_Self__bugs.test_Kwargs_To_Self__bugs."
+                                             "test_bug__should_create_nested_objects_when_loading_dicts."
+                                             "<locals>.Class_A'>' "
+                                             "but got '<class 'dict'>'")                                     # Complete the verification of the exception message.
+

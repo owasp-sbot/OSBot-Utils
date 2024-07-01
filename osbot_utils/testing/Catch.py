@@ -42,7 +42,7 @@ class Catch:
         if self.expected_error:
             self.assert_error_is(self.expected_error)
         if self.expect_exception and exception_type is None:
-            raise Exception(f'Expected exception: {self.expected_error} but no exception was raised')
+            raise ValueError(f'Expected exception: {self.expected_error} but no exception was raised')
         if self.catch_exception:
             return True     # returning true here will prevent the exception to be propagated (which is the objective of this class :) )
         return False
