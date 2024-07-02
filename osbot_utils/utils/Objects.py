@@ -69,6 +69,9 @@ def base_classes(cls):
         target = type(cls)
     return type_base_classes(target)
 
+def base_classes_names(cls):
+    return [cls.__name__ for cls in base_classes(cls)]
+
 def class_functions_names(target):
     return list_set(class_functions(target))
 
@@ -88,6 +91,17 @@ def class_full_name(target):
         type_module = type_target.__module__
         type_name   = type_target.__name__
         return f'{type_module}.{type_name}'
+
+def convert_dict_to_value_from_obj_annotation(target, attr_name, value):
+    if target is not None and attr_name is not None:
+        if hasattr(target, '__annotations__'):
+            obj_annotations  = target.__annotations__
+            if hasattr(obj_annotations,'get'):
+                attribute_annotation = obj_annotations.get(attr_name)
+                if 'Type_Safe' in base_classes_names(attribute_annotation):
+                    return attribute_annotation(**value)
+    return value
+
 
 def default_value(target : type):
     try:

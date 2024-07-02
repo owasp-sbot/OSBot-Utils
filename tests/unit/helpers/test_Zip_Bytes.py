@@ -3,9 +3,11 @@ from unittest import TestCase
 import osbot_utils
 from osbot_utils.helpers.Zip_Bytes import Zip_Bytes
 from osbot_utils.testing.Temp_Folder import Temp_Folder
+from osbot_utils.testing.Temp_Zip import Temp_Zip
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import path_combine, files_list, file_delete, file_not_exists, file_exists, file_bytes
-from osbot_utils.utils.Zip import zip_file__list
+from osbot_utils.utils.Files import path_combine, files_list, file_delete, file_not_exists, file_exists, file_bytes, \
+    temp_file
+from osbot_utils.utils.Zip import zip_file__list, zip_file__file_list, zip_file__files
 
 
 class test_Zip_Bytes(TestCase):
@@ -15,12 +17,27 @@ class test_Zip_Bytes(TestCase):
             assert _.empty() is True
             base_folder   = osbot_utils.path
             target_folder = path_combine(base_folder, 'decorators')
-            _.add_folder__from_disk(base_folder, target_folder, pattern="*.py")
+            _.add_folder__from_disk( target_folder, ".*.py$")
             assert _.empty() is False
             assert _.size() == len(files_list(base_folder, pattern="decorators/**/*.py"))
-            assert 'decorators/methods/cache_on_self.py' in _.files_list()
-            assert '__init__.py' not in _.files_list()
+            assert 'methods/cache_on_self.py' in _.files_list()
+            assert '__init__.py'              in _.files_list()
 
+    def test_add_from_zip_file(self):
+        zip_file_1 = temp_file('.zip')
+        with Zip_Bytes() as _:
+            _.add_file('a','b')
+            _.save_to(zip_file_1)
+
+        assert file_exists(zip_file_1) is True
+        assert zip_file__file_list(zip_file_1) == ['a']
+        assert zip_file__files    (zip_file_1) == {'a': b'b'}
+
+        with Zip_Bytes() as _:
+            _.add_from_zip_file(zip_file_1)
+            assert _.files() == {'a': b'b'}
+
+        assert file_delete(zip_file_1) is True
     def test_save(self):
         with Zip_Bytes() as _:
             _.add_file('aaaa', 'bbbb')

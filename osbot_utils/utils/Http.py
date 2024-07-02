@@ -22,6 +22,13 @@ def current_host_online(url_to_use=URL_CHECK_HOST_ONLINE):
 def dns_ip_address(host):
     return socket.gethostbyname(host)
 
+def is_url_online(target):
+    try:
+        http_request(target, method='HEAD')
+        return True
+    except:
+        return False
+
 def is_port_open(host, port, timeout=0.5):
     return port_is_open(host=host, port=port, timeout=timeout)
 

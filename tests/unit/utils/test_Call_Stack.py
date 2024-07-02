@@ -8,7 +8,7 @@ import pytest
 from osbot_utils.testing.Patch_Print import Patch_Print
 from osbot_utils.utils.Call_Stack import call_stack_current_frame, call_stack_format_stack, call_stack_frames, \
     call_stack_frames_data, Call_Stack, PRINT_STACK_COLOR_THEMES
-from osbot_utils.utils.Env import platform_darwin, env__terminal_xterm
+from osbot_utils.utils.Env import platform_darwin, env__terminal__is__xterm
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Objects import obj_info, obj_data
 
@@ -18,7 +18,7 @@ class test_Call_Stack(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        if env__terminal_xterm():
+        if env__terminal__is__xterm():
             pytest.skip('Skipping tests that require terminal_xterm')  # todo: figure out why multiple of these were failing inside docker
 
 

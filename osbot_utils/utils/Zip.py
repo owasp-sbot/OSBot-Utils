@@ -52,14 +52,17 @@ def zip_bytes__add_file(zip_bytes, zip_file_path, file_contents):               
 def zip_bytes__add_file__from_disk(zip_bytes, base_path, file_to_add):
     return zip_bytes__add_files__from_disk(zip_bytes, base_path, files_to_add=[file_to_add])
 
-def zip_bytes__add_files__from_disk(zip_bytes, base_path, files_to_add, replace_files=True):
+def zip_bytes__add_files__from_disk(zip_bytes, base_path, files_to_add, replace_files=True, path_prefix=None):
     zip_files_to_add = {}
     if base_path[:-1] != '/':
         base_path += "/"
+
     for file_to_add in files_to_add:
         if file_exists(file_to_add):
             file_contents = file_contents_as_bytes(file_to_add)
             zip_file_path = file_to_add.replace(base_path, '')
+            if path_prefix:
+                zip_file_path = path_prefix + zip_file_path
             zip_files_to_add[zip_file_path] = file_contents
 
     if replace_files:
@@ -141,6 +144,12 @@ def zip_file__list(path_zip_file):
     if is_file(path_zip_file):
         with zipfile.ZipFile(path_zip_file) as zip_file:
             return sorted(zip_file.namelist())
+    return []
+
+def zip_file__files(path_zip_file):
+    if is_file(path_zip_file):
+        zip_bytes = file_contents_as_bytes(path_zip_file)
+        return zip_bytes__files(zip_bytes)
     return []
 
 def zip_file__unzip(path_zip_file, target_folder=None, format='zip'):
@@ -226,3 +235,5 @@ zip_bytes__get_file          = zip_bytes__file
 zip_bytes__unzip_to_folder   = zip_bytes__unzip
 
 zip_list_files               = zip_file__list
+zip_file__file_list          = zip_file__list
+zip_file__files_list         = zip_file__list

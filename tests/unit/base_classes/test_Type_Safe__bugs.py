@@ -2,10 +2,13 @@ from typing import Optional, Union
 from unittest import TestCase
 
 import pytest
+from osbot_utils.base_classes.Type_Safe import Type_Safe
 
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.utils.Dev import pprint
 
-class test_Kwargs_To_Self__bugs(TestCase):
+
+class test_Type_Safe__bugs(TestCase):
 
     def test__bug__check_type_safety_assignments__on_ctor(self):
         an_bool_value = True
@@ -100,7 +103,7 @@ class test_Kwargs_To_Self__bugs(TestCase):
     def test__bug__check_type_safety_assignments__allows_bool_to_int(self):
         an_bool_value = True                                        # this is a bool
 
-        class Should_Raise_Exception(Kwargs_To_Self):               # a class that uses Kwargs_To_Self as a base class
+        class Should_Raise_Exception(Type_Safe):                     # a class that uses Kwargs_To_Self as a base class
             an_int: int = an_bool_value                             # BUG : the an_int variable is defined as an int, but it is assigned a bool
 
         should_raise_exception = Should_Raise_Exception()                                   # BUG an exception should have been raised
@@ -109,3 +112,4 @@ class test_Kwargs_To_Self__bugs(TestCase):
         assert type(an_bool_value                )    is bool                               # confirm an_bool_value is a bool
         assert type(should_raise_exception.an_int)    is bool                               # BUG:  confirming that an_int is a bool
         assert should_raise_exception.__annotations__ == {'an_int': int }                   # confirm that the an_int annotation is int
+

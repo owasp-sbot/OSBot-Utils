@@ -5,7 +5,7 @@ from unittest                                           import TestCase
 
 import pytest
 
-from osbot_utils.utils.Env import env__terminal_xterm
+from osbot_utils.utils.Env import env__terminal__is__xterm
 from osbot_utils.utils.Exceptions                       import syntax_error
 from osbot_utils.utils.Files                            import file_contents
 from osbot_utils.utils.Functions                        import python_file
@@ -45,7 +45,7 @@ class test_Ast_Module(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        if env__terminal_xterm():
+        if env__terminal__is__xterm():
             pytest.skip('Skipping tests that require terminal_xterm')  # todo: figure out why multiple of these were failing inside docker
         if sys.version_info > (3, 12):
             pytest.skip("Skipping tests that don't work on 3.13 or higher")

@@ -6,7 +6,7 @@ from unittest import TestCase
 import pytest
 
 from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Env import platform_darwin, env__terminal_xterm, env__not_terminal_xterm
+from osbot_utils.utils.Env import platform_darwin, env__terminal__is__xterm, env__terminal__is_not__xterm
 from osbot_utils.utils.Objects import obj_info
 
 from osbot_utils.utils.Files import parent_folder, file_name
@@ -19,7 +19,7 @@ class test_Functions(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        if env__terminal_xterm():
+        if env__terminal__is__xterm():
             pytest.skip('Skipping tests that require terminal_xterm')  # todo: figure out why multiple of these were failing inside docker
 
     def test_function_args(self):

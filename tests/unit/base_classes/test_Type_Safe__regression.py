@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from osbot_utils.graphs.mermaid.Mermaid import Mermaid
@@ -16,7 +17,7 @@ from osbot_utils.utils.Misc                  import list_set
 from osbot_utils.utils.Objects import default_value, obj_attribute_annotation
 
 
-class test_Kwargs_To_Self__regression(TestCase):
+class test_Type_Safe__regression(TestCase):
 
     def test_regression_base_class_attributes_set_to_null_when_super_is_used(self):
 
@@ -53,7 +54,7 @@ class test_Kwargs_To_Self__regression(TestCase):
 
         class An_Class(Kwargs_To_Self):
             test_case : TestCase
-        with patch('osbot_utils.base_classes.Kwargs_To_Self.default_value') as patched_default_value:
+        with patch('osbot_utils.base_classes.Type_Safe.default_value') as patched_default_value:
             patched_default_value.side_effect = default_value                   # make sure that the main code uses the original method (i.e. not the patched one)
                                                                                 #       since all we need is the ability to count how many times the method was called
             an_class = An_Class()                                               # create instance of class (which will call default_value via __default__kwargs__)
@@ -450,3 +451,43 @@ class test_Kwargs_To_Self__regression(TestCase):
         # with self.assertRaises(Exception) as context:
         #     An_Class(an_callable=an_local_function)
         # assert context.exception.args[0] == ("Invalid type for attribute 'an_callable'. Expected '<built-in function callable>' but got '<class 'function'>'")
+
+    def test_regression__should_create_nested_objects_when_loading_dicts(self):                              # Test method to verify the creation of nested objects from dictionaries.
+        class Class_A(Type_Safe):                                                                            # Define a nested class Class_A inheriting from Type_Safe.
+            an_int: int                                                                                      # Define an attribute 'an_int' of type int.
+            an_str: str                                                                                      # Define an attribute 'an_str' of type str.
+
+        class Class_B(Type_Safe):                                                                            # Define another nested class Class_B inheriting from Type_Safe.
+            an_bool: bool                                                                                    # Define an attribute 'an_bool' of type bool.
+            an_bytes: bytes                                                                                  # Define an attribute 'an_bytes' of type bytes.
+
+        class Class_C(Type_Safe):                                                                            # Define the main class Class_C inheriting from Type_Safe.
+            an_class_a: Class_A                                                                              # Define an attribute 'an_class_a' of type Class_A.
+            an_class_b: Class_B                                                                              # Define an attribute 'an_class_b' of type Class_B.
+
+        class_c = Class_C()                                                                                  # Instantiate an object of Class_C.
+        class_c_as_dict = { 'an_class_a': {'an_int' : 0    , 'an_str'  : '' },                               # Define a dictionary representing class_c with nested dictionaries.
+                            'an_class_b': {'an_bool': False, 'an_bytes': b''}}                               # Define attributes for nested Class_B in the dictionary.
+
+        assert class_c.json() == class_c_as_dict                                                              # Assert that the JSON representation of class_c matches the dictionary.
+        assert Class_C(**class_c_as_dict).json() == class_c_as_dict                                           # FIXED: now exception is not raised
+
+        class Class_D(Type_Safe):
+            an_class_a: dict
+            an_class_b: dict
+        assert Class_D(**class_c_as_dict).json() == class_c_as_dict                                           # added use case of when both variables are dict
+
+        class Class_F(Type_Safe):
+            an_class_a: dict
+            an_class_b: Class_B
+        assert Class_F(**class_c_as_dict).json() == class_c_as_dict                                           # added use case of when we have a mix
+
+        # with self.assertRaises(ValueError) as context:                                                      # Assert that ValueError is raised during class instantiation with invalid types.
+        #     Class_C(**class_c_as_dict)                                                                      # BUG: Attempt to create a Class_C instance with the dictionary.
+        #
+        # assert context.exception.args[0] == ("Invalid type for attribute 'an_class_a'. Expected '<class "    # Verify the exception message for invalid type of 'an_class_a'.
+        #                                      "'test_Type_Safe__bugs.test_Type_Safe__bugs."
+        #                                      "test_bug__should_create_nested_objects_when_loading_dicts."
+        #                                      "<locals>.Class_A'>' "
+        #                                      "but got '<class 'dict'>'")                                     # Complete the verification of the exception message.
+

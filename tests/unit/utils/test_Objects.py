@@ -9,13 +9,15 @@ from unittest.mock  import patch, call
 
 import pytest
 
+from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.utils.Misc import random_int, list_set
 from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, \
     obj_dict, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
     obj_base_classes, obj_base_classes_names, are_types_compatible_for_assigment, type_mro, \
-    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, pickle_save_to_bytes, pickle_load_from_bytes
+    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, pickle_save_to_bytes, \
+    pickle_load_from_bytes, convert_dict_to_value_from_obj_annotation
 
 
 class test_Objects(TestCase):
@@ -51,6 +53,52 @@ class test_Objects(TestCase):
     def test_class_name(self):
         assert class_name(TestCase)   == "type"
         assert class_name(TestCase()) == "TestCase"
+
+    def test_convert_dict_to_value_from_obj_annotation(self):
+
+        # test case of using dicts (where if the target is a dict, it just should return the value provided)
+        class An_Class(Type_Safe):
+            an_dict : dict
+
+        an_dict = {'a': 1, 'b': 2, 'c': 3}
+        an_class_json = dict(an_dict=an_dict)
+        an_class_1 = An_Class(**an_class_json)
+        assert an_class_1.json() == an_class_json
+
+        an_class_2 = An_Class()
+        result = convert_dict_to_value_from_obj_annotation(an_class_2, 'an_dict', an_dict)
+
+        assert result == an_dict
+
+        # test case of nested classes
+        class Class_A(Type_Safe):
+            an_int: int
+            an_str: str
+
+        class Class_B(Type_Safe):
+            an_bool: bool
+            an_bytes: bytes
+
+        class Class_C(Type_Safe):
+            an_class_a: Class_A
+            an_class_b: Class_B
+
+        an_class_C = Class_C()
+        an_class_c_json = { 'an_class_a': {'an_int' : 0    , 'an_str'  : '' },
+                            'an_class_b': {'an_bool': False, 'an_bytes': b''}}
+        assert an_class_C.json() == an_class_c_json
+
+        an_class_a_json = an_class_c_json.get('an_class_a')
+        an_class_b_json = an_class_c_json.get('an_class_b')
+        assert an_class_a_json == {'an_int': 0, 'an_str': ''}
+
+        result_a = convert_dict_to_value_from_obj_annotation(an_class_C, 'an_class_a', an_class_a_json)
+        assert type(result_a) is Class_A
+        result_b = convert_dict_to_value_from_obj_annotation(an_class_C, 'an_class_b', an_class_b_json)
+        assert type(result_b) is Class_B
+
+        assert Class_C(**an_class_c_json).json() == an_class_c_json
+
 
     def test_default_value(self):
         from decimal     import Decimal
