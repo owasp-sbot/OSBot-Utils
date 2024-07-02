@@ -236,3 +236,4 @@ zip_bytes__unzip_to_folder   = zip_bytes__unzip
 
 zip_list_files               = zip_file__list
 zip_file__file_list          = zip_file__list
+zip_file__files_list         = zip_file__list
