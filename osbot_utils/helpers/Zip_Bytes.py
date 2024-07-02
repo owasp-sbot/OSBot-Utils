@@ -11,8 +11,8 @@ from osbot_utils.utils.Zip import zip_bytes_empty, zip_bytes__files, zip_bytes__
 class Zip_Bytes(Type_Safe):
     zip_bytes : bytes = None
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.zip_bytes = zip_bytes_empty()
 
     def __enter__(self):
