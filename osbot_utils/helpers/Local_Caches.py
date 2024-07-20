@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Dict, List
 from osbot_utils.helpers.Local_Cache import Local_Cache
-from osbot_utils.utils.Files         import current_temp_folder, path_combine,folder_exists, folder_delete
+from osbot_utils.utils.Files import current_temp_folder, path_combine, folder_exists, folder_delete, file_extension
 from osbot_utils.utils.Misc          import random_text
 
 
@@ -41,8 +41,9 @@ class Local_Caches:
         cache_names = []
         for f in self.path_local_caches().iterdir():
             if f.is_file():
-                cache_name = f.name.replace('.json', '')
-                cache_names.append(cache_name)
+                if file_extension(f.name) == '.json':
+                    cache_name = f.name.replace('.json', '')
+                    cache_names.append(cache_name)
         return cache_names
 
     #@cache_on_self

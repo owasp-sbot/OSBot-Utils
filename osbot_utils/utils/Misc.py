@@ -174,7 +174,7 @@ def is_guid(value):
     try:
         uuid_obj = uuid.UUID(value)
         return str(uuid_obj) == value.lower()
-    except ValueError:
+    except Exception:
         return False
 
 

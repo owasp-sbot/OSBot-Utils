@@ -124,10 +124,12 @@ class Sqlite__Database(Kwargs_To_Self):
     def tables_raw(self):
         return self.cursor().tables()
 
-    def tables_names(self, include_sqlite_master=False):
+    def tables_names(self, include_sqlite_master=False, include_indexes=True):
         table_names = self.table__sqlite_master().select_field_values('name')
         if include_sqlite_master:
             table_names.append('sqlite_master')
+        if include_indexes is False:
+            return [table_name for table_name in table_names if table_name.startswith('idx') is False]
         return table_names
 
     def purge_database(self):       # this fells like a better name than vacuum :)
