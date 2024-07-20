@@ -10,6 +10,24 @@ from osbot_utils.utils.Dev import pprint
 
 class test_Type_Safe__bugs(TestCase):
 
+    def test__bug__type_safe_is_not_enforced_on_dict_and_Dict(self):
+        class An_Class(Type_Safe):
+            an_dict : dict[str:int]
+
+        an_class = An_Class()
+
+        assert An_Class.__annotations__ == {'an_dict': dict[slice(str, int, None)]}
+        assert an_class.__locals__() == {'an_dict': {}}
+        assert type(an_class.an_dict) is dict               # BUG: this should be Type_Safe__Dict # todo: see if there is a better way to do this, without needing to replace the Dict object with Type_Safe__Dict (although this technique worked ok for Type_Safe__List)
+        an_class.an_dict[42] = 'an_str'                     # BUG: this should not be allowed
+                                                            #       - using key 42 should have raised exception (it is an int instead of a str)
+                                                            #       - using value 'an_str' should have raised exception (it is a str instead of an int)
+
+
+
+
+
+
     def test__bug__check_type_safety_assignments__on_ctor(self):
         an_bool_value = True
         an_int_value  = 42

@@ -21,11 +21,18 @@ class Sqlite__DB__Files(Sqlite__DB__Local):
     def file(self, path, include_contents=False):
         return self.table_files().file(path, include_contents=include_contents)
 
+    def file_contents(self, path):
+        return self.table_files().file_contents(path)
+
+    def file__with_content(self, path):
+        return self.file(path, include_contents=True)
+
     def file_exists(self, path):
         return self.table_files().file_exists(path)
 
     def file_names(self):
         return self.table_files().select_field_values('path')
+
     @cache_on_self
     def table_files(self):
         return Sqlite__Table__Files(database=self).setup()
