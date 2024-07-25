@@ -1,12 +1,13 @@
+from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.utils.Misc import timestamp_utc_now
 
 
-class capture_duration():
-    def __init__(self):
-        self.duration        = None
-        self.start_timestamp = None
-        self.end_timestamp   = None
-        self.seconds         = None
+class capture_duration(Type_Safe):
+    action_name     : str
+    duration        : float
+    start_timestamp : int
+    end_timestamp   : int
+    seconds         : float
 
     def __enter__(self):
         self.start_timestamp = timestamp_utc_now()
@@ -23,7 +24,10 @@ class capture_duration():
 
     def print(self):
         print()
-        print(f'action took: {self.seconds} seconds')
+        if self.action_name:
+            print(f'action "{self.action_name}" took: {self.seconds} seconds')
+        else:
+            print(f'action took: {self.seconds} seconds')
 
 class print_duration(capture_duration):
 
