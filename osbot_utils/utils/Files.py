@@ -270,7 +270,8 @@ class Files:
         if isinstance(target, Path):
             return target.is_file()
         if type(target) is str:
-            return os.path.isfile(target)
+            if len(target) < 4096:                          # max file size in Linux (handle the cases when the file contents was used as target)
+                return os.path.isfile(target)
         return False
 
     @staticmethod

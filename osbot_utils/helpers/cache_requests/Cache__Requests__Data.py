@@ -101,5 +101,8 @@ class Cache__Requests__Data(Type_Safe):
 
     def response_data_serialize(self, response_data):
         if self.config.pickle_response:
-            return pickle_save_to_bytes(response_data)
+            try:
+                return pickle_save_to_bytes(response_data)
+            except:                                         # todo: look at a better way to handle this and any possible side effects (saw this with a couple boto3 class)
+                return None
         return response_data

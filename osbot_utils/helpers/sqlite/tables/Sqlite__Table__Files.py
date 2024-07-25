@@ -67,6 +67,12 @@ class Sqlite__Table__Files(Sqlite__Table):
             fields = self.field_names_without_content()
         return self.row(where=dict(path=path), fields = fields)
 
+    def file_contents(self, path):
+        fields = ['contents']
+        row    = self.row(where=dict(path=path), fields = fields)
+        if row:
+            return row.get('contents')
+
     def file_without_contents(self, path):
         return self.file(path, include_contents=False)
 

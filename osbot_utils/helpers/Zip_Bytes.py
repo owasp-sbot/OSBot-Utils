@@ -1,6 +1,7 @@
 from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import files_list, file_create_from_bytes, temp_file, parent_folder, parent_folder_create
+from osbot_utils.utils.Misc import random_text
 from osbot_utils.utils.Regex import list__match_regex, list__match_regexes
 from osbot_utils.utils.Zip import zip_bytes_empty, zip_bytes__files, zip_bytes__add_file, zip_bytes__add_files, \
     zip_bytes__replace_files, zip_bytes__replace_file, zip_bytes__file_list, zip_bytes__file, \
@@ -10,8 +11,8 @@ from osbot_utils.utils.Zip import zip_bytes_empty, zip_bytes__files, zip_bytes__
 class Zip_Bytes(Type_Safe):
     zip_bytes : bytes = None
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.zip_bytes = zip_bytes_empty()
 
     def __enter__(self):
@@ -43,6 +44,12 @@ class Zip_Bytes(Type_Safe):
         all_files_in_folder = files_list(folder_to_add)
         files_to_add        = list__match_regexes(all_files_in_folder, *patterns)
         return self.add_files__from_disk(base_path, files_to_add)
+
+    def add_random_file(self):
+        random_file_name     = random_text('file_name'    )
+        random_file_contents = random_text('file_contents')
+        self.add_file(random_file_name, random_file_contents)
+        return self
 
     def add_folder__from_disk__with_prefix(self, folder_to_add, path_prefix, *patterns):
         base_path           = folder_to_add
