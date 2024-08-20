@@ -39,6 +39,7 @@ class test_Trace_Call__Config(TestCase):
                           'trace_capture_start_with'   : []    ,
                           'trace_capture_contains'     : []    ,
                           'trace_enabled'              : True  ,
+                          'trace_ignore_contains'      : []    ,
                           'trace_ignore_start_with'    : []    ,
                           'trace_show_internals'       : False ,
                           'trace_up_to_depth'          : 0     ,

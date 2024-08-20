@@ -52,7 +52,8 @@ class test_Trace_Call(TestCase):
                                                  'started'                : False                                  ,
                                                  'trace_call_handler'     : self.trace_call.trace_call_handler     ,
                                                  'trace_call_view_model'  : self.trace_call.trace_call_view_model  ,
-                                                 'trace_call_print_traces': self.trace_call.trace_call_print_traces}
+                                                 'trace_call_print_traces': self.trace_call.trace_call_print_traces,
+                                                 'trace_on_thread__data'  : {}                                     }
         assert type(self.trace_call.trace_call_handler   ) is Trace_Call__Handler
         assert type(self.trace_call.trace_call_view_model) is Trace_Call__View_Model
 

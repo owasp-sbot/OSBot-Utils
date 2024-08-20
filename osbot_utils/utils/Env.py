@@ -93,6 +93,9 @@ def find_dotenv_file(start_path=None, env_file_to_find='.env'):
 def in_github_action():
     return os.getenv('GITHUB_ACTIONS') == 'true'
 
+def in_pytest_with_coverage():
+    return os.getenv('COVERAGE_RUN') == 'true'
+
 def in_python_debugger():
     if sys.gettrace() is not None:              # Check for a trace function
         return True

@@ -33,6 +33,7 @@ class Trace_Call__Config(Kwargs_To_Self):
     trace_capture_contains     : list
     trace_enabled              : bool = True
     trace_ignore_start_with    : list
+    trace_ignore_contains      : list
     trace_show_internals       : bool
     trace_up_to_depth          : int
     with_duration_bigger_than  : float
