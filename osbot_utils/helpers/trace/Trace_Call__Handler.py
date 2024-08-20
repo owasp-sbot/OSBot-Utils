@@ -20,11 +20,19 @@ GLOBAL_FUNCTIONS_TO_IGNORE   = ['value_type_matches_obj_annotation_for_attr'    
                                 '__default__value__'    ,
                                 '__setattr__'           ,
                                 '<module>']
-GLOBAL_MODULES_TO_IGNORE     = ['osbot_utils.helpers.trace.Trace_Call'             ,            # todo: map out and document why exactly these modules are ignore (and what is the side effect)
-                                'osbot_utils.helpers.CPrint'                       ,            #       also see if this should be done here or at the print/view stage
-                                'osbot_utils.helpers.Print_Table'      ,
-                                'osbot_utils.decorators.methods.cache_on_self'     ,
-                                'codecs']
+GLOBAL_MODULES_TO_IGNORE     = ['osbot_utils.helpers.trace.Trace_Call'               ,            # todo: map out and document why exactly these modules are ignore (and what is the side effect)
+                                'osbot_utils.helpers.trace.Trace_Call__Config'       ,
+                                'osbot_utils.helpers.trace.Trace_Call__View_Model'   ,
+                                'osbot_utils.helpers.trace.Trace_Call__Print_Traces' ,
+                                'osbot_utils.helpers.trace.Trace_Call__Stack'        ,
+                                'osbot_utils.base_classes.Type_Safe'                 ,
+                                'osbot_utils.helpers.CPrint'                         ,            #       also see if this should be done here or at the print/view stage
+                                'osbot_utils.helpers.Print_Table'                    ,
+                                'osbot_utils.decorators.methods.cache_on_self'       ,
+                                'codecs'                                             ]
+
+#GLOBAL_MODULES_TO_IGNORE = []
+#GLOBAL_FUNCTIONS_TO_IGNORE = []
 
 class Trace_Call__Handler(Kwargs_To_Self):
     config : Trace_Call__Config
@@ -169,6 +177,11 @@ class Trace_Call__Handler(Kwargs_To_Self):
 
                 for item in self.config.trace_ignore_start_with:                                       # Check if the module should be ignored
                     if module.startswith(item) or func_name.startswith(item):
+                        capture = False
+                        break
+
+                for item in self.config.trace_ignore_contains:                                       # Check if the module should be ignored
+                    if item in module or item in func_name:
                         capture = False
                         break
         return capture

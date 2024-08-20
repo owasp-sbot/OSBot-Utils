@@ -1,5 +1,6 @@
 import linecache
 import sys
+import threading
 from functools import wraps
 
 from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
@@ -8,6 +9,8 @@ from osbot_utils.helpers.trace.Trace_Call__Handler          import Trace_Call__H
 from osbot_utils.helpers.trace.Trace_Call__Print_Lines      import Trace_Call__Print_Lines
 from osbot_utils.helpers.trace.Trace_Call__Print_Traces     import Trace_Call__Print_Traces
 from osbot_utils.helpers.trace.Trace_Call__View_Model       import Trace_Call__View_Model
+from osbot_utils.testing.Stdout import Stdout
+from osbot_utils.utils.Str import ansi_to_text
 
 
 def trace_calls(title         = None , print_traces = True , show_locals    = False, source_code          = False ,
@@ -59,6 +62,7 @@ class Trace_Call(Kwargs_To_Self):
         self.config.trace_capture_contains                      = self.config.trace_capture_contains   or []          #      and None will be quite common since we can use [] on method's params
         self.config.print_max_string_length                     = self.config.print_max_string_length  or PRINT_MAX_STRING_LENGTH
         self.stack                                              = self.trace_call_handler.stack
+        self.trace_on_thread__data                              = {}
         #self.prev_trace_function                                = None                                                # Stores the previous trace function
 
 
@@ -94,6 +98,13 @@ class Trace_Call(Kwargs_To_Self):
         #self.print_lines()
         return view_model
 
+    def print_to_str(self):
+        with Stdout() as stdout:
+            self.print()
+        trace_data = ansi_to_text(stdout.value())
+        return trace_data
+
+
     def print_lines(self):
         print()
         view_model = self.view_data()
@@ -106,12 +117,45 @@ class Trace_Call(Kwargs_To_Self):
         self.started             = True                                                         # set this here so that it does show in the trace
         sys.settrace(self.trace_call_handler.trace_calls)                                       # Set the new trace function
 
+    def start__on_thread(self, root_node=None):
+        if sys.gettrace() is None:
+            current_thread    = threading.current_thread()
+            thread_sys_trace = sys.gettrace()
+            thread_name       = current_thread.name
+            thread_id         = current_thread.native_id
+            thread_nodes      = []
+            thread_data       = dict(thread_name      = thread_name     ,
+                                     thread_id        = thread_id       ,
+                                     thread_nodes     = thread_nodes    ,
+                                     thread_sys_trace = thread_sys_trace)
+            title = f"Thread: {thread_name} ({thread_id})"
+            thread_node__for_title = self.trace_call_handler.stack.add_node(title=title)         # Add node with name of Thread
+
+            if root_node:                                                                   # Add node with name of node
+                thread_node__for_root = self.trace_call_handler.stack.add_node(root_node)
+                thread_nodes.append(thread_node__for_root)
+            thread_nodes.append(thread_node__for_title)
+            sys.settrace(self.trace_call_handler.trace_calls)
+            self.trace_on_thread__data[thread_id] = thread_data
+
 
     def stop(self):
         if self.started:
             sys.settrace(self.prev_trace_function)                                              # Restore the previous trace function
             self.stack.empty_stack()
             self.started = False
+
+    def stop__on_thread(self):
+        current_thread = threading.current_thread()
+        thread_id      = current_thread.native_id
+        thread_data    = self.trace_on_thread__data.get(thread_id)
+        if thread_data:                                             # if there trace_call set up in the current thread
+            thread_sys_trace = thread_data.get('thread_sys_trace')
+            thread_nodes     = thread_data.get('thread_nodes')
+            for thread_node in thread_nodes:                        # remove extra nodes added during start__on_thread
+                self.trace_call_handler.stack.pop(thread_node)
+            sys.settrace(thread_sys_trace)                          # restore previous sys.trace value
+            del self.trace_on_thread__data[thread_id]
 
     def stats(self):
         return self.trace_call_handler.stats

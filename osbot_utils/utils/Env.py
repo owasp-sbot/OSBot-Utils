@@ -20,7 +20,9 @@ def env__pwd():
     return get_env('PWD', '')
 
 def env__old_pwd__remove(value):
-    return value.replace(env__old_pwd(), '')
+    if env__old_pwd() != '/':                           # can't replace with old pwd is just /
+        return value.replace(env__old_pwd(), '')
+    return value
 
 def env__terminal__is__xterm():
     return os.getenv('TERM') == 'xterm'
@@ -90,6 +92,9 @@ def find_dotenv_file(start_path=None, env_file_to_find='.env'):
 
 def in_github_action():
     return os.getenv('GITHUB_ACTIONS') == 'true'
+
+def in_pytest_with_coverage():
+    return os.getenv('COVERAGE_RUN') == 'true'
 
 def in_python_debugger():
     if sys.gettrace() is not None:              # Check for a trace function

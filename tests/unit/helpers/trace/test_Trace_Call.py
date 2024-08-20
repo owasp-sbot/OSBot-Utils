@@ -52,7 +52,8 @@ class test_Trace_Call(TestCase):
                                                  'started'                : False                                  ,
                                                  'trace_call_handler'     : self.trace_call.trace_call_handler     ,
                                                  'trace_call_view_model'  : self.trace_call.trace_call_view_model  ,
-                                                 'trace_call_print_traces': self.trace_call.trace_call_print_traces}
+                                                 'trace_call_print_traces': self.trace_call.trace_call_print_traces,
+                                                 'trace_on_thread__data'  : {}                                     }
         assert type(self.trace_call.trace_call_handler   ) is Trace_Call__Handler
         assert type(self.trace_call.trace_call_view_model) is Trace_Call__View_Model
 
@@ -262,8 +263,8 @@ class test_Trace_Call(TestCase):
         if sys.version_info < (3, 8):
             pytest.skip("Skipping test that need FIXING on 3.7 or lower")
 
-        if not in_github_action():              # todo: rewrite this test to use an example that is not
-           return                              #       as expensive as Python_Logger since it is taking 200+ms (which is about 50% of the all OSBot_Utils tests
+        if not in_github_action():                                          # todo: rewrite this test to use an example that is not
+            pytest.skip("Skipping locally since it last")   #       as expensive as Python_Logger since it is taking 200+ms (which is about 50% of the all OSBot_Utils tests
         with self.config as _:
             _.all()
             _.up_to_depth(2)
@@ -275,7 +276,7 @@ class test_Trace_Call(TestCase):
                            'Here are the 8 traces captured\n'                ,
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
-                           '\x1b[1m│   │   ├── 🧩️ Python_Logger.__init__\x1b[0m',
+                           '\x1b[1m│   │   ├── 🧩️ Python_Logger_Config.__init__\x1b[0m',
                            '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'    ,
                            '\x1b[1m│   │   ├── 🧩️ set_config\x1b[0m'         ,
                            '\x1b[1m│   │   └── 🧩️ setup\x1b[0m'              ,

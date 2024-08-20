@@ -21,7 +21,8 @@ class test_Trace_Files(TestCase):
                                             'stack'                     : trace_files.stack                  ,
                                             'trace_call_handler'        : trace_files.trace_call_handler     ,
                                             'trace_call_print_traces'   : trace_files.trace_call_print_traces,
-                                            'trace_call_view_model'     : trace_files.trace_call_view_model  }
+                                            'trace_call_view_model'     : trace_files.trace_call_view_model  ,
+                                            'trace_on_thread__data'     : {}                                 }
 
         trace_files.stack.add_node(DEFAULT_ROOT_NODE_NODE_TITLE)
         assert len(trace_files.stack)   == 1
