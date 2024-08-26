@@ -489,6 +489,22 @@ def file_move_to_folder(source_file, target_folder):
             if file_move(source_file, target_file):
                 return target_file
 
+def files_names_without_extension(files):
+    return [file_name_without_extension(file) for file in files]
+
+def files_names_in_folder(target, with_extension=False):
+    if with_extension:
+        return files_names(files_in_folder(target))
+    else:
+        return files_names_without_extension(files_in_folder(target))
+
+def files_in_folder(path,pattern='*', only_files=True):
+    result = []
+    for file in Path(path).glob(pattern):
+        if only_files and is_not_file(file):
+            continue
+        result.append(str(file))                                  # todo: see if there is a better way to do this conversion to string
+    return sorted(result)
 
 def folders_names_in_folder(target):
     folders = folders_in_folder(target)
