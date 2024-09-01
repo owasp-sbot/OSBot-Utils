@@ -26,6 +26,7 @@ def cache_on_self(function: T) -> T:
     def wrapper(*args, **kwargs):
         if len(args) == 0 or inspect.isclass(type(args[0])) is False:
             raise Exception("In Method_Wrappers.cache_on_self could not find self")
+        # todo: fix bug that happens when the value of reload_cache is set to False
         if 'reload_cache' in kwargs:                                        # if the reload parameter is set to True
             reload_cache = True                                             # set reload to True
             del kwargs['reload_cache']                                      # remove the reload parameter from the kwargs

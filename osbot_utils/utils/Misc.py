@@ -8,6 +8,7 @@ import string
 import sys
 import textwrap
 import re
+import threading
 import uuid
 import warnings
 from datetime       import datetime, timedelta
@@ -67,6 +68,10 @@ def convert_to_number(value):
     else:
         return 0
 
+def current_thread_id():
+    return threading.current_thread().native_id
+
+
 def date_time_from_to_str(date_time_str, format_from, format_to, print_conversion_error=False):
     try:
         date_time = datetime.strptime(date_time_str, format_from)
@@ -118,6 +123,9 @@ def date_time_now_less_time_delta(days=0,hours=0, minutes=0, seconds=0, date_tim
 
 def date_to_str(date, date_format='%Y-%m-%d'):
     return date.strftime(date_format)
+
+def date_today():
+    return date_time_now(date_time_format='%Y-%m-%d')
 
 #note: this is here at the moment due to a circular dependency with lists and objects
 def list_set(target: object) -> object:

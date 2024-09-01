@@ -8,11 +8,17 @@ class Stdout:
         self.redirect_stdout = redirect_stdout(self.output)
 
     def __enter__(self):
-        self.redirect_stdout.__enter__()
+        self.start()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.redirect_stdout.__exit__(exc_type, exc_val, exc_tb)
+    def __exit__(self, *args, **kwargs):
+        self.stop(*args, **kwargs)
+
+    def start(self):
+        self.redirect_stdout.__enter__()
+
+    def stop(self, exc_type=None, exc_inst=None, exc_tb=None):
+        self.redirect_stdout.__exit__(exc_type, exc_inst, exc_tb)
 
     def value(self):
         return self.output.getvalue()

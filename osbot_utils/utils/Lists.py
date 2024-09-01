@@ -93,6 +93,9 @@ def list_index_by(values, index_by):
 def list_lower(input_list):
     return [item.lower() for item in input_list]
 
+def list_minus_list(list_a, list_b):
+    return [item for item in list_a if item not in list_b]
+
 def list_not_empty(list):
     if list and type(list).__name__ == 'list' and len(list) >0:
         return True
