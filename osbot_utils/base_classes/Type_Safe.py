@@ -10,6 +10,7 @@ from decimal                                    import Decimal
 from enum                                       import Enum, EnumMeta
 from typing                                     import List
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
+from osbot_utils.helpers.Random_Guid import Random_Guid
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Json                     import json_parse
 from osbot_utils.utils.Misc                     import list_set
@@ -256,15 +257,18 @@ class Type_Safe:
     def deserialize_from_dict(self, data):
         for key, value in data.items():
             if hasattr(self, key) and isinstance(getattr(self, key), Type_Safe):
-                getattr(self, key).deserialize_from_dict(value)                         # Recursive call for complex nested objects
+                getattr(self, key).deserialize_from_dict(value)                             # Recursive call for complex nested objects
             else:
-                if hasattr(self, '__annotations__'):  # can only do type safety checks if the class does not have annotations
+                if hasattr(self, '__annotations__'):                                        # can only do type safety checks if the class does not have annotations
                     if obj_is_attribute_annotation_of_type(self, key, EnumMeta):            # Handle the case when the value is an Enum
                         enum_type = getattr(self, '__annotations__').get(key)
                         if type(value) is not enum_type:                                    # If the value is not already of the target type
                             value = enum_from_value(enum_type, value)                       # Try to resolve the value into the enum
-
-                setattr(self, key, value)                                               # Direct assignment for primitive types and other structures
+                    elif obj_is_attribute_annotation_of_type(self, key, Decimal):           # handle Decimals  # todo: refactor these special cases into a separate method to class
+                        value = Decimal(value)
+                    elif obj_is_attribute_annotation_of_type(self, key, Random_Guid):       # handle Random_Guid objects
+                        value = Random_Guid(value)
+                setattr(self, key, value)                                                   # Direct assignment for primitive types and other structures
 
         return self
 

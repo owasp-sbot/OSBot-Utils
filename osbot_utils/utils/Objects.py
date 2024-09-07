@@ -295,8 +295,13 @@ def obj_attribute_annotation(target, attr_name):
 
 def obj_is_attribute_annotation_of_type(target, attr_name, expected_type):
     attribute_annotation = obj_attribute_annotation(target, attr_name)
-    attribute_type       = type(attribute_annotation)
-    return attribute_type is expected_type
+    #attribute_type       = type(attribute_annotation)
+    #return attribute_type is expected_type
+    if expected_type is attribute_annotation:
+        return True
+    if expected_type is type(attribute_annotation):
+        return True
+    return False
 
 def obj_is_type_union_compatible(var_type, compatible_types):
     origin = get_origin(var_type)

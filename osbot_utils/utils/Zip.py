@@ -221,6 +221,30 @@ def zip_files(base_folder, file_pattern="*.*", target_file=None):
 
         return target_file
 
+# actions on strings
+
+def bytes_to_gz(input_bytes):
+    buf = io.BytesIO()                                          # Create an in-memory bytes buffer
+    with gzip.GzipFile(fileobj=buf, mode='wb') as gz_file:      # Create a gzip file object that writes to the buffer
+        gz_file.write(input_bytes)                              # Write the input bytes to the gzip file object
+    return buf.getvalue()                                       # Get the compressed data from the buffer
+
+def str_to_gz(value):
+    buf = io.BytesIO()                                          # Create an in-memory bytes buffer
+    with gzip.GzipFile(fileobj=buf, mode='wb') as gz_file:      # Create a gzip file object that writes to the buffer
+        gz_file.write(value.encode('utf-8'))                    # Write the input string to the gzip file object
+    return buf.getvalue()                                       # Get the compressed data from the buffer
+
+def gz_to_bytes(gz_data):
+    buf = io.BytesIO(gz_data)                                   # Create an in-memory bytes buffer with the gzip data
+    with gzip.GzipFile(fileobj=buf, mode='rb') as gz_file:      # Create a gzip file object that reads from the buffer
+        return gz_file.read()                                   # Read the decompressed data as bytes
+
+def gz_to_str(gz_data):
+    buf = io.BytesIO(gz_data)                                   # Create an in-memory bytes buffer with the gzip data
+    with gzip.GzipFile(fileobj=buf, mode='rb') as gz_file:      # Create a gzip file object that reads from the buffer
+        return gz_file.read().decode('utf-8')                   # Read the decompressed data and decode it to a string
+
 ###########################
 # extra function's mappings
 

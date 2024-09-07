@@ -1,16 +1,18 @@
+import json
 import sys
 from datetime import datetime
 from unittest import TestCase
 
 import pytest
 
-from osbot_utils.testing.Log_To_String import Log_To_String
 from osbot_utils.utils.Files import file_exists, file_contents
 from osbot_utils.utils.Json import json_save_tmp_file, json_parse, json_loads, json_dumps, json_format, \
     json_load_file, json_load_file_and_delete, json_save_file_pretty_gz, json_load_file_gz, \
-    json_round_trip, json_load_file_gz_and_delete, json_save_file_pretty, json_save_file, json_load
+    json_round_trip, json_load_file_gz_and_delete, json_save_file_pretty, json_save_file, json_load, json_to_gz, \
+    gz_to_json
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Status import send_status_to_logger, osbot_status, osbot_logger
+from osbot_utils.utils.Zip import str_to_gz, gz_to_str
 
 
 class test_Json(TestCase):
@@ -78,7 +80,6 @@ class test_Json(TestCase):
             json_loads(bad_json, raise_exception=True)
         assert context.exception.args[0] == 'Expecting property name enclosed in double quotes: line 1 column 3 (char 2)'
 
-
     def test_json_load_file__json_save_tmp_file(self):
         data = {'answer': 42 }
         json_file = json_save_tmp_file(data)
@@ -109,3 +110,13 @@ class test_Json(TestCase):
     def test_json_round_trip(self):
         data = {'answer': 42}
         assert json_round_trip(data) == data
+
+    def test_json_to_gz(self):
+        data    = dict(answer=42)
+        gz_data = json_to_gz(data)
+
+        assert gz_data                       == str_to_gz(json.dumps(data))
+        assert gz_to_str (gz_data)           == '{"answer": 42}'
+        assert gz_to_json(gz_data)           == data
+        assert gz_to_str(str_to_gz('aaaaa')) == 'aaaaa'
+        assert gz_to_json(json_to_gz(data))  == data

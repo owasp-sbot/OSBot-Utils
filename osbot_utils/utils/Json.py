@@ -3,6 +3,8 @@ import os
 
 from osbot_utils.utils.Misc import str_lines, str_md5, str_sha256
 from osbot_utils.utils.Files import file_create_gz, file_create, load_file_gz, file_contents, file_lines, file_lines_gz
+from osbot_utils.utils.Zip import str_to_gz, gz_to_str
+
 
 def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=str, raise_exception=False):
     if python_object:
@@ -37,6 +39,15 @@ def json_lines_file_load_gz(target_path):
 
 def json_sha_256(target):
     return str_sha256(json_dumps(target))
+
+
+def json_to_gz(data):
+    value = json_dumps(data, pretty=False)
+    return str_to_gz(value)
+
+def gz_to_json(gz_data):
+    data = gz_to_str(gz_data)
+    return json.loads(data)
 
 
 

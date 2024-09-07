@@ -12,7 +12,7 @@ from osbot_utils.utils.Files import file_contents, folder_files, temp_folder_wit
     file_extension, folder_exists, file_name, parent_folder, files_list, is_file, is_folder
 from osbot_utils.utils.Zip import zip_file__list, unzip_file, folder_zip, zip_bytes_empty, zip_bytes__file_list, \
     zip_bytes__add_file, zip_bytes__file, zip_bytes__files, zip_bytes__remove_file, zip_bytes__file_contents, \
-    zip_bytes__replace_file
+    zip_bytes__replace_file, bytes_to_gz, gz_to_bytes
 
 
 # todo: add missing unit tests (lots missing from this class)
@@ -190,12 +190,11 @@ class test_Zip(TestCase):
         assert source_files[0]   != target_files[0]
 
         assert file_contents(source_files[0]) == file_contents(target_files[0])
+        assert zip_file__list(zip_file)       == ['temp_file.txt']
 
-        assert zip_file__list(zip_file) == ['temp_file.txt']
 
-
-    # performance tests
-
-    #def test__performance__zip_bytes__osbot_utils(self):
+    def test_bytes_to_gz(self):
+        input_bytes = b'this is some bytes'
+        assert gz_to_bytes(bytes_to_gz(input_bytes)) == input_bytes
 
 

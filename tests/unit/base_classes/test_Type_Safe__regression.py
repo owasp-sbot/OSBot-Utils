@@ -1,20 +1,21 @@
-import sys
-from typing import Optional, Union, List
-from unittest import TestCase
-from unittest.mock import patch
-
 import pytest
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-from osbot_utils.graphs.mermaid.Mermaid import Mermaid
-from osbot_utils.graphs.mermaid.Mermaid__Graph import Mermaid__Graph
-from osbot_utils.graphs.mermaid.Mermaid__Node import Mermaid__Node
-from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
-from osbot_utils.utils.Misc                  import list_set
-from osbot_utils.utils.Objects import default_value, obj_attribute_annotation
+import sys
+from decimal                                        import Decimal
+from typing                                         import Optional, Union, List
+from unittest                                       import TestCase
+from unittest.mock                                  import patch
+from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
+from osbot_utils.base_classes.Type_Safe             import Type_Safe
+from osbot_utils.base_classes.Type_Safe__List       import Type_Safe__List
+from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
+from osbot_utils.graphs.mermaid.Mermaid             import Mermaid
+from osbot_utils.graphs.mermaid.Mermaid__Graph      import Mermaid__Graph
+from osbot_utils.graphs.mermaid.Mermaid__Node       import Mermaid__Node
+from osbot_utils.graphs.mgraph.MGraph__Node         import MGraph__Node
+from osbot_utils.helpers.Random_Guid                import Random_Guid
+from osbot_utils.utils.Json                         import json_to_str, str_to_json
+from osbot_utils.utils.Misc                         import list_set
+from osbot_utils.utils.Objects                      import default_value, obj_attribute_annotation
 
 
 class test_Type_Safe__regression(TestCase):
@@ -491,3 +492,20 @@ class test_Type_Safe__regression(TestCase):
         #                                      "<locals>.Class_A'>' "
         #                                      "but got '<class 'dict'>'")                                     # Complete the verification of the exception message.
 
+    def test_bug_decimal_and_random_guid_are_not_deserialised_ok(self):
+        class An_Class(Type_Safe):
+            an_decimal : Decimal
+            an_guid    : Random_Guid
+
+        an_class = An_Class(an_decimal= Decimal(1.1))
+
+        an_class_str       = json_to_str(an_class.json())
+        an_class_roundtrip = An_Class.from_json(str_to_json(an_class_str))
+        assert type(an_class_roundtrip)  is An_Class                            # BUG: FIXED: was failing here
+        assert an_class_roundtrip.json() == an_class.json()
+
+        # this was the error before the fix
+        # with self.assertRaises(ValueError) as context:
+        #     An_Class.from_json(str_to_json(an_class_str))
+        # assert context.exception.args[0] == ("Invalid type for attribute 'an_decimal'. Expected '<class "
+        #                                      "'decimal.Decimal'>' but got '<class 'str'>'")
