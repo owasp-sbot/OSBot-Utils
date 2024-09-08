@@ -299,7 +299,8 @@ def serialize_to_dict(obj):
     elif hasattr(obj, "__dict__"):
         data = {}                                           # todo: look at a more advanced version which saved the type of the object, for example with {'__type__': type(obj).__name__}
         for key, value in obj.__dict__.items():
-            data[key] = serialize_to_dict(value)  # Recursive call for complex types
+            if key.startswith('__') is False:               # don't process internal variables (for example the ones set by @cache_on_self)
+                data[key] = serialize_to_dict(value)        # Recursive call for complex types
         return data
     else:
         raise TypeError(f"Type {type(obj)} not serializable")

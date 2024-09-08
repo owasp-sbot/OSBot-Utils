@@ -509,3 +509,17 @@ class test_Type_Safe__regression(TestCase):
         #     An_Class.from_json(str_to_json(an_class_str))
         # assert context.exception.args[0] == ("Invalid type for attribute 'an_decimal'. Expected '<class "
         #                                      "'decimal.Decimal'>' but got '<class 'str'>'")
+
+    def test__regression__json_is_trying_to_serialise__cache_on_self(self):
+        class An_Class(Type_Safe):
+            an_str : str
+            @cache_on_self
+            def cached_value(self):
+                self.an_str = '42'
+                return 42
+
+        an_class = An_Class()
+        assert an_class.json() == {'an_str': ''}
+        an_class.cached_value()
+        assert an_class.json() == {#'__cache_on_self___cached_value__': 42,  # BUG: FIXED: was this should have not been cached
+                                   'an_str': '42'}
