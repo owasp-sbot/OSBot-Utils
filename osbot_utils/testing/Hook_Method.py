@@ -5,15 +5,17 @@ from osbot_utils.testing.Duration import Duration
 
 class Hook_Method:
 
-    def __init__(self, target_module, target_method):
+    def __init__(self, target_module, target_method, raise_exception=True):
         self.target_module   = target_module
         self.target_method   = target_method
+        self.raise_exception = raise_exception                              # todo: figure out the impact of raising this by default
         self.target          = getattr(target_module, target_method)
         self.wrapper_method  = None
         self.calls           = []
         self.on_before_call  = []
         self.on_after_call   = []
         self.mock_call       = None
+
 
     def __enter__(self):
         self.wrap()
@@ -107,6 +109,8 @@ class Hook_Method:
                         'duration'    : int(duration.seconds()*1000)
                     }
             self.calls.append(call)
+            if self.raise_exception and exception:
+                raise exception
             return call['return_value']
 
         self.wrapper_method = wrapper_method
