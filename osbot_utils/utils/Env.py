@@ -6,6 +6,9 @@ from osbot_utils.utils.Files    import all_parent_folders, file_exists
 from osbot_utils.utils.Misc     import list_set
 from osbot_utils.utils.Str      import strip_quotes
 
+def del_env(key):
+    if key in os.environ:
+        del os.environ[key]
 
 def env__home():
     return get_env('HOME', '')

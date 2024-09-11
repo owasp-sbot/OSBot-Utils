@@ -112,9 +112,9 @@ class Files:
             return os.path.basename(path)
 
     @staticmethod
-    def file_name_without_extension(path):
+    def file_name_without_extension(path, check_if_exists=False):
         if path:
-            path_file_name = file_name(path)
+            path_file_name = file_name(path,check_if_exists=check_if_exists)
             extension = file_extension(path_file_name)
             if extension:
                 return path_file_name.replace(extension, '')
@@ -489,8 +489,8 @@ def file_move_to_folder(source_file, target_folder):
             if file_move(source_file, target_file):
                 return target_file
 
-def files_names_without_extension(files):
-    return [file_name_without_extension(file) for file in files]
+def files_names_without_extension(files, check_if_exists=False):
+    return [file_name_without_extension(file, check_if_exists) for file in files]
 
 def files_names_in_folder(target, with_extension=False):
     if with_extension:
