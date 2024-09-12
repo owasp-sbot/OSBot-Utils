@@ -1,5 +1,4 @@
-from osbot_utils.utils.Dev import pprint
-
+from osbot_utils.utils.Dev                   import pprint
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 PRINT_MAX_STRING_LENGTH    = 100
@@ -7,14 +6,12 @@ PRINT_PADDING__DURATION    = 100
 PRINT_PADDING_PARENT_INFO  = 60
 
 class Trace_Call__Config(Kwargs_To_Self):
-    title                      : str
     capture_locals             : bool = False
     capture_duration           : bool
     capture_extra_data         : bool
     capture_frame              : bool = True
     capture_frame_stats        : bool
     deep_copy_locals           : bool
-    trace_capture_lines        : bool
     ignore_start_with          : list
     print_padding_duration     : int = PRINT_PADDING__DURATION
     print_padding_parent_info  : int = PRINT_PADDING_PARENT_INFO
@@ -27,6 +24,7 @@ class Trace_Call__Config(Kwargs_To_Self):
     show_caller                : bool
     show_method_class          : bool = True
     show_source_code_path      : bool
+    title                      : str
     trace_capture_all          : bool
     trace_capture_source_code  : bool
     trace_capture_start_with   : list
@@ -34,6 +32,7 @@ class Trace_Call__Config(Kwargs_To_Self):
     trace_enabled              : bool = True
     trace_ignore_start_with    : list
     trace_ignore_contains      : list
+    trace_capture_lines        : bool
     trace_show_internals       : bool
     trace_up_to_depth          : int
     with_duration_bigger_than  : float
