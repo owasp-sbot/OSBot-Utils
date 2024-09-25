@@ -5,7 +5,7 @@ from unittest                                           import TestCase
 import pytest
 
 from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
-from osbot_utils.helpers.pubsub.Event__Queue            import Event__Queue, QUEUE_WAIT_TIMEOUT
+from osbot_utils.helpers.pubsub.Event__Queue import Event__Queue, TIMEOUT__QUEUE_GET
 from osbot_utils.helpers.pubsub.schemas.Schema__Event   import Schema__Event
 from osbot_utils.utils.Objects                          import base_types
 
@@ -16,21 +16,24 @@ class test_Event_Queue(TestCase):
 
     def test__init__(self):
         with self.event_queue as _:
-            assert _.__dict__ == {'event_class'  : Schema__Event      ,
-                                  'events'       : []                 ,
-                                  'log_events'   : False              ,
-                                  'queue'        : _.queue            ,
-                                  'queue_name'   : _.queue_name       ,
-                                  'queue_timeout': QUEUE_WAIT_TIMEOUT ,
-                                  'running'      : True               ,
-                                  'thread'       : _.thread           }
+            assert _.__dict__ == {'event_class'      : Schema__Event      ,
+                                  'events'           : []                 ,
+                                  'events_added'     : 0                  ,
+                                  'events_completed' : 0                  ,
+                                  'events_failed'    : 0                  ,
+                                  'log_events'       : False              ,
+                                  'queue'            : _.queue            ,
+                                  'queue_name'       : _.queue_name       ,
+                                  'queue_get_timeout': TIMEOUT__QUEUE_GET ,
+                                  'running'          : True               ,
+                                  'thread'           : _.thread           }
             assert _.queue_name.startswith('event_queue')
 
 
     def test_start_stop(self):
         _ = self.event_queue                        # can't use with context since it will start and end the queue
 
-        _.queue_timeout   = 0.00001
+        _.queue_get_timeout             = 0.00001   # set this to a small value since we don't need to wait
         assert _.running               == False
 
         assert _.start()               == _

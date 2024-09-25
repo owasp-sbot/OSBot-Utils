@@ -34,11 +34,14 @@ class test_PubSub__Server(TestCase):
                                                   'clients_connected': set()        ,
                                                   'event_class'      : Schema__Event,
                                                   'events'           : []           ,
+                                                  'events_added'     : 0            ,
+                                                  'events_completed' : 0            ,
+                                                  'events_failed'    : 0            ,
                                                   'log_events'       : False        ,
                                                   'logging'          : _.logging    ,
                                                   'queue'            : _.queue      ,
                                                   'queue_name'       : _.queue_name ,
-                                                  'queue_timeout'    : 1.0          ,
+                                                  'queue_get_timeout': 1.0          ,
                                                   'rooms'            : {}           ,
                                                   'running'          : True         ,
                                                   'thread'           : _.thread     }
@@ -52,8 +55,8 @@ class test_PubSub__Server(TestCase):
         event_3   = Schema__Event__Message(event_message='an message')
 
         with self.server as _:
-            _.log_events = True
-            _.queue_timeout = 0.001
+            _.log_events        = True
+            _.queue_get_timeout = 0.001
             client = _.new_client()
             assert isinstance(client, PubSub__Client)
             event_1  = client.send_message(message_1)
