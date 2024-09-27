@@ -1,12 +1,8 @@
-from unittest import TestCase
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
-from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook
+from unittest                                           import TestCase
+from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
+from osbot_utils.helpers.sqlite.Sqlite__Table           import Sqlite__Table
 from osbot_utils.helpers.sqlite.sql_builder.SQL_Builder import SQL_Builder
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Objects import default_value
+from osbot_utils.utils.Objects                          import default_value
 
 TEST_TABLE_NAME       = 'an_table'
 

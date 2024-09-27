@@ -1,10 +1,8 @@
 import sqlite3
-from io import StringIO
-from unittest import TestCase
-from unittest.mock import patch
-
+from io                                              import StringIO
+from unittest                                        import TestCase
+from unittest.mock                                   import patch
 from osbot_utils.helpers.sqlite.Capture_Sqlite_Error import capture_sqlite_error
-from osbot_utils.utils.Dev import pprint
 
 class test_Capture_Sqlite_Error(TestCase):
 

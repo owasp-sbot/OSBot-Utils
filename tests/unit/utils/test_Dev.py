@@ -1,10 +1,7 @@
-from unittest               import TestCase
-from unittest.mock          import patch, call
-
-import pytest
-
-from osbot_utils.testing.Stdout import Stdout
-from osbot_utils.utils.Dev  import Dev
+from unittest                       import TestCase
+from unittest.mock                  import patch, call
+from osbot_utils.testing.Stdout     import Stdout
+from osbot_utils.utils.Dev          import Dev
 
 class Test_Dev(TestCase):
 

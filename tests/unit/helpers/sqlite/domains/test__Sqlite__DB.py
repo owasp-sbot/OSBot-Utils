@@ -1,8 +1,6 @@
-from unittest import TestCase
-
-from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB import Sqlite__DB
-from osbot_utils.utils.Dev import pprint
+from unittest                                       import TestCase
+from osbot_utils.helpers.sqlite.Sqlite__Database    import Sqlite__Database
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB  import Sqlite__DB
 
 
 class test_Sqlite__DB(TestCase):

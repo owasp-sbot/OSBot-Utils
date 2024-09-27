@@ -1,7 +1,5 @@
-from unittest import TestCase
-
-from osbot_utils.helpers.sqlite.Temp_Sqlite__Table import Temp_Sqlite__Table
-from osbot_utils.utils.Dev import pprint
+from unittest                                       import TestCase
+from osbot_utils.helpers.sqlite.Temp_Sqlite__Table  import Temp_Sqlite__Table
 
 
 class test_Temp_Sqlite__Table(TestCase):

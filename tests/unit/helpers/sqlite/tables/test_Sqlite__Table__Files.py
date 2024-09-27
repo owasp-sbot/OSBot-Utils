@@ -1,12 +1,8 @@
 import sys
-from unittest import TestCase
-
 import pytest
-
-from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Files import Sqlite__Table__Files
-from osbot_utils.utils.Dev import pprint
-
+from unittest                                                   import TestCase
+from osbot_utils.helpers.sqlite.Sqlite__Database                import Sqlite__Database
+from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Files     import Sqlite__Table__Files
 
 class test_Sqlite__Table__Files(TestCase):
     table_files: Sqlite__Table__Files

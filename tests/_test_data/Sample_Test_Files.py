@@ -1,5 +1,4 @@
 from unittest import TestCase
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Files import folder_exists, folder_name, path_combine, file_contents
 from tests import _test_data
 from tests._test_data import html_bootstrap_example__lines

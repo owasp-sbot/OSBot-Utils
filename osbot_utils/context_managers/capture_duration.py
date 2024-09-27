@@ -28,10 +28,3 @@ class capture_duration(Type_Safe):
             print(f'action "{self.action_name}" took: {self.seconds} seconds')
         else:
             print(f'action took: {self.seconds} seconds')
-
-class print_duration(capture_duration):
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        result = super().__exit__(exc_type, exc_val, exc_tb)
-        self.print()
-        return result
