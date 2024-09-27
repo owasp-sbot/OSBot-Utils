@@ -19,12 +19,13 @@ def flow(**flow_kwargs):
     def decorator(function):
         @wraps(function)
         def wrapper(*args, **kwargs):
-            with Flow(**flow_kwargs) as flow:
-                flow.set_flow_target(function)
-                flow.setup()
-                flow.create_flow()
-                flow.execute_flow(*args, **kwargs)
-                return flow.return_value
+            with Flow(**flow_kwargs) as _:
+                _.set_flow_target(function)
+                _.setup()
+                _.create_flow()
+                _.execute_flow(*args, **kwargs)
+                return _
+                #return _.return_value
 
         return wrapper
     return decorator
@@ -40,6 +41,7 @@ class Flow(Type_Safe):
     log_to_console     : bool    = False
     log_to_memory      : bool    = True
     print_logs         : bool    = False
+    executed_tasks     : typing.List
     return_value       : typing.Any
 
 
@@ -82,6 +84,9 @@ class Flow(Type_Safe):
     def f__flow_name(self):
         return self.cformat.blue(self.flow_name)
 
+    def captured_logs(self):
+        return ansis_to_texts(self.captured_exec_logs)
+
     def info(self, message):
         self.logger.info(message)
 
@@ -103,12 +108,17 @@ class Flow(Type_Safe):
 
     def print_log_messages(self, use_colors=True):
         if use_colors:
-            for message in self.logger.memory_handler_messages():
-                print(message)
+            if self.captured_exec_logs:
+                for message in self.captured_exec_logs:
+                    print(message)
+            else:
+                for message in self.logger.memory_handler_messages():
+                    print(message)
         else:
             for message in self.log_messages():
                 print(message)
         return self
+
     def random_flow_id(self):
         return lower(random_id(prefix=FLOW__RANDOM_ID__PREFIX))
 
