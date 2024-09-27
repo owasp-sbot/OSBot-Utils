@@ -8,16 +8,7 @@ from osbot_utils.helpers.CFormat        import CFormat, f_dark_grey, f_red, f_bl
 from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.helpers.flows.Flow     import Flow
 
-# todo refactor to separate file
-def task(**task_kwargs):
-    def decorator(function):
-        @wraps(function)
-        def wrapper(*args, **kwargs):
-            with Task(task_target=function, task_args=args, task_kwargs=kwargs, **task_kwargs) as _:
-                return _.execute()
 
-        return wrapper
-    return decorator
 
 class Task(Type_Safe):
     task_id       : str                         # todo add a random Id value to this

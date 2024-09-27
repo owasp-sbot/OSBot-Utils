@@ -14,21 +14,7 @@ FLOW__RANDOM_NAME__PREFIX  = 'flow_name__'
 FLOW__LOGGING__LOG_FORMAT  = '%(asctime)s.%(msecs)03d | %(levelname)-8s | %(message)s'
 FLOW__LOGGING__DATE_FORMAT = '%H:%M:%S'
 
-def flow(**flow_kwargs):
 
-    def decorator(function):
-        @wraps(function)
-        def wrapper(*args, **kwargs):
-            with Flow(**flow_kwargs) as _:
-                _.set_flow_target(function)
-                _.setup()
-                _.create_flow()
-                _.execute_flow(*args, **kwargs)
-                return _
-                #return _.return_value
-
-        return wrapper
-    return decorator
 
 
 class Flow(Type_Safe):
@@ -36,6 +22,8 @@ class Flow(Type_Safe):
     flow_id            : str
     flow_name          : str
     flow_target        : callable
+    flow_args          : tuple
+    flow_kwargs        : dict
     logger             : Python_Logger
     cformat            : CFormat
     log_to_console     : bool    = False
@@ -60,14 +48,17 @@ class Flow(Type_Safe):
         self.set_flow_name()
         self.debug(f"Created flow run '{self.f__flow_id()}' for flow '{self.f__flow_name()}'")
 
-    def execute_flow(self, *args, **kwargs):
+    def execute(self):
+        return self.execute_flow()
+
+    def execute_flow(self):
         if self.log_to_memory:
             self.logger.add_memory_logger()                                     # todo: move to method that does pre-execute tasks
 
         self.debug(f"Executing flow run '{self.f__flow_id()}''")
         try:
             with Stdout() as stdout:
-                self.return_value = self.flow_target(*args, **kwargs)           # todo, capture *args, **kwargs in logs
+                self.return_value = self.flow_target(*self.flow_args, **self.flow_kwargs)           # todo, capture *args, **kwargs in logs
         except Exception as error:
             self.logger.error(self.cformat.red(f"Error executing flow: {error}"))
         self.log_captured_stdout(stdout)
@@ -77,6 +68,7 @@ class Flow(Type_Safe):
         if self.log_to_memory:
             self.captured_exec_logs = self.log_messages_with_colors()
             self.logger.remove_memory_logger()                                  # todo: move to method that does post-execute tasks
+        return self
 
     def f__flow_id(self):
         return self.cformat.green(self.flow_id)
@@ -126,8 +118,10 @@ class Flow(Type_Safe):
         return lower(random_id(prefix=FLOW__RANDOM_NAME__PREFIX))
 
 
-    def set_flow_target(self, target):
+    def set_flow_target(self, target, *args, **kwargs):
         self.flow_target = target
+        self.flow_args   = args
+        self.flow_kwargs = kwargs
         return self
 
     def set_flow_name(self, value=None):
