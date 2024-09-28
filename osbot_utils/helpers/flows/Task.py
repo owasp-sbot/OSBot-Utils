@@ -1,26 +1,28 @@
 import inspect
 import typing
-from functools import wraps
 
-from osbot_utils.testing.Stdout import Stdout
+from osbot_utils.helpers.Dependency_Manager import Dependency_Manager
+from osbot_utils.utils.Dev import pprint
 
-from osbot_utils.helpers.CFormat        import CFormat, f_dark_grey, f_red, f_blue
-from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.helpers.flows.Flow     import Flow
+from osbot_utils.testing.Stdout             import Stdout
+from osbot_utils.helpers.CFormat            import CFormat, f_dark_grey, f_red, f_blue, f_bold
+from osbot_utils.base_classes.Type_Safe     import Type_Safe
+from osbot_utils.helpers.flows.Flow         import Flow
 
 
 
 class Task(Type_Safe):
-    task_id       : str                         # todo add a random Id value to this
-    task_name     : str                         # make this the function mame
-    cformat       : CFormat
-    task_target   : callable          # todo refactor this to to Task__Function class
-    task_args     : tuple
-    task_kwargs   : dict
-    task_flow     : Flow
-    task_result   : typing.Any
-    task_error    : Exception  = None
-    raise_on_error: bool       = True
+    data                : dict                          # dict available to the task to add and collect data
+    task_id             : str                           # todo add a random Id value to this
+    task_name           : str                           # make this the function mame
+    cformat             : CFormat
+    task_target         : callable                      # todo refactor this to to Task__Function class
+    task_args           : tuple
+    task_kwargs         : dict
+    task_flow           : Flow
+    task_return_value   : typing.Any
+    task_error          : Exception  = None
+    raise_on_error      : bool       = True
 
     def execute(self):
         self.task_flow = self.find_flow()
@@ -35,20 +37,29 @@ class Task(Type_Safe):
 
         try:
             with Stdout() as stdout:
-                self.task_result = self.task_target(*self.task_args, **self.task_kwargs)           # todo, capture *args, **kwargs in logs
+                self.invoke_task_target()
         except Exception as error:
             self.task_error = error
 
         self.task_flow.log_captured_stdout(stdout)
-        self.task_flow.logger.debug(f"{f_dark_grey('return value')}: {self.task_result}")
+        self.print_task_return_value()
 
         if self.task_error:
             self.task_flow.logger.error(f_red(f"Error executing '{self.task_name}' task: {self.task_error}"))
             if self.raise_on_error:
                 raise Exception(f"'{self.task_name}' failed and task raise_on_error was set to True. Stopping flow execution")
 
-        self.task_flow.logger.debug(f"Finished task '{f_blue(self.task_name)}'")
-        return self.task_result
+        self.print_task_finished_message()
+        return self.task_return_value
+
+    def invoke_task_target(self):
+        dependency_manager = Dependency_Manager()
+        dependency_manager.add_dependency('this_task', self               )
+        dependency_manager.add_dependency('this_flow', self.task_flow     )
+        dependency_manager.add_dependency('task_data', self.data          )
+        dependency_manager.add_dependency('flow_data', self.task_flow.data)
+        resolved_args, resolved_kwargs = dependency_manager.resolve_dependencies(self.task_target, *self.task_args, **self.task_kwargs)
+        self.task_return_value =  self.task_target(*resolved_args, **resolved_kwargs)
 
     def find_flow(self):
         stack = inspect.stack()
@@ -58,3 +69,15 @@ class Task(Type_Safe):
                 instance = frame.f_locals['self']
                 if type(instance) is Flow:
                     return instance
+
+    def print_task_finished_message(self):
+        if self.task_flow.flow_config.print_finished_message:
+            self.task_flow.logger.debug(f"Finished task '{f_blue(self.task_name)}'")
+
+    def print_task_return_value(self):
+        flow_config = self.task_flow.flow_config
+        if flow_config.print_none_return_value is False and self.task_return_value is None:
+            return
+        self.task_flow.logger.debug(f"{f_dark_grey('Task return value')}: {f_bold(self.task_return_value)}")
+
+

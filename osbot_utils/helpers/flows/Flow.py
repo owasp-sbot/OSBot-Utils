@@ -1,9 +1,9 @@
 import logging
 import typing
-from functools import wraps
 
 from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.helpers.CFormat import CFormat, f_dark_grey, f_magenta
+from osbot_utils.helpers.CFormat import CFormat, f_dark_grey, f_magenta, f_bold
+from osbot_utils.helpers.flows.Flow__Config import Flow__Config
 from osbot_utils.testing.Stdout         import Stdout
 from osbot_utils.utils.Misc             import random_id, lower
 from osbot_utils.utils.Python_Logger    import Python_Logger
@@ -16,28 +16,30 @@ FLOW__LOGGING__DATE_FORMAT = '%H:%M:%S'
 
 
 
-
 class Flow(Type_Safe):
     captured_exec_logs : list
+    data               : dict                   # dict available to the tasks to add and collect data
     flow_id            : str
     flow_name          : str
+    flow_config        : Flow__Config
     flow_target        : callable
     flow_args          : tuple
     flow_kwargs        : dict
+    flow_return_value  : typing.Any
     logger             : Python_Logger
     cformat            : CFormat
-    log_to_console     : bool    = False
-    log_to_memory      : bool    = True
-    print_logs         : bool    = False
+    #log_to_console     : bool    = False
+    #log_to_memory      : bool    = True
+    #print_logs         : bool    = False
     executed_tasks     : typing.List
-    return_value       : typing.Any
+
 
 
     def config_logger(self):
         with self.logger as _:
             _.set_log_level(logging.DEBUG)
             _.set_log_format(log_format=FLOW__LOGGING__LOG_FORMAT, date_format=FLOW__LOGGING__DATE_FORMAT)
-            if self.log_to_console:
+            if self.flow_config.log_to_console:
                 _.add_console_logger()
 
 
@@ -52,22 +54,23 @@ class Flow(Type_Safe):
         return self.execute_flow()
 
     def execute_flow(self):
-        if self.log_to_memory:
+        if self.flow_config.log_to_memory:
             self.logger.add_memory_logger()                                     # todo: move to method that does pre-execute tasks
 
         self.debug(f"Executing flow run '{self.f__flow_id()}''")
         try:
             with Stdout() as stdout:
-                self.return_value = self.flow_target(*self.flow_args, **self.flow_kwargs)           # todo, capture *args, **kwargs in logs
+                self.flow_return_value = self.flow_target(*self.flow_args, **self.flow_kwargs)           # todo, capture *args, **kwargs in logs
         except Exception as error:
             self.logger.error(self.cformat.red(f"Error executing flow: {error}"))
-        self.log_captured_stdout(stdout)
-        self.debug(f"{f_dark_grey('return value')}: {self.return_value}")
-        self.debug(f"Finished flow run '{self.f__flow_id()}''")
 
-        if self.log_to_memory:
+        self.log_captured_stdout        (stdout)
+        self.print_flow_return_value    ()
+        self.print_flow_finished_message()
+
+        if self.flow_config.log_to_memory:
             self.captured_exec_logs = self.log_messages_with_colors()
-            self.logger.remove_memory_logger()                                  # todo: move to method that does post-execute tasks
+            self.logger.remove_memory_logger()                                                          # todo: move to method that does post-execute tasks
         return self
 
     def f__flow_id(self):
@@ -86,7 +89,7 @@ class Flow(Type_Safe):
         for line in stdout.value().splitlines():
             if line:
                 self.info(f_magenta(line))
-        if self.print_logs:
+        if self.flow_config.print_logs:
             print()
             print()
             self.print_log_messages()
@@ -110,6 +113,17 @@ class Flow(Type_Safe):
             for message in self.log_messages():
                 print(message)
         return self
+
+    def print_flow_finished_message(self):
+        if self.flow_config.print_finished_message:
+            self.debug(f"Finished flow run '{self.f__flow_id()}''")
+
+    def print_flow_return_value(self):
+        if self.flow_config.print_none_return_value is False and self.flow_return_value is None:
+            return
+        self.debug(f"{f_dark_grey('Flow return value')}: {f_bold(self.flow_return_value)}")
+
+
 
     def random_flow_id(self):
         return lower(random_id(prefix=FLOW__RANDOM_ID__PREFIX))

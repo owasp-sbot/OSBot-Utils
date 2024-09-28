@@ -24,10 +24,12 @@ class test_Flow(TestCase):
                 _.set_flow_target(just_print_a_message)
                 #_.set_flow_target(lambda : print('this is a lambda function'))
                 _.create_flow()
+                _.flow_config.print_none_return_value = True
+                _.flow_config.print_finished_message  = True
                 _.execute_flow()
                 assert ansis_to_texts(_.captured_exec_logs) == ["Executing flow run 'AN-FLOW-ID''",
                                                                 'this is inside the flow',
-                                                                'return value: None',
+                                                                'Flow return value: None',
                                                                 "Finished flow run 'AN-FLOW-ID''"]
 
 
