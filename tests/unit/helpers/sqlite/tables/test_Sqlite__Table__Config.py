@@ -1,13 +1,10 @@
 import sys
-from unittest import TestCase
-
 import pytest
-
-from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Config import Sqlite__Table__Config, SQLITE__TABLE_NAME__CONFIG
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import random_value
-from osbot_utils.utils.Objects import pickle_load_from_bytes, pickle_save_to_bytes
+from unittest                                                   import TestCase
+from osbot_utils.helpers.sqlite.Sqlite__Database                import Sqlite__Database
+from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Config    import Sqlite__Table__Config, SQLITE__TABLE_NAME__CONFIG
+from osbot_utils.utils.Misc                                     import random_value
+from osbot_utils.utils.Objects                                  import pickle_load_from_bytes, pickle_save_to_bytes
 
 
 class test_Sqlite__Table__Config(TestCase):

@@ -1,8 +1,7 @@
 from unittest import TestCase
 
 from osbot_utils.helpers.sqlite.Temp_Sqlite__Database__Disk import Temp_Sqlite__Database__Disk
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Files import file_exists
+from osbot_utils.utils.Files                                import file_exists
 
 
 class test_Temp_Sqlite__Table(TestCase):

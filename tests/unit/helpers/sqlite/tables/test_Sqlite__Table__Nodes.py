@@ -1,12 +1,9 @@
 import sys
-from unittest import TestCase
-
 import pytest
-
-from osbot_utils.helpers.sqlite.Sqlite__Database import Sqlite__Database
-from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Nodes import Sqlite__Table__Nodes, SQLITE__TABLE_NAME__NODES
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Objects import obj_to_bytes
+from unittest                                                   import TestCase
+from osbot_utils.helpers.sqlite.Sqlite__Database                import Sqlite__Database
+from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Nodes     import Sqlite__Table__Nodes, SQLITE__TABLE_NAME__NODES
+from osbot_utils.utils.Objects                                  import obj_to_bytes
 
 
 class test_Sqlite__Table__Nodes(TestCase):

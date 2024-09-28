@@ -6,6 +6,8 @@ import tarfile
 import zipfile
 from os.path import abspath
 
+from osbot_utils.utils.Misc import list_set
+
 from osbot_utils.utils.Files import temp_folder, folder_files, temp_file, is_file, file_copy, file_move, file_exists, \
     file_contents_as_bytes
 
@@ -98,6 +100,9 @@ def zip_bytes__files(zip_bytes):
             files_dict[file_name] = zf.read(file_name)      # Read the content of the file
 
     return files_dict                                       # Return the dictionary with file contents
+
+def zip_bytes__files_paths(zip_bytes):
+    return list_set(zip_bytes__files(zip_bytes))
 
 def zip_bytes__file_list(zip_bytes):
     zip_buffer_from_bytes = io.BytesIO(zip_bytes)

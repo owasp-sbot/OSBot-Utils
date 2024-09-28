@@ -1,9 +1,8 @@
 from unittest import TestCase
 
-from osbot_utils.helpers.pubsub.Event__Queue import Event__Queue
-from osbot_utils.helpers.pubsub.schemas.Schema__Event__Execute_Method import Schema__Event__Execute_Method
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import is_guid, wait_for
+from osbot_utils.helpers.pubsub.Event__Queue                            import Event__Queue
+from osbot_utils.helpers.pubsub.schemas.Schema__Event__Execute_Method   import Schema__Event__Execute_Method
+from osbot_utils.utils.Misc                                             import is_guid
 
 
 class test_Schema__Event__Execute_Method(TestCase):
@@ -54,9 +53,9 @@ class test_Schema__Event__Execute_Method(TestCase):
 
             def handle_event(self, event):
                 result = event.execute()
-                pprint(result)
+                #pprint(result)
 
-        print()
+        #print()
         with Execute_Events(log_events=True) as _:
             assert _.send_event(self.event_execute_method) is True
             assert _.wait_for_queue_completed()

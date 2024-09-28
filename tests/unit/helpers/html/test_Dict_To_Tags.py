@@ -6,8 +6,7 @@ import pytest
 from osbot_utils.helpers.html.Dict_To_Html import Dict_To_Html
 from osbot_utils.helpers.html.Dict_To_Tags import Dict_To_Tags
 from osbot_utils.helpers.html.Html_To_Dict import Html_To_Dict
-from osbot_utils.utils.Dev import pprint
-from tests._test_data.Sample_Test_Files import Sample_Test_Files
+from tests._test_data.Sample_Test_Files    import Sample_Test_Files
 
 
 class test_Dict_To_Tags(TestCase):

@@ -1,6 +1,6 @@
 import traceback
-from functools import wraps
-from osbot_utils.utils.Dev import pprint
+from functools              import wraps
+from osbot_utils.utils.Dev  import pprint
 
 def capture_exception(func):
     @wraps(func)

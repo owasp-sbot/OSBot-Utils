@@ -1,8 +1,7 @@
 import inspect
-from unittest import TestCase
+from unittest                                   import TestCase
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.Sqlite__Table   import Sqlite__Table, SQL_TABLE__MODULE_NAME__ROW_SCHEMA, ROW_BASE_CLASS
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Objects                  import type_full_name
 
 TEST_TABLE_NAME       = 'an_table'

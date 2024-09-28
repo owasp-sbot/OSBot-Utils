@@ -185,3 +185,6 @@ def call_stack_frames_data(depth=None):
 def frames_in_threads():
     return sys._current_frames()
 
+
+def print_call_stack():
+    traceback.print_stack()

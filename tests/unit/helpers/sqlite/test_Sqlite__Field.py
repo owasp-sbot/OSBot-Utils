@@ -1,10 +1,7 @@
-from typing import Union, Optional
-from unittest import TestCase
-
-from osbot_utils.helpers.sqlite.Sqlite__Field import Sqlite__Field, Sqlite__Field__Type
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Misc import random_string
-from osbot_utils.utils.Objects import obj_info, obj_data
+from typing                                     import Union, Optional
+from unittest                                   import TestCase
+from osbot_utils.helpers.sqlite.Sqlite__Field   import Sqlite__Field, Sqlite__Field__Type
+from osbot_utils.utils.Misc                     import random_string
 
 
 class test_Sqlite__Field(TestCase):

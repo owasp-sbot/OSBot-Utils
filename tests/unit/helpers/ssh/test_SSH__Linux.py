@@ -1,11 +1,8 @@
 import pytest
 
-from osbot_utils.decorators.lists.index_by import index_by
-from osbot_utils.helpers.ssh.SSH__Linux import SSH__Linux
-from osbot_utils.helpers.ssh.TestCase__SSH import TestCase__SSH
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Env import in_github_action
-from osbot_utils.utils.Misc import list_set
+from osbot_utils.helpers.ssh.TestCase__SSH  import TestCase__SSH
+from osbot_utils.utils.Env                  import in_github_action
+from osbot_utils.utils.Misc                 import list_set
 
 
 class test__SSH_Linux(TestCase__SSH):
@@ -98,7 +95,7 @@ class test__SSH_Linux(TestCase__SSH):
 
         command = 'pip3 install Flask'
         result = self.ssh.execute_command__return_stdout(command)
-        pprint('Flask' in result)
+        #pprint('Flask' in result)
 
         command = 'python3 -m flask --version'
         result = self.ssh.execute_command__return_stdout(command)

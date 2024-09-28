@@ -5,9 +5,8 @@ import pytest
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Json import Sqlite__DB__Json
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type import Sqlite__Field__Type
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Json import json_dumps, json_round_trip
-from osbot_utils.utils.Misc import random_string, lower
+from osbot_utils.utils.Json                                 import json_round_trip
+from osbot_utils.utils.Misc                                 import random_string, lower
 
 
 class test_Sqlite__DB__Json(TestCase):

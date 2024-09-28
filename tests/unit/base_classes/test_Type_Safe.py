@@ -1,19 +1,16 @@
 import sys
 import types
+import pytest
 from enum                                       import Enum, auto
 from typing                                     import Union, Optional
 from unittest                                   import TestCase
-
-import pytest
-
-from osbot_utils.base_classes.Type_Safe import Type_Safe, serialize_to_dict
+from osbot_utils.base_classes.Type_Safe         import Type_Safe, serialize_to_dict
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.testing.Catch                  import Catch
 from osbot_utils.testing.Stdout                 import Stdout
 from osbot_utils.utils.Json                     import json_dumps
 from osbot_utils.utils.Misc                     import random_string, list_set
 from osbot_utils.utils.Objects                  import obj_data
-
 
 class test_Type_Safe(TestCase):
 
@@ -123,6 +120,23 @@ class test_Type_Safe(TestCase):
         expected_defaults = {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': self.Config_Class().__default_kwargs__()['callable_attr_1']}
         self.assertEqual(self.Config_Class().__default_kwargs__(), expected_defaults)
         self.assertNotEqual(instance.attribute1, self.Config_Class().__default_kwargs__()['attribute1'])
+
+    def test___setattr__(self):
+        class An_Class(Type_Safe):
+            an_str : str
+        an_class = An_Class()
+        assert an_class.json() == {'an_str': ''}
+        expected_message = "Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>'"
+        with self.assertRaises(Exception) as context_1:
+            an_class.an_str = 42
+        assert context_1.exception.args[0] == expected_message
+
+        expected_message_2 = "Can't set None, to a variable that is already set. Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'NoneType'>'"
+        with self.assertRaises(Exception) as context_2:
+            an_class.an_str = None
+        assert context_2.exception.args[0] == expected_message_2
+
+
 
     # def test_locked(self):
     #     class An_Class(Type_Safe):
@@ -577,22 +591,6 @@ class test_Type_Safe(TestCase):
             self.Config_Class(aaaa=123)
         assert context.exception.args[0] == ("Config_Class has no attribute 'aaaa' and cannot be assigned the value '123'. "
                                              'Use Config_Class.__default_kwargs__() see what attributes are available')
-
-    def test___set__attr__(self):
-        class An_Class(Type_Safe):
-            an_str : str
-        an_class = An_Class()
-        assert an_class.json() == {'an_str': ''}
-        expected_message = "Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>'"
-        with self.assertRaises(Exception) as context_1:
-            an_class.an_str = 42
-        assert context_1.exception.args[0] == expected_message
-
-        expected_message_2 = "Can't set None, to a variable that is already set. Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'NoneType'>'"
-        with self.assertRaises(Exception) as context_2:
-            an_class.an_str = None
-        assert context_2.exception.args[0] == expected_message_2
-
 
 
     def test_merge_with(self):

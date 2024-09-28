@@ -1,4 +1,7 @@
 from unittest import TestCase
+
+from osbot_utils.base_classes.Type_Safe import Type_Safe
+
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self, cache_on_self__get_cache_in_key, \
     CACHE_ON_SELF_KEY_PREFIX, cache_on_self__args_to_str, cache_on_self__kwargs_to_str
 from osbot_utils.testing.Catch import Catch
@@ -121,3 +124,26 @@ class test_cache_on_self(TestCase):
             an_function()
 
         assert catch.exception_value.args[0] == "In Method_Wrappers.cache_on_self could not find self"
+
+    def test_cache_on_self__reload_cache(self):
+
+        class An_Class_2(Type_Safe):
+            an_value : int = 41
+
+            @cache_on_self
+            def an_function(self):
+                self.an_value += 1
+                return self.an_value
+
+        an_class = An_Class_2()
+
+        assert an_class.an_function(                  ) == 42
+        assert an_class.an_function(                  ) == 42
+
+        assert an_class.an_function(reload_cache=True ) == 43
+        assert an_class.an_function(reload_cache=False) == 43
+        assert an_class.an_function(                  ) == 43
+
+        assert an_class.an_function(reload_cache=True ) == 44
+        assert an_class.an_function(reload_cache=False) == 44
+        assert an_class.an_function(                  ) == 44
