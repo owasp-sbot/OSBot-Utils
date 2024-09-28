@@ -22,6 +22,7 @@ class Flow(Type_Safe):
     flow_id            : str
     flow_name          : str
     flow_config        : Flow__Config
+    flow_error         : Exception           = None
     flow_target        : callable
     flow_args          : tuple
     flow_kwargs        : dict
@@ -62,6 +63,7 @@ class Flow(Type_Safe):
             with Stdout() as stdout:
                 self.flow_return_value = self.flow_target(*self.flow_args, **self.flow_kwargs)           # todo, capture *args, **kwargs in logs
         except Exception as error:
+            self.flow_error = error
             self.logger.error(self.cformat.red(f"Error executing flow: {error}"))
 
         self.log_captured_stdout        (stdout)
