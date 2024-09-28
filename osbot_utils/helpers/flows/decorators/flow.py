@@ -3,8 +3,8 @@ from typing import TypeVar, Callable, Any
 
 from osbot_utils.helpers.flows.Flow import Flow
 
-# todo: find way to make the casting below work for the users of this decorator
-
+# todo: BUG find way to make the casting below work for the users of this decorator
+#           since at the moment we need to use: flow = cast(Flow, _.create_flow()) where create_flow is the method with the @flow decorator
 def flow(**flow_kwargs):
     def decorator(function) -> Flow:
         @wraps(function)
