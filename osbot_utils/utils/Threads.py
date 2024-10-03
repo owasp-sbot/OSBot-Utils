@@ -25,3 +25,19 @@ def invoke_async_function(target: typing.Coroutine):
             asyncio.set_event_loop(None)
 
         logger.level = level_original  # restore the original log level
+
+
+def invoke_in_new_event_loop(target: typing.Coroutine):
+    def run_in_new_loop():
+        new_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(new_loop)
+        try:
+            return new_loop.run_until_complete(target)
+        finally:
+            new_loop.close()
+
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor() as pool:
+        future = pool.submit(run_in_new_loop)
+        result = future.result()
+        return result
