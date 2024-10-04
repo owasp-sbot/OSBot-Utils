@@ -43,3 +43,4 @@ def invoke_in_new_event_loop(target: typing.Coroutine):             # Runs a cor
         return result                                               # Return the result from the coroutine
 
 async_invoke_in_new_loop = invoke_in_new_event_loop
+invoke_async             = invoke_async_function                    # todo: see if this is best use of this function name
