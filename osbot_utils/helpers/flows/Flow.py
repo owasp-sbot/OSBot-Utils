@@ -86,12 +86,16 @@ class Flow(Type_Safe):
     def info(self, message):
         self.logger.info(message)
 
+
+    async def invoke_flow_target__thread(self, flow):                               # this is a REALLY important method which is used to pin the flow object to the call stack
+        return await flow.flow_target(*flow.flow_args, **flow.flow_kwargs)          #   which is then used by the Task.find_flow method to find it
+
     def invoke_flow_target(self):
         if asyncio.iscoroutinefunction(self.flow_target):
-            #self.flow_return_value = invoke_async(self.flow_target(*self.flow_args, **self.flow_kwargs))
-            self.flow_return_value = invoke_in_new_event_loop(self.flow_target(*self.flow_args, **self.flow_kwargs))
+            async_coroutine         = self.invoke_flow_target__thread(self)                     # use this special method to pin the flow object to the call stack
+            self.flow_return_value  = invoke_in_new_event_loop(async_coroutine)                 # this will start a complete new thread to execute the flow (which is exactly what we want)
         else:
-            self.flow_return_value = self.flow_target(*self.flow_args, **self.flow_kwargs)
+            self.flow_return_value  = self.flow_target(*self.flow_args, **self.flow_kwargs)     # if the flow is sync, just execute the flow target
 
     def log_captured_stdout(self, stdout):
         for line in stdout.value().splitlines():
