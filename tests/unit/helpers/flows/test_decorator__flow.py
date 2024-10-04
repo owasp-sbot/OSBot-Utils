@@ -67,8 +67,7 @@ class test_decorator__flow(TestCase):
                 return 40 + new_value
 
         an_class = An_Class()
-        flow_1 = an_class.an_method_with_flow(1).execute()
-        return
+
         with disable_root_loggers():
             flow_1 = an_class.an_method_with_flow(1).execute()
             assert flow_1.flow_return_value == 42

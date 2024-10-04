@@ -29,12 +29,12 @@ class Task(Type_Safe):
     def execute__sync(self):
         self.execute__before()
         self.execute__task_target__sync()
-        self.execute__after()
+        return self.execute__after()
 
     async def execute__async(self):
         self.execute__before()
         await self.execute__task_target__async()
-        self.execute__after()
+        return self.execute__after()
 
     def execute__before(self):
         self.task_flow = self.find_flow()
