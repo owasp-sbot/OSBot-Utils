@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 import typing
 
@@ -10,12 +11,13 @@ from osbot_utils.base_classes.Type_Safe     import Type_Safe
 from osbot_utils.helpers.flows.Flow         import Flow
 
 
-
 class Task(Type_Safe):
     data                : dict                          # dict available to the task to add and collect data
     task_id             : str                           # todo add a random Id value to this
     task_name           : str                           # make this the function mame
     cformat             : CFormat
+    resolved_args       : tuple
+    resolved_kwargs     : dict
     task_target         : callable                      # todo refactor this to to Task__Function class
     task_args           : tuple
     task_kwargs         : dict
@@ -24,7 +26,17 @@ class Task(Type_Safe):
     task_error          : Exception  = None
     raise_on_error      : bool       = True
 
-    def execute(self):
+    def execute__sync(self):
+        self.execute__before()
+        self.execute__task_target__sync()
+        self.execute__after()
+
+    async def execute__async(self):
+        self.execute__before()
+        await self.execute__task_target__async()
+        self.execute__after()
+
+    def execute__before(self):
         self.task_flow = self.find_flow()
         if self.task_flow is None:
             raise Exception("No Flow found for Task")
@@ -34,14 +46,30 @@ class Task(Type_Safe):
 
         self.task_flow.executed_tasks.append(self)
         self.task_flow.logger.debug(f"Executing task '{f_blue(self.task_name)}'")
+        dependency_manager = Dependency_Manager()
+        dependency_manager.add_dependency('this_task', self               )
+        dependency_manager.add_dependency('this_flow', self.task_flow     )
+        dependency_manager.add_dependency('task_data', self.data          )
+        dependency_manager.add_dependency('flow_data', self.task_flow.data)
+        self.resolved_args, self.resolved_kwargs = dependency_manager.resolve_dependencies(self.task_target, *self.task_args, **self.task_kwargs)
 
+    def execute__task_target__sync(self):
         try:
             with Stdout() as stdout:
-                self.invoke_task_target()
+                self.task_return_value =  self.task_target(*self.resolved_args, **self.resolved_kwargs)
         except Exception as error:
             self.task_error = error
-
         self.task_flow.log_captured_stdout(stdout)
+
+    async def execute__task_target__async(self):
+        try:
+            with Stdout() as stdout:
+                self.task_return_value =  await self.task_target(*self.resolved_args, **self.resolved_kwargs)
+        except Exception as error:
+            self.task_error = error
+        self.task_flow.log_captured_stdout(stdout)
+
+    def execute__after(self):
         self.print_task_return_value()
 
         if self.task_error:
@@ -52,14 +80,6 @@ class Task(Type_Safe):
         self.print_task_finished_message()
         return self.task_return_value
 
-    def invoke_task_target(self):
-        dependency_manager = Dependency_Manager()
-        dependency_manager.add_dependency('this_task', self               )
-        dependency_manager.add_dependency('this_flow', self.task_flow     )
-        dependency_manager.add_dependency('task_data', self.data          )
-        dependency_manager.add_dependency('flow_data', self.task_flow.data)
-        resolved_args, resolved_kwargs = dependency_manager.resolve_dependencies(self.task_target, *self.task_args, **self.task_kwargs)
-        self.task_return_value =  self.task_target(*resolved_args, **resolved_kwargs)
 
     def find_flow(self):
         stack = inspect.stack()

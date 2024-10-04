@@ -42,5 +42,18 @@ def invoke_in_new_event_loop(target: typing.Coroutine):             # Runs a cor
         result = future.result()                                    # Wait for the result of the future
         return result                                               # Return the result from the coroutine
 
+# in the use cases when I tried to use this, it hanged
+# def invoke_in_current_loop(target: typing.Coroutine):
+#     try:
+#         current_loop = asyncio.get_running_loop()   # Get the current running loop, if any
+#     except RuntimeError:                            # There is no running event loop
+#         current_loop = None
+#
+#     if current_loop and current_loop.is_running():  # If there's an event loop currently running, we can use asyncio.run_coroutine_threadsafe to run it
+#         future = asyncio.run_coroutine_threadsafe(target, current_loop)
+#         return future.result()
+#     else:
+#         return asyncio.run(target)                  # If there's no event loop running, we create a new one and use run_until_complete
+
 async_invoke_in_new_loop = invoke_in_new_event_loop
 invoke_async             = invoke_async_function                    # todo: see if this is best use of this function name

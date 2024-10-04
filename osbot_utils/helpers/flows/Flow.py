@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import typing
 
@@ -8,6 +9,7 @@ from osbot_utils.testing.Stdout         import Stdout
 from osbot_utils.utils.Misc             import random_id, lower
 from osbot_utils.utils.Python_Logger    import Python_Logger
 from osbot_utils.utils.Str              import ansis_to_texts
+from osbot_utils.utils.Threads import invoke_async
 
 FLOW__RANDOM_ID__PREFIX    = 'flow_id__'
 FLOW__RANDOM_NAME__PREFIX  = 'flow_name__'
@@ -29,9 +31,6 @@ class Flow(Type_Safe):
     flow_return_value  : typing.Any
     logger             : Python_Logger
     cformat            : CFormat
-    #log_to_console     : bool    = False
-    #log_to_memory      : bool    = True
-    #print_logs         : bool    = False
     executed_tasks     : typing.List
 
 
@@ -61,7 +60,7 @@ class Flow(Type_Safe):
         self.debug(f"Executing flow run '{self.f__flow_id()}''")
         try:
             with Stdout() as stdout:
-                self.flow_return_value = self.flow_target(*self.flow_args, **self.flow_kwargs)           # todo, capture *args, **kwargs in logs
+                self.invoke_flow_target()
         except Exception as error:
             self.flow_error = error
             self.logger.error(self.cformat.red(f"Error executing flow: {error}"))
@@ -86,6 +85,12 @@ class Flow(Type_Safe):
 
     def info(self, message):
         self.logger.info(message)
+
+    def invoke_flow_target(self):
+        if asyncio.iscoroutinefunction(self.flow_target):
+            self.flow_return_value = invoke_async(self.flow_target(*self.flow_args, **self.flow_kwargs))
+        else:
+            self.flow_return_value = self.flow_target(*self.flow_args, **self.flow_kwargs)
 
     def log_captured_stdout(self, stdout):
         for line in stdout.value().splitlines():
