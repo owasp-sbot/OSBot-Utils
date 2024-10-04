@@ -9,7 +9,7 @@ from osbot_utils.testing.Stdout         import Stdout
 from osbot_utils.utils.Misc             import random_id, lower
 from osbot_utils.utils.Python_Logger    import Python_Logger
 from osbot_utils.utils.Str              import ansis_to_texts
-from osbot_utils.utils.Threads import invoke_async
+from osbot_utils.utils.Threads import invoke_async, invoke_in_new_event_loop
 
 FLOW__RANDOM_ID__PREFIX    = 'flow_id__'
 FLOW__RANDOM_NAME__PREFIX  = 'flow_name__'
@@ -88,7 +88,8 @@ class Flow(Type_Safe):
 
     def invoke_flow_target(self):
         if asyncio.iscoroutinefunction(self.flow_target):
-            self.flow_return_value = invoke_async(self.flow_target(*self.flow_args, **self.flow_kwargs))
+            #self.flow_return_value = invoke_async(self.flow_target(*self.flow_args, **self.flow_kwargs))
+            self.flow_return_value = invoke_in_new_event_loop(self.flow_target(*self.flow_args, **self.flow_kwargs))
         else:
             self.flow_return_value = self.flow_target(*self.flow_args, **self.flow_kwargs)
 
