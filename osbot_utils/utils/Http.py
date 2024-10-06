@@ -1,7 +1,9 @@
 import json
+import os
 import socket
 import ssl
 from time import sleep
+from urllib.parse import quote, urljoin, urlparse
 from   urllib.request import Request, urlopen
 
 from osbot_utils.utils.Files import save_bytes_as_file, file_size, file_bytes, file_open_bytes, file_create
@@ -141,3 +143,28 @@ def PUT(url, data='', headers=None):
 
 def PUT_json(*args, **kwargs):
     return json.loads(PUT(*args, **kwargs))
+
+def url_join_safe(base_path, path=''):
+    if not isinstance(base_path, str) or not isinstance(path, str):
+        return None
+
+    if not base_path.endswith('/'):                                         # Ensure that the base path ends with '/'
+        base_path += '/'
+
+    if path.startswith('/'):                                                 # Remove leading '/' from path
+        path = path[1:]
+
+    path_quoted     = quote(path)
+    path_normalised = path_quoted.replace("..", "")             # Quote the path to encode special characters and prevent directory traversal
+    joined_path     = urljoin(base_path, path_normalised)                    # Join the base path and normalized path
+    parsed_base     = urlparse(base_path)                                    # Parse and verify the result
+    parsed_joined   = urlparse(joined_path)
+
+    if (parsed_joined.scheme == parsed_base.scheme and                       # Ensure the joined URL starts with the base URL to prevent open redirect vulnerabilities
+            parsed_joined.netloc == parsed_base.netloc and
+            joined_path.startswith(base_path)):
+        if joined_path.endswith('/'):                                        # Remove trailing slash
+            joined_path = joined_path[:-1]
+        return joined_path
+
+    return None
