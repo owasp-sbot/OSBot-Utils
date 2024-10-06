@@ -1,15 +1,22 @@
 import json
 import os
+import re
 import socket
 import ssl
+import unicodedata
 from time import sleep
-from urllib.parse import quote, urljoin, urlparse
+from urllib.parse import quote, urljoin, urlparse, urlunparse
 from   urllib.request import Request, urlopen
+
+from osbot_utils.utils.Str import html_decode
+
+from osbot_utils.utils.Misc import url_decode
 
 from osbot_utils.utils.Files import save_bytes_as_file, file_size, file_bytes, file_open_bytes, file_create
 from osbot_utils.utils.Python_Logger import Python_Logger
 
-URL_CHECK_HOST_ONLINE = 'https://www.google.com'
+URL_CHECK_HOST_ONLINE         = 'https://www.google.com'
+URL_JOIN_SAFE__MAX_ITERATIONS = 5
 
 def current_host_offline(url_to_use=URL_CHECK_HOST_ONLINE):
     return current_host_online(url_to_use=url_to_use) is False
@@ -148,15 +155,34 @@ def url_join_safe(base_path, path=''):
     if not isinstance(base_path, str) or not isinstance(path, str):
         return None
 
-    if not base_path.endswith('/'):                                         # Ensure that the base path ends with '/'
+    max_iterations   = URL_JOIN_SAFE__MAX_ITERATIONS
+
+    path = unicodedata.normalize('NFC', path)
+    path_normalised = path
+    for _ in range(max_iterations):
+        fixed_segments = []
+        for segment in path_normalised.split('/'):
+            segment_decoded = html_decode(url_decode(segment))
+            fixed_segment = re.sub(r'[^a-zA-Z0-9\-_.]+', '-', segment_decoded)
+            fixed_segment = fixed_segment.replace("..", "-")
+            if fixed_segment:
+                fixed_segments.append(fixed_segment)
+        path_cleaned = '/'.join(fixed_segments)
+
+        if path_cleaned == path_normalised:
+            break
+        path_normalised = path_cleaned
+    else:
+        return None                                                         # If we exit the loop without breaking, return None
+
+    if not base_path.endswith('/'):                                          # Ensure that the base path ends with '/'
         base_path += '/'
 
-    if path.startswith('/'):                                                 # Remove leading '/' from path
-        path = path[1:]
+    if path_normalised.startswith('/'):                                      # Remove leading '/' from path
+        path_normalised = path_normalised[1:]
 
-    path_quoted     = quote(path)
-    path_normalised = path_quoted.replace("..", "")             # Quote the path to encode special characters and prevent directory traversal
-    joined_path     = urljoin(base_path, path_normalised)                    # Join the base path and normalized path
+    path_quoted     = quote(path_normalised,  safe='/')                      # Quote the path to encode special characters
+    joined_path     = urljoin(base_path, path_quoted)                        # Join the base path and normalized path
     parsed_base     = urlparse(base_path)                                    # Parse and verify the result
     parsed_joined   = urlparse(joined_path)
 

@@ -245,7 +245,7 @@ class test_Http(TestCase):
         assert wait_for_port(self.local_host    , self.local_port+1, max_attempts=2, wait_for=0.001) is False
 
     def test_url_join_safe(self):
-        # when no path is provided
+        #when no path is provided
         assert url_join_safe(None          ) is None
         assert url_join_safe('a'           ) == 'a'
         assert url_join_safe('a/b'         ) == 'a/b'
@@ -256,21 +256,63 @@ class test_Http(TestCase):
         assert url_join_safe('https://ab/b') == 'https://ab/b'
 
         # normal cases
-        assert url_join_safe('https://a.b/c', 'd'     ) == 'https://a.b/c/d'
-        assert url_join_safe('https://a.b/c', 'd/e'   ) == 'https://a.b/c/d/e'
-        assert url_join_safe('https://a.b/c', 'd.json') == 'https://a.b/c/d.json'
-        assert url_join_safe('https://a.b/c', 'd.j.s.') == 'https://a.b/c/d.j.s.'
-        assert url_join_safe('https://a.b/c', 'd/./e' ) == 'https://a.b/c/d/e'
+        assert url_join_safe('https://a.b/c', 'd'      ) == 'https://a.b/c/d'
+        assert url_join_safe('https://a.b/c', 'd/e'    ) == 'https://a.b/c/d/e'
+        assert url_join_safe('https://a.b/c', 'd.json' ) == 'https://a.b/c/d.json'
+        assert url_join_safe('https://a.b/c', 'd/j.on' ) == 'https://a.b/c/d/j.on'
+        assert url_join_safe('https://a.b/c', 'd/j.o.n') == 'https://a.b/c/d/j.o.n'
+        assert url_join_safe('https://a.b/c', 'd.j.s.' ) == 'https://a.b/c/d.j.s.'
+        assert url_join_safe('https://a.b/c', 'd/./e'  ) == 'https://a.b/c/d/e'
 
-        # abuse cases
+        # with params (confirming that the params are correctly encoded in the query string (i.e. query strings params will need to be submitted separately)
+        assert url_join_safe('https://a.b/c', 'd.json#'   ) == 'https://a.b/c/d.json-'
+        assert url_join_safe('https://a.b/c', 'd.json?'   ) == 'https://a.b/c/d.json-'
+        assert url_join_safe('https://a.b/c', 'd.json?a=b') == 'https://a.b/c/d.json-a-b'
+
+        # abuse cases (with / and \ )
         assert url_join_safe('https://a.b/c', None) is None
-        assert url_join_safe('https://a.b/c', 'd/../e'     ) == 'https://a.b/c/d/e'
-        assert url_join_safe('https://a.b/c', 'd/.../e'    ) == 'https://a.b/c/d/e'
-        assert url_join_safe('https://a.b/c', 'd/..../e'   ) == 'https://a.b/c/d/e'
-        assert url_join_safe('https://a.b/c', 'd/././../e' ) == 'https://a.b/c/d/e'
-        assert url_join_safe('https://a.b/c', 'd/../e..'   ) == 'https://a.b/c/d/e'
-        assert url_join_safe('https://a.b/c', 'd/../e../f' ) == 'https://a.b/c/d/e/f'
-        assert url_join_safe('https://a.b/c', 'd/../e.../f') == 'https://a.b/c/d/e./f'
+        assert url_join_safe('https://a.b/c', 'd/../e'     ) == 'https://a.b/c/d/-/e'
+        assert url_join_safe('https://a.b/c', '/d/../e'    ) == 'https://a.b/c/d/-/e'
+        assert url_join_safe('https://a.b/c', '//d/../e'   ) == 'https://a.b/c/d/-/e'
+        assert url_join_safe('https://a.b/c', '\d/../e'    ) == 'https://a.b/c/-d/-/e'
+        assert url_join_safe('https://a.b/c', '\\d/../e'   ) == 'https://a.b/c/-d/-/e'
+        assert url_join_safe('https://a.b/c', '\\\d/../e'  ) == 'https://a.b/c/-d/-/e'
+        assert url_join_safe('https://a.b/c', '\\/d/../e'  ) == 'https://a.b/c/-/d/-/e'
+        assert url_join_safe('https://a.b/c', '\\//d/../e' ) == 'https://a.b/c/-/d/-/e'
+        assert url_join_safe('https://a.b/c', '\\//\\d//e' ) == 'https://a.b/c/-/-d/e'
+        assert url_join_safe('https://a.b/c', '\\///d/../e') == 'https://a.b/c/-/d/-/e'
+        assert url_join_safe('https://a.b/c', '\\\///d/./e') == 'https://a.b/c/-/d/e'
+        assert url_join_safe('https://a.b/c', '\\\\\\d//e' ) == 'https://a.b/c/-d/e'
+        assert url_join_safe('https://a.b/c', '/////\d//e' ) == 'https://a.b/c/-d/e'
+        assert url_join_safe('https://a.b/c', '....//\d//e') == 'https://a.b/c/--/-d/e'
+
+        # abuse cases (with ..)
+        assert url_join_safe('https://a.b/c', 'd/.../e'    ) == 'https://a.b/c/d/-./e'
+        assert url_join_safe('https://a.b/c', 'd/..../e'   ) == 'https://a.b/c/d/--/e'
+        assert url_join_safe('https://a.b/c', 'd/././../e' ) == 'https://a.b/c/d/-/e'
+        assert url_join_safe('https://a.b/c', 'd/../e..'   ) == 'https://a.b/c/d/-/e-'
+        assert url_join_safe('https://a.b/c', 'd/../e../f' ) == 'https://a.b/c/d/-/e-/f'
+        assert url_join_safe('https://a.b/c', 'd/../e.../f') == 'https://a.b/c/d/-/e-./f'
+        assert url_join_safe('https://a.b/c', 'd/../e....f') == 'https://a.b/c/d/-/e--f'
+        assert url_join_safe('https://a.b/c', 'd/../e...f' ) == 'https://a.b/c/d/-/e-.f'
+        assert url_join_safe('https://a.b/c', 'd/./e..json') == 'https://a.b/c/d/e-json'
+        assert url_join_safe('https://a.b/c', 'd/./e.json' ) == 'https://a.b/c/d/e.json'
+
+        # abuse cases (with encodings)
+        assert url_join_safe('https://a.b/c', '%2e%2ee.json'            ) == 'https://a.b/c/-e.json'
+        assert url_join_safe('https://a.b/c', 'etc/passwd'              ) == 'https://a.b/c/etc/passwd'
+        assert url_join_safe('https://a.b/c', '%2e%2e/%2e%2e/etc/passwd') == 'https://a.b/c/-/-/etc/passwd'
+        assert url_join_safe('https://a.b/c', '<h1>/xss'                ) == 'https://a.b/c/-h1-/xss'
+        assert url_join_safe('https://a.b/c', '<h1\'>/xss'              ) == 'https://a.b/c/-h1-/xss'
+        assert url_join_safe('https://a.b/c', '<h1`>/xss'               ) == 'https://a.b/c/-h1-/xss'
+        assert url_join_safe('https://a.b/c', '<h1">/xss'               ) == 'https://a.b/c/-h1-/xss'
+        assert url_join_safe('https://a.b/c', '/\\\'"`d'                ) == 'https://a.b/c/-d'
+        assert url_join_safe('https://a.b/c', '\x00\x0a'                ) == 'https://a.b/c/-'
+
+
+        # abuse case (other variations)
+        assert url_join_safe('https://a.b/c', "http://abc/b") == 'https://a.b/c/http-/abc/b'
+
 
 
 
