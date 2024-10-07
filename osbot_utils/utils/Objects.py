@@ -4,8 +4,9 @@ import pickle
 import sys
 import types
 import typing
-from typing import Union
 
+from typing                 import Union
+from types                  import SimpleNamespace
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Str  import str_unicode_escape, str_max_width
 
@@ -119,6 +120,32 @@ def dict_remove(data, target):
             if target in data:
                 del data[target]
     return data
+
+
+def dict_to_obj(target, class_name="_"):
+    DynamicClass = type(class_name, (SimpleNamespace,), {})
+    if isinstance(target, dict):
+        new_dict = {}
+        for key, value in target.items():
+            new_dict[key] = dict_to_obj(value, class_name=class_name)           # Recursively convert elements in the dict
+        return DynamicClass(**new_dict)
+    elif isinstance(target, list):                                              # Recursively convert elements in the list
+        return [dict_to_obj(item, class_name=class_name) for item in target]
+    elif isinstance(target, tuple):                                             # Recursively convert elements in the tuple
+        return tuple(dict_to_obj(item, class_name=class_name) for item in target)
+
+    return target
+
+def obj_to_dict(target):                                                            # Recursively converts an object (SimpleNamespace) back into a dictionary."""
+    if isinstance(target, SimpleNamespace):                                         # Convert SimpleNamespace attributes to a dictionary
+        return {key: obj_to_dict(value) for key, value in target.__dict__.items()}
+    elif isinstance(target, list):                                                  # Handle lists: convert each item in the list
+        return [obj_to_dict(item) for item in target]
+    elif isinstance(target, tuple):                                                 # Handle tuples: convert each item and return as a tuple
+        return tuple(obj_to_dict(item) for item in target)
+    elif isinstance(target, set):                                                   # Handle sets: convert each item and return as a set
+        return {obj_to_dict(item) for item in target}
+    return target                                                                   # Return non-object types as is
 
 def enum_from_value(enum_type, value):
     try:

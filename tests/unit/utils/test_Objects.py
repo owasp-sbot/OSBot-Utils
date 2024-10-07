@@ -1,13 +1,14 @@
-import builtins
 import os
 import sys
 import types
 import unittest
+
 from typing         import Optional, Union
 from unittest       import TestCase
 from unittest.mock  import patch, call
 
-import pytest
+
+
 
 from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.utils.Misc import random_int, list_set
@@ -17,7 +18,7 @@ from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
     obj_base_classes, obj_base_classes_names, are_types_compatible_for_assigment, type_mro, \
     obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, pickle_save_to_bytes, \
-    pickle_load_from_bytes, convert_dict_to_value_from_obj_annotation
+    pickle_load_from_bytes, convert_dict_to_value_from_obj_annotation, dict_to_obj, obj_to_dict
 
 
 class test_Objects(TestCase):
@@ -142,6 +143,120 @@ class test_Objects(TestCase):
         assert dict_1 == {'b': 2, 'c': 3}
         assert dict_remove(dict_1, ['a','b']) == {'c': 3}
         assert dict_1 == { 'c': 3}
+
+    def test_dict_to_obj(self):
+        # variation #1: simple usage
+        dict_1 =  {'an_bytes': b'the answer is...'    ,
+                   'an_int'  : 42                     ,
+                   'an_dict' : {'a': 1, 'b': 2, 'c': 3},
+                   'an_str'  : 'string_1'             }
+
+        assert dict_to_obj(dict_1).an_bytes     == b'the answer is...'
+        assert dict_to_obj(dict_1).an_int       == 42
+        assert dict_to_obj(dict_1).an_dict.a    == 1
+        assert dict_to_obj(dict_1).an_dict.b    == 2
+        assert dict_to_obj(dict_1).an_dict.c    == 3
+        assert dict_to_obj(dict_1).an_str       == 'string_1'
+        assert obj_to_dict(dict_to_obj(dict_1)) == dict_1
+
+        # variation #2:  test_dict_to_obj_nested(self):
+        dict_2 = {
+            'level_1': {
+                'level_2': {
+                    'level_3': {
+                        'an_int': 100,
+                        'a_list': [1, 2, 3],
+                    },
+                    'another_str': 'string_2'
+                },
+                'an_float': 3.14
+            }
+        }
+
+        obj = dict_to_obj(dict_2)
+        assert obj.level_1.level_2.level_3.an_int == 100
+        assert obj.level_1.level_2.level_3.a_list == [1, 2, 3]
+        assert obj.level_1.level_2.another_str == 'string_2'
+        assert obj.level_1.an_float == 3.14
+        assert obj_to_dict(obj) == dict_2
+
+        # variation #3: test_dict_to_obj_with_list_and_tuple
+        dict_3 = {
+            'a_list': [1, 'string', {'key': 'value'}],
+            'a_tuple': (1, 2, {'nested_key': 'nested_value'}),
+        }
+
+        obj = dict_to_obj(dict_3)
+        assert obj.a_list[0] == 1
+        assert obj.a_list[1] == 'string'
+        assert obj.a_tuple[0] == 1
+        assert obj.a_tuple[1] == 2
+        assert obj.a_tuple[2].nested_key == 'nested_value'
+        assert obj_to_dict(obj) == dict_3
+
+        # variation #4:  test_dict_to_obj_empty_input
+        dict_4 = {}
+        obj = dict_to_obj(dict_4)
+        assert obj_to_dict(obj) == dict_4
+
+        #test_dict_to_obj__special_types
+        dict_5 = {
+            'a_bool': True,
+            'a_none': None,
+            'a_float': 9.81,
+            'a_set': {1, 2, 3},
+        }
+
+        obj = dict_to_obj(dict_5)
+        assert obj.a_bool       is True
+        assert obj.a_none       is None
+        assert obj.a_float      == 9.81
+        assert obj.a_set        == {1, 2, 3}
+        assert obj_to_dict(obj) == dict_5
+
+        # variation #5: test_dict_to_obj__abuse_case_non_dict
+        assert dict_to_obj(42) == 42                                            # Passing non-dict types to dict_to_obj should return them unchanged
+        assert dict_to_obj('string') == 'string'
+        assert dict_to_obj([1, 2, 3]) == [1, 2, 3]
+
+        # variation #6: test_dict_to_obj__abuse_case_circular_reference
+        dict_6 = {}
+        dict_6['self'] = dict_6  # Circular reference
+
+        with pytest.raises(RecursionError):
+            dict_to_obj(dict_6)
+
+        # variation #7: test_obj_to_dict__with_incorrect_type
+        assert obj_to_dict(42) == 42                                        # Trying to convert a non-SimpleNamespace object should just return it unchanged
+        assert obj_to_dict('string') == 'string'
+        assert obj_to_dict([1, 2, 3]) == [1, 2, 3]
+
+        # variation #8: test_obj_to_dict__on_custom_class
+        class CustomClass:                                                  # Test obj_to_dict on a custom object that isn't a SimpleNamespace
+            def __init__(self):
+                self.a = 10
+                self.b = 'test'
+
+        custom_obj = CustomClass()
+        assert obj_to_dict(custom_obj) == custom_obj
+
+        # variation #8: test_dict_to_obj__with_unusual_keys
+        dict_7 = {
+            'a_normal_key': 'value',
+            'key_with space': 123,
+            'key-with-dash': [1, 2, 3],
+            'key.with.dot': {'nested_key': 'nested_value'}
+        }
+
+        obj = dict_to_obj(dict_7)
+
+        assert obj.a_normal_key                          == 'value'         # this one we can get directly
+        assert getattr(obj, 'a_normal_key')              == 'value'         # or like this
+
+        assert getattr(obj, 'key_with space')            == 123             # but these can only be resolved using getattr
+        assert getattr(obj, 'key-with-dash' )            == [1, 2, 3]
+        assert getattr(obj, 'key.with.dot'  ).nested_key == 'nested_value'
+        assert obj_to_dict(obj) == dict_7
 
     def test_get_field(self):
         assert str(get_field(self, '__module__')) == "test_Objects"
