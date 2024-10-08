@@ -2,12 +2,9 @@ import asyncio
 import inspect
 import typing
 
-from osbot_utils.utils.Misc import random_id, lower
-
+from osbot_utils.utils.Misc                 import random_id, lower
 from osbot_utils.helpers.Dependency_Manager import Dependency_Manager
 from osbot_utils.helpers.flows.Flow__Events import flow_events
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.testing.Stdout             import Stdout
 from osbot_utils.helpers.CFormat            import CFormat, f_dark_grey, f_red, f_blue, f_bold
 from osbot_utils.base_classes.Type_Safe     import Type_Safe
@@ -29,6 +26,12 @@ class Task(Type_Safe):
     task_return_value   : typing.Any
     task_error          : Exception  = None
     raise_on_error      : bool       = True
+
+    def log_debug(self, message):
+        self.task_flow.log_debug(message)
+
+    def log_error(self, message):
+        self.task_flow.log_error(message)
 
     def execute__sync(self):
         self.execute__before()
@@ -52,7 +55,7 @@ class Task(Type_Safe):
             self.task_id = self.random_task_id()
 
         self.task_flow.executed_tasks.append(self)
-        self.task_flow.logger.debug(f"Executing task '{f_blue(self.task_name)}'")
+        self.log_debug(f"Executing task '{f_blue(self.task_name)}'")
         dependency_manager = Dependency_Manager()
         dependency_manager.add_dependency('this_task', self               )
         dependency_manager.add_dependency('this_flow', self.task_flow     )
@@ -81,7 +84,7 @@ class Task(Type_Safe):
         self.print_task_return_value()
 
         if self.task_error:
-            self.task_flow.logger.error(f_red(f"Error executing '{self.task_name}' task: {self.task_error}"))
+            self.log_error(f_red(f"Error executing '{self.task_name}' task: {self.task_error}"))
             if self.raise_on_error:
                 raise Exception(f"'{self.task_name}' failed and task raise_on_error was set to True. Stopping flow execution")
 
@@ -102,13 +105,13 @@ class Task(Type_Safe):
 
     def print_task_finished_message(self):
         if self.task_flow.flow_config.print_finished_message:
-            self.task_flow.logger.debug(f"Finished task '{f_blue(self.task_name)}'")
+            self.log_debug(f"Finished task '{f_blue(self.task_name)}'")
 
     def print_task_return_value(self):
         flow_config = self.task_flow.flow_config
         if flow_config.print_none_return_value is False and self.task_return_value is None:
             return
-        self.task_flow.logger.debug(f"{f_dark_grey('Task return value')}: {f_bold(self.task_return_value)}")
+        self.log_debug(f"{f_dark_grey('Task return value')}: {f_bold(self.task_return_value)}")
 
 
     def random_task_id(self):

@@ -30,8 +30,8 @@ class test_decorator__flow(TestCase):
             print('this is inside the flow!')
 
             with Task().find_flow() as _:
-                _.info(f'hello {name}')
-                _.info('this is from an TASK that found the flow')
+                _.log_info(f'hello {name}')
+                _.log_info('this is from an TASK that found the flow')
 
                 return  _.log_messages()
 

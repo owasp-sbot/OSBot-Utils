@@ -43,13 +43,9 @@ class Flow(Type_Safe):
             if self.flow_config.log_to_console:
                 _.add_console_logger()
 
-
-    def debug(self, message):
-        self.logger.debug(message)
-
     def create_flow(self):
         self.set_flow_name()
-        self.debug(f"Created flow run '{self.f__flow_id()}' for flow '{self.f__flow_name()}'")
+        self.log_debug(f"Created flow run '{self.f__flow_id()}' for flow '{self.f__flow_name()}'")
 
     def execute(self):
         return self.execute_flow()
@@ -59,13 +55,13 @@ class Flow(Type_Safe):
         if self.flow_config.log_to_memory:
             self.logger.add_memory_logger()                                     # todo: move to method that does pre-execute tasks
 
-        self.debug(f"Executing flow run '{self.f__flow_id()}''")
+        self.log_debug(f"Executing flow run '{self.f__flow_id()}''")
         try:
             with Stdout() as stdout:
                 self.invoke_flow_target()
         except Exception as error:
             self.flow_error = error
-            self.logger.error(self.cformat.red(f"Error executing flow: {error}"))
+            self.log_error(self.cformat.red(f"Error executing flow: {error}"))
 
         self.log_captured_stdout        (stdout)
         self.print_flow_return_value    ()
@@ -86,9 +82,6 @@ class Flow(Type_Safe):
     def captured_logs(self):
         return ansis_to_texts(self.captured_exec_logs)
 
-    def info(self, message):
-        self.logger.info(message)
-
 
     async def invoke_flow_target__thread(self, flow):                               # this is a REALLY important method which is used to pin the flow object to the call stack
         return await flow.flow_target(*flow.flow_args, **flow.flow_kwargs)          #   which is then used by the Task.find_flow method to find it
@@ -103,12 +96,23 @@ class Flow(Type_Safe):
     def log_captured_stdout(self, stdout):
         for line in stdout.value().splitlines():
             if line:
-                self.info(f_magenta(line))
+                self.log_info(f_magenta(line))
         if self.flow_config.print_logs:
             print()
             print()
             self.print_log_messages()
 
+    def log_debug(self, message):
+        if self.flow_config.logging_enabled:
+            self.logger.debug(message)
+
+    def log_error(self, message):
+        if self.flow_config.logging_enabled:
+            self.logger.error(message)
+
+    def log_info(self, message):
+        if self.flow_config.logging_enabled:
+            self.logger.info(message)
 
     def log_messages(self):
         return ansis_to_texts(self.log_messages_with_colors())
@@ -131,12 +135,12 @@ class Flow(Type_Safe):
 
     def print_flow_finished_message(self):
         if self.flow_config.print_finished_message:
-            self.debug(f"Finished flow run '{self.f__flow_id()}''")
+            self.log_debug(f"Finished flow run '{self.f__flow_id()}''")
 
     def print_flow_return_value(self):
         if self.flow_config.print_none_return_value is False and self.flow_return_value is None:
             return
-        self.debug(f"{f_dark_grey('Flow return value')}: {f_bold(self.flow_return_value)}")
+        self.log_debug(f"{f_dark_grey('Flow return value')}: {f_bold(self.flow_return_value)}")
 
 
 
