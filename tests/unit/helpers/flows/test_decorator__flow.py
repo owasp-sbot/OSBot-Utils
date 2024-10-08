@@ -2,7 +2,7 @@ from unittest                                           import TestCase
 from osbot_utils.base_classes.Type_Safe                 import Type_Safe
 from osbot_utils.context_managers.disable_root_loggers  import disable_root_loggers
 from osbot_utils.helpers.flows.Flow                     import Flow
-from osbot_utils.helpers.flows.Flow__Config import Flow__Config
+from osbot_utils.helpers.flows.models.Flow__Config      import Flow__Config
 from osbot_utils.helpers.flows.Task                     import Task
 from osbot_utils.helpers.flows.decorators.flow          import flow
 from osbot_utils.helpers.flows.decorators.task          import task

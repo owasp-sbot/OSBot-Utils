@@ -2,14 +2,15 @@ import asyncio
 import logging
 import typing
 
-from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.helpers.CFormat import CFormat, f_dark_grey, f_magenta, f_bold
-from osbot_utils.helpers.flows.Flow__Config import Flow__Config
-from osbot_utils.testing.Stdout         import Stdout
-from osbot_utils.utils.Misc             import random_id, lower
-from osbot_utils.utils.Python_Logger    import Python_Logger
-from osbot_utils.utils.Str              import ansis_to_texts
-from osbot_utils.utils.Threads import invoke_async, invoke_in_new_event_loop
+from osbot_utils.base_classes.Type_Safe             import Type_Safe
+from osbot_utils.helpers.CFormat                    import CFormat, f_dark_grey, f_magenta, f_bold
+from osbot_utils.helpers.flows.models.Flow__Config  import Flow__Config
+from osbot_utils.helpers.flows.Flow__Events         import flow_events
+from osbot_utils.testing.Stdout                     import Stdout
+from osbot_utils.utils.Misc                         import random_id, lower
+from osbot_utils.utils.Python_Logger                import Python_Logger
+from osbot_utils.utils.Str                          import ansis_to_texts
+from osbot_utils.utils.Threads                      import invoke_in_new_event_loop
 
 FLOW__RANDOM_ID__PREFIX    = 'flow_id__'
 FLOW__RANDOM_NAME__PREFIX  = 'flow_name__'
@@ -54,6 +55,7 @@ class Flow(Type_Safe):
         return self.execute_flow()
 
     def execute_flow(self):
+        flow_events.on__flow__start(self)
         if self.flow_config.log_to_memory:
             self.logger.add_memory_logger()                                     # todo: move to method that does pre-execute tasks
 
@@ -72,6 +74,7 @@ class Flow(Type_Safe):
         if self.flow_config.log_to_memory:
             self.captured_exec_logs = self.log_messages_with_colors()
             self.logger.remove_memory_logger()                                                          # todo: move to method that does post-execute tasks
+        flow_events.on__flow__stop(self)
         return self
 
     def f__flow_id(self):
@@ -170,6 +173,3 @@ class Flow(Type_Safe):
         with self as _:
             if not _.flow_id:
                 _.flow_id = self.random_flow_id()
-            #if not _.flow_name:
-            #    _.flow_name = self.flow_target.__name__
-                #self.random_flow_name()

@@ -2,7 +2,10 @@ import asyncio
 import inspect
 import typing
 
+from osbot_utils.utils.Misc import random_id, lower
+
 from osbot_utils.helpers.Dependency_Manager import Dependency_Manager
+from osbot_utils.helpers.flows.Flow__Events import flow_events
 from osbot_utils.utils.Dev import pprint
 
 from osbot_utils.testing.Stdout             import Stdout
@@ -10,10 +13,11 @@ from osbot_utils.helpers.CFormat            import CFormat, f_dark_grey, f_red, 
 from osbot_utils.base_classes.Type_Safe     import Type_Safe
 from osbot_utils.helpers.flows.Flow         import Flow
 
+TASK__RANDOM_ID__PREFIX    = 'task_id__'
 
 class Task(Type_Safe):
     data                : dict                          # dict available to the task to add and collect data
-    task_id             : str                           # todo add a random Id value to this
+    task_id             : str
     task_name           : str                           # make this the function mame
     cformat             : CFormat
     resolved_args       : tuple
@@ -44,6 +48,9 @@ class Task(Type_Safe):
         if not self.task_name and self.task_target:
             self.task_name = self.task_target.__name__
 
+        if not self.task_id:
+            self.task_id = self.random_task_id()
+
         self.task_flow.executed_tasks.append(self)
         self.task_flow.logger.debug(f"Executing task '{f_blue(self.task_name)}'")
         dependency_manager = Dependency_Manager()
@@ -52,6 +59,7 @@ class Task(Type_Safe):
         dependency_manager.add_dependency('task_data', self.data          )
         dependency_manager.add_dependency('flow_data', self.task_flow.data)
         self.resolved_args, self.resolved_kwargs = dependency_manager.resolve_dependencies(self.task_target, *self.task_args, **self.task_kwargs)
+        flow_events.on__task__start(self)
 
     def execute__task_target__sync(self):
         try:
@@ -78,6 +86,8 @@ class Task(Type_Safe):
                 raise Exception(f"'{self.task_name}' failed and task raise_on_error was set to True. Stopping flow execution")
 
         self.print_task_finished_message()
+
+        flow_events.on__task__stop(self)
         return self.task_return_value
 
 
@@ -101,3 +111,5 @@ class Task(Type_Safe):
         self.task_flow.logger.debug(f"{f_dark_grey('Task return value')}: {f_bold(self.task_return_value)}")
 
 
+    def random_task_id(self):
+        return lower(random_id(prefix=TASK__RANDOM_ID__PREFIX))
