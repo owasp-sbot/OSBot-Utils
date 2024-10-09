@@ -27,6 +27,14 @@ class Flow_Events(Type_Safe):
         flow_event = Flow__Event(event_type=Flow__Event_Type.FLOW_MESSAGE, event_source=flow, event_data=event_data)
         self.raise_event(flow_event)
 
+    def on__new_artifact(self, flow, result_data):
+        flow_event = Flow__Event(event_type=Flow__Event_Type.NEW_ARTIFACT , event_source=flow, event_data=result_data)
+        self.raise_event(flow_event)
+
+    def on__new_result(self, flow, result_data):
+        flow_event = Flow__Event(event_type=Flow__Event_Type.NEW_RESULT , event_source=flow, event_data=result_data)
+        self.raise_event(flow_event)
+
     def on__task__start(self, task):
         flow_event = Flow__Event(event_type=Flow__Event_Type.TASK_START, event_source=task)
         self.raise_event(flow_event)
