@@ -34,7 +34,20 @@ class Flow(Type_Safe):
     cformat            : CFormat
     executed_tasks     : typing.List
 
+    def add_flow_artifact(self, description=None, key=None, data=None, artifact_type=None):     # todo: figure out how to make this work since at the moment most are showing an unknown type 
+        result_data = dict(flow_run_id = self.flow_id,
+                           description = description    or 'description'                                                    ,
+                           key         = key            or 'an-artifact-key'                                                ,
+                           data        = data           or {"link": "https://www.google.com", "link_text": "link to Google"},       # test data to see if it worksw
+                           type        = artifact_type  or "link"                                                           )   # type clashed with built-in type
 
+        flow_events.on__new_artifact(self, result_data )
+
+    def add_flow_result(self, key, description):
+        result_data = dict(flow_run_id = self.flow_id,
+                           key         = key         ,
+                           description = description )
+        flow_events.on__new_result(self, result_data )
 
     def config_logger(self):
         with self.logger as _:
@@ -70,14 +83,10 @@ class Flow(Type_Safe):
         if self.flow_config.log_to_memory:
             self.captured_exec_logs = self.log_messages_with_colors()
             self.logger.remove_memory_logger()                                                          # todo: move to method that does post-execute tasks
+        if self.flow_return_value:
+            self.add_flow_result(key = 'flow-return-value', description=f'{self.flow_return_value}')
         flow_events.on__flow__stop(self)
         return self
-
-    def f__flow_id(self):
-        return self.cformat.green(self.flow_id)
-
-    def f__flow_name(self):
-        return self.cformat.blue(self.flow_name)
 
     def captured_logs(self):
         return ansis_to_texts(self.captured_exec_logs)
@@ -92,6 +101,13 @@ class Flow(Type_Safe):
             self.flow_return_value  = invoke_in_new_event_loop(async_coroutine)                 # this will start a complete new thread to execute the flow (which is exactly what we want)
         else:
             self.flow_return_value  = self.flow_target(*self.flow_args, **self.flow_kwargs)     # if the flow is sync, just execute the flow target
+
+    def f__flow_id(self):
+        return self.cformat.green(self.flow_id)
+
+    def f__flow_name(self):
+        return self.cformat.blue(self.flow_name)
+
 
     def log_captured_stdout(self, stdout):
         for line in stdout.value().splitlines():
