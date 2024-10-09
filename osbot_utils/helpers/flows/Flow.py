@@ -2,7 +2,6 @@ import asyncio
 import logging
 import typing
 
-from osbot_prefect.server.Prefect__Artifacts        import Prefect__Artifacts
 from osbot_utils.base_classes.Type_Safe             import Type_Safe
 from osbot_utils.helpers.CFormat                    import CFormat, f_dark_grey, f_magenta, f_bold
 from osbot_utils.helpers.flows.models.Flow__Config  import Flow__Config
@@ -35,12 +34,12 @@ class Flow(Type_Safe):
     cformat            : CFormat
     executed_tasks     : typing.List
 
-    def add_flow_artifact(self, description=None, key=None, data=None, artifact_type=None):     # todo: figure out how to make this work since at the moment most are showing an unknown type in the prefect UI
+    def add_flow_artifact(self, description=None, key=None, data=None, artifact_type=None):     # todo: figure out how to make this work since at the moment most are showing an unknown type 
         result_data = dict(flow_run_id = self.flow_id,
-                           description = description    or 'description',
-                           key         = key            or 'an-artifact-key',
+                           description = description    or 'description'                                                    ,
+                           key         = key            or 'an-artifact-key'                                                ,
                            data        = data           or {"link": "https://www.google.com", "link_text": "link to Google"},       # test data to see if it worksw
-                           type        = artifact_type  or Prefect__Artifacts.LINK )   # type clashed with built-in type
+                           type        = artifact_type  or "link"                                                           )   # type clashed with built-in type
 
         flow_events.on__new_artifact(self, result_data )
 
