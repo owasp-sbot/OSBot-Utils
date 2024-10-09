@@ -55,7 +55,7 @@ class Flow(Type_Safe):
         if self.flow_config.log_to_memory:
             self.logger.add_memory_logger()                                     # todo: move to method that does pre-execute tasks
 
-        self.log_debug(f"Executing flow run '{self.f__flow_id()}''")
+        self.log_debug(f"Executing flow run '{self.f__flow_id()}'")
         try:
             with Stdout() as stdout:
                 self.invoke_flow_target()
@@ -102,17 +102,29 @@ class Flow(Type_Safe):
             print()
             self.print_log_messages()
 
-    def log_debug(self, message):
-        if self.flow_config.logging_enabled:
-            self.logger.debug(message)
 
-    def log_error(self, message):
-        if self.flow_config.logging_enabled:
-            self.logger.error(message)
+    def log_debug(self, message, task_run_id=None):
+        self.logger_add_message(log_level=logging.DEBUG, message=message, task_run_id=task_run_id)
 
-    def log_info(self, message):
+    def log_error(self, message, task_run_id=None):
+        self.logger_add_message(log_level=logging.ERROR, message=message, task_run_id=task_run_id)
+
+    def log_info(self, message, task_run_id=None):
+        self.logger_add_message(log_level=logging.INFO, message=message, task_run_id=task_run_id)
+
+    def logger_add_message(self, log_level, message, task_run_id=None):
         if self.flow_config.logging_enabled:
-            self.logger.info(message)
+            kwargs = dict(log_level   = log_level   ,
+                          message     = message     ,
+                          flow_run_id = self.flow_id,
+                          task_run_id = task_run_id )
+            flow_events.on__flow_run__message(self, **kwargs)
+            if log_level == logging.DEBUG:
+                self.logger.debug(message)
+            elif log_level == logging.ERROR:
+                self.logger.error(message)
+            else:
+                self.logger.info(message)
 
     def log_messages(self):
         return ansis_to_texts(self.log_messages_with_colors())
@@ -135,7 +147,7 @@ class Flow(Type_Safe):
 
     def print_flow_finished_message(self):
         if self.flow_config.print_finished_message:
-            self.log_debug(f"Finished flow run '{self.f__flow_id()}''")
+            self.log_debug(f"Finished flow run '{self.f__flow_id()}'")
 
     def print_flow_return_value(self):
         if self.flow_config.print_none_return_value is False and self.flow_return_value is None:

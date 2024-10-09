@@ -37,7 +37,7 @@ class test_decorator__flow(TestCase):
 
         with disable_root_loggers():
             flow_1 = an_method_with_flow('world').execute()
-            assert flow_1.flow_return_value == [ "Executing flow run 'THE-FLOW-ID''"        ,
+            assert flow_1.flow_return_value == [ "Executing flow run 'THE-FLOW-ID'"         ,
                                                  'hello world'                              ,
                                                  'this is from an TASK that found the flow' ]
 
@@ -73,7 +73,7 @@ class test_decorator__flow(TestCase):
             assert flow_1.flow_return_value == 42
             assert type(flow_1) is Flow
             flow_id = flow_1.flow_id
-            assert flow_1.captured_logs() == [ f"Executing flow run '{flow_id}''",
+            assert flow_1.captured_logs() == [ f"Executing flow run '{flow_id}'",
                                                 "Executing task 'exec_task_1'",
                                                 'inside task 1 with 1',
                                                 'Task return value: 2',
@@ -84,6 +84,6 @@ class test_decorator__flow(TestCase):
                                                 "Finished task 'exec_task_2'",
                                                 'inside the flow!',
                                                 'Flow return value: 42',
-                                               f"Finished flow run '{flow_id}''"]
+                                               f"Finished flow run '{flow_id}'"]
 
 

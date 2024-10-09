@@ -27,10 +27,10 @@ class test_Flow(TestCase):
                 _.flow_config.print_none_return_value = True
                 _.flow_config.print_finished_message  = True
                 _.execute_flow()
-                assert ansis_to_texts(_.captured_exec_logs) == ["Executing flow run 'AN-FLOW-ID''",
+                assert ansis_to_texts(_.captured_exec_logs) == ["Executing flow run 'AN-FLOW-ID'",
                                                                 'this is inside the flow',
                                                                 'Flow return value: None',
-                                                                "Finished flow run 'AN-FLOW-ID''"]
+                                                                "Finished flow run 'AN-FLOW-ID'"]
 
 
 
