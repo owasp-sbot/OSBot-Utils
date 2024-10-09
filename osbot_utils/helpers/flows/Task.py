@@ -27,11 +27,14 @@ class Task(Type_Safe):
     task_error          : Exception  = None
     raise_on_error      : bool       = True
 
+    def log_info(self, message):
+        self.task_flow.log_info(message, self.task_id)
+
     def log_debug(self, message):
-        self.task_flow.log_debug(message)
+        self.task_flow.log_debug(message, self.task_id)
 
     def log_error(self, message):
-        self.task_flow.log_error(message)
+        self.task_flow.log_error(message, self.task_id)
 
     def execute__sync(self):
         self.execute__before()
@@ -54,6 +57,8 @@ class Task(Type_Safe):
         if not self.task_id:
             self.task_id = self.random_task_id()
 
+        flow_events.on__task__start(self)
+
         self.task_flow.executed_tasks.append(self)
         self.log_debug(f"Executing task '{f_blue(self.task_name)}'")
         dependency_manager = Dependency_Manager()
@@ -62,7 +67,7 @@ class Task(Type_Safe):
         dependency_manager.add_dependency('task_data', self.data          )
         dependency_manager.add_dependency('flow_data', self.task_flow.data)
         self.resolved_args, self.resolved_kwargs = dependency_manager.resolve_dependencies(self.task_target, *self.task_args, **self.task_kwargs)
-        flow_events.on__task__start(self)
+
 
     def execute__task_target__sync(self):
         try:
