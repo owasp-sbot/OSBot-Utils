@@ -3,10 +3,10 @@ import sys
 import types
 import pytest
 import unittest
-
-from typing         import Optional, Union
-from unittest       import TestCase
-from unittest.mock  import patch, call
+from collections.abc  import Mapping
+from typing           import Optional, Union
+from unittest         import TestCase
+from unittest.mock    import patch, call
 
 
 
@@ -258,6 +258,14 @@ class test_Objects(TestCase):
         assert getattr(obj, 'key-with-dash' )            == [1, 2, 3]
         assert getattr(obj, 'key.with.dot'  ).nested_key == 'nested_value'
         assert obj_to_dict(obj) == dict_7
+
+    def test_dict_to_obj__regression__(self):
+        # before fix dict_to_obj only recognized 'dict' as a valid type, where now it uses  collections.abc.Mapping
+        regular_dict = {'apple': 2, 'banana': 3}
+        proxy_dict   = types.MappingProxyType(regular_dict)
+        assert isinstance(proxy_dict, dict)         is False
+        assert isinstance(proxy_dict, Mapping)      is True
+        assert(obj_to_dict(dict_to_obj(proxy_dict)) == regular_dict)
 
     def test_get_field(self):
         assert str(get_field(self, '__module__')) == "test_Objects"

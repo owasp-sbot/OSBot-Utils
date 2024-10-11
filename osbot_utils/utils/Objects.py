@@ -4,6 +4,7 @@ import pickle
 import sys
 import types
 import typing
+from collections.abc        import Mapping
 
 from typing                 import Union
 from types                  import SimpleNamespace
@@ -124,7 +125,7 @@ def dict_remove(data, target):
 
 def dict_to_obj(target, class_name="_"):
     DynamicClass = type(class_name, (SimpleNamespace,), {})
-    if isinstance(target, dict):
+    if isinstance(target, Mapping):
         new_dict = {}
         for key, value in target.items():
             new_dict[key] = dict_to_obj(value, class_name=class_name)           # Recursively convert elements in the dict
