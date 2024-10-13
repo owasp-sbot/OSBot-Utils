@@ -8,8 +8,7 @@ from typing           import Optional, Union
 from unittest         import TestCase
 from unittest.mock    import patch, call
 
-
-
+from osbot_utils.testing.Stdout import Stdout
 
 from osbot_utils.base_classes.Type_Safe import Type_Safe
 from osbot_utils.utils.Misc import random_int, list_set
@@ -19,7 +18,7 @@ from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
     obj_base_classes, obj_base_classes_names, are_types_compatible_for_assigment, type_mro, \
     obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, pickle_save_to_bytes, \
-    pickle_load_from_bytes, convert_dict_to_value_from_obj_annotation, dict_to_obj, obj_to_dict
+    pickle_load_from_bytes, convert_dict_to_value_from_obj_annotation, dict_to_obj, obj_to_dict, __
 
 
 class test_Objects(TestCase):
@@ -159,6 +158,24 @@ class test_Objects(TestCase):
         assert dict_to_obj(dict_1).an_dict.c    == 3
         assert dict_to_obj(dict_1).an_str       == 'string_1'
         assert obj_to_dict(dict_to_obj(dict_1)) == dict_1
+        if sys.version_info > (3, 10):      # in 3.10 the output of dict_to_obj are not sorted
+            assert dict_to_obj(dict_1) == __(an_bytes=b'the answer is...',
+                                             an_int=42,
+                                             an_dict=__(a=1, b=2, c=3),
+                                             an_str='string_1')
+            with Stdout() as stdout:
+                print(dict_to_obj(dict_1))
+            assert stdout.value() == "__(an_bytes=b'the answer is...', an_int=42, an_dict=__(a=1, b=2, c=3), an_str='string_1')\n"
+
+            with Stdout() as stdout:
+                from osbot_utils.utils.Dev import pprint
+                pprint(dict_to_obj(dict_1))
+            assert stdout.value() == ('\n'
+                                      "__(an_bytes=b'the answer is...',\n"
+                                      '   an_int=42,\n'
+                                      '   an_dict=__(a=1, b=2, c=3),\n'
+                                      "   an_str='string_1')\n")
+
 
         # variation #2:  test_dict_to_obj_nested(self):
         dict_2 = {
@@ -180,6 +197,10 @@ class test_Objects(TestCase):
         assert obj.level_1.level_2.another_str == 'string_2'
         assert obj.level_1.an_float == 3.14
         assert obj_to_dict(obj) == dict_2
+        if sys.version_info > (3, 10):  # in 3.10 the output of dict_to_obj are not sorted
+            assert obj == __(level_1 =__(level_2=__(level_3=__(an_int      = 100, a_list=[1, 2, 3]),
+                                                               another_str = 'string_2'           ),
+                                                               an_float    = 3.14                 ))
 
         # variation #3: test_dict_to_obj_with_list_and_tuple
         dict_3 = {
@@ -188,17 +209,20 @@ class test_Objects(TestCase):
         }
 
         obj = dict_to_obj(dict_3)
-        assert obj.a_list[0] == 1
-        assert obj.a_list[1] == 'string'
-        assert obj.a_tuple[0] == 1
-        assert obj.a_tuple[1] == 2
+        assert obj.a_list[0]             == 1
+        assert obj.a_list[1]             == 'string'
+        assert obj.a_tuple[0]            == 1
+        assert obj.a_tuple[1]            == 2
         assert obj.a_tuple[2].nested_key == 'nested_value'
-        assert obj_to_dict(obj) == dict_3
+        assert obj_to_dict(obj)          == dict_3
+        assert obj                       == __(a_list  = [1, 'string', __(key='value')],
+                                               a_tuple = (1, 2, __(nested_key='nested_value')))
 
         # variation #4:  test_dict_to_obj_empty_input
         dict_4 = {}
         obj = dict_to_obj(dict_4)
         assert obj_to_dict(obj) == dict_4
+        assert obj == __()  # this is the default value for an empty object
 
         #test_dict_to_obj__special_types
         dict_5 = {
@@ -214,6 +238,8 @@ class test_Objects(TestCase):
         assert obj.a_float      == 9.81
         assert obj.a_set        == {1, 2, 3}
         assert obj_to_dict(obj) == dict_5
+        if sys.version_info > (3, 10):  # in 3.10 the output of dict_to_obj are not sorted
+            assert obj              == __(a_bool=True, a_none=None, a_float=9.81, a_set={1, 2, 3})
 
         # variation #5: test_dict_to_obj__abuse_case_non_dict
         assert dict_to_obj(42) == 42                                            # Passing non-dict types to dict_to_obj should return them unchanged
@@ -259,7 +285,27 @@ class test_Objects(TestCase):
         assert getattr(obj, 'key.with.dot'  ).nested_key == 'nested_value'
         assert obj_to_dict(obj) == dict_7
 
-    def test_dict_to_obj__regression__(self):
+    def test_dict_to_obj__using_Type_Safe_classes(self):
+        class An_Class_A(Type_Safe):
+            an_str  : str   = "value_1"
+            an_int  : int   = 42
+            an_bytes: bytes = b"value_2"
+
+        class An_Class_B(Type_Safe):
+            an_class_a: An_Class_A
+            another_str   : str
+            another_int   : int
+            another_bytes : bytes
+
+        if sys.version_info > (3, 10):  # in 3.10 the output of dict_to_obj are not sorted
+            assert An_Class_B().obj() == __(an_class_a    = __(an_str   = 'value_1'  ,
+                                                               an_int   = 42         ,
+                                                               an_bytes = b'value_2' ),
+                                            another_str   = ''  ,
+                                            another_int   = 0   ,
+                                            another_bytes = b'' )
+
+    def test_dict_to_obj__regression(self):
         # before fix dict_to_obj only recognized 'dict' as a valid type, where now it uses  collections.abc.Mapping
         regular_dict = {'apple': 2, 'banana': 3}
         proxy_dict   = types.MappingProxyType(regular_dict)
@@ -294,7 +340,7 @@ class test_Objects(TestCase):
     def test_obj_data(self):
 
         if sys.version_info > (3, 12):
-            pytest.skip("Skipping test that doesn't work on 3.13 or higher")
+            pytest.skip("Skipping test that doesn't work on 3.12 or higher")
         if sys.version_info < (3, 11):
             pytest.skip("Skipping test that does't work on 3.11 or lower")
 

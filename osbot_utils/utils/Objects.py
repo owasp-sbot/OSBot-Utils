@@ -122,18 +122,21 @@ def dict_remove(data, target):
                 del data[target]
     return data
 
+class __(SimpleNamespace):
+    pass
 
-def dict_to_obj(target, class_name="_"):
-    DynamicClass = type(class_name, (SimpleNamespace,), {})
+def dict_to_obj(target):
     if isinstance(target, Mapping):
         new_dict = {}
         for key, value in target.items():
-            new_dict[key] = dict_to_obj(value, class_name=class_name)           # Recursively convert elements in the dict
-        return DynamicClass(**new_dict)
+            new_dict[key] = dict_to_obj(value)                                  # Recursively convert elements in the dict
+        return __(**new_dict)
     elif isinstance(target, list):                                              # Recursively convert elements in the list
-        return [dict_to_obj(item, class_name=class_name) for item in target]
+        return [dict_to_obj(item) for item in target]
     elif isinstance(target, tuple):                                             # Recursively convert elements in the tuple
-        return tuple(dict_to_obj(item, class_name=class_name) for item in target)
+        return tuple(dict_to_obj(item) for item in target)
+    # elif hasattr(target, 'json'):                                             # todo: see if we need this. I don't like the idea of adding this extra hidden behaviour to this class
+    #     return dict_to_obj(target.json())
 
     return target
 
