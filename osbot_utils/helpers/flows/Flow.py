@@ -2,6 +2,8 @@ import asyncio
 import logging
 import typing
 
+from osbot_utils.helpers.Dependency_Manager import Dependency_Manager
+
 from osbot_utils.base_classes.Type_Safe             import Type_Safe
 from osbot_utils.helpers.CFormat                    import CFormat, f_dark_grey, f_magenta, f_bold
 from osbot_utils.helpers.flows.models.Flow__Config  import Flow__Config
@@ -33,6 +35,8 @@ class Flow(Type_Safe):
     logger             : Python_Logger
     cformat            : CFormat
     executed_tasks     : typing.List
+    resolved_args      : tuple
+    resolved_kwargs    : dict
 
     def add_flow_artifact(self, description=None, key=None, data=None, artifact_type=None):     # todo: figure out how to make this work since at the moment most are showing an unknown type 
         result_data = dict(flow_run_id = self.flow_id,
@@ -69,6 +73,7 @@ class Flow(Type_Safe):
             self.logger.add_memory_logger()                                     # todo: move to method that does pre-execute tasks
 
         self.log_debug(f"Executing flow run '{self.f__flow_id()}'")
+        self.resolve_args_and_kwargs()
         try:
             with Stdout() as stdout:
                 self.invoke_flow_target()
@@ -93,14 +98,14 @@ class Flow(Type_Safe):
 
 
     async def invoke_flow_target__thread(self, flow):                               # this is a REALLY important method which is used to pin the flow object to the call stack
-        return await flow.flow_target(*flow.flow_args, **flow.flow_kwargs)          #   which is then used by the Task.find_flow method to find it
+        return await flow.flow_target(*flow.resolved_args, **flow.resolved_kwargs)          #   which is then used by the Task.find_flow method to find it
 
     def invoke_flow_target(self):
         if asyncio.iscoroutinefunction(self.flow_target):
             async_coroutine         = self.invoke_flow_target__thread(self)                     # use this special method to pin the flow object to the call stack
             self.flow_return_value  = invoke_in_new_event_loop(async_coroutine)                 # this will start a complete new thread to execute the flow (which is exactly what we want)
         else:
-            self.flow_return_value  = self.flow_target(*self.flow_args, **self.flow_kwargs)     # if the flow is sync, just execute the flow target
+            self.flow_return_value  = self.flow_target(*self.resolved_args, **self.resolved_kwargs)     # if the flow is sync, just execute the flow target
 
     def f__flow_id(self):
         return self.cformat.green(self.flow_id)
@@ -178,6 +183,13 @@ class Flow(Type_Safe):
     def random_flow_name(self):
         return lower(random_id(prefix=FLOW__RANDOM_NAME__PREFIX))
 
+    def resolve_args_and_kwargs(self):
+        dependency_manager = Dependency_Manager()
+        dependency_manager.add_dependency('this_flow', self)
+        dependency_manager.add_dependency('flow_data', self.data)
+        self.resolved_args, self.resolved_kwargs = dependency_manager.resolve_dependencies(self.flow_target,
+                                                                                           *self.flow_args,
+                                                                                           **self.flow_kwargs)
 
     def set_flow_target(self, target, *args, **kwargs):
         self.flow_target = target
