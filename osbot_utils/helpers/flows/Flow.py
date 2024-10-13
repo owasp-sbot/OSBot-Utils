@@ -32,6 +32,7 @@ class Flow(Type_Safe):
     flow_args          : tuple
     flow_kwargs        : dict
     flow_return_value  : typing.Any
+    flow_run_params    : dict
     logger             : Python_Logger
     cformat            : CFormat
     executed_tasks     : typing.List
@@ -67,8 +68,10 @@ class Flow(Type_Safe):
     def execute(self):
         return self.execute_flow()
 
-    def execute_flow(self):
+    def execute_flow(self, flow_run_params=None):                               # todo: see if it makes more sense to call this start_flow_run
         flow_events.on__flow__start(self)
+        self.set_flow_run_params(flow_run_params)
+
         if self.flow_config.log_to_memory:
             self.logger.add_memory_logger()                                     # todo: move to method that does pre-execute tasks
 
@@ -206,6 +209,13 @@ class Flow(Type_Safe):
                     self.flow_name = self.flow_target.__name__
                 else:
                     self.flow_name = self.random_flow_name()
+
+    def set_flow_run_params(self, flow_run_params=None):
+        if flow_run_params:
+            self.flow_run_params = flow_run_params
+            self.log_info(f"flow_run_params: {flow_run_params}")
+            self.add_flow_artifact(description="Data received via FastAPI's request.json()", key='post-data', data=flow_run_params)
+
     def setup(self):
         with self as _:
             _.cformat.auto_bold = True
