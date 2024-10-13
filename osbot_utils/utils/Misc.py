@@ -131,6 +131,8 @@ def date_today():
 def list_set(target: object) -> object:
     if hasattr(target, '__iter__'):
         return sorted(list(set(target)))
+    if hasattr(target, '__dict__'):
+        return list_set(target.__dict__)
     return []
 
 def time_str_milliseconds(datetime_str, datetime_format, milliseconds_numbers=0):
