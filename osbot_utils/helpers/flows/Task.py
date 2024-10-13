@@ -61,13 +61,15 @@ class Task(Type_Safe):
 
         self.task_flow.executed_tasks.append(self)
         self.log_debug(f"Executing task '{f_blue(self.task_name)}'")
+        self.resolve_args_and_kwargs()
+
+    def resolve_args_and_kwargs(self):
         dependency_manager = Dependency_Manager()
         dependency_manager.add_dependency('this_task', self               )
         dependency_manager.add_dependency('this_flow', self.task_flow     )
         dependency_manager.add_dependency('task_data', self.data          )
         dependency_manager.add_dependency('flow_data', self.task_flow.data)
         self.resolved_args, self.resolved_kwargs = dependency_manager.resolve_dependencies(self.task_target, *self.task_args, **self.task_kwargs)
-
 
     def execute__task_target__sync(self):
         try:
