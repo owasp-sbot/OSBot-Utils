@@ -158,23 +158,23 @@ class test_Objects(TestCase):
         assert dict_to_obj(dict_1).an_dict.c    == 3
         assert dict_to_obj(dict_1).an_str       == 'string_1'
         assert obj_to_dict(dict_to_obj(dict_1)) == dict_1
+        if sys.version_info > (3, 10):      # in 3.10 the output of dict_to_obj are not sorted
+            assert dict_to_obj(dict_1) == __(an_bytes=b'the answer is...',
+                                             an_int=42,
+                                             an_dict=__(a=1, b=2, c=3),
+                                             an_str='string_1')
+            with Stdout() as stdout:
+                print(dict_to_obj(dict_1))
+            assert stdout.value() == "__(an_bytes=b'the answer is...', an_int=42, an_dict=__(a=1, b=2, c=3), an_str='string_1')\n"
 
-        from osbot_utils.utils.Dev import pprint
-        assert dict_to_obj(dict_1) == __(an_bytes=b'the answer is...',
-                                         an_int=42,
-                                         an_dict=__(a=1, b=2, c=3),
-                                         an_str='string_1')
-        with Stdout() as stdout:
-            print(dict_to_obj(dict_1))
-        assert stdout.value() == "__(an_bytes=b'the answer is...', an_int=42, an_dict=__(a=1, b=2, c=3), an_str='string_1')\n"
-
-        with Stdout() as stdout:
-            pprint(dict_to_obj(dict_1))
-        assert stdout.value() == ('\n'
-                                  "__(an_bytes=b'the answer is...',\n"
-                                  '   an_int=42,\n'
-                                  '   an_dict=__(a=1, b=2, c=3),\n'
-                                  "   an_str='string_1')\n")
+            with Stdout() as stdout:
+                from osbot_utils.utils.Dev import pprint
+                pprint(dict_to_obj(dict_1))
+            assert stdout.value() == ('\n'
+                                      "__(an_bytes=b'the answer is...',\n"
+                                      '   an_int=42,\n'
+                                      '   an_dict=__(a=1, b=2, c=3),\n'
+                                      "   an_str='string_1')\n")
 
 
         # variation #2:  test_dict_to_obj_nested(self):
@@ -197,9 +197,10 @@ class test_Objects(TestCase):
         assert obj.level_1.level_2.another_str == 'string_2'
         assert obj.level_1.an_float == 3.14
         assert obj_to_dict(obj) == dict_2
-        assert obj == __(level_1 =__(level_2=__(level_3=__(an_int      = 100, a_list=[1, 2, 3]),
-                                                           another_str = 'string_2'           ),
-                                                           an_float    = 3.14                 ))
+        if sys.version_info > (3, 10):  # in 3.10 the output of dict_to_obj are not sorted
+            assert obj == __(level_1 =__(level_2=__(level_3=__(an_int      = 100, a_list=[1, 2, 3]),
+                                                               another_str = 'string_2'           ),
+                                                               an_float    = 3.14                 ))
 
         # variation #3: test_dict_to_obj_with_list_and_tuple
         dict_3 = {
@@ -237,7 +238,8 @@ class test_Objects(TestCase):
         assert obj.a_float      == 9.81
         assert obj.a_set        == {1, 2, 3}
         assert obj_to_dict(obj) == dict_5
-        assert obj              == __(a_bool=True, a_none=None, a_float=9.81, a_set={1, 2, 3})
+        if sys.version_info > (3, 10):  # in 3.10 the output of dict_to_obj are not sorted
+            assert obj              == __(a_bool=True, a_none=None, a_float=9.81, a_set={1, 2, 3})
 
         # variation #5: test_dict_to_obj__abuse_case_non_dict
         assert dict_to_obj(42) == 42                                            # Passing non-dict types to dict_to_obj should return them unchanged
@@ -295,14 +297,15 @@ class test_Objects(TestCase):
             another_int   : int
             another_bytes : bytes
 
-        assert An_Class_B().obj() == __(an_class_a    = __(an_str   = 'value_1'  ,
-                                                           an_int   = 42         ,
-                                                           an_bytes = b'value_2' ),
-                                        another_str   = ''  ,
-                                        another_int   = 0   ,
-                                        another_bytes = b'' )
+        if sys.version_info > (3, 10):  # in 3.10 the output of dict_to_obj are not sorted
+            assert An_Class_B().obj() == __(an_class_a    = __(an_str   = 'value_1'  ,
+                                                               an_int   = 42         ,
+                                                               an_bytes = b'value_2' ),
+                                            another_str   = ''  ,
+                                            another_int   = 0   ,
+                                            another_bytes = b'' )
 
-    def test_dict_to_obj__regression__(self):
+    def test_dict_to_obj__regression(self):
         # before fix dict_to_obj only recognized 'dict' as a valid type, where now it uses  collections.abc.Mapping
         regular_dict = {'apple': 2, 'banana': 3}
         proxy_dict   = types.MappingProxyType(regular_dict)
