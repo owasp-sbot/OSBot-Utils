@@ -1,5 +1,6 @@
 # todo add tests
 import inspect
+import json
 import pickle
 import sys
 import types
@@ -150,6 +151,9 @@ def obj_to_dict(target):                                                        
     elif isinstance(target, set):                                                   # Handle sets: convert each item and return as a set
         return {obj_to_dict(item) for item in target}
     return target                                                                   # Return non-object types as is
+
+def str_to_obj(target):
+    return dict_to_obj(json.loads(target))
 
 def enum_from_value(enum_type, value):
     try:
@@ -389,6 +393,8 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
 # helper duplicate methods
 base_types          = base_classes
 bytes_to_obj        = pickle_load_from_bytes
+
+json_to_obj         = str_to_obj
 
 full_type_name      = class_full_name
 

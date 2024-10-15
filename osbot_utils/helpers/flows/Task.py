@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import typing
 
+from osbot_utils.helpers.flows.models.Flow_Run__Event_Data import Flow_Run__Event_Data
 from osbot_utils.utils.Misc                 import random_id, lower
 from osbot_utils.helpers.Dependency_Manager import Dependency_Manager
 from osbot_utils.helpers.flows.Flow__Events import flow_events
@@ -57,11 +58,18 @@ class Task(Type_Safe):
         if not self.task_id:
             self.task_id = self.random_task_id()
 
-        flow_events.on__task__start(self)
+        flow_events.on__task__start(self.task_event_data())
 
         self.task_flow.executed_tasks.append(self)
         self.log_debug(f"Executing task '{f_blue(self.task_name)}'")
         self.resolve_args_and_kwargs()
+
+    def task_event_data(self):
+        kwargs = dict(flow_name   = self.task_flow.flow_name,
+                      flow_run_id = self.task_flow.flow_id  ,
+                      task_name   = self.task_name          ,
+                      task_run_id = self.task_id            )
+        return Flow_Run__Event_Data(**kwargs)
 
     def resolve_args_and_kwargs(self):
         dependency_manager = Dependency_Manager()
@@ -97,7 +105,7 @@ class Task(Type_Safe):
 
         self.print_task_finished_message()
 
-        flow_events.on__task__stop(self)
+        flow_events.on__task__stop(self.task_event_data())
         return self.task_return_value
 
 

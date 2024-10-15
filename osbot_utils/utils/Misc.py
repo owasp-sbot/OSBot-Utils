@@ -513,5 +513,6 @@ random_guid         = random_uuid
 random_value        = random_string
 
 time_utc            = time_now
+timestamp_now       = timestamp_utc_now
 wait_for            = wait
 
