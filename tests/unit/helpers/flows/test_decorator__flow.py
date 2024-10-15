@@ -2,7 +2,7 @@ from unittest                                           import TestCase
 from osbot_utils.base_classes.Type_Safe                 import Type_Safe
 from osbot_utils.context_managers.disable_root_loggers  import disable_root_loggers
 from osbot_utils.helpers.flows.Flow                     import Flow
-from osbot_utils.helpers.flows.models.Flow__Config      import Flow__Config
+from osbot_utils.helpers.flows.models.Flow_Run__Config  import Flow_Run__Config
 from osbot_utils.helpers.flows.Task                     import Task
 from osbot_utils.helpers.flows.decorators.flow          import flow
 from osbot_utils.helpers.flows.decorators.task          import task
@@ -23,7 +23,7 @@ class test_decorator__flow(TestCase):
             assert flow_1.flow_return_value == 42
 
     def test__invoke_method_flow__with_task(self):
-        flow_config = Flow__Config(print_logs=False)
+        flow_config = Flow_Run__Config(print_logs=False)
 
         @flow(flow_config=flow_config, flow_id='THE-FLOW-ID')
         def an_method_with_flow(name):
@@ -45,7 +45,7 @@ class test_decorator__flow(TestCase):
 
         kwargs      = dict(print_none_return_value=True,
                            print_finished_message=True )
-        flow_config = Flow__Config(**kwargs)
+        flow_config = Flow_Run__Config(**kwargs)
 
         class An_Class(Type_Safe):
 

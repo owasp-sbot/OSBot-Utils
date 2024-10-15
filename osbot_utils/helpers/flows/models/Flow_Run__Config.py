@@ -1,7 +1,7 @@
 from osbot_utils.base_classes.Type_Safe import Type_Safe
 
 
-class Flow__Config(Type_Safe):
+class Flow_Run__Config(Type_Safe):
     add_task_to_self       : bool = True
     log_to_console         : bool = False
     log_to_memory          : bool = True

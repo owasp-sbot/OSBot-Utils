@@ -16,20 +16,19 @@ class test_Flow(TestCase):
 
         def just_print_a_message():
             print('this is inside the flow')
+            return 'some return value'
 
         with disable_root_loggers():
             with self.flow as _:
                 _.flow_id = 'AN-FLOW-ID'
-                _.setup()
-                _.set_flow_target(just_print_a_message)
+                _.setup(just_print_a_message)
                 #_.set_flow_target(lambda : print('this is a lambda function'))
-                _.create_flow()
                 _.flow_config.print_none_return_value = True
                 _.flow_config.print_finished_message  = True
                 _.execute_flow()
                 assert ansis_to_texts(_.captured_exec_logs) == ["Executing flow run 'AN-FLOW-ID'",
                                                                 'this is inside the flow',
-                                                                'Flow return value: None',
+                                                                'Flow return value: some return value',
                                                                 "Finished flow run 'AN-FLOW-ID'"]
 
 

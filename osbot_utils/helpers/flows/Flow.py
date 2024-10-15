@@ -2,17 +2,17 @@ import asyncio
 import logging
 import typing
 
-from osbot_utils.helpers.Dependency_Manager import Dependency_Manager
-
-from osbot_utils.base_classes.Type_Safe             import Type_Safe
-from osbot_utils.helpers.CFormat                    import CFormat, f_dark_grey, f_magenta, f_bold
-from osbot_utils.helpers.flows.models.Flow__Config  import Flow__Config
-from osbot_utils.helpers.flows.Flow__Events         import flow_events
-from osbot_utils.testing.Stdout                     import Stdout
-from osbot_utils.utils.Misc                         import random_id, lower
-from osbot_utils.utils.Python_Logger                import Python_Logger
-from osbot_utils.utils.Str                          import ansis_to_texts
-from osbot_utils.utils.Threads                      import invoke_in_new_event_loop
+from osbot_utils.helpers.Dependency_Manager             import Dependency_Manager
+from osbot_utils.base_classes.Type_Safe                 import Type_Safe
+from osbot_utils.helpers.CFormat                        import CFormat, f_dark_grey, f_magenta, f_bold
+from osbot_utils.helpers.flows.models.Flow_Run__Config  import Flow_Run__Config
+from osbot_utils.helpers.flows.Flow__Events             import flow_events
+from osbot_utils.helpers.flows.models.Flow_Run__Event_Data import Flow_Run__Event_Data
+from osbot_utils.testing.Stdout                         import Stdout
+from osbot_utils.utils.Misc                             import random_id, lower
+from osbot_utils.utils.Python_Logger                    import Python_Logger
+from osbot_utils.utils.Str                              import ansis_to_texts
+from osbot_utils.utils.Threads                          import invoke_in_new_event_loop
 
 FLOW__RANDOM_ID__PREFIX    = 'flow_id__'
 FLOW__RANDOM_NAME__PREFIX  = 'flow_name__'
@@ -26,7 +26,7 @@ class Flow(Type_Safe):
     data               : dict                   # dict available to the tasks to add and collect data
     flow_id            : str
     flow_name          : str
-    flow_config        : Flow__Config
+    flow_config        : Flow_Run__Config
     flow_error         : Exception           = None
     flow_target        : callable
     flow_args          : tuple
@@ -39,20 +39,22 @@ class Flow(Type_Safe):
     resolved_args      : tuple
     resolved_kwargs    : dict
 
-    def add_flow_artifact(self, description=None, key=None, data=None, artifact_type=None):     # todo: figure out how to make this work since at the moment most are showing an unknown type 
-        result_data = dict(flow_run_id = self.flow_id,
-                           description = description    or 'description'                                                    ,
-                           key         = key            or 'an-artifact-key'                                                ,
-                           data        = data           or {"link": "https://www.google.com", "link_text": "link to Google"},       # test data to see if it worksw
-                           type        = artifact_type  or "link"                                                           )   # type clashed with built-in type
+    def add_flow_artifact(self, description=None, key=None, data=None, artifact_type=None):     # todo: figure out how to make this work since at the moment most are showing an unknown type
+        event_data = Flow_Run__Event_Data()
+        event_data.data= dict(artifact_data = dict(description = description or 'description',
+                                                   key         = key  or 'an-artifact-key',
+                                                   data        = data or {"link": "https://www.google.com", "link_text": "link to Google"},  # test data to see if it worksw
+                                                   type        = artifact_type or "link"))                                                   # type clashed with built-in type
+        event_data.flow_run_id = self.flow_id
+        flow_events.on__new_artifact(event_data)
 
-        flow_events.on__new_artifact(self, result_data )
 
     def add_flow_result(self, key, description):
-        result_data = dict(flow_run_id = self.flow_id,
-                           key         = key         ,
-                           description = description )
-        flow_events.on__new_result(self, result_data )
+        event_data = Flow_Run__Event_Data()
+        event_data.flow_run_id = self.flow_id
+        event_data.data        = dict(result_data = dict(key         = key         ,
+                                                         description = description ))
+        flow_events.on__new_result(event_data)
 
     def config_logger(self):
         with self.logger as _:
@@ -61,15 +63,12 @@ class Flow(Type_Safe):
             if self.flow_config.log_to_console:
                 _.add_console_logger()
 
-    def create_flow(self):
-        self.set_flow_name()
-        self.log_debug(f"Created flow run '{self.f__flow_id()}' for flow '{self.f__flow_name()}'")
-
     def execute(self):
         return self.execute_flow()
 
     def execute_flow(self, flow_run_params=None):                               # todo: see if it makes more sense to call this start_flow_run
-        flow_events.on__flow__start(self)
+        flow_events.on__flow__start(self.flow_event_data())
+        self.log_debug(f"Created flow run '{self.f__flow_id()}' for flow '{self.f__flow_name()}'")
         self.set_flow_run_params(flow_run_params)
 
         if self.flow_config.log_to_memory:
@@ -93,7 +92,7 @@ class Flow(Type_Safe):
             self.logger.remove_memory_logger()                                                          # todo: move to method that does post-execute tasks
         if self.flow_return_value:
             self.add_flow_result(key = 'flow-return-value', description=f'{self.flow_return_value}')
-        flow_events.on__flow__stop(self)
+        flow_events.on__flow__stop(self.flow_event_data())
         return self
 
     def captured_logs(self):
@@ -116,6 +115,10 @@ class Flow(Type_Safe):
     def f__flow_name(self):
         return self.cformat.blue(self.flow_name)
 
+    def flow_event_data(self):
+        kwargs = dict(flow_name = self.flow_name,
+                      flow_id   = self.flow_id)
+        return Flow_Run__Event_Data(**kwargs)
 
     def log_captured_stdout(self, stdout):
         for line in stdout.value().splitlines():
@@ -142,7 +145,7 @@ class Flow(Type_Safe):
                           message     = message     ,
                           flow_run_id = self.flow_id,
                           task_run_id = task_run_id )
-            flow_events.on__flow_run__message(self, **kwargs)
+            flow_events.on__flow_run__message(**kwargs)
             if log_level == logging.DEBUG:
                 self.logger.debug(message)
             elif log_level == logging.ERROR:
@@ -216,11 +219,13 @@ class Flow(Type_Safe):
             self.log_info(f"flow_run_params: {flow_run_params}")
             self.add_flow_artifact(description="Data received via FastAPI's request.json()", key='post-data', data=flow_run_params)
 
-    def setup(self):
+    def setup(self, target, *args, **kwargs):
         with self as _:
             _.cformat.auto_bold = True
-            _.config_logger()
-            _.setup_flow_run()
+            _.set_flow_target (target, *args, **kwargs)
+            _.config_logger   ()
+            _.setup_flow_run  ()
+            _.set_flow_name   ()
         return self
 
     def setup_flow_run(self):

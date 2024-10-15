@@ -10,9 +10,7 @@ def flow(**flow_kwargs):
         @wraps(function)
         def wrapper(*args: Any, **kwargs: Any) -> Flow:
             with Flow(**flow_kwargs) as _:
-                _.set_flow_target(function, *args, **kwargs)
-                _.setup()
-                _.create_flow()
+                _.setup(function, *args, **kwargs)
                 return _
         return wrapper
     return decorator
