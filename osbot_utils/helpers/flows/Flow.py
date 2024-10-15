@@ -116,8 +116,9 @@ class Flow(Type_Safe):
         return self.cformat.blue(self.flow_name)
 
     def flow_event_data(self):
-        kwargs = dict(flow_name = self.flow_name,
-                      flow_id   = self.flow_id)
+        kwargs = dict(flow_name   = self.flow_name  ,
+                      #flow_id     = self.flow_id    ,           # todo: add support for actually sending the flow_id value (not the flow_run_id)
+                      flow_run_id = self.flow_id    )
         return Flow_Run__Event_Data(**kwargs)
 
     def log_captured_stdout(self, stdout):
