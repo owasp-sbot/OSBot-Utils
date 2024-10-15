@@ -9,7 +9,7 @@ from osbot_utils.helpers.flows.models.Flow_Run__Config  import Flow_Run__Config
 from osbot_utils.helpers.flows.Flow__Events             import flow_events
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Data import Flow_Run__Event_Data
 from osbot_utils.testing.Stdout                         import Stdout
-from osbot_utils.utils.Misc                             import random_id, lower
+from osbot_utils.utils.Misc import random_id, lower, time_now
 from osbot_utils.utils.Python_Logger                    import Python_Logger
 from osbot_utils.utils.Str                              import ansis_to_texts
 from osbot_utils.utils.Threads                          import invoke_in_new_event_loop
@@ -24,7 +24,7 @@ FLOW__LOGGING__DATE_FORMAT = '%H:%M:%S'
 class Flow(Type_Safe):
     captured_exec_logs : list
     data               : dict                   # dict available to the tasks to add and collect data
-    flow_id            : str
+    flow_id            : str                    # rename to flow_run_id (or also capture the flow_run_id)
     flow_name          : str
     flow_config        : Flow_Run__Config
     flow_error         : Exception           = None
@@ -197,6 +197,9 @@ class Flow(Type_Safe):
         self.resolved_args, self.resolved_kwargs = dependency_manager.resolve_dependencies(self.flow_target,
                                                                                            *self.flow_args,
                                                                                            **self.flow_kwargs)
+
+    def set_flow_id__time_now(self):
+        self.flow_id = time_now(milliseconds_numbers=1)
 
     def set_flow_target(self, target, *args, **kwargs):
         self.flow_target = target
