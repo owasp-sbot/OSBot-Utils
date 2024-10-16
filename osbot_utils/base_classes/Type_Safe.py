@@ -11,10 +11,11 @@ from enum                                       import Enum, EnumMeta
 from typing                                     import List
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.helpers.Random_Guid            import Random_Guid
+from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Json                     import json_parse
 from osbot_utils.utils.Misc                     import list_set
-from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
+from osbot_utils.utils.Objects                  import default_value, value_type_matches_obj_annotation_for_attr, \
     raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
     obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, \
     convert_dict_to_value_from_obj_annotation, dict_to_obj
@@ -264,10 +265,14 @@ class Type_Safe:
                         enum_type = getattr(self, '__annotations__').get(key)
                         if type(value) is not enum_type:                                    # If the value is not already of the target type
                             value = enum_from_value(enum_type, value)                       # Try to resolve the value into the enum
-                    elif obj_is_attribute_annotation_of_type(self, key, Decimal):           # handle Decimals  # todo: refactor these special cases into a separate method to class
+
+                    # todo: refactor these special cases into a separate method to class
+                    elif obj_is_attribute_annotation_of_type(self, key, Decimal):           # handle Decimals
                         value = Decimal(value)
                     elif obj_is_attribute_annotation_of_type(self, key, Random_Guid):       # handle Random_Guid objects
                         value = Random_Guid(value)
+                    elif obj_is_attribute_annotation_of_type(self, key, Timestamp_Now):
+                        value = Timestamp_Now(value)
                 setattr(self, key, value)                                                   # Direct assignment for primitive types and other structures
 
         return self

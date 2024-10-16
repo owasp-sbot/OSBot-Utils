@@ -9,8 +9,8 @@ from osbot_utils.helpers.trace.Trace_Call__Handler          import Trace_Call__H
 from osbot_utils.helpers.trace.Trace_Call__Print_Lines      import Trace_Call__Print_Lines
 from osbot_utils.helpers.trace.Trace_Call__Print_Traces     import Trace_Call__Print_Traces
 from osbot_utils.helpers.trace.Trace_Call__View_Model       import Trace_Call__View_Model
-from osbot_utils.testing.Stdout import Stdout
-from osbot_utils.utils.Str import ansi_to_text
+from osbot_utils.testing.Stdout                             import Stdout
+from osbot_utils.utils.Str                                  import ansi_to_text
 
 
 def trace_calls(title         = None , print_traces = True , show_locals    = False, source_code          = False ,
