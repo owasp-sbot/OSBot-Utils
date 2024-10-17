@@ -11,6 +11,7 @@ from enum                                       import Enum, EnumMeta
 from typing                                     import List
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.helpers.Random_Guid            import Random_Guid
+from osbot_utils.helpers.Random_Guid_Short      import Random_Guid_Short
 from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Json                     import json_parse
@@ -269,9 +270,11 @@ class Type_Safe:
                     # todo: refactor these special cases into a separate method to class
                     elif obj_is_attribute_annotation_of_type(self, key, Decimal):           # handle Decimals
                         value = Decimal(value)
-                    elif obj_is_attribute_annotation_of_type(self, key, Random_Guid):       # handle Random_Guid objects
+                    elif obj_is_attribute_annotation_of_type(self, key, Random_Guid):       # handle Random_Guid
                         value = Random_Guid(value)
-                    elif obj_is_attribute_annotation_of_type(self, key, Timestamp_Now):
+                    elif obj_is_attribute_annotation_of_type(self, key, Random_Guid_Short): # handle Random_Guid_Short
+                        value = Random_Guid_Short(value)
+                    elif obj_is_attribute_annotation_of_type(self, key, Timestamp_Now):     # handle Timestamp_Now
                         value = Timestamp_Now(value)
                 setattr(self, key, value)                                                   # Direct assignment for primitive types and other structures
 

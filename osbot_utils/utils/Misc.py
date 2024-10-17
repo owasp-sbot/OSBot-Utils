@@ -510,6 +510,7 @@ str_remove          = remove
 random_id           = random_string
 random_int          = random_number
 random_guid         = random_uuid
+random_guid_short   = random_uuid_short
 random_value        = random_string
 
 time_utc            = time_now
