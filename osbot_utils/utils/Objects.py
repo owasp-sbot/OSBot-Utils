@@ -382,7 +382,6 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
                     return True
                 if are_types_magic_mock(source_type=value_type, target_type=attr_type):
                     return True
-
                 return value_type is attr_type
     return None
 
