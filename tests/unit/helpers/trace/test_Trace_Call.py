@@ -273,10 +273,11 @@ class test_Trace_Call(TestCase):
 
         expected_calls = [ ''                                                ,
                            '--------- CALL TRACER ----------'                ,
-                           'Here are the 8 traces captured\n'                ,
+                           'Here are the 9 traces captured\n'                ,
                            '\x1b[1m📦  Trace Session\x1b[0m'                 ,
                            '\x1b[1m│   ├── 🔗️ Python_Logger.__init__\x1b[0m' ,
                            '\x1b[1m│   │   ├── 🧩️ Python_Logger_Config.__init__\x1b[0m',
+                           '\x1b[1m│   │   ├── 🧩️ convert_str_to_value_from_obj_annotation\x1b[0m',
                            '\x1b[1m│   │   ├── 🧩️ set_logger_name\x1b[0m'    ,
                            '\x1b[1m│   │   ├── 🧩️ set_config\x1b[0m'         ,
                            '\x1b[1m│   │   └── 🧩️ setup\x1b[0m'              ,
