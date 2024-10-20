@@ -14,11 +14,95 @@ from osbot_utils.graphs.mermaid.Mermaid__Node       import Mermaid__Node
 from osbot_utils.graphs.mgraph.MGraph__Node         import MGraph__Node
 from osbot_utils.helpers.Random_Guid                import Random_Guid
 from osbot_utils.utils.Json                         import json_to_str, str_to_json
-from osbot_utils.utils.Misc                         import list_set
-from osbot_utils.utils.Objects                      import default_value, obj_attribute_annotation
+from osbot_utils.utils.Misc                         import list_set, is_guid
+from osbot_utils.utils.Objects                      import default_value, obj_attribute_annotation, __
 
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression___classes_with_str_base_class_dont_round_trip(self):
+        class An_Class(Type_Safe):
+            an_str      : str = '42'
+            random_guid : Random_Guid
+
+        an_class                           = An_Class()
+        an_class_obj                       = an_class.obj()
+        an_class__via_from_json            = An_Class.from_json(an_class.json())        # works
+        an_class__via_ctor                 = An_Class(**an_class.json())                # works
+        an_class__via_set_attr             = An_Class()                                 # works
+        an_class__via_set_attr.an_str      = an_class.json().get('an_str'     )
+
+
+        assert an_class__via_from_json.obj() == an_class_obj
+        assert an_class               .obj() == an_class_obj
+        assert an_class__via_ctor     .obj() == an_class_obj
+
+        class An_Class__using__None(Type_Safe):
+            an_str      : str           = None
+            random_guid : Random_Guid   = None
+
+        an_class_using_none               = An_Class__using__None.from_json(an_class.json())  # works
+        assert an_class_using_none.obj() == an_class_obj
+
+
+        # these are the exceptions that should happen when we try to assign non GUID value
+
+        bad_guids = ['aaaa'                                 ,  # clearly not a guid :)
+                     '1e1a9d4d-cc16-4c59-a593-1f1fcaabebd'  ,  # missing one value at the end
+                     'Ge1a9d4d-cc16-4c59-a593-1f1fcaabebdb' ,  # has a G at the start (GUID should only be A-G and 0-9)
+                     '1e1a9d4d-cc16-4c59-a593-1f1fcaabebdb1' ,  # has extra char at the end
+                     ]
+        for bad_guid in bad_guids:
+            expected_error = f"in Random_Guid: value provided was not a Guid: {bad_guid}"
+            with pytest.raises(ValueError,match=expected_error):
+                an_class.random_guid = bad_guid
+
+
+        # FIXED: these statements now don't throw an exception and assign the correct values
+
+        # use case 1: assign the str representation of an_class.random_guid
+        assert is_guid(an_class__via_set_attr.random_guid) is True
+        an_class__via_set_attr.random_guid = "1e1a9d4d-cc16-4c59-a593-1f1fcaabebdb"
+        assert an_class__via_set_attr .obj() == __(an_str='42', random_guid='1e1a9d4d-cc16-4c59-a593-1f1fcaabebdb')
+
+        # assert an_class_using_none__via_set_attr.obj() == an_class_obj
+        # use case 2:  assign the str representation of an_class.random_guid
+        assert is_guid(an_class__via_set_attr.random_guid) is True
+        an_class__via_set_attr.random_guid = str.__str__((an_class.json().get('random_guid')))
+        assert an_class__via_set_attr.obj() == an_class_obj
+
+        # use-case 3: assign the guid when there is a null value
+        an_class_using_none__via_set_attr = An_Class__using__None()
+        assert an_class_using_none__via_set_attr.random_guid is None
+        an_class_using_none__via_set_attr.random_guid = "1e1a9d4d-cc16-4c59-a593-1f1fcaabebdb"
+        assert an_class_using_none__via_set_attr.obj() == __(an_str=None, random_guid='1e1a9d4d-cc16-4c59-a593-1f1fcaabebdb')
+
+        # FIXED: below are the tests that were failing when the bug existed
+        # #BUG: these three use cases fail the assigment of a valid GUID into the random_guid attribute
+        #
+        # # use-case 1: assign a valid GUID to the random_guid attribute
+        # with pytest.raises(ValueError, match="Invalid type for attribute 'random_guid'. Expected '<class 'osbot_utils.helpers.Random_Guid.Random_Guid'>' but got '<class 'str'>'"):
+        #     assert is_guid(an_class__via_set_attr.random_guid) is True
+        #     an_class__via_set_attr.random_guid = "1e1a9d4d-cc16-4c59-a593-1f1fcaabebdb"
+        #
+        # # use-case 2: assign the str representation of an_class.random_guid
+        # with pytest.raises(ValueError, match="Invalid type for attribute 'random_guid'. Expected '<class 'osbot_utils.helpers.Random_Guid.Random_Guid'>' but got '<class 'str'>'"):
+        #     assert is_guid(an_class__via_set_attr.random_guid) is True
+        #     an_class__via_set_attr.random_guid = str.__str__((an_class.json().get('random_guid')))
+        #
+        # # use-case 3: assign the guid when there is a null value
+        # an_class_using_none__via_set_attr = An_Class__using__None()
+        # with pytest.raises(ValueError, match="Invalid type for attribute 'random_guid'. Expected '<class 'osbot_utils.helpers.Random_Guid.Random_Guid'>' but got '<class 'str'>'"):
+        #     assert an_class_using_none__via_set_attr.random_guid is None
+        #     an_class_using_none__via_set_attr.random_guid =  "1e1a9d4d-cc16-4c59-a593-1f1fcaabebdb"
+
+        # assert an_class__via_set_attr .obj() == an_class_obj
+        # assert an_class_using_none__via_set_attr.obj() == an_class_obj
+
+
+        #assert type(str(an_class.json().get('random_guid')))
+
+
 
     def test_regression_base_class_attributes_set_to_null_when_super_is_used(self):
 

@@ -5,12 +5,12 @@ import pickle
 import sys
 import types
 import typing
-from collections.abc        import Mapping
-
-from typing                 import Union
-from types                  import SimpleNamespace
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Str  import str_unicode_escape, str_max_width
+from collections.abc                    import Mapping
+from typing                             import Union
+from types                              import SimpleNamespace
+from osbot_utils.helpers.Random_Guid    import Random_Guid
+from osbot_utils.utils.Misc             import list_set
+from osbot_utils.utils.Str              import str_unicode_escape, str_max_width
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):
@@ -95,7 +95,7 @@ def class_full_name(target):
         type_name   = type_target.__name__
         return f'{type_module}.{type_name}'
 
-def convert_dict_to_value_from_obj_annotation(target, attr_name, value):
+def convert_dict_to_value_from_obj_annotation(target, attr_name, value):                    # todo: refactor this with code from convert_str_to_value_from_obj_annotation since it is mostly the same
     if target is not None and attr_name is not None:
         if hasattr(target, '__annotations__'):
             obj_annotations  = target.__annotations__
@@ -103,6 +103,17 @@ def convert_dict_to_value_from_obj_annotation(target, attr_name, value):
                 attribute_annotation = obj_annotations.get(attr_name)
                 if 'Type_Safe' in base_classes_names(attribute_annotation):
                     return attribute_annotation(**value)
+    return value
+
+def convert_str_to_value_from_obj_annotation(target, attr_name, value):                     # todo: see the side effects of doing this for all strings
+    if target is not None and attr_name is not None:
+        if hasattr(target, '__annotations__'):
+            obj_annotations  = target.__annotations__
+            if hasattr(obj_annotations,'get'):
+                attribute_annotation = obj_annotations.get(attr_name)
+                if 'str' in base_classes_names(attribute_annotation):                       # todo: figure out a better way to handle these special type casting (used for example by Random_Guid)
+                    if attribute_annotation == Random_Guid:                                 #       and add support for other types like int (which is used my Timestamp_Now)
+                        return attribute_annotation(value)
     return value
 
 
