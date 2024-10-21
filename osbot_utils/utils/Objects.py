@@ -8,9 +8,12 @@ import typing
 from collections.abc                    import Mapping
 from typing                             import Union
 from types                              import SimpleNamespace
+from osbot_utils.helpers.Timestamp_Now  import Timestamp_Now
 from osbot_utils.helpers.Random_Guid    import Random_Guid
 from osbot_utils.utils.Misc             import list_set
 from osbot_utils.utils.Str              import str_unicode_escape, str_max_width
+
+TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Random_Guid, Timestamp_Now]
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):
@@ -105,14 +108,14 @@ def convert_dict_to_value_from_obj_annotation(target, attr_name, value):        
                     return attribute_annotation(**value)
     return value
 
-def convert_str_to_value_from_obj_annotation(target, attr_name, value):                     # todo: see the side effects of doing this for all strings
+def convert_to_value_from_obj_annotation(target, attr_name, value):                             # todo: see the side effects of doing this for all ints and floats
     if target is not None and attr_name is not None:
         if hasattr(target, '__annotations__'):
             obj_annotations  = target.__annotations__
             if hasattr(obj_annotations,'get'):
                 attribute_annotation = obj_annotations.get(attr_name)
-                if 'str' in base_classes_names(attribute_annotation):                       # todo: figure out a better way to handle these special type casting (used for example by Random_Guid)
-                    if attribute_annotation == Random_Guid:                                 #       and add support for other types like int (which is used my Timestamp_Now)
+                if attribute_annotation:
+                    if attribute_annotation in TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES:          # for now hard-coding this to just these types until we understand the side effects
                         return attribute_annotation(value)
     return value
 
