@@ -167,6 +167,8 @@ def obj_to_dict(target):                                                        
     return target                                                                   # Return non-object types as is
 
 def str_to_obj(target):
+    if hasattr(target, 'json'):
+        return dict_to_obj(target.json())
     return dict_to_obj(json.loads(target))
 
 def enum_from_value(enum_type, value):

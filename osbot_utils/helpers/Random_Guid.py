@@ -1,6 +1,4 @@
-# todo add to osbot utils
 from osbot_utils.utils.Misc import random_guid, is_guid
-
 
 class Random_Guid(str):
     def __new__(cls, value=None):
