@@ -45,3 +45,4 @@ def toml_to_dict(str_toml):
 
 json_load_file = toml_dict_from_file
 toml_file_load = toml_dict_from_file
+toml_load      = toml_dict_from_file
