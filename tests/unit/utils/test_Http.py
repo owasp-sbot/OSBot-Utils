@@ -7,10 +7,10 @@ from osbot_utils.testing.Custom_Handler_For_Http_Tests import Custom_Handler_For
 from osbot_utils.utils.Objects              import class_full_name, obj_data
 from osbot_utils.testing.Temp_Web_Server    import Temp_Web_Server
 from osbot_utils.utils.Files                import temp_file, file_not_exists, file_exists, file_bytes, file_size, file_create_bytes, file_delete, file_contents
-from osbot_utils.utils.Http                 import DELETE, POST, GET, GET_json, DELETE_json, GET_bytes, GET_bytes_to_file, \
+from osbot_utils.utils.Http import DELETE, POST, GET, GET_json, DELETE_json, GET_bytes, GET_bytes_to_file, \
     dns_ip_address, port_is_open, port_is_not_open, current_host_online, POST_json, OPTIONS, PUT_json, \
     is_port_open, wait_for_port, current_host_offline, http_request, wait_for_http, wait_for_ssh, \
-    wait_for_port_closed, GET_to_file, url_join_safe
+    wait_for_port_closed, GET_to_file, url_join_safe, parse_cookies
 
 
 # note: with the use of Custom_Handler_For_Http_Tests this test went from 10 seconds + to 17 ms :)
@@ -121,6 +121,80 @@ class test_Http(TestCase):
         assert port_is_not_open(host=host_ip, port=port  , timeout=timeout  ) is False
         assert port_is_not_open(host=host   , port=port+1, timeout=timeout  ) is True
         assert port_is_not_open(host=host_ip, port=port+1, timeout=timeout  ) is True
+
+    def test_parse_cookies(self):
+        # Main test with multiple cookies
+        cookie_header   = (
+            'SESSION_ID__USER="user123"; expires=Tue, 29 Oct 2024 22:00:56 GMT; Max-Age=0; '
+            'Path=/; SameSite=lax, SESSION_ID__PERSONA="persona456"; '
+            'expires=Tue, 29 Oct 2024 22:00:56 GMT; Max-Age=0; Path=/; SameSite=lax'
+        )
+        parsed_cookies  = parse_cookies(cookie_header)
+
+        assert len(parsed_cookies)     == 2
+        assert "SESSION_ID__USER"      in parsed_cookies
+        assert "SESSION_ID__PERSONA"   in parsed_cookies
+
+        assert parsed_cookies["SESSION_ID__USER"   ]["value"   ] == "user123"
+        assert parsed_cookies["SESSION_ID__PERSONA"]["value"   ] == "persona456"
+
+        expected_expiry = "Tue, 29 Oct 2024 22:00:56 GMT"
+        assert parsed_cookies["SESSION_ID__USER"   ]["expires" ] == expected_expiry
+        assert parsed_cookies["SESSION_ID__PERSONA"]["expires" ] == expected_expiry
+
+        assert parsed_cookies["SESSION_ID__USER"   ]["path"    ] == "/"
+        assert parsed_cookies["SESSION_ID__PERSONA"]["path"    ] == "/"
+
+        assert parsed_cookies["SESSION_ID__USER"   ]["samesite"] == "lax"
+        assert parsed_cookies["SESSION_ID__PERSONA"]["samesite"] == "lax"
+
+        assert parsed_cookies["SESSION_ID__USER"   ]["max-age" ] == "0"
+        assert parsed_cookies["SESSION_ID__PERSONA"]["max-age" ] == "0"
+
+        # Test cookies with secure and httponly flags
+        cookie_header = (
+            'SESSION_ID__USER="user123"; Secure; HttpOnly; Path=/; SameSite=strict, '
+            'SESSION_ID__PERSONA="persona456"; Secure; Path=/; SameSite=none'
+        )
+        parsed_cookies = parse_cookies(cookie_header)
+
+        assert parsed_cookies["SESSION_ID__USER"]["value"] == "user123"
+        assert parsed_cookies["SESSION_ID__USER"]["secure"] is True
+        assert parsed_cookies["SESSION_ID__USER"]["httponly"] is True
+        assert parsed_cookies["SESSION_ID__USER"]["path"] == "/"
+        assert parsed_cookies["SESSION_ID__USER"]["samesite"] == "strict"
+
+        assert parsed_cookies["SESSION_ID__PERSONA"]["value"] == "persona456"
+        assert parsed_cookies["SESSION_ID__PERSONA"]["secure"] is True
+        assert parsed_cookies["SESSION_ID__PERSONA"]["httponly"] is False
+        assert parsed_cookies["SESSION_ID__PERSONA"]["path"] == "/"
+        assert parsed_cookies["SESSION_ID__PERSONA"]["samesite"] == "none"
+
+
+        # Test empty cookie header
+        cookie_header = ""
+        parsed_cookies = parse_cookies(cookie_header)
+        assert parsed_cookies == {}
+
+
+        # Test with minimal attributes (no expires, max-age, path, samesite, secure, httponly)
+        cookie_header = 'TEST_COOKIE="test_value"'
+        parsed_cookies = parse_cookies(cookie_header)
+
+        assert len(parsed_cookies) == 1
+        assert parsed_cookies["TEST_COOKIE"]["value"] == "test_value"
+        assert parsed_cookies["TEST_COOKIE"] == {'comment' : ''          ,
+                                                 'domain'  : ''          ,
+                                                 'expires' : ''          ,
+                                                 'httponly': False       ,
+                                                 'max-age' : ''          ,
+                                                 'path'    : ''          ,
+                                                 'samesite': ''          ,
+                                                 'secure'  : False       ,
+                                                 'value'   : 'test_value',
+                                                 'version' : ''          }
+
+
 
     def test_wait_for_http(self):
         url = self.local_url
