@@ -80,7 +80,7 @@ def http_request(url, data=None, headers=None, method='GET', encoding ='utf-8', 
         return result
 
 
-def parse_cookies(cookie_header):
+def parse_cookies(cookie_header, include_empty=True):
     cookie = SimpleCookie()
     cookie.load(cookie_header)
     parsed_cookies = {}
@@ -90,7 +90,8 @@ def parse_cookies(cookie_header):
             if attr.lower() in ["secure", "httponly"]:
                 cookie_attrs[attr] = (value == True)
             else:
-                cookie_attrs[attr] = value.strip(', ')      # we need to strip for the cases when there are multiple cookies split by , (as seen in FastAPI Test Client)
+                if value or include_empty:
+                    cookie_attrs[attr] = value.strip(', ')      # we need to strip for the cases when there are multiple cookies split by , (as seen in FastAPI Test Client)
         parsed_cookies[key] = cookie_attrs
 
     return parsed_cookies
