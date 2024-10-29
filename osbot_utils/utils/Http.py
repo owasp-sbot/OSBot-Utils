@@ -4,9 +4,10 @@ import re
 import socket
 import ssl
 import unicodedata
-from time import sleep
-from urllib.parse import quote, urljoin, urlparse, urlunparse
-from   urllib.request import Request, urlopen
+from http.cookies       import SimpleCookie
+from time               import sleep
+from urllib.parse       import quote, urljoin, urlparse, urlunparse
+from   urllib.request   import Request, urlopen
 
 from osbot_utils.utils.Str import html_decode
 
@@ -77,6 +78,24 @@ def http_request(url, data=None, headers=None, method='GET', encoding ='utf-8', 
         if encoding:
             return result.decode(encoding)
         return result
+
+
+def parse_cookies(cookie_header, include_empty=True):
+    cookie = SimpleCookie()
+    cookie.load(cookie_header)
+    parsed_cookies = {}
+    for key, morsel in cookie.items():
+        cookie_attrs = {"value": morsel.value}
+        for attr, value in morsel.items():
+            if attr.lower() in ["secure", "httponly"]:
+                cookie_attrs[attr] = (value == True)
+            else:
+                if value or include_empty:
+                    cookie_attrs[attr] = value.strip(', ')      # we need to strip for the cases when there are multiple cookies split by , (as seen in FastAPI Test Client)
+        parsed_cookies[key] = cookie_attrs
+
+    return parsed_cookies
+
 
 def port_is_not_open(port, host='0.0.0.0', timeout=1.0):
     return port_is_open(port, host,timeout) is False

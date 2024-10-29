@@ -16,7 +16,7 @@ from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Json                     import json_parse
 from osbot_utils.utils.Misc                     import list_set
-from osbot_utils.utils.Objects import default_value, value_type_matches_obj_annotation_for_attr, \
+from osbot_utils.utils.Objects                  import default_value, value_type_matches_obj_annotation_for_attr, \
     raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
     obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, \
     convert_dict_to_value_from_obj_annotation, dict_to_obj, convert_to_value_from_obj_annotation

@@ -1,6 +1,6 @@
 import sys
-
-from osbot_utils.utils.Files import file_create, file_contents
+from osbot_utils.utils.Files   import file_create, file_contents
+from osbot_utils.utils.Objects import dict_to_obj
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -43,5 +43,11 @@ def toml_to_dict(str_toml):
         raise NotImplementedError("TOML parsing is not supported in Python versions earlier than 3.11")
     return tomllib.loads(str_toml)
 
+def toml_obj_from_file(toml_file):
+    data = toml_dict_from_file(toml_file)
+    return dict_to_obj(data)
+
 json_load_file = toml_dict_from_file
 toml_file_load = toml_dict_from_file
+toml_load      = toml_dict_from_file
+toml_load_obj  = toml_obj_from_file
