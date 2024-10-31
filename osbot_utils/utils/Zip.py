@@ -4,10 +4,8 @@ import os
 import shutil
 import tarfile
 import zipfile
-from os.path import abspath
-
-from osbot_utils.utils.Misc import list_set
-
+from os.path                 import abspath
+from osbot_utils.utils.Misc  import list_set
 from osbot_utils.utils.Files import temp_folder, folder_files, temp_file, is_file, file_copy, file_move, file_exists, \
     file_contents_as_bytes
 
