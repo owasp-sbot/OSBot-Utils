@@ -5,6 +5,8 @@ from osbot_utils.utils.Misc  import str_lines, str_md5, str_sha256
 from osbot_utils.utils.Files import file_create_gz, file_create, load_file_gz, file_contents, file_lines, file_lines_gz
 from osbot_utils.utils.Zip   import str_to_gz, gz_to_str
 
+def bytes_to_json_loads(data):
+    return json.loads(data.decode())
 
 def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=str, raise_exception=False):
     if python_object:
@@ -135,6 +137,7 @@ class Json:
     def json_save_tmp_file(python_object, pretty=True):
         return Json.save_file(python_object=python_object, pretty=pretty, path=None)
 
+bytes_to_json                = bytes_to_json_loads
 file_create_json             = Json.save_file_pretty
 file_contents_json           = Json.load_file
 
@@ -158,6 +161,7 @@ json_md5                     = Json.md5
 json_lines_loads             = Json.loads_json_lines
 json_parse                   = Json.loads
 json_lines_parse             = Json.loads_json_lines
+json_to_bytes                = json_dumps_to_bytes
 json_to_str                  = json_dumps
 json_round_trip              = Json.round_trip
 json_save                    = Json.save_file
