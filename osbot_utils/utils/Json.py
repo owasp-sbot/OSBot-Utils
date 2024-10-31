@@ -158,6 +158,7 @@ json_md5                     = Json.md5
 json_lines_loads             = Json.loads_json_lines
 json_parse                   = Json.loads
 json_lines_parse             = Json.loads_json_lines
+json_to_bytes                = json_dumps_to_bytes
 json_to_str                  = json_dumps
 json_round_trip              = Json.round_trip
 json_save                    = Json.save_file

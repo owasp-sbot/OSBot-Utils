@@ -14,7 +14,7 @@ from osbot_utils.helpers.Random_Guid            import Random_Guid
 from osbot_utils.helpers.Random_Guid_Short      import Random_Guid_Short
 from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
 from osbot_utils.utils.Dev                      import pprint
-from osbot_utils.utils.Json                     import json_parse
+from osbot_utils.utils.Json                     import json_parse, json_to_bytes
 from osbot_utils.utils.Misc                     import list_set
 from osbot_utils.utils.Objects                  import default_value, value_type_matches_obj_annotation_for_attr, \
     raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
@@ -230,8 +230,12 @@ class Type_Safe:
     # global methods added to any class that base classes this
     # todo: see if there should be a prefix on these methods, to make it easier to spot them
     #       of if these are actually that useful that they should be added like this
+    def bytes(self):
+        return json_to_bytes(self.json())
+
     def json(self):
         return self.serialize_to_dict()
+
 
     def merge_with(self, target):
         original_attrs = {k: v for k, v in self.__dict__.items() if k not in target.__dict__}       # Store the original attributes of self that should be retained.
