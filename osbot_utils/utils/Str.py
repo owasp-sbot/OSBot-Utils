@@ -5,17 +5,18 @@ from osbot_utils.utils.Files    import safe_file_name
 
 # todo: refactor this this class all str related methods (mainly from the Misc class)
 
-ANSI_ESCAPE_PATTERN = re.compile(r'\x1b\[[0-9;]*m')
+REGEX__ANSI_ESCAPE_PATTERN = re.compile(r'\x1b\[[0-9;]*m')
+REGEX__SAFE_ID_REGEX       = re.compile(r'[^a-zA-Z0-9_-]')
 
 def ansi_text_visible_length(ansi_text):
     if type(ansi_text) is str:
-        ansi_escape = re.compile(ANSI_ESCAPE_PATTERN)           # This regex matches the escape sequences used for text formatting
+        ansi_escape = re.compile(REGEX__ANSI_ESCAPE_PATTERN)           # This regex matches the escape sequences used for text formatting
         visible_text = ansi_escape.sub('', ansi_text)       # Remove the escape sequences
         return len(visible_text)                                # Return the length of the remaining text
 
 def ansi_to_text(ansi_text: str):
     if type(ansi_text) is str:
-        return ANSI_ESCAPE_PATTERN.sub('', ansi_text)
+        return REGEX__ANSI_ESCAPE_PATTERN.sub('', ansi_text)
 
 def ansis_to_texts(ansis_texts: list):                          # todo: find a better name for this method :)
     if type(ansis_texts) is list:
@@ -32,6 +33,23 @@ def strip_quotes(value: str):                           # Remove surrounding quo
     if (value.startswith("'") and value.endswith("'")) or (value.startswith('"') and value.endswith('"')):
         return value[1:-1]
     return value
+
+def safe_id(value):
+    if value is None or value == "":
+        raise ValueError("Invalid ID: The ID must not be empty.")
+
+    if not isinstance(value, str):
+        value = str(value)
+
+    if len(value) > 36:
+        raise ValueError(f"Invalid ID: The ID must not exceed 36 characters (was {len(value)}).")
+
+    sanitized_value = REGEX__SAFE_ID_REGEX.sub('_', value)
+
+    if set(sanitized_value) == {'_'}:
+        raise ValueError("Invalid ID: The sanitized ID must not consist entirely of underscores.")
+
+    return sanitized_value
 
 def str_dedent(value, strip=True):
     result = textwrap.dedent(value)
@@ -53,6 +71,9 @@ def str_max_width(target, value):
 
 def str_safe(value):
     return safe_file_name(value)
+
+def str_safe_id(value):
+    return safe_id(value)
 
 def str_starts_with(source, prefix):
     if source is None or prefix is None:

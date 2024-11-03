@@ -54,22 +54,6 @@ immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, None
 class Type_Safe:
 
     def __init__(self, **kwargs):
-        """
-        Initialize an instance of the derived class, strictly assigning provided keyword
-        arguments to corresponding instance attributes.
-
-        Parameters:
-            **kwargs: Variable length keyword arguments.
-
-        Raises:
-            Exception: If a key from kwargs does not correspond to any attribute
-                       pre-defined in the class, an exception is raised to prevent
-                       setting an undefined attribute.
-
-        """
-        # if 'disable_type_safety' in kwargs:                                 # special case
-        #     self.__type_safety__ = kwargs['disable_type_safety'] is False
-        #     del kwargs['disable_type_safety']
 
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
             if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
