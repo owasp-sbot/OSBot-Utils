@@ -271,10 +271,12 @@ class Type_Safe:
 
         for key, value in data.items():
             if hasattr(self, key) and isinstance(getattr(self, key), Type_Safe):
-                getattr(self, key).deserialize_from_dict(value)                             # Recursive call for complex nested objects
+                getattr(self, key).deserialize_from_dict(value)                                             # if the attribute is a Type_Safe object, then also deserialize it
             else:
-                if hasattr(self, '__annotations__'):                                        # can only do type safety checks if the class does not have annotations
-                    if obj_is_attribute_annotation_of_type(self, key, dict):
+                if hasattr(self, '__annotations__'):                                                        # can only do type safety checks if the class does not have annotations
+                    if hasattr(self, key) is False:                                                         # make sure we are now adding new attributes to the class
+                        raise ValueError(f"Attribute '{key}' not found in '{self.__class__.__name__}'")
+                    if obj_is_attribute_annotation_of_type(self, key, dict):                                # handle the case when the value is a dict
                         value = self.deserialize_dict__using_key_value_annotations(key, value)
                     else:
                         if value is not None:
