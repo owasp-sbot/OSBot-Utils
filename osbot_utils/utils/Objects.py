@@ -8,12 +8,13 @@ import typing
 from collections.abc                    import Mapping
 from typing                             import Union
 from types                              import SimpleNamespace
+from osbot_utils.helpers.Safe_Id        import Safe_Id
 from osbot_utils.helpers.Timestamp_Now  import Timestamp_Now
 from osbot_utils.helpers.Random_Guid    import Random_Guid
 from osbot_utils.utils.Misc             import list_set
 from osbot_utils.utils.Str              import str_unicode_escape, str_max_width
 
-TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Random_Guid, Timestamp_Now]
+TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Safe_Id, Random_Guid, Timestamp_Now]
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):
@@ -351,6 +352,8 @@ def obj_is_attribute_annotation_of_type(target, attr_name, expected_type):
     if expected_type is attribute_annotation:
         return True
     if expected_type is type(attribute_annotation):
+        return True
+    if expected_type is get_origin(attribute_annotation):                               # handle genericAlias
         return True
     return False
 

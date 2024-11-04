@@ -20,6 +20,18 @@ from osbot_utils.utils.Objects                      import default_value, obj_at
 
 class test_Type_Safe__regression(TestCase):
 
+    def test__regression__from_json__allows_new_fields(self):
+        class An_Class(Type_Safe):
+            an_str: str
+
+        json_data_1 = {'an_str': 'value_2'}
+        assert An_Class.from_json(json_data_1).json() == json_data_1
+
+        json_data_2 = {'an_str': 'value_2', 'new_field': 'new_value'}
+        with pytest.raises(ValueError) as exception:
+            An_Class.from_json(json_data_2).json()        # Fixed:   BUG: should have raised exception because of new_field
+        assert exception.value.args[0] == "Attribute 'new_field' not found in 'An_Class'"
+
     def test__regression___classes_with_str_base_class_dont_round_trip(self):
         class An_Class(Type_Safe):
             an_str      : str = '42'

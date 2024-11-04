@@ -261,6 +261,41 @@ class test_Type_Safe(TestCase):
             an_class_2.print()
         assert stdout.value() == "\n{'an_class_1': {'in_class_1': 'data_1'}, 'in_class_2': 'data_2'}\n"
 
+    def test_deserialize_from_dict__recursive(self):
+        class An_Class_1(Type_Safe):
+            in_class_1 : str        = 'data_1'
+
+        class An_Class_2(Type_Safe):
+            an_class_1 : An_Class_1
+            in_class_2 : str        = 'data_2'
+
+        class An_Class_3(Type_Safe):
+            an_class_2 : An_Class_2
+            in_class_3 : str        = 'data_3'
+
+        class An_Class_4(Type_Safe):
+            an_class_3 : An_Class_3
+            in_class_4 : str        = 'data_4'
+
+        an_class = An_Class_4()
+        assert an_class.in_class_4                                  == 'data_4'
+        assert an_class.an_class_3.in_class_3                       == 'data_3'
+        assert an_class.an_class_3.an_class_2.in_class_2            == 'data_2'
+        assert an_class.an_class_3.an_class_2.an_class_1.in_class_1 == 'data_1'
+
+        assert an_class.json() == {'an_class_3': {'an_class_2': {'an_class_1': {'in_class_1': 'data_1'},
+                                                                 'in_class_2': 'data_2'},
+                                                  'in_class_3': 'data_3'},
+                                   'in_class_4': 'data_4'}
+        an_class__round_trip = An_Class_4.from_json(an_class.json())
+        assert an_class__round_trip.in_class_4                                  == 'data_4'
+        assert an_class__round_trip.an_class_3.in_class_3                       == 'data_3'
+        assert an_class__round_trip.an_class_3.an_class_2.in_class_2            == 'data_2'
+        assert an_class__round_trip.an_class_3.an_class_2.an_class_1.in_class_1 == 'data_1'
+        assert an_class__round_trip.json()                                      == an_class.json()
+
+
+
     def test_from_json(self):
         class An_Enum(Enum):
             value_1 = auto()

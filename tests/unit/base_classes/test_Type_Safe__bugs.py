@@ -1,12 +1,46 @@
-from typing import Optional, Union, Dict
-from unittest import TestCase
-
 import pytest
+from typing                                     import Optional, Union, Dict
+from unittest                                   import TestCase
 from osbot_utils.base_classes.Type_Safe         import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
 
 
 class test_Type_Safe__bugs(TestCase):
+
+    def test__bug__ctor__does_not_recreate__Dict__objects(self):
+
+        class An_Class_1(Type_Safe):
+            an_dict : Dict[str,int]
+
+        json_data_1 = {'an_dict': {'key_1': 42}}
+        an_class_1 = An_Class_1.from_json(json_data_1)
+
+        assert type(an_class_1.an_dict) is dict
+        assert an_class_1.an_dict == {'key_1': 42}
+
+        class An_Class_2_B(Type_Safe):
+            an_str: str
+
+        class An_Class_2_A(Type_Safe):
+            an_dict      : Dict[str,An_Class_2_B]
+            an_class_2_b : An_Class_2_B
+
+        json_data_2 = {'an_dict'     : {'key_1': {'an_str': 'value_1'}},
+                       'an_class_2_b': {'an_str': 'value_1'}}
+        print()
+        an_class_2  = An_Class_2_A.from_json(json_data_2)
+
+        assert an_class_2.json() == json_data_2
+        assert type(an_class_2.an_dict                          ) is dict
+
+        assert type(an_class_2.an_dict['key_1']                 ) is An_Class_2_B       # Fixed: BUG: this should be An_Class_2_B not an dict
+
+        # todo fix the scenario where we try to create a new object from a dict value using the ctor instead of the from_json method
+        assert type(An_Class_2_A(**json_data_2).an_dict['key_1']) is dict               # BUG: this should be An_Class_2_B
+        assert type(An_Class_2_A(**json_data_2).an_class_2_b    ) is An_Class_2_B       # when not using Dict[str,An_Class_2_B] the object is created correctly
+
+
+
 
     # todo: figure out why when this test was runs will all the others tests test_Type_Safe tests, it doesn't hit the lines in __setattr__ (as proven by the lack of code coverage)
     #       but then when run in isolation it does hit the lines in __setattr__
