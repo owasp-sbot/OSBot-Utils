@@ -248,28 +248,51 @@ class Type_Safe:
                 setattr(self, key, value)
         return self
 
+    def deserialize_dict__using_key_value_annotations(self, key, value):
+        key_class   = get_args(self.__annotations__[key])[0]
+        value_class = get_args(self.__annotations__[key])[1]
+        new_value   = {}
+        for dict_key, dict_value in value.items():
+            if issubclass(key_class, Type_Safe):
+                new__dict_key = key_class().deserialize_from_dict(dict_key)
+            else:
+                new__dict_key = key_class(dict_key)
 
+            if issubclass(value_class, Type_Safe):
+                new__dict_value = value_class().deserialize_from_dict(dict_value)
+            else:
+                new__dict_value = value_class(dict_value)
+            new_value[new__dict_key] = new__dict_value
+
+        return new_value
+
+    # todo: this needs refactoring, since the logic and code is getting quite complex (to be inside methods like this)
     def deserialize_from_dict(self, data):
+
         for key, value in data.items():
             if hasattr(self, key) and isinstance(getattr(self, key), Type_Safe):
                 getattr(self, key).deserialize_from_dict(value)                             # Recursive call for complex nested objects
             else:
                 if hasattr(self, '__annotations__'):                                        # can only do type safety checks if the class does not have annotations
-                    if obj_is_attribute_annotation_of_type(self, key, EnumMeta):            # Handle the case when the value is an Enum
-                        enum_type = getattr(self, '__annotations__').get(key)
-                        if type(value) is not enum_type:                                    # If the value is not already of the target type
-                            value = enum_from_value(enum_type, value)                       # Try to resolve the value into the enum
+                    if obj_is_attribute_annotation_of_type(self, key, dict):
+                        value = self.deserialize_dict__using_key_value_annotations(key, value)
+                    else:
+                        if value is not None:
+                            if obj_is_attribute_annotation_of_type(self, key, EnumMeta):            # Handle the case when the value is an Enum
+                                enum_type = getattr(self, '__annotations__').get(key)
+                                if type(value) is not enum_type:                                    # If the value is not already of the target type
+                                    value = enum_from_value(enum_type, value)                       # Try to resolve the value into the enum
 
-                    # todo: refactor these special cases into a separate method to class
-                    elif obj_is_attribute_annotation_of_type(self, key, Decimal):           # handle Decimals
-                        value = Decimal(value)
-                    elif obj_is_attribute_annotation_of_type(self, key, Random_Guid):       # handle Random_Guid
-                        value = Random_Guid(value)
-                    elif obj_is_attribute_annotation_of_type(self, key, Random_Guid_Short): # handle Random_Guid_Short
-                        value = Random_Guid_Short(value)
-                    elif obj_is_attribute_annotation_of_type(self, key, Timestamp_Now):     # handle Timestamp_Now
-                        value = Timestamp_Now(value)
-                setattr(self, key, value)                                                   # Direct assignment for primitive types and other structures
+                            # todo: refactor these special cases into a separate method to class
+                            elif obj_is_attribute_annotation_of_type(self, key, Decimal):           # handle Decimals
+                                value = Decimal(value)
+                            elif obj_is_attribute_annotation_of_type(self, key, Random_Guid):       # handle Random_Guid
+                                value = Random_Guid(value)
+                            elif obj_is_attribute_annotation_of_type(self, key, Random_Guid_Short): # handle Random_Guid_Short
+                                value = Random_Guid_Short(value)
+                            elif obj_is_attribute_annotation_of_type(self, key, Timestamp_Now):     # handle Timestamp_Now
+                                value = Timestamp_Now(value)
+                    setattr(self, key, value)                                                   # Direct assignment for primitive types and other structures
 
         return self
 
