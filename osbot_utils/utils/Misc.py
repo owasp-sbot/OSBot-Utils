@@ -379,6 +379,9 @@ def random_string(length:int=8, prefix:str='', postfix:str=''):
     value   = '_' + ''.join(random.choices(string.ascii_uppercase, k=length)).lower()
     return f"{prefix}{value}{postfix}"
 
+def random_string_short(prefix:str = None):
+    return random_id(prefix=prefix, length=6).lower()
+
 def random_string_and_numbers(length:int=6,prefix:str=''):
     return prefix + ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
@@ -508,6 +511,7 @@ str_lines           = split_lines
 str_remove          = remove
 
 random_id           = random_string
+random_id_short     = random_string_short
 random_int          = random_number
 random_guid         = random_uuid
 random_guid_short   = random_uuid_short
