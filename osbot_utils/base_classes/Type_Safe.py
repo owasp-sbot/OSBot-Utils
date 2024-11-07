@@ -250,9 +250,17 @@ class Type_Safe:
         return self
 
     def deserialize_dict__using_key_value_annotations(self, key, value):
-        key_class   = get_args(self.__annotations__[key])[0]
-        value_class = get_args(self.__annotations__[key])[1]
+        dict_annotations_tuple =  get_args(self.__annotations__[key])
+        if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
+            return value
+        if not type(value) is dict:
+            return value
+        #key_class   = get_args(self.__annotations__[key])[0]
+        #value_class = get_args(self.__annotations__[key])[1]
+        key_class   = dict_annotations_tuple[0]
+        value_class = dict_annotations_tuple[1]
         new_value   = {}
+
         for dict_key, dict_value in value.items():
             if issubclass(key_class, Type_Safe):
                 new__dict_key = key_class().deserialize_from_dict(dict_key)
