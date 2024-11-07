@@ -12,6 +12,7 @@ from typing                                     import List
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
 from osbot_utils.helpers.Random_Guid            import Random_Guid
 from osbot_utils.helpers.Random_Guid_Short      import Random_Guid_Short
+from osbot_utils.helpers.Safe_Id                import Safe_Id
 from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
 from osbot_utils.utils.Dev                      import pprint
 from osbot_utils.utils.Json                     import json_parse, json_to_bytes, json_to_gz
@@ -249,9 +250,17 @@ class Type_Safe:
         return self
 
     def deserialize_dict__using_key_value_annotations(self, key, value):
-        key_class   = get_args(self.__annotations__[key])[0]
-        value_class = get_args(self.__annotations__[key])[1]
+        dict_annotations_tuple =  get_args(self.__annotations__[key])
+        if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
+            return value
+        if not type(value) is dict:
+            return value
+        #key_class   = get_args(self.__annotations__[key])[0]
+        #value_class = get_args(self.__annotations__[key])[1]
+        key_class   = dict_annotations_tuple[0]
+        value_class = dict_annotations_tuple[1]
         new_value   = {}
+
         for dict_key, dict_value in value.items():
             if issubclass(key_class, Type_Safe):
                 new__dict_key = key_class().deserialize_from_dict(dict_key)
@@ -288,6 +297,8 @@ class Type_Safe:
                             # todo: refactor these special cases into a separate method to class
                             elif obj_is_attribute_annotation_of_type(self, key, Decimal):           # handle Decimals
                                 value = Decimal(value)
+                            elif obj_is_attribute_annotation_of_type(self, key, Safe_Id):           # handle Safe_Id
+                                value = Safe_Id(value)
                             elif obj_is_attribute_annotation_of_type(self, key, Random_Guid):       # handle Random_Guid
                                 value = Random_Guid(value)
                             elif obj_is_attribute_annotation_of_type(self, key, Random_Guid_Short): # handle Random_Guid_Short

@@ -1,7 +1,7 @@
 import pytest
 import sys
 from decimal                                        import Decimal
-from typing                                         import Optional, Union, List
+from typing                                         import Optional, Union, List, Dict
 from unittest                                       import TestCase
 from unittest.mock                                  import patch
 from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
@@ -19,6 +19,54 @@ from osbot_utils.utils.Objects                      import default_value, obj_at
 
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__from_json__pure__Dict__objects_raise_exception(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("this doesn't work on 3.8 or lower")
+        class An_Class(Type_Safe):
+            an_dict__lowercase  : dict
+            an_dict__uppercase  : Dict
+            an_dict__annotations: Dict[str,dict]
+
+        json_data = {'an_dict__lowercase'  : {'key_1': 42},
+                     'an_dict__uppercase'  : {'key_2': 42},
+                     'an_dict__annotations': {'key_3': {'inner': dict()}}}
+        assert An_Class().obj()  == __(an_dict__lowercase   = __(),
+                                       an_dict__uppercase   = __(),
+                                       an_dict__annotations = __())
+        assert An_Class().json() == {'an_dict__annotations': {},
+                                     'an_dict__lowercase'  : {},
+                                     'an_dict__uppercase'  : {}}
+
+        # with pytest.raises(IndexError, match="tuple index out of range"):
+        #     An_Class.from_json(json_data)                                   # FIXED, was: BUG should not raise exception
+        assert An_Class.from_json(json_data).json() == json_data
+        assert An_Class.from_json(json_data).obj () == __(an_dict__lowercase   = __(key_1=42)            ,
+                                                          an_dict__uppercase   = __(key_2=42)            ,
+                                                          an_dict__annotations = __(key_3=__(inner=__())))
+
+        # test more variations o dict objects
+        class An_Class_2(Type_Safe):
+            dict_1: dict[str,int]
+            dict_2: Dict[int,str]
+            dict_3: dict[Random_Guid, int]
+            dict_4: Dict[int, Random_Guid]
+
+        json_data_2 = {'dict_1': {'key_1': 42},
+                       'dict_2': {42: 'key_1'},
+                       'dict_3': {'not a guid': 42},
+                       'dict_4': {42: 'also not a guid'}}
+
+        with pytest.raises(ValueError, match="in Random_Guid: value provided was not a Guid: not a guid"):
+            An_Class_2.from_json(json_data_2)
+
+        json_data_2['dict_3'] = {Random_Guid(): 42}
+        with pytest.raises(ValueError, match="in Random_Guid: value provided was not a Guid: also not a guid"):
+            An_Class_2.from_json(json_data_2)
+
+        json_data_2['dict_4'] = {42: Random_Guid()}
+
+        assert An_Class_2.from_json(json_data_2).json() == json_data_2
 
     def test__regression__from_json__allows_new_fields(self):
         class An_Class(Type_Safe):

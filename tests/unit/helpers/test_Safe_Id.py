@@ -37,11 +37,9 @@ class test_Safe_Id(TestCase):
         assert str(Safe_Id('aaa/../'    )) == 'aaa____'
         assert str(Safe_Id('a\n\t\r'    )) == 'a___'
 
-        # Edge cases: exceptions with specific error message checks
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Id(None)
-        assert str(exc_info.value) == "Invalid ID: The ID must not be empty."
+        assert Safe_Id(None).startswith('safe-id_')                         # if it received a None value it should create a default random value
 
+        # Edge cases: exceptions with specific error message checks
         with pytest.raises(ValueError) as exc_info:
             Safe_Id('')
         assert str(exc_info.value) == "Invalid ID: The ID must not be empty."
