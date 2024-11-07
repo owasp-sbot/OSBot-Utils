@@ -276,7 +276,7 @@ class Type_Safe:
         return new_value
 
     # todo: this needs refactoring, since the logic and code is getting quite complex (to be inside methods like this)
-    def deserialize_from_dict(self, data):
+    def deserialize_from_dict(self, data, raise_on_not_found=False):
 
         for key, value in data.items():
             if hasattr(self, key) and isinstance(getattr(self, key), Type_Safe):
@@ -284,7 +284,10 @@ class Type_Safe:
             else:
                 if hasattr(self, '__annotations__'):                                                        # can only do type safety checks if the class does not have annotations
                     if hasattr(self, key) is False:                                                         # make sure we are now adding new attributes to the class
-                        raise ValueError(f"Attribute '{key}' not found in '{self.__class__.__name__}'")
+                        if raise_on_not_found:
+                            raise ValueError(f"Attribute '{key}' not found in '{self.__class__.__name__}'")
+                        else:
+                            continue
                     if obj_is_attribute_annotation_of_type(self, key, dict):                                # handle the case when the value is a dict
                         value = self.deserialize_dict__using_key_value_annotations(key, value)
                     else:
@@ -319,11 +322,11 @@ class Type_Safe:
         pprint(serialize_to_dict(self))
 
     @classmethod
-    def from_json(cls, json_data):
+    def from_json(cls, json_data, raise_on_not_found=False):
         if type(json_data) is str:
             json_data = json_parse(json_data)
         if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
-            return cls().deserialize_from_dict(json_data)
+            return cls().deserialize_from_dict(json_data,raise_on_not_found=raise_on_not_found)
         return None
 
 # todo: see if it is possible to add recursive protection to this logic

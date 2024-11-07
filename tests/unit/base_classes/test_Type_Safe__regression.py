@@ -77,8 +77,10 @@ class test_Type_Safe__regression(TestCase):
 
         json_data_2 = {'an_str': 'value_2', 'new_field': 'new_value'}
         with pytest.raises(ValueError) as exception:
-            An_Class.from_json(json_data_2).json()        # Fixed:   BUG: should have raised exception because of new_field
+            An_Class.from_json(json_data_2,raise_on_not_found=True).json()        # Fixed:   BUG: should have raised exception because of new_field
         assert exception.value.args[0] == "Attribute 'new_field' not found in 'An_Class'"
+
+        assert An_Class.from_json(json_data_2).json() == json_data_1              # without raise_on_not_found=True it should ignore the new field
 
     def test__regression___classes_with_str_base_class_dont_round_trip(self):
         class An_Class(Type_Safe):
