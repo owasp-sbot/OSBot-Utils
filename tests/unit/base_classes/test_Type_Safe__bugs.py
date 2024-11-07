@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 from typing                                     import Optional, Union, Dict
 from unittest                                   import TestCase
@@ -9,6 +11,8 @@ from osbot_utils.helpers.Random_Guid            import Random_Guid
 class test_Type_Safe__bugs(TestCase):
 
     def test__bug__nested_dict_serialisations_dont_work(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("this doesn't work on 3.8 or lower")
         class An_Class_1(Type_Safe):
             dict_5: Dict[Random_Guid, dict[Random_Guid, Random_Guid]]
         json_data_1 = { 'dict_5': {Random_Guid(): { Random_Guid():Random_Guid(),

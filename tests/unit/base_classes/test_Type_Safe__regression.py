@@ -21,7 +21,8 @@ from osbot_utils.utils.Objects                      import default_value, obj_at
 class test_Type_Safe__regression(TestCase):
 
     def test__regression__from_json__pure__Dict__objects_raise_exception(self):
-
+        if sys.version_info < (3, 9):
+            pytest.skip("this doesn't work on 3.8 or lower")
         class An_Class(Type_Safe):
             an_dict__lowercase  : dict
             an_dict__uppercase  : Dict
