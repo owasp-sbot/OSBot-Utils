@@ -1,8 +1,7 @@
 import inspect
-from functools import wraps
-
+from functools              import wraps
 from osbot_utils.utils.Misc import str_md5
-from typing import Any, Callable, TypeVar
+from typing                 import Any, Callable, TypeVar
 
 
 CACHE_ON_SELF_KEY_PREFIX = '__cache_on_self__'
