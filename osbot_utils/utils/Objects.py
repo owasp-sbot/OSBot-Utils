@@ -394,6 +394,12 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
             attr_type        = obj_annotations.get(attr_name)
             if attr_type:
                 origin_attr_type = get_origin(attr_type)                # to handle when type definion contains an generic
+                if origin_attr_type is typing.Union:
+                    args = get_args(attr_type)
+                    if len(args)==2 and args[1] is type(None):          # todo: find a better way to do this, since this is handling an edge case when origin_attr_type is Optional (whcih is an shorthand for Union[X, None] )
+                        attr_type = args[0]
+                        origin_attr_type = get_origin(attr_type)
+
                 if origin_attr_type:
                     attr_type = origin_attr_type
                 value_type = type(value)
