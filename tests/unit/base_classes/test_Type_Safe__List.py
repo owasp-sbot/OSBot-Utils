@@ -1,4 +1,5 @@
 import re
+import sys
 
 import pytest
 from typing                                   import List, Dict, Union, Optional, get_origin, ForwardRef
@@ -10,6 +11,8 @@ from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
 class test_Type_Safe__List(TestCase):
 
     def test__type_safe_list_with_simple_types(self):
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
         class An_Class(Type_Safe):
             an_list       : list
             an_list__dict : list[dict]
@@ -54,6 +57,8 @@ class test_Type_Safe__List(TestCase):
 
 
     def test__type_safe_list_with_complex_types(self):
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
         class An_Class(Type_Safe):
             an_list__dict_str_str     : List[Dict[str, str]]
             an_list__dict_str_int     : List[Dict[str, int]]
@@ -328,6 +333,8 @@ class test_Type_Safe__List(TestCase):
 
     # this test will cause the List[Union[Dict[str, int], List[str], int]] to be cached (inside python, which will impact the next two tests)
     def test__type_safe_list_with_complex_union_types(self):
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
         class An_Class(Type_Safe):
             an_list__complex_union: List[Union[Dict[str, int], List[str], int]]
 
@@ -354,6 +361,8 @@ class test_Type_Safe__List(TestCase):
 
     # test #1 impacted by test__type_safe_list_with_complex_union_types
     def test__type_safe_list_with_nested_unions(self):
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
         class An_Class(Type_Safe):
             an_list__nested_union: List[Union[int, List[str], Dict[str, int]]]
 
@@ -380,6 +389,8 @@ class test_Type_Safe__List(TestCase):
 
     # test #2 impacted by test__type_safe_list_with_complex_union_types
     def test__type_safe_list_with_mixed_types(self):
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
         class An_Class(Type_Safe):
             an_list__mixed: List[Union[int, List[str], Dict[str, int]]]
 

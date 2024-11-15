@@ -75,6 +75,8 @@ class test_Type_Safe(TestCase):
         assert list_set(Extends_An_Class.__cls_kwargs__()) == ['an_var']
 
     def test___cls_kwargs__with_optional_attributes(self):
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
         # if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
         #     pytest.skip('Skipping test that requires __annotations__')
 
