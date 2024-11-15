@@ -120,8 +120,10 @@ class test_Type_Safe__bugs(TestCase):
         assert context.exception.args[0] == expected_message
 
     def test__bug__check_type_safety_assignments____on_ctor__union(self):
-        if not hasattr(self, '__annotations__'):
-            pytest.skip('skipping test since __annotations__ is not available')
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
+        # if not hasattr(self, '__annotations__'):
+        #     pytest.skip('skipping test since __annotations__ is not available')
 
         an_bool_value = True
         an_int_value  = 42
