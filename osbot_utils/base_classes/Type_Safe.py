@@ -20,7 +20,8 @@ from osbot_utils.utils.Misc                     import list_set
 from osbot_utils.utils.Objects                  import default_value, value_type_matches_obj_annotation_for_attr, \
     raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
     obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, \
-    convert_dict_to_value_from_obj_annotation, dict_to_obj, convert_to_value_from_obj_annotation
+    convert_dict_to_value_from_obj_annotation, dict_to_obj, convert_to_value_from_obj_annotation, \
+    obj_attribute_annotation
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):                                           # pragma: no cover
@@ -290,6 +291,14 @@ class Type_Safe:
                             continue
                     if obj_is_attribute_annotation_of_type(self, key, dict):                                # handle the case when the value is a dict
                         value = self.deserialize_dict__using_key_value_annotations(key, value)
+                    elif obj_is_attribute_annotation_of_type(self, key, list):                              # handle the case when the value is a list
+                        attribute_annotation = obj_attribute_annotation(self, key)                          # get the annotation for this variable
+                        expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
+                        type_safe_list       = Type_Safe__List(expected_type)                               # create a new instance of Type_Safe__List
+                        for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
+                            new_item = expected_type(**item)                                                # create new object
+                            type_safe_list.append(new_item)                                                 # and add it to the new type_safe_list obejct
+                        value = type_safe_list                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
                     else:
                         if value is not None:
                             if obj_is_attribute_annotation_of_type(self, key, EnumMeta):            # Handle the case when the value is an Enum

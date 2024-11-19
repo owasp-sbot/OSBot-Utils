@@ -10,6 +10,20 @@ from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
 
 class test_Type_Safe__List(TestCase):
 
+    def test__list_from_json__enforces_type_safety(self):
+        class An_Class__Item(Type_Safe):
+            an_str: str
+
+        class An_Class(Type_Safe):
+            items : List[An_Class__Item]
+
+        json_data = {'items': [{'an_str': 'abc'}]}
+
+        an_class = An_Class.from_json(json_data)
+        assert type(an_class.items) is Type_Safe__List
+        assert type(an_class.items[0]) is An_Class__Item
+
+
     def test__type_safe_list_with_simple_types(self):
         if sys.version_info < (3, 10):
             pytest.skip("Skipping test that doesn't work on 3.9 or lower")

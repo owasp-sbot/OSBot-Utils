@@ -1,11 +1,14 @@
 import sys
 
 import pytest
-from typing                                     import Optional, Union, Dict
+from typing import Optional, Union, Dict, List
 from unittest                                   import TestCase
 from osbot_utils.base_classes.Type_Safe         import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
 from osbot_utils.helpers.Random_Guid            import Random_Guid
+from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Objects import __
 
 
 class test_Type_Safe__bugs(TestCase):
