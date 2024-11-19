@@ -20,6 +20,54 @@ from osbot_utils.utils.Objects                      import default_value, obj_at
 
 class test_Type_Safe__regression(TestCase):
 
+    def test__regression__list_from_json_not_enforcing_type_safety(self):
+        class An_Class__Item(Type_Safe):
+            an_str: str
+
+        class An_Class(Type_Safe):
+            items : List[An_Class__Item]
+
+        json_data = {'items': [{'an_str': 'abc'}]}
+
+        an_class_1 = An_Class()
+        an_class_1.items.append(An_Class__Item(an_str='abc'))
+        assert type(an_class_1.items)     == Type_Safe__List
+        assert type(an_class_1.items[0])  is An_Class__Item
+        assert an_class_1.json()          == json_data
+        assert an_class_1.obj ()          == __(items=[__(an_str='abc')])
+
+        an_class_2 = An_Class.from_json(json_data)
+        assert an_class_2.json() == an_class_1.json()
+        assert an_class_2.obj()  == an_class_1.obj()
+
+        #assert type(an_class_2.items[0]) is dict                    # BUG: should be An_Class__Item
+
+        assert type(an_class_2.items   ) is Type_Safe__List          # FIXED
+        assert type(an_class_2.items[0]) is An_Class__Item           # FIXED
+
+
+        # confirm that the type safety is enforced on the objects created via the ctor
+        with pytest.raises(TypeError, match ="Invalid type for item: Expected 'An_Class__Item', but got 'str'"):
+            an_class_1.items.append('abc')
+
+        with pytest.raises(TypeError, match ="Invalid type for item: Expected 'An_Class__Item', but got 'int'"):
+            an_class_1.items.append(123)
+
+        # BUG, but it is not enforced in the object created using from_json
+        #an_class_2.items.append('abc')                                       # BUG, should have raised exception
+        #an_class_2.items.append(123)                                         # BUG, should have raised exception
+
+        with pytest.raises(TypeError, match ="Invalid type for item: Expected 'An_Class__Item', but got 'str'"):
+            an_class_2.items.append('abc')
+
+        with pytest.raises(TypeError, match ="Invalid type for item: Expected 'An_Class__Item', but got 'int'"):
+            an_class_2.items.append(123)
+
+        #assert an_class_2.obj() == __(items=[__(an_str='abc'), 'abc', 123])  # BUG new values should have not been added
+        assert an_class_2.obj() == __(items=[__(an_str='abc')])              # correct, values did not change
+        assert an_class_2.obj() == __(items=[__(an_str='abc')])              # correct, values did not change
+
+
     def test__regression__from_json__pure__Dict__objects_raise_exception(self):
         if sys.version_info < (3, 9):
             pytest.skip("this doesn't work on 3.8 or lower")
