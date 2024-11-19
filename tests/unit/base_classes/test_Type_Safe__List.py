@@ -1,11 +1,11 @@
 import re
 import sys
-
 import pytest
-from typing                                   import List, Dict, Union, Optional, get_origin, ForwardRef
+from typing                                   import List, Dict, Union, Optional
 from unittest                                 import TestCase
 from osbot_utils.base_classes.Type_Safe       import Type_Safe
 from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
+from osbot_utils.helpers.Random_Guid          import Random_Guid
 
 
 class test_Type_Safe__List(TestCase):
@@ -23,6 +23,16 @@ class test_Type_Safe__List(TestCase):
         assert type(an_class.items) is Type_Safe__List
         assert type(an_class.items[0]) is An_Class__Item
 
+    def test__list_from_json__enforces_type_safety__random_guids(self):
+        class An_Class(Type_Safe):
+            items : List[Random_Guid]
+
+        json_data_1 = {'items': [Random_Guid(), Random_Guid()]}
+        assert An_Class.from_json(json_data_1).json() == json_data_1
+
+        json_data_2 = {'items': [Random_Guid(), Random_Guid(), 123]}
+        with pytest.raises(ValueError, match=re.escape("in Random_Guid: value provided was not a Guid: 123")):
+            An_Class.from_json(json_data_2)
 
     def test__type_safe_list_with_simple_types(self):
         if sys.version_info < (3, 10):

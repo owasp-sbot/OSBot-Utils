@@ -296,7 +296,10 @@ class Type_Safe:
                         expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
                         type_safe_list       = Type_Safe__List(expected_type)                               # create a new instance of Type_Safe__List
                         for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
-                            new_item = expected_type(**item)                                                # create new object
+                            if type(item) is dict:
+                                new_item = expected_type(**item)                                                # create new object
+                            else:
+                                new_item = expected_type(item)
                             type_safe_list.append(new_item)                                                 # and add it to the new type_safe_list obejct
                         value = type_safe_list                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
                     else:
