@@ -293,15 +293,17 @@ class Type_Safe:
                         value = self.deserialize_dict__using_key_value_annotations(key, value)
                     elif obj_is_attribute_annotation_of_type(self, key, list):                              # handle the case when the value is a list
                         attribute_annotation = obj_attribute_annotation(self, key)                          # get the annotation for this variable
-                        expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
-                        type_safe_list       = Type_Safe__List(expected_type)                               # create a new instance of Type_Safe__List
-                        for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
-                            if type(item) is dict:
-                                new_item = expected_type(**item)                                                # create new object
-                            else:
-                                new_item = expected_type(item)
-                            type_safe_list.append(new_item)                                                 # and add it to the new type_safe_list obejct
-                        value = type_safe_list                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
+                        attribute_annotation_args = get_args(attribute_annotation)
+                        if attribute_annotation_args:
+                            expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
+                            type_safe_list       = Type_Safe__List(expected_type)                               # create a new instance of Type_Safe__List
+                            for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
+                                if type(item) is dict:
+                                    new_item = expected_type(**item)                                                # create new object
+                                else:
+                                    new_item = expected_type(item)
+                                type_safe_list.append(new_item)                                                 # and add it to the new type_safe_list obejct
+                            value = type_safe_list                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
                     else:
                         if value is not None:
                             if obj_is_attribute_annotation_of_type(self, key, EnumMeta):            # Handle the case when the value is an Enum
