@@ -2,6 +2,7 @@ import threading
 from _thread                                                    import RLock                              # Reentrant lock for thread-safe access
 from types                                                      import GeneratorType
 from typing                                                     import Dict                               # Typing imports for type hints
+from typing                                                     import Union
 from osbot_utils.base_classes.Type_Safe                         import Type_Safe                          # Type_Safe base class for type-safe attributes
 from osbot_utils.helpers.Random_Guid                            import Random_Guid                        # Helper for generating unique IDs
 from osbot_utils.helpers.generators.Generator_Context_Manager   import Generator_Context_Manager
@@ -91,7 +92,7 @@ class Generator_Manager(Type_Safe):                                             
                     stopped_count += 1                                                                     # Increment the stopped count if successful
             return stopped_count                                                                           # Return the total number of stopped generators
 
-    def target_id(self, target: GeneratorType) -> Random_Guid | None:                                      # Method to get the ID of a specific generator
+    def target_id(self, target: GeneratorType) -> Union[Random_Guid, None]:                                # Method to get the ID of a specific generator
         with self.lock:                                                                                    # Acquire the lock for thread-safe access
             for generator in list(self.generators.values()):                                               # Iterate over the generator targets
                 if generator.target == target:                                                             # Check if the target matches
