@@ -495,3 +495,182 @@ class test_Generator_Manager(TestCase):
         generator = self.manager.generator(target_id)
         assert generator is not None
         assert generator.state in [Model__Generator_State.STOPPING, Model__Generator_State.COMPLETED]
+
+
+    def test_simple_stream_control(self):   # Test simple stream control pattern
+
+        def generate_events(wait_count, get_generator):
+            generator = get_generator()
+            while wait_count > 0:
+                if generator.state != Model__Generator_State.RUNNING:
+                    return  # Exit cleanly
+
+                yield wait_count
+                wait_count -= 1
+                sleep(0.001)  # Simulate work
+
+        def live_stream():
+
+            def get_generator():
+                nonlocal target_id
+                generator = self.manager.generator(target_id)
+                return generator
+
+
+            gen       = generate_events(10, get_generator)
+            target_id = self.manager.add(gen)
+
+            return gen
+
+        # Run the stream
+        events           = []
+        gen_live_stream  = live_stream()
+        generator_target = self.manager.find_generator(gen_live_stream)
+
+        # Simulate streaming
+        for event in gen_live_stream:
+            events.append(event)
+            if event == 8:  # Stop after value 8
+                generator_target.state = Model__Generator_State.STOPPING
+
+        # Verify results
+        assert events                        == [10, 9, 8]
+        assert len(self.manager.generators) == 1
+        assert generator_target.state       == Model__Generator_State.STOPPING
+
+    def test_multiple_simple_streams(self):   # Test multiple concurrent simple streams
+        manager = Generator_Manager()
+        results = {}
+        target_ids = {}
+
+        def get_generator(stream_id):
+            return manager.generator(target_ids[stream_id])
+
+        def generate_events(stream_id, wait_count, get_generator):
+            generator = get_generator(stream_id)
+            while wait_count > 0:
+                if generator.state != Model__Generator_State.RUNNING:
+                    return
+
+                yield f"{stream_id}:{wait_count}"
+                wait_count -= 1
+                sleep(0.001)
+
+        def live_stream(stream_id):
+            gen = generate_events(stream_id, 10, get_generator)
+            target_ids[stream_id] = manager.add(gen)
+            results[stream_id] = []
+
+            for event in gen:
+                results[stream_id].append(event)
+                if len(results[stream_id]) >= 3:
+                    generator = manager.generator(target_ids[stream_id])
+                    generator.state = Model__Generator_State.STOPPING
+
+        # Start multiple streams
+        threads = []
+        for i in range(3):
+            stream_id = f"stream_{i}"
+            thread = Thread(target=live_stream, args=(stream_id,))
+            threads.append(thread)
+            thread.start()
+
+        # Wait for completion
+        for thread in threads:
+            thread.join()
+
+        # Verify results
+        for i in range(3):
+            stream_id = f"stream_{i}"
+            assert len(results[stream_id]) == 3
+            assert results[stream_id] == [ f"{stream_id}:10", f"{stream_id}:9", f"{stream_id}:8"]
+
+            generator = manager.generator(target_ids[stream_id])
+            assert generator.state == Model__Generator_State.STOPPING
+
+    def test_error_handling_simple_stream(self): # Test error handling in simple stream pattern
+        manager = Generator_Manager()
+        events = []
+        target_id = None
+
+        def get_generator():
+            return manager.generator(target_id)
+
+        def generate_events(wait_count, get_generator):
+            generator = get_generator()
+            while wait_count > 0:
+                if generator.state != Model__Generator_State.RUNNING:
+                    return
+
+                if wait_count == 8:
+                    raise ValueError("Test error")
+
+                yield wait_count
+                wait_count -= 1
+
+        def live_stream():
+            nonlocal target_id
+            gen = generate_events(10, get_generator)
+            target_id = manager.add(gen)
+
+            try:
+                for event in gen:
+                    events.append(event)
+            except ValueError as e:
+                events.append(f"Error: {str(e)}")
+                generator = manager.generator(target_id)
+                generator.state = Model__Generator_State.STOPPING
+                raise
+
+        # Run the stream
+        with pytest.raises(ValueError):
+            live_stream()
+
+        # Verify results
+        assert events == [10, 9, "Error: Test error"]
+        assert len(manager.generators) == 1
+        generator = manager.generator(target_id)
+        assert generator.state == Model__Generator_State.STOPPING
+
+    def test_cleanup_simple_stream(self): #        Test cleanup of completed streams
+        manager = Generator_Manager()
+        target_id = None
+
+        def get_generator():
+            return manager.generator(target_id)
+
+        def generate_events(wait_count, get_generator):
+            generator = get_generator()
+            try:
+                while wait_count > 0:
+                    if generator.state != Model__Generator_State.RUNNING:
+                        return
+
+                    yield wait_count
+                    wait_count -= 1
+            finally:
+                # Cleanup when generator exits
+                generator = get_generator()
+                if generator:
+                    generator.state = Model__Generator_State.COMPLETED
+
+        def live_stream():
+            nonlocal target_id
+            gen = generate_events(3, get_generator)
+            target_id = manager.add(gen)
+
+            for _ in gen:
+                pass  # Consume all events
+
+        # Run the stream
+        live_stream()
+
+        # Verify cleanup
+        assert len(manager.generators) == 1
+        generator = manager.generator(target_id)
+        assert generator.state == Model__Generator_State.COMPLETED
+
+        # Cleanup completed generators
+        cleaned = manager.cleanup()
+        assert cleaned == 1
+        assert len(manager.generators) == 0
