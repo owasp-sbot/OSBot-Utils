@@ -38,6 +38,12 @@ class test_Generator_Manager(TestCase):
         self.assertEqual(generator.target, gen)
         self.assertEqual(generator.state, Model__Generator_State.RUNNING)
 
+
+        assert self.manager.status() == { 'data': { 'running': [{ 'target_id'         : target_id        ,
+                                                                  'target_state'      : 'running'         ,
+                                                                  'target_method_name': 'sample_generator'}]},
+                                         'running': 1}
+
     def test_add_duplicate_generator(self):
         def sample_generator():
             yield 1

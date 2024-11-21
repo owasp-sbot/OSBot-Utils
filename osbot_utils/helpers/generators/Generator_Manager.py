@@ -8,6 +8,7 @@ from osbot_utils.helpers.Random_Guid                            import Random_Gu
 from osbot_utils.helpers.generators.Generator_Context_Manager   import Generator_Context_Manager
 from osbot_utils.helpers.generators.Model__Generator_State      import Model__Generator_State
 from osbot_utils.helpers.generators.Model__Generator_Target     import Model__Generator_Target
+from osbot_utils.utils.Lists                                    import list_group_by
 
 
 class Generator_Manager(Type_Safe):                                                                        # Class for managing multiple generator targets
@@ -91,6 +92,21 @@ class Generator_Manager(Type_Safe):                                             
                 if self.stop(target_id):                                                                   # Attempt to stop each generator
                     stopped_count += 1                                                                     # Increment the stopped count if successful
             return stopped_count                                                                           # Return the total number of stopped generators
+
+    def status(self):
+        items = []
+        for _, generator in self.generators.items():
+            item = dict(target_method_name = generator.target.__name__,
+                        target_state       = generator.state.value,
+                        target_id          = generator.target_id )
+            items.append(item)
+        items__by_state = list_group_by(items, 'target_state')
+        result = {}
+        for state, items in items__by_state.items():
+            result[state] = len(items)
+        result['data'] = items__by_state
+        return result
+
 
     def target_id(self, target: GeneratorType) -> Union[Random_Guid, None]:                                # Method to get the ID of a specific generator
         with self.lock:                                                                                    # Acquire the lock for thread-safe access

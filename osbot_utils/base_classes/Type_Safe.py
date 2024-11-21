@@ -361,3 +361,5 @@ def serialize_to_dict(obj):
         return data
     else:
         raise TypeError(f"Type {type(obj)} not serializable")
+        #return f"UNSERIALIZABLE({type(obj).__name__})"             # todo: see if there are valid use cases for this
+
