@@ -2,10 +2,6 @@ import sys
 from osbot_utils.utils.Files   import file_create, file_contents
 from osbot_utils.utils.Objects import dict_to_obj
 
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    tomllib = None
 
 def dict_to_toml(data, indent_level=0):
     toml_str = ""
@@ -39,9 +35,11 @@ def toml_dict_from_file(toml_file):
 
 
 def toml_to_dict(str_toml):
-    if tomllib is None:
-        raise NotImplementedError("TOML parsing is not supported in Python versions earlier than 3.11")
-    return tomllib.loads(str_toml)
+    if sys.version_info >= (3, 11):
+        import tomllib
+        return tomllib.loads(str_toml)
+    raise NotImplementedError("TOML parsing is not supported in Python versions earlier than 3.11")
+
 
 def toml_obj_from_file(toml_file):
     data = toml_dict_from_file(toml_file)

@@ -1,11 +1,13 @@
-from osbot_utils.utils.Dev                   import pprint
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+
+from osbot_utils.base_classes.Type_Safe import Type_Safe
+from osbot_utils.utils.Dev              import pprint                   # todo: fix test requirement of mock to use this method
+
 
 PRINT_MAX_STRING_LENGTH    = 100
 PRINT_PADDING__DURATION    = 100
 PRINT_PADDING_PARENT_INFO  = 60
 
-class Trace_Call__Config(Kwargs_To_Self):
+class Trace_Call__Config(Type_Safe):
     capture_locals             : bool = False
     capture_duration           : bool
     capture_extra_data         : bool

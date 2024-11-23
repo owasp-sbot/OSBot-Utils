@@ -1,14 +1,11 @@
-import json
-import os
-
-from osbot_utils.utils.Misc  import str_lines, str_md5, str_sha256
-from osbot_utils.utils.Files import file_create_gz, file_create, load_file_gz, file_contents, file_lines, file_lines_gz
-from osbot_utils.utils.Zip   import str_to_gz, gz_to_str
 
 def bytes_to_json_loads(data):
+    import json
     return json.loads(data.decode())
 
 def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=str, raise_exception=False):
+    import json
+
     if python_object:
         try:
             if pretty:
@@ -25,6 +22,8 @@ def json_dumps_to_bytes(*args, **kwargs):
     return json_dumps(*args, **kwargs).encode()
 
 def json_lines_file_load(target_path):
+    from osbot_utils.utils.Files import file_lines
+
     raw_json = '['                                          # start the json array
     lines    = file_lines(target_path)                      # get all lines from the file provided in target_path
     raw_json += ','.join(lines)                             # add lines to raw_json split by json array separator
@@ -32,6 +31,8 @@ def json_lines_file_load(target_path):
     return json_parse(raw_json)                             # convert json data into a python object
 
 def json_lines_file_load_gz(target_path):
+    from osbot_utils.utils.Files import file_lines_gz
+
     raw_json = '['                                          # start the json array
     lines    = file_lines_gz(target_path)                      # get all lines from the file provided in target_path
     raw_json += ','.join(lines)                             # add lines to raw_json split by json array separator
@@ -40,14 +41,19 @@ def json_lines_file_load_gz(target_path):
 
 
 def json_sha_256(target):
+    from osbot_utils.utils.Misc import str_sha256
     return str_sha256(json_dumps(target))
 
 
 def json_to_gz(data):
+    from osbot_utils.utils.Zip import str_to_gz
     value = json_dumps(data, pretty=False)
     return str_to_gz(value)
 
 def gz_to_json(gz_data):
+    import json
+    from osbot_utils.utils.Zip import gz_to_str
+
     data = gz_to_str(gz_data)
     return json.loads(data)
 
@@ -62,11 +68,15 @@ class Json:
         Note: will not throw errors and will return {} as default
         errors are logged to Json.log
         """
+        from osbot_utils.utils.Files import file_contents
+
         json_data = file_contents(path)
         return json_loads(json_data)
 
     @staticmethod
     def load_file_and_delete(path):
+        import os
+
         data = json_load_file(path)
         if data:
             os.remove(path)
@@ -74,11 +84,14 @@ class Json:
 
     @staticmethod
     def load_file_gz(path):
+        from osbot_utils.utils.Files import load_file_gz
         data = load_file_gz(path)
         return json_loads(data)
 
     @staticmethod
     def load_file_gz_and_delete(path):
+        import os
+
         data = json_load_file_gz(path)
         if data:
             os.remove(path)
@@ -91,6 +104,8 @@ class Json:
         Note: will not throw errors and will return {} as default
         errors are logged to Json.log
         """
+        import json
+
         if json_data:
             try:
                 return json.loads(json_data)
@@ -103,11 +118,15 @@ class Json:
 
     @staticmethod
     def loads_json_lines(json_lines):
+        from osbot_utils.utils.Misc import str_lines
+
         json_data = '[' + ','.join(str_lines(json_lines.strip())) + ']'
         return json_loads(json_data)
 
     @staticmethod
     def md5(data):
+        from osbot_utils.utils.Misc import str_md5
+
         return str_md5(json_dump(data))
 
     @staticmethod
@@ -116,6 +135,8 @@ class Json:
 
     @staticmethod
     def save_file(python_object, path=None, pretty=False, sort_keys=False):
+        from osbot_utils.utils.Files import file_create
+
         json_data = json_dumps(python_object=python_object, indent=2, pretty=pretty, sort_keys=sort_keys)
         return file_create(path=path, contents=json_data)
 
@@ -125,6 +146,7 @@ class Json:
 
     @staticmethod
     def save_file_gz(python_object, path=None, pretty=False):
+        from osbot_utils.utils.Files import file_create_gz
         json_data = json_dumps(python_object,indent=2, pretty=pretty)
         return file_create_gz(path=path, contents=json_data)
 

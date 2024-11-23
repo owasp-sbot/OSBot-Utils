@@ -1,7 +1,7 @@
-from osbot_utils.decorators.lists.index_by import index_by
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local import Sqlite__DB__Local
-from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Files import Sqlite__Table__Files
+from osbot_utils.decorators.lists.index_by                  import index_by
+from osbot_utils.decorators.methods.cache_on_self           import cache_on_self
+from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local   import Sqlite__DB__Local
+
 
 
 class Sqlite__DB__Files(Sqlite__DB__Local):
@@ -35,6 +35,8 @@ class Sqlite__DB__Files(Sqlite__DB__Local):
 
     @cache_on_self
     def table_files(self):
+        from osbot_utils.helpers.sqlite.tables.Sqlite__Table__Files import Sqlite__Table__Files
+
         return Sqlite__Table__Files(database=self).setup()
 
     @index_by

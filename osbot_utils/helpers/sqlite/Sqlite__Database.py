@@ -1,18 +1,14 @@
-import sqlite3
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.decorators.methods.cache import cache
-from osbot_utils.decorators.methods.cache_on_self import cache_on_self
-
-from osbot_utils.utils.Files import current_temp_folder, path_combine, folder_create, file_exists, file_delete
-from osbot_utils.utils.Misc import  random_filename
+from osbot_utils.base_classes.Type_Safe             import Type_Safe
+from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
+from osbot_utils.utils.Files                        import current_temp_folder, path_combine, folder_create, file_exists, file_delete
+from osbot_utils.utils.Misc                         import  random_filename
 
 SQLITE_DATABASE_PATH__IN_MEMORY = ':memory:'
 FOLDER_NAME_TEMP_DATABASES      = '_temp_sqlite_databases'
 TEMP_DATABASE__FILE_NAME_PREFIX = 'random_sqlite_db__'
 TEMP_DATABASE__FILE_EXTENSION   = '.sqlite'
 
-class Sqlite__Database(Kwargs_To_Self):
+class Sqlite__Database(Type_Safe):
     db_path         : str  = None
     closed          : bool = False
     connected       : bool = False
@@ -38,6 +34,8 @@ class Sqlite__Database(Kwargs_To_Self):
 
     @cache_on_self
     def connect(self):
+        import sqlite3
+
         connection_string      = self.connection_string()
         connection             = sqlite3.connect(connection_string)
         connection.row_factory = self.dict_factory                      # this returns a dict as the row value of every query
@@ -90,6 +88,8 @@ class Sqlite__Database(Kwargs_To_Self):
         return path_temp_databases
 
     def save_to(self, path):
+        import sqlite3
+
         connection = self.connection()
         file_conn  = sqlite3.connect(path)
         connection.backup(file_conn)
