@@ -1,8 +1,9 @@
 #todo: refactor with index_by
-from functools import wraps
 
 
 def group_by(function):                                 # returns the list provided grouped by the key provided in group_by
+    from functools import wraps
+
     @wraps(function)
     def wrapper(*args,**kwargs):
         key = None

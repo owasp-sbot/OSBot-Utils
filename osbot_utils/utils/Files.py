@@ -1,17 +1,5 @@
-import gzip
-
 import os
-import glob
-import pickle
-import re
-import shutil
-import tempfile
-from   os.path              import abspath, join
-from pathlib import Path, PosixPath
-from typing import Union
-
-from osbot_utils.utils.Misc import bytes_to_base64, base64_to_bytes, random_string
-
+from typing                 import Union
 
 class Files:
     @staticmethod
@@ -21,6 +9,7 @@ class Files:
 
     @staticmethod
     def copy(source:str, destination:str) -> str:
+        import shutil
         if file_exists(source):                                     # make sure source file exists
             destination_parent_folder = parent_folder(destination)  # get target parent folder
             folder_create(destination_parent_folder)                # ensure target folder exists       # todo: check if this is still needed (we should be using a copy method that creates the required fodlers)
@@ -78,10 +67,14 @@ class Files:
 
     @staticmethod
     def find(path_pattern, recursive=True):
+        import glob
+
         return glob.glob(path_pattern, recursive=recursive)
 
     @staticmethod
     def files(path, pattern= '*', only_files=True):
+        from pathlib import Path
+
         result = []
         for file in Path(path).rglob(pattern):
             if only_files and is_not_file(file):
@@ -99,6 +92,8 @@ class Files:
 
     @staticmethod
     def file_create_all_parent_folders(file_path):
+        from pathlib import Path
+
         if file_path:
             parent_path = parent_folder(file_path)
             if parent_path:
@@ -136,10 +131,14 @@ class Files:
 
     @staticmethod
     def file_to_base64(path):
+        from osbot_utils.utils.Misc import bytes_to_base64
+
         return bytes_to_base64(file_bytes(path))
 
     @staticmethod
     def file_from_base64(bytes_base64, path=None, extension=None):
+        from osbot_utils.utils.Misc import base64_to_bytes
+
         bytes_ = base64_to_bytes(bytes_base64)
         return file_create_bytes(bytes=bytes_, path=path, extension=None)
 
@@ -181,6 +180,8 @@ class Files:
 
     @staticmethod
     def folder_copy(source, destination, ignore_pattern=None):
+        import shutil
+
         if ignore_pattern:
             if type(ignore_pattern) is str:
                 ignore_pattern = [ignore_pattern]
@@ -214,6 +215,8 @@ class Files:
 
     @staticmethod
     def folder_delete_all(path):                # this will remove recursively
+        import shutil
+
         if folder_exists(path):
             shutil.rmtree(path)
             return folder_exists(path) is False
@@ -267,6 +270,8 @@ class Files:
 
     @staticmethod
     def is_file(target):
+        from pathlib import Path
+
         if isinstance(target, Path):
             return target.is_file()
         if type(target) is str:
@@ -276,6 +281,8 @@ class Files:
 
     @staticmethod
     def is_folder(target):
+        from pathlib import Path
+
         if isinstance(target, Path):
             return target.is_dir()
         if type(target) is str:
@@ -290,6 +297,8 @@ class Files:
 
     @staticmethod
     def lines_gz(path):
+        import gzip
+
         with gzip.open(path, "rt") as file:
             for line in file:
                 yield line
@@ -304,6 +313,8 @@ class Files:
 
     @staticmethod
     def open_gz(path, mode='r'):
+        import gzip
+
         return gzip.open(path, mode=mode)
 
     @staticmethod
@@ -320,6 +331,8 @@ class Files:
     #         return abspath(join(parent_path,sub_path))
 
     def path_combine(path1: Union[str, os.PathLike], path2: Union[str, os.PathLike]) -> str:
+        from os.path import abspath, join
+
         if path1 is None or path2 is None:
             raise ValueError("Both paths must be provided")
 
@@ -345,6 +358,8 @@ class Files:
 
     @staticmethod
     def pickle_save_to_file(object_to_save, path=None):
+        import pickle
+
         path = path or temp_file(extension=".pickle")
         file_to_store = open(path, "wb")
         pickle.dump(object_to_save, file_to_store)
@@ -353,6 +368,8 @@ class Files:
 
     @staticmethod
     def pickle_load_from_file(path=None):
+        import pickle
+
         file_to_read = open(path, "rb")
         loaded_object = pickle.load(file_to_read)
         file_to_read.close()
@@ -360,6 +377,8 @@ class Files:
 
     @staticmethod
     def safe_file_name(file_name):
+        import re
+
         if type(file_name) is not str:
             file_name = f"{file_name}"
         return re.sub(r'[^a-zA-Z0-9_.-]', '_',file_name or '')
@@ -388,6 +407,8 @@ class Files:
 
     @staticmethod
     def temp_file(extension = '.tmp', contents=None, target_folder=None):
+        import tempfile
+
         extension = file_extension_fix(extension)
         if target_folder is None:
             (fd, tmp_file) = tempfile.mkstemp(extension)
@@ -401,6 +422,8 @@ class Files:
 
     @staticmethod
     def temp_file_in_folder(target_folder, prefix="temp_file_", postfix='.txt'):
+        from osbot_utils.utils.Misc import random_string
+
         if is_folder(target_folder):
             path_to_file = path_combine(target_folder, random_string(prefix=prefix, postfix=postfix))
             file_create(path_to_file, random_string())
@@ -414,10 +437,14 @@ class Files:
 
     @staticmethod
     def temp_folder(prefix=None, suffix=None,target_folder=None):
+        import tempfile
+
         return tempfile.mkdtemp(suffix, prefix, target_folder)
 
     @staticmethod
     def temp_folder_current():
+        import tempfile
+
         return tempfile.gettempdir()
 
     @staticmethod
@@ -440,6 +467,8 @@ class Files:
 
     @staticmethod
     def write_gz(path=None, contents=None):
+        import gzip
+
         path = path or temp_file(extension='.gz')
         contents = contents or ''
         if type(contents) is str:
@@ -450,6 +479,8 @@ class Files:
 
 # todo: refactor the methods above into static methods (as bellow)
 def absolute_path(path):
+    from os.path import abspath
+
     return abspath(path)
 
 def all_parent_folders(path=None, include_path=False):
@@ -499,6 +530,8 @@ def files_names_in_folder(target, with_extension=False):
         return files_names_without_extension(files_in_folder(target))
 
 def files_in_folder(path,pattern='*', only_files=True):
+    from pathlib import Path
+
     result = []
     for file in Path(path).glob(pattern):
         if only_files and is_not_file(file):

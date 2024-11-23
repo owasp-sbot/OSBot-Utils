@@ -1,8 +1,4 @@
-import inspect
-from functools              import wraps
-from osbot_utils.utils.Misc import str_md5
 from typing                 import Any, Callable, TypeVar
-
 
 CACHE_ON_SELF_KEY_PREFIX = '__cache_on_self__'
 CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
@@ -17,12 +13,14 @@ CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
 
 T = TypeVar('T', bound=Callable[..., Any])      # so that we have type hinting when using this class
 
-def cache_on_self(function: T) -> T:
-    """
-    Use this for cases where we want the cache to be tied to the Class instance (i.e. not global for all executions)
-    """
+def cache_on_self(function: T) -> T:            # Use this for cases where we want the cache to be tied to the Class instance (i.e. not global for all executions)
+    import inspect
+    from functools import wraps
+
     @wraps(function)
     def wrapper(*args, **kwargs):
+
+
         if len(args) == 0 or inspect.isclass(type(args[0])) is False:
             raise Exception("In Method_Wrappers.cache_on_self could not find self")
 
@@ -58,23 +56,25 @@ def cache_on_self__kwargs_to_str(kwargs):
     return kwargs_values_as_str
 
 def cache_on_self__get_cache_in_key(function, args=None, kwargs=None):
-        key_name   = function.__name__
-        args_md5   = ''
-        kwargs_md5 = ''
-        args_values_as_str   = cache_on_self__args_to_str(args)
-        kwargs_values_as_str = cache_on_self__kwargs_to_str(kwargs)
-        if args_values_as_str:
-            args_md5 = str_md5(args_values_as_str)
-        if kwargs_values_as_str:
-            kwargs_md5 = str_md5(kwargs_values_as_str)
-        return f'{CACHE_ON_SELF_KEY_PREFIX}_{key_name}_{args_md5}_{kwargs_md5}'
+    from osbot_utils.utils.Misc import str_md5
 
-        # class_name = self_obj.__class__.__name__
-        #
-        # function_name = function_obj.__name__
-        # if params:
-        #     params_as_string = '_'.join(str(x) for x in params).replace('/',' ')
-        #     params_md5       = str_md5(params_as_string)
-        #     return f'{class_name}_{function_name}_{params_md5}.gz'
-        # else:
-        #     return f'{class_name}_{function_name}.gz'
+    key_name   = function.__name__
+    args_md5   = ''
+    kwargs_md5 = ''
+    args_values_as_str   = cache_on_self__args_to_str(args)
+    kwargs_values_as_str = cache_on_self__kwargs_to_str(kwargs)
+    if args_values_as_str:
+        args_md5 = str_md5(args_values_as_str)
+    if kwargs_values_as_str:
+        kwargs_md5 = str_md5(kwargs_values_as_str)
+    return f'{CACHE_ON_SELF_KEY_PREFIX}_{key_name}_{args_md5}_{kwargs_md5}'
+
+    # class_name = self_obj.__class__.__name__
+    #
+    # function_name = function_obj.__name__
+    # if params:
+    #     params_as_string = '_'.join(str(x) for x in params).replace('/',' ')
+    #     params_md5       = str_md5(params_as_string)
+    #     return f'{class_name}_{function_name}_{params_md5}.gz'
+    # else:
+    #     return f'{class_name}_{function_name}.gz'

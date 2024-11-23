@@ -1,24 +1,14 @@
 # todo add tests
-import inspect
-import json
-import pickle
 import sys
-import types
-import typing
-from collections.abc                    import Mapping
-from typing                             import Union
 from types                              import SimpleNamespace
-from osbot_utils.helpers.Safe_Id        import Safe_Id
-from osbot_utils.helpers.Timestamp_Now  import Timestamp_Now
-from osbot_utils.helpers.Random_Guid    import Random_Guid
-from osbot_utils.utils.Misc             import list_set
-from osbot_utils.utils.Str              import str_unicode_escape, str_max_width
 
-TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Safe_Id, Random_Guid, Timestamp_Now]
+class __(SimpleNamespace):
+    pass
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):
     def get_origin(tp):
+        import typing
         if isinstance(tp, typing._GenericAlias):
             return tp.__origin__
         elif tp is typing.Generic:
@@ -27,6 +17,7 @@ if sys.version_info < (3, 8):
             return None
 
     def get_args(tp):
+        import typing
         if isinstance(tp, typing._GenericAlias):
             return tp.__args__
         else:
@@ -36,6 +27,9 @@ else:
 
 
 def are_types_compatible_for_assigment(source_type, target_type):
+    import types
+    import typing
+
     if source_type is target_type:
         return True
     if source_type is int and target_type is float:
@@ -80,9 +74,13 @@ def base_classes_names(cls):
     return [cls.__name__ for cls in base_classes(cls)]
 
 def class_functions_names(target):
+    from osbot_utils.utils.Misc import list_set
+
     return list_set(class_functions(target))
 
 def class_functions(target):
+    import inspect
+
     functions = {}
     for function_name, function_ref in inspect.getmembers(type(target), predicate=inspect.isfunction):
         functions[function_name] = function_ref
@@ -110,6 +108,13 @@ def convert_dict_to_value_from_obj_annotation(target, attr_name, value):        
     return value
 
 def convert_to_value_from_obj_annotation(target, attr_name, value):                             # todo: see the side effects of doing this for all ints and floats
+
+    from osbot_utils.helpers.Safe_Id        import Safe_Id
+    from osbot_utils.helpers.Timestamp_Now  import Timestamp_Now
+    from osbot_utils.helpers.Random_Guid    import Random_Guid
+
+    TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Safe_Id, Random_Guid, Timestamp_Now]
+
     if target is not None and attr_name is not None:
         if hasattr(target, '__annotations__'):
             obj_annotations  = target.__annotations__
@@ -138,10 +143,11 @@ def dict_remove(data, target):
                 del data[target]
     return data
 
-class __(SimpleNamespace):
-    pass
+
 
 def dict_to_obj(target):
+    from collections.abc import Mapping
+
     if isinstance(target, Mapping):
         new_dict = {}
         for key, value in target.items():
@@ -168,6 +174,8 @@ def obj_to_dict(target):                                                        
     return target                                                                   # Return non-object types as is
 
 def str_to_obj(target):
+    import json
+
     if hasattr(target, 'json'):
         return dict_to_obj(target.json())
     return dict_to_obj(json.loads(target))
@@ -255,6 +263,8 @@ def obj_base_classes(obj):
     return [obj_type for obj_type in type_base_classes(type(obj))]
 
 def type_mro(target):
+    import inspect
+
     if type(target) is type:
         cls = target
     else:
@@ -278,6 +288,10 @@ def obj_base_classes_names(obj, show_module=False):
     return names
 
 def obj_data(target, convert_value_to_str=True, name_width=30, value_width=100, show_private=False, show_internals=False, show_value_class=False, show_methods=False, only_show_methods=False):
+    import inspect
+    import types
+    from osbot_utils.utils.Str import str_unicode_escape, str_max_width
+
     result = {}
     if show_internals:
         show_private = True                                     # show_private will skip all internals, so need to make sure it is True
@@ -300,12 +314,6 @@ def obj_data(target, convert_value_to_str=True, name_width=30, value_width=100, 
             name  = str_max_width(name, name_width)                                     # todo: look at the side effects of running this for all (at the moment if we do that we break the test_cache_on_self test)
         result[name] = value
     return result
-
-# def obj_data(target=None):
-#     data = {}
-#     for key,value in obj_items(target):
-#         data[key] = value
-#     return data
 
 def obj_dict(target=None):
     if target and hasattr(target,'__dict__'):
@@ -358,6 +366,8 @@ def obj_is_attribute_annotation_of_type(target, attr_name, expected_type):
     return False
 
 def obj_is_type_union_compatible(var_type, compatible_types):
+    from typing import Union
+
     origin = get_origin(var_type)
     if origin is Union:                                                     # For Union types, including Optionals
         args = get_args(var_type)                                           # Get the argument types
@@ -368,6 +378,7 @@ def obj_is_type_union_compatible(var_type, compatible_types):
     return var_type in compatible_types or var_type is type(None)           # Check for direct compatibility or type(None) for non-Union types
 
 def value_type_matches_obj_annotation_for_union_attr(target, attr_name, value):
+    from typing import Union
     value_type           = type(value)
     attribute_annotation = obj_attribute_annotation(target,attr_name)
     origin               = get_origin(attribute_annotation)
@@ -378,9 +389,11 @@ def value_type_matches_obj_annotation_for_union_attr(target, attr_name, value):
 
 
 def pickle_save_to_bytes(target: object) -> bytes:
+    import pickle
     return pickle.dumps(target)
 
 def pickle_load_from_bytes(pickled_data: bytes):
+    import pickle
     if type(pickled_data) is bytes:
         try:
             return pickle.loads(pickled_data)
@@ -388,6 +401,8 @@ def pickle_load_from_bytes(pickled_data: bytes):
             return {}
 
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
+    import typing
+
     if hasattr(target, '__annotations__'):
         obj_annotations  = target.__annotations__
         if hasattr(obj_annotations,'get'):

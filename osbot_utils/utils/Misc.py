@@ -1,22 +1,4 @@
-import base64
-import hashlib
-import importlib
-import logging
-import os
-import random
-import string
 import sys
-import textwrap
-import re
-import threading
-import uuid
-import warnings
-from datetime       import datetime, timedelta
-from secrets        import token_bytes
-from time           import sleep
-from typing         import Iterable
-from urllib.parse   import  quote_plus, unquote_plus
-
 
 if sys.version_info >= (3, 11):
     from datetime import UTC
@@ -28,21 +10,26 @@ def append_random_string(target, length=6, prefix='-'):
     return f'{target}{random_string(length, prefix)}'
 
 def attr_value_from_module_name(module_name, attr_name, default_value=None):
+    import importlib
     module = importlib.import_module(module_name)
     if hasattr(module, attr_name):
         return getattr(module, attr_name)
     return default_value
 
 def bytes_md5(target : bytes):
+    import hashlib
     return hashlib.md5(target).hexdigest()
 
 def bytes_sha256(target : bytes):
+    import hashlib
     return hashlib.sha256(target).hexdigest()
 
 def bytes_sha384(target : bytes):
+    import hashlib
     return hashlib.sha384(target).hexdigest()
 
 def base64_to_bytes(bytes_base64):
+    import base64
     if type(bytes_base64) is str:
         bytes_base64 = bytes_base64.encode()
     return base64.decodebytes(bytes_base64)
@@ -51,12 +38,14 @@ def base64_to_str(target, encoding='ascii'):
     return bytes_to_str(base64_to_bytes(target), encoding=encoding)
 
 def bytes_to_base64(target):
+    import base64
     return base64.b64encode(target).decode()
 
 def bytes_to_str(target, encoding='ascii'):
     return target.decode(encoding=encoding)
 
 def convert_to_number(value):
+    import re
     if value:
         try:
             if value[0] in ['£','$','€']:
@@ -69,10 +58,12 @@ def convert_to_number(value):
         return 0
 
 def current_thread_id():
+    import threading
     return threading.current_thread().native_id
 
 
 def date_time_from_to_str(date_time_str, format_from, format_to, print_conversion_error=False):
+    from datetime import datetime
     try:
         date_time = datetime.strptime(date_time_str, format_from)
         return date_time.strftime(format_to)
@@ -96,10 +87,9 @@ def date_now(use_utc=True, return_str=True):
     return value
 
 def date_time_now(use_utc=True, return_str=True, milliseconds_numbers=0, date_time_format='%Y-%m-%d %H:%M:%S.%f'):
+    from datetime import datetime
     if use_utc:
         value = datetime.now(UTC)
-        #value = datetime.utcnow()        # todo: this has been marked for depreciation in python 11
-        # value = datetime.now(UTC)      #       but this doesn't seem to work in python 10.x : E   ImportError: cannot import name 'UTC' from 'datetime' (/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/datetime.py)
 
     else:
         value = datetime.now()
@@ -107,18 +97,18 @@ def date_time_now(use_utc=True, return_str=True, milliseconds_numbers=0, date_ti
         return date_time_to_str(value, milliseconds_numbers=milliseconds_numbers, date_time_format=date_time_format)
     return value
 
-# def date_time_parse(value):
-#     if type(value) is datetime:
-#         return value
-#     return parser.parse(value)
 
 def date_time_less_time_delta(date_time, days=0, hours=0, minutes=0, seconds=0, date_time_format='%Y-%m-%d %H:%M:%S' , return_str=True):
+    from datetime import timedelta
+
     new_date_time = date_time - timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
     if return_str:
         return date_time_to_str(new_date_time, date_time_format=date_time_format)
     return new_date_time
 
 def date_time_now_less_time_delta(days=0,hours=0, minutes=0, seconds=0, date_time_format='%Y-%m-%d %H:%M:%S', return_str=True):
+    from datetime import datetime
+
     return date_time_less_time_delta(datetime.now(UTC),days=days, hours=hours, minutes=minutes, seconds=seconds,date_time_format=date_time_format, return_str=return_str)
 
 def date_to_str(date, date_format='%Y-%m-%d'):
@@ -181,6 +171,7 @@ def is_float(value):
         return False
 
 def is_guid(value):
+    import uuid
     try:
         uuid_obj = uuid.UUID(value)
         return str(uuid_obj) == value.lower()
@@ -189,6 +180,7 @@ def is_guid(value):
 
 
 def ignore_warning__unclosed_ssl():
+    import warnings
     warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
 
 
@@ -213,15 +205,18 @@ def log_to_file(level="INFO"):
     return logger_add_handler__file()
 
 def logger():
+    import logging
     return logging.getLogger()
 
 def logger_add_handler(handler):
     logger().addHandler(handler)
 
 def logger_add_handler__console():
+    import logging
     logger_add_handler(logging.StreamHandler())
 
 def logger_add_handler__file(log_file=None):
+    import logging
     from osbot_utils.utils.Files import temp_file
     log_file = log_file or temp_file(extension=".log")
     logger_add_handler(logging.FileHandler(filename=log_file))
@@ -275,6 +270,8 @@ def str_sha384(text:str):
     return
 
 def str_sha384_as_base64(text:str, include_prefix=True):
+    import hashlib
+    import base64
     if type(text) is str:
         hash_object = hashlib.sha384(text.encode())
         digest      = hash_object.digest()                                  # Getting the digest of the hash
@@ -306,6 +303,8 @@ def time_delta_in_days_hours_or_minutes(time_delta):
 
 
 def time_now(use_utc=True, milliseconds_numbers=1):
+    from datetime import datetime
+
     if use_utc:
         datetime_now = datetime.now(UTC)
     else:
@@ -317,6 +316,8 @@ def time_to_str(datetime_value, time_format='%H:%M:%S.%f', milliseconds_numbers=
     return time_str_milliseconds(datetime_str=time_str, datetime_format=time_format, milliseconds_numbers=milliseconds_numbers)
 
 def timestamp_utc_now():
+    from datetime import datetime
+
     return int(datetime.now(UTC).timestamp() * 1000)
 
 def timestamp_utc_now_less_delta(days=0,hours=0, minutes=0, seconds=0):
@@ -327,6 +328,8 @@ def datetime_to_timestamp(datetime):
     return int(datetime.timestamp() * 1000)
 
 def timestamp_to_datetime(timestamp):
+    from datetime import datetime
+
     timestamp = float(timestamp)                            # handle cases when timestamp is a Decimal
     return datetime.fromtimestamp(timestamp/1000)
 
@@ -346,9 +349,13 @@ def to_string(target):
     return ''
 
 def random_bytes(length=24):
+    from secrets import token_bytes
     return token_bytes(length)
 
 def random_filename(extension='.tmp', length=10):
+    import random
+    import string
+
     from osbot_utils.utils.Files import file_extension_fix
     extension = file_extension_fix(extension)
     return '{0}{1}'.format(''.join(random.choices(string.ascii_lowercase + string.digits, k=length)) ,  extension)
@@ -357,9 +364,12 @@ def random_port(min=20000,max=65000):
     return random_number(min, max)
 
 def random_number(min=1,max=65000):
+    import random
     return random.randint(min, max)
 
 def random_password(length=24, prefix=''):
+    import random
+    import string
     password = prefix + ''.join(random.choices(string.ascii_lowercase  +
                                                string.ascii_uppercase +
                                                string.punctuation     +
@@ -372,6 +382,10 @@ def random_password(length=24, prefix=''):
     return password
 
 def random_string(length:int=8, prefix:str='', postfix:str=''):
+    import string
+
+    import random
+
     if is_int(length):
         length -= 1                                                 # so that we get the exact length when the value is provided
     else:
@@ -383,6 +397,9 @@ def random_string_short(prefix:str = None):
     return random_id(prefix=prefix, length=6).lower()
 
 def random_string_and_numbers(length:int=6,prefix:str=''):
+    import random
+    import string
+
     return prefix + ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
 def random_text(prefix:str=None,length:int=12, lowercase=False):
@@ -395,21 +412,27 @@ def random_text(prefix:str=None,length:int=12, lowercase=False):
     return value
 
 def random_uuid():
+    import uuid
     return str(uuid.uuid4())
 
 def random_uuid_short():
+    import uuid
     return str(uuid.uuid4())[0:6]
 
 def remove(target_string, string_to_remove):                        # todo: refactor to str_*
     return replace(target_string, string_to_remove, '')
 
 def remove_multiple_spaces(target):                                 # todo: refactor to str_*
+    import re
+
     return re.sub(' +', ' ', target)
 
 def replace(target_string, string_to_find, string_to_replace):      # todo: refactor to str_*
     return target_string.replace(string_to_find, string_to_replace)
 
 def remove_html_tags(html):
+    import re
+
     if html:
         TAG_RE = re.compile(r'<[^>]+>')
         return TAG_RE.sub('', html).replace('&nbsp;', ' ')
@@ -420,8 +443,9 @@ def split_lines(text):
 def split_spaces(target):
     return remove_multiple_spaces(target).split(' ')
 
-def sorted_set(target : Iterable):
-    if target:
+def sorted_set(target):
+    from typing import Iterable
+    if isinstance(target, Iterable) and target:
         return sorted(set(target))
     return []
 
@@ -437,9 +461,13 @@ def str_to_bool(value):
     return False
 
 def str_to_date(str_date, format='%Y-%m-%d %H:%M:%S.%f'):
+    from datetime import datetime
+
     return datetime.strptime(str_date,format)
 
 def str_to_date_time(str_date, format='%Y-%m-%d %H:%M:%S'):
+    from datetime import datetime
+
     return datetime.strptime(str_date,format)
 
 def str_to_int(str_data):
@@ -457,14 +485,18 @@ def under_debugger():
 
 
 def url_encode(data):
+    from urllib.parse import quote_plus
     if type(data) is str:
         return quote_plus(data)
 
 def url_decode(data):
+    from urllib.parse import unquote_plus
     if type(data) is str:
         return unquote_plus(data)
 
 def utc_now():
+    from datetime import datetime
+
     return datetime.now(UTC)
 
 def upper(target : str):
@@ -473,10 +505,13 @@ def upper(target : str):
     return ""
 
 def wait(seconds):
+    from time import sleep
+
     if seconds and seconds > 0:
         sleep(seconds)
 
 def word_wrap(text,length = 40):
+    import textwrap
     if text:
         wrapped_text = ""
         for line in text.splitlines():                                  # handle case when there are newlines inside the text value
@@ -486,6 +521,7 @@ def word_wrap(text,length = 40):
     return ''
 
 def word_wrap_escaped(text,length = 40):
+    import textwrap
     if text:
         return '\\n'.join(textwrap.wrap(text, length))
 

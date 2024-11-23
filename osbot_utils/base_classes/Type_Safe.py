@@ -1,31 +1,14 @@
 # todo: find a way to add these documentations strings to a separate location so that
-#       the code is not polluted with them (like in the example below)
 #       the data is available in IDE's code complete
-import functools
-import inspect
+
 import sys
 import types
-import typing
-from decimal                                    import Decimal
-from enum                                       import Enum, EnumMeta
-from typing                                     import List
-from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
-from osbot_utils.helpers.Random_Guid            import Random_Guid
-from osbot_utils.helpers.Random_Guid_Short      import Random_Guid_Short
-from osbot_utils.helpers.Safe_Id                import Safe_Id
-from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
-from osbot_utils.utils.Dev                      import pprint
-from osbot_utils.utils.Json                     import json_parse, json_to_bytes, json_to_gz
-from osbot_utils.utils.Misc                     import list_set
-from osbot_utils.utils.Objects                  import default_value, value_type_matches_obj_annotation_for_attr, \
-    raise_exception_on_obj_type_annotation_mismatch, obj_is_attribute_annotation_of_type, enum_from_value, \
-    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, \
-    convert_dict_to_value_from_obj_annotation, dict_to_obj, convert_to_value_from_obj_annotation, \
-    obj_attribute_annotation
+from osbot_utils.utils.Objects import default_value         # todo: remove test mocking requirement for this to be here (instead of on the respective method)
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):                                           # pragma: no cover
     def get_origin(tp):
+        import typing
         if isinstance(tp, typing._GenericAlias):
             return tp.__origin__
         elif tp is typing.Generic:
@@ -34,6 +17,7 @@ if sys.version_info < (3, 8):                                           # pragma
             return None
 
     def get_args(tp):
+        import typing
         if isinstance(tp, typing._GenericAlias):
             return tp.__args__
         else:
@@ -46,7 +30,7 @@ if sys.version_info >= (3, 10):
 else:                                                           # pragma: no cover
     NoneType = type(None)
 
-immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, NoneType, EnumMeta)
+
 
 
 #todo: see if we can also add type safety to method execution
@@ -56,9 +40,11 @@ immutable_types = (bool, int, float, complex, str, tuple, frozenset, bytes, None
 class Type_Safe:
 
     def __init__(self, **kwargs):
+        from osbot_utils.utils.Objects import raise_exception_on_obj_type_annotation_mismatch
 
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
             if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
+
                 raise_exception_on_obj_type_annotation_mismatch(self, key, value)
             if hasattr(self, key):
                 existing_value = getattr(self, key)
@@ -79,6 +65,11 @@ class Type_Safe:
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
     def __setattr__(self, name, value):
+        from osbot_utils.utils.Objects import convert_dict_to_value_from_obj_annotation
+        from osbot_utils.utils.Objects import convert_to_value_from_obj_annotation
+        from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_attr
+        from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_union_attr
+
         if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
             return super().__setattr__(name, value)
 
@@ -101,11 +92,20 @@ class Type_Safe:
         super().__setattr__(name, value)
 
     def __attr_names__(self):
+        from osbot_utils.utils.Misc import list_set
+
         return list_set(self.__locals__())
 
     @classmethod
-    def __cls_kwargs__(cls, include_base_classes=True):
-        """Return current class dictionary of class level variables and their values."""
+    def __cls_kwargs__(cls, include_base_classes=True):                  # Return current class dictionary of class level variables and their values
+        import functools
+        import inspect
+        from enum                      import EnumMeta
+        from osbot_utils.utils.Objects import obj_is_type_union_compatible
+
+        IMMUTABLE_TYPES = (bool, int, float, complex, str, tuple, frozenset, bytes, NoneType, EnumMeta)
+
+
         kwargs = {}
 
         for base_cls in inspect.getmro(cls):
@@ -134,11 +134,11 @@ class Type_Safe:
                             if var_type and not isinstance(var_value, var_type):                                    # check type
                                 exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
                                 raise ValueError(exception_message)
-                            if var_type not in immutable_types and var_name.startswith('__') is False:              # if var_type is not one of the immutable_types or is an __ internal
+                            if var_type not in IMMUTABLE_TYPES and var_name.startswith('__') is False:              # if var_type is not one of the IMMUTABLE_TYPES or is an __ internal
                                 #todo: fix type safety bug that I believe is caused here
-                                if obj_is_type_union_compatible(var_type, immutable_types) is False:                # if var_type is not something like Optional[Union[int, str]]
-                                    if type(var_type) not in immutable_types:
-                                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{immutable_types}'"
+                                if obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                # if var_type is not something like Optional[Union[int, str]]
+                                    if type(var_type) not in IMMUTABLE_TYPES:
+                                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{IMMUTABLE_TYPES}'"
                                         raise ValueError(exception_message)
             if include_base_classes is False:
                 break
@@ -146,6 +146,9 @@ class Type_Safe:
 
     @classmethod
     def __default__value__(cls, var_type):
+        import typing
+        from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
+
         if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
             return set()
         if get_origin(var_type) is set:
@@ -164,8 +167,8 @@ class Type_Safe:
         else:
             return default_value(var_type)                      # for all other cases call default_value, which will try to create a default instance
 
-    def __default_kwargs__(self):
-        """Return entire (including base classes) dictionary of class level variables and their values."""
+    def __default_kwargs__(self):                               # Return entire (including base classes) dictionary of class level variables and their values.
+        import inspect
         kwargs = {}
         cls = type(self)
         for base_cls in inspect.getmro(cls):                  # Traverse the inheritance hierarchy and collect class-level attributes
@@ -217,9 +220,13 @@ class Type_Safe:
     # todo: see if there should be a prefix on these methods, to make it easier to spot them
     #       of if these are actually that useful that they should be added like this
     def bytes(self):
+        from osbot_utils.utils.Json import json_to_bytes
+
         return json_to_bytes(self.json())
 
     def bytes_gz(self):
+        from osbot_utils.utils.Json import json_to_gz
+
         return json_to_gz(self.json())
 
     def json(self):
@@ -240,8 +247,8 @@ class Type_Safe:
         for k,v in self.__cls_kwargs__().items():
             setattr(self, k, v)
 
-    def update_from_kwargs(self, **kwargs):
-        """Update instance attributes with values from provided keyword arguments."""
+    def update_from_kwargs(self, **kwargs):                         # Update instance attributes with values from provided keyword arguments.
+        from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_attr
         for key, value in kwargs.items():
             if value is not None:
                 if hasattr(self,'__annotations__'):  # can only do type safety checks if the class does not have annotations
@@ -278,6 +285,16 @@ class Type_Safe:
 
     # todo: this needs refactoring, since the logic and code is getting quite complex (to be inside methods like this)
     def deserialize_from_dict(self, data, raise_on_not_found=False):
+        from decimal                                    import Decimal
+        from enum                                       import EnumMeta
+        from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
+        from osbot_utils.helpers.Random_Guid            import Random_Guid
+        from osbot_utils.helpers.Random_Guid_Short      import Random_Guid_Short
+        from osbot_utils.utils.Objects                  import obj_is_attribute_annotation_of_type
+        from osbot_utils.utils.Objects                  import obj_attribute_annotation
+        from osbot_utils.utils.Objects                  import enum_from_value
+        from osbot_utils.helpers.Safe_Id                import Safe_Id
+        from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
 
         for key, value in data.items():
             if hasattr(self, key) and isinstance(getattr(self, key), Type_Safe):
@@ -327,16 +344,22 @@ class Type_Safe:
         return self
 
     def obj(self):
+        from osbot_utils.utils.Objects import dict_to_obj
+
         return dict_to_obj(self.json())
 
     def serialize_to_dict(self):                        # todo: see if we need this method or if the .json() is enough
         return serialize_to_dict(self)
 
     def print(self):
+        from osbot_utils.utils.Dev import pprint
+
         pprint(serialize_to_dict(self))
 
     @classmethod
     def from_json(cls, json_data, raise_on_not_found=False):
+        from osbot_utils.utils.Json import json_parse
+
         if type(json_data) is str:
             json_data = json_parse(json_data)
         if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
@@ -345,6 +368,10 @@ class Type_Safe:
 
 # todo: see if it is possible to add recursive protection to this logic
 def serialize_to_dict(obj):
+    from decimal import Decimal
+    from enum    import Enum
+    from typing  import List
+
     if isinstance(obj, (str, int, float, bool, bytes, Decimal)) or obj is None:
         return obj
     elif isinstance(obj, Enum):

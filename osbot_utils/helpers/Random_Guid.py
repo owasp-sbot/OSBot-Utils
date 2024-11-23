@@ -1,7 +1,9 @@
-from osbot_utils.utils.Misc import random_guid, is_guid
+
 
 class Random_Guid(str):
     def __new__(cls, value=None):
+        from osbot_utils.utils.Misc import random_guid, is_guid
+
         if value is None:
             value = random_guid()
         if is_guid(value):
