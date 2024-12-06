@@ -15,8 +15,8 @@ class test_Zip_Bytes(TestCase):
             target_folder = path_combine(base_folder, 'decorators')
             _.add_folder__from_disk( target_folder, ".*.py$")
             assert _.empty() is False
-            assert _.size()                                                   == 21
-            assert len(files_list(base_folder, pattern="decorators/**/*.py")) == 24 # todo: figure out why these are not the same any more (this happened when a couple extra decorators files were added) (namely the flow and task decorators)
+            assert _.size()                                                   == 22
+            assert len(files_list(base_folder, pattern="decorators/**/*.py")) == 25 # todo: figure out why these are not the same any more (this happened when a couple extra decorators files were added) (namely the flow and task decorators)
             #assert _.size() == len(files_list(base_folder, pattern="decorators/**/*.py"))
             assert 'methods/cache_on_self.py' in _.files_list()
             assert '__init__.py'              in _.files_list()
