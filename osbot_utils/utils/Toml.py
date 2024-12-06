@@ -47,5 +47,7 @@ def toml_obj_from_file(toml_file):
 
 json_load_file = toml_dict_from_file
 toml_file_load = toml_dict_from_file
+
+toml_from_file = toml_dict_from_file
 toml_load      = toml_dict_from_file
 toml_load_obj  = toml_obj_from_file
