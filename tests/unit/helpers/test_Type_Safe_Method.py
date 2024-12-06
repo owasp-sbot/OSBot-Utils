@@ -1,3 +1,4 @@
+from enum                                 import Enum
 from unittest                             import TestCase
 from typing                               import Optional, Union, List
 from osbot_utils.helpers.Safe_Id          import Safe_Id
@@ -120,3 +121,19 @@ class test_Type_Safe_Method(TestCase):
 
         with self.assertRaises(ValueError):                                               # Invalid type
             self.type_checker.validate_direct_type('param_a', 'not_safe', Safe_Id)
+
+
+    def test_try_basic_type_conversion_enum(self):                           # Test enum conversion
+        class TestEnum(Enum):                                                # Define test enum
+            TEST = 'test-value'                                             # With test value
+
+        bound_args = self.type_checker.bind_args(                           # Create bound args
+            ('self', Safe_Id('test'), None, Random_Guid(),
+             [Safe_Id('d')], None), {})
+
+        self.assertTrue(self.type_checker.try_basic_type_conversion(        # Test valid enum conversion
+            TestEnum.TEST, Safe_Id, 'param_a', bound_args))
+
+        self.assertEqual(                                                   # Verify converted value
+            bound_args.arguments['param_a'],
+            Safe_Id('test-value'))

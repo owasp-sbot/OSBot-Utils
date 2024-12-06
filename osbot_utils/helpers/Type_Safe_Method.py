@@ -1,5 +1,6 @@
-import inspect                                                                             # For function introspection
-from typing import get_args, get_origin, Optional, Union, List, Any, Dict                  # For type hinting utilities
+import inspect                                                                            # For function introspection
+from enum     import Enum
+from typing   import get_args, get_origin, Optional, Union, List, Any, Dict               # For type hinting utilities
 
 
 class Type_Safe_Method:                                                                   # Class to handle method type safety validation
@@ -86,17 +87,23 @@ class Type_Safe_Method:                                                         
         if not any(isinstance(param_value, arg_type) for arg_type in args_types):    # Check if value matches any type
             raise ValueError(f"Parameter '{param_name}' expected one of types {args_types}, but got {type(param_value)}")  # Raise error if no match
 
-    def try_basic_type_conversion(self, param_value: Any,                            # Try to convert basic types
-                                expected_type: Any, param_name: str,                  # Conversion parameters
-                                bound_args) -> bool:                                  # Return success flag
-        if type(param_value) in [int, str]:                                         # Check if basic type
-            try:                                                                     # Attempt conversion
-                converted_value = expected_type(param_value)                         # Convert value
-                bound_args.arguments[param_name] = converted_value                   # Update bound arguments
-                return True                                                         # Return success
-            except Exception:                                                       # Handle conversion failure
-                pass                                                               # Continue without conversion
-        return False                                                              # Return failure
+    def try_basic_type_conversion(self, param_value: Any, expected_type: Any, param_name: str,bound_args) -> bool:      # Try to convert basic types
+        if type(param_value) in [int, str]:                                                                             # Check if basic type
+            try:                                                                                                        # Attempt conversion
+                converted_value = expected_type(param_value)                                                            # Convert value
+                bound_args.arguments[param_name] = converted_value                                                      # Update bound arguments
+                return True                                                                                             # Return success
+            except Exception:                                                                                           # Handle conversion failure
+                pass                                                                                                    # Continue without conversion
+        elif isinstance(param_value, Enum):                                                                             # Check if value is an Enum
+            try:
+                if issubclass(expected_type, str):                                                                      # If expecting string type
+                    bound_args.arguments[param_name] = param_value.value                                                # Use enum's value
+                    return True                                                                                         # Return success
+            except Exception:                                                                                           # Handle conversion failure
+                pass                                                                                                    # Continue without conversion
+        return False                                                                                                    # Return failure
+                                                           # Return failure
 
     def validate_direct_type(self, param_name: str,                               # Validate direct type match
                            param_value: Any, expected_type: Any):                  # Type parameters
