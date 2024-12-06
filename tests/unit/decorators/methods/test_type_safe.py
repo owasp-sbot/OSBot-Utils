@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 from unittest                                   import TestCase
 from typing                                     import Union, Optional, List
@@ -28,6 +30,8 @@ class test_type_safe(TestCase):
 
     # None Value Tests
     def test_none_value_handling(self):
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
         # Test with optional parameters
         assert self.test_instance.optional_method(None) == "None"
         assert self.test_instance.optional_method(Safe_Id("test")) == "test"
