@@ -437,6 +437,7 @@ json_to_obj         = str_to_obj
 
 full_type_name      = class_full_name
 
+obj                 = dict_to_obj
 obj_list_set        = obj_keys
 obj_info            = print_object_members
 obj_methods         = print_object_methods
