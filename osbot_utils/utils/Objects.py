@@ -109,11 +109,13 @@ def convert_dict_to_value_from_obj_annotation(target, attr_name, value):        
 
 def convert_to_value_from_obj_annotation(target, attr_name, value):                             # todo: see the side effects of doing this for all ints and floats
 
-    from osbot_utils.helpers.Safe_Id        import Safe_Id
+    from osbot_utils.helpers.Guid           import Guid
     from osbot_utils.helpers.Timestamp_Now  import Timestamp_Now
     from osbot_utils.helpers.Random_Guid    import Random_Guid
+    from osbot_utils.helpers.Safe_Id        import Safe_Id
+    from osbot_utils.helpers.Str_ASCII      import Str_ASCII
 
-    TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Safe_Id, Random_Guid, Timestamp_Now]
+    TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Guid, Random_Guid, Safe_Id, Str_ASCII, Timestamp_Now]
 
     if target is not None and attr_name is not None:
         if hasattr(target, '__annotations__'):

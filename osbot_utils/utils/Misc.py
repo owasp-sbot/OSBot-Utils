@@ -178,7 +178,6 @@ def is_guid(value):
     except Exception:
         return False
 
-
 def ignore_warning__unclosed_ssl():
     import warnings
     warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")

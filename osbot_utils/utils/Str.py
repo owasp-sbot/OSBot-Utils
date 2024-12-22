@@ -34,14 +34,14 @@ def strip_quotes(value: str):                           # Remove surrounding quo
         return value[1:-1]
     return value
 
-def safe_id(value):
+def safe_id(value, max_length=36):
     if value is None or value == "":
         raise ValueError("Invalid ID: The ID must not be empty.")
 
     if not isinstance(value, str):
         value = str(value)
 
-    if len(value) > 36:
+    if len(value) > max_length:
         raise ValueError(f"Invalid ID: The ID must not exceed 36 characters (was {len(value)}).")
 
     sanitized_value = REGEX__SAFE_ID_REGEX.sub('_', value)
