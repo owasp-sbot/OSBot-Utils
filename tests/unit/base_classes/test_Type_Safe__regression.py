@@ -21,6 +21,33 @@ from osbot_utils.utils.Objects                      import default_value, obj_at
 
 class test_Type_Safe__regression(TestCase):
 
+    def test__regression__from_json__does_not_recreate__Dict__objects(self):
+
+        class An_Class_1(Type_Safe):
+            an_dict : Dict[str,int]
+
+        json_data_1 = {'an_dict': {'key_1': 42}}
+        an_class_1  = An_Class_1.from_json(json_data_1)
+
+        assert type(an_class_1.an_dict) is Type_Safe__Dict                              # Fixed: BUG this should be Type_Safe__Dict
+        assert an_class_1.an_dict == {'key_1': 42}
+
+        class An_Class_2_B(Type_Safe):
+            an_str: str
+
+        class An_Class_2_A(Type_Safe):
+            an_dict      : Dict[str,An_Class_2_B]
+            an_class_2_b : An_Class_2_B
+
+        json_data_2 = {'an_dict'     : {'key_1': {'an_str': 'value_1'}},
+                       'an_class_2_b': {'an_str': 'value_1'}}
+        an_class_2  = An_Class_2_A.from_json(json_data_2)
+
+        assert an_class_2.json() == json_data_2
+        assert type(an_class_2.an_dict                          ) is Type_Safe__Dict    # Fixed BUG this should be Type_Safe__Dict
+        assert type(an_class_2.an_dict['key_1']                 ) is An_Class_2_B       # Fixed: BUG: this should be An_Class_2_B not an dict
+
+
     def test__regression__dict_dont_support_type_checks(self):
 
         class An_Class_2(Type_Safe):
