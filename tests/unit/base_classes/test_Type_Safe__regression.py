@@ -6,6 +6,7 @@ from unittest                                       import TestCase
 from unittest.mock                                  import patch
 from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
 from osbot_utils.base_classes.Type_Safe             import Type_Safe
+from osbot_utils.base_classes.Type_Safe__Dict       import Type_Safe__Dict
 from osbot_utils.base_classes.Type_Safe__List       import Type_Safe__List
 from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
 from osbot_utils.graphs.mermaid.Mermaid             import Mermaid
@@ -19,6 +20,115 @@ from osbot_utils.utils.Objects                      import default_value, obj_at
 
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__from_json__does_not_recreate__Dict__objects(self):
+
+        class An_Class_1(Type_Safe):
+            an_dict : Dict[str,int]
+
+        json_data_1 = {'an_dict': {'key_1': 42}}
+        an_class_1  = An_Class_1.from_json(json_data_1)
+
+        assert type(an_class_1.an_dict) is Type_Safe__Dict                              # Fixed: BUG this should be Type_Safe__Dict
+        assert an_class_1.an_dict == {'key_1': 42}
+
+        class An_Class_2_B(Type_Safe):
+            an_str: str
+
+        class An_Class_2_A(Type_Safe):
+            an_dict      : Dict[str,An_Class_2_B]
+            an_class_2_b : An_Class_2_B
+
+        json_data_2 = {'an_dict'     : {'key_1': {'an_str': 'value_1'}},
+                       'an_class_2_b': {'an_str': 'value_1'}}
+        an_class_2  = An_Class_2_A.from_json(json_data_2)
+
+        assert an_class_2.json() == json_data_2
+        assert type(an_class_2.an_dict                          ) is Type_Safe__Dict    # Fixed BUG this should be Type_Safe__Dict
+        assert type(an_class_2.an_dict['key_1']                 ) is An_Class_2_B       # Fixed: BUG: this should be An_Class_2_B not an dict
+
+
+    def test__regression__dict_dont_support_type_checks(self):
+
+        class An_Class_2(Type_Safe):
+            an_dict: Dict[str,str]
+
+        an_class_2 = An_Class_2()
+        assert type(an_class_2.an_dict) is Type_Safe__Dict                      # Fixed: BUG this should be Type_Safe__Dict
+        with pytest.raises(TypeError, match="Expected 'str', but got 'int'"):
+            an_class_2.an_dict['key_1'] = 123                                   # Fixed: BUG this should had raise an exception
+        #assert an_class_2.an_dict == {'key_1': 123}                            # BUG: this should not have been assigned
+        assert an_class_2.an_dict == {}                                         # Fixed
+
+    def test__regression__dicts_dont_support_type_forward(self):
+        class An_Class(Type_Safe):
+            an_dict: Dict[str, 'An_Class']
+
+        an_class   = An_Class()
+        an_class_a = An_Class()
+        assert an_class.an_dict == {}
+        with pytest.raises(TypeError, match="Expected 'An_Class', but got 'str'"):
+            an_class.an_dict['an_str'  ] = 'bb'                                 # Fixed: BUG: exception should have raised
+        an_class.an_dict['an_class'] = an_class_a
+        assert an_class.an_dict == dict(#an_str='bb'       ,                     # Fixed: BUG: an_str should not have been assigned
+                                        an_class=an_class_a)
+
+
+    def test__regression__nested_dict_serialisations_dont_work(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("this doesn't work on 3.8 or lower")
+        class An_Class_1(Type_Safe):
+            dict_5: Dict[Random_Guid, dict[Random_Guid, Random_Guid]]
+
+        json_data_1 = { 'dict_5': {Random_Guid(): { Random_Guid():Random_Guid() ,
+                                                    Random_Guid():Random_Guid() ,
+                                                    'no-guid-1': 'no-guid-2'    }}}
+
+        json_data_2 = { 'dict_5': {Random_Guid(): { Random_Guid():Random_Guid() ,
+                                                    Random_Guid():Random_Guid() }}}
+
+        with pytest.raises(TypeError, match="In dict key 'no-guid-1': Expected 'Random_Guid', but got 'str'"):
+            assert An_Class_1().from_json(json_data_1).json() == json_data_1  # BUG: should had raised exception on 'no-guid-1': 'no-guid-2'
+
+        assert An_Class_1().from_json(json_data_2).json() == json_data_2
+
+    def test__regression__type_safe_is_not_enforced_on_dict_and_Dict(self):
+        class An_Class(Type_Safe):
+            an_dict : Dict[str,int]
+
+        an_class = An_Class()
+
+        assert An_Class.__annotations__ == {'an_dict': Dict[str, int]}
+        assert an_class.__locals__()    == {'an_dict': {}}
+        assert type(an_class.an_dict)   is Type_Safe__Dict                      # Fixed: BUG: this should be Type_Safe__Dict
+        with pytest.raises(TypeError, match="Expected 'str', but got 'int'"):
+            an_class.an_dict[42] = 'an_str'                                     # Fixed: BUG: this should not be allowed
+                                                                                #       - using key 42 should have raised exception (it is an int instead of a str)
+                                                                                #       - using value 'an_str' should have raised exception (it is a str instead of an int)
+
+    def test__regression__nested_types__not_supported(self):
+        class An_Class(Type_Safe):
+            an_class : 'An_Class'
+
+        an_class          = An_Class()
+        error_message_1     = "Invalid type for attribute 'an_class'. Expected 'An_Class' but got '<class 'test_Type_Safe__bugs.test_Type_Safe__bugs.test__bug__nested_types__not_supported.<locals>.An_Class'>'"
+
+        an_class.an_class = An_Class()
+
+        # with pytest.raises(ValueError, match=error_message_1):
+        #     an_class.an_class = An_Class()            # BUG: should NOT have raised exception here
+
+        assert type(an_class.an_class         ) is An_Class
+        assert type(an_class.an_class.an_class) is type(None)
+        an_class.an_class = An_Class()                              # FIXED: this now works
+        assert type(an_class.an_class) is An_Class
+        assert type(an_class.an_class.an_class) is type(None)
+
+        print(an_class.json())
+
+        error_message_2 = "Invalid type for attribute 'an_class'. Expected 'An_Class' but got '<class 'str'>"
+        with pytest.raises(ValueError, match=error_message_2):
+            an_class.an_class = 'a'                 # BUG: wrong exception
 
     def test__regression__list_from_json_not_enforcing_type_safety(self):
         class An_Class__Item(Type_Safe):

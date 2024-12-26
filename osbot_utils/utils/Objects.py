@@ -30,14 +30,17 @@ def are_types_compatible_for_assigment(source_type, target_type):
     import types
     import typing
 
+    if isinstance(target_type, str):                                    # If the "target_type" is a forward reference (string), handle it here.
+        if target_type == source_type.__name__:                         # Simple check: does the string match the actual class name
+            return True
     if source_type is target_type:
         return True
     if source_type is int and target_type is float:
         return True
-    if target_type in source_type.__mro__:          # this means that the source_type has the target_type has of its base types
+    if target_type in source_type.__mro__:                              # this means that the source_type has the target_type has of its base types
         return True
-    if target_type is callable:                     # handle case where callable was used as the target type
-        if source_type is types.MethodType:         #     and a method or function was used as the source type
+    if target_type is callable:                                         # handle case where callable was used as the target type
+        if source_type is types.MethodType:                             #     and a method or function was used as the source type
             return True
         if source_type is types.FunctionType:
             return True
@@ -413,7 +416,7 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
                 origin_attr_type = get_origin(attr_type)                # to handle when type definion contains an generic
                 if origin_attr_type is typing.Union:
                     args = get_args(attr_type)
-                    if len(args)==2 and args[1] is type(None):          # todo: find a better way to do this, since this is handling an edge case when origin_attr_type is Optional (whcih is an shorthand for Union[X, None] )
+                    if len(args)==2 and args[1] is type(None):          # todo: find a better way to do this, since this is handling an edge case when origin_attr_type is Optional (which is an shorthand for Union[X, None] )
                         attr_type = args[0]
                         origin_attr_type = get_origin(attr_type)
 
