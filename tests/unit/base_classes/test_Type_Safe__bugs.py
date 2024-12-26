@@ -1,29 +1,12 @@
 import sys
-
 import pytest
-from typing import Optional, Union, Dict, List
+from typing                                     import Optional, Union, Dict
 from unittest                                   import TestCase
 from osbot_utils.base_classes.Type_Safe         import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
-from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
-from osbot_utils.helpers.Random_Guid            import Random_Guid
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Objects import __
-
+from osbot_utils.base_classes.Type_Safe__Dict   import Type_Safe__Dict
 
 class test_Type_Safe__bugs(TestCase):
-
-    def test__bug__nested_dict_serialisations_dont_work(self):
-        if sys.version_info < (3, 9):
-            pytest.skip("this doesn't work on 3.8 or lower")
-        class An_Class_1(Type_Safe):
-            dict_5: Dict[Random_Guid, dict[Random_Guid, Random_Guid]]
-        json_data_1 = { 'dict_5': {Random_Guid(): { Random_Guid():Random_Guid(),
-                                                    Random_Guid():Random_Guid(),
-                                                    'no-guid-1': 'no-guid-2'}}}
-        assert An_Class_1().from_json(json_data_1).json() == json_data_1  # BUG: should had raised exception on 'no-guid-1': 'no-guid-2'
-
-
 
     def test__bug__ctor__does_not_recreate__Dict__objects(self):
 
@@ -31,9 +14,9 @@ class test_Type_Safe__bugs(TestCase):
             an_dict : Dict[str,int]
 
         json_data_1 = {'an_dict': {'key_1': 42}}
-        an_class_1 = An_Class_1.from_json(json_data_1)
+        an_class_1  = An_Class_1.from_json(json_data_1)
 
-        assert type(an_class_1.an_dict) is dict
+        assert type(an_class_1.an_dict) is Type_Safe__Dict                              # Fixed: BUG this should be Type_Safe__Dict
         assert an_class_1.an_dict == {'key_1': 42}
 
         class An_Class_2_B(Type_Safe):
@@ -45,12 +28,10 @@ class test_Type_Safe__bugs(TestCase):
 
         json_data_2 = {'an_dict'     : {'key_1': {'an_str': 'value_1'}},
                        'an_class_2_b': {'an_str': 'value_1'}}
-        print()
         an_class_2  = An_Class_2_A.from_json(json_data_2)
 
         assert an_class_2.json() == json_data_2
-        assert type(an_class_2.an_dict                          ) is dict
-
+        assert type(an_class_2.an_dict                          ) is Type_Safe__Dict    # Fixed BUG this should be Type_Safe__Dict
         assert type(an_class_2.an_dict['key_1']                 ) is An_Class_2_B       # Fixed: BUG: this should be An_Class_2_B not an dict
 
         # todo fix the scenario where we try to create a new object from a dict value using the ctor instead of the from_json method
@@ -79,21 +60,6 @@ class test_Type_Safe__bugs(TestCase):
 
         assert an_class.an_str == 'new_value'
         assert an_class.an_bool == False
-
-    def test__bug__type_safe_is_not_enforced_on_dict_and_Dict(self):
-        class An_Class(Type_Safe):
-            an_dict : Dict[str,int]
-
-        an_class = An_Class()
-
-        assert An_Class.__annotations__ == {'an_dict': Dict[str, int]}
-        assert an_class.__locals__() == {'an_dict': {}}
-        assert type(an_class.an_dict) is dict               # BUG: this should be Type_Safe__Dict # todo: see if there is a better way to do this, without needing to replace the Dict object with Type_Safe__Dict (although this technique worked ok for Type_Safe__List)
-        an_class.an_dict[42] = 'an_str'                     # BUG: this should not be allowed
-                                                            #       - using key 42 should have raised exception (it is an int instead of a str)
-                                                            #       - using value 'an_str' should have raised exception (it is a str instead of an int)
-
-
 
 
 

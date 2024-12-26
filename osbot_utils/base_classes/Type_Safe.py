@@ -3,7 +3,7 @@
 
 import sys
 import types
-from osbot_utils.utils.Objects import default_value         # todo: remove test mocking requirement for this to be here (instead of on the respective method)
+from osbot_utils.utils.Objects                  import default_value         # todo: remove test mocking requirement for this to be here (instead of on the respective method)
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):                                           # pragma: no cover
@@ -23,7 +23,7 @@ if sys.version_info < (3, 8):                                           # pragma
         else:
             return ()
 else:
-    from typing import get_origin, get_args
+    from typing import get_origin, get_args, ForwardRef
 
 if sys.version_info >= (3, 10):
     NoneType = types.NoneType
@@ -148,6 +148,7 @@ class Type_Safe:
     def __default__value__(cls, var_type):
         import typing
         from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
+        from osbot_utils.base_classes.Type_Safe__Dict import Type_Safe__Dict
 
         if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
             return set()
@@ -156,13 +157,28 @@ class Type_Safe:
 
         if var_type is typing.Dict:
             return {}
-        if get_origin(var_type) is dict:
-            return {}                                           # todo: add Type_Safe__Dict
+
+        if get_origin(var_type) is dict:                        # e.g. Dict[key_type, value_type]
+            key_type, value_type = get_args(var_type)
+            if isinstance(key_type, ForwardRef):                # Handle forward references on key_type ---
+                forward_name = key_type.__forward_arg__
+                if forward_name == cls.__name__:
+                    key_type = cls
+            if isinstance(value_type, ForwardRef):              # Handle forward references on value_type ---
+                forward_name = value_type.__forward_arg__
+                if forward_name == cls.__name__:
+                    value_type = cls
+            return Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
 
         if var_type is typing.List:
-            return []  # handle case when List was used with no type information provided
+            return []                                           # handle case when List was used with no type information provided
+
         if get_origin(var_type) is list:                        # if we have list defined as list[type]
             item_type = get_args(var_type)[0]                   #    get the type that was defined
+            if isinstance(item_type, ForwardRef):               # handle the case when the type is a forward reference
+                forward_name = item_type.__forward_arg__
+                if forward_name == cls.__name__:                #    if the forward reference is to the current class (simple name check)
+                    item_type = cls                            #       set the item_type to the current class
             return Type_Safe__List(expected_type=item_type)     #    and used it as expected_type in Type_Safe__List
         else:
             return default_value(var_type)                      # for all other cases call default_value, which will try to create a default instance
@@ -258,16 +274,16 @@ class Type_Safe:
         return self
 
     def deserialize_dict__using_key_value_annotations(self, key, value):
+        from osbot_utils.base_classes.Type_Safe__Dict import Type_Safe__Dict
+
         dict_annotations_tuple =  get_args(self.__annotations__[key])
         if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
             return value
         if not type(value) is dict:
             return value
-        #key_class   = get_args(self.__annotations__[key])[0]
-        #value_class = get_args(self.__annotations__[key])[1]
         key_class   = dict_annotations_tuple[0]
         value_class = dict_annotations_tuple[1]
-        new_value   = {}
+        new_value   = Type_Safe__Dict(expected_key_type=key_class, expected_value_type=value_class)
 
         for dict_key, dict_value in value.items():
             if issubclass(key_class, Type_Safe):

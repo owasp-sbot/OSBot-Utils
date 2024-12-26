@@ -344,17 +344,6 @@ class test_Type_Safe__List(TestCase):
 
         an_class.an_list__callable.append(invalid_func)     # BUG doesn't raise  (i.e. at the moment we are not detecting the callable signature and return type)
 
-    def test__bug__type_safe_list_with_forward_references(self):
-        class An_Class(Type_Safe):
-            an_list__self_reference: List['An_Class']
-
-        an_class = An_Class()
-        an_class.an_list__self_reference.append(An_Class())
-
-        an_class.an_list__self_reference.append(1)  # BUG , type safety not checked on forward references
-        # with pytest.raises(TypeError, match="Expected 'An_Class', but got 'int'"):
-        #     an_class.an_list__self_reference.append(1)
-
     # this test will cause the List[Union[Dict[str, int], List[str], int]] to be cached (inside python, which will impact the next two tests)
     def test__type_safe_list_with_complex_union_types(self):
         if sys.version_info < (3, 10):
@@ -437,3 +426,32 @@ class test_Type_Safe__List(TestCase):
         #with pytest.raises(TypeError, match=re.escape("Expected 'Union[int, list[str], dict[str, int]]', but got 'dict'")):
         with pytest.raises(TypeError, match=re.escape("Invalid type for item: Expected 'Union[dict[str, int], list[str], int]', but got 'dict'")):
             an_class.an_list__mixed.append({'a': 'b'})
+
+    def test__regression__type_safe_list_with_forward_references(self):
+        class An_Class(Type_Safe):
+            an_list__self_reference: List['An_Class']
+
+        an_class = An_Class()
+        an_class.an_list__self_reference.append(An_Class())
+
+        #an_class.an_list__self_reference.append(1)  # BUG , type safety not checked on forward references
+        with pytest.raises(TypeError, match="Expected 'An_Class', but got 'int'"):
+            an_class.an_list__self_reference.append(1)
+
+
+    def test__regression__nested_types__not_supported__in_list(self):
+        class An_Class(Type_Safe):
+            an_str  : str
+            an_list : List['An_Class']
+
+        an_class   = An_Class()
+        assert type(an_class.an_list) is Type_Safe__List
+        assert an_class.an_list       == []
+
+        an_class_a = An_Class()
+        an_class.an_list.append(an_class_a)
+        with pytest.raises(TypeError, match="In Type_Safe__List: Invalid type for item: Expected 'An_Class', but got 'str'"):
+            an_class.an_list.append('b'       )     # BUG: as above
+
+
+
