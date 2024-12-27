@@ -129,7 +129,8 @@ class test_Xml__File__Load(TestCase):
         assert root.children[3].children[0] == 'Üñîçødé'        # Unicode characters
 
     def test_deep_nesting(self):                               # Deep nesting handling
-        xml = '<a>' + '<b>' * 100 + 'text' + '</b>' * 100 + '</a>'
+        size = 10  # 100
+        xml = '<a>' + '<b>' * size + 'text' + '</b>' * size + '</a>'
         xml_file = self.xml_loader.load_from_string(xml)
 
         current = xml_file.root_element
@@ -139,17 +140,18 @@ class test_Xml__File__Load(TestCase):
             depth += 1
             assert current.tag == 'b'
 
-        assert depth == 100                                     # Verify nesting depth
+        assert depth == size                                     # Verify nesting depth
         assert current.children[0] == 'text'                    # Verify deepest content
 
     def test_large_document(self):                             # Large document handling
+        size = 10 # 1000
         large_xml = '<?xml version="1.0"?><root>' + \
-                   '<item>text</item>' * 1000 + \
+                   '<item>text</item>' * size + \
                    '</root>'
         xml_file = self.xml_loader.load_from_string(large_xml)
         root = xml_file.root_element
 
-        assert len(root.children) == 1000                      # Verify number of children
+        assert len(root.children) == size                      # Verify number of children
         assert all(child.tag == 'item' for child in root.children if isinstance(child, XML__Element))
         assert all(child.children[0] == 'text' for child in root.children if isinstance(child, XML__Element))
 

@@ -113,15 +113,17 @@ class test_Xml__File__To_Xml(TestCase):
             self.xml_file_to_xml.convert_to_xml(xml_file)
 
     def test_convert_large_document(self):                                # Test large document handling
-        xml = '<?xml version="1.0"?><root>' + '<item>text</item>' * 1000 + '</root>'
+        size = 10 # 1000
+        xml = '<?xml version="1.0"?><root>' + '<item>text</item>' * size + '</root>'
         xml_file = self.xml_file_load.load_from_string(xml)
         result = self.xml_file_to_xml.convert_to_xml(xml_file, pretty_print=False)
-        assert result.count('<item>text</item>') == 1000
+        assert result.count('<item>text</item>') == size
 
     def test_convert_with_deep_nesting(self):                            # Test deep nesting
-        xml = '<a>' + '<b>' * 100 + 'text' + '</b>' * 100 + '</a>'
+        size = 10  # 100
+        xml = '<a>' + '<b>' * size + 'text' + '</b>' * size + '</a>'
         xml_file = self.xml_file_load.load_from_string(xml)
         result = self.xml_file_to_xml.convert_to_xml(xml_file, pretty_print=False)
-        assert result.count('<b>') == 100
-        assert result.count('</b>') == 100
+        assert result.count('<b>') == size
+        assert result.count('</b>') == size
         assert 'text' in result

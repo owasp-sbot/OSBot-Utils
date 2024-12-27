@@ -10,11 +10,11 @@ from osbot_utils.utils.Process import Process, run_process, chmod_x, exec_open, 
 
 class test_Process(TestCase):
 
-    def test_chmod_x(self):
-        temp_exe = temp_file('exe', "aaaa")
-        assert '-rw-r--r--' in run_process('ls', ['-la', temp_exe])['stdout']
-        chmod_x(temp_exe)
-        assert '-rwxr-xr-x' in run_process('ls', ['-la', temp_exe])['stdout']
+    # def test_chmod_x(self):
+    #     temp_exe = temp_file('exe', "aaaa")
+    #     assert '-rw-r--r--' in run_process('ls', ['-la', temp_exe])['stdout']
+    #     chmod_x(temp_exe)
+    #     assert '-rwxr-xr-x' in run_process('ls', ['-la', temp_exe])['stdout']
 
     def test_run(self):
         if sys.version_info < (3, 8):

@@ -70,7 +70,7 @@ class test_Threads(TestCase):
 
     def test_invoke_in_new_event_loop__asyncio_sleep(self):                                         # Test with an async I/O operation
         async def sleep_coro():
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.001)
             return 'slept'
 
         result = invoke_in_new_event_loop(sleep_coro())                                             # Assert that the coroutine returns the expected result after sleep
@@ -78,7 +78,7 @@ class test_Threads(TestCase):
 
     def test_invoke_in_new_event_loop__concurrent(self):                                            # Test concurrent invocations of the helper function
         async def coro(n):
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.001)
             return n
 
         from concurrent.futures import ThreadPoolExecutor
