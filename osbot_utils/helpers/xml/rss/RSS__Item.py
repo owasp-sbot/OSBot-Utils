@@ -1,9 +1,7 @@
-from typing import Dict, List, Any
-
-from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.helpers.Guid import Guid
-from osbot_utils.helpers.xml.rss.RSS__Enclosure import RSS__Enclosure
-
+from typing                                         import Dict, List, Any
+from osbot_utils.base_classes.Type_Safe             import Type_Safe
+from osbot_utils.helpers.Guid                       import Guid
+from osbot_utils.helpers.xml.rss.RSS__Enclosure     import RSS__Enclosure
 
 class RSS__Item(Type_Safe):
     title       : str

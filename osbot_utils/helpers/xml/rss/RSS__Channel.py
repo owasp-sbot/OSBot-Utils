@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing                                     import Any, Dict, List
 from osbot_utils.base_classes.Type_Safe         import Type_Safe
 from osbot_utils.helpers.xml.rss.RSS__Image     import RSS__Image
 from osbot_utils.helpers.xml.rss.RSS__Item      import RSS__Item
