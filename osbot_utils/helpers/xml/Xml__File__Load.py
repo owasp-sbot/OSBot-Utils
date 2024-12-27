@@ -12,7 +12,7 @@ class Xml__File__Load(Type_Safe):
     def load_from_string(self, xml_data: str) -> Xml__File:    # Create Xml__File from string
         xml_file = Xml__File(xml_data=xml_data)
         self.load_namespaces(xml_file)
-        self.parse_xml(xml_file)
+        self.parse_xml      (xml_file)
         return xml_file
 
     def load_namespaces(self, xml_file: Xml__File):           # Extract namespaces from XML
@@ -28,32 +28,46 @@ class Xml__File__Load(Type_Safe):
             raise ValueError("XML data cannot be empty")
 
         try:
-            root = fromstring(xml_file.xml_data)
-            xml_file.root_element = self.convert_element(root)
+            root       = fromstring(xml_file.xml_data)
+            namespaces = xml_file.namespaces
+            xml_file.root_element = self.convert_element(namespaces,root)
         except ParseError as error:
             raise ValueError(f"Invalid XML: {str(error)}")
 
-    def convert_element(self, element: Element) -> XML__Element:    # Convert ElementTree.Element to XML__Element
+    def convert_element(self, namespaces: Dict[str,str], element: Element) -> XML__Element:
         attributes = self.convert_attributes(element)
         children: List[Union[str, XML__Element]] = []
 
-        tag = element.tag                                          # Handle tag name
-        if '}' in tag:
-            tag = tag.split('}', 1)[1]                            # Remove namespace prefix
+        tag             = element.tag
+        namespace        = ''
+        namespace_prefix = ''
 
-        if element.text and element.text.strip():                 # Handle text content
+        if '}' in tag:
+            namespace, tag = tag.split('}', 1)          # Split namespace and tag
+            namespace = namespace[1:]                   # Remove the '{' prefix
+
+            for prefix, uri in namespaces.items(): # Find prefix for this namespace
+                if uri == namespace:
+                    namespace_prefix = prefix
+                    break
+
+        # Handle text content
+        if element.text and element.text.strip():
             children.append(element.text.strip())
 
-        for child in element:                                     # Process child elements
-            child_element = self.convert_element(child)
+        # Process child elements
+        for child in element:
+            child_element = self.convert_element(namespaces, child)
             children.append(child_element)
 
-            if child.tail and child.tail.strip():                 # Handle tail text
+            if child.tail and child.tail.strip():
                 children.append(child.tail.strip())
 
-        return XML__Element(tag        = tag        ,
-                            attributes = attributes ,
-                            children   = children   )
+        return XML__Element(tag=tag,
+                          namespace=namespace,
+                          namespace_prefix=namespace_prefix,
+                          attributes=attributes,
+                          children=children)
 
     def convert_attributes(self, element: Element) -> Dict[str, Xml__Attribute]:    # Convert element attributes
         attributes = {}
