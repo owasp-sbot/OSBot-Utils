@@ -24,13 +24,7 @@ if sys.version_info < (3, 8):                                           # pragma
             return ()
 else:
     from typing import get_origin, get_args, ForwardRef
-    
-    if sys.version_info < (3, 9):
-        class Annotated:
-            def __init__(self, *args) -> None:
-                pass
-    else:
-        from typing import Annotated
+    from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
 
 if sys.version_info >= (3, 10):
     NoneType = types.NoneType

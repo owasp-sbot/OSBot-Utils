@@ -383,7 +383,8 @@ def obj_is_type_union_compatible(var_type, compatible_types):
 
 
 def value_type_matches_obj_annotation_for_union_and_annotated(target, attr_name, value):
-    from typing import Union, Annotated, get_origin, get_args
+    from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
+    from typing                                              import Union, get_origin, get_args
 
     value_type           = type(value)
     attribute_annotation = obj_attribute_annotation(target, attr_name)

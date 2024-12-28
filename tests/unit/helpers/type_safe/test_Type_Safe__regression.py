@@ -1,7 +1,8 @@
 import pytest
 import sys
 from decimal                                                 import Decimal
-from typing                                                  import Optional, Union, List, Dict, Annotated
+from osbot_utils.helpers.python_compatibility.python_3_8     import Annotated
+from typing                                                  import Optional, Union, List, Dict
 from unittest                                                import TestCase
 from unittest.mock                                           import patch
 from osbot_utils.base_classes.Kwargs_To_Self                 import Kwargs_To_Self

@@ -1,4 +1,5 @@
-from typing import Any, Annotated
+from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
+from typing                                              import Any
 
 class Type_Safe__Validator:                                                                 # Base class for all Type_Safe validators.
 

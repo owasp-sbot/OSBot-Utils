@@ -18,7 +18,7 @@ class test_Type_Safe__validators(TestCase):
     def setUpClass(cls):
         if sys.version_info < (3, 9):
             pytest.skip("Skipping tests that need FIXING on 3.8 or lower")
-            
+
     def test_numeric_validators(self):
         class Person(Type_Safe):
             age  : Validate[int  , Min(0)  , Max(150  )]

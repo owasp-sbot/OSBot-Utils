@@ -649,8 +649,7 @@ class test_Type_Safe(TestCase):
         assert base_class.an_int == 456                                          # impacts base_class
 
 
-if sys.version_info > (3, 8):
-    from typing import Annotated
+from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
 
 class test_Type_Safe__bigger_than_3_8(TestCase):
 
