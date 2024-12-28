@@ -657,11 +657,9 @@ class test_Type_Safe__bigger_than_3_8(TestCase):
     @classmethod
     def setUpClass(cls):
         if sys.version_info < (3, 9):
-            pytest.skip("Skipping tests that need FIXING on 3.8 or lower")
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
 
     def test_annotated_with_lists_with_types(self):
-        if sys.version_info < (3, 9):
-            pytest.skip("Skipping tests that need FIXING on 3.8 or lower")
 
         class Length:
             def __init__(self, min_len: int):

@@ -24,6 +24,9 @@ from osbot_utils.utils.Objects                               import default_valu
 class test_Type_Safe__regression(TestCase):
 
     def test__regression__Annotated_doesnt_support_class_assignments(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
+
         class TestClass(Type_Safe):
             age  : Annotated[int, Min(0)] = 42
 

@@ -28,6 +28,9 @@ class test_Type_Safe__bugs(TestCase):
 
 
     def test__bug__Annotated_inheritance(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
+
         class Min:
             def __init__(self, value: int):
                 self.value = value
