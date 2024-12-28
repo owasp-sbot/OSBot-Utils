@@ -3,7 +3,9 @@
 
 import sys
 import types
-from osbot_utils.utils.Objects                  import default_value         # todo: remove test mocking requirement for this to be here (instead of on the respective method)
+
+from osbot_utils.helpers.type_safe.Type_Safe__Validator import Type_Safe__Validator
+from osbot_utils.utils.Objects                          import default_value         # todo: remove test mocking requirement for this to be here (instead of on the respective method)
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):                                           # pragma: no cover
@@ -23,7 +25,7 @@ if sys.version_info < (3, 8):                                           # pragma
         else:
             return ()
 else:
-    from typing import get_origin, get_args, ForwardRef
+    from typing import get_origin, get_args, ForwardRef, Annotated
 
 if sys.version_info >= (3, 10):
     NoneType = types.NoneType
@@ -44,7 +46,6 @@ class Type_Safe:
 
         for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
             if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
-
                 raise_exception_on_obj_type_annotation_mismatch(self, key, value)
             if hasattr(self, key):
                 existing_value = getattr(self, key)
@@ -68,7 +69,7 @@ class Type_Safe:
         from osbot_utils.utils.Objects import convert_dict_to_value_from_obj_annotation
         from osbot_utils.utils.Objects import convert_to_value_from_obj_annotation
         from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_attr
-        from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_union_attr
+        from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_union_and_annotated
 
         if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
             return super().__setattr__(name, value)
@@ -79,7 +80,7 @@ class Type_Safe:
             if type(value) in [int, str]:                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
                 value = convert_to_value_from_obj_annotation (self, name, value)
             check_1 = value_type_matches_obj_annotation_for_attr      (self, name, value)
-            check_2 = value_type_matches_obj_annotation_for_union_attr(self, name, value)
+            check_2 = value_type_matches_obj_annotation_for_union_and_annotated(self, name, value)
             if (check_1 is False and check_2 is None  or
                 check_1 is None  and check_2 is False or
                 check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
@@ -88,6 +89,16 @@ class Type_Safe:
             if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
                 if getattr(self, name) is not None:                         # unless it is already set to None
                     raise ValueError(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+
+        # todo: refactor this to separate method
+        if hasattr(self.__annotations__, 'get'):
+            annotation = self.__annotations__.get(name)
+            if annotation and get_origin(annotation) is Annotated:
+                annotation_args = get_args(annotation)
+                target_type = annotation_args[0]
+                for attribute in annotation_args[1:]:
+                    if isinstance(attribute, Type_Safe__Validator):
+                        attribute.validate(value=value, field_name=name, target_type=target_type)
 
         super().__setattr__(name, value)
 
@@ -131,6 +142,8 @@ class Type_Safe:
                     else:
                         var_value = getattr(base_cls, var_name)
                         if var_value is not None:                                                                   # allow None assignments on ctor since that is a valid use case
+                            if get_origin(var_type) is Annotated:
+                                continue
                             if var_type and not isinstance(var_value, var_type):                                    # check type
                                 exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
                                 raise ValueError(exception_message)

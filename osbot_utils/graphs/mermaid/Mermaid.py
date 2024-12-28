@@ -1,10 +1,10 @@
-from osbot_utils.graphs.mermaid.Mermaid__Renderer   import Mermaid__Renderer
-from osbot_utils.graphs.mermaid.Mermaid__Edge       import Mermaid__Edge
-from osbot_utils.graphs.mermaid.Mermaid__Graph      import Mermaid__Graph
-from osbot_utils.graphs.mermaid.models.Mermaid__Diagram_Direction import Diagram__Direction
-from osbot_utils.graphs.mermaid.models.Mermaid__Diagram__Type import Diagram__Type
-from osbot_utils.utils.Python_Logger            import Python_Logger
-from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
+from osbot_utils.graphs.mermaid.Mermaid__Renderer                   import Mermaid__Renderer
+from osbot_utils.graphs.mermaid.Mermaid__Edge                       import Mermaid__Edge
+from osbot_utils.graphs.mermaid.Mermaid__Graph                      import Mermaid__Graph
+from osbot_utils.graphs.mermaid.models.Mermaid__Diagram_Direction   import Diagram__Direction
+from osbot_utils.graphs.mermaid.models.Mermaid__Diagram__Type       import Diagram__Type
+from osbot_utils.utils.Python_Logger                                import Python_Logger
+from osbot_utils.base_classes.Kwargs_To_Self                        import Kwargs_To_Self
 
 class Mermaid(Kwargs_To_Self):
     graph             : Mermaid__Graph

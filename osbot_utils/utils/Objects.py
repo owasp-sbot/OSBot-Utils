@@ -23,7 +23,7 @@ if sys.version_info < (3, 8):
         else:
             return ()
 else:
-    from typing import get_origin, get_args
+    from typing import get_origin, get_args, List, Tuple, Dict
 
 
 def are_types_compatible_for_assigment(source_type, target_type):
@@ -343,11 +343,10 @@ def obj_values(target=None):
     return list(obj_dict(target).values())
 
 def raise_exception_on_obj_type_annotation_mismatch(target, attr_name, value):
-    # todo : check if this is is not causing the type safety issues
     if value_type_matches_obj_annotation_for_attr(target, attr_name, value) is False:               # handle case with normal types
-        if value_type_matches_obj_annotation_for_union_attr(target, attr_name, value) is True:      # handle union cases
+        if value_type_matches_obj_annotation_for_union_and_annotated(target, attr_name, value) is True:      # handle union cases
             return                                                                                  #     this is done like this because value_type_matches_obj_annotation_for_union_attr will return None when there is no Union objects
-        raise Exception(f"Invalid type for attribute '{attr_name}'. Expected '{target.__annotations__.get(attr_name)}' but got '{type(value)}'")
+        raise TypeError(f"Invalid type for attribute '{attr_name}'. Expected '{target.__annotations__.get(attr_name)}' but got '{type(value)}'")
 
 def obj_attribute_annotation(target, attr_name):
     if target is not None and attr_name is not None:
@@ -382,15 +381,51 @@ def obj_is_type_union_compatible(var_type, compatible_types):
         return True                                                         # If all args are compatible, return True
     return var_type in compatible_types or var_type is type(None)           # Check for direct compatibility or type(None) for non-Union types
 
-def value_type_matches_obj_annotation_for_union_attr(target, attr_name, value):
-    from typing import Union
+
+def value_type_matches_obj_annotation_for_union_and_annotated(target, attr_name, value):
+    from typing import Union, Annotated, get_origin, get_args
+
     value_type           = type(value)
-    attribute_annotation = obj_attribute_annotation(target,attr_name)
+    attribute_annotation = obj_attribute_annotation(target, attr_name)
     origin               = get_origin(attribute_annotation)
-    if origin is Union:                                                     # For Union types, including Optionals
-        args = get_args(attribute_annotation)                               # Get the argument types
+
+    if origin is Union:                                                     # Handle Union types (including Optional)
+        args = get_args(attribute_annotation)
         return value_type in args
-    return None                                                             # if it is not an Union type just return None (to give an indication to the caller that the comparison was not made)
+
+    # todo: refactor the logic below to a separate method (and check for duplicate code with other get_origin usage)
+    if origin is Annotated:                                                # Handle Annotated types
+        args        = get_args(attribute_annotation)
+        base_type   = args[0]                                              # First argument is the base type
+        base_origin = get_origin(base_type)
+
+        if base_origin is None:                                            # Non-container types
+            return isinstance(value, base_type)
+
+        if base_origin in (list, List):                                    # Handle List types
+            if not isinstance(value, list):
+                return False
+            item_type = get_args(base_type)[0]
+            return all(isinstance(item, item_type) for item in value)
+
+        if base_origin in (tuple, Tuple):                                  # Handle Tuple types
+            if not isinstance(value, tuple):
+                return False
+            item_types = get_args(base_type)
+            return len(value) == len(item_types) and all(
+                isinstance(item, item_type)
+                for item, item_type in zip(value, item_types)
+            )
+
+        if base_origin in (dict, Dict):                                    # Handle Dict types
+            if not isinstance(value, dict):
+                return False
+            key_type, value_type = get_args(base_type)
+            return all(isinstance(k, key_type) and isinstance(v, value_type)
+                      for k, v in value.items())
+
+    # todo: add support for for other typing constructs
+    return None                                                             # if it is not a Union or Annotated types just return None (to give an indication to the caller that the comparison was not made)
 
 
 def pickle_save_to_bytes(target: object) -> bytes:

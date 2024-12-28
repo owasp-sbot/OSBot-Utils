@@ -1,7 +1,7 @@
 import re
-
 from osbot_utils.utils.Status import status_error
 
+# todo: review if we can delete this file (since we now have an Regex class in the validators)
 
 def list__match_regex(target, pattern):
     return list__match_regexes(target, [pattern])

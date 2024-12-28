@@ -1,12 +1,66 @@
+import re
 import sys
 import pytest
-from typing                                     import Optional, Union, Dict
+from typing                                     import Optional, Union, Dict, Annotated, get_origin, get_args, List, Tuple
 from unittest                                   import TestCase
+from osbot_utils.utils.Misc                     import list_set
 from osbot_utils.base_classes.Type_Safe         import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self    import Kwargs_To_Self
 
 
 class test_Type_Safe__bugs(TestCase):
+
+    def test__bug__base_types_not_check_over_inheritance(self):
+        class Base_Class(Type_Safe):
+            an_str: str
+
+        class An_Class(Base_Class):
+            an_int: int
+
+        an_class = An_Class()
+        assert an_class.json() == {'an_str': '', 'an_int': 0}
+        an_class.an_str = 123           # BUG
+        an_class.an_int = 123           # OK
+        an_class.an_str = "a"           # OK
+        with pytest.raises(ValueError, match="Invalid type for attribute 'an_int'. Expected '<class 'int'>' but got '<class 'str'>'"):
+            an_class.an_int = "a"           # OK
+
+
+    def test__bug__Annotated_inheritance(self):
+        class Min:
+            def __init__(self, value: int):
+                self.value = value
+
+        class Max:
+            def __init__(self, value: int):
+                self.value = value
+
+        class Length:
+            def __init__(self, min_len: int):
+                self.min_len = min_len
+
+        class BaseClass(Type_Safe):
+            age: Annotated[int, Min(0)]
+
+        class ChildClass(BaseClass):
+            name: Annotated[str, Length(2)]
+
+        class GrandChildClass(ChildClass):
+            score: Annotated[float, Min(0.0), Max(100.0)]
+
+        test = GrandChildClass(age=25, name="John", score=95.5)
+
+
+        assert test.age   == 25
+        assert test.name  == "John"
+        assert test.score == 95.5
+
+        #Verify annotations are inherited correctly
+        assert list_set(test.__annotations__) == ['score']                              # BUG: only the score is in the annotations
+        # assert get_origin(GrandChildClass.__annotations__['age'  ]) is Annotated      # BUG missing annotation
+        # assert get_origin(GrandChildClass.__annotations__['name' ]) is Annotated      # BUG missing annotation
+        assert get_origin(GrandChildClass.__annotations__['score']) is Annotated
+        test.age = 'aaaa'                                                               # BUG: should have raised exception
 
     def test__bug__in__convert_dict_to_value_from_obj_annotation(self):
         class An_Class_2_B(Type_Safe):

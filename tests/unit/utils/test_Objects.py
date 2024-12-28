@@ -3,21 +3,19 @@ import sys
 import types
 import pytest
 import unittest
-from collections.abc  import Mapping
-from typing           import Optional, Union
-from unittest         import TestCase
-from unittest.mock    import patch, call
-
-from osbot_utils.testing.Stdout import Stdout
-
+from collections.abc                    import Mapping
+from typing                             import Optional, Union
+from unittest                           import TestCase
+from unittest.mock                      import patch, call
+from osbot_utils.testing.Stdout         import Stdout
 from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.utils.Misc import random_int, list_set
-from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, \
+from osbot_utils.utils.Misc             import random_int, list_set
+from osbot_utils.utils.Objects          import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, \
     obj_dict, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
     obj_base_classes, obj_base_classes_names, are_types_compatible_for_assigment, type_mro, \
-    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_attr, pickle_save_to_bytes, \
+    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_and_annotated, pickle_save_to_bytes, \
     pickle_load_from_bytes, convert_dict_to_value_from_obj_annotation, dict_to_obj, obj_to_dict, __
 
 
@@ -404,7 +402,7 @@ class test_Objects(TestCase):
         assert type(pickled_data)  is bytes
         assert pickle_data         == an_object
 
-    def test_value_type_matches_obj_annotation_for_union_attr(self):
+    def test_value_type_matches_obj_annotation_for_union_and_annotated(self):
 
         an_str  : str   = ''
         an_int  :  int  = 1
@@ -425,7 +423,7 @@ class test_Objects(TestCase):
         direct_type_cases = Direct_Type_Cases()
         with_union_types  = With_Union_Types()
 
-        _ = value_type_matches_obj_annotation_for_union_attr
+        _ = value_type_matches_obj_annotation_for_union_and_annotated
 
         assert _(target=direct_type_cases, attr_name='var_1'         , value=an_str  ) is None          # any not Union type will return None
         assert _(target=direct_type_cases, attr_name='var_1'         , value=an_int  ) is None
