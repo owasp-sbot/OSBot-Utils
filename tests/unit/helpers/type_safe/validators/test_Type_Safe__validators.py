@@ -3,7 +3,7 @@ import pytest
 from unittest                                                       import TestCase
 
 if sys.version_info > (3, 8):
-    from typing                                                     import Annotated
+    from osbot_utils.helpers.python_compatibility.python_3_8        import Annotated
     from osbot_utils.base_classes.Type_Safe                         import Type_Safe
     from osbot_utils.helpers.type_safe.Type_Safe__Validator         import Validate
     from osbot_utils.helpers.type_safe.validators.Validator__Max    import Max
