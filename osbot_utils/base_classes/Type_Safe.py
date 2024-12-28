@@ -3,8 +3,6 @@
 
 import sys
 import types
-
-from osbot_utils.helpers.type_safe.Type_Safe__Validator import Type_Safe__Validator
 from osbot_utils.utils.Objects                          import default_value         # todo: remove test mocking requirement for this to be here (instead of on the respective method)
 
 # Backport implementations of get_origin and get_args for Python 3.7
@@ -66,10 +64,11 @@ class Type_Safe:
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
     def __setattr__(self, name, value):
-        from osbot_utils.utils.Objects import convert_dict_to_value_from_obj_annotation
-        from osbot_utils.utils.Objects import convert_to_value_from_obj_annotation
-        from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_attr
-        from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_union_and_annotated
+        from osbot_utils.utils.Objects                          import convert_dict_to_value_from_obj_annotation
+        from osbot_utils.utils.Objects                          import convert_to_value_from_obj_annotation
+        from osbot_utils.utils.Objects                          import value_type_matches_obj_annotation_for_attr
+        from osbot_utils.utils.Objects                          import value_type_matches_obj_annotation_for_union_and_annotated
+        from osbot_utils.helpers.type_safe.Type_Safe__Validator import Type_Safe__Validator
 
         if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
             return super().__setattr__(name, value)

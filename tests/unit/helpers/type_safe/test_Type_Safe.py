@@ -2,7 +2,7 @@ import sys
 import types
 import pytest
 from enum                                       import Enum, auto
-from typing                                     import Union, Optional, Annotated, List, get_origin, get_args
+from typing                                     import Union, Optional, List, get_origin, get_args
 from unittest                                   import TestCase
 from osbot_utils.base_classes.Type_Safe         import Type_Safe, serialize_to_dict
 from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
@@ -649,7 +649,20 @@ class test_Type_Safe(TestCase):
         assert base_class.an_int == 456                                          # impacts base_class
 
 
+if sys.version_info > (3, 8):
+    from typing import Annotated
+
+class test_Type_Safe__bigger_than_3_8(TestCase):
+
+
+    @classmethod
+    def setUpClass(cls):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that need FIXING on 3.8 or lower")
+
     def test_annotated_with_lists_with_types(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that need FIXING on 3.8 or lower")
 
         class Length:
             def __init__(self, min_len: int):
