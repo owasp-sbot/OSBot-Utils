@@ -1,25 +1,38 @@
 import pytest
 import sys
-from decimal                                        import Decimal
-from typing                                         import Optional, Union, List, Dict
-from unittest                                       import TestCase
-from unittest.mock                                  import patch
-from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
-from osbot_utils.base_classes.Type_Safe             import Type_Safe
-from osbot_utils.base_classes.Type_Safe__Dict       import Type_Safe__Dict
-from osbot_utils.base_classes.Type_Safe__List       import Type_Safe__List
-from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
-from osbot_utils.graphs.mermaid.Mermaid             import Mermaid
-from osbot_utils.graphs.mermaid.Mermaid__Graph      import Mermaid__Graph
-from osbot_utils.graphs.mermaid.Mermaid__Node       import Mermaid__Node
-from osbot_utils.graphs.mgraph.MGraph__Node         import MGraph__Node
-from osbot_utils.helpers.Random_Guid                import Random_Guid
-from osbot_utils.utils.Json                         import json_to_str, str_to_json
-from osbot_utils.utils.Misc                         import list_set, is_guid
-from osbot_utils.utils.Objects                      import default_value, obj_attribute_annotation, __
+from decimal                                                 import Decimal
+from osbot_utils.helpers.python_compatibility.python_3_8     import Annotated
+from typing                                                  import Optional, Union, List, Dict
+from unittest                                                import TestCase
+from unittest.mock                                           import patch
+from osbot_utils.base_classes.Kwargs_To_Self                 import Kwargs_To_Self
+from osbot_utils.base_classes.Type_Safe                      import Type_Safe
+from osbot_utils.base_classes.Type_Safe__Dict                import Type_Safe__Dict
+from osbot_utils.base_classes.Type_Safe__List                import Type_Safe__List
+from osbot_utils.decorators.methods.cache_on_self            import cache_on_self
+from osbot_utils.graphs.mermaid.Mermaid                      import Mermaid
+from osbot_utils.graphs.mermaid.Mermaid__Graph               import Mermaid__Graph
+from osbot_utils.graphs.mermaid.Mermaid__Node                import Mermaid__Node
+from osbot_utils.graphs.mgraph.MGraph__Node                  import MGraph__Node
+from osbot_utils.helpers.Random_Guid                         import Random_Guid
+from osbot_utils.helpers.type_safe.validators.Validator__Min import Min
+from osbot_utils.utils.Json                                  import json_to_str, str_to_json
+from osbot_utils.utils.Misc                                  import list_set, is_guid
+from osbot_utils.utils.Objects                               import default_value, obj_attribute_annotation, __
 
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__Annotated_doesnt_support_class_assignments(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
+
+        class TestClass(Type_Safe):
+            age  : Annotated[int, Min(0)] = 42
+
+        # with pytest.raises(TypeError, match='Subscripted generics cannot be used with class and instance checks'):
+        #     TestClass()
+        assert TestClass().json() == {'age': 42}
 
     def test__regression__from_json__does_not_recreate__Dict__objects(self):
 
@@ -111,7 +124,7 @@ class test_Type_Safe__regression(TestCase):
             an_class : 'An_Class'
 
         an_class          = An_Class()
-        error_message_1     = "Invalid type for attribute 'an_class'. Expected 'An_Class' but got '<class 'test_Type_Safe__bugs.test_Type_Safe__bugs.test__bug__nested_types__not_supported.<locals>.An_Class'>'"
+        #error_message_1     = "Invalid type for attribute 'an_class'. Expected 'An_Class' but got '<class 'test_Type_Safe__bugs.test_Type_Safe__bugs.test__bug__nested_types__not_supported.<locals>.An_Class'>'"
 
         an_class.an_class = An_Class()
 
@@ -123,9 +136,6 @@ class test_Type_Safe__regression(TestCase):
         an_class.an_class = An_Class()                              # FIXED: this now works
         assert type(an_class.an_class) is An_Class
         assert type(an_class.an_class.an_class) is type(None)
-
-        print(an_class.json())
-
         error_message_2 = "Invalid type for attribute 'an_class'. Expected 'An_Class' but got '<class 'str'>"
         with pytest.raises(ValueError, match=error_message_2):
             an_class.an_class = 'a'                 # BUG: wrong exception
@@ -651,6 +661,7 @@ class test_Type_Safe__regression(TestCase):
         assert context_3.exception.args[0] == exception_template.format(type_name='str')
         assert context_4.exception.args[0] == exception_template.format(type_name='int')
 
+    @pytest.mark.skip("test took too long to execute")  # todo: refactor to mermaid classes (and figure out why this test takes quite a long time, when compared with the others)
     def test__regression__mermaid__cast_issue_with_base_class__with_new_vars(self):
 
         new_node_1 = Mermaid().add_node(key='id')

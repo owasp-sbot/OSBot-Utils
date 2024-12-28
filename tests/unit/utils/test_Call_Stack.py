@@ -1,18 +1,11 @@
-import sys
-import traceback
-from unittest import TestCase
-from unittest.mock import call
-
 import pytest
-
-from osbot_utils.testing.Patch_Print import Patch_Print
-from osbot_utils.utils.Call_Stack import call_stack_current_frame, call_stack_format_stack, call_stack_frames, \
-    call_stack_frames_data, Call_Stack, PRINT_STACK_COLOR_THEMES
-from osbot_utils.utils.Env import platform_darwin, env__terminal__is__xterm
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Objects import obj_info, obj_data
-
-
+from unittest                           import TestCase
+from unittest.mock                      import call
+from osbot_utils.testing.Patch_Print    import Patch_Print
+from osbot_utils.utils.Call_Stack       import call_stack_current_frame, call_stack_format_stack, call_stack_frames, call_stack_frames_data, Call_Stack
+from osbot_utils.utils.Env              import env__terminal__is__xterm
+from osbot_utils.utils.Misc             import list_set
+from osbot_utils.utils.Objects          import obj_info, obj_data
 
 class test_Call_Stack(TestCase):
 
