@@ -1,9 +1,8 @@
-from enum import Enum, auto
-from osbot_utils.utils.Str import safe_str
-from osbot_utils.helpers.Local_Cache import Local_Cache
-
+from enum                                    import Enum, auto
+from osbot_utils.utils.Str                   import safe_str
+from osbot_utils.helpers.Local_Cache         import Local_Cache
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.graphs.mgraph.MGraph import MGraph
+from osbot_utils.graphs.mgraph.MGraph        import MGraph
 
 
 class Serialization_Mode(Enum):

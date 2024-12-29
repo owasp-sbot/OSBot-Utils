@@ -1,6 +1,4 @@
-from unittest import TestCase
-
-from osbot_utils.graphs.mgraph.MGraph__Edge import MGraph__Edge
+from unittest                               import TestCase
 from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
 
 

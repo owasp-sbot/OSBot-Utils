@@ -233,3 +233,53 @@ TEST_DATA__SECURITY_ALERTS__FEED_XML__JSON = {'channel': {'description': 'Securi
                                               'extensions': {},
                                               'namespaces': {},
                                               'version': '2.0'}
+
+TEST_DATA__RSS_FEED__MULTIPLE_ITEMS = {   "version": "2.0",
+                                          "channel": {
+                                            "image": None,
+                                            "description": "Trusted independent cybersecurity news source for everyone.",
+                                            "extensions": {},
+                                            "items": [
+                                              {
+                                                "title": "Critical Vulnerability in Popular Network Routers Exposes Thousands to Exploits",
+                                                "link": "https://example.com/critical-router-exploit",
+                                                "description": "A new high-severity flaw has been discovered in widely used routers, allowing remote attackers to execute arbitrary commands.",
+                                                "guid": "1a2b3c4d-5678-90ef-1234-567890abcdef",
+                                                "pubDate": "Sat, 28 Dec 2024 11:55:00 +0530",
+                                                "creator": "None"
+                                              },
+                                              {
+                                                "title": "Hackers Deploy Malware via Fake Job Offers in Social Engineering Campaign",
+                                                "link": "https://example.com/malware-fake-job-offers",
+                                                "description": "Cybercriminals are using fake job offers to distribute new malware variants, tricking victims into compromising their own systems.",
+                                                "guid": "2b3c4d5e-6789-01fg-2345-678901bcdefg",
+                                                "pubDate": "Fri, 27 Dec 2024 23:12:00 +0530",
+                                                "creator": "None"
+                                              },
+                                              {
+                                                "title": "Security Flaw in Enterprise Software Could Lead to Data Breaches",
+                                                "link": "https://example.com/software-security-flaw",
+                                                "description": "An identified vulnerability in popular enterprise software could expose sensitive data if left unpatched.",
+                                                "guid": "3c4d5e6f-7890-12gh-3456-789012cdefgh",
+                                                "pubDate": "Fri, 27 Dec 2024 16:40:00 +0530",
+                                                "creator": "None"
+                                              },
+                                              {
+                                                "title": "New AI Techniques Help Cybercriminals Generate Undetectable Malware",
+                                                "link": "https://example.com/ai-undetectable-malware",
+                                                "description": "Cybersecurity researchers warn that AI is being used to create advanced malware capable of bypassing traditional detection methods.",
+                                                "guid": "4d5e6f7g-8901-23ij-4567-890123defghi",
+                                                "pubDate": "Mon, 23 Dec 2024 19:18:00 +0530",
+                                                "creator": "None"
+                                              }
+                                            ],
+                                            "language": "en-us",
+                                            "last_build_date": "Sun, 29 Dec 2024 16:13:23 +0530",
+                                            "link": "https://example.com",
+                                            "title": "Cybersecurity News",
+                                            "update_frequency": "1",
+                                            "update_period": "hourly"
+                                          },
+                                          "namespaces": {},
+                                          "extensions": {}
+                                        }

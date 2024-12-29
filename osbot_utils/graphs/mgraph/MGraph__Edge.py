@@ -1,8 +1,5 @@
-from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
-from osbot_utils.graphs.mermaid.Mermaid__Node import LINE_PADDING, Mermaid__Node
+from osbot_utils.base_classes.Kwargs_To_Self  import Kwargs_To_Self
 from osbot_utils.graphs.mgraph.MGraph__Node   import MGraph__Node
-from osbot_utils.utils.Str import safe_str
-
 
 class MGraph__Edge(Kwargs_To_Self):
     attributes : dict
