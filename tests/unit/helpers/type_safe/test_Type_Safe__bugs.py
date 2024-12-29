@@ -1,4 +1,3 @@
-import re
 import sys
 import pytest
 from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
@@ -7,7 +6,6 @@ from unittest                                            import TestCase
 from osbot_utils.utils.Misc                              import list_set
 from osbot_utils.base_classes.Type_Safe                  import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self             import Kwargs_To_Self
-
 
 class test_Type_Safe__bugs(TestCase):
 

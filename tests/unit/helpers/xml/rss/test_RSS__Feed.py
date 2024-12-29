@@ -1,6 +1,8 @@
-from unittest                                   import TestCase
-from osbot_utils.helpers.xml.rss.RSS__Feed      import RSS__Feed, DEFAULT__RSS_FEED__VERSION
-from osbot_utils.helpers.xml.rss.RSS__Channel   import RSS__Channel
+from unittest                                        import TestCase
+from osbot_utils.helpers.xml.rss.RSS__Feed           import RSS__Feed, DEFAULT__RSS_FEED__VERSION
+from osbot_utils.helpers.xml.rss.RSS__Channel        import RSS__Channel
+from tests.unit.helpers.xml.rss.Test_Data__RSS__Feed import TEST_DATA__RSS_FEED__MULTIPLE_ITEMS
+
 
 class test_RSS__Feed(TestCase):
 
@@ -38,3 +40,7 @@ class test_RSS__Feed(TestCase):
         assert feed.namespaces == {}
         assert feed.extensions == {}
 
+    def test__from_json___multiple_items(self):
+        json_data = TEST_DATA__RSS_FEED__MULTIPLE_ITEMS
+        rss_feed = RSS__Feed.from_json(json_data)
+        assert rss_feed.json() == json_data

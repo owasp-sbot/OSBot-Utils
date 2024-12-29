@@ -25,13 +25,14 @@ class RSS__Feed__Parser:
             guid        = self.extract_guid(item_data.get('guid'       ))
             pubDate     = self.element_text(item_data.get('pubDate'    ))
             creator     = self.element_text(item_data.get('creator'    ))
+            categories  = self.ensure_is_list(item_data.get('category'))
             rss_item = RSS__Item(title       = title                    ,
                                  link        = link                     ,
                                  description = description              ,
                                  guid        = guid                     ,
                                  pubDate     = pubDate                  ,
                                  creator     = creator                  ,
-                                 categories  = item_data.get('category'     , []),
+                                 categories  = categories               ,
                                  content     = item_data.get('content'      , {}),
                                  thumbnail   = item_data.get('thumbnail'    , {}))
 
@@ -73,6 +74,15 @@ class RSS__Feed__Parser:
 
     def extract_guid(self, target):
         return Guid(self.extract_text(target))
+
+    def ensure_is_list(self, target):
+        if type(target) is list:
+            return target
+        if type(target) is str:
+            return [target]
+        if target:
+            return [f'{target}']
+        return []
 
     def element_text(self, target):
         if isinstance(target, list):
