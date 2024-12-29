@@ -1,4 +1,3 @@
-import sys
 import types
 import pytest
 from enum                                       import Enum, auto
@@ -10,7 +9,8 @@ from osbot_utils.testing.Catch                  import Catch
 from osbot_utils.testing.Stdout                 import Stdout
 from osbot_utils.utils.Json                     import json_dumps
 from osbot_utils.utils.Misc                     import random_string, list_set
-from osbot_utils.utils.Objects                  import obj_data
+from osbot_utils.utils.Objects                  import obj_data, __
+
 
 class test_Type_Safe(TestCase):
 
@@ -77,8 +77,6 @@ class test_Type_Safe(TestCase):
     def test___cls_kwargs__with_optional_attributes(self):
         if sys.version_info < (3, 10):
             pytest.skip("Skipping test that doesn't work on 3.9 or lower")
-        # if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
-        #     pytest.skip('Skipping test that requires __annotations__')
 
         class Immutable_Types_Class(Type_Safe):
             a_int       : int       = 1
@@ -139,7 +137,7 @@ class test_Type_Safe(TestCase):
         assert context_2.exception.args[0] == expected_message_2
 
 
-
+    # todo: move this test to __bug__ capturing the fact that the classes are not locked
     # def test_locked(self):
     #     class An_Class(Type_Safe):
     #         an_str  : str = '42'
@@ -163,8 +161,8 @@ class test_Type_Safe(TestCase):
     #     assert an_class.__locals__() == {'after_lock': 43, 'an_str': '42', 'before_lock': 42}
 
     def test_serialize_to_dict(self):
-        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
-            pytest.skip('Skipping test that requires __annotations__')
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
 
         class An_Enum_A(Enum):
             an_value = 1
@@ -179,14 +177,13 @@ class test_Type_Safe(TestCase):
         an_class_dict = {'an_dict': {}, 'an_enum': 'an_value', 'an_int': 42, 'an_list': [], 'an_str': '42'}
         an_class_a      = An_Class_A()
         assert an_class_a.serialize_to_dict() == an_class_dict
-        obj_to_serialize = 3 + 4j  # A complex number which will not serialise
+
+        obj_to_serialize = 3 + 4j                                   # A complex number which will not serialise
         with self.assertRaises(TypeError) as context:
             serialize_to_dict(obj_to_serialize)
-        assert context.exception.args[0] == "Type <class 'complex'> not serializable"
+        assert context.exception.args[0]  == "Type <class 'complex'> not serializable"
 
-        with self.assertRaises(TypeError) as context:
-            serialize_to_dict(TestCase)
-        assert context.exception.args[0] == "Type <class 'builtin_function_or_method'> not serializable"
+        assert serialize_to_dict(TestCase) == 'unittest.case.TestCase'                  # types are supported
 
     def test_serialize_to_dict__enum(self):
         class An_Enum(Enum):
@@ -697,3 +694,251 @@ class test_Type_Safe(TestCase):
             an_class.get_()  # Empty attribute name
         with pytest.raises(AttributeError):
             an_class.set_()  # Empty attribute name
+
+
+from unittest import TestCase
+import sys
+from osbot_utils.utils.Objects import default_value
+
+
+
+
+class test_Type_Safe__type_support(TestCase):
+
+    def test__type_immutability_check(self):
+        with self.assertRaises(ValueError) as context:                  # Test that type defaults are not allowed
+            class Default_Types(Type_Safe):
+                explicit_str: type = str
+            Default_Types()                                             # Should raise error
+        assert "not supported by Type_Safe" in str(context.exception)
+
+        class Test_None_Default(Type_Safe):                             # Test that None default is allowed
+            type_field: type = None
+        Test_None_Default()
+
+        class Valid_Usage(Type_Safe):                                   # Test that dynamic assignment still works
+            type_field: type
+
+        test_obj = Valid_Usage()
+        test_obj.type_field = str
+        assert test_obj.type_field == str
+
+        with self.assertRaises(ValueError) as context:                  # Test that nested type defaults are also checked
+            class Nested_Invalid(Type_Safe):
+                class Inner(Type_Safe):
+                    type_field: type = str
+                nested: Inner
+            Nested_Invalid()
+        assert "not supported by Type_Safe" in str(context.exception)
+
+    def test__support_types_in_json(self):
+        class An_Class(Type_Safe):
+            an_type: type
+
+        an_class = An_Class()
+        an_class.an_type = str
+
+        an_class.an_type = type(TestCase)
+        an_class.an_type = int
+
+        assert 0         == default_value(an_class.an_type)
+        assert 123       == an_class.an_type(123)
+        assert an_class.json() == {'an_type': 'builtins.int'}
+
+        assert An_Class.from_json(an_class.json()).json() == an_class.json()
+
+
+    def test_type_serialization(self):
+        class Type_Test_Class(Type_Safe):
+            builtin_type    : type
+            custom_type     : type
+            none_type       : type
+
+        # Test serialization of built-in types
+        test_obj              = Type_Test_Class()
+        test_obj.builtin_type = str
+        assert test_obj.json() == {'builtin_type'   : 'builtins.str',
+                                   'custom_type'    : None          ,
+                                   'none_type'      : None          }
+
+
+        # Test deserialization of built-in types
+        restored = Type_Test_Class.from_json(test_obj.json())
+        assert restored.builtin_type == str
+        assert restored.json()       == test_obj.json()
+
+        # Test multiple built-in types
+        builtin_types = [int, float, bool, list, dict, set, tuple]
+        for type_to_test in builtin_types:
+            test_obj.builtin_type = type_to_test
+            json_data = test_obj.json()
+            assert json_data['builtin_type'] == f'builtins.{type_to_test.__name__}'
+            restored = Type_Test_Class.from_json(json_data)
+            assert restored.builtin_type == type_to_test
+
+        # Test custom class types
+
+        test_obj.custom_type = Custom_Class
+        json_data = test_obj.json()
+
+        assert json_data['custom_type'] == f'{Custom_Class.__module__}.Custom_Class'
+        restored = Type_Test_Class.from_json(json_data)
+        assert restored.custom_type == Custom_Class
+
+    def test_type_serialization__lists(self):
+        class Type_Test_Class(Type_Safe):
+            builtin_type    : type
+            collection_type : type
+
+        test_obj = Type_Test_Class()
+
+        from typing import List                                   # Test collection types from typing module
+        test_obj.collection_type = List
+
+        json_data = test_obj.json()
+
+        assert json_data['collection_type'] == 'builtins.list'
+
+        restored = Type_Test_Class.from_json(json_data)
+        assert restored.collection_type == list                             # the roundtrip is list not List
+
+        # Test type safety
+        with self.assertRaises(ValueError):
+            test_obj.builtin_type = "not a type"
+
+        # Test None handling
+        test_obj.builtin_type = None
+        json_data = test_obj.json()
+        assert json_data['builtin_type'] is None
+        restored = Type_Test_Class.from_json(json_data)
+        assert restored.builtin_type is None
+
+    def test_nested_type_serialization(self):
+        class Nested_Type_Class(Type_Safe):
+            outer_type: type
+            inner_type: type
+
+        class Container_Class(Type_Safe):
+            nested: Nested_Type_Class
+
+        # Test nested type serialization
+        nested = Nested_Type_Class()
+        nested.outer_type = list
+        nested.inner_type = str
+        container = Container_Class(nested=nested)
+
+        json_data = container.json()
+        assert json_data == {
+            'nested': {
+                'outer_type': 'builtins.list',
+                'inner_type': 'builtins.str'
+            }
+        }
+
+        # Test nested type deserialization
+        restored = Container_Class.from_json(json_data)
+        assert restored.nested.outer_type == list
+        assert restored.nested.inner_type == str
+        assert restored.json() == json_data
+
+    def test_type_edge_cases(self):
+        class Edge_Cases(Type_Safe):
+            type_field: type
+
+        test_obj = Edge_Cases()
+
+        # Test type of type
+        test_obj.type_field = type
+        json_data = test_obj.json()
+        assert json_data['type_field'] == 'builtins.type'
+        restored = Edge_Cases.from_json(json_data)
+        assert restored.type_field == type
+
+        test_obj.type_field = type(None)                                # Test type of None
+        json_data = test_obj.json()
+        # if sys.version_info >= (3, 10):
+        #     expected_type = 'types.NoneType'
+        # else:
+        #     expected_type = 'builtins.NoneType'
+        expected_type = 'builtins.NoneType'
+        assert json_data['type_field'] == expected_type
+
+        restored = Edge_Cases.from_json(json_data)
+        assert restored.type_field == type(None)
+
+        # Test with exception types
+        test_obj.type_field = ValueError
+        json_data = test_obj.json()
+        assert json_data['type_field'] == 'builtins.ValueError'
+        restored = Edge_Cases.from_json(json_data)
+        assert restored.type_field == ValueError
+
+        # Test with only a null value
+        class An_Class(Type_Safe):
+            an_type    : type
+
+        an_class = An_Class()
+
+        assert an_class.from_json(an_class.json()).json() == {'an_type': None}
+
+
+    def test_error_cases(self):
+        class Error_Test(Type_Safe):
+            type_field: type
+
+        test_obj = Error_Test()
+
+        # Test invalid module
+        invalid_json = {'type_field': 'nonexistent_module.SomeType'}
+        with self.assertRaises(ValueError) as context:
+            Error_Test.from_json(invalid_json)
+        assert "Could not reconstruct type" in str(context.exception)
+
+        # Test invalid type in valid module
+        invalid_json = {'type_field': 'builtins.NonexistentType'}
+        with self.assertRaises(ValueError) as context:
+            Error_Test.from_json(invalid_json)
+        assert "Could not reconstruct type" in str(context.exception)
+
+        # Test malformed type string
+        invalid_json = {'type_field': 'not_a_valid_type_string'}
+        with self.assertRaises(ValueError) as context:
+            Error_Test.from_json(invalid_json)
+        assert "Could not reconstruct type" in str(context.exception)
+
+    def test__type_serialization__typing_objects(self):
+        class An_Class(Type_Safe):
+            an_type : type
+
+        an_class = An_Class()
+        an_class.an_type = str                              # these work ok
+        an_class.an_type = An_Class
+        an_class.an_type = TestCase
+        an_class.an_type = set
+        an_class.an_type = list
+        an_class.an_type = dict
+        assert an_class.json()                            == {'an_type': 'builtins.dict'}
+        assert An_Class.from_json(an_class.json()).json() == {'an_type': 'builtins.dict'}
+
+        from typing import List, Dict, Set
+
+        class An_Typing_Class(Type_Safe):
+            an_dict: type
+            an_list: type
+            an_set : type
+
+        with An_Typing_Class() as _:
+            assert _.obj() == __(an_dict=None, an_list=None, an_set=None)
+            _.an_dict = Dict
+            _.an_list = List
+            _.an_set  = Set
+            assert _.json() == {'an_dict': 'builtins.dict', 'an_list': 'builtins.list', 'an_set': 'builtins.set'}
+            assert An_Typing_Class.from_json(_.json()).json() == _.json()
+            round_trip = An_Typing_Class.from_json(_.json())
+            assert default_value(round_trip.an_dict) == {}
+            assert default_value(round_trip.an_list) == []
+            assert default_value(round_trip.an_set ) == set()
+
+
+class Custom_Class:         # used in test_type_serialization
+    pass

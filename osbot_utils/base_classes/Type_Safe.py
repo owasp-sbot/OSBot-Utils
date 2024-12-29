@@ -3,7 +3,7 @@
 
 import sys
 import types
-from osbot_utils.utils.Objects                          import default_value         # todo: remove test mocking requirement for this to be here (instead of on the respective method)
+from osbot_utils.utils.Objects import default_value         # todo: remove test mocking requirement for this to be here (instead of on the respective method)
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):                                           # pragma: no cover
@@ -95,8 +95,12 @@ class Type_Safe:
         if value is not None:
             if type(value) is dict:
                 value = convert_dict_to_value_from_obj_annotation(self, name, value)
-            if type(value) in [int, str]:                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
+            elif type(value) in [int, str]:                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
                 value = convert_to_value_from_obj_annotation (self, name, value)
+            else:
+                origin = get_origin(value)
+                if origin is not None:
+                    value = origin
             check_1 = value_type_matches_obj_annotation_for_attr      (self, name, value)
             check_2 = value_type_matches_obj_annotation_for_union_and_annotated(self, name, value)
             if (check_1 is False and check_2 is None  or
@@ -169,7 +173,7 @@ class Type_Safe:
                                 #todo: fix type safety bug that I believe is caused here
                                 if obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                # if var_type is not something like Optional[Union[int, str]]
                                     if type(var_type) not in IMMUTABLE_TYPES:
-                                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Kwargs_To_Self, with only the following immutable types being supported: '{IMMUTABLE_TYPES}'"
+                                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Type_Safe, with only the following immutable types being supported: '{IMMUTABLE_TYPES}'"
                                         raise ValueError(exception_message)
             if include_base_classes is False:
                 break
@@ -304,6 +308,19 @@ class Type_Safe:
                 setattr(self, key, value)
         return self
 
+    def deserialize_type__using_value(self, value):
+        if value:
+            try:
+                module_name, type_name = value.rsplit('.', 1)
+                if module_name == 'builtins' and type_name == 'NoneType':                       # Special case for NoneType (which serialises as builtins.* , but it actually in types.* )
+                    value = types.NoneType
+                else:
+                    module = __import__(module_name, fromlist=[type_name])
+                    value = getattr(module, type_name)
+            except (ValueError, ImportError, AttributeError) as e:
+                raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")
+        return value
+
     def deserialize_dict__using_key_value_annotations(self, key, value):
         from osbot_utils.base_classes.Type_Safe__Dict import Type_Safe__Dict
 
@@ -353,7 +370,9 @@ class Type_Safe:
                             raise ValueError(f"Attribute '{key}' not found in '{self.__class__.__name__}'")
                         else:
                             continue
-                    if obj_is_attribute_annotation_of_type(self, key, dict):                                # handle the case when the value is a dict
+                    if obj_attribute_annotation(self, key) == type:                                         # Handle type objects
+                        value = self.deserialize_type__using_value(value)
+                    elif obj_is_attribute_annotation_of_type(self, key, dict):                                # handle the case when the value is a dict
                         value = self.deserialize_dict__using_key_value_annotations(key, value)
                     elif obj_is_attribute_annotation_of_type(self, key, list):                              # handle the case when the value is a list
                         attribute_annotation = obj_attribute_annotation(self, key)                          # get the annotation for this variable
@@ -423,15 +442,17 @@ def serialize_to_dict(obj):
         return obj
     elif isinstance(obj, Enum):
         return obj.name
+    elif isinstance(obj, type):
+        return f"{obj.__module__}.{obj.__name__}"                                   # save the full type name
     elif isinstance(obj, list) or isinstance(obj, List):
         return [serialize_to_dict(item) for item in obj]
     elif isinstance(obj, dict):
         return {key: serialize_to_dict(value) for key, value in obj.items()}
     elif hasattr(obj, "__dict__"):
-        data = {}                                           # todo: look at a more advanced version which saved the type of the object, for example with {'__type__': type(obj).__name__}
+        data = {}                                                                   # todo: look at a more advanced version which saved the type of the object, for example with {'__type__': type(obj).__name__}
         for key, value in obj.__dict__.items():
-            if key.startswith('__') is False:               # don't process internal variables (for example the ones set by @cache_on_self)
-                data[key] = serialize_to_dict(value)        # Recursive call for complex types
+            if key.startswith('__') is False:                                       # don't process internal variables (for example the ones set by @cache_on_self)
+                data[key] = serialize_to_dict(value)                                # Recursive call for complex types
         return data
     else:
         raise TypeError(f"Type {type(obj)} not serializable")

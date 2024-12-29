@@ -1,20 +1,20 @@
-from unittest import TestCase
-
 import pytest
-
-from osbot_utils.helpers.Print_Table import Print_Table
-from osbot_utils.helpers.sqlite.Sqlite__Table import SQL_TABLE__MODULE_NAME__ROW_SCHEMA
-from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook import Sqlite__Sample_Data__Chinook, \
-    FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS, PATH__DB__CHINOOK
-from osbot_utils.utils.Files import folder_exists, parent_folder, current_temp_folder, folder_name, folder_create, \
-    file_not_exists
-from osbot_utils.utils.Json import json_from_file
-from osbot_utils.utils.Misc import list_set
-from osbot_utils.utils.Str import str_cap_snake_case
+from unittest                                                               import TestCase
+from osbot_utils.utils.Env                                                  import not_in_github_action
+from osbot_utils.helpers.sqlite.Sqlite__Table                               import SQL_TABLE__MODULE_NAME__ROW_SCHEMA
+from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook    import Sqlite__Sample_Data__Chinook, FOLDER_NAME__SQLITE_DATA_SETS, FOLDER_NAME__CHINOOK_DATA, PATH__DB__TESTS, PATH__DB__CHINOOK
+from osbot_utils.utils.Files                                                import folder_exists, parent_folder, current_temp_folder, folder_name, folder_create, file_not_exists
+from osbot_utils.utils.Json                                                 import json_from_file
+from osbot_utils.utils.Misc                                                 import list_set
+from osbot_utils.utils.Str                                                  import str_cap_snake_case
 
 
 class test_Sqlite__Sample_Data__Chinook(TestCase):
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        if not_in_github_action():
+            pytest.skip("Skip test locally since it takes quite a bit to run (about 50ms, which is 25% of all helper's 400+ tests)")
     def setUp(self):
         self.chinook_sqlite = Sqlite__Sample_Data__Chinook()
         folder_create(PATH__DB__TESTS)                          # todo: refactor to handle this better
