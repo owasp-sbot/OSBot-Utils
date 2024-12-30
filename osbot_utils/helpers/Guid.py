@@ -11,7 +11,7 @@ class Guid(str):
         if is_guid(value):
             guid = value
         else:
-            guid = uuid.uuid5(GUID__NAMESPACE, value)                                       # Generate a UUID5 using the namespace and value
+            guid = uuid.uuid5(GUID__NAMESPACE, value)                                   # Generate a UUID5 using the namespace and value
         return super().__new__(cls, str(guid))                                          # Return a new instance of Guid initialized with the string version of the UUID
 
     def __str__(self):
