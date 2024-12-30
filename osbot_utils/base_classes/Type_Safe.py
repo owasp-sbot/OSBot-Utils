@@ -3,7 +3,8 @@
 
 import sys
 import types
-from osbot_utils.utils.Objects import default_value         # todo: remove test mocking requirement for this to be here (instead of on the respective method)
+from osbot_utils.utils.Objects import default_value                     # todo: remove test mocking requirement for this to be here (instead of on the respective method)
+from osbot_utils.utils.Objects import all_annotations
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):                                           # pragma: no cover
@@ -89,7 +90,8 @@ class Type_Safe:
         from osbot_utils.utils.Objects                          import value_type_matches_obj_annotation_for_union_and_annotated
         from osbot_utils.helpers.type_safe.Type_Safe__Validator import Type_Safe__Validator
 
-        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
+        annotations = all_annotations(self)
+        if not annotations:                                             # can't do type safety checks if the class does not have annotations
             return super().__setattr__(name, value)
 
         if value is not None:
@@ -101,20 +103,20 @@ class Type_Safe:
                 origin = get_origin(value)
                 if origin is not None:
                     value = origin
-            check_1 = value_type_matches_obj_annotation_for_attr      (self, name, value)
+            check_1 = value_type_matches_obj_annotation_for_attr              (self, name, value)
             check_2 = value_type_matches_obj_annotation_for_union_and_annotated(self, name, value)
             if (check_1 is False and check_2 is None  or
                 check_1 is None  and check_2 is False or
                 check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
-                raise ValueError(f"Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+                raise ValueError(f"Invalid type for attribute '{name}'. Expected '{annotations.get(name)}' but got '{type(value)}'")
         else:
-            if hasattr(self, name) and self.__annotations__.get(name) :     # don't allow previously set variables to be set to None
+            if hasattr(self, name) and annotations.get(name) :     # don't allow previously set variables to be set to None
                 if getattr(self, name) is not None:                         # unless it is already set to None
                     raise ValueError(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
 
         # todo: refactor this to separate method
-        if hasattr(self.__annotations__, 'get'):
-            annotation = self.__annotations__.get(name)
+        if hasattr(annotations, 'get'):
+            annotation = annotations.get(name)
             if annotation and get_origin(annotation) is Annotated:
                 annotation_args = get_args(annotation)
                 target_type = annotation_args[0]
