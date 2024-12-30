@@ -9,17 +9,17 @@ REGEX__ANSI_ESCAPE_PATTERN = re.compile(r'\x1b\[[0-9;]*m')
 REGEX__SAFE_ID_REGEX       = re.compile(r'[^a-zA-Z0-9_-]')
 
 def ansi_text_visible_length(ansi_text):
-    if type(ansi_text) is str:
+    if isinstance(ansi_text, str):
         ansi_escape = re.compile(REGEX__ANSI_ESCAPE_PATTERN)           # This regex matches the escape sequences used for text formatting
         visible_text = ansi_escape.sub('', ansi_text)       # Remove the escape sequences
         return len(visible_text)                                # Return the length of the remaining text
 
 def ansi_to_text(ansi_text: str):
-    if type(ansi_text) is str:
+    if isinstance(ansi_text, str):
         return REGEX__ANSI_ESCAPE_PATTERN.sub('', ansi_text)
 
 def ansis_to_texts(ansis_texts: list):                          # todo: find a better name for this method :)
-    if type(ansis_texts) is list:
+    if isinstance(ansis_texts, list):
         return [ansi_to_text(ansi_text) for ansi_text in ansis_texts]
     return []
 
@@ -98,7 +98,7 @@ def str_cap_snake_case(snake_str):
 
 
 def trim(target):
-    if type(target) is str:
+    if isinstance(target, str):
         return target.strip()
     return ""
 

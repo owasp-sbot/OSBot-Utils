@@ -10,10 +10,6 @@ from osbot_utils.base_classes.Type_Safe                      import Type_Safe
 from osbot_utils.base_classes.Type_Safe__Dict                import Type_Safe__Dict
 from osbot_utils.base_classes.Type_Safe__List                import Type_Safe__List
 from osbot_utils.decorators.methods.cache_on_self            import cache_on_self
-from osbot_utils.graphs.mermaid.Mermaid                      import Mermaid
-from osbot_utils.graphs.mermaid.Mermaid__Graph               import Mermaid__Graph
-from osbot_utils.graphs.mermaid.Mermaid__Node                import Mermaid__Node
-from osbot_utils.graphs.mgraph.MGraph__Node                  import MGraph__Node
 from osbot_utils.helpers.Random_Guid                         import Random_Guid
 from osbot_utils.helpers.type_safe.validators.Validator__Min import Min
 from osbot_utils.utils.Json                                  import json_to_str, str_to_json
@@ -626,65 +622,6 @@ class test_Type_Safe__regression(TestCase):
         with self.assertRaises(Exception) as context:
             an_class.an_int_list.append('should not work')                  # FIXED was: BUG should have not worked
         assert context.exception.args[0] == "In Type_Safe__List: Invalid type for item: Expected 'int', but got 'str'"
-
-
-    def test__regression__mermaid__list_allows_wrong_type(self):
-        mermaid_graph = Mermaid__Graph()
-        mermaid_node  = Mermaid__Node()
-        graph_nodes   = mermaid_graph.nodes
-        bad_node      = 'an str'
-
-        assert obj_attribute_annotation(mermaid_graph, 'nodes') == List[Mermaid__Node]       # confirm nodes is list[Mermaid__Node]
-        #assert type(graph_nodes) is list                                                              # FIXED was BUG: confirm that we lose type in graph_nodes
-        assert type(graph_nodes) is Type_Safe__List                                                    # FIXED now graph_nodes is a typed list
-        assert repr(graph_nodes) == 'list[Mermaid__Node] with 0 elements'                              # FIXED confirm graph_nodes is list[Mermaid__Node]
-
-        mermaid_graph.nodes.append(mermaid_node)                                        # adding Mermaid__Node directly
-        graph_nodes        .append(mermaid_node)                                        # which should be appended ok
-        assert graph_nodes == mermaid_graph.nodes == [mermaid_node, mermaid_node]       # and should be in list[Mermaid__Node] nodes var
-
-        with self.assertRaises(Exception) as context_1:
-            mermaid_graph.nodes.append(bad_node)                                        # FIXED was BUG: type issue
-        with self.assertRaises(Exception) as context_2:
-            mermaid_graph.nodes.append(1)                                               # FIXED was BUG: str and ints
-        with self.assertRaises(Exception) as context_3:
-            graph_nodes        .append(bad_node)                                        # FIXED was BUG: are not of type Mermaid__Node
-        with self.assertRaises(Exception) as context_4:
-            graph_nodes        .append(2)                                               # FIXED was BUG: and break nodes type safety list[Mermaid__Node]
-
-        #assert graph_nodes == [mermaid_node, mermaid_node, bad_node, 1, bad_node, 2]   # FIXED was BUG: graph_nodes should not have the bad values
-        assert graph_nodes == mermaid_graph.nodes == [mermaid_node, mermaid_node]       # FIXED bad values have not been added to graph_nodes
-
-        exception_template = "In Type_Safe__List: Invalid type for item: Expected 'Mermaid__Node', but got '{type_name}'"
-        assert context_1.exception.args[0] == exception_template.format(type_name='str')
-        assert context_2.exception.args[0] == exception_template.format(type_name='int')
-        assert context_3.exception.args[0] == exception_template.format(type_name='str')
-        assert context_4.exception.args[0] == exception_template.format(type_name='int')
-
-    @pytest.mark.skip("test took too long to execute")  # todo: refactor to mermaid classes (and figure out why this test takes quite a long time, when compared with the others)
-    def test__regression__mermaid__cast_issue_with_base_class__with_new_vars(self):
-
-        new_node_1 = Mermaid().add_node(key='id')
-        assert list_set(new_node_1.__kwargs__()) == ['attributes', 'config', 'key', 'label']
-        assert type(new_node_1).__name__ == 'Mermaid__Node'
-
-        new_node_2 = Mermaid().add_node(key='id')
-        assert type(new_node_2).__name__ == 'Mermaid__Node'
-
-        assert list_set(new_node_2.__dict__         ) == ['attributes', 'config', 'key', 'label']
-
-        mermaid_node = Mermaid__Graph().add_node(key='id')
-        assert type(mermaid_node).__name__ == 'Mermaid__Node'
-        assert list_set(mermaid_node.__dict__) == ['attributes', 'config', 'key', 'label']
-
-        mgraph_node = MGraph__Node(key='id')
-        assert type(mgraph_node).__name__ == 'MGraph__Node'
-        new_mermaid_node = Mermaid__Node()
-        assert list_set(mgraph_node.__dict__     ) == ['attributes', 'key'   , 'label'       ]
-        assert list_set(new_mermaid_node.__dict__) == ['attributes', 'config', 'key', 'label']
-
-        new_mermaid_node.merge_with(mgraph_node)
-        assert list_set(new_mermaid_node.__dict__) == ['attributes', 'config', 'key', 'label'          ]
 
     def test__regression__ctor_doest_allow_none_values(self):
         class An_Class(Kwargs_To_Self):
