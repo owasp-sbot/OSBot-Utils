@@ -12,6 +12,7 @@ GLOBAL_FUNCTIONS_TO_IGNORE   = ['value_type_matches_obj_annotation_for_attr'    
                                 'value_type_matches_obj_annotation_for_union_and_annotated' ,            # todo: map out and document why exactly these methods are ignore (and what is the side effect)
                                 'are_types_compatible_for_assigment'                        ,
                                 'obj_attribute_annotation'                                  ,
+                                'all_annotations'                                           ,
                                 'get_origin'                                                ,
                                 'getmro'                                                    ,
                                 'default_value'                                             ,
