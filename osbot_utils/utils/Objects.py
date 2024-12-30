@@ -1,6 +1,8 @@
 # todo add tests
 import sys
-from types                              import SimpleNamespace
+from types                                               import SimpleNamespace
+from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
+
 
 class __(SimpleNamespace):
     pass
@@ -453,7 +455,7 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     attr_type   = annotations.get(attr_name)
     if attr_type:
         origin_attr_type = get_origin(attr_type)                # to handle when type definition contains a generic
-        if origin_attr_type is typing.Annotated:                # if the type is Annotated
+        if origin_attr_type is Annotated:                # if the type is Annotated
             args             = get_args(attr_type)
             origin_attr_type = args[0]
 
