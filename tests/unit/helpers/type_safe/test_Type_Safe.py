@@ -1,3 +1,4 @@
+import sys
 import types
 import pytest
 from enum                                       import Enum, auto
@@ -9,8 +10,7 @@ from osbot_utils.testing.Catch                  import Catch
 from osbot_utils.testing.Stdout                 import Stdout
 from osbot_utils.utils.Json                     import json_dumps
 from osbot_utils.utils.Misc                     import random_string, list_set
-from osbot_utils.utils.Objects                  import obj_data, __
-
+from osbot_utils.utils.Objects                  import obj_data, __ , default_value
 
 class test_Type_Safe(TestCase):
 
@@ -695,16 +695,6 @@ class test_Type_Safe(TestCase):
         with pytest.raises(AttributeError):
             an_class.set_()  # Empty attribute name
 
-
-from unittest import TestCase
-import sys
-from osbot_utils.utils.Objects import default_value
-
-
-
-
-class test_Type_Safe__type_support(TestCase):
-
     def test__type_immutability_check(self):
         with self.assertRaises(ValueError) as context:                  # Test that type defaults are not allowed
             class Default_Types(Type_Safe):
@@ -842,6 +832,9 @@ class test_Type_Safe__type_support(TestCase):
         assert restored.json() == json_data
 
     def test_type_edge_cases(self):
+        if sys.version_info < (3, 10):
+            pytest.skip("Skipping test that doesn't work on 3.9 or lower")
+            
         class Edge_Cases(Type_Safe):
             type_field: type
 

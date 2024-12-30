@@ -1,10 +1,6 @@
-from enum import Enum
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.graphs.mermaid.configs.Mermaid__Node__Config import Mermaid__Node__Config
-from osbot_utils.graphs.mermaid.models.Mermaid__Node__Shape import Mermaid__Node__Shape
-from osbot_utils.graphs.mgraph.MGraph__Node import MGraph__Node
-from osbot_utils.utils.Str import safe_str
+from osbot_utils.graphs.mermaid.configs.Mermaid__Node__Config   import Mermaid__Node__Config
+from osbot_utils.graphs.mermaid.models.Mermaid__Node__Shape     import Mermaid__Node__Shape
+from osbot_utils.graphs.mgraph.MGraph__Node                     import MGraph__Node
 
 LINE_PADDING = '    '
 
