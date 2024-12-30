@@ -193,6 +193,7 @@ json_save_file_gz            = Json.save_file_gz
 json_save_file_pretty_gz     = Json.save_file_pretty_gz
 json_save_tmp_file           = Json.json_save_tmp_file
 str_to_json                  = Json.loads
+str_from_json                = json_dumps
 
 load_file_json               = json_load_file
 load_file_json_gz            = json_load_file_gz

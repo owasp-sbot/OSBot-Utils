@@ -42,7 +42,7 @@ def safe_id(value, max_length=36):
         value = str(value)
 
     if len(value) > max_length:
-        raise ValueError(f"Invalid ID: The ID must not exceed 36 characters (was {len(value)}).")
+        raise ValueError(f"Invalid ID: The ID must not exceed {max_length} characters (was {len(value)}).")
 
     sanitized_value = REGEX__SAFE_ID_REGEX.sub('_', value)
 

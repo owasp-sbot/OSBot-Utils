@@ -1,8 +1,7 @@
 import pytest
-from unittest                    import TestCase
-
-from osbot_utils.helpers.Random_Guid import Random_Guid
-from osbot_utils.helpers.Safe_Id import Safe_Id
+from unittest                           import TestCase
+from osbot_utils.helpers.Random_Guid    import Random_Guid
+from osbot_utils.helpers.Safe_Id        import Safe_Id, SAFE_ID__MAX_LENGTH
 
 
 class test_Safe_Id(TestCase):
@@ -57,5 +56,5 @@ class test_Safe_Id(TestCase):
         assert str(exc_info.value) == "Invalid ID: The sanitized ID must not consist entirely of underscores."
 
         with pytest.raises(ValueError) as exc_info:         # bigger than 36
-            Safe_Id('a'*37)
-        assert str(exc_info.value) == "Invalid ID: The ID must not exceed 36 characters (was 37)."
+            Safe_Id('a'* (SAFE_ID__MAX_LENGTH+1))
+        assert str(exc_info.value) == f"Invalid ID: The ID must not exceed {SAFE_ID__MAX_LENGTH} characters (was {SAFE_ID__MAX_LENGTH+1})."

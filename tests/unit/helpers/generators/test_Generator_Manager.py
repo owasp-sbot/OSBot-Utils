@@ -330,7 +330,7 @@ class test_Generator_Manager(TestCase):
         def slow_generator():
             for i in range(10):
                 yield i
-                sleep(0.001)
+                sleep(0.0001)
 
         gen = slow_generator()
         target_id = self.manager.add(gen)
@@ -338,7 +338,7 @@ class test_Generator_Manager(TestCase):
         def state_changer():
             for _ in range(100):
                 self.manager.stop(target_id)
-                sleep(0.0001)
+                sleep(0.00001)
 
         threads = [Thread(target=state_changer) for _ in range(5)]
         [t.start() for t in threads]

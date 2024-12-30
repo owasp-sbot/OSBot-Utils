@@ -1,9 +1,7 @@
-from unittest import TestCase
-
+from unittest                                                           import TestCase
 from osbot_utils.helpers.pubsub.Event__Queue                            import Event__Queue
 from osbot_utils.helpers.pubsub.schemas.Schema__Event__Execute_Method   import Schema__Event__Execute_Method
 from osbot_utils.utils.Misc                                             import is_guid
-
 
 class test_Schema__Event__Execute_Method(TestCase):
 
@@ -53,10 +51,13 @@ class test_Schema__Event__Execute_Method(TestCase):
 
             def handle_event(self, event):
                 result = event.execute()
-                #pprint(result)
+                assert result == 'arg value 1 : value2 : 42 '
 
-        #print()
+        import osbot_utils
+        assert osbot_utils.helpers.pubsub.Event__Queue.TIMEOUT__WAIT_FOR_QUEUE_COMPLETED == 0.05
+        osbot_utils.helpers.pubsub.Event__Queue.TIMEOUT__WAIT_FOR_QUEUE_COMPLETED = 0.0001
         with Execute_Events(log_events=True) as _:
             assert _.send_event(self.event_execute_method) is True
             assert _.wait_for_queue_completed()
+        osbot_utils.helpers.pubsub.Event__Queue.TIMEOUT__WAIT_FOR_QUEUE_COMPLETED = 0.05
 
