@@ -2,7 +2,7 @@ import pytest
 import sys
 from decimal                                                 import Decimal
 from osbot_utils.helpers.python_compatibility.python_3_8     import Annotated
-from typing                                                  import Optional, Union, List, Dict
+from typing                                                  import Optional, Union, List, Dict, get_origin
 from unittest                                                import TestCase
 from unittest.mock                                           import patch
 from osbot_utils.base_classes.Kwargs_To_Self                 import Kwargs_To_Self
@@ -14,10 +14,76 @@ from osbot_utils.helpers.Random_Guid                         import Random_Guid
 from osbot_utils.helpers.type_safe.validators.Validator__Min import Min
 from osbot_utils.utils.Json                                  import json_to_str, str_to_json
 from osbot_utils.utils.Misc                                  import list_set, is_guid
-from osbot_utils.utils.Objects                               import default_value, obj_attribute_annotation, __
+from osbot_utils.utils.Objects                               import default_value, __, all_annotations
 
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__base_types_not_check_over_inheritance(self):
+        class Base_Class(Type_Safe):
+            an_str: str
+
+        class An_Class(Base_Class):
+            an_int: int
+
+        an_class = An_Class()
+        assert an_class.json() == {'an_str': '', 'an_int': 0}
+        with pytest.raises(ValueError,match="Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>'"):
+            an_class.an_str = 123           # Fixed: BUG
+
+        an_class.an_int = 123           # OK
+        an_class.an_str = "a"           # OK
+        with pytest.raises(ValueError, match="Invalid type for attribute 'an_int'. Expected '<class 'int'>' but got '<class 'str'>'"):
+            an_class.an_int = "a"           # OK
+
+
+    def test__regression__Annotated_inheritance(self):
+        if sys.version_info < (3, 9):
+            pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
+
+        class Min:
+            def __init__(self, value: int):
+                self.value = value
+
+        class Max:
+            def __init__(self, value: int):
+                self.value = value
+
+        class Length:
+            def __init__(self, min_len: int):
+                self.min_len = min_len
+
+        class BaseClass(Type_Safe):
+            age: Annotated[int, Min(0)]
+
+        class ChildClass(BaseClass):
+            name: Annotated[str, Length(2)]
+
+        class GrandChildClass(ChildClass):
+            score: Annotated[float, Min(0.0), Max(100.0)]
+
+        test = GrandChildClass(age=25, name="John", score=95.5)
+
+
+        assert test.age   == 25
+        assert test.name  == "John"
+        assert test.score == 95.5
+
+        #Verify annotations are inherited correctly
+        annotations = all_annotations(test)
+        assert list_set(annotations) == ['age', 'name', 'score']                        # Fixed: BUG: only the score is in the annotations
+        assert get_origin(annotations['age'  ]) is Annotated      # Fixed: BUG missing annotation
+        assert get_origin(annotations['name' ]) is Annotated      # Fixed: BUG missing annotation
+        assert get_origin(annotations['score']) is Annotated
+        expected_exception_str  = "Invalid type for attribute 'age'. Expected 'typing.Annotated\[int,.* but got '<class 'str'>"
+        with pytest.raises(ValueError, match=expected_exception_str):
+            test.age = 'aaaa'                                                               # Fixed: BUG: should have raised exception
+        expected_exception_int  = "Invalid type for attribute 'name'. Expected 'typing.Annotated\[str,.* but got '<class 'int'>"
+        with pytest.raises(ValueError, match=expected_exception_int):
+            test.name = 123
+        expected_exception_float = "Invalid type for attribute 'score'. Expected 'typing.Annotated\[float,.* but got '<class 'str'>"
+        with pytest.raises(ValueError, match=expected_exception_float):
+            test.score = "123"
 
     def test__regression__Annotated_doesnt_support_class_assignments(self):
         if sys.version_info < (3, 9):
@@ -246,7 +312,7 @@ class test_Type_Safe__regression(TestCase):
 
         assert An_Class.from_json(json_data_2).json() == json_data_1              # without raise_on_not_found=True it should ignore the new field
 
-    def test__regression___classes_with_str_base_class_dont_round_trip(self):
+    def test__regression__classes_with_str_base_class_dont_round_trip(self):
         class An_Class(Type_Safe):
             an_str      : str = '42'
             random_guid : Random_Guid
@@ -330,7 +396,7 @@ class test_Type_Safe__regression(TestCase):
 
 
 
-    def test_regression_base_class_attributes_set_to_null_when_super_is_used(self):
+    def test__regression__base_class_attributes_set_to_null_when_super_is_used(self):
 
         if sys.version_info < (3, 9):
             pytest.skip("Skipping test that doesn't work on 3.8 or lower")
@@ -667,7 +733,7 @@ class test_Type_Safe__regression(TestCase):
         #assert an_class.__locals__       () == {'an_str': '', 'cache_on_self_an_method__cached__': 42}  # FIXED was BUG: cache method should not be here
         assert an_class.__locals__       () == {'an_str': ''}                                            # FIXED, cached value is not returned
 
-    def test__regression___base_attrib_value_not_overwritten(self):
+    def test__regression__base_attrib_value_not_overwritten(self):
         class Base_Class(Kwargs_To_Self):
             an_str : str  = 'an_str__base'
             an_int : int  = 42
@@ -705,7 +771,7 @@ class test_Type_Safe__regression(TestCase):
         #     An_Class(an_callable=an_local_function)
         # assert context.exception.args[0] == ("Invalid type for attribute 'an_callable'. Expected '<built-in function callable>' but got '<class 'function'>'")
 
-    def test_regression__should_create_nested_objects_when_loading_dicts(self):                              # Test method to verify the creation of nested objects from dictionaries.
+    def test__regression__should_create_nested_objects_when_loading_dicts(self):                              # Test method to verify the creation of nested objects from dictionaries.
         class Class_A(Type_Safe):                                                                            # Define a nested class Class_A inheriting from Type_Safe.
             an_int: int                                                                                      # Define an attribute 'an_int' of type int.
             an_str: str                                                                                      # Define an attribute 'an_str' of type str.
@@ -744,7 +810,7 @@ class test_Type_Safe__regression(TestCase):
         #                                      "<locals>.Class_A'>' "
         #                                      "but got '<class 'dict'>'")                                     # Complete the verification of the exception message.
 
-    def test_bug_decimal_and_random_guid_are_not_deserialised_ok(self):
+    def test__regression__decimal_and_random_guid_are_not_deserialised_ok(self):
         class An_Class(Type_Safe):
             an_decimal : Decimal
             an_guid    : Random_Guid

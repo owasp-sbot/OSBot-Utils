@@ -1,6 +1,8 @@
 # todo add tests
 import sys
-from types                              import SimpleNamespace
+from types                                               import SimpleNamespace
+from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
+
 
 class __(SimpleNamespace):
     pass
@@ -439,29 +441,38 @@ def pickle_load_from_bytes(pickled_data: bytes):
         except Exception:
             return {}
 
+def all_annotations(target):
+    annotations = {}
+    if hasattr(target.__class__, '__mro__'):
+        for base in reversed(target.__class__.__mro__):
+            if hasattr(base, '__annotations__'):
+                annotations.update(base.__annotations__)
+    return annotations
+
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     import typing
+    annotations = all_annotations(target)
+    attr_type   = annotations.get(attr_name)
+    if attr_type:
+        origin_attr_type = get_origin(attr_type)                # to handle when type definition contains a generic
+        if origin_attr_type is Annotated:                # if the type is Annotated
+            args             = get_args(attr_type)
+            origin_attr_type = args[0]
 
-    if hasattr(target, '__annotations__'):
-        obj_annotations  = target.__annotations__
-        if hasattr(obj_annotations,'get'):
-            attr_type        = obj_annotations.get(attr_name)
-            if attr_type:
-                origin_attr_type = get_origin(attr_type)                # to handle when type definion contains an generic
-                if origin_attr_type is typing.Union:
-                    args = get_args(attr_type)
-                    if len(args)==2 and args[1] is type(None):          # todo: find a better way to do this, since this is handling an edge case when origin_attr_type is Optional (which is an shorthand for Union[X, None] )
-                        attr_type = args[0]
-                        origin_attr_type = get_origin(attr_type)
+        elif origin_attr_type is typing.Union:
+            args = get_args(attr_type)
+            if len(args)==2 and args[1] is type(None):          # todo: find a better way to do this, since this is handling an edge case when origin_attr_type is Optional (which is an shorthand for Union[X, None] )
+                attr_type = args[0]
+                origin_attr_type = get_origin(attr_type)
 
-                if origin_attr_type:
-                    attr_type = origin_attr_type
-                value_type = type(value)
-                if are_types_compatible_for_assigment(source_type=value_type, target_type=attr_type):
-                    return True
-                if are_types_magic_mock(source_type=value_type, target_type=attr_type):
-                    return True
-                return value_type is attr_type
+        if origin_attr_type:
+            attr_type = origin_attr_type
+        value_type = type(value)
+        if are_types_compatible_for_assigment(source_type=value_type, target_type=attr_type):
+            return True
+        if are_types_magic_mock(source_type=value_type, target_type=attr_type):
+            return True
+        return value_type is attr_type
     return None
 
 
