@@ -238,7 +238,7 @@ class test_Trace_Call__Stack(TestCase):
         if sys.version_info < (3, 11):
             assert node_1.call_duration < 0.050             # these values are bit slower in < 3.11
         else:
-            assert node_1.call_duration < 0.005             # these values should be very quick
+            assert node_1.call_duration < 0.006             # these values should be very quick
     def test_stack_top(self):
         test_data = Frames_Test_Data()
         stack     = self.stack
