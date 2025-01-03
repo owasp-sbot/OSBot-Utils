@@ -432,7 +432,7 @@ class Type_Safe:
             json_data = json_parse(json_data)
         if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
             return cls().deserialize_from_dict(json_data,raise_on_not_found=raise_on_not_found)
-        return None
+        return cls()
 
 # todo: see if it is possible to add recursive protection to this logic
 def serialize_to_dict(obj):

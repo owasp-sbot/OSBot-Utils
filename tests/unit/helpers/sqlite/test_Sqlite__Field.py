@@ -115,7 +115,7 @@ class test_Sqlite__Field(TestCase):
             sqlite_field = Sqlite__Field.from_json(field_data)
             assert sqlite_field.__locals__() == expected_data
 
-        assert Sqlite__Field.from_json({}) is None
+        assert Sqlite__Field.from_json({}).obj() == Sqlite__Field().obj()
 
         assert_sqlite_field_type('id'    , int  , Sqlite__Field__Type.INTEGER)
         assert_sqlite_field_type('aaaa' , float, Sqlite__Field__Type.REAL    )
