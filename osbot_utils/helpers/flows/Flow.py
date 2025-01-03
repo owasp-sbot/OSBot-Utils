@@ -3,7 +3,7 @@ import logging
 import typing
 
 from osbot_utils.helpers.Dependency_Manager             import Dependency_Manager
-from osbot_utils.base_classes.Type_Safe                 import Type_Safe
+from osbot_utils.type_safe.Type_Safe                 import Type_Safe
 from osbot_utils.helpers.CFormat                        import CFormat, f_dark_grey, f_magenta, f_bold
 from osbot_utils.helpers.flows.models.Flow_Run__Config  import Flow_Run__Config
 from osbot_utils.helpers.flows.Flow__Events             import flow_events

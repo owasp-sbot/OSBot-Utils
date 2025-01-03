@@ -3,7 +3,7 @@ from _thread                                                    import RLock    
 from types                                                      import GeneratorType
 from typing                                                     import Dict                               # Typing imports for type hints
 from typing                                                     import Union
-from osbot_utils.base_classes.Type_Safe                         import Type_Safe                          # Type_Safe base class for type-safe attributes
+from osbot_utils.type_safe.Type_Safe                         import Type_Safe                          # Type_Safe base class for type-safe attributes
 from osbot_utils.helpers.Random_Guid                            import Random_Guid                        # Helper for generating unique IDs
 from osbot_utils.helpers.generators.Generator_Context_Manager   import Generator_Context_Manager
 from osbot_utils.helpers.generators.Model__Generator_State      import Model__Generator_State

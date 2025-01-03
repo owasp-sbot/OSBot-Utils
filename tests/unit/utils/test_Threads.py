@@ -2,7 +2,7 @@ import asyncio
 import pytest
 import typing
 from unittest                                   import TestCase
-from osbot_utils.base_classes.Type_Safe         import Type_Safe
+from osbot_utils.type_safe.Type_Safe         import Type_Safe
 from osbot_utils.context_managers.async_invoke  import async_invoke
 from osbot_utils.utils.Threads                  import invoke_async_function, invoke_in_new_event_loop
 

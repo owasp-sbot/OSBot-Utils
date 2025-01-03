@@ -1,4 +1,4 @@
-from osbot_utils.base_classes.Type_Safe             import Type_Safe
+from osbot_utils.type_safe.Type_Safe             import Type_Safe
 from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
 from osbot_utils.utils.Files                        import current_temp_folder, path_combine, folder_create, file_exists, file_delete
 from osbot_utils.utils.Misc                         import  random_filename

@@ -1,4 +1,4 @@
-from osbot_utils.base_classes.Type_Safe import Type_Safe
+from osbot_utils.type_safe.Type_Safe import Type_Safe
 from osbot_utils.helpers.ssh.SSH__Execute import SSH__Execute
 from osbot_utils.helpers.ssh.SSH__Linux import SSH__Linux
 from osbot_utils.utils.Dev import pprint

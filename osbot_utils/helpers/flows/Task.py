@@ -8,7 +8,7 @@ from osbot_utils.helpers.Dependency_Manager import Dependency_Manager
 from osbot_utils.helpers.flows.Flow__Events import flow_events
 from osbot_utils.testing.Stdout             import Stdout
 from osbot_utils.helpers.CFormat            import CFormat, f_dark_grey, f_red, f_blue, f_bold
-from osbot_utils.base_classes.Type_Safe     import Type_Safe
+from osbot_utils.type_safe.Type_Safe     import Type_Safe
 from osbot_utils.helpers.flows.Flow         import Flow
 
 TASK__RANDOM_ID__PREFIX    = 'task_id__'

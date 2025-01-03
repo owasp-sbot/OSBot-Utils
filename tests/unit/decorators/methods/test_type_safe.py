@@ -4,7 +4,7 @@ import pytest
 from unittest                                   import TestCase
 from typing                                     import Union, Optional, List
 from dataclasses                                import dataclass
-from osbot_utils.base_classes.Type_Safe         import Type_Safe
+from osbot_utils.type_safe.Type_Safe         import Type_Safe
 from osbot_utils.decorators.methods.type_safe   import type_safe
 from osbot_utils.helpers.Safe_Id                import Safe_Id
 from osbot_utils.helpers.Random_Guid            import Random_Guid

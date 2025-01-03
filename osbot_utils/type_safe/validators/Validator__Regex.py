@@ -1,5 +1,5 @@
 from typing                                             import Any
-from osbot_utils.helpers.type_safe.Type_Safe__Validator import Type_Safe__Validator
+from osbot_utils.type_safe.Type_Safe__Validator import Type_Safe__Validator
 
 class Validator__Regex(Type_Safe__Validator):            # Validates that a string matches the specified regex pattern.
     pattern    : str

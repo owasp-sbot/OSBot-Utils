@@ -4,10 +4,10 @@ import sys
 import types
 from logging                                                import Logger, StreamHandler, FileHandler
 from logging.handlers                                       import MemoryHandler
-from osbot_utils.base_classes.Type_Safe                     import Type_Safe
 from osbot_utils.decorators.lists.group_by                  import group_by
 from osbot_utils.decorators.lists.index_by                  import index_by
 from osbot_utils.decorators.methods.cache_on_function       import cache_on_function
+from osbot_utils.type_safe.Type_Safe                        import Type_Safe
 from osbot_utils.utils.Misc                                 import random_string
 from osbot_utils.utils.Files                                import temp_file
 from osbot_utils.utils.Objects                              import obj_dict

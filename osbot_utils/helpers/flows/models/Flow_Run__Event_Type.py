@@ -1,6 +1,6 @@
 from enum import Enum
 
-from osbot_utils.base_classes.Type_Safe import Type_Safe
+from osbot_utils.type_safe.Type_Safe import Type_Safe
 
 class Flow_Run__Event_Type(Enum):
     FLOW_MESSAGE: str = 'flow_message'

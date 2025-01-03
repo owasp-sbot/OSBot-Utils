@@ -1,4 +1,4 @@
-from osbot_utils.base_classes.Type_Safe     import Type_Safe
+from osbot_utils.type_safe.Type_Safe     import Type_Safe
 from osbot_utils.utils.Dev                  import pprint
 from osbot_utils.utils.Files                import files_list, file_create_from_bytes, temp_file, parent_folder, parent_folder_create
 from osbot_utils.utils.Misc                 import random_text

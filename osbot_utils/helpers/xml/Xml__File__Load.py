@@ -1,7 +1,7 @@
 from io                                     import StringIO
 from typing                                 import List, Union, Dict
 from xml.etree.ElementTree                  import iterparse, Element, fromstring, ParseError
-from osbot_utils.base_classes.Type_Safe     import Type_Safe
+from osbot_utils.type_safe.Type_Safe     import Type_Safe
 from osbot_utils.helpers.xml.Xml__Attribute import Xml__Attribute
 from osbot_utils.helpers.xml.Xml__Element   import XML__Element
 from osbot_utils.helpers.xml.Xml__File      import Xml__File

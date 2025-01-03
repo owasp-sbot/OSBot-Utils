@@ -2,7 +2,7 @@
 #     - Have code complete on CPrint
 #     - not have the write the code for each of the methods
 #     - have a good and logical place to capture the ID of the color
-from osbot_utils.base_classes.Type_Safe import Type_Safe
+from osbot_utils.type_safe.Type_Safe import Type_Safe
 
 
 class CFormat_Colors:

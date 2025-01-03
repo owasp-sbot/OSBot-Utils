@@ -84,11 +84,11 @@ class Type_Safe:
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")   # Raise error if attribute is not a valid getter/setter
 
     def __setattr__(self, name, value):
-        from osbot_utils.utils.Objects                          import convert_dict_to_value_from_obj_annotation
-        from osbot_utils.utils.Objects                          import convert_to_value_from_obj_annotation
-        from osbot_utils.utils.Objects                          import value_type_matches_obj_annotation_for_attr
-        from osbot_utils.utils.Objects                          import value_type_matches_obj_annotation_for_union_and_annotated
-        from osbot_utils.helpers.type_safe.Type_Safe__Validator import Type_Safe__Validator
+        from osbot_utils.utils.Objects                  import convert_dict_to_value_from_obj_annotation
+        from osbot_utils.utils.Objects                  import convert_to_value_from_obj_annotation
+        from osbot_utils.utils.Objects                  import value_type_matches_obj_annotation_for_attr
+        from osbot_utils.utils.Objects                  import value_type_matches_obj_annotation_for_union_and_annotated
+        from osbot_utils.type_safe.Type_Safe__Validator import Type_Safe__Validator
 
         annotations = all_annotations(self)
         if not annotations:                                             # can't do type safety checks if the class does not have annotations
@@ -184,8 +184,8 @@ class Type_Safe:
     @classmethod
     def __default__value__(cls, var_type):
         import typing
-        from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
-        from osbot_utils.base_classes.Type_Safe__Dict import Type_Safe__Dict
+        from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
+        from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
 
         if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
             return set()
@@ -324,7 +324,7 @@ class Type_Safe:
         return value
 
     def deserialize_dict__using_key_value_annotations(self, key, value):
-        from osbot_utils.base_classes.Type_Safe__Dict import Type_Safe__Dict
+        from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
 
         dict_annotations_tuple =  get_args(self.__annotations__[key])
         if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
@@ -353,7 +353,7 @@ class Type_Safe:
     def deserialize_from_dict(self, data, raise_on_not_found=False):
         from decimal                                    import Decimal
         from enum                                       import EnumMeta
-        from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
+        from osbot_utils.type_safe.Type_Safe__List   import Type_Safe__List
         from osbot_utils.helpers.Random_Guid            import Random_Guid
         from osbot_utils.helpers.Random_Guid_Short      import Random_Guid_Short
         from osbot_utils.utils.Objects                  import obj_is_attribute_annotation_of_type

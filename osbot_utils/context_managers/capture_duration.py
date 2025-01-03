@@ -1,5 +1,5 @@
-from osbot_utils.base_classes.Type_Safe import Type_Safe
-from osbot_utils.utils.Misc import timestamp_utc_now
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.utils.Misc          import timestamp_utc_now
 
 
 class capture_duration(Type_Safe):

@@ -1,16 +1,16 @@
 import sys
 import types
 import pytest
-from enum                                       import Enum, auto
-from typing                                     import Union, Optional
-from unittest                                   import TestCase
-from osbot_utils.base_classes.Type_Safe         import Type_Safe, serialize_to_dict
-from osbot_utils.base_classes.Type_Safe__List   import Type_Safe__List
-from osbot_utils.testing.Catch                  import Catch
-from osbot_utils.testing.Stdout                 import Stdout
-from osbot_utils.utils.Json                     import json_dumps
-from osbot_utils.utils.Misc                     import random_string, list_set
-from osbot_utils.utils.Objects                  import obj_data, __ , default_value
+from enum                                    import Enum, auto
+from typing                                  import Union, Optional
+from unittest                                import TestCase
+from osbot_utils.type_safe.Type_Safe         import Type_Safe, serialize_to_dict
+from osbot_utils.type_safe.Type_Safe__List   import Type_Safe__List
+from osbot_utils.testing.Catch               import Catch
+from osbot_utils.testing.Stdout              import Stdout
+from osbot_utils.utils.Json                  import json_dumps
+from osbot_utils.utils.Misc                  import random_string, list_set
+from osbot_utils.utils.Objects               import obj_data, __ , default_value
 
 class test_Type_Safe(TestCase):
 

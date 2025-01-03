@@ -1,9 +1,9 @@
-from enum                                 import Enum
-from unittest                             import TestCase
-from typing                               import Optional, Union, List
-from osbot_utils.helpers.Safe_Id          import Safe_Id
-from osbot_utils.helpers.Random_Guid      import Random_Guid
-from osbot_utils.helpers.Type_Safe_Method import Type_Safe_Method
+from enum                                   import Enum
+from unittest                               import TestCase
+from typing                                 import Optional, Union, List
+from osbot_utils.helpers.Safe_Id            import Safe_Id
+from osbot_utils.helpers.Random_Guid        import Random_Guid
+from osbot_utils.type_safe.Type_Safe_Method import Type_Safe_Method
 
 
 class test_Type_Safe_Method(TestCase):

@@ -1,5 +1,5 @@
 import functools                                                                           # For wrapping functions
-from osbot_utils.helpers.Type_Safe_Method import Type_Safe_Method
+from osbot_utils.type_safe.Type_Safe_Method import Type_Safe_Method
 
 def type_safe(func):                                                                       # Main decorator function
     @functools.wraps(func)                                                                 # Preserve function metadata

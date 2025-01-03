@@ -85,6 +85,9 @@ class Type_Safe__Base:
                 actual_type_name = type_str(type(item))
                 raise TypeError(f"Expected '{expected_type_name}', but got '{actual_type_name}'")
 
+    def json(self):
+        raise NotImplemented
+
 # todo: see if we should/can move this to the Objects.py file
 def type_str(tp):
     origin = get_origin(tp)
