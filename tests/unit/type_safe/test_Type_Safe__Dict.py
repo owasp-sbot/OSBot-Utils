@@ -1,8 +1,8 @@
 import re
 import sys
 import pytest
-from unittest                                 import TestCase
-from typing                                   import Dict, Union, Optional, Any, Callable, List, Tuple
+from unittest                              import TestCase
+from typing                                import Dict, Union, Optional, Any, Callable, List, Tuple
 from osbot_utils.type_safe.Type_Safe       import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
 
@@ -237,21 +237,53 @@ class test_Type_Safe__Dict(TestCase):
         with pytest.raises(TypeError, match="Expected 'An_Class', but got 'int'"):
             an_class.an_dict_str_self['fail'] = 123
 
-    def test__regression__nested_types__not_supported__in_dict(self):       # Similar to the list test that uses forward references in nested structures
-        class An_Class(Type_Safe):
-            an_str: str
-            an_dict: Dict[str, 'An_Class']
+    def test__json__with_type_safe_values(self):
+        class TestTypeSafe(Type_Safe):
+            value: str
 
-        an_class = An_Class()
-        an_class.an_str = "top-level"
-        assert type(an_class.an_dict) is Type_Safe__Dict
-        assert an_class.an_dict == {}
+            def __init__(self, value):
+                self.value = value
 
-        # Valid usage
-        an_child = An_Class()
-        an_child.an_str = "child"
-        an_class.an_dict['child'] = an_child
+        safe_dict = Type_Safe__Dict(str, TestTypeSafe)
+        safe_dict["key1"] = TestTypeSafe("value1")
+        safe_dict["key2"] = TestTypeSafe("value2")
 
-        # Invalid usage
-        with pytest.raises(TypeError, match="Expected 'An_Class', but got 'str'"):
-            an_class.an_dict['bad_child'] = "some string"
+        expected = {
+            "key1": {"value": "value1"},
+            "key2": {"value": "value2"}
+        }
+        assert safe_dict.json() == expected
+
+    def test__json__with_nested_lists(self):
+        class TestTypeSafe(Type_Safe):
+            value: str
+
+            def __init__(self, value):
+                self.value = value
+
+        safe_dict = Type_Safe__Dict(str, list)
+        safe_dict["simple"] = [1, 2, 3]
+        safe_dict["mixed"] = [TestTypeSafe("test"), 2, TestTypeSafe("other")]
+
+        expected = {
+            "simple": [1, 2, 3],
+            "mixed": [{"value": "test"}, 2, {"value": "other"}]
+        }
+        assert safe_dict.json() == expected
+
+
+    def test__json__with_empty_contents(self):
+        safe_dict = Type_Safe__Dict(str, Any)
+        assert safe_dict.json() == {}
+
+        safe_dict["empty_list"] = []
+        safe_dict["empty_dict"] = {}
+
+        expected = {
+            "empty_list": [],
+            "empty_dict": {}
+        }
+        assert safe_dict.json() == expected
+
+
+

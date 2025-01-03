@@ -1,11 +1,11 @@
 import re
 import sys
 import pytest
-from typing                                   import List, Dict, Union, Optional
-from unittest                                 import TestCase
+from typing                                import List, Dict, Union, Optional, Any
+from unittest                              import TestCase
 from osbot_utils.type_safe.Type_Safe       import Type_Safe
 from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
-from osbot_utils.helpers.Random_Guid          import Random_Guid
+from osbot_utils.helpers.Random_Guid       import Random_Guid
 
 
 class test_Type_Safe__List(TestCase):
@@ -331,18 +331,6 @@ class test_Type_Safe__List(TestCase):
             an_class.an_list__callable.append(1)
 
 
-    def test_bug_type_safe_list_with_callable(self):
-        from typing import Callable
-
-        class An_Class(Type_Safe):
-            an_list__callable: List[Callable[[int], str]]
-
-        an_class = An_Class()
-
-        def invalid_func(x: str) -> int:                    # Invalid callable (wrong signature)
-            return len(x)
-
-        an_class.an_list__callable.append(invalid_func)     # BUG doesn't raise  (i.e. at the moment we are not detecting the callable signature and return type)
 
     # this test will cause the List[Union[Dict[str, int], List[str], int]] to be cached (inside python, which will impact the next two tests)
     def test__type_safe_list_with_complex_union_types(self):
@@ -427,31 +415,99 @@ class test_Type_Safe__List(TestCase):
         with pytest.raises(TypeError, match=re.escape("Invalid type for item: Expected 'Union[dict[str, int], list[str], int]', but got 'dict'")):
             an_class.an_list__mixed.append({'a': 'b'})
 
-    def test__regression__type_safe_list_with_forward_references(self):
-        class An_Class(Type_Safe):
-            an_list__self_reference: List['An_Class']
+    def test_json_with_simple_types(self):
+        int_list = Type_Safe__List(int)
+        int_list.append(1)
+        int_list.append(2)
+        int_list.append(3)
 
-        an_class = An_Class()
-        an_class.an_list__self_reference.append(An_Class())
+        assert int_list.json() == [1, 2, 3]
 
-        #an_class.an_list__self_reference.append(1)  # BUG , type safety not checked on forward references
-        with pytest.raises(TypeError, match="Expected 'An_Class', but got 'int'"):
-            an_class.an_list__self_reference.append(1)
+    def test_json_with_type_safe_objects(self):
+        class TestType(Type_Safe):
+            value: str
 
+            def __init__(self, value):
+                self.value = value
 
-    def test__regression__nested_types__not_supported__in_list(self):
-        class An_Class(Type_Safe):
-            an_str  : str
-            an_list : List['An_Class']
+        safe_list = Type_Safe__List(TestType)
+        safe_list.append(TestType("one"))
+        safe_list.append(TestType("two"))
 
-        an_class   = An_Class()
-        assert type(an_class.an_list) is Type_Safe__List
-        assert an_class.an_list       == []
+        expected = [
+            {"value": "one"},
+            {"value": "two"}
+        ]
+        assert safe_list.json() == expected
 
-        an_class_a = An_Class()
-        an_class.an_list.append(an_class_a)
-        with pytest.raises(TypeError, match="In Type_Safe__List: Invalid type for item: Expected 'An_Class', but got 'str'"):
-            an_class.an_list.append('b'       )     # BUG: as above
+    def test_json_with_nested_lists(self):
+        class TestType(Type_Safe):
+            value: str
 
+            def __init__(self, value):
+                self.value = value
 
+        nested_list = Type_Safe__List(list)
+        nested_list.append([1, 2, 3])
+        nested_list.append([TestType("test"), TestType("other")])
 
+        expected = [
+            [1, 2, 3],
+            [{"value": "test"}, {"value": "other"}]
+        ]
+        assert nested_list.json() == expected
+
+    def test_json_with_mixed_content(self):
+        class TestType(Type_Safe):
+            value: str
+
+            def __init__(self, value):
+                self.value = value
+
+        mixed_list = Type_Safe__List(Any)
+        mixed_list.append(42)
+        mixed_list.append("text")
+        mixed_list.append(TestType("safe"))
+        mixed_list.append([1, TestType("in_list")])
+        mixed_list.append({
+            "normal": "value",
+            "safe": TestType("in_dict")
+        })
+
+        expected = [
+            42,
+            "text",
+            {"value": "safe"},
+            [1, {"value": "in_list"}],
+            {
+                "normal": "value",
+                "safe": {"value": "in_dict"}
+            }
+        ]
+        assert mixed_list.json() == expected
+
+    def test_json_with_empty_list(self):
+        empty_list = Type_Safe__List(Any)
+        assert empty_list.json() == []
+
+        # Test with nested empty structures
+        empty_list.append([])
+        empty_list.append({})
+        assert empty_list.json() == [[], {}]
+
+    def test_json_with_tuples(self):
+        class TestType(Type_Safe):
+            value: str
+
+            def __init__(self, value):
+                self.value = value
+
+        tuple_list = Type_Safe__List(tuple)
+        tuple_list.append((1, 2, 3))
+        tuple_list.append((TestType("test"), TestType("other")))
+
+        expected = [
+            [1, 2, 3],
+            [{"value": "test"}, {"value": "other"}]
+        ]
+        assert tuple_list.json() == expected

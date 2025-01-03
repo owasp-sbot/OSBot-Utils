@@ -6,12 +6,12 @@ from typing                                                  import Optional, Un
 from unittest                                                import TestCase
 from unittest.mock                                           import patch
 from osbot_utils.base_classes.Kwargs_To_Self                 import Kwargs_To_Self
-from osbot_utils.type_safe.Type_Safe                      import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Dict                import Type_Safe__Dict
-from osbot_utils.type_safe.Type_Safe__List                import Type_Safe__List
+from osbot_utils.type_safe.Type_Safe                         import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Dict                   import Type_Safe__Dict
+from osbot_utils.type_safe.Type_Safe__List                   import Type_Safe__List
 from osbot_utils.decorators.methods.cache_on_self            import cache_on_self
 from osbot_utils.helpers.Random_Guid                         import Random_Guid
-from osbot_utils.type_safe.validators.Validator__Min import Min
+from osbot_utils.type_safe.validators.Validator__Min         import Min
 from osbot_utils.utils.Json                                  import json_to_str, str_to_json
 from osbot_utils.utils.Misc                                  import list_set, is_guid
 from osbot_utils.utils.Objects                               import default_value, __, all_annotations
