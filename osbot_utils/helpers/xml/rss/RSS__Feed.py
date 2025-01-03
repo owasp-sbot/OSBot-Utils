@@ -1,5 +1,5 @@
 from typing                                     import Dict, Any
-from osbot_utils.base_classes.Type_Safe         import Type_Safe
+from osbot_utils.type_safe.Type_Safe         import Type_Safe
 from osbot_utils.helpers.xml.rss.RSS__Channel   import RSS__Channel
 
 DEFAULT__RSS_FEED__VERSION = "2.0"

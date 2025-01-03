@@ -1,5 +1,5 @@
 from unittest                                           import TestCase
-from osbot_utils.base_classes.Type_Safe                 import Type_Safe
+from osbot_utils.type_safe.Type_Safe                 import Type_Safe
 from osbot_utils.context_managers.disable_root_loggers  import disable_root_loggers
 from osbot_utils.helpers.flows.Flow                     import Flow
 from osbot_utils.helpers.flows.models.Flow_Run__Config  import Flow_Run__Config

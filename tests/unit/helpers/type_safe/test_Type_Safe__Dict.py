@@ -3,8 +3,8 @@ import sys
 import pytest
 from unittest                                 import TestCase
 from typing                                   import Dict, Union, Optional, Any, Callable, List, Tuple
-from osbot_utils.base_classes.Type_Safe       import Type_Safe
-from osbot_utils.base_classes.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.Type_Safe       import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
 
 
 class test_Type_Safe__Dict(TestCase):

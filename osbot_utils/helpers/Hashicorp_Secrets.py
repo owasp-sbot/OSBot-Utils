@@ -1,5 +1,5 @@
 from osbot_utils.utils.Env                  import get_env
-from osbot_utils.base_classes.Type_Safe     import Type_Safe
+from osbot_utils.type_safe.Type_Safe     import Type_Safe
 from osbot_utils.utils.Lists                import list_index_by
 from osbot_utils.utils.Misc                 import list_set
 

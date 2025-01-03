@@ -1,4 +1,4 @@
-from osbot_utils.base_classes.Type_Safe__Base import Type_Safe__Base, type_str
+from osbot_utils.type_safe.Type_Safe__Base import Type_Safe__Base, type_str
 
 
 class Type_Safe__List(Type_Safe__Base, list):

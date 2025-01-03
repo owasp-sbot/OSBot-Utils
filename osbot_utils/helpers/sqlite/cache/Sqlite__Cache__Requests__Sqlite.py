@@ -1,4 +1,4 @@
-from osbot_utils.base_classes.Type_Safe                         import Type_Safe
+from osbot_utils.type_safe.Type_Safe                         import Type_Safe
 from osbot_utils.helpers.cache_requests.Cache__Requests__Config import Cache__Requests__Config
 from osbot_utils.helpers.sqlite.cache.Sqlite__DB__Requests      import Sqlite__DB__Requests
 

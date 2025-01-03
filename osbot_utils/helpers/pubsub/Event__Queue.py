@@ -1,7 +1,7 @@
 import time
 from queue                                                      import Queue, Empty
 from threading                                                  import Thread
-from osbot_utils.base_classes.Type_Safe                         import Type_Safe
+from osbot_utils.type_safe.Type_Safe                         import Type_Safe
 from osbot_utils.helpers.pubsub.schemas.Schema__Event           import Schema__Event
 from osbot_utils.helpers.pubsub.schemas.Schema__Event__Message  import Schema__Event__Message
 from osbot_utils.utils.Misc                                     import random_text, timestamp_utc_now, random_guid

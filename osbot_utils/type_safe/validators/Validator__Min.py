@@ -1,5 +1,5 @@
 from typing                                             import Any
-from osbot_utils.helpers.type_safe.Type_Safe__Validator import Type_Safe__Validator
+from osbot_utils.type_safe.Type_Safe__Validator import Type_Safe__Validator
 
 class Validator__Min(Type_Safe__Validator):                     # Validates that a value is at least the specified minimum. Works with any type that supports the < operator (numbers, strings, lists, etc.)
     min_value: Any

@@ -3,8 +3,8 @@ import sys
 import pytest
 from typing                                   import List, Dict, Union, Optional
 from unittest                                 import TestCase
-from osbot_utils.base_classes.Type_Safe       import Type_Safe
-from osbot_utils.base_classes.Type_Safe__List import Type_Safe__List
+from osbot_utils.type_safe.Type_Safe       import Type_Safe
+from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
 from osbot_utils.helpers.Random_Guid          import Random_Guid
 
 

@@ -1,5 +1,5 @@
 from unittest                                   import TestCase
-from osbot_utils.base_classes.Type_Safe__Dict   import Type_Safe__Dict
+from osbot_utils.type_safe.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.helpers.xml.Xml__Element       import XML__Element
 from osbot_utils.helpers.xml.Xml__File          import Xml__File
 

@@ -1,6 +1,6 @@
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Data import Flow_Run__Event_Data
 from osbot_utils.utils.Str                                  import ansi_to_text
-from osbot_utils.base_classes.Type_Safe                     import Type_Safe
+from osbot_utils.type_safe.Type_Safe                     import Type_Safe
 from osbot_utils.helpers.flows.models.Flow_Run__Event       import Flow_Run__Event
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Type  import Flow_Run__Event_Type
 

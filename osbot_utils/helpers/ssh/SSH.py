@@ -1,5 +1,5 @@
 from osbot_utils.base_classes.Kwargs_To_Self        import Kwargs_To_Self
-from osbot_utils.base_classes.Type_Safe import Type_Safe
+from osbot_utils.type_safe.Type_Safe import Type_Safe
 from osbot_utils.decorators.methods.cache_on_self   import cache_on_self
 from osbot_utils.helpers.ssh.SCP                    import SCP
 from osbot_utils.helpers.ssh.SSH__Execute           import SSH__Execute

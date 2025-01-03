@@ -8,7 +8,7 @@ from typing                             import Optional, Union
 from unittest                           import TestCase
 from unittest.mock                      import patch, call
 from osbot_utils.testing.Stdout         import Stdout
-from osbot_utils.base_classes.Type_Safe import Type_Safe
+from osbot_utils.type_safe.Type_Safe import Type_Safe
 from osbot_utils.utils.Misc             import random_int, list_set
 from osbot_utils.utils.Objects          import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, \
     obj_dict, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \

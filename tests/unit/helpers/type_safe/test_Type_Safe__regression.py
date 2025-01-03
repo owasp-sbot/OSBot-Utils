@@ -6,12 +6,12 @@ from typing                                                  import Optional, Un
 from unittest                                                import TestCase
 from unittest.mock                                           import patch
 from osbot_utils.base_classes.Kwargs_To_Self                 import Kwargs_To_Self
-from osbot_utils.base_classes.Type_Safe                      import Type_Safe
-from osbot_utils.base_classes.Type_Safe__Dict                import Type_Safe__Dict
-from osbot_utils.base_classes.Type_Safe__List                import Type_Safe__List
+from osbot_utils.type_safe.Type_Safe                      import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Dict                import Type_Safe__Dict
+from osbot_utils.type_safe.Type_Safe__List                import Type_Safe__List
 from osbot_utils.decorators.methods.cache_on_self            import cache_on_self
 from osbot_utils.helpers.Random_Guid                         import Random_Guid
-from osbot_utils.helpers.type_safe.validators.Validator__Min import Min
+from osbot_utils.type_safe.validators.Validator__Min import Min
 from osbot_utils.utils.Json                                  import json_to_str, str_to_json
 from osbot_utils.utils.Misc                                  import list_set, is_guid
 from osbot_utils.utils.Objects                               import default_value, __, all_annotations
@@ -431,7 +431,7 @@ class test_Type_Safe__regression(TestCase):
 
         class An_Class(Kwargs_To_Self):
             test_case : TestCase
-        with patch('osbot_utils.base_classes.Type_Safe.default_value') as patched_default_value:
+        with patch('osbot_utils.type_safe.Type_Safe.default_value') as patched_default_value:
             patched_default_value.side_effect = default_value                   # make sure that the main code uses the original method (i.e. not the patched one)
                                                                                 #       since all we need is the ability to count how many times the method was called
             an_class = An_Class()                                               # create instance of class (which will call default_value via __default__kwargs__)

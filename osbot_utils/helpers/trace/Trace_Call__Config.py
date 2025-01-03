@@ -1,5 +1,5 @@
 
-from osbot_utils.base_classes.Type_Safe import Type_Safe
+from osbot_utils.type_safe.Type_Safe import Type_Safe
 from osbot_utils.utils.Dev              import pprint                   # todo: fix test requirement of mock to use this method
 
 

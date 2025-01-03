@@ -1,4 +1,4 @@
-from osbot_utils.base_classes.Type_Safe__Base import type_str, Type_Safe__Base
+from osbot_utils.type_safe.Type_Safe__Base import type_str, Type_Safe__Base
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
     def __init__(self, expected_key_type, expected_value_type, *args, **kwargs):
@@ -20,3 +20,6 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         key_type_name   = type_str(self.expected_key_type)
         value_type_name = type_str(self.expected_value_type)
         return f"dict[{key_type_name}, {value_type_name}] with {len(self)} entries"
+
+    def json(self):
+        return {k: v for k, v in self.items()}
