@@ -1,6 +1,5 @@
 import inspect
-from typing import List
-
+from typing                                                 import List
 from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
 from osbot_utils.decorators.lists.filter_list               import filter_list
 from osbot_utils.helpers.sqlite.Sqlite__Field               import Sqlite__Field

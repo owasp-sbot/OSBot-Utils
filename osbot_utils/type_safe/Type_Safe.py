@@ -24,7 +24,7 @@ if sys.version_info < (3, 8):                                           # pragma
         else:
             return ()
 else:
-    from typing import get_origin, get_args, ForwardRef
+    from typing import get_origin, get_args, ForwardRef, Any
     from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
 
 if sys.version_info >= (3, 10):
@@ -117,12 +117,16 @@ class Type_Safe:
         # todo: refactor this to separate method
         if hasattr(annotations, 'get'):
             annotation = annotations.get(name)
-            if annotation and get_origin(annotation) is Annotated:
-                annotation_args = get_args(annotation)
-                target_type = annotation_args[0]
-                for attribute in annotation_args[1:]:
-                    if isinstance(attribute, Type_Safe__Validator):
-                        attribute.validate(value=value, field_name=name, target_type=target_type)
+            if annotation:
+                annotation_origin = get_origin(annotation)
+                if annotation_origin is Annotated:
+                    annotation_args = get_args(annotation)
+                    target_type = annotation_args[0]
+                    for attribute in annotation_args[1:]:
+                        if isinstance(attribute, Type_Safe__Validator):
+                            attribute.validate(value=value, field_name=name, target_type=target_type)
+                elif annotation_origin is dict:
+                    value = self.deserialize_dict__using_key_value_annotations(name, value)
 
         super().__setattr__(name, value)
 
@@ -341,8 +345,12 @@ class Type_Safe:
             else:
                 new__dict_key = key_class(dict_key)
 
-            if issubclass(value_class, Type_Safe):
+            if type(dict_value) == value_class:                                        # if the value is already the target, then just use it
+                new__dict_value = dict_value
+            elif issubclass(value_class, Type_Safe):
                 new__dict_value = value_class().deserialize_from_dict(dict_value)
+            elif value_class is Any:
+                new__dict_value = dict_value
             else:
                 new__dict_value = value_class(dict_value)
             new_value[new__dict_key] = new__dict_value
@@ -353,7 +361,7 @@ class Type_Safe:
     def deserialize_from_dict(self, data, raise_on_not_found=False):
         from decimal                                    import Decimal
         from enum                                       import EnumMeta
-        from osbot_utils.type_safe.Type_Safe__List   import Type_Safe__List
+        from osbot_utils.type_safe.Type_Safe__List      import Type_Safe__List
         from osbot_utils.helpers.Random_Guid            import Random_Guid
         from osbot_utils.helpers.Random_Guid_Short      import Random_Guid_Short
         from osbot_utils.utils.Objects                  import obj_is_attribute_annotation_of_type
@@ -361,6 +369,9 @@ class Type_Safe:
         from osbot_utils.utils.Objects                  import enum_from_value
         from osbot_utils.helpers.Safe_Id                import Safe_Id
         from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
+
+        if hasattr(data, 'items') is False:
+            raise ValueError(f"Expected a dictionary, but got '{type(data)}'")
 
         for key, value in data.items():
             if hasattr(self, key) and isinstance(getattr(self, key), Type_Safe):

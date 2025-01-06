@@ -19,6 +19,40 @@ from osbot_utils.utils.Objects                               import default_valu
 
 class test_Type_Safe__regression(TestCase):
 
+    def test__regression__ctor__does_not_recreate__Dict__objects(self):
+        class An_Class_2_B(Type_Safe):
+            an_str: str
+
+        class An_Class_2_A(Type_Safe):
+            an_dict      : Dict[str,An_Class_2_B]
+            an_class_2_b : An_Class_2_B
+
+        json_data_2 = {'an_dict'     : {'key_1': {'an_str': 'value_1'}},
+                       'an_class_2_b': {'an_str': 'value_1'}}
+
+        # todo fix the scenario where we try to create a new object from a dict value using the ctor instead of the from_json method
+        an_class = An_Class_2_A(**json_data_2)
+        #assert type(an_class.an_dict)          is dict                                  # Fixed BUG should be Type_Safe__Dict
+        assert type(an_class.an_dict)                             is Type_Safe__Dict
+        assert type(An_Class_2_A(**json_data_2).an_dict['key_1']) is An_Class_2_B
+        #assert type(An_Class_2_A(**json_data_2).an_dict['key_1']) is dict               # BUG: this should be An_Class_2_B
+        assert type(An_Class_2_A(**json_data_2).an_class_2_b    ) is An_Class_2_B       # when not using Dict[str,An_Class_2_B] the object is created correctly
+
+        assert An_Class_2_A(**json_data_2).json() == json_data_2
+
+    def test__regression__ctor__doesnt_enforce_type_safety_on_dict(self):
+        class An_Class(Type_Safe):
+            an_dict : Dict[Random_Guid, str]
+
+        with pytest.raises(ValueError, match = "in Random_Guid: value provided was not a Guid: a"):
+            an_class_1 = An_Class(an_dict={'a': 123})                           # Fixed: BUG should have raised exception
+            assert type(an_class_1.an_dict) is dict                             # Fixed: BUG should be Dict
+
+        an_class_2 = An_Class()
+        assert type(an_class_2.an_dict)               is Type_Safe__Dict        # correct
+        assert an_class_2.an_dict.expected_key_type   is Random_Guid
+        assert an_class_2.an_dict.expected_value_type is str
+
     def test__regression__base_types_not_check_over_inheritance(self):
         class Base_Class(Type_Safe):
             an_str: str
