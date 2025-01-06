@@ -1,10 +1,10 @@
+import pytest
 from unittest                                                               import TestCase
-from osbot_utils.base_classes.Kwargs_To_Self                                import Kwargs_To_Self
+from osbot_utils.utils.Env                                                  import not_in_github_action
 from osbot_utils.helpers.sqlite.Sqlite__Database                            import Sqlite__Database
 from osbot_utils.helpers.sqlite.Sqlite__Table                               import Sqlite__Table
 from osbot_utils.helpers.sqlite.sample_data.Sqlite__Sample_Data__Chinook    import Sqlite__Sample_Data__Chinook
 from osbot_utils.helpers.sqlite.sql_builder.SQL_Builder__Select             import SQL_Builder__Select
-
 
 class test_SQL_Builder__Select(TestCase):
     db_chinook : Sqlite__Database
@@ -12,6 +12,8 @@ class test_SQL_Builder__Select(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        if not_in_github_action():
+            pytest.skip("Skip test locally since needs the Sqlite__Sample_Data__Chinook data")  # todo: change this test so that It doesn't need this anymore
         cls.db_chinook = Sqlite__Sample_Data__Chinook().load_db_from_disk()
         cls.table      = cls.db_chinook.table('Genre')
 

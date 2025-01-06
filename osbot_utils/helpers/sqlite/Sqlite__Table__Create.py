@@ -1,6 +1,5 @@
 import inspect
-from typing import List
-
+from typing                                                 import List
 from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
 from osbot_utils.decorators.lists.filter_list               import filter_list
 from osbot_utils.helpers.sqlite.Sqlite__Field               import Sqlite__Field
@@ -17,8 +16,8 @@ class Sqlite__Table__Create(Kwargs_To_Self):
         self.set_default_fields()
 
     def add_field(self, field_data: dict):
-        sqlite_field = Sqlite__Field.from_json(field_data)
-        if sqlite_field:
+        if field_data and isinstance(field_data, dict):
+            sqlite_field = Sqlite__Field.from_json(field_data)
             self.fields.append(sqlite_field)
             return True
         return False
