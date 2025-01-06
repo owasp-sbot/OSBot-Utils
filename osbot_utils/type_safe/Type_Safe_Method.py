@@ -1,15 +1,22 @@
 import inspect                                                                            # For function introspection
 from enum     import Enum
-from typing   import get_args, get_origin, Optional, Union, List, Any, Dict               # For type hinting utilities
+from typing   import get_args, get_origin, Union, List, Any                              # For type hinting utilities
 
 
 class Type_Safe_Method:                                                                   # Class to handle method type safety validation
     def __init__(self, func):                                                             # Initialize with function
         self.func         = func                                                          # Store original function
         self.sig          = inspect.signature(func)                                       # Get function signature
-        self.annotations  = func.__annotations__                                          # Get type annotations
+        self.annotations  = func.__annotations__                                          # Get function annotations
+
+    def check_for_any_use(self):
+        for param_name, type_hint in self.annotations.items():
+            if type_hint is any:  # Detect incorrect usage of lowercase any
+                raise ValueError(f"Parameter '{param_name}' uses lowercase 'any' instead of 'Any' from typing module. "
+                              f"Please use 'from typing import Any' and annotate as '{param_name}: Any'")
 
     def handle_type_safety(self, args: tuple, kwargs: dict):                              # Main method to handle type safety
+        self.check_for_any_use()
         bound_args = self.bind_args(args, kwargs)                                         # Bind arguments to parameters
         for param_name, param_value in bound_args.arguments.items():                      # Iterate through arguments
             if param_name != 'self':                                                      # Skip self parameter
@@ -107,5 +114,6 @@ class Type_Safe_Method:                                                         
 
     def validate_direct_type(self, param_name: str,                               # Validate direct type match
                            param_value: Any, expected_type: Any):                  # Type parameters
-        if not isinstance(param_value, expected_type):                            # Check type match
-            raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}")  # Raise error if no match
+        if expected_type is not Any:
+            if not isinstance(param_value, expected_type):                            # Check type match
+                raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}")  # Raise error if no match
