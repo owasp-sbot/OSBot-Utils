@@ -1,9 +1,13 @@
+import re
 import sys
 import types
 import pytest
 from enum                                    import Enum, auto
-from typing                                  import Union, Optional
+from typing                                  import Union, Optional, Type
 from unittest                                import TestCase
+from osbot_utils.helpers.Timestamp_Now       import Timestamp_Now
+from osbot_utils.helpers.Guid                import Guid
+from osbot_utils.helpers.Random_Guid         import Random_Guid
 from osbot_utils.type_safe.Type_Safe         import Type_Safe, serialize_to_dict
 from osbot_utils.type_safe.Type_Safe__List   import Type_Safe__List
 from osbot_utils.testing.Catch               import Catch
@@ -695,31 +699,50 @@ class test_Type_Safe(TestCase):
         with pytest.raises(AttributeError):
             an_class.set_()  # Empty attribute name
 
-    def test__type_immutability_check(self):
-        with self.assertRaises(ValueError) as context:                  # Test that type defaults are not allowed
-            class Default_Types(Type_Safe):
-                explicit_str: type = str
-            Default_Types()                                             # Should raise error
-        assert "not supported by Type_Safe" in str(context.exception)
+    def test__type_assignments_and_validation(self):        # Test simple type assignment with 'type' annotation
+        class Simple_Type(Type_Safe):
+            type_field: type = str                          # Now allowed
 
-        class Test_None_Default(Type_Safe):                             # Test that None default is allowed
-            type_field: type = None
-        Test_None_Default()
+        simple = Simple_Type()
+        assert simple.type_field == str
+        simple.type_field = int                             # Can change to another type
+        assert simple.type_field == int
 
-        class Valid_Usage(Type_Safe):                                   # Test that dynamic assignment still works
-            type_field: type
+        class Constrained_Type(Type_Safe):                  # Test Type[T] with specific type constraint
+            str_type    : Type[str] = str                   # OK: str is instance of Type[str]
+            number_type : Type[int] = int                   # OK: int is instance of Type[int]
 
-        test_obj = Valid_Usage()
-        test_obj.type_field = str
-        assert test_obj.type_field == str
+        constrained = Constrained_Type()
+        assert constrained.str_type == str
+        assert constrained.number_type == int
 
-        with self.assertRaises(ValueError) as context:                  # Test that nested type defaults are also checked
-            class Nested_Invalid(Type_Safe):
-                class Inner(Type_Safe):
-                    type_field: type = str
-                nested: Inner
-            Nested_Invalid()
-        assert "not supported by Type_Safe" in str(context.exception)
+        class Type_Safety(Type_Safe):                       # Test type safety with Type[T]
+            str_type: Type[str]
+
+        type_safety = Type_Safety()
+        type_safety.str_type = str                          # OK: str matches Type[str]
+
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'type'>'")):    # Should fail: int is not a subclass of str
+            type_safety.str_type = int
+
+
+        # Test nested types
+        class Nested_Valid(Type_Safe):
+            class Inner(Type_Safe):
+                type_field: Type[str] = str          # Now valid
+            nested: Inner
+
+        nested = Nested_Valid()
+        assert nested.nested.type_field == str
+
+        # Test None assignments
+        class Optional_Type(Type_Safe):
+            type_field: Optional[Type[str]] = None   # None should be allowed for Optional
+
+        optional = Optional_Type()
+        assert optional.type_field is None
+        optional.type_field = str                    # Can set to valid type
+        assert optional.type_field == str
 
     def test__support_types_in_json(self):
         class An_Class(Type_Safe):
@@ -931,6 +954,35 @@ class test_Type_Safe(TestCase):
             assert default_value(round_trip.an_dict) == {}
             assert default_value(round_trip.an_list) == []
             assert default_value(round_trip.an_set ) == set()
+
+    def test__type__with_type__are_enforced(self):
+        class An_Class(Type_Safe):
+            an_type_str: Type[str]
+            an_type_int: Type[int]
+
+        class Random_Guid__Extra(Random_Guid):
+            pass
+
+        class Timestamp_Now__Extra(Timestamp_Now):
+            pass
+
+        an_class = An_Class()
+        assert an_class.an_type_str is None
+        assert an_class.an_type_int is None
+        an_class.an_type_str = str
+        an_class.an_type_int = int
+        an_class.an_type_str = Guid
+        an_class.an_type_str = Random_Guid
+        an_class.an_type_str = Random_Guid__Extra
+        an_class.an_type_int = Timestamp_Now
+        an_class.an_type_int = Timestamp_Now__Extra
+
+        class An_Class_1(Type_Safe):
+            an_guid      : Type[Guid]
+            an_time_stamp: Type[Timestamp_Now]
+
+        assert An_Class_1().json() == {'an_guid': None, 'an_time_stamp': None}
+
 
 
 class Custom_Class:         # used in test_type_serialization

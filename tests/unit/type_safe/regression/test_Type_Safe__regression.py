@@ -1,10 +1,13 @@
+import re
 import pytest
 import sys
 from decimal                                                 import Decimal
-from osbot_utils.helpers.python_compatibility.python_3_8     import Annotated
-from typing                                                  import Optional, Union, List, Dict, get_origin
+from typing                                                  import Optional, Union, List, Dict, get_origin, Type
 from unittest                                                import TestCase
 from unittest.mock                                           import patch
+from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
+from osbot_utils.helpers.Guid                                import Guid
+from osbot_utils.helpers.python_compatibility.python_3_8     import Annotated
 from osbot_utils.base_classes.Kwargs_To_Self                 import Kwargs_To_Self
 from osbot_utils.type_safe.Type_Safe                         import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Dict                   import Type_Safe__Dict
@@ -18,6 +21,105 @@ from osbot_utils.utils.Objects                               import default_valu
 
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__type__with_type__cannot_be_assigned(self):
+        class An_Class(Type_Safe):
+            an_guid      : Type[Guid]          =  Guid
+            an_time_stamp: Type[Timestamp_Now]
+
+        # with pytest.raises(TypeError, match="Subscripted generics cannot be used with class and instance checks"):
+        #     An_Class()                                #  FXIED BUG
+
+        assert An_Class().obj() == __(an_guid       = 'osbot_utils.helpers.Guid.Guid',
+                                      an_time_stamp = None                           )
+
+    def test__regression__type_from_json(self):
+        class An_Class(Type_Safe):
+            guid_type        : Type[Guid       ] = Guid
+            random_guid_type : Type[Random_Guid] = Random_Guid
+            str_type         : Type[str        ] = str
+
+        an_class_json = An_Class().json()
+        assert an_class_json == { 'guid_type'       : 'osbot_utils.helpers.Guid.Guid'               ,
+                                  'random_guid_type': 'osbot_utils.helpers.Random_Guid.Random_Guid' ,
+                                  'str_type'        : 'builtins.str'                                }
+        # with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'guid_type'. Expected 'typing.Type[osbot_utils.helpers.Guid.Guid]' but got '<class 'str'>'")):
+        #     An_Class.from_json(an_class_json)       # Fixed BUG
+
+        assert An_Class.from_json(an_class_json).json() == an_class_json
+        assert An_Class.from_json(an_class_json).obj () == An_Class().obj()
+
+        # assert obj3.obj () == __(guid_type   = 'osbot_utils.helpers.Guid.Guid'    ,
+        #                          str_type    = 'builtins.str'                     ,
+        #                          str_type_2  = 'osbot_utils.helpers.Guid.Guid'    ,)
+        #assert An_Class.from_json(An_Class().json()).obj() == An_Class().obj()
+    def test__regression__class_level_defaults__mutable_vs_type(self):
+        class Problematic(Type_Safe):
+            bad_list : list = []                  # BAD: mutable default
+            bad_dict : dict = {}                  # BAD: mutable default
+            bad_set  : set  = set()               # BAD: mutable default
+
+        obj1 = Problematic()
+        obj2 = Problematic()
+
+        # Demonstrate the shared mutable state problem
+        obj1.bad_list.append(42)
+        assert obj2.bad_list == [42]              # BUG: obj2's list was modified!
+
+        obj1.bad_dict['key'] = 'value'
+        assert obj2.bad_dict == {'key': 'value'}  # BUG: obj2's dict was modified!
+
+        obj1.bad_set.add('item')
+        assert obj2.bad_set == {'item'}           # BUG: obj2's set was modified!
+
+        # Now show that Type[T] doesn't have this problem
+
+        class Guid_2(Guid):
+            pass
+
+        class Safe(Type_Safe):
+            guid_type  : Type[Guid] = Guid
+            guid_type_2: Type[Guid] = Guid_2
+            str_type   : Type[str ] = str
+            str_type_2 : Type[str ] = Guid
+            str_type_3 : Type[str ] = Guid_2
+
+
+        obj3 = Safe()
+        obj4 = Safe()
+
+        # Types are immutable, so no shared state problems
+        assert obj3.guid_type is obj4.guid_type     # Same type object (singleton)
+        assert obj3.str_type  is obj4.str_type      # Same type object (singleton)
+        assert obj3.json() == obj4.json()
+        assert obj3.obj () == obj4.obj ()
+
+        # Can't modify type objects
+        with pytest.raises(ValueError, match=re.escape("Can't set None, to a variable that is already set. Invalid type for attribute 'guid_type'. Expected 'typing.Type[osbot_utils.helpers.Guid.Guid]' but got '<class 'NoneType'>'")):
+            obj3.guid_type = None                 # Can't modify type
+        with pytest.raises(ValueError, match=re.escape("Can't set None, to a variable that is already set. Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'NoneType'>'")):
+            obj4.str_type = None                  # Can't modify type
+
+    def test__regression__type__with_type__not_enforced(self):
+        class An_Class(Type_Safe):
+            an_type_str: Type[str]
+            an_type_int: Type[int]
+
+        an_class = An_Class()
+        assert an_class.an_type_str is None
+        assert an_class.an_type_int is None
+        an_class.an_type_str = str
+        an_class.an_type_int = int
+
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'type'>")):
+            an_class.an_type_str = int                                                  # Fixed: BUG: should have raised exception
+
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_int'. Expected 'typing.Type[int]' but got '<class 'type'>")):
+            an_class.an_type_int = str                                                  # Fixed: BUG: should have raised exception
+
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'str'>'")):
+            an_class.an_type_str = 'a'
+
 
     def test__regression__ctor__does_not_recreate__Dict__objects(self):
         class An_Class_2_B(Type_Safe):

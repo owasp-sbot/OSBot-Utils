@@ -1,5 +1,4 @@
 import uuid
-
 from osbot_utils.utils.Misc import is_guid
 
 GUID__NAMESPACE = uuid.UUID('2cfec064-537a-4ff7-8fdc-2fc9e2606f3d')
