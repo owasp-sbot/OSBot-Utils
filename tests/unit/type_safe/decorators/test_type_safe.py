@@ -1,13 +1,13 @@
 import sys
-
 import pytest
 from unittest                                   import TestCase
 from typing                                     import Union, Optional, List
 from dataclasses                                import dataclass
-from osbot_utils.type_safe.Type_Safe         import Type_Safe
-from osbot_utils.decorators.methods.type_safe   import type_safe
+from osbot_utils.type_safe.Type_Safe            import Type_Safe
 from osbot_utils.helpers.Safe_Id                import Safe_Id
 from osbot_utils.helpers.Random_Guid            import Random_Guid
+from osbot_utils.type_safe.decorators.type_safe import type_safe
+
 
 class test_type_safe(TestCase):
 
@@ -131,6 +131,32 @@ class test_type_safe(TestCase):
         import inspect
         sig = inspect.signature(self.test_instance.documented_method)
         assert 'param' in sig.parameters
+
+    def test__multiple_kwargs_variations(self):
+        @type_safe
+        def example_1(param_a: str, param_b: int):
+            return dict(param_a=param_a, param_b=param_b)
+
+        @type_safe
+        def example_2(value: Safe_Id):
+            return dict(value=value)
+
+        @type_safe
+        def example_3(value: Safe_Id, an_str: str= None):
+            return dict(value=value, an_str=an_str)
+
+        assert example_1('a', 1) == {'param_a': 'a', 'param_b': 1}
+        assert example_1('a', param_b=1) == {'param_a': 'a', 'param_b': 1}
+
+        assert example_2(Safe_Id('test_1'))                 == {'value': 'test_1'}
+        assert type(example_2(Safe_Id('test_2'))['value'])  is Safe_Id
+        assert example_2('test_3')                          == {'value': 'test_3'}
+        assert type(example_2('test_3')['value'])           is Safe_Id
+        assert type(example_2(value='test_3')['value'])     is Safe_Id
+
+        assert example_3('test_3')                          == {'an_str': None, 'value': 'test_3'}
+        assert type(example_3('test_3')['value'])           is Safe_Id
+        assert type(example_3(value='test_3')['value'])     is Safe_Id
 
 # Test Support Classes
 
