@@ -25,7 +25,7 @@ if sys.version_info < (3, 8):
         else:
             return ()
 else:
-    from typing import get_origin, get_args, List, Tuple, Dict
+    from typing import get_origin, get_args, List, Tuple, Dict, Type, _GenericAlias
 
 
 def are_types_compatible_for_assigment(source_type, target_type):
@@ -128,6 +128,16 @@ def convert_to_value_from_obj_annotation(target, attr_name, value):             
             if hasattr(obj_annotations,'get'):
                 attribute_annotation = obj_annotations.get(attr_name)
                 if attribute_annotation:
+                    origin = get_origin(attribute_annotation)                               # Add handling for Type[T] annotations
+                    if origin is type and isinstance(value, str):
+                        try:                                                                # Convert string path to actual type
+                            if len(value.rsplit('.', 1)) > 1:
+                                module_name, class_name = value.rsplit('.', 1)
+                                module = __import__(module_name, fromlist=[class_name])
+                                return getattr(module, class_name)
+                        except (ValueError, ImportError, AttributeError) as e:
+                            raise ValueError(f"Could not convert '{value}' to type: {str(e)}")
+
                     if attribute_annotation in TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES:          # for now hard-coding this to just these types until we understand the side effects
                         return attribute_annotation(value)
     return value
@@ -373,6 +383,8 @@ def obj_is_type_union_compatible(var_type, compatible_types):
     from typing import Union
 
     origin = get_origin(var_type)
+    if isinstance(var_type, _GenericAlias) and origin is type:              # Add handling for Type[T]
+        return type in compatible_types                                     # Allow if 'type' is in compatible types
     if origin is Union:                                                     # For Union types, including Optionals
         args = get_args(var_type)                                           # Get the argument types
         for arg in args:                                                    # Iterate through each argument in the Union
@@ -454,8 +466,11 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     annotations = all_annotations(target)
     attr_type   = annotations.get(attr_name)
     if attr_type:
-        origin_attr_type = get_origin(attr_type)                # to handle when type definition contains a generic
-        if origin_attr_type is Annotated:                # if the type is Annotated
+        origin_attr_type = get_origin(attr_type)                                    # to handle when type definition contains a generic
+        if origin_attr_type is type:                                                # Add handling for Type[T]
+            type_arg = get_args(attr_type)[0]                                       # Get T from Type[T]
+            return isinstance(value, type) and issubclass(value, type_arg)          # Check that value is a type and is subclass of type_arg
+        if origin_attr_type is Annotated:                                           # if the type is Annotated
             args             = get_args(attr_type)
             origin_attr_type = args[0]
 

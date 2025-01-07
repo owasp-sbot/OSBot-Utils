@@ -142,7 +142,7 @@ class Type_Safe:
         from enum                      import EnumMeta
         from osbot_utils.utils.Objects import obj_is_type_union_compatible
 
-        IMMUTABLE_TYPES = (bool, int, float, complex, str, tuple, frozenset, bytes, NoneType, EnumMeta)
+        IMMUTABLE_TYPES = (bool, int, float, complex, str, tuple, frozenset, bytes, NoneType, EnumMeta, type)
 
 
         kwargs = {}
@@ -172,7 +172,15 @@ class Type_Safe:
                         if var_value is not None:                                                                   # allow None assignments on ctor since that is a valid use case
                             if get_origin(var_type) is Annotated:
                                 continue
-                            if var_type and not isinstance(var_value, var_type):                                    # check type
+                            if get_origin(var_type) is type:  # Special handling for Type[T]
+                                if not isinstance(var_value, type):
+                                    exception_message = f"variable '{var_name}' is defined as Type[T] but has value '{var_value}' which is not a type"
+                                    raise ValueError(exception_message)
+                                type_arg = get_args(var_type)[0]
+                                if not issubclass(var_value, type_arg):
+                                    exception_message = f"variable '{var_name}' is defined as {var_type} but value {var_value} is not a subclass of {type_arg}"
+                                    raise ValueError(exception_message)
+                            elif var_type and not isinstance(var_value, var_type):                                    # check type
                                 exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
                                 raise ValueError(exception_message)
                             if var_type not in IMMUTABLE_TYPES and var_name.startswith('__') is False:              # if var_type is not one of the IMMUTABLE_TYPES or is an __ internal
