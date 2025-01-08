@@ -1,9 +1,9 @@
 import inspect                                                                            # For function introspection
-from enum     import Enum
-from typing   import get_args, get_origin, Union, List, Any                              # For type hinting utilities
+from enum       import Enum
+from typing     import get_args, get_origin, Union, List, Any, Dict                     # For type hinting utilities
 
 
-class Type_Safe__Method:                                                                   # Class to handle method type safety validation
+class Type_Safe__Method:                                                                  # Class to handle method type safety validation
     def __init__(self, func):                                                             # Initialize with function
         self.func         = func                                                          # Store original function
         self.sig          = inspect.signature(func)                                       # Get function signature
@@ -88,8 +88,10 @@ class Type_Safe__Method:                                                        
     def is_union_type(self, origin_type: Any, is_optional: bool) -> bool:             # Check if type is a Union
         return origin_type is Union and not is_optional                               # Must be Union but not Optional
 
-    def validate_union_type(self, param_name: str,                                   # Validate union type
-                          param_value: Any, expected_type: Any):                      # Union parameters
+    def validate_union_type(self, param_name   : str,
+                                  param_value  : Any,
+                                  expected_type: Any):                                  # validate Union type  parameters
+
         args_types = get_args(expected_type)                                         # Get allowed types
         if not any(isinstance(param_value, arg_type) for arg_type in args_types):    # Check if value matches any type
             raise ValueError(f"Parameter '{param_name}' expected one of types {args_types}, but got {type(param_value)}")  # Raise error if no match
@@ -110,10 +112,37 @@ class Type_Safe__Method:                                                        
             except Exception:                                                                                           # Handle conversion failure
                 pass                                                                                                    # Continue without conversion
         return False                                                                                                    # Return failure
-                                                           # Return failure
+                                                            # Return failure
 
-    def validate_direct_type(self, param_name: str,                               # Validate direct type match
-                           param_value: Any, expected_type: Any):                  # Type parameters
-        if expected_type is not Any:
-            if not isinstance(param_value, expected_type):                            # Check type match
-                raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}")  # Raise error if no match
+    def validate_direct_type(self, param_name: str, param_value: Any, expected_type: Any):
+        if expected_type is Any:                            # Handle typing.Any which accepts everything
+            return True
+
+        if param_value is None:                                                           # Handle None value case
+            is_optional = self.is_optional_type(expected_type)                            # Check if type is optional
+            has_default = self.has_default_value(param_name)                              # Check if has default value
+            self.validate_none_value(param_name, is_optional, has_default)                # Validate None value
+
+        origin = get_origin(expected_type)
+
+        if origin is Union:                                                               # If it's a Union type
+            return True                                                                   # there is another check that confirms it: todo: confirm this
+
+        if origin is not None:                                                                              # If it's a generic type (like Dict, List, etc)
+            if origin in (dict, Dict):                                                                      # Special handling for Dict
+                if not isinstance(param_value, dict):
+                    raise ValueError(f"Parameter '{param_name}' expected dict but got {type(param_value)}")
+                key_type, value_type = get_args(expected_type)
+                for k, v in param_value.items():
+                    if not isinstance(k, key_type):
+                        raise ValueError(f"Dict key '{k}' expected type {key_type}, but got {type(k)}")
+                    if not isinstance(v, value_type):
+                        raise ValueError(f"Dict value for key '{k}' expected type {value_type}, but got {type(v)}")
+                return True
+            base_type = origin
+        else:
+            base_type = expected_type
+
+        if not isinstance(param_value, base_type):
+            raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}")
+        return True

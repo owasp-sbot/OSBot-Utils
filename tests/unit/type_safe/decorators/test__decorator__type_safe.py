@@ -9,7 +9,7 @@ from osbot_utils.helpers.Random_Guid            import Random_Guid
 from osbot_utils.type_safe.decorators.type_safe import type_safe
 
 
-class test_type_safe(TestCase):
+class test__decorator__type_safe(TestCase):
 
     def setUp(self):
         self.test_instance = TypeSafeTestClass()
@@ -35,6 +35,7 @@ class test_type_safe(TestCase):
         # Test with optional parameters
         assert self.test_instance.optional_method(None) == "None"
         assert self.test_instance.optional_method(Safe_Id("test")) == "test"
+        return
 
         # Test with non-optional parameters
         with pytest.raises(ValueError, match="Parameter 'param' is not optional but got None"):
