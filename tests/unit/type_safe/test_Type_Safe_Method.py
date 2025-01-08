@@ -1,12 +1,12 @@
-from enum                                   import Enum
-from unittest                               import TestCase
-from typing                                 import Optional, Union, List
-from osbot_utils.helpers.Safe_Id            import Safe_Id
-from osbot_utils.helpers.Random_Guid        import Random_Guid
-from osbot_utils.type_safe.Type_Safe_Method import Type_Safe_Method
+from enum                                    import Enum
+from unittest                                import TestCase
+from typing                                  import Optional, Union, List
+from osbot_utils.helpers.Safe_Id             import Safe_Id
+from osbot_utils.helpers.Random_Guid         import Random_Guid
+from osbot_utils.type_safe.Type_Safe__Method import Type_Safe__Method
 
 
-class test_Type_Safe_Method(TestCase):
+class test_Type_Safe__Method(TestCase):
 
     def setUp(self):                                                                              # Setup test environment
         def example(self, param_a: Safe_Id,
@@ -17,7 +17,7 @@ class test_Type_Safe_Method(TestCase):
             return True
 
         self.example_func    = example                                                           # Store test function
-        self.type_checker    = Type_Safe_Method(example)                                         # Create type checker instance
+        self.type_checker    = Type_Safe__Method(example)                                         # Create type checker instance
 
     def test_handle_type_safety__valid_args(self):                                              # Test handling of valid arguments
         args     = ('self', Safe_Id('a'), None, Random_Guid(), [Safe_Id('d')], None)

@@ -3,7 +3,7 @@ from enum     import Enum
 from typing   import get_args, get_origin, Union, List, Any                              # For type hinting utilities
 
 
-class Type_Safe_Method:                                                                   # Class to handle method type safety validation
+class Type_Safe__Method:                                                                   # Class to handle method type safety validation
     def __init__(self, func):                                                             # Initialize with function
         self.func         = func                                                          # Store original function
         self.sig          = inspect.signature(func)                                       # Get function signature

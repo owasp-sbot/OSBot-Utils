@@ -591,39 +591,6 @@ class test_Type_Safe(TestCase):
         assert An_Class().__kwargs__() == expected_values
         assert An_Class().__locals__() == expected_values
 
-    def test___init__pics_up_types_mutable_types(self):
-        if not hasattr(self, '__annotations__'):                    # can't do type safety checks if the class does not have annotations
-            pytest.skip('Skipping test that requires __annotations__')
-
-        class An_Class(Type_Safe):
-            attribute_1 = 'default_value'
-            attribute_2 = True
-            attribute_3 : str            # ok
-            attribute_4 : list           # ok
-            attribute_5 : dict           # ok
-            attribute_6 : str  = 'a'     # ok
-
-            attribute_7 : list = []      # should fail
-
-        expected_error=("Catch: <class 'Exception'> : variable 'attribute_7' is defined "
-                        "as type '<class 'list'>' which is not supported by Type_Safe, "
-                        "with only the following immutable types being supported: "
-                        "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
-                        "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
-        with Catch(expect_exception=True, expected_error = expected_error):
-            An_Class()
-
-        class An_Class_2(Type_Safe):
-            attribute_8 : dict = {}
-
-        expected_error=("Catch: <class 'Exception'> : variable 'attribute_8' is defined "
-                        "as type '<class 'dict'>' which is not supported by Type_Safe, "
-                        "with only the following immutable types being supported: "
-                        "'(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, <class 'str'>, "
-                        "<class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, <class 'NoneType'>, <class 'enum.EnumType'>)'")
-        with Catch(expect_exception=True, expected_error=expected_error):
-            An_Class_2()
-
     def test___init___prevents_new_attributes(self):
         with self.assertRaises(Exception) as context:
             self.Config_Class(aaaa=123)

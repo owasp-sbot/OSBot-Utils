@@ -22,6 +22,31 @@ from osbot_utils.utils.Objects                               import default_valu
 
 class test_Type_Safe__regression(TestCase):
 
+    def test__bug__forward_refs_in_type(self):
+        class An_Class_1(Type_Safe):
+            an_type__str        : Type[str]
+            an_type__forward_ref: Type['An_Class_1']
+
+        an_class = An_Class_1()
+        assert an_class.obj() == __(an_type__str=None, an_type__forward_ref=None)
+
+        an_class.an_type__str = str
+        an_class.an_type__str = Random_Guid
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type__str'. Expected 'typing.Type[str]' but got '<class 'type'>'")) :
+            an_class.an_type__str = int
+
+        #with pytest.raises(TypeError, match=re.escape("issubclass() arg 2 must be a class, a tuple of classes, or a union")):
+        #    an_class.an_type__forward_ref = An_Class_1           # Fixed; BUG: this should have worked
+
+        an_class.an_type__forward_ref = An_Class_1
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type__forward_ref'. Expected 'typing.Type[ForwardRef('An_Class_1')]' but got '<class 'type'>'")):
+            an_class.an_type__forward_ref = str
+
+        class An_Class_2(An_Class_1):
+            pass
+
+        an_class.an_type__forward_ref = An_Class_2
+
     def test__regression__type__with_type__cannot_be_assigned(self):
         class An_Class(Type_Safe):
             an_guid      : Type[Guid]          =  Guid
