@@ -25,7 +25,7 @@ if sys.version_info < (3, 8):
         else:
             return ()
 else:
-    from typing import get_origin, get_args, List, Tuple, Dict, Type, _GenericAlias
+    from typing import get_origin, get_args, List, Tuple, Dict, Type, _GenericAlias, ForwardRef
 
 
 def are_types_compatible_for_assigment(source_type, target_type):
@@ -469,6 +469,8 @@ def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
         origin_attr_type = get_origin(attr_type)                                    # to handle when type definition contains a generic
         if origin_attr_type is type:                                                # Add handling for Type[T]
             type_arg = get_args(attr_type)[0]                                       # Get T from Type[T]
+            if isinstance(type_arg, (str, ForwardRef)):                             # Handle forward reference
+                type_arg = target.__class__                                         # If it's a forward reference, the target class should be the containing class
             return isinstance(value, type) and issubclass(value, type_arg)          # Check that value is a type and is subclass of type_arg
         if origin_attr_type is Annotated:                                           # if the type is Annotated
             args             = get_args(attr_type)

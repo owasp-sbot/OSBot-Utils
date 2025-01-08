@@ -1,5 +1,5 @@
 from typing                                             import Any
-from osbot_utils.type_safe.Type_Safe__Validator import Type_Safe__Validator
+from osbot_utils.type_safe.validators.Type_Safe__Validator import Type_Safe__Validator
 
 
 class Validator__Max(Type_Safe__Validator):                             #    Validates that a numeric value is at most the specified maximum."""

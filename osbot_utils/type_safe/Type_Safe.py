@@ -88,7 +88,7 @@ class Type_Safe:
         from osbot_utils.utils.Objects                  import convert_to_value_from_obj_annotation
         from osbot_utils.utils.Objects                  import value_type_matches_obj_annotation_for_attr
         from osbot_utils.utils.Objects                  import value_type_matches_obj_annotation_for_union_and_annotated
-        from osbot_utils.type_safe.Type_Safe__Validator import Type_Safe__Validator
+        from osbot_utils.type_safe.validators.Type_Safe__Validator import Type_Safe__Validator
 
         annotations = all_annotations(self)
         if not annotations:                                             # can't do type safety checks if the class does not have annotations
