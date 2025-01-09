@@ -1,14 +1,13 @@
-import re
 import sys
 import pytest
 from typing                                  import Optional, Union, Dict, Type
 from unittest                                import TestCase
-from osbot_utils.helpers.Random_Guid         import Random_Guid
-from osbot_utils.utils.Objects               import __
 from osbot_utils.type_safe.Type_Safe         import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 class test_Type_Safe__bugs(TestCase):
+
+
 
     def test__bug__in__convert_dict_to_value_from_obj_annotation(self):
         class An_Class_2_B(Type_Safe):

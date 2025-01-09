@@ -199,6 +199,15 @@ class Type_Safe:
         from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
         from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
 
+        if get_origin(var_type) is type:                        # Special handling for Type[T]  # todo: reuse the get_origin value
+            type_args = get_args(var_type)
+            if type_args:
+                if isinstance(type_args[0], ForwardRef):
+                    forward_name = type_args[0].__forward_arg__
+                    if forward_name == cls.__name__:
+                        return cls
+                return type_args[0]                             # Return the actual type as the default value
+
         if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
             return set()
         if get_origin(var_type) is set:

@@ -922,7 +922,7 @@ class test_Type_Safe(TestCase):
             assert default_value(round_trip.an_list) == []
             assert default_value(round_trip.an_set ) == set()
 
-    def test__type__with_type__are_enforced(self):
+    def test__type__with_type__are_enforced__and_default_is_type(self):
         class An_Class(Type_Safe):
             an_type_str: Type[str]
             an_type_int: Type[int]
@@ -934,8 +934,8 @@ class test_Type_Safe(TestCase):
             pass
 
         an_class = An_Class()
-        assert an_class.an_type_str is None
-        assert an_class.an_type_int is None
+        assert an_class.an_type_str is str
+        assert an_class.an_type_int is int
         an_class.an_type_str = str
         an_class.an_type_int = int
         an_class.an_type_str = Guid
@@ -948,7 +948,7 @@ class test_Type_Safe(TestCase):
             an_guid      : Type[Guid]
             an_time_stamp: Type[Timestamp_Now]
 
-        assert An_Class_1().json() == {'an_guid': None, 'an_time_stamp': None}
+        assert An_Class_1().json() == {'an_guid': 'osbot_utils.helpers.Guid.Guid', 'an_time_stamp': 'osbot_utils.helpers.Timestamp_Now.Timestamp_Now'}
 
 
 
