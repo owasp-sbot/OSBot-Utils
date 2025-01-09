@@ -1,6 +1,6 @@
 # todo: find a way to add these documentations strings to a separate location so that
 #       the data is available in IDE's code complete
-
+import inspect
 import sys
 import types
 from osbot_utils.utils.Objects import default_value                     # todo: remove test mocking requirement for this to be here (instead of on the respective method)
@@ -198,6 +198,15 @@ class Type_Safe:
         import typing
         from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
         from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
+        if get_origin(var_type) is type:                        # Special handling for Type[T]  # todo: reuse the get_origin value
+            type_args = get_args(var_type)
+            if type_args:
+                if isinstance(type_args[0], ForwardRef):
+                    forward_name = type_args[0].__forward_arg__
+                    for base_cls in inspect.getmro(cls):
+                        if base_cls.__name__ == forward_name:
+                            return cls                                                      # note: in this case we return the cls, and not the base_cls (which makes sense since this happens when the cls class uses base_cls as base, which has a ForwardRef to base_cls )
+                return type_args[0]                             # Return the actual type as the default value
 
         if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
             return set()

@@ -2,7 +2,7 @@ import re
 import pytest
 import sys
 from decimal                                                 import Decimal
-from typing                                                  import Optional, Union, List, Dict, get_origin, Type
+from typing                                                  import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any
 from unittest                                                import TestCase
 from unittest.mock                                           import patch
 from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
@@ -19,16 +19,161 @@ from osbot_utils.utils.Json                                  import json_to_str,
 from osbot_utils.utils.Misc                                  import list_set, is_guid
 from osbot_utils.utils.Objects                               import default_value, __, all_annotations
 
-
 class test_Type_Safe__regression(TestCase):
 
-    def test__bug__forward_refs_in_type(self):
+    def test__regression__forward_ref_handling_in_type_matches(self):
+        class Base_Node(Type_Safe):
+            node_type: Type['Base_Node']  # Forward reference to self
+            value: str
+
+        # Test base class
+        base_node = Base_Node()
+        assert base_node.node_type is Base_Node  # Default value should be the Base_Node
+
+        # Should be able to set it to the class itself
+        base_node.node_type = Base_Node
+        assert base_node.node_type is Base_Node
+
+        # Subclass should work now too
+        class Custom_Node(Base_Node): pass
+
+        custom_node = Custom_Node()                              # This should no longer raise TypeError
+
+
+        # Should accept either base or subclass
+        custom_node.node_type = Custom_Node
+        assert custom_node.node_type is Custom_Node
+
+        custom_node.node_type = Custom_Node
+        assert custom_node.node_type is Custom_Node
+
+        # Should reject invalid types
+        class Other_Class: pass
+
+        with self.assertRaises(ValueError) as context:
+            custom_node.node_type = Other_Class
+
+        assert str(context.exception) == "Invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('Base_Node')]' but got '<class 'type'>'"
+
+        # Test with more complex case (like Schema__MGraph__Node)
+        from typing import Dict, Any
+
+        class Node_Config(Type_Safe):
+            node_id: Random_Guid
+
+        class Complex_Node(Type_Safe):
+            attributes   : Dict[Random_Guid, str]  # Simplified for test
+            node_config  : Node_Config
+            node_type    : Type['Complex_Node']  # ForwardRef
+            value        : Any
+
+        class Custom_Complex(Complex_Node): pass
+
+        # Both should work now
+        complex_node = Complex_Node()
+        custom_complex = Custom_Complex()  # Should not raise TypeError
+
+        # And type checking should work properly
+        with self.assertRaises(ValueError):
+            custom_complex.node_type = Complex_Node    # Doesn't Allow base class
+        custom_complex.node_type = Custom_Complex  # Allow self
+
+        with self.assertRaises(ValueError):
+            custom_complex.node_type = Other_Class  # Reject invalid type
+
+    def test__regression__forward_ref_in_subclass_fails(self):
+        class Base_Node(Type_Safe):
+            node_type: Type['Base_Node']                # Forward reference to self
+            value    : str
+
+        base_node = Base_Node()                         # This works fine
+        assert base_node.node_type is Base_Node
+
+        class Custom_Node(Base_Node): pass              # But subclassing causes a TypeError
+
+
+
+        # with pytest.raises(TypeError, match="Invalid type for attribute 'node_type'. Expected 'None' but got '<class 'typing.ForwardRef'>'"):
+        #     Custom_Node()                               # Fixed; BUG: This fails with TypeError
+        assert Custom_Node().node_type == Custom_Node
+
+        class Node_Config(Type_Safe):                   # To demonstrate more complex case (like in Schema__MGraph__Node)
+            node_id: Random_Guid
+
+        class Complex_Node(Type_Safe):
+            attributes : Dict[Random_Guid, str]         # Simplified for test
+            node_config: Node_Config
+            node_type  : Type['Complex_Node']           # ForwardRef that causes issues
+            value      : Any
+
+        complex_node = Complex_Node()                   # Base class works
+        assert complex_node.node_type is Complex_Node
+
+        class Custom_Complex_Node(Complex_Node): pass   # But custom subclass fails
+        # with pytest.raises(TypeError, match="Invalid type for attribute 'node_type'. Expected 'None' but got '<class 'typing.ForwardRef'>'"):
+        #     Custom_Complex_Node()                       # Fixed; BUG This raises TypeError
+
+        assert Custom_Complex_Node().node_type == Custom_Complex_Node       # node_type is the parent class, in this case Custom_Complex_Node
+
+
+
+
+    def test__regression__type_annotations_with_forward_ref(self):
+        class An_Class_1(Type_Safe):
+            an_type__forward_ref: Type['An_Class_1']  # Forward reference to self
+            an_type__direct: Type[Type_Safe]         # Direct reference for comparison
+
+        # with pytest.raises(TypeError, match=re.escape("Invalid type for attribute 'an_type__forward_ref'. Expected 'typing.Type[ForwardRef('An_Class_1')]' but got '<class 'typing.ForwardRef'>'")):
+        #     test_class = An_Class_1()               # Fixed BUG should not have raised
+        test_class = An_Class_1()
+        assert test_class.an_type__forward_ref is An_Class_1
+        assert test_class.an_type__direct      is Type_Safe
+
+        assert test_class.__annotations__['an_type__forward_ref'] == Type[ForwardRef('An_Class_1')] # Confirm forward ref is correct
+        assert test_class.__annotations__['an_type__direct'     ] == Type[Type_Safe]                # Confirm direct ref is correct
+        #
+                                                        # The bug manifests when trying to set default values for these types
+        #assert test_class.an_type__forward_ref is None  # Fixed BUG: This fails with TypeError
+        assert test_class.an_type__forward_ref  is An_Class_1
+        assert test_class.an_type__direct       is Type_Safe  # Direct reference works fine
+
+
+    def test__regression__type_annotations_default_to_none(self):
+        class Schema__Base(Type_Safe): pass                 # Define base class
+
+        class Schema__Default__Types(Type_Safe):
+            base_type: Type[Schema__Base]                   # Type annotation that should default to Schema__Base
+
+        defaults = Schema__Default__Types()
+
+        assert defaults.__annotations__     == {'base_type': Type[Schema__Base]}      # Confirm annotation is correct
+        #assert defaults.base_type          is None                                    # Fixed BUG: This should be Schema__Base instead of None
+        assert defaults.base_type is Schema__Base
+        assert type(defaults.__class__.__annotations__['base_type']) == type(Type[Schema__Base])
+
+        # Also test in inheritance scenario to be thorough
+        class Schema__Child(Schema__Default__Types):
+            child_type: Type[Schema__Base]
+
+        child = Schema__Child()
+        assert all_annotations(child)     == {'base_type' : Type[Schema__Base],
+                                              'child_type': Type[Schema__Base]}      # Confirm both annotations exist
+        #assert child.base_type          is None                                      # Fixed BUG: Should be Schema__Base
+        #assert child.child_type         is None                                      # Fixed BUG: Should be Schema__Base
+        assert child.base_type          is Schema__Base
+        assert child.child_type         is Schema__Base
+
+    def test__regression__forward_refs_in_type(self):
         class An_Class_1(Type_Safe):
             an_type__str        : Type[str]
             an_type__forward_ref: Type['An_Class_1']
 
         an_class = An_Class_1()
-        assert an_class.obj() == __(an_type__str=None, an_type__forward_ref=None)
+        assert an_class.an_type__str          is str
+        assert an_class.an_type__forward_ref  is An_Class_1
+        assert an_class.json() == { 'an_type__forward_ref': 'test_Type_Safe__regression.An_Class_1' ,
+                                    'an_type__str'        : 'builtins.str'                          }
+        assert an_class.obj() == __(an_type__str='builtins.str', an_type__forward_ref='test_Type_Safe__regression.An_Class_1')
 
         an_class.an_type__str = str
         an_class.an_type__str = Random_Guid
@@ -55,8 +200,8 @@ class test_Type_Safe__regression(TestCase):
         # with pytest.raises(TypeError, match="Subscripted generics cannot be used with class and instance checks"):
         #     An_Class()                                #  FXIED BUG
 
-        assert An_Class().obj() == __(an_guid       = 'osbot_utils.helpers.Guid.Guid',
-                                      an_time_stamp = None                           )
+        assert An_Class().obj() == __(an_guid       = 'osbot_utils.helpers.Guid.Guid'                   ,
+                                      an_time_stamp = 'osbot_utils.helpers.Timestamp_Now.Timestamp_Now' )
 
     def test__regression__type_from_json(self):
         class An_Class(Type_Safe):
@@ -131,8 +276,8 @@ class test_Type_Safe__regression(TestCase):
             an_type_int: Type[int]
 
         an_class = An_Class()
-        assert an_class.an_type_str is None
-        assert an_class.an_type_int is None
+        assert an_class.an_type_str is str
+        assert an_class.an_type_int is int
         an_class.an_type_str = str
         an_class.an_type_int = int
 

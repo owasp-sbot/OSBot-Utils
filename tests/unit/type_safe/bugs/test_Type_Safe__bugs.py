@@ -1,10 +1,7 @@
-import re
 import sys
 import pytest
-from typing                                  import Optional, Union, Dict, Type
+from typing                                  import Optional, Union, Dict
 from unittest                                import TestCase
-from osbot_utils.helpers.Random_Guid         import Random_Guid
-from osbot_utils.utils.Objects               import __
 from osbot_utils.type_safe.Type_Safe         import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
