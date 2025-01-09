@@ -2,12 +2,9 @@ import re
 import pytest
 import sys
 from decimal                                                 import Decimal
-from typing import Optional, Union, List, Dict, get_origin, Type, ForwardRef
+from typing                                                  import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any
 from unittest                                                import TestCase
 from unittest.mock                                           import patch
-
-from osbot_utils.utils.Dev import pprint
-
 from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
 from osbot_utils.helpers.Guid                                import Guid
 from osbot_utils.helpers.python_compatibility.python_3_8     import Annotated
@@ -22,8 +19,104 @@ from osbot_utils.utils.Json                                  import json_to_str,
 from osbot_utils.utils.Misc                                  import list_set, is_guid
 from osbot_utils.utils.Objects                               import default_value, __, all_annotations
 
-
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__forward_ref_handling_in_type_matches(self):
+        class Base_Node(Type_Safe):
+            node_type: Type['Base_Node']  # Forward reference to self
+            value: str
+
+        # Test base class
+        base_node = Base_Node()
+        assert base_node.node_type is Base_Node  # Default value should be the Base_Node
+
+        # Should be able to set it to the class itself
+        base_node.node_type = Base_Node
+        assert base_node.node_type is Base_Node
+
+        # Subclass should work now too
+        class Custom_Node(Base_Node): pass
+
+        custom_node = Custom_Node()                              # This should no longer raise TypeError
+
+
+        # Should accept either base or subclass
+        custom_node.node_type = Custom_Node
+        assert custom_node.node_type is Custom_Node
+
+        custom_node.node_type = Custom_Node
+        assert custom_node.node_type is Custom_Node
+
+        # Should reject invalid types
+        class Other_Class: pass
+
+        with self.assertRaises(ValueError) as context:
+            custom_node.node_type = Other_Class
+
+        assert str(context.exception) == "Invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('Base_Node')]' but got '<class 'type'>'"
+
+        # Test with more complex case (like Schema__MGraph__Node)
+        from typing import Dict, Any
+
+        class Node_Config(Type_Safe):
+            node_id: Random_Guid
+
+        class Complex_Node(Type_Safe):
+            attributes   : Dict[Random_Guid, str]  # Simplified for test
+            node_config  : Node_Config
+            node_type    : Type['Complex_Node']  # ForwardRef
+            value        : Any
+
+        class Custom_Complex(Complex_Node): pass
+
+        # Both should work now
+        complex_node = Complex_Node()
+        custom_complex = Custom_Complex()  # Should not raise TypeError
+
+        # And type checking should work properly
+        with self.assertRaises(ValueError):
+            custom_complex.node_type = Complex_Node    # Doesn't Allow base class
+        custom_complex.node_type = Custom_Complex  # Allow self
+
+        with self.assertRaises(ValueError):
+            custom_complex.node_type = Other_Class  # Reject invalid type
+
+    def test__regression__forward_ref_in_subclass_fails(self):
+        class Base_Node(Type_Safe):
+            node_type: Type['Base_Node']                # Forward reference to self
+            value    : str
+
+        base_node = Base_Node()                         # This works fine
+        assert base_node.node_type is Base_Node
+
+        class Custom_Node(Base_Node): pass              # But subclassing causes a TypeError
+
+
+
+        # with pytest.raises(TypeError, match="Invalid type for attribute 'node_type'. Expected 'None' but got '<class 'typing.ForwardRef'>'"):
+        #     Custom_Node()                               # Fixed; BUG: This fails with TypeError
+        assert Custom_Node().node_type == Custom_Node
+
+        class Node_Config(Type_Safe):                   # To demonstrate more complex case (like in Schema__MGraph__Node)
+            node_id: Random_Guid
+
+        class Complex_Node(Type_Safe):
+            attributes : Dict[Random_Guid, str]         # Simplified for test
+            node_config: Node_Config
+            node_type  : Type['Complex_Node']           # ForwardRef that causes issues
+            value      : Any
+
+        complex_node = Complex_Node()                   # Base class works
+        assert complex_node.node_type is Complex_Node
+
+        class Custom_Complex_Node(Complex_Node): pass   # But custom subclass fails
+        # with pytest.raises(TypeError, match="Invalid type for attribute 'node_type'. Expected 'None' but got '<class 'typing.ForwardRef'>'"):
+        #     Custom_Complex_Node()                       # Fixed; BUG This raises TypeError
+
+        assert Custom_Complex_Node().node_type == Custom_Complex_Node       # node_type is the parent class, in this case Custom_Complex_Node
+
+
+
 
     def test__regression__type_annotations_with_forward_ref(self):
         class An_Class_1(Type_Safe):
