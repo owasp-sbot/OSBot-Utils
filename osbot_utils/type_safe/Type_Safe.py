@@ -337,8 +337,8 @@ class Type_Safe:
 
     def deserialize_dict__using_key_value_annotations(self, key, value):
         from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
-
-        dict_annotations_tuple =  get_args(self.__annotations__[key])
+        annotations = all_annotations(self)
+        dict_annotations_tuple = get_args(annotations.get(key))
         if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
             return value
         if not type(value) is dict:
