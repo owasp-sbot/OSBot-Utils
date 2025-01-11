@@ -950,6 +950,38 @@ class test_Type_Safe(TestCase):
 
         assert An_Class_1().json() == {'an_guid': 'osbot_utils.helpers.Guid.Guid', 'an_time_stamp': 'osbot_utils.helpers.Timestamp_Now.Timestamp_Now'}
 
+    def test_type_checks_on__forward_ref__works_on_multiple_levels(self):
+        class An_Class(Type_Safe):
+            node_type: Type['An_Class']
+
+        class Child_Type_1(An_Class):
+            pass
+
+        class Child_Type_2(Child_Type_1):
+            pass
+
+        class Child_Type_3(Child_Type_2):
+            pass
+
+        class Child_Type_4(Child_Type_3):
+            pass
+
+        class Should_Fail(Type_Safe):
+            pass
+
+        An_Class(node_type=An_Class    )                                                   # works
+        An_Class(node_type=Child_Type_1)                                                   # works
+        An_Class(node_type=Child_Type_2)
+        An_Class(node_type=Child_Type_3)
+        An_Class(node_type=Child_Type_4)
+        with pytest.raises(ValueError,match=re.escape("Invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('An_Class')]' but got '<class 'type'>'")):
+            An_Class(node_type=Should_Fail)
+
+        assert issubclass(Child_Type_1, An_Class)
+        assert issubclass(Child_Type_2, An_Class)
+        assert issubclass(Child_Type_3, An_Class)
+        assert issubclass(Child_Type_4, An_Class)
+
 
 
 class Custom_Class:         # used in test_type_serialization
