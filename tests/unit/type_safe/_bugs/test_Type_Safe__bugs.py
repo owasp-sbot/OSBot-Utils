@@ -1,3 +1,4 @@
+import re
 import sys
 import pytest
 from typing                                  import Optional, Union, Dict
@@ -6,6 +7,74 @@ from osbot_utils.type_safe.Type_Safe         import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 class test_Type_Safe__bugs(TestCase):
+
+    def test__bug__property_descriptor_handling__doesnt_enforce_type_safety(self):
+
+        class Test_Class(Type_Safe):
+            def __init__(self):
+                super().__init__()
+                self._label = "initial_label"
+
+            @property
+            def label(self) -> str:
+                return self._label
+
+            @label.setter
+            def label(self, value: str):
+                self._label = value
+
+            @property
+            def label_bad_type(self) -> str:
+                return 42
+
+
+        test_obj = Test_Class()                                     # Create instance and try to use property
+        test_obj.label = "new_label"                                # this works ok
+        test_obj.label = 123                                        # BUG this should have raise a type safeting exception
+
+        assert test_obj.label          == 123                       # BUG this should still be the string value
+        assert test_obj.label_bad_type == 42                        # BUG only str should have been returned
+
+        class An_Class(Type_Safe):                                  # this example confirms that we can still have type safety if we use a strongly typed inner var
+            inner_label: str
+
+            @property
+            def label(self) -> str:
+                return self.inner_label
+
+            @label.setter
+            def label(self, value: str):
+                self.inner_label = value
+
+        an_class = An_Class()
+        an_class.label = 'str value'                                # works ok
+        with pytest.raises(ValueError, match="Invalid type for attribute 'inner_label'. Expected '<class 'str'>' but got '<class 'int'>'"):
+            an_class.label = 42                                     # raised expected exception since int is not a str (this is not captured by the label, but by the inner_label)
+
+
+
+    def test__bug__type_annotation_json_serialization__roundtrip(self):
+        from typing import Type
+
+        class Parent_Class(Type_Safe):
+            class_type: Type[int]
+
+        class Child_Class(Parent_Class):
+            an_type: Type[int]
+
+        Parent_Class.from_json(Parent_Class().json())
+
+        # current working workflows
+        assert Parent_Class().json() == {'class_type': 'builtins.int'                           }  # Create instance and serialize to JSON
+        assert Child_Class ().json() == {'an_type': 'builtins.int', 'class_type': 'builtins.int'}  # Create instance and serialize to JSON
+        assert Parent_Class().json() == Parent_Class.from_json(Parent_Class().json()).json()       # Round trip of Parent_Class works
+
+        # current buggy workflow
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'class_type'. Expected 'typing.Type[int]' but got '<class 'str'>'")):
+            assert Child_Class .from_json(Child_Class().json())                                 # BUG should not have raised an exception
+
+        #assert Child_Class.from_json(Child_Class().json()).json() == Child_Class().json()      # BUG this should work
+
 
     def test__bug__in__convert_dict_to_value_from_obj_annotation(self):
         class An_Class_2_B(Type_Safe):
