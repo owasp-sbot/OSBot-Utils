@@ -983,6 +983,59 @@ class test_Type_Safe(TestCase):
         assert issubclass(Child_Type_4, An_Class)
 
 
+    def test_property_descriptor_behaviour(self):                                           # Test that confirms that property descriptors work correctly in Type_Safe classes
+
+        value_captured = None                                                               # Variable to capture setter values
+        getter_calls   = 0                                                                  # Counter for getter calls
+        setter_calls   = 0                                                                  # Counter for setter calls
+
+        class Test_Class(Type_Safe):
+            data: str = "base_data"                                                         # Normal Type_Safe attribute
+
+            def __init__(self):
+                super().__init__()
+                self._label = "initial_value"                                               # Initialize backing field
+
+            @property
+            def label(self):
+                nonlocal getter_calls
+                getter_calls += 1
+                return self._label
+
+            @label.setter
+            def label(self, value):
+                nonlocal setter_calls, value_captured
+                setter_calls += 1
+                value_captured = value
+                self._label = value
+
+        test_class = Test_Class()
+        assert getter_calls     == 0, "Getter should not be called during initialization"           # Test initialization
+        assert setter_calls     == 0, "Setter should not be called during initialization"
+        assert test_class.obj() == __(data='base_data', _label='initial_value')
+
+        assert test_class.label == "initial_value"                                                  # Test getter
+        assert getter_calls     == 1, "Getter should be called exactly once"
+
+        test_class.label = "new_value"                                                              # Test setter
+        assert setter_calls     == 1, "Setter should be called exactly once"
+        assert value_captured   == "new_value"
+        assert test_class.label == "new_value"
+        assert getter_calls     == 2, "Getter should be called twice now"
+
+        assert test_class.obj() == __(data='base_data', _label='new_value')
+
+        assert isinstance(getattr(Test_Class, 'label'), property)                                   # Verify property descriptor remains intact
+
+        test_class.label = "another_value"                                                          # Test that property still works with multiple updates
+        assert setter_calls     == 2
+        assert test_class.label == "another_value"
+        assert getter_calls     == 3
+
+        assert test_class.obj() == __(data='base_data', _label='another_value')
+
+        with pytest.raises(ValueError, match="Invalid type for attribute 'data'. Expected '<class 'str'>' but got '<class 'int'>'"):
+            test_class.data = 123                                                                   # confirm that type safety is still working on the main class
 
 class Custom_Class:         # used in test_type_serialization
     pass

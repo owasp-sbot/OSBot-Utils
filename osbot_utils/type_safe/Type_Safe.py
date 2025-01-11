@@ -157,6 +157,8 @@ class Type_Safe:
                         continue
                     if type(v) is functools._lru_cache_wrapper:                         # todo, find better way to handle edge cases like this one (which happens when the @cache decorator is used in a instance method that uses Kwargs_To_Self)
                         continue
+                    if isinstance(v, property):                                         # skip property descriptors since they should not be handled here
+                        continue
                     if (k in kwargs) is False:                                          # do not set the value is it has already been set
                         kwargs[k] = v
 

@@ -21,6 +21,71 @@ from osbot_utils.utils.Objects                               import default_valu
 
 class test_Type_Safe__regression(TestCase):
 
+    def test__regression__property_descriptor_handling(self):
+
+        class Regular_Class:                                            # First case: Normal Python class without Type_Safe
+            @property
+            def label(self):
+                raise ValueError("Getter should not be called")
+
+            @label.setter
+            def label(self, value):
+                raise ValueError("Setter should not be called")
+
+
+        regular_obj = Regular_Class()                                   # Demonstrate normal Python behavior
+
+        assert isinstance(getattr(Regular_Class, 'label'), property)    # Verify it's a property
+        with pytest.raises(ValueError, match="Getter should not be called"):
+            _ = regular_obj.label
+
+        with pytest.raises(ValueError, match="Setter should not be called"):
+            regular_obj.label = "new_label"
+
+
+        class Base_Class(Type_Safe):                                    # Second case: Type_Safe class with property descriptor
+            data: str = "base_data"
+
+        class Test_Class__1(Base_Class):                                # with exception on Getter
+            @property
+            def label(self):
+                raise ValueError("Getter should not be called")
+
+        class Test_Class__2(Base_Class):                                # with exception on Getter
+            @property
+            def label(self):
+                pass
+
+            @label.setter
+            def label(self, value):
+                raise ValueError("Setter should not be called")
+
+        assert isinstance(getattr(Test_Class__1, 'label'), property)
+        assert isinstance(getattr(Test_Class__2, 'label'), property)
+
+        kwargs = Test_Class__1.__cls_kwargs__()
+        assert 'label' not in kwargs                                              # Fixed: BUG: label should not exist in __cls_kwargs__
+
+        kwargs = Test_Class__2.__cls_kwargs__()
+        assert 'label' not in kwargs                                              # Fixed: BUG: label should not exist in __cls_kwargs__
+
+        # with pytest.raises(ValueError, match="Getter should not be called"):    # Fixed: BUG: This instantiation should not trigger getter or setter
+        #     _ = Test_Class__1()                                                 # Fixed:  BUG: But due to the bug, Type_Safe will try to handle the property descriptor incorrectly
+
+        # with pytest.raises(ValueError, match="Setter should not be called"):    # Fixed:  BUG: This instantiation should not trigger getter or setter
+        #     _ = Test_Class__2()                                                 # Fixed:  BUG: But due to the bug, Type_Safe will try to handle the property descriptor incorrectly
+
+        Test_Class__1()                                                           # Fixed: no exception raised
+        Test_Class__2()                                                           # Fixed: no exception raised
+        assert Test_Class__1().data == "base_data"
+        assert Test_Class__2().data == "base_data"
+
+        with pytest.raises(ValueError, match="Getter should not be called"):      # Fixed: now the exception should be raised on the getter
+            _ = Test_Class__1().label
+
+        with pytest.raises(ValueError, match="Setter should not be called"):     # Fixed: now the exception should be raised on the getter
+            Test_Class__2().label = 'abc'
+
     def test__regression__forward_ref_handling_in_type_matches(self):
         class Base_Node(Type_Safe):
             node_type: Type['Base_Node']  # Forward reference to self
