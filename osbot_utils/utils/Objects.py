@@ -97,9 +97,13 @@ def class_name(target):
 
 def class_full_name(target):
     if target:
-        type_target = type(target)
-        type_module = type_target.__module__
-        type_name   = type_target.__name__
+        if isinstance(target, type):  # Check if target is a type
+            type_module = target.__module__
+            type_name   = target.__name__
+        else:  # Handle instances
+            type_target = type(target)
+            type_module = type_target.__module__
+            type_name   = type_target.__name__
         return f'{type_module}.{type_name}'
 
 def convert_dict_to_value_from_obj_annotation(target, attr_name, value):                    # todo: refactor this with code from convert_str_to_value_from_obj_annotation since it is mostly the same
