@@ -47,7 +47,25 @@ class test_Objects(TestCase):
 
     def test_class_full_name(self):
         assert class_full_name(self       ) == 'test_Objects.test_Objects'
-        assert class_full_name(TestCase   ) == 'builtins.type'
+        assert class_full_name(TestCase   ) == 'unittest.case.TestCase'
+
+        module_name = self.__module__
+        class_name  = self.__class__.__name__
+
+        assert class_full_name(self) == f'{module_name}.{class_name}'               # Tests class_full_name with current test class instance
+
+        assert class_full_name(type(self)) == 'test_Objects.test_Objects'           # Tests class_full_name with type of current test class
+
+        assert class_full_name(int)  == 'builtins.int'                              # Tests class_full_name with built-in types
+        assert class_full_name(str)  == 'builtins.str'
+
+        class Custom_Class: pass                                                    # Tests class_full_name with custom class
+        instance = Custom_Class()
+        assert class_full_name(instance)     == f'{module_name}.Custom_Class'
+        assert class_full_name(Custom_Class) == f'{module_name}.Custom_Class'
+
+        assert class_full_name(None) is None                                        # Tests class_full_name with edge cases
+        assert class_full_name("")   is None
 
     def test_class_name(self):
         assert class_name(TestCase)   == "type"
