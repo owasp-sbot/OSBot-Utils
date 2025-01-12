@@ -616,55 +616,56 @@ class test_Type_Safe(TestCase):
         merged_class.an_int= 456                                                 # confirm that change in merged_class
         assert base_class.an_int == 456                                          # impacts base_class
 
-    def test___supports_automatic_getters_and_setters_for_attributes(self):
-        class An_Class(Type_Safe):
-            an_str   : str
-            an_int   : int
-            an_list  : list
-            _private : str  # Test private attribute behavior
-
-        an_class = An_Class()
-
-        # Test basic getter/setter functionality
-        assert an_class.set_an_str('abc') == an_class
-        assert an_class.get_an_str() == 'abc'
-        assert an_class.json() == {'an_int': 0, 'an_list': [], 'an_str': 'abc', '_private': ''}
-
-        # Test method chaining
-        assert an_class.set_an_int(123).set_an_str('def').get_an_str() == 'def'
-        assert an_class.get_an_int() == 123
-
-        # Test list attribute
-        test_list = [1, 2, 3]
-        assert an_class.set_an_list(test_list) == an_class
-        assert an_class.get_an_list() == test_list
-
-        # Test None assignments
-        with pytest.raises(ValueError, match="Can't set None, to a variable that is already set. Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'NoneType'>'"):
-            assert an_class.set_an_str(None) == an_class
-        assert an_class.get_an_str() == 'def'                           # confirm value has not been changed
-
-        # Test private attribute access
-        assert an_class.set__private("secret") == an_class
-        assert an_class.get__private() == "secret"
-
-        # Test error cases
-        with pytest.raises(AttributeError, match="'An_Class' object has no attribute 'set_an_aaa'"):
-            an_class.set_an_aaa()
-        with pytest.raises(AttributeError, match="'An_Class' object has no attribute 'get_an_aaa'"):
-            an_class.get_an_aaa()
-        with pytest.raises(AttributeError, match="'An_Class' object has no attribute 'aaaaaaaaaa'"):
-            an_class.aaaaaaaaaa()
-        with pytest.raises(ValueError, match="Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>"):
-            an_class.set_an_str(123)
-        with pytest.raises(ValueError, match="Invalid type for attribute 'an_int'. Expected '<class 'int'>' but got '<class 'str'>"):
-            an_class.set_an_int('abc')
-
-        # Test edge cases
-        with pytest.raises(AttributeError):
-            an_class.get_()  # Empty attribute name
-        with pytest.raises(AttributeError):
-            an_class.set_()  # Empty attribute name
+    # not supported anymore (it was a good idea, but this is better done with set_as_property)
+    # def test___supports_automatic_getters_and_setters_for_attributes(self):
+    #     class An_Class(Type_Safe):
+    #         an_str   : str
+    #         an_int   : int
+    #         an_list  : list
+    #         _private : str  # Test private attribute behavior
+    #
+    #     an_class = An_Class()
+    #
+    #     # Test basic getter/setter functionality
+    #     assert an_class.set_an_str('abc') == an_class
+    #     assert an_class.get_an_str() == 'abc'
+    #     assert an_class.json() == {'an_int': 0, 'an_list': [], 'an_str': 'abc', '_private': ''}
+    #
+    #     # Test method chaining
+    #     assert an_class.set_an_int(123).set_an_str('def').get_an_str() == 'def'
+    #     assert an_class.get_an_int() == 123
+    #
+    #     # Test list attribute
+    #     test_list = [1, 2, 3]
+    #     assert an_class.set_an_list(test_list) == an_class
+    #     assert an_class.get_an_list() == test_list
+    #
+    #     # Test None assignments
+    #     with pytest.raises(ValueError, match="Can't set None, to a variable that is already set. Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'NoneType'>'"):
+    #         assert an_class.set_an_str(None) == an_class
+    #     assert an_class.get_an_str() == 'def'                           # confirm value has not been changed
+    #
+    #     # Test private attribute access
+    #     assert an_class.set__private("secret") == an_class
+    #     assert an_class.get__private() == "secret"
+    #
+    #     # Test error cases
+    #     with pytest.raises(AttributeError, match="'An_Class' object has no attribute 'set_an_aaa'"):
+    #         an_class.set_an_aaa()
+    #     with pytest.raises(AttributeError, match="'An_Class' object has no attribute 'get_an_aaa'"):
+    #         an_class.get_an_aaa()
+    #     with pytest.raises(AttributeError, match="'An_Class' object has no attribute 'aaaaaaaaaa'"):
+    #         an_class.aaaaaaaaaa()
+    #     with pytest.raises(ValueError, match="Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>"):
+    #         an_class.set_an_str(123)
+    #     with pytest.raises(ValueError, match="Invalid type for attribute 'an_int'. Expected '<class 'int'>' but got '<class 'str'>"):
+    #         an_class.set_an_int('abc')
+    #
+    #     # Test edge cases
+    #     with pytest.raises(AttributeError):
+    #         an_class.get_()  # Empty attribute name
+    #     with pytest.raises(AttributeError):
+    #         an_class.set_()  # Empty attribute name
 
     def test__type_assignments_and_validation(self):        # Test simple type assignment with 'type' annotation
         class Simple_Type(Type_Safe):

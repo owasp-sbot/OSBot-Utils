@@ -2,7 +2,7 @@ from typing import TypeVar, Type, Optional
 
 T = TypeVar('T')
 
-def type_safe_property(target_path: str, target_name: str, expected_type: Optional[Type[T]] = None) -> property: # Creates a type-safe property that delegates get/set operations to a nested data object
+def type_safe_property(target_path: str, target_name: str, expected_type: Optional[Type[T]] = None) -> T: # Creates a type-safe property that delegates get/set operations to a nested data object
 
     def getter(self) -> T:
         target = self
