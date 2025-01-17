@@ -114,8 +114,8 @@ class Calculator(Type_Safe):
         return [x for x in items if x > (threshold or 0)]
 
 calc = Calculator()
-calc.add(1, 2)                  # Returns 3
-calc.add("1", 2)                # Raises TypeError at runtime
+calc.add(1, 2)                   # Returns 3
+calc.add("1", 2)                 # Raises TypeError at runtime
 calc.process_items([1,2,3], 1.5) # Valid
 ```
 
@@ -132,7 +132,7 @@ Type_Safe automatically initializes attributes based on their type annotations, 
 ```python
 class AutoInit(Type_Safe):
     # Type_Safe automatically initializes based on type annotations
-    name        : str              # Initialized to ''
+    name        : str             # Initialized to ''
     count       : int             # Initialized to 0
     active      : bool            # Initialized to False
     items       : List[str]       # Initialized to []
@@ -143,12 +143,12 @@ class AutoInit(Type_Safe):
     priority    : int             = 1
 
 auto = AutoInit()
-assert auto.name == ''          # String default
-assert auto.count == 0          # Integer default
-assert auto.active is False     # Boolean default
-assert auto.items == []         # List default
-assert auto.mapping == {}       # Dict default
-assert auto.status == "active"  # Explicit default
+assert auto.name    == ''         # String default
+assert auto.count   == 0          # Integer default
+assert auto.active  is False      # Boolean default
+assert auto.items   == []         # List default
+assert auto.mapping == {}         # Dict default
+assert auto.status  == "active"   # Explicit default
 ```
 
 Default values are determined by type:
@@ -171,35 +171,37 @@ Default values are determined by type:
    - Union[T1,T2] → Default of first type
 
 Note: Type_Safe only performs automatic initialization if the type has a default constructor available. This prevents issues with classes that require specific initialization parameters.
-# Let Type_Safe handle defaults through type annotations
 
+### Let Type_Safe handle defaults through type annotations
+
+```
 class ComplexTypes(Type_Safe):
     # Basic types (Type_Safe will initialize to: '', 0, False)
-    name        : str                                          # → ''
+    name        : str                                         # → ''
     age         : int                                         # → 0
     active      : bool                                        # → False
     
     # Collections (Type_Safe will initialize to: [], {}, (0,0))
     tags        : List[str]                                   # → []
-    scores      : Dict[str, float]                           # → {}
-    coordinates : Tuple[int, int]                            # → (0,0)
+    scores      : Dict[str, float]                            # → {}
+    coordinates : Tuple[int, int]                             # → (0,0)
     
     # Optional and Union types
     nickname    : Optional[str]                               # → None
-    id_value    : Union[int, str]                            # → 0 (default of first type)
+    id_value    : Union[int, str]                             # → 0 (default of first type)
     
     # Custom types and forward refs
     config      : 'Config'                                    # → None
     parent      : Optional['ComplexTypes']                    # → None
     
     # Nested collections
-    matrix      : List[List[int]]                            # → []
-    tree        : Dict[str, Dict[str, Any]]                  # → {}
+    matrix      : List[List[int]]                             # → []
+    tree        : Dict[str, Dict[str, Any]]                   # → {}
 
     # Only immutable defaults are allowed and needed
     version     : int              = 1                        # Explicit immutable default
     status      : str              = "draft"                  # Explicit immutable default
-    created_at  : Optional[str]    = None                    # Explicit None is immutable
+    created_at  : Optional[str]    = None                     # Explicit None is immutable
 ```
 
 ### 4. Serialization Support
@@ -251,16 +253,16 @@ system = UserSystem()
 
 # List type safety
 system.usernames.append("alice")                      # Valid
-system.usernames.append(123)                          # ERROR: Expected str, got int
+system.usernames.append(123    )                      # ERROR: Expected str, got int
 
 # Dict type safety - both keys and values are checked
 system.user_scores["alice"] = 100                     # Valid
-system.user_scores["bob"] = "high"                    # ERROR: Expected int, got str
-system.user_scores[42] = 100                          # ERROR: Expected str key, got int
+system.user_scores["bob"  ] = "high"                  # ERROR: Expected int, got str
+system.user_scores[42     ] = 100                     # ERROR: Expected str key, got int
 
 # Nested collection type safety
 system.user_metadata["alice"] = ["admin", "user"]     # Valid
-system.user_metadata["bob"] = [1, 2, 3]              # ERROR: Expected List[str]
+system.user_metadata["bob"  ] = [1, 2, 3]             # ERROR: Expected List[str]
 ```
 
 Key features of Type_Safe collections:
@@ -270,18 +272,19 @@ Key features of Type_Safe collections:
 - Clear error messages for type violations
 
 All collection operations maintain type safety:
+
 ```python
 # Lists
 users : List[str] = []                               # Type_Safe initializes empty list
-users.append("alice")                                # Type checked
+users.append("alice"           )                     # Type checked
 users.extend(["bob", "charlie"])                     # Each element type checked
-users.insert(0, 123)                                 # ERROR: Wrong type
+users.insert(0, 123            )                     # ERROR: Wrong type
 
 # Dictionaries
 scores : Dict[str, float] = {}                       # Type_Safe initializes empty dict
-scores["alice"] = 95.5                               # Types checked
+scores["alice"]           = 95.5                     # Types checked
 scores.update({"bob": 87.5})                         # Each element checked
-scores.update({42: 90.0})                            # ERROR: Wrong key type
+scores.update({42: 90.0}   )                          # ERROR: Wrong key type
 ```
 
 ### Type Resolution and Validation
@@ -308,7 +311,6 @@ class TypeValidation(Type_Safe):
     # Collections are checked both at container and element level
     matrix       : List[List[int]]
     tree         : Dict[str, Dict[str, Any]]
-```
 ```
 
 ### Error Handling
@@ -381,11 +383,12 @@ class InvalidConfig(Type_Safe):
     items     : dict = {}                  # ERROR: Use Dict[K,V] instead of dict
     data      : list = []                  # ERROR: Use List[T] instead of list
 
-# ValueError: variable 'settings' is defined as type 'typing.Dict' which is not 
-# supported by Type_Safe, with only the following immutable types being supported: 
-# '(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, 
-# <class 'str'>, <class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, 
-# <class 'NoneType'>, <class 'enum.EnumType'>, <class 'type'>)'
+InvalidConfig()  # Will raise this exception:  
+                 #  ValueError: variable 'settings' is defined as type 'typing.Dict' which is not 
+                 #  supported by Type_Safe, with only the following immutable types being supported: 
+                 #  '(<class 'bool'>, <class 'int'>, <class 'float'>, <class 'complex'>, 
+                 #  <class 'str'>, <class 'tuple'>, <class 'frozenset'>, <class 'bytes'>, 
+                 #  <class 'NoneType'>, <class 'enum.EnumType'>, <class 'type'>)'
 ```
 
 2. Use Specific Types
@@ -399,8 +402,8 @@ class Order(Type_Safe):
 # Avoid
 class Order(Type_Safe):
     items      : list        # Not type-safe
-    total      : float      # Less precise
-    status     : str        # Not type-safe
+    total      : float       # Less precise
+    status     : str         # Not type-safe
 ```
 
 3. Leverage Forward References
