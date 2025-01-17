@@ -8,33 +8,33 @@ class test_capture_duration(TestCase):
 
     def test__init__(self):
         with capture_duration() as _:
-            assert _.action_name     == ''
-            assert _.duration        == 0
-            assert _.start_timestamp > 0
-            assert _.end_timestamp   == 0
-            assert _.seconds         == 0
+            assert _.action_name == ''
+            assert _.duration    == 0
+            assert _.start_time   > 0
+            assert _.end_time    == 0
+            assert _.seconds     == 0
 
     def test__enter__(self):
         with capture_duration() as _:
-            assert _.start_timestamp > 0
-            assert _.end_timestamp   == 0
-            assert _.duration        == 0
-            assert _.seconds         == 0
+            assert _.start_time > 0
+            assert _.end_time   == 0
+            assert _.duration   == 0
+            assert _.seconds    == 0
 
     def test__exit__(self):
         with capture_duration() as _:
-            assert _.start_timestamp > 0
-            assert _.end_timestamp   == 0
-            assert _.duration        == 0
-            assert _.seconds         == 0
-        assert _.end_timestamp > 0
-        assert _.duration      >= 0
-        assert _.seconds       >= 0
+            assert _.start_time  > 0
+            assert _.end_time   == 0
+            assert _.duration   == 0
+            assert _.seconds    == 0
+        assert _.end_time  > 0
+        assert _.duration >= 0
+        assert _.seconds  >= 0
 
     def test_data(self):
         with capture_duration() as _:
-            assert _.data() == {'end': 0, 'seconds': 0, 'start': _.start_timestamp}
-        assert _.data() == {'end': _.end_timestamp, 'seconds': _.seconds, 'start': _.start_timestamp}
+            assert _.data() == {'end': 0, 'seconds': 0, 'start': _.start_time}
+        assert _.data() == {'end': _.end_time, 'seconds': _.seconds, 'start': _.start_time}
 
     def test_print(self):
         with Stdout() as stdout_1:
@@ -52,12 +52,12 @@ class test_capture_duration(TestCase):
     def test__exit__with_exception(self):
         with self.assertRaises(ValueError) as context:
             with capture_duration() as _:
-                assert _.start_timestamp > 0
-                assert _.end_timestamp   == 0
-                assert _.duration        == 0
-                assert _.seconds         == 0
+                assert _.start_time > 0
+                assert _.end_time   == 0
+                assert _.duration   == 0
+                assert _.seconds    == 0
                 raise ValueError('test exception')
-        assert _.end_timestamp > 0
-        assert _.duration      >= 0
-        assert _.seconds       >= 0
+        assert _.end_time > 0
+        assert _.duration >= 0
+        assert _.seconds  >= 0
         assert context.exception.args[0] == 'test exception'
