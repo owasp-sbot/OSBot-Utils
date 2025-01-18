@@ -22,6 +22,7 @@ class test__perf__Type_Safe__methods(TestCase):
         cls.time_30_kns  =  30_000
         cls.time_70_kns   = 70_000
         cls.time_100_kns = 100_000
+        cls.time_200_kns = 200_000
         cls.time_300_kns = 300_000
         cls.time_400_kns = 400_000
         cls.time_600_kns = 600_000
@@ -232,7 +233,7 @@ class test__perf__Type_Safe__methods(TestCase):
         class Container(Type_Safe):
             items: List[Item]
 
-        container = Container(items=[Item(id=str(i), value=i) for i in range(100)])
+        container = Container(items=[Item(id=str(i), value=i) for i in range(50)])
 
         def serialize_large():
             return container.json()
@@ -241,5 +242,5 @@ class test__perf__Type_Safe__methods(TestCase):
             return container.bytes()
 
         with Performance_Measure__Session() as session:
-            session.measure(serialize_large   ).assert_time(self.time_300_kns, self.time_400_kns)
-            session.measure(serialize_to_bytes).assert_time(self.time_600_kns)
+            session.measure(serialize_large   ).assert_time(self.time_200_kns)
+            session.measure(serialize_to_bytes).assert_time(self.time_300_kns)
