@@ -1,9 +1,8 @@
 from unittest                                                         import TestCase
 from typing                                                           import List, Dict, Any
-
 from osbot_utils.testing.performance.Performance_Measure__Session     import Performance_Measure__Session
-from osbot_utils.type_safe.Type_Safe                                 import Type_Safe
-from osbot_utils.utils.Json                                          import json_to_str
+from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+from osbot_utils.utils.Json                                           import json_to_str
 
 
 class test__perf__Type_Safe__methods(TestCase):
@@ -12,6 +11,7 @@ class test__perf__Type_Safe__methods(TestCase):
     def setUpClass(cls):                                                     # Set up timing thresholds
         cls.time_100_ns =      100
         cls.time_2_kns  =    2_000
+        cls.time_3_kns  =    3_000
         cls.time_5_kns  =    5_000
         cls.time_6_kns   =   6_000
         cls.time_7_kns   =   7_000
@@ -20,7 +20,11 @@ class test__perf__Type_Safe__methods(TestCase):
         cls.time_10_kns  =  10_000
         cls.time_20_kns  =  20_000
         cls.time_30_kns  =  30_000
+        cls.time_70_kns   = 70_000
         cls.time_100_kns = 100_000
+        cls.time_300_kns = 300_000
+        cls.time_400_kns = 400_000
+        cls.time_600_kns = 600_000
 
     def test__setattr__(self):                                             # Test attribute assignment
         class Pure_Class            : pass                                  # Pure Python empty class
@@ -164,3 +168,78 @@ class test__perf__Type_Safe__methods(TestCase):
 
         with Performance_Measure__Session() as session:
             session.measure(get_obj).assert_time(self.time_5_kns, self.time_6_kns)
+
+    def test_dynamic_access_performance(self):                      # Test performance of dynamic attribute access
+        class Dynamic(Type_Safe):
+            field_1: str = "value1"
+            field_2: int = 42
+
+        obj = Dynamic()
+
+        def access_via_getattr():
+            return getattr(obj, "field_1")
+
+        def access_via_setattr():
+            setattr(obj, "field_2", 100)
+
+        with Performance_Measure__Session() as session:
+            session.measure(access_via_getattr).assert_time(self.time_100_ns)
+            session.measure(access_via_setattr).assert_time(self.time_7_kns)
+
+    def test_error_handling_performance(self):                      # Test performance of error handling paths
+        class Validated(Type_Safe):
+            int_field: int
+            str_field: str
+
+        obj = Validated()
+
+        def test_invalid_type():
+            try:
+                obj.int_field = "not an int"
+            except ValueError:
+                pass
+
+        def test_none_assignment():
+            try:
+                obj.str_field = None
+            except ValueError:
+                pass
+
+        with Performance_Measure__Session() as session:
+            session.measure(test_invalid_type   ).assert_time(self.time_8_kns)
+            session.measure(test_none_assignment).assert_time(self.time_3_kns)
+
+    def test_circular_reference_performance(self):                  # Test performance with circular references
+        class Node(Type_Safe):
+            id        : str
+            references: List['Node']
+
+        def create_and_serialize_circular():
+            n1 = Node(id="1")
+            n2 = Node(id="2")
+            n1.references.append(n2)
+            n2.references.append(n1)
+
+
+        with Performance_Measure__Session() as session:
+            session.measure(create_and_serialize_circular).assert_time(self.time_70_kns)
+
+    def test_large_serialization_performance(self):                 # Test performance of large object serialization"""
+        class Item(Type_Safe):
+            id: str
+            value: int
+
+        class Container(Type_Safe):
+            items: List[Item]
+
+        container = Container(items=[Item(id=str(i), value=i) for i in range(100)])
+
+        def serialize_large():
+            return container.json()
+
+        def serialize_to_bytes():
+            return container.bytes()
+
+        with Performance_Measure__Session() as session:
+            session.measure(serialize_large   ).assert_time(self.time_300_kns, self.time_400_kns)
+            session.measure(serialize_to_bytes).assert_time(self.time_600_kns)
