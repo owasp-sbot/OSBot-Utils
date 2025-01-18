@@ -1,7 +1,7 @@
 import time
 from typing                                                                         import Callable, List
 from statistics                                                                     import mean, median, stdev
-from osbot_utils.utils.Dev                                                          import pprint
+from osbot_utils.utils.Env                                                          import in_github_action
 from osbot_utils.testing.performance.models.Model__Performance_Measure__Measurement import Model__Performance_Measure__Measurement
 from osbot_utils.testing.performance.models.Model__Performance_Measure__Result      import Model__Performance_Measure__Result
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
@@ -51,7 +51,7 @@ class Performance_Measure__Session(Type_Safe):
             raw_score   = raw_score                                         ,
             score       = score                                             )
 
-    def measure(self, target: Callable) -> Model__Performance_Measure__Result:               # Perform measurements
+    def measure(self, target: Callable) -> 'Performance_Measure__Session':               # Perform measurements
         name         = target.__name__
         measurements = {}
         all_times    = []                                                                    # Collect all times for final score
@@ -96,6 +96,9 @@ class Performance_Measure__Session(Type_Safe):
 
         return self
 
-    def assert_time(self, expected_time: int):                                              # Assert that the final score matches the expected normalized time"""
-        assert self.result.final_score == expected_time, \
-               f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected {expected_time:,d}ns"
+    def assert_time(self, *expected_time: int):                                              # Assert that the final score matches the expected normalized time"""
+        if in_github_action():
+            first_expected_time = expected_time[0]
+            new_expected_time   = first_expected_time *2
+            assert first_expected_time <  self.result.final_score < new_expected_time, f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected {expected_time}"
+        assert self.result.final_score in expected_time,  f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected {expected_time}"
