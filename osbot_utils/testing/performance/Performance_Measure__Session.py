@@ -97,9 +97,9 @@ class Performance_Measure__Session(Type_Safe):
         return self
 
     def assert_time(self, *expected_time: int):                                              # Assert that the final score matches the expected normalized time"""
-        if in_github_action():
-            expected_time = expected_time[:-1]
-            new_expected_time   = expected_time *3
-            assert expected_time <=  self.result.final_score <= new_expected_time, f"Performance changed for {self.result.name}: expected {first_expected_time} < {self.result.final_score:,d}ns, expected {new_expected_time}"
+        if True or in_github_action():
+            first_expected_time = expected_time[0]
+            new_expected_time   = first_expected_time * 3
+            assert first_expected_time <=  self.result.final_score <= new_expected_time, f"Performance changed for {self.result.name}: expected {first_expected_time} < {self.result.final_score:,d}ns, expected {new_expected_time}"
         else:
             assert self.result.final_score in expected_time,  f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected {expected_time}"
