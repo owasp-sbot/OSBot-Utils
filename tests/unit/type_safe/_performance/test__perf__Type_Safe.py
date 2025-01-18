@@ -1,14 +1,14 @@
 import time
-from typing import Any, Dict, List
+from statistics import mean, stdev
+from typing import Any, Dict, List, Callable
 from unittest import TestCase
 
-from osbot_utils.context_managers.capture_duration import capture_duration
-from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.helpers.Random_Guid import Random_Guid
 
 from osbot_utils.utils.Dev import pprint
 
-from osbot_utils.context_managers.print_duration import print_duration
-
+from osbot_utils.context_managers.capture_duration import capture_duration
+from osbot_utils.type_safe.Type_Safe import Type_Safe
 
 class test__perf__Type_Safe(TestCase):
 

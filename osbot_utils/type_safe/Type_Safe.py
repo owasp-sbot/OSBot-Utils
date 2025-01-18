@@ -238,7 +238,7 @@ class Type_Safe:
             if isinstance(item_type, ForwardRef):               # handle the case when the type is a forward reference
                 forward_name = item_type.__forward_arg__
                 if forward_name == cls.__name__:                #    if the forward reference is to the current class (simple name check)
-                    item_type = cls                            #       set the item_type to the current class
+                    item_type = cls                             #       set the item_type to the current class
             return Type_Safe__List(expected_type=item_type)     #    and used it as expected_type in Type_Safe__List
         else:
             return default_value(var_type)                      # for all other cases call default_value, which will try to create a default instance
