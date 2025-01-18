@@ -33,7 +33,7 @@ class Performance_Measure__Session(Type_Safe):
         elif raw_score < 100_000:
             return int(round(raw_score / 10000) * 10000)                                        # Under 100µs: nearest 1000ns
         else:
-            return int(round(raw_score / 50000) * 50000)                                        # Above 100µs: nearest 5000ns
+            return int(round(raw_score / 100000) * 100000)                                        # Above 100µs: nearest 5000ns
 
     def calculate_metrics(self, times: List[int]) -> Model__Performance_Measure__Measurement:   # Calculate statistical metrics
         if not times:

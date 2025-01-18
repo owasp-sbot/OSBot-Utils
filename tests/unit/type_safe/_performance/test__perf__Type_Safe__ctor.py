@@ -10,17 +10,25 @@ class test__perf__Type_Safe__ctor(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Set up timing thresholds
-        cls.time_300_ns =    300
-        cls.time_4_kns  =  4_000
-        cls.time_6_kns  =  6_000
-        cls.time_7_kns  =  7_000
-        cls.time_9_kns  =  9_000
-        cls.time_10_kns = 10_000
-        cls.time_20_kns = 20_000
-        cls.time_30_kns = 30_000
-        cls.time_40_kns = 40_000
-        cls.time_50_kns = 50_000
-        cls.time_60_kns = 60_000
+        cls.time_300_ns  =     300
+        cls.time_4_kns   =   4_000
+        cls.time_6_kns   =   6_000
+        cls.time_7_kns   =   7_000
+        cls.time_9_kns   =   9_000
+        cls.time_10_kns  =  10_000
+        cls.time_20_kns  =  20_000
+        cls.time_30_kns  =  30_000
+        cls.time_40_kns  =  40_000
+        cls.time_50_kns  =  50_000
+        cls.time_60_kns  =  60_000
+        cls.time_80_kns  =  80_000
+        cls.time_90_kns  =  90_000
+        cls.time_200_kns = 200_000
+        cls.time_300_kns = 300_000
+        cls.time_400_kns = 400_000
+        cls.time_600_kns = 600_000
+        cls.time_800_kns = 800_000
+
 
     def test_basic_class_instantiation(self):                                   # Test basic Type_Safe variations
         class EmptyClass(Type_Safe): pass                                       # Baseline empty class
@@ -120,14 +128,9 @@ class test__perf__Type_Safe__ctor(TestCase):
         def create_valid():                                                     # Direct valid types
             return WithValidation(int_field = 42   ,
                                   str_field = "test")
-            
-        # def create_with_conversion():                                           # Types needing conversion
-        #     return WithValidation(int_field = "42"  ,
-        #                           str_field = "test")
-            
+
         with Performance_Measure__Session() as session:
             session.measure(create_valid          ).assert_time(self.time_40_kns)
-            #session.measure(create_with_conversion).assert_time(self.time_30kns)  # todo: fix this will raise an exception
 
     def test_collection_types(self):                                            # Test collection performance
         class WithCollections(Type_Safe):                                       # Simple collections
@@ -282,3 +285,100 @@ class test__perf__Type_Safe__ctor(TestCase):
         with Performance_Measure__Session() as session:
             session.measure(create_dataclass).assert_time(self.time_300_ns)
             session.measure(create_type_safe).assert_time(self.time_20_kns, self.time_30_kns)
+
+    def test_union_type_performance(self):              # Test performance of union type validation
+        class WithUnion(Type_Safe):
+            field: Union[str, int, float]
+            nested: Union[List[str]]
+
+        def test_first_type():
+            return WithUnion(field="str", nested=["a", "b"])
+
+        def test_last_type():
+            return WithUnion(field=1.0, nested=["a", "b", "c", "d"])
+
+        with Performance_Measure__Session() as session:
+            session.measure(test_first_type).assert_time(self.time_30_kns, self.time_40_kns)
+            session.measure(test_last_type ).assert_time(self.time_30_kns)
+
+    def test_forward_ref_performance(self):                 # Test performance of forward reference resolution
+        class Node(Type_Safe):
+            value   : int
+            next    : 'Node'
+            children: List   ['Node']
+
+        def create_chain():
+            root      = Node(value=1)
+            root.next = Node(value=2)
+            return root
+
+        def create_tree():
+            root = Node(value=1)
+            root.children = [Node(value=i) for i in range(2,5)]
+            return root
+
+        with Performance_Measure__Session() as session:
+            session.measure(create_chain).assert_time(self.time_80_kns )
+            session.measure(create_tree ).assert_time(self.time_200_kns, self.time_300_kns)
+
+    def test_mixed_defaults_performance(self):               # Test performance of mixed default value handling
+        class MixedDefaults(Type_Safe):
+            explicit_str: str = "default"
+            explicit_int: int = 42
+            implicit_str: str
+            implicit_int: int
+            optional_str: Optional[str] = None
+
+        def create_with_defaults():
+            return MixedDefaults()
+
+        def create_with_overrides():
+            return MixedDefaults(
+                explicit_str="override",
+                explicit_int=100,
+                implicit_str="set",
+                implicit_int=200,
+                optional_str="provided"
+            )
+
+        with Performance_Measure__Session() as session:
+            session.measure(create_with_defaults ).assert_time(self.time_50_kns)
+            session.measure(create_with_overrides).assert_time(self.time_80_kns, self.time_90_kns)
+
+    def test_deep_nesting_performance(self):                    # Test performance of deeply nested type validation
+        class Level3(Type_Safe):
+            value: int
+
+        class Level2(Type_Safe):
+            nested: Level3
+            values: List[Level3]
+
+        class Level1(Type_Safe):
+            nested: Level2
+            mapping: Dict[str, Level2]
+
+        def create_deep_nested():
+            l3 = Level3(value=42)
+            l2 = Level2(nested=l3, values=[l3, Level3(value=43)])
+            return Level1(nested=l2, mapping={"test": l2})
+
+        with Performance_Measure__Session() as session:
+            session.measure(create_deep_nested).assert_time(self.time_200_kns)
+
+    def test_large_object_instantiation(self):                  # Test performance with large object graphs
+        class Item(Type_Safe):
+            id: str
+            value: int
+
+        class Container(Type_Safe):
+            items: List[Item]
+
+        def create_medium_object():
+            return Container(items=[Item(id=str(i), value=i) for i in range(10)])
+
+        def create_larger_object():
+            return Container(items=[Item(id=str(i), value=i)for i in range(20)])
+
+        with Performance_Measure__Session() as session:
+            session.measure(create_medium_object).assert_time(self.time_400_kns)
+            session.measure(create_larger_object).assert_time(self.time_800_kns)
