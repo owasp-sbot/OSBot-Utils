@@ -100,5 +100,5 @@ class Performance_Measure__Session(Type_Safe):
         if in_github_action():
             first_expected_time = expected_time[0]
             new_expected_time   = first_expected_time *2
-            assert first_expected_time <  self.result.final_score < new_expected_time, f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected {expected_time}"
+            assert first_expected_time <=  self.result.final_score <= new_expected_time, f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected {expected_time}"
         assert self.result.final_score in expected_time,  f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected {expected_time}"
