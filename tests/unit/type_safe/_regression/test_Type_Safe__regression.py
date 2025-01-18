@@ -446,13 +446,13 @@ class test_Type_Safe__regression(TestCase):
         assert get_origin(annotations['age'  ]) is Annotated      # Fixed: BUG missing annotation
         assert get_origin(annotations['name' ]) is Annotated      # Fixed: BUG missing annotation
         assert get_origin(annotations['score']) is Annotated
-        expected_exception_str  = "Invalid type for attribute 'age'. Expected 'typing.Annotated\[int,.* but got '<class 'str'>"
+        expected_exception_str  = re.escape("Invalid type for attribute 'age'. Expected 'typing.Annotated\[int,.* but got '<class 'str'>")
         with pytest.raises(ValueError, match=expected_exception_str):
             test.age = 'aaaa'                                                               # Fixed: BUG: should have raised exception
-        expected_exception_int  = "Invalid type for attribute 'name'. Expected 'typing.Annotated\[str,.* but got '<class 'int'>"
+        expected_exception_int  = re.escape("Invalid type for attribute 'name'. Expected 'typing.Annotated\[str,.* but got '<class 'int'>")
         with pytest.raises(ValueError, match=expected_exception_int):
             test.name = 123
-        expected_exception_float = "Invalid type for attribute 'score'. Expected 'typing.Annotated\[float,.* but got '<class 'str'>"
+        expected_exception_float = re.escape("Invalid type for attribute 'score'. Expected 'typing.Annotated\[float,.* but got '<class 'str'>")
         with pytest.raises(ValueError, match=expected_exception_float):
             test.score = "123"
 
