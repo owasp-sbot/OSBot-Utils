@@ -242,5 +242,5 @@ class test__perf__Type_Safe__methods(TestCase):
             return container.bytes()
 
         with Performance_Measure__Session() as session:
-            session.measure(serialize_large   ).assert_time(self.time_200_kns)
-            session.measure(serialize_to_bytes).assert_time(self.time_300_kns)
+            session.measure(serialize_large   ).assert_time(self.time_400_kns, self.time_200_kns)       # time_400_kns first due to github actions
+            session.measure(serialize_to_bytes).assert_time(self.time_600_kns, self.time_300_kns)       # time_600_kns first due to github actions
