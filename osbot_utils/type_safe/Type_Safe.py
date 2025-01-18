@@ -65,24 +65,6 @@ class Type_Safe:
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
-    # def __getattr__(self, name):                                                            # Called when an attribute is not found through normal attribute access
-    #     if name.startswith(("set_", "get_")):                                               # Check if the requested attribute is a getter or setter method
-    #         prefix = name[:4]                                                               # Extract "set_" or "get_" from the method name
-    #         attr_name = name[4:]                                                            # Get the actual attribute name by removing the prefix
-    #
-    #         if hasattr(self, attr_name):                                                    # Verify that the target attribute actually exists on the object
-    #             if prefix == "set_":                                                        # Handle setter method creation
-    #                 def setter(value):                                                      # Create a dynamic setter function that takes a value parameter
-    #                     setattr(self, attr_name, value)                                     # Set the attribute value using type-safe setattr from Type_Safe
-    #                     return self                                                         # Return self for method chaining
-    #                 return setter                                                           # Return the setter function
-    #             else:  # get_                                                               # Handle getter method creation
-    #                 def getter():                                                           # Create a dynamic getter function with no parameters
-    #                     return getattr(self, attr_name)                                     # Return the attribute value using Python's built-in getattr
-    #                 return getter                                                           # Return the getter function
-    #
-    #     raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")   # Raise error if attribute is not a valid getter/setter
-
     def __setattr__(self, name, value):
         from osbot_utils.utils.Objects                  import convert_dict_to_value_from_obj_annotation
         from osbot_utils.utils.Objects                  import convert_to_value_from_obj_annotation
