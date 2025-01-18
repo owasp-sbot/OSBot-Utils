@@ -6,33 +6,34 @@ from osbot_utils.testing.performance.Performance_Measure__Session     import Per
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 
 
-class test__perf__Type_Safe(TestCase):
-    
-    def setUp(self):                                                            # Set up timing thresholds
-        self.time_300_ns =    300
-        self.time_4_kns  =  4_000
-        self.time_6_kns  =  6_000
-        self.time_7_kns  =  7_000
-        self.time_9_kns  =  9_000
-        self.time_10_kns = 10_000
-        self.time_20_kns = 20_000
-        self.time_30_kns = 30_000
-        self.time_40_kns = 40_000
-        self.time_50_kns = 50_000
-        self.time_60_kns = 60_000
+class test__perf__Type_Safe__ctor(TestCase):
+
+    @classmethod
+    def setUpClass(cls):                                                            # Set up timing thresholds
+        cls.time_300_ns =    300
+        cls.time_4_kns  =  4_000
+        cls.time_6_kns  =  6_000
+        cls.time_7_kns  =  7_000
+        cls.time_9_kns  =  9_000
+        cls.time_10_kns = 10_000
+        cls.time_20_kns = 20_000
+        cls.time_30_kns = 30_000
+        cls.time_40_kns = 40_000
+        cls.time_50_kns = 50_000
+        cls.time_60_kns = 60_000
 
     def test_basic_class_instantiation(self):                                   # Test basic Type_Safe variations
         class EmptyClass(Type_Safe): pass                                       # Baseline empty class
-            
+
         class SingleStr(Type_Safe):                                             # Test with string attribute
             value: str
-            
+
         class SingleInt(Type_Safe):                                             # Test with integer attribute
             value: int
-            
+
         class SingleDefault(Type_Safe):                                         # Test with default value
             value: str = "default"
-            
+
         with Performance_Measure__Session() as session:
             session.measure(EmptyClass    ).assert_time(self.time_6_kns , self.time_7_kns)
             session.measure(SingleStr     ).assert_time(self.time_20_kns                 )
