@@ -10,13 +10,9 @@ class test__perf__Type_Safe__methods(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                     # Set up timing thresholds
-        cls.time_100_ns =    100                                            # Pure Python operations
-        cls.time_1_kns  =  1_000                                           # Simple methods
-        cls.time_2_kns  =  2_000                                           # Type_Safe methods
-        cls.time_5_kns  =  5_000                                           # Complex operations
-        cls.time_10_kns = 10_000                                           # Heavy operations
-
-        cls.time_4_kns   =   4_000
+        cls.time_100_ns =      100
+        cls.time_2_kns  =    2_000
+        cls.time_5_kns  =    5_000
         cls.time_6_kns   =   6_000
         cls.time_7_kns   =   7_000
         cls.time_8_kns   =   8_000
@@ -24,8 +20,6 @@ class test__perf__Type_Safe__methods(TestCase):
         cls.time_10_kns  =  10_000
         cls.time_20_kns  =  20_000
         cls.time_30_kns  =  30_000
-        cls.time_40_kns  =  40_000
-        cls.time_50_kns  =  50_000
         cls.time_100_kns = 100_000
 
     def test__setattr__(self):                                             # Test attribute assignment
