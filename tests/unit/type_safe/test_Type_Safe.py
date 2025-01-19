@@ -8,14 +8,15 @@ from unittest                                                import TestCase
 from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
 from osbot_utils.helpers.Guid                                import Guid
 from osbot_utils.helpers.Random_Guid                         import Random_Guid
-from osbot_utils.type_safe.Type_Safe                         import Type_Safe, serialize_to_dict
+from osbot_utils.type_safe.Type_Safe                         import Type_Safe
 from osbot_utils.type_safe.Type_Safe__List                   import Type_Safe__List
 from osbot_utils.testing.Catch                               import Catch
 from osbot_utils.testing.Stdout                              import Stdout
 from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json  import type_safe_step_from_json
 from osbot_utils.utils.Json                                  import json_dumps
 from osbot_utils.utils.Misc                                  import random_string, list_set
-from osbot_utils.utils.Objects                               import obj_data, __ , default_value
+from osbot_utils.utils.Objects import obj_data, __, default_value, serialize_to_dict
+
 
 class test_Type_Safe(TestCase):
 

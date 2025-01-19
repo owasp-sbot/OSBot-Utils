@@ -8,7 +8,7 @@ from osbot_utils.utils.Objects  import obj_is_type_union_compatible
 
 IMMUTABLE_TYPES = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta, type)
 
-class Cache__Class_Kwargs:                                      # Cache for class-level keyword arguments and related information."""
+class Type_Safe__Step__Class_Kwargs:                                      # Cache for class-level keyword arguments and related information."""
 
 
     def get_cls_kwargs(self, cls: Type, include_base_classes: bool = True) -> Dict[str, Any]:
@@ -65,4 +65,4 @@ class Cache__Class_Kwargs:                                      # Cache for clas
         return kwargs
 
 # Create singleton instance
-cache__class_kwargs = Cache__Class_Kwargs()
+type_safe_step_class_kwargs = Type_Safe__Step__Class_Kwargs()

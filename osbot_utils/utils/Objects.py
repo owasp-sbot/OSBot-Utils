@@ -457,6 +457,31 @@ def pickle_load_from_bytes(pickled_data: bytes):
         except Exception:
             return {}
 
+# todo: see if it is possible to add recursive protection to this logic
+def serialize_to_dict(obj):
+    from decimal import Decimal
+    from enum    import Enum
+    from typing  import List
+
+    if isinstance(obj, (str, int, float, bool, bytes, Decimal)) or obj is None:
+        return obj
+    elif isinstance(obj, Enum):
+        return obj.name
+    elif isinstance(obj, type):
+        return f"{obj.__module__}.{obj.__name__}"                                   # save the full type name
+    elif isinstance(obj, list) or isinstance(obj, List):
+        return [serialize_to_dict(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {key: serialize_to_dict(value) for key, value in obj.items()}
+    elif hasattr(obj, "__dict__"):
+        data = {}                                                                   # todo: look at a more advanced version which saved the type of the object, for example with {'__type__': type(obj).__name__}
+        for key, value in obj.__dict__.items():
+            if key.startswith('__') is False:                                       # don't process internal variables (for example the ones set by @cache_on_self)
+                data[key] = serialize_to_dict(value)                                # Recursive call for complex types
+        return data
+    else:
+        raise TypeError(f"Type {type(obj)} not serializable")
+    
 def all_annotations(target):
     annotations = {}
     if hasattr(target.__class__, '__mro__'):
