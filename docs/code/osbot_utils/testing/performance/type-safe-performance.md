@@ -123,8 +123,6 @@ The following categories help classify operations based on their performance cha
 | Very Slow | >200,000 | Large-scale operations |
 
 
-<div style="page-break-before: always;"></div>
-
 # Appendix: Type_Safe Performance Testing Methodology
 
 ## Testing Framework Overview
