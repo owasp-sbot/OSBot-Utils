@@ -101,7 +101,7 @@ class Performance_Measure__Session(Type_Safe):
         if self.assert_enabled is False:
             return
         if in_github_action():
-            first_expected_time = expected_time[0]
+            first_expected_time = expected_time[0] + 100                                    # +100 in case it is 0
             new_expected_time   = first_expected_time * 5
             assert first_expected_time <=  self.result.final_score <= new_expected_time, f"Performance changed for {self.result.name}: expected {first_expected_time} < {self.result.final_score:,d}ns, expected {new_expected_time}"
         else:

@@ -40,7 +40,7 @@ class test_Performance_Checks__Session(TestCase):
             an_str: str = '42'
 
 
-        Performance_Measure__Session().measure(str        ).print().assert_time(self.time_0_ns  , self.time_100_ns                    )
+        Performance_Measure__Session().measure(str        ).print().assert_time(self.time_100_ns, self.time_0_ns                     )
         Performance_Measure__Session().measure(Random_Guid).print().assert_time(self.time_3_kns , self.time_5_kns, self.time_6_kns    )
         Performance_Measure__Session().measure(An_Class_1 ).print().assert_time(self.time_100_ns                    )
         Performance_Measure__Session().measure(An_Class_2 ).print().assert_time(self.time_3_kns , self.time_4_kns , self.time_5_kns , self.time_6_kns   )
