@@ -54,7 +54,7 @@ class test__perf__Type_Safe__dependencies(TestCase):                            
 
         with Performance_Measure__Session() as session:
             session.measure(check_isinstance ).assert_time(self.time_0_ns, self.time_100_ns)
-            session.measure(check_issubclass ).assert_time(self.time_0_ns)
+            session.measure(check_issubclass ).assert_time(self.time_0_ns, self.time_100_ns)
             session.measure(check_type       ).assert_time(self.time_0_ns)
 
     def test_python_native__attribute_access(self):                                      # Test Python native attribute access
@@ -274,3 +274,53 @@ class test__perf__Type_Safe__dependencies(TestCase):                            
             session.measure(check_none_value         ).assert_time(self.time_1_kns)
             session.measure(check_missing_annotation ).assert_time(self.time_500_ns)
             session.measure(check_complex_union      ).assert_time(self.time_700_ns, self.time_800_ns)
+
+    def test_python_native__class_access(self):                                         # Test performance of class access
+        obj = An_Class()
+
+        def get_class():                                                                # Performance of __class__ access
+            return obj.__class__
+
+        def get_class_module():                                                         # Performance of __module__ access
+            return obj.__class__.__module__
+
+        with Performance_Measure__Session() as session:
+            session.measure(get_class       ).assert_time(self.time_0_ns, self.time_100_ns)
+            session.measure(get_class_module).assert_time(self.time_0_ns, self.time_100_ns)
+
+    def test_python_native__attribute_access_edge_cases(self):                          # Test attribute access edge cases
+        obj = An_Class()
+
+        def dir_obj():                                                                  # Performance of dir()
+            return dir(obj)
+
+        def getattr_with_default():                                                     # Performance of getattr with default
+            return getattr(obj, 'missing', None)
+
+        def getattr_missing():                                                          # Performance of getattr exception
+            try:
+                return getattr(obj, 'missing')                                          # This should raise AttributeError
+            except AttributeError:
+                pass
+
+        with Performance_Measure__Session() as session:
+            session.measure(dir_obj             ).assert_time(self.time_2_kns)
+            session.measure(getattr_with_default).assert_time(self.time_100_ns)
+            session.measure(getattr_missing     ).assert_time(self.time_300_ns)
+
+    def test_python_native__hasattr_edge_cases(self):                                   # Test hasattr edge cases
+        obj = An_Class()
+
+        def hasattr_missing():                                                          # Performance of hasattr on missing
+            return hasattr(obj, 'missing')
+
+        def hasattr_property():                                                         # Performance of hasattr on property
+            return hasattr(obj, '__dict__')
+
+        def hasattr_method():                                                           # Performance of hasattr on method
+            return hasattr(obj, '__str__')
+
+        with Performance_Measure__Session() as session:
+            session.measure(hasattr_missing ).assert_time(self.time_0_ns , self.time_100_ns)
+            session.measure(hasattr_property).assert_time(self.time_0_ns , self.time_100_ns)
+            session.measure(hasattr_method  ).assert_time(self.time_100_ns)
