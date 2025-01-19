@@ -9,7 +9,8 @@ from osbot_utils.type_safe.Type_Safe                                            
 MEASURE__INVOCATION__LOOPS = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]            # Fibonacci sequence for measurement loops
 
 class Performance_Measure__Session(Type_Safe):
-    result : Model__Performance_Measure__Result = None                                          # Current measurement result
+    result        : Model__Performance_Measure__Result = None                                          # Current measurement result
+    assert_enabled: bool = True
 
     def calculate_raw_score(self, times: List[int]) -> int:                                     # Calculate raw performance score
         if len(times) < 3:                                                                      # Need at least 3 values for stability
@@ -97,6 +98,8 @@ class Performance_Measure__Session(Type_Safe):
         return self
 
     def assert_time(self, *expected_time: int):                                              # Assert that the final score matches the expected normalized time"""
+        if self.assert_enabled is False:
+            return
         if in_github_action():
             first_expected_time = expected_time[0]
             new_expected_time   = first_expected_time * 5

@@ -3,7 +3,7 @@ import sys
 import types
 import pytest
 from enum                                                    import Enum, auto
-from typing                                                  import Union, Optional, Type
+from typing import Union, Optional, Type, List
 from unittest                                                import TestCase
 from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
 from osbot_utils.helpers.Guid                                import Guid
@@ -1040,6 +1040,60 @@ class test_Type_Safe(TestCase):
 
         with pytest.raises(ValueError, match="Invalid type for attribute 'data'. Expected '<class 'str'>' but got '<class 'int'>'"):
             test_class.data = 123                                                                   # confirm that type safety is still working on the main class
+
+    def test_validate_type_immutability(self):                                        # Tests type immutability validation
+        class Simple_Type(Type_Safe):
+            valid_int   : int        = 42                                            # valid immutable type
+            valid_str   : str        = 'abc'                                         # valid immutable type
+            valid_bool  : bool       = True                                          # valid immutable type
+            valid_tuple : tuple      = (1,2)                                         # valid immutable type
+
+        simple = Simple_Type()                                                       # Should work fine with valid types
+        assert simple.valid_int   == 42
+        assert simple.valid_str   == 'abc'
+        assert simple.valid_bool  == True
+        assert simple.valid_tuple == (1,2)
+
+        with pytest.raises(ValueError, match= "variable 'invalid_list' is defined as type '<class 'list'>' which is not supported by Type_Safe" ):                                    # Test invalid mutable type
+            class Invalid_Type(Type_Safe):
+                invalid_list: list  = ['a', 'b']                                     # list is not in IMMUTABLE_TYPES
+            Invalid_Type()
+
+        class Union_Types(Type_Safe):                                                # Test union types compatibility
+            optional_int : Optional[int] = None                                      # Should work as Optional is handled
+            union_types  : Union[str, int] = "test"                                  # Should work as Union is handled
+
+        union = Union_Types()
+        assert union.optional_int is None
+        assert union.union_types == "test"
+
+    def test_validate_type_immutability_with_enums(self):                           # Tests enum validation in Type_Safe
+        class An_Enum(Enum):
+            VALUE_1 = "value_1"
+            VALUE_2 = "value_2"
+
+        class With_Enum(Type_Safe):
+            enum_var     : An_Enum                                                  # enum without default
+            enum_default : An_Enum = An_Enum.VALUE_1                               # enum with default
+
+        test_obj = With_Enum()
+        assert test_obj.enum_default == An_Enum.VALUE_1                            # check default assignment
+
+        test_obj.enum_var = An_Enum.VALUE_2                                        # check assignment
+        assert test_obj.enum_var == An_Enum.VALUE_2
+
+        with pytest.raises(ValueError, match="Invalid type for attribute 'enum_var'. Expected '<enum 'An_Enum'>' but got '<class 'str'>'") as context:                    # validate type safety
+            test_obj.enum_var = "VALUE_2"                                          # try to assign string instead of enum
+
+        # Test with Optional enum
+        class With_Optional_Enum(Type_Safe):
+            optional_enum: Optional[An_Enum] = None                                # Optional enum should work
+
+        optional_test = With_Optional_Enum()
+        assert optional_test.optional_enum is None
+        optional_test.optional_enum = An_Enum.VALUE_1                              # can assign enum value
+        assert optional_test.optional_enum == An_Enum.VALUE_1
+
 
 class Custom_Class:         # used in test_type_serialization
     pass

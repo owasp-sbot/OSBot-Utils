@@ -290,22 +290,22 @@ class test_Type_Safe__regression(TestCase):
         #assert An_Class.from_json(An_Class().json()).obj() == An_Class().obj()
     def test__regression__class_level_defaults__mutable_vs_type(self):
         class Problematic(Type_Safe):
-            bad_list : list = []                  # BAD: mutable default
-            bad_dict : dict = {}                  # BAD: mutable default
-            bad_set  : set  = set()               # BAD: mutable default
+            bad_list : list                   # FIXED: BAD: mutable default
+            bad_dict : dict                   # FIXED: BAD: mutable default
+            bad_set  : set                    # FIXED: BAD: mutable default
 
         obj1 = Problematic()
         obj2 = Problematic()
 
         # Demonstrate the shared mutable state problem
         obj1.bad_list.append(42)
-        assert obj2.bad_list == [42]              # BUG: obj2's list was modified!
+        assert obj2.bad_list != [42]              # FIXED: BUG: obj2's list was modified!
 
         obj1.bad_dict['key'] = 'value'
-        assert obj2.bad_dict == {'key': 'value'}  # BUG: obj2's dict was modified!
+        assert obj2.bad_dict != {'key': 'value'}  # FIXED:BUG: obj2's dict was modified!
 
         obj1.bad_set.add('item')
-        assert obj2.bad_set == {'item'}           # BUG: obj2's set was modified!
+        assert obj2.bad_set != {'item'}           # FIXED: BUG: obj2's set was modified!
 
         # Now show that Type[T] doesn't have this problem
 

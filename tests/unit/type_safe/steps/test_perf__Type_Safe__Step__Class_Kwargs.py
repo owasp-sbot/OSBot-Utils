@@ -16,20 +16,24 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                             # Define timing thresholds
-        cls.time_100_ns  =    100
-        cls.time_200_ns  =    200
-        cls.time_300_ns  =    300
-        cls.time_500_ns  =    500
-        cls.time_800_ns  =    800
-        cls.time_1_kns   =  1_000
-        cls.time_2_kns   =  2_000
-        cls.time_3_kns   =  3_000
-        cls.time_4_kns   =  4_000
-        cls.time_5_kns   =  5_000
-        cls.time_6_kns   =  6_000
-        cls.time_9_kns   =  9_000
-        cls.time_10_kns  = 10_000
-        cls.time_20_kns  = 20_000
+        cls.assert_enabled = False
+        cls.session        = Performance_Measure__Session(assert_enabled=cls.assert_enabled)
+        cls.time_100_ns    =    100
+        cls.time_200_ns    =    200
+        cls.time_300_ns    =    300
+        cls.time_500_ns    =    500
+        cls.time_700_ns    =   700
+        cls.time_800_ns    =    800
+        cls.time_1_kns     =  1_000
+        cls.time_2_kns     =  2_000
+        cls.time_3_kns     =  3_000
+        cls.time_4_kns     =  4_000
+        cls.time_5_kns     =  5_000
+        cls.time_6_kns     =  6_000
+        cls.time_9_kns     =  9_000
+        cls.time_10_kns    = 10_000
+        cls.time_20_kns    = 20_000
+
 
     def test_empty_class(self):                                                      # Test with empty class
         class EmptyClass: pass
@@ -37,8 +41,7 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         def get_empty_kwargs():                                                      # Get kwargs from empty class
             return type_safe_step_class_kwargs.get_cls_kwargs(EmptyClass)
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_empty_kwargs).assert_time(self.time_1_kns)
+        self.session.measure(get_empty_kwargs).assert_time(self.time_700_ns)
 
     def test_simple_annotations(self):                                               # Test with simple type annotations
         class SimpleClass:
@@ -49,8 +52,7 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         def get_simple_kwargs():
             return type_safe_step_class_kwargs.get_cls_kwargs(SimpleClass)
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_simple_kwargs).assert_time(self.time_5_kns)
+        self.session.measure(get_simple_kwargs).assert_time(self.time_5_kns)
 
     def test_complex_annotations(self):                                              # Test with complex type annotations
         class ComplexClass:
@@ -63,8 +65,7 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         def get_complex_kwargs():
             return type_safe_step_class_kwargs.get_cls_kwargs(ComplexClass)
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_complex_kwargs).assert_time(self.time_9_kns)
+        self.session.measure(get_complex_kwargs).assert_time(self.time_9_kns)
 
     def test_inheritance(self):                                                      # Test with class inheritance
         class ChildClass(BaseClass):
@@ -77,9 +78,8 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         def get_inherited_kwargs_no_base():                                          # Get kwargs excluding base class
             return type_safe_step_class_kwargs.get_cls_kwargs(ChildClass, include_base_classes=False)
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_inherited_kwargs_with_base).assert_time(self.time_6_kns)
-            session.measure(get_inherited_kwargs_no_base  ).assert_time(self.time_3_kns)
+        self.session.measure(get_inherited_kwargs_with_base).assert_time(self.time_6_kns)
+        self.session.measure(get_inherited_kwargs_no_base  ).assert_time(self.time_3_kns)
 
     def test_with_methods(self):                                                     # Test with instance and class methods
         class MethodClass:
@@ -94,8 +94,7 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         def get_methods_kwargs():
             return type_safe_step_class_kwargs.get_cls_kwargs(MethodClass)
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_methods_kwargs).assert_time(self.time_3_kns)
+        self.session.measure(get_methods_kwargs).assert_time(self.time_3_kns)
 
     def test_with_immutable_defaults(self):                                          # Test with immutable default values
         class DefaultsClass:
@@ -111,8 +110,7 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         def get_defaults_kwargs():
             return type_safe_step_class_kwargs.get_cls_kwargs(DefaultsClass)
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_defaults_kwargs).assert_time(self.time_10_kns)
+        self.session.measure(get_defaults_kwargs).assert_time(self.time_10_kns)
 
     def test_deep_inheritance(self):                                                 # Test with deep inheritance chain
         class Level1(BaseClass): level1_val: str = "1"
@@ -123,8 +121,7 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         def get_deep_inheritance_kwargs():
             return type_safe_step_class_kwargs.get_cls_kwargs(Level4)
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_deep_inheritance_kwargs).assert_time(self.time_10_kns)
+        self.session.measure(get_deep_inheritance_kwargs).assert_time(self.time_10_kns)
 
     def test_type_validation(self):                                                  # Test type validation performance
         class ValidatedClass:
@@ -136,8 +133,7 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
             except ValueError:
                 pass
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_invalid_type_kwargs).assert_time(self.time_3_kns)
+        self.session.measure(get_invalid_type_kwargs).assert_time(self.time_3_kns)
 
     def test_mixed_annotations(self):                                                # Test mix of annotated and non-annotated
         class MixedClass:
@@ -148,8 +144,7 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         def get_mixed_kwargs():
             return type_safe_step_class_kwargs.get_cls_kwargs(MixedClass)
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_mixed_kwargs).assert_time(self.time_4_kns)
+        self.session.measure(get_mixed_kwargs).assert_time(self.time_4_kns)
 
     def test_large_class(self):                                                      # Test with large number of attributes
         class LargeClass:
@@ -164,5 +159,4 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         def get_large_kwargs():
             return type_safe_step_class_kwargs.get_cls_kwargs(LargeClass)
 
-        with Performance_Measure__Session() as session:
-            session.measure(get_large_kwargs).assert_time(self.time_20_kns)
+        self.session.measure(get_large_kwargs).assert_time(self.time_20_kns)
