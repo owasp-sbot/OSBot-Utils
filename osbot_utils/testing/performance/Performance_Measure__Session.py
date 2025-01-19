@@ -88,11 +88,11 @@ class Performance_Measure__Session(Type_Safe):
         print(f"Median  : {measurement.median_time:,}ns")
         print(f"StdDev  : {measurement.stddev_time:,.2f}ns")
 
-    def print(self, detailed: bool = False):                                                # Print measurement results
+    def print(self, padding=12 ):                                                # Print measurement results
         if not self.result:
             print("No measurements taken yet")
             return
-        print(f"{self.result.name:12} | score: {self.result.final_score:7,d} ns  | raw: {self.result.raw_score:7,d} ns")          # Print name and normalized score
+        print(f"{self.result.name:{padding}} | score: {self.result.final_score:7,d} ns  | raw: {self.result.raw_score:7,d} ns")          # Print name and normalized score
 
         return self
 

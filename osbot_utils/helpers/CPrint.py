@@ -1,4 +1,3 @@
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.CFormat import CFormat, CFormat_Colors
 
 

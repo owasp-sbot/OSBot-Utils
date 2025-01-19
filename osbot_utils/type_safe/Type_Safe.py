@@ -3,8 +3,12 @@
 import inspect
 import sys
 import types
-from osbot_utils.utils.Objects import default_value                     # todo: remove test mocking requirement for this to be here (instead of on the respective method)
-from osbot_utils.utils.Objects import all_annotations
+
+from osbot_utils.type_safe.steps.Type_Safe__Step__Init      import type_safe_step_init
+from osbot_utils.type_safe.steps.Type_Safe__Step__Set_Attr  import type_safe_step_set_attr
+from osbot_utils.utils.Objects                              import default_value                     # todo: remove test mocking requirement for this to be here (instead of on the respective method)
+from osbot_utils.utils.Objects                              import all_annotations
+from osbot_utils.type_safe.Cache__Class_Kwargs              import cache__class_kwargs
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):                                           # pragma: no cover
@@ -42,75 +46,83 @@ else:                                                           # pragma: no cov
 class Type_Safe:
 
     def __init__(self, **kwargs):
-        from osbot_utils.utils.Objects import raise_exception_on_obj_type_annotation_mismatch
 
-        for (key, value) in self.__cls_kwargs__().items():                  # assign all default values to self
-            if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
-                raise_exception_on_obj_type_annotation_mismatch(self, key, value)
-            if hasattr(self, key):
-                existing_value = getattr(self, key)
-                if existing_value is not None:
-                    setattr(self, key, existing_value)
-                    continue
-            setattr(self, key, value)
+        class_kwargs = self.__cls_kwargs__()
+        type_safe_step_init.init(self, class_kwargs, **kwargs)
 
-        for (key, value) in kwargs.items():                             # overwrite with values provided in ctor
-            if hasattr(self, key):
-                if value is not None:                                   # prevent None values from overwriting existing values, which is quite common in default constructors
-                    setattr(self, key, value)
-            else:
-                raise ValueError(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
-                                 f"Use {self.__class__.__name__}.__default_kwargs__() see what attributes are available")
+
+        # from osbot_utils.utils.Objects import raise_exception_on_obj_type_annotation_mismatch
+        #
+        # for (key, value) in class_kwargs.items():                  # assign all default values to self
+        #     if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
+        #         raise_exception_on_obj_type_annotation_mismatch(self, key, value)
+        #     if hasattr(self, key):
+        #         existing_value = getattr(self, key)
+        #         if existing_value is not None:
+        #             setattr(self, key, existing_value)
+        #             continue
+        #     setattr(self, key, value)
+        #
+        # for (key, value) in kwargs.items():                             # overwrite with values provided in ctor
+        #     if hasattr(self, key):
+        #         if value is not None:                                   # prevent None values from overwriting existing values, which is quite common in default constructors
+        #             setattr(self, key, value)
+        #     else:
+        #         raise ValueError(f"{self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
+        #                          f"Use {self.__class__.__name__}.__default_kwargs__() see what attributes are available")
 
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
+
     def __setattr__(self, name, value):
-        from osbot_utils.utils.Objects                  import convert_dict_to_value_from_obj_annotation
-        from osbot_utils.utils.Objects                  import convert_to_value_from_obj_annotation
-        from osbot_utils.utils.Objects                  import value_type_matches_obj_annotation_for_attr
-        from osbot_utils.utils.Objects                  import value_type_matches_obj_annotation_for_union_and_annotated
-        from osbot_utils.type_safe.validators.Type_Safe__Validator import Type_Safe__Validator
+        type_safe_step_set_attr.setattr(super(), self, name, value)
 
-        annotations = all_annotations(self)
-        if not annotations:                                             # can't do type safety checks if the class does not have annotations
-            return super().__setattr__(name, value)
-
-        if value is not None:
-            if type(value) is dict:
-                value = convert_dict_to_value_from_obj_annotation(self, name, value)
-            elif type(value) in [int, str]:                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
-                value = convert_to_value_from_obj_annotation (self, name, value)
-            else:
-                origin = get_origin(value)
-                if origin is not None:
-                    value = origin
-            check_1 = value_type_matches_obj_annotation_for_attr              (self, name, value)
-            check_2 = value_type_matches_obj_annotation_for_union_and_annotated(self, name, value)
-            if (check_1 is False and check_2 is None  or
-                check_1 is None  and check_2 is False or
-                check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
-                raise ValueError(f"Invalid type for attribute '{name}'. Expected '{annotations.get(name)}' but got '{type(value)}'")
-        else:
-            if hasattr(self, name) and annotations.get(name) :     # don't allow previously set variables to be set to None
-                if getattr(self, name) is not None:                         # unless it is already set to None
-                    raise ValueError(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
-
-        # todo: refactor this to separate method
-        if hasattr(annotations, 'get'):
-            annotation = annotations.get(name)
-            if annotation:
-                annotation_origin = get_origin(annotation)
-                if annotation_origin is Annotated:
-                    annotation_args = get_args(annotation)
-                    target_type = annotation_args[0]
-                    for attribute in annotation_args[1:]:
-                        if isinstance(attribute, Type_Safe__Validator):
-                            attribute.validate(value=value, field_name=name, target_type=target_type)
-                elif annotation_origin is dict:
-                    value = self.deserialize_dict__using_key_value_annotations(name, value)
-
-        super().__setattr__(name, value)
+        # from osbot_utils.utils.Objects                  import convert_dict_to_value_from_obj_annotation
+        # from osbot_utils.utils.Objects                  import convert_to_value_from_obj_annotation
+        # from osbot_utils.utils.Objects                  import value_type_matches_obj_annotation_for_attr
+        # from osbot_utils.utils.Objects                  import value_type_matches_obj_annotation_for_union_and_annotated
+        # from osbot_utils.type_safe.validators.Type_Safe__Validator import Type_Safe__Validator
+        #
+        # annotations = all_annotations(self)
+        # if not annotations:                                             # can't do type safety checks if the class does not have annotations
+        #     return super().__setattr__(name, value)
+        #
+        # if value is not None:
+        #     if type(value) is dict:
+        #         value = convert_dict_to_value_from_obj_annotation(self, name, value)
+        #     elif type(value) in [int, str]:                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
+        #         value = convert_to_value_from_obj_annotation (self, name, value)
+        #     else:
+        #         origin = get_origin(value)
+        #         if origin is not None:
+        #             value = origin
+        #     check_1 = value_type_matches_obj_annotation_for_attr              (self, name, value)
+        #     check_2 = value_type_matches_obj_annotation_for_union_and_annotated(self, name, value)
+        #     if (check_1 is False and check_2 is None  or
+        #         check_1 is None  and check_2 is False or
+        #         check_1 is False and check_2 is False   ):          # fix for type safety assigment on Union vars
+        #         raise ValueError(f"Invalid type for attribute '{name}'. Expected '{annotations.get(name)}' but got '{type(value)}'")
+        # else:
+        #     if hasattr(self, name) and annotations.get(name) :     # don't allow previously set variables to be set to None
+        #         if getattr(self, name) is not None:                         # unless it is already set to None
+        #             raise ValueError(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{self.__annotations__.get(name)}' but got '{type(value)}'")
+        #
+        # # todo: refactor this to separate method
+        # if hasattr(annotations, 'get'):
+        #     annotation = annotations.get(name)
+        #     if annotation:
+        #         annotation_origin = get_origin(annotation)
+        #         if annotation_origin is Annotated:
+        #             annotation_args = get_args(annotation)
+        #             target_type = annotation_args[0]
+        #             for attribute in annotation_args[1:]:
+        #                 if isinstance(attribute, Type_Safe__Validator):
+        #                     attribute.validate(value=value, field_name=name, target_type=target_type)
+        #         elif annotation_origin is dict:
+        #             value = self.deserialize_dict__using_key_value_annotations(name, value)
+        #
+        # super().__setattr__(name, value)
 
     def __attr_names__(self):
         from osbot_utils.utils.Misc import list_set
@@ -119,63 +131,65 @@ class Type_Safe:
 
     @classmethod
     def __cls_kwargs__(cls, include_base_classes=True):                  # Return current class dictionary of class level variables and their values
-        import functools
-        import inspect
-        from enum                      import EnumMeta
-        from osbot_utils.utils.Objects import obj_is_type_union_compatible
+        return cache__class_kwargs.get_cls_kwargs(cls, include_base_classes)
 
-        IMMUTABLE_TYPES = (bool, int, float, complex, str, tuple, frozenset, bytes, NoneType, EnumMeta, type)
-
-
-        kwargs = {}
-
-        for base_cls in inspect.getmro(cls):
-            if base_cls is object:                                                      # Skip the base 'object' class
-                continue
-            for k, v in vars(base_cls).items():
-                # todo: refactor this logic since it is weird to start with a if not..., and then if ... continue (all these should be if ... continue )
-                if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
-                    if isinstance(v, classmethod):                                      # also remove class methods
-                        continue
-                    if type(v) is functools._lru_cache_wrapper:                         # todo, find better way to handle edge cases like this one (which happens when the @cache decorator is used in a instance method that uses Kwargs_To_Self)
-                        continue
-                    if isinstance(v, property):                                         # skip property descriptors since they should not be handled here
-                        continue
-                    if (k in kwargs) is False:                                          # do not set the value is it has already been set
-                        kwargs[k] = v
-
-            if hasattr(base_cls,'__annotations__'):  # can only do type safety checks if the class does not have annotations
-                for var_name, var_type in base_cls.__annotations__.items():
-                    if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
-                        if var_name in kwargs:
-                            continue
-                        var_value = cls.__default__value__(var_type)
-                        kwargs[var_name] = var_value
-                    else:
-                        var_value = getattr(base_cls, var_name)
-                        if var_value is not None:                                                                   # allow None assignments on ctor since that is a valid use case
-                            if get_origin(var_type) is Annotated:
-                                continue
-                            if get_origin(var_type) is type:  # Special handling for Type[T]
-                                if not isinstance(var_value, type):
-                                    exception_message = f"variable '{var_name}' is defined as Type[T] but has value '{var_value}' which is not a type"
-                                    raise ValueError(exception_message)
-                                type_arg = get_args(var_type)[0]
-                                if not issubclass(var_value, type_arg):
-                                    exception_message = f"variable '{var_name}' is defined as {var_type} but value {var_value} is not a subclass of {type_arg}"
-                                    raise ValueError(exception_message)
-                            elif var_type and not isinstance(var_value, var_type):                                    # check type
-                                exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
-                                raise ValueError(exception_message)
-                            if var_type not in IMMUTABLE_TYPES and var_name.startswith('__') is False:              # if var_type is not one of the IMMUTABLE_TYPES or is an __ internal
-                                #todo: fix type safety bug that I believe is caused here
-                                if obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                # if var_type is not something like Optional[Union[int, str]]
-                                    if type(var_type) not in IMMUTABLE_TYPES:
-                                        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Type_Safe, with only the following immutable types being supported: '{IMMUTABLE_TYPES}'"
-                                        raise ValueError(exception_message)
-            if include_base_classes is False:
-                break
-        return kwargs
+        # import functools
+        # import inspect
+        # from enum                      import EnumMeta
+        # from osbot_utils.utils.Objects import obj_is_type_union_compatible
+        #
+        # IMMUTABLE_TYPES = (bool, int, float, complex, str, tuple, frozenset, bytes, NoneType, EnumMeta, type)
+        #
+        #
+        # kwargs = {}
+        #
+        # for base_cls in inspect.getmro(cls):
+        #     if base_cls is object:                                                      # Skip the base 'object' class
+        #         continue
+        #     for k, v in vars(base_cls).items():
+        #         # todo: refactor this logic since it is weird to start with a if not..., and then if ... continue (all these should be if ... continue )
+        #         if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
+        #             if isinstance(v, classmethod):                                      # also remove class methods
+        #                 continue
+        #             if type(v) is functools._lru_cache_wrapper:                         # todo, find better way to handle edge cases like this one (which happens when the @cache decorator is used in a instance method that uses Kwargs_To_Self)
+        #                 continue
+        #             if isinstance(v, property):                                         # skip property descriptors since they should not be handled here
+        #                 continue
+        #             if (k in kwargs) is False:                                          # do not set the value is it has already been set
+        #                 kwargs[k] = v
+        #
+        #     if hasattr(base_cls,'__annotations__'):  # can only do type safety checks if the class does not have annotations
+        #         for var_name, var_type in base_cls.__annotations__.items():
+        #             if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
+        #                 if var_name in kwargs:
+        #                     continue
+        #                 var_value = cls.__default__value__(var_type)
+        #                 kwargs[var_name] = var_value
+        #             else:
+        #                 var_value = getattr(base_cls, var_name)
+        #                 if var_value is not None:                                                                   # allow None assignments on ctor since that is a valid use case
+        #                     if get_origin(var_type) is Annotated:
+        #                         continue
+        #                     if get_origin(var_type) is type:  # Special handling for Type[T]
+        #                         if not isinstance(var_value, type):
+        #                             exception_message = f"variable '{var_name}' is defined as Type[T] but has value '{var_value}' which is not a type"
+        #                             raise ValueError(exception_message)
+        #                         type_arg = get_args(var_type)[0]
+        #                         if not issubclass(var_value, type_arg):
+        #                             exception_message = f"variable '{var_name}' is defined as {var_type} but value {var_value} is not a subclass of {type_arg}"
+        #                             raise ValueError(exception_message)
+        #                     elif var_type and not isinstance(var_value, var_type):                                    # check type
+        #                         exception_message = f"variable '{var_name}' is defined as type '{var_type}' but has value '{var_value}' of type '{type(var_value)}'"
+        #                         raise ValueError(exception_message)
+        #                     if var_type not in IMMUTABLE_TYPES and var_name.startswith('__') is False:              # if var_type is not one of the IMMUTABLE_TYPES or is an __ internal
+        #                         #todo: fix type safety bug that I believe is caused here
+        #                         if obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                # if var_type is not something like Optional[Union[int, str]]
+        #                             if type(var_type) not in IMMUTABLE_TYPES:
+        #                                 exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Type_Safe, with only the following immutable types being supported: '{IMMUTABLE_TYPES}'"
+        #                                 raise ValueError(exception_message)
+        #     if include_base_classes is False:
+        #         break
+        # return kwargs
 
     @classmethod
     def __default__value__(cls, var_type):
