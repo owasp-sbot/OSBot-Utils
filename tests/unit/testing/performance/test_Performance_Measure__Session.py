@@ -36,7 +36,7 @@ class test_Performance_Checks__Session(TestCase):
 
 
         Performance_Measure__Session().measure(str        ).print().assert_time(self.time_100_ns                    )
-        Performance_Measure__Session().measure(Random_Guid).print().assert_time(self.time_6_kns                     )
+        Performance_Measure__Session().measure(Random_Guid).print().assert_time(self.time_5_kns, self.time_6_kns    )
         Performance_Measure__Session().measure(An_Class_1 ).print().assert_time(self.time_100_ns                    )
         Performance_Measure__Session().measure(An_Class_2 ).print().assert_time(self.time_5_kns , self.time_6_kns   )
         Performance_Measure__Session().measure(An_Class_3 ).print().assert_time(self.time_10_kns, self.time_20_kns  )

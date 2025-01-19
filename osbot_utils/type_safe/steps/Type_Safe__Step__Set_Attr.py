@@ -47,7 +47,10 @@ class Type_Safe__Step__Set_Attr:
                         if isinstance(attribute, Type_Safe__Validator):
                             attribute.validate(value=value, field_name=name, target_type=target_type)
                 elif annotation_origin is dict:
-                    value = _self.deserialize_dict__using_key_value_annotations(name, value)
+                    # todo: refactor how this actually works since it is not good to having to use the deserialize_dict__using_key_value_annotations from here
+                    from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json import Type_Safe__Step__From_Json
+                    value = Type_Safe__Step__From_Json().deserialize_dict__using_key_value_annotations(_self, name, value)
+                    #value = _self.deserialize_dict__using_key_value_annotations(name, value)
 
         _super.__setattr__(name, value)
 

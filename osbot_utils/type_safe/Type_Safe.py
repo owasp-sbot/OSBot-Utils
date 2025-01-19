@@ -4,11 +4,10 @@
 import sys
 import types
 
-from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Kwargs import type_safe_step_default_kwargs
+from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Kwargs    import type_safe_step_default_kwargs
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value     import type_safe_step_default_value
 from osbot_utils.type_safe.steps.Type_Safe__Step__Init              import type_safe_step_init
 from osbot_utils.type_safe.steps.Type_Safe__Step__Set_Attr          import type_safe_step_set_attr
-from osbot_utils.utils.Objects                                      import all_annotations
 from osbot_utils.type_safe.Cache__Class_Kwargs                      import cache__class_kwargs
 
 # Backport implementations of get_origin and get_args for Python 3.7
@@ -262,29 +261,26 @@ class Type_Safe:
         #
         # return kwargs
 
-    def __kwargs__(self):
-        """Return a dictionary of the current instance's attribute values including inherited class defaults."""
-        kwargs = {}
-        # Update with instance-specific values
-        for key, value in self.__default_kwargs__().items():
-            kwargs[key] = self.__getattribute__(key)
-            # if hasattr(self, key):
-            #     kwargs[key] = self.__getattribute__(key)
-            # else:
-            #     kwargs[key] = value                                   # todo: see if this is stil a valid scenario
-        return kwargs
+    def __kwargs__(self):                                   # Return a dictionary of the current instance's attribute values including inherited class defaults.
+        return type_safe_step_default_kwargs.kwargs(self)
+        # kwargs = {}
+        # # Update with instance-specific values
+        # for key, value in self.__default_kwargs__().items():
+        #     kwargs[key] = self.__getattribute__(key)
+        # return kwargs
 
 
     def __locals__(self):
+        return type_safe_step_default_kwargs.locals(self)
         """Return a dictionary of the current instance's attribute values."""
-        kwargs = self.__kwargs__()
-
-        if not isinstance(vars(self), types.FunctionType):
-            for k, v in vars(self).items():
-                if not isinstance(v, types.FunctionType) and not isinstance(v,classmethod):
-                    if k.startswith('__') is False:
-                        kwargs[k] = v
-        return kwargs
+        # kwargs = self.__kwargs__()
+        #
+        # if not isinstance(vars(self), types.FunctionType):
+        #     for k, v in vars(self).items():
+        #         if not isinstance(v, types.FunctionType) and not isinstance(v,classmethod):
+        #             if k.startswith('__') is False:
+        #                 kwargs[k] = v
+        #return kwargs
 
     @classmethod
     def __schema__(cls):
@@ -309,6 +305,7 @@ class Type_Safe:
         return self.serialize_to_dict()
 
 
+    # todo: see if we still need this. now that Type_Safe handles base types, there should be no need for this
     def merge_with(self, target):
         original_attrs = {k: v for k, v in self.__dict__.items() if k not in target.__dict__}       # Store the original attributes of self that should be retained.
         self.__dict__ = target.__dict__                                                             # Set the target's __dict__ to self, now self and target share the same __dict__.
@@ -323,6 +320,7 @@ class Type_Safe:
         for k,v in self.__cls_kwargs__().items():
             setattr(self, k, v)
 
+    # todo: see if we still need this here in this class
     def update_from_kwargs(self, **kwargs):                         # Update instance attributes with values from provided keyword arguments.
         from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_attr
         for key, value in kwargs.items():
@@ -333,113 +331,7 @@ class Type_Safe:
                 setattr(self, key, value)
         return self
 
-    def deserialize_type__using_value(self, value):
-        if value:
-            try:
-                module_name, type_name = value.rsplit('.', 1)
-                if module_name == 'builtins' and type_name == 'NoneType':                       # Special case for NoneType (which serialises as builtins.* , but it actually in types.* )
-                    value = types.NoneType
-                else:
-                    module = __import__(module_name, fromlist=[type_name])
-                    value = getattr(module, type_name)
-            except (ValueError, ImportError, AttributeError) as e:
-                raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")
-        return value
 
-    def deserialize_dict__using_key_value_annotations(self, key, value):
-        from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
-        annotations = all_annotations(self)
-        dict_annotations_tuple = get_args(annotations.get(key))
-        if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
-            return value
-        if not type(value) is dict:
-            return value
-        key_class   = dict_annotations_tuple[0]
-        value_class = dict_annotations_tuple[1]
-        new_value   = Type_Safe__Dict(expected_key_type=key_class, expected_value_type=value_class)
-
-        for dict_key, dict_value in value.items():
-            if issubclass(key_class, Type_Safe):
-                new__dict_key = key_class().deserialize_from_dict(dict_key)
-            else:
-                new__dict_key = key_class(dict_key)
-
-            if type(dict_value) == value_class:                                        # if the value is already the target, then just use it
-                new__dict_value = dict_value
-            elif issubclass(value_class, Type_Safe):
-                new__dict_value = value_class().deserialize_from_dict(dict_value)
-            elif value_class is Any:
-                new__dict_value = dict_value
-            else:
-                new__dict_value = value_class(dict_value)
-            new_value[new__dict_key] = new__dict_value
-
-        return new_value
-
-    # todo: this needs refactoring, since the logic and code is getting quite complex (to be inside methods like this)
-    def deserialize_from_dict(self, data, raise_on_not_found=False):
-        from decimal                                    import Decimal
-        from enum                                       import EnumMeta
-        from osbot_utils.type_safe.Type_Safe__List      import Type_Safe__List
-        from osbot_utils.helpers.Random_Guid            import Random_Guid
-        from osbot_utils.helpers.Random_Guid_Short      import Random_Guid_Short
-        from osbot_utils.utils.Objects                  import obj_is_attribute_annotation_of_type
-        from osbot_utils.utils.Objects                  import obj_attribute_annotation
-        from osbot_utils.utils.Objects                  import enum_from_value
-        from osbot_utils.helpers.Safe_Id                import Safe_Id
-        from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
-
-        if hasattr(data, 'items') is False:
-            raise ValueError(f"Expected a dictionary, but got '{type(data)}'")
-
-        for key, value in data.items():
-            if hasattr(self, key) and isinstance(getattr(self, key), Type_Safe):
-                getattr(self, key).deserialize_from_dict(value)                                             # if the attribute is a Type_Safe object, then also deserialize it
-            else:
-                if hasattr(self, '__annotations__'):                                                        # can only do type safety checks if the class does not have annotations
-                    if hasattr(self, key) is False:                                                         # make sure we are now adding new attributes to the class
-                        if raise_on_not_found:
-                            raise ValueError(f"Attribute '{key}' not found in '{self.__class__.__name__}'")
-                        else:
-                            continue
-                    if obj_attribute_annotation(self, key) == type:                                         # Handle type objects
-                        value = self.deserialize_type__using_value(value)
-                    elif obj_is_attribute_annotation_of_type(self, key, dict):                                # handle the case when the value is a dict
-                        value = self.deserialize_dict__using_key_value_annotations(key, value)
-                    elif obj_is_attribute_annotation_of_type(self, key, list):                              # handle the case when the value is a list
-                        attribute_annotation = obj_attribute_annotation(self, key)                          # get the annotation for this variable
-                        attribute_annotation_args = get_args(attribute_annotation)
-                        if attribute_annotation_args:
-                            expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
-                            type_safe_list       = Type_Safe__List(expected_type)                               # create a new instance of Type_Safe__List
-                            for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
-                                if type(item) is dict:
-                                    new_item = expected_type(**item)                                                # create new object
-                                else:
-                                    new_item = expected_type(item)
-                                type_safe_list.append(new_item)                                                 # and add it to the new type_safe_list obejct
-                            value = type_safe_list                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
-                    else:
-                        if value is not None:
-                            if obj_is_attribute_annotation_of_type(self, key, EnumMeta):            # Handle the case when the value is an Enum
-                                enum_type = getattr(self, '__annotations__').get(key)
-                                if type(value) is not enum_type:                                    # If the value is not already of the target type
-                                    value = enum_from_value(enum_type, value)                       # Try to resolve the value into the enum
-
-                            # todo: refactor these special cases into a separate method to class
-                            elif obj_is_attribute_annotation_of_type(self, key, Decimal):           # handle Decimals
-                                value = Decimal(value)
-                            elif obj_is_attribute_annotation_of_type(self, key, Safe_Id):           # handle Safe_Id
-                                value = Safe_Id(value)
-                            elif obj_is_attribute_annotation_of_type(self, key, Random_Guid):       # handle Random_Guid
-                                value = Random_Guid(value)
-                            elif obj_is_attribute_annotation_of_type(self, key, Random_Guid_Short): # handle Random_Guid_Short
-                                value = Random_Guid_Short(value)
-                            elif obj_is_attribute_annotation_of_type(self, key, Timestamp_Now):     # handle Timestamp_Now
-                                value = Timestamp_Now(value)
-                    setattr(self, key, value)                                                   # Direct assignment for primitive types and other structures
-
-        return self
 
     def obj(self):
         from osbot_utils.utils.Objects import dict_to_obj
@@ -456,13 +348,16 @@ class Type_Safe:
 
     @classmethod
     def from_json(cls, json_data, raise_on_not_found=False):
-        from osbot_utils.utils.Json import json_parse
+        from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json import type_safe_step_from_json     # circular dependency on Type_Safe
+        return type_safe_step_from_json.from_json(cls, json_data, raise_on_not_found)
 
-        if type(json_data) is str:
-            json_data = json_parse(json_data)
-        if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
-            return cls().deserialize_from_dict(json_data,raise_on_not_found=raise_on_not_found)
-        return cls()
+        # from osbot_utils.utils.Json import json_parse
+        #
+        # if type(json_data) is str:
+        #     json_data = json_parse(json_data)
+        # if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
+        #     return cls().deserialize_from_dict(json_data,raise_on_not_found=raise_on_not_found)
+        # return cls()
 
 # todo: see if it is possible to add recursive protection to this logic
 def serialize_to_dict(obj):

@@ -2,19 +2,20 @@ import re
 import sys
 import types
 import pytest
-from enum                                    import Enum, auto
-from typing                                  import Union, Optional, Type
-from unittest                                import TestCase
-from osbot_utils.helpers.Timestamp_Now       import Timestamp_Now
-from osbot_utils.helpers.Guid                import Guid
-from osbot_utils.helpers.Random_Guid         import Random_Guid
-from osbot_utils.type_safe.Type_Safe         import Type_Safe, serialize_to_dict
-from osbot_utils.type_safe.Type_Safe__List   import Type_Safe__List
-from osbot_utils.testing.Catch               import Catch
-from osbot_utils.testing.Stdout              import Stdout
-from osbot_utils.utils.Json                  import json_dumps
-from osbot_utils.utils.Misc                  import random_string, list_set
-from osbot_utils.utils.Objects               import obj_data, __ , default_value
+from enum                                                    import Enum, auto
+from typing                                                  import Union, Optional, Type
+from unittest                                                import TestCase
+from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
+from osbot_utils.helpers.Guid                                import Guid
+from osbot_utils.helpers.Random_Guid                         import Random_Guid
+from osbot_utils.type_safe.Type_Safe                         import Type_Safe, serialize_to_dict
+from osbot_utils.type_safe.Type_Safe__List                   import Type_Safe__List
+from osbot_utils.testing.Catch                               import Catch
+from osbot_utils.testing.Stdout                              import Stdout
+from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json  import type_safe_step_from_json
+from osbot_utils.utils.Json                                  import json_dumps
+from osbot_utils.utils.Misc                                  import random_string, list_set
+from osbot_utils.utils.Objects                               import obj_data, __ , default_value
 
 class test_Type_Safe(TestCase):
 
@@ -212,7 +213,7 @@ class test_Type_Safe(TestCase):
         assert an_class.json()    == an_class.serialize_to_dict()
 
         an_class_2 = An_Class()
-        an_class_2.deserialize_from_dict(an_class_dict)
+        type_safe_step_from_json.deserialize_from_dict(an_class_2, an_class_dict)
         assert an_class_2.an_str  == an_class.an_str
         assert an_class_2.an_enum == an_class.an_enum
         assert an_class_2.json()  == an_class_dict
@@ -231,7 +232,7 @@ class test_Type_Safe(TestCase):
         an_class_dict = {'an_enum': 'value_2', 'an_str': ''}
         an_class      = An_Class()
 
-        an_class.deserialize_from_dict(an_class_dict)
+        type_safe_step_from_json.deserialize_from_dict(an_class, an_class_dict)
         assert an_class.json() == an_class_dict
 
 
@@ -244,7 +245,7 @@ class test_Type_Safe(TestCase):
 
         an_parent_dict  = {'in_base': 'base', 'in_parent': 'parent'}
         an_parent_class = An_Parent_Class()
-        an_parent_class.deserialize_from_dict(an_parent_dict)
+        type_safe_step_from_json.deserialize_from_dict(an_parent_class,an_parent_dict)
         assert an_parent_class.json() == an_parent_dict
 
         # check nested objects
@@ -257,7 +258,7 @@ class test_Type_Safe(TestCase):
 
         an_class_1_dict = {'an_class_1': {'in_class_1': 'data_1'}, 'in_class_2': 'data_2'}
         an_class_2 = An_Class_2()
-        an_class_2.deserialize_from_dict(an_class_1_dict)
+        type_safe_step_from_json.deserialize_from_dict(an_class_2, an_class_1_dict)
         assert an_class_2.json() == an_class_1_dict
 
         with Stdout() as stdout:

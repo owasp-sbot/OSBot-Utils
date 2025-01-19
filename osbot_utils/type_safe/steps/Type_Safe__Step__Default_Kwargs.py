@@ -21,5 +21,22 @@ class Type_Safe__Step__Default_Kwargs:
 
         return kwargs
 
+    def kwargs(self, _self):
+        kwargs = {}
+        for key, value in self.default_kwargs(_self).items():                      # Update with instance-specific values
+            kwargs[key] = _self.__getattribute__(key)
+        return kwargs
+
+    def locals(self, _self):
+        """Return a dictionary of the current instance's attribute values."""
+        kwargs = self.kwargs(_self)
+
+        if not isinstance(vars(_self), types.FunctionType):
+            for k, v in vars(_self).items():
+                if not isinstance(v, types.FunctionType) and not isinstance(v,classmethod):
+                    if k.startswith('__') is False:
+                        kwargs[k] = v
+        return kwargs
+
 type_safe_step_default_kwargs = Type_Safe__Step__Default_Kwargs()
 
