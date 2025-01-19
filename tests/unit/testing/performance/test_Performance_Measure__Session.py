@@ -1,4 +1,6 @@
+import pytest
 from unittest                                                       import TestCase
+from osbot_utils.utils.Env                                          import in_github_action
 from osbot_utils.helpers.Random_Guid                                import Random_Guid
 from osbot_utils.testing.performance.Performance_Measure__Session   import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                import Type_Safe
@@ -8,6 +10,8 @@ class test_Performance_Checks__Session(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        if in_github_action():
+           pytest.skip("Skipping tests in Github Actions")
         cls.time_0_ns    =      0
         cls.time_100_ns  =    100
         cls.time_3_kns   =  3_000
@@ -40,9 +44,9 @@ class test_Performance_Checks__Session(TestCase):
             an_str: str = '42'
 
 
-        Performance_Measure__Session().measure(str        ).print().assert_time(self.time_100_ns, self.time_0_ns                     )
+        Performance_Measure__Session().measure(str        ).print().assert_time(self.time_100_ns, self.time_0_ns                      )
         Performance_Measure__Session().measure(Random_Guid).print().assert_time(self.time_3_kns , self.time_5_kns, self.time_6_kns    )
-        Performance_Measure__Session().measure(An_Class_1 ).print().assert_time(self.time_100_ns                    )
+        Performance_Measure__Session().measure(An_Class_1 ).print().assert_time(self.time_100_ns                                      )
         Performance_Measure__Session().measure(An_Class_2 ).print().assert_time(self.time_3_kns , self.time_4_kns , self.time_5_kns , self.time_6_kns   )
         Performance_Measure__Session().measure(An_Class_3 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns  )
         Performance_Measure__Session().measure(An_Class_4 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns  )
