@@ -85,8 +85,8 @@ class Type_Safe__Base:
                 actual_type_name = type_str(type(item))
                 raise TypeError(f"Expected '{expected_type_name}', but got '{actual_type_name}'")
 
-    def json(self):
-        raise NotImplemented
+    # def json(self):
+    #     pass
 
 # todo: see if we should/can move this to the Objects.py file
 def type_str(tp):
@@ -100,21 +100,3 @@ def type_str(tp):
         args = get_args(tp)
         args_str = ', '.join(type_str(arg) for arg in args)
         return f"{origin.__name__}[{args_str}]"
-
-def get_object_type_str(obj):
-    if isinstance(obj, dict):
-        if not obj:
-            return "Dict[Empty]"
-        key_types      = set(type(k).__name__ for k in obj.keys())
-        value_types    = set(type(v).__name__ for v in obj.values())
-        key_type_str   = ', '.join(sorted(key_types))
-        value_type_str = ', '.join(sorted(value_types))
-        return f"Dict[{key_type_str}, {value_type_str}]"
-    elif isinstance(obj, list):
-        if not obj:
-            return "List[Empty]"
-        elem_types = set(type(e).__name__ for e in obj)
-        elem_type_str = ', '.join(sorted(elem_types))
-        return f"List[{elem_type_str}]"
-    else:
-        return type(obj).__name__

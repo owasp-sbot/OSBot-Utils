@@ -1,9 +1,5 @@
 # todo: find a way to add these documentations strings to a separate location so that
 #       the data is available in IDE's code complete
-
-import sys
-import types
-
 from osbot_utils.type_safe.steps.Type_Safe__Step__Class_Kwargs      import type_safe_step_class_kwargs
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Kwargs    import type_safe_step_default_kwargs
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value     import type_safe_step_default_value
@@ -48,24 +44,19 @@ class Type_Safe:
     def __locals__(self):                                                   # Return a dictionary of the current instance's attribute values.
         return type_safe_step_default_kwargs.locals(self)
 
-    @classmethod
-    def __schema__(cls):
-        if hasattr(cls,'__annotations__'):  # can only do type safety checks if the class does not have annotations
-            return cls.__annotations__
-        return {}
-
     # global methods added to any class that base classes this
     # todo: see if there should be a prefix on these methods, to make it easier to spot them
     #       of if these are actually that useful that they should be added like this
-    def bytes(self):
-        from osbot_utils.utils.Json import json_to_bytes
-
-        return json_to_bytes(self.json())
-
-    def bytes_gz(self):
-        from osbot_utils.utils.Json import json_to_gz
-
-        return json_to_gz(self.json())
+    # todo: these methods should not be here
+    # def bytes(self):
+    #     from osbot_utils.utils.Json import json_to_bytes
+    #
+    #     return json_to_bytes(self.json())
+    #
+    # def bytes_gz(self):
+    #     from osbot_utils.utils.Json import json_to_gz
+    #
+    #     return json_to_gz(self.json())
 
     def json(self):
         return self.serialize_to_dict()

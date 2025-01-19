@@ -2,9 +2,10 @@ import types
 
 import functools
 import inspect
-from enum                       import EnumMeta
-from typing                     import Dict, Any, Type, get_origin, Annotated, get_args
-from osbot_utils.utils.Objects  import obj_is_type_union_compatible
+from enum                                                       import EnumMeta
+from typing                                                     import Dict, Any, Type, get_origin, Annotated, get_args
+from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value import type_safe_step_default_value
+from osbot_utils.utils.Objects                                  import obj_is_type_union_compatible
 
 IMMUTABLE_TYPES = (bool, int, float, complex, str, tuple, frozenset, bytes, types.NoneType, EnumMeta, type)
 
@@ -36,7 +37,7 @@ class Type_Safe__Step__Class_Kwargs:                                      # Cach
                     if hasattr(base_cls, var_name) is False:                                # only add if it has not already been defined
                         if var_name in kwargs:
                             continue
-                        var_value = cls.__default__value__(var_type)
+                        var_value = type_safe_step_default_value.default_value(cls, var_type)
                         kwargs[var_name] = var_value
                     else:
                         var_value = getattr(base_cls, var_name)

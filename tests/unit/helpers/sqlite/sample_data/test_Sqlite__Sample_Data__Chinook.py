@@ -79,9 +79,9 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
             assert table_data__from_db == table_data__from_json
 
             assert table_row_schema is not None
-            assert table_row_schema.__name__     == f'Row_Schema__{str_cap_snake_case(table_name)}'
-            assert table_row_schema.__module__   == SQL_TABLE__MODULE_NAME__ROW_SCHEMA
-            assert table_row_schema.__schema__() == table.fields_types__cached(exclude_id=True)
+            assert table_row_schema.__name__                    == f'Row_Schema__{str_cap_snake_case(table_name)}'
+            assert table_row_schema.__module__                  == SQL_TABLE__MODULE_NAME__ROW_SCHEMA
+            assert table_row_schema.__class__.__annotations__() == table.fields_types__cached(exclude_id=True)
 
 
 
