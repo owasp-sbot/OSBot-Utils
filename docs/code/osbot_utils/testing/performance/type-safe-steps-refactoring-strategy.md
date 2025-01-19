@@ -23,12 +23,15 @@ This analysis examines the performance characteristics of the refactored Type_Sa
 This step shows the highest performance impact in regular operations. Every class initialization and attribute access depends on its performance.
 
 Implementation:
+
 ```python
 class Type_Safe__Step__Class_Kwargs:
     def get_cls_kwargs(cls: Type, include_base_classes: bool = True) -> Dict[str, Any]:
         """Class attribute handling - critical performance path"""
+```
 
 Performance Profile:
+
 | Operation | Time (ns) | Frequency | Impact |
 |-----------|-----------|-----------|---------|
 | Empty class | 1,000 | Every instantiation | High |
@@ -96,8 +99,10 @@ class Type_Safe__Step__Default_Kwargs:
         """Instance value management - frequent operation"""
     def locals(self, _self) -> Dict[str, Any]:
         """Local attribute access - high frequency"""
+```
 
 Performance Profile:
+
 | Operation | Time (ns) | Call Frequency | Total Impact |
 |-----------|-----------|----------------|--------------|
 | Default retrieval | 2,000-3,000 | Every attribute init | High |
@@ -168,8 +173,10 @@ Implementation:
 class Type_Safe__Step__Default_Value:
     def default_value(self, _cls: Type, var_type: Type) -> Any:
         """Default value generation - performance critical"""
+```
 
 Performance Profile:
+
 | Type Operation | Time (ns) | Call Pattern | Impact |
 |----------------|-----------|--------------|---------|
 | Primitive types | 1,000 | Every attribute | Medium |
@@ -235,8 +242,10 @@ class Type_Safe__Step__From_Json:
     def from_json(self, _cls: Type, json_data: Union[str, Dict],
                  raise_on_not_found: bool = False) -> Any:
         """JSON deserialization - high latency operation"""
+```
 
 Performance Profile:
+
 | Structure Type | Time (ns) | Usage Pattern | Impact |
 |----------------|-----------|---------------|---------|
 | Primitive types | 20,000-50,000 | Common | Medium |
@@ -319,6 +328,7 @@ Performance Profile:
 | Complex init | 8,000 | Complex types | High |
 | None handling | 2,000-3,000 | Optional attrs | Medium |
 | Defaults | 7,000 | Most attrs | High |
+```
 
 Critical Issues:
 - Repeated kwargs processing
