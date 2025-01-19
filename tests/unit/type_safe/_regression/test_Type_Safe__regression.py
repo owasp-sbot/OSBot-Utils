@@ -802,7 +802,8 @@ class test_Type_Safe__regression(TestCase):
 
         class An_Class(Kwargs_To_Self):
             test_case : TestCase
-        with patch('osbot_utils.type_safe.Type_Safe.default_value') as patched_default_value:
+        with patch('osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value.default_value') as patched_default_value:
+
             patched_default_value.side_effect = default_value                   # make sure that the main code uses the original method (i.e. not the patched one)
                                                                                 #       since all we need is the ability to count how many times the method was called
             an_class = An_Class()                                               # create instance of class (which will call default_value via __default__kwargs__)

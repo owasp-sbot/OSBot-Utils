@@ -1,14 +1,15 @@
 # todo: find a way to add these documentations strings to a separate location so that
 #       the data is available in IDE's code complete
-import inspect
+
 import sys
 import types
 
-from osbot_utils.type_safe.steps.Type_Safe__Step__Init      import type_safe_step_init
-from osbot_utils.type_safe.steps.Type_Safe__Step__Set_Attr  import type_safe_step_set_attr
-from osbot_utils.utils.Objects                              import default_value                     # todo: remove test mocking requirement for this to be here (instead of on the respective method)
-from osbot_utils.utils.Objects                              import all_annotations
-from osbot_utils.type_safe.Cache__Class_Kwargs              import cache__class_kwargs
+from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Kwargs import type_safe_step_default_kwargs
+from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value     import type_safe_step_default_value
+from osbot_utils.type_safe.steps.Type_Safe__Step__Init              import type_safe_step_init
+from osbot_utils.type_safe.steps.Type_Safe__Step__Set_Attr          import type_safe_step_set_attr
+from osbot_utils.utils.Objects                                      import all_annotations
+from osbot_utils.type_safe.Cache__Class_Kwargs                      import cache__class_kwargs
 
 # Backport implementations of get_origin and get_args for Python 3.7
 if sys.version_info < (3, 8):                                           # pragma: no cover
@@ -193,70 +194,73 @@ class Type_Safe:
 
     @classmethod
     def __default__value__(cls, var_type):
-        import typing
-        from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
-        from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
-        if get_origin(var_type) is type:                        # Special handling for Type[T]  # todo: reuse the get_origin value
-            type_args = get_args(var_type)
-            if type_args:
-                if isinstance(type_args[0], ForwardRef):
-                    forward_name = type_args[0].__forward_arg__
-                    for base_cls in inspect.getmro(cls):
-                        if base_cls.__name__ == forward_name:
-                            return cls                                                      # note: in this case we return the cls, and not the base_cls (which makes sense since this happens when the cls class uses base_cls as base, which has a ForwardRef to base_cls )
-                return type_args[0]                             # Return the actual type as the default value
+        return type_safe_step_default_value.default_value(cls, var_type)
 
-        if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
-            return set()
-        if get_origin(var_type) is set:
-            return set()                                        # todo: add Type_Safe__Set
-
-        if var_type is typing.Dict:
-            return {}
-
-        if get_origin(var_type) is dict:                        # e.g. Dict[key_type, value_type]
-            key_type, value_type = get_args(var_type)
-            if isinstance(key_type, ForwardRef):                # Handle forward references on key_type ---
-                forward_name = key_type.__forward_arg__
-                if forward_name == cls.__name__:
-                    key_type = cls
-            if isinstance(value_type, ForwardRef):              # Handle forward references on value_type ---
-                forward_name = value_type.__forward_arg__
-                if forward_name == cls.__name__:
-                    value_type = cls
-            return Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
-
-        if var_type is typing.List:
-            return []                                           # handle case when List was used with no type information provided
-
-        if get_origin(var_type) is list:                        # if we have list defined as list[type]
-            item_type = get_args(var_type)[0]                   #    get the type that was defined
-            if isinstance(item_type, ForwardRef):               # handle the case when the type is a forward reference
-                forward_name = item_type.__forward_arg__
-                if forward_name == cls.__name__:                #    if the forward reference is to the current class (simple name check)
-                    item_type = cls                             #       set the item_type to the current class
-            return Type_Safe__List(expected_type=item_type)     #    and used it as expected_type in Type_Safe__List
-        else:
-            return default_value(var_type)                      # for all other cases call default_value, which will try to create a default instance
+        # import typing
+        # from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
+        # from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
+        # if get_origin(var_type) is type:                        # Special handling for Type[T]  # todo: reuse the get_origin value
+        #     type_args = get_args(var_type)
+        #     if type_args:
+        #         if isinstance(type_args[0], ForwardRef):
+        #             forward_name = type_args[0].__forward_arg__
+        #             for base_cls in inspect.getmro(cls):
+        #                 if base_cls.__name__ == forward_name:
+        #                     return cls                                                      # note: in this case we return the cls, and not the base_cls (which makes sense since this happens when the cls class uses base_cls as base, which has a ForwardRef to base_cls )
+        #         return type_args[0]                             # Return the actual type as the default value
+        #
+        # if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
+        #     return set()
+        # if get_origin(var_type) is set:
+        #     return set()                                        # todo: add Type_Safe__Set
+        #
+        # if var_type is typing.Dict:
+        #     return {}
+        #
+        # if get_origin(var_type) is dict:                        # e.g. Dict[key_type, value_type]
+        #     key_type, value_type = get_args(var_type)
+        #     if isinstance(key_type, ForwardRef):                # Handle forward references on key_type ---
+        #         forward_name = key_type.__forward_arg__
+        #         if forward_name == cls.__name__:
+        #             key_type = cls
+        #     if isinstance(value_type, ForwardRef):              # Handle forward references on value_type ---
+        #         forward_name = value_type.__forward_arg__
+        #         if forward_name == cls.__name__:
+        #             value_type = cls
+        #     return Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
+        #
+        # if var_type is typing.List:
+        #     return []                                           # handle case when List was used with no type information provided
+        #
+        # if get_origin(var_type) is list:                        # if we have list defined as list[type]
+        #     item_type = get_args(var_type)[0]                   #    get the type that was defined
+        #     if isinstance(item_type, ForwardRef):               # handle the case when the type is a forward reference
+        #         forward_name = item_type.__forward_arg__
+        #         if forward_name == cls.__name__:                #    if the forward reference is to the current class (simple name check)
+        #             item_type = cls                             #       set the item_type to the current class
+        #     return Type_Safe__List(expected_type=item_type)     #    and used it as expected_type in Type_Safe__List
+        # else:
+        #     return default_value(var_type)                      # for all other cases call default_value, which will try to create a default instance
 
     def __default_kwargs__(self):                               # Return entire (including base classes) dictionary of class level variables and their values.
-        import inspect
-        kwargs = {}
-        cls = type(self)
-        for base_cls in inspect.getmro(cls):                  # Traverse the inheritance hierarchy and collect class-level attributes
-            if base_cls is object:  # Skip the base 'object' class
-                continue
-            for k, v in vars(base_cls).items():
-                if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
-                    if not isinstance(v, classmethod):
-                        kwargs[k] = v
-            # add the vars defined with the annotations
-            if hasattr(base_cls,'__annotations__'):  # can only do type safety checks if the class does not have annotations
-                for var_name, var_type in base_cls.__annotations__.items():
-                    var_value        = getattr(self, var_name)
-                    kwargs[var_name] = var_value
-
-        return kwargs
+        return type_safe_step_default_kwargs.default_kwargs(self)
+        # import inspect
+        # kwargs = {}
+        # cls = type(self)
+        # for base_cls in inspect.getmro(cls):                  # Traverse the inheritance hierarchy and collect class-level attributes
+        #     if base_cls is object:  # Skip the base 'object' class
+        #         continue
+        #     for k, v in vars(base_cls).items():
+        #         if not k.startswith('__') and not isinstance(v, types.FunctionType):    # remove instance functions
+        #             if not isinstance(v, classmethod):
+        #                 kwargs[k] = v
+        #     # add the vars defined with the annotations
+        #     if hasattr(base_cls,'__annotations__'):  # can only do type safety checks if the class does not have annotations
+        #         for var_name, var_type in base_cls.__annotations__.items():
+        #             var_value        = getattr(self, var_name)
+        #             kwargs[var_name] = var_value
+        #
+        # return kwargs
 
     def __kwargs__(self):
         """Return a dictionary of the current instance's attribute values including inherited class defaults."""
