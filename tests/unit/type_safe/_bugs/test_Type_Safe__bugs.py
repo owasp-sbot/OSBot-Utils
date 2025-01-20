@@ -1,10 +1,12 @@
 import re
 import sys
 import pytest
-from typing                                  import Optional, Union, Dict
-from unittest                                import TestCase
-from osbot_utils.type_safe.Type_Safe         import Type_Safe
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from typing                                             import Optional, Union, Dict
+from unittest                                           import TestCase
+from osbot_utils.type_safe.Type_Safe                    import Type_Safe
+from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
+from osbot_utils.type_safe.shared.Type_Safe__Convert    import type_safe_convert
+
 
 class test_Type_Safe__bugs(TestCase):
 
@@ -88,8 +90,7 @@ class test_Type_Safe__bugs(TestCase):
         target    = an_class
         attr_name = 'an_dict'
         value    = {'key_1': {'an_str': 'value_1'}}
-        from osbot_utils.utils.Objects  import convert_dict_to_value_from_obj_annotation
-        converted_value = convert_dict_to_value_from_obj_annotation(target, attr_name, value)
+        converted_value = type_safe_convert.convert_dict_to_value_from_obj_annotation(target, attr_name, value)
 
         assert converted_value == value
         assert type(converted_value['key_1']) is dict             # BUG: this should be An_Class_2_B

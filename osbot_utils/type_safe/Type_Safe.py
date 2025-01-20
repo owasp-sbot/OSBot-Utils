@@ -1,5 +1,6 @@
 # todo: find a way to add these documentations strings to a separate location so that
 #       the data is available in IDE's code complete
+from osbot_utils.type_safe.shared.Type_Safe__Validation             import type_safe_validation
 from osbot_utils.type_safe.steps.Type_Safe__Step__Class_Kwargs      import type_safe_step_class_kwargs
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Kwargs    import type_safe_step_default_kwargs
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value     import type_safe_step_default_value
@@ -78,11 +79,11 @@ class Type_Safe:
 
     # todo: see if we still need this here in this class
     def update_from_kwargs(self, **kwargs):                         # Update instance attributes with values from provided keyword arguments.
-        from osbot_utils.utils.Objects import value_type_matches_obj_annotation_for_attr
+
         for key, value in kwargs.items():
             if value is not None:
                 if hasattr(self,'__annotations__'):  # can only do type safety checks if the class does not have annotations
-                    if value_type_matches_obj_annotation_for_attr(self, key, value) is False:
+                    if type_safe_validation.check_if__type_matches__obj_annotation__for_attr(self, key, value) is False:
                         raise ValueError(f"Invalid type for attribute '{key}'. Expected '{self.__annotations__.get(key)}' but got '{type(value)}'")
                 setattr(self, key, value)
         return self

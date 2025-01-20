@@ -3,34 +3,33 @@ import sys
 import types
 import pytest
 import unittest
-from collections.abc                    import Mapping
-from typing                             import Optional, Union
-from unittest                           import TestCase
-from unittest.mock                      import patch, call
-from osbot_utils.testing.Stdout         import Stdout
-from osbot_utils.type_safe.Type_Safe import Type_Safe
-from osbot_utils.utils.Misc             import random_int, list_set
-from osbot_utils.utils.Objects          import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, \
-    obj_dict, default_value, value_type_matches_obj_annotation_for_attr, base_classes, \
+from collections.abc                                    import Mapping
+from typing                                             import Optional, Union
+from unittest                                           import TestCase
+from unittest.mock                                      import patch, call
+from osbot_utils.testing.Stdout                         import Stdout
+from osbot_utils.type_safe.Type_Safe                    import Type_Safe
+from osbot_utils.type_safe.shared.Type_Safe__Convert    import type_safe_convert
+from osbot_utils.type_safe.shared.Type_Safe__Validation import type_safe_validation
+from osbot_utils.utils.Misc                             import random_int, list_set
+from osbot_utils.utils.Objects                          import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, obj_dict, default_value, base_classes, \
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
-    print_object_methods, print_obj_data_aligned, obj_info, obj_data, print_obj_data_as_dict, print_object_members, \
-    obj_base_classes, obj_base_classes_names, are_types_compatible_for_assigment, type_mro, \
-    obj_is_type_union_compatible, value_type_matches_obj_annotation_for_union_and_annotated, pickle_save_to_bytes, \
-    pickle_load_from_bytes, convert_dict_to_value_from_obj_annotation, dict_to_obj, obj_to_dict, __
+    print_object_methods, print_obj_data_aligned, obj_data, print_obj_data_as_dict, print_object_members, \
+    obj_base_classes, obj_base_classes_names, type_mro, obj_is_type_union_compatible, pickle_save_to_bytes, pickle_load_from_bytes, dict_to_obj, obj_to_dict, __
 
 
 class test_Objects(TestCase):
 
     def test_are_types_compatible_for_assigment(self):
-        assert are_types_compatible_for_assigment(source_type=int      , target_type=int      ) is True
-        assert are_types_compatible_for_assigment(source_type=str      , target_type=str      ) is True
-        assert are_types_compatible_for_assigment(source_type=float    , target_type=float    ) is True
-        assert are_types_compatible_for_assigment(source_type=TestCase , target_type=TestCase ) is True
-        assert are_types_compatible_for_assigment(source_type=int      , target_type=float    ) is True
+        assert type_safe_validation.are_types_compatible_for_assigment(source_type=int      , target_type=int      ) is True
+        assert type_safe_validation.are_types_compatible_for_assigment(source_type=str      , target_type=str      ) is True
+        assert type_safe_validation.are_types_compatible_for_assigment(source_type=float    , target_type=float    ) is True
+        assert type_safe_validation.are_types_compatible_for_assigment(source_type=TestCase , target_type=TestCase ) is True
+        assert type_safe_validation.are_types_compatible_for_assigment(source_type=int      , target_type=float    ) is True
 
-        assert are_types_compatible_for_assigment(source_type=float    , target_type=int      ) is False
-        assert are_types_compatible_for_assigment(source_type=int      , target_type=str      ) is False
-        assert are_types_compatible_for_assigment(source_type=str      , target_type=int      ) is False
+        assert type_safe_validation.are_types_compatible_for_assigment(source_type=float    , target_type=int      ) is False
+        assert type_safe_validation.are_types_compatible_for_assigment(source_type=int      , target_type=str      ) is False
+        assert type_safe_validation.are_types_compatible_for_assigment(source_type=str      , target_type=int      ) is False
 
     def test_base_classes(self):
         assert base_classes(self) == [TestCase, object]
@@ -83,7 +82,7 @@ class test_Objects(TestCase):
         assert an_class_1.json() == an_class_json
 
         an_class_2 = An_Class()
-        result = convert_dict_to_value_from_obj_annotation(an_class_2, 'an_dict', an_dict)
+        result = type_safe_convert.convert_dict_to_value_from_obj_annotation(an_class_2, 'an_dict', an_dict)
 
         assert result == an_dict
 
@@ -109,9 +108,9 @@ class test_Objects(TestCase):
         an_class_b_json = an_class_c_json.get('an_class_b')
         assert an_class_a_json == {'an_int': 0, 'an_str': ''}
 
-        result_a = convert_dict_to_value_from_obj_annotation(an_class_C, 'an_class_a', an_class_a_json)
+        result_a = type_safe_convert.convert_dict_to_value_from_obj_annotation(an_class_C, 'an_class_a', an_class_a_json)
         assert type(result_a) is Class_A
-        result_b = convert_dict_to_value_from_obj_annotation(an_class_C, 'an_class_b', an_class_b_json)
+        result_b = type_safe_convert.convert_dict_to_value_from_obj_annotation(an_class_C, 'an_class_b', an_class_b_json)
         assert type(result_b) is Class_B
 
         assert Class_C(**an_class_c_json).json() == an_class_c_json
@@ -441,7 +440,7 @@ class test_Objects(TestCase):
         direct_type_cases = Direct_Type_Cases()
         with_union_types  = With_Union_Types()
 
-        _ = value_type_matches_obj_annotation_for_union_and_annotated
+        _ = type_safe_validation.check_if__type_matches__obj_annotation__for_union_and_annotated
 
         assert _(target=direct_type_cases, attr_name='var_1'         , value=an_str  ) is None          # any not Union type will return None
         assert _(target=direct_type_cases, attr_name='var_1'         , value=an_int  ) is None
@@ -629,7 +628,7 @@ class test_Objects(TestCase):
             an_case : TestCase
 
         an_class = An_Class()
-        _ = value_type_matches_obj_annotation_for_attr
+        _ = type_safe_validation.check_if__type_matches__obj_annotation__for_attr
         assert _(target=None    , attr_name=None      , value=None      ) is None
         assert _(target=None    , attr_name=None      , value=''        ) is None
         assert _(target=''      , attr_name=None      , value=''        ) is None
@@ -660,7 +659,7 @@ class test_Objects(TestCase):
         an_int   = 1
         an_float = 1.0
         an_class = An_Class()
-        _ = value_type_matches_obj_annotation_for_attr
+        _ = type_safe_validation.check_if__type_matches__obj_annotation__for_attr
         assert _(target=an_class, attr_name='an_str'  , value=an_int  ) is False      # expected behaviour, a string can't be assigned to an int
         assert _(target=an_class, attr_name='an_int'  , value=an_int  ) is True       # expected behaviour, an int can be assigned to an int
         assert _(target=an_class, attr_name='an_float', value=an_float) is True       # expected behaviour, a float can be assigned to a float

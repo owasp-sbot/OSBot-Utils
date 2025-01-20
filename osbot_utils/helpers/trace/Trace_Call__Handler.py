@@ -16,7 +16,6 @@ DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
 #                                 'get_origin'                                                ,
 #                                 'getmro'                                                    ,
 #                                 'default_value'                                             ,
-#                                 'raise_exception_on_obj_type_annotation_mismatch'           ,
 #                                 '__cls_kwargs__'                                            ,
 #                                 '__default__value__'                                        ,
 #                                 '__setattr__'                                               ,

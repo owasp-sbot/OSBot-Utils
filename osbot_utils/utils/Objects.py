@@ -1,8 +1,6 @@
 # todo add tests
 import sys
-from types                                               import SimpleNamespace
-from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
-
+from types  import SimpleNamespace
 
 class __(SimpleNamespace):
     pass
@@ -27,46 +25,6 @@ if sys.version_info < (3, 8):
 else:
     from typing import get_origin, get_args, List, Tuple, Dict, Type, _GenericAlias, ForwardRef
 
-
-def are_types_compatible_for_assigment(source_type, target_type):
-    import types
-    import typing
-
-    if isinstance(target_type, str):                                    # If the "target_type" is a forward reference (string), handle it here.
-        if target_type == source_type.__name__:                         # Simple check: does the string match the actual class name
-            return True
-    if source_type is target_type:
-        return True
-    if source_type is int and target_type is float:
-        return True
-    if target_type in source_type.__mro__:                              # this means that the source_type has the target_type has of its base types
-        return True
-    if target_type is callable:                                         # handle case where callable was used as the target type
-        if source_type is types.MethodType:                             #     and a method or function was used as the source type
-            return True
-        if source_type is types.FunctionType:
-            return True
-        if source_type is staticmethod:
-            return True
-    if target_type is typing.Any:
-        return True
-    return False
-
-def are_types_magic_mock(source_type, target_type):
-    from unittest.mock import MagicMock
-    if isinstance(source_type, MagicMock):
-        return True
-    if isinstance(target_type, MagicMock):
-        return True
-    if source_type is MagicMock:
-        return True
-    if target_type is MagicMock:
-        return True
-    # if class_full_name(source_type) == 'unittest.mock.MagicMock':
-    #     return True
-    # if class_full_name(target_type) == 'unittest.mock.MagicMock':
-    #     return True
-    return False
 
 def base_classes(cls):
     if type(cls) is type:
@@ -105,46 +63,6 @@ def class_full_name(target):
             type_module = type_target.__module__
             type_name   = type_target.__name__
         return f'{type_module}.{type_name}'
-
-def convert_dict_to_value_from_obj_annotation(target, attr_name, value):                    # todo: refactor this with code from convert_str_to_value_from_obj_annotation since it is mostly the same
-    if target is not None and attr_name is not None:
-        if hasattr(target, '__annotations__'):
-            obj_annotations  = target.__annotations__
-            if hasattr(obj_annotations,'get'):
-                attribute_annotation = obj_annotations.get(attr_name)
-                if 'Type_Safe' in base_classes_names(attribute_annotation):
-                    return attribute_annotation(**value)
-    return value
-
-def convert_to_value_from_obj_annotation(target, attr_name, value):                             # todo: see the side effects of doing this for all ints and floats
-
-    from osbot_utils.helpers.Guid           import Guid
-    from osbot_utils.helpers.Timestamp_Now  import Timestamp_Now
-    from osbot_utils.helpers.Random_Guid    import Random_Guid
-    from osbot_utils.helpers.Safe_Id        import Safe_Id
-    from osbot_utils.helpers.Str_ASCII      import Str_ASCII
-
-    TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Guid, Random_Guid, Safe_Id, Str_ASCII, Timestamp_Now]
-
-    if target is not None and attr_name is not None:
-        if hasattr(target, '__annotations__'):
-            obj_annotations  = target.__annotations__
-            if hasattr(obj_annotations,'get'):
-                attribute_annotation = obj_annotations.get(attr_name)
-                if attribute_annotation:
-                    origin = get_origin(attribute_annotation)                               # Add handling for Type[T] annotations
-                    if origin is type and isinstance(value, str):
-                        try:                                                                # Convert string path to actual type
-                            if len(value.rsplit('.', 1)) > 1:
-                                module_name, class_name = value.rsplit('.', 1)
-                                module = __import__(module_name, fromlist=[class_name])
-                                return getattr(module, class_name)
-                        except (ValueError, ImportError, AttributeError) as e:
-                            raise ValueError(f"Could not convert '{value}' to type: {str(e)}")
-
-                    if attribute_annotation in TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES:          # for now hard-coding this to just these types until we understand the side effects
-                        return attribute_annotation(value)
-    return value
 
 
 def default_value(target : type):
@@ -358,12 +276,6 @@ def obj_get_value(target=None, key=None, default=None):
 def obj_values(target=None):
     return list(obj_dict(target).values())
 
-def raise_exception_on_obj_type_annotation_mismatch(target, attr_name, value):
-    if value_type_matches_obj_annotation_for_attr(target, attr_name, value) is False:               # handle case with normal types
-        if value_type_matches_obj_annotation_for_union_and_annotated(target, attr_name, value) is True:      # handle union cases
-            return                                                                                  #     this is done like this because value_type_matches_obj_annotation_for_union_attr will return None when there is no Union objects
-        raise TypeError(f"Invalid type for attribute '{attr_name}'. Expected '{target.__annotations__.get(attr_name)}' but got '{type(value)}'")
-
 def obj_attribute_annotation(target, attr_name):
     if target is not None and attr_name is not None:
         if hasattr(target, '__annotations__'):
@@ -397,52 +309,6 @@ def obj_is_type_union_compatible(var_type, compatible_types):
         return True                                                         # If all args are compatible, return True
     return var_type in compatible_types or var_type is type(None)           # Check for direct compatibility or type(None) for non-Union types
 
-
-def value_type_matches_obj_annotation_for_union_and_annotated(target, attr_name, value):
-    from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
-    from typing                                              import Union, get_origin, get_args
-
-    value_type           = type(value)
-    attribute_annotation = obj_attribute_annotation(target, attr_name)
-    origin               = get_origin(attribute_annotation)
-
-    if origin is Union:                                                     # Handle Union types (including Optional)
-        args = get_args(attribute_annotation)
-        return value_type in args
-
-    # todo: refactor the logic below to a separate method (and check for duplicate code with other get_origin usage)
-    if origin is Annotated:                                                # Handle Annotated types
-        args        = get_args(attribute_annotation)
-        base_type   = args[0]                                              # First argument is the base type
-        base_origin = get_origin(base_type)
-
-        if base_origin is None:                                            # Non-container types
-            return isinstance(value, base_type)
-
-        if base_origin in (list, List):                                    # Handle List types
-            if not isinstance(value, list):
-                return False
-            item_type = get_args(base_type)[0]
-            return all(isinstance(item, item_type) for item in value)
-
-        if base_origin in (tuple, Tuple):                                  # Handle Tuple types
-            if not isinstance(value, tuple):
-                return False
-            item_types = get_args(base_type)
-            return len(value) == len(item_types) and all(
-                isinstance(item, item_type)
-                for item, item_type in zip(value, item_types)
-            )
-
-        if base_origin in (dict, Dict):                                    # Handle Dict types
-            if not isinstance(value, dict):
-                return False
-            key_type, value_type = get_args(base_type)
-            return all(isinstance(k, key_type) and isinstance(v, value_type)
-                      for k, v in value.items())
-
-    # todo: add support for for other typing constructs
-    return None                                                             # if it is not a Union or Annotated types just return None (to give an indication to the caller that the comparison was not made)
 
 
 def pickle_save_to_bytes(target: object) -> bytes:
@@ -498,39 +364,7 @@ def all_annotations__in_class(target):
                 annotations.update(base.__annotations__)
     return annotations
 
-def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
-    import typing
-    annotations = all_annotations(target)
-    attr_type   = annotations.get(attr_name)
-    if attr_type:
-        origin_attr_type = get_origin(attr_type)                                    # to handle when type definition contains a generic
-        if origin_attr_type is type:                                                # Add handling for Type[T]
-            type_arg = get_args(attr_type)[0]                                       # Get T from Type[T]
-            if type_arg == value:
-                return True
-            if isinstance(type_arg, (str, ForwardRef)):                             # Handle forward reference
-                type_arg = target.__class__                                         # If it's a forward reference, the target class should be the containing class
-            return isinstance(value, type) and issubclass(value, type_arg)          # Check that value is a type and is subclass of type_arg
 
-        if origin_attr_type is Annotated:                                           # if the type is Annotated
-            args             = get_args(attr_type)
-            origin_attr_type = args[0]
-
-        elif origin_attr_type is typing.Union:
-            args = get_args(attr_type)
-            if len(args)==2 and args[1] is type(None):          # todo: find a better way to do this, since this is handling an edge case when origin_attr_type is Optional (which is an shorthand for Union[X, None] )
-                attr_type = args[0]
-                origin_attr_type = get_origin(attr_type)
-
-        if origin_attr_type:
-            attr_type = origin_attr_type
-        value_type = type(value)
-        if are_types_compatible_for_assigment(source_type=value_type, target_type=attr_type):
-            return True
-        if are_types_magic_mock(source_type=value_type, target_type=attr_type):
-            return True
-        return value_type is attr_type
-    return None
 
 
 

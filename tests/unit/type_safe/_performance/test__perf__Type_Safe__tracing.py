@@ -30,14 +30,16 @@ class test__perf__Type_Safe__tracing(TestCase):
 #         An_Class()
 
 
-    @trace_calls(include          = ['*'      ],
-                 ignore           = ['typing' ],
-                 show_internals   = False       ,
-                 show_lines       = False       ,
-                 show_types       = False       ,
-                 show_class       = True        ,
-                 show_duration    = True        ,
-                 duration_padding = 120         )
+    @trace_calls(include              = ['osbot'      ],
+                 ignore               = ['typing' ],
+                 show_internals       = False       ,
+                 show_lines           = False       ,
+                 show_types           = False       ,
+                 show_class           = True        ,
+                 show_duration        = True        ,
+                 duration_padding     = 150         ,
+                 #duration_bigger_than = 0.001
+                 )
     def test_complex_types(self):
 
         class ComplexTypes(Type_Safe):                                          # Multiple complex types

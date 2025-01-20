@@ -1,18 +1,12 @@
+import inspect
+import pytest
 from unittest                                                        import TestCase
 from typing                                                          import get_args, get_origin, List, Dict, Any, Union, Optional
-import inspect
-
-import pytest
-
-from osbot_utils.utils.Dev import pprint
-
+from osbot_utils.type_safe.steps.Type_Safe__Step__Init               import type_safe_step_init
 from osbot_utils.testing.performance.Performance_Measure__Session    import Performance_Measure__Session
 from osbot_utils.utils.Objects                                       import (obj_data, default_value, all_annotations,
-                                                                             raise_exception_on_obj_type_annotation_mismatch,
                                                                              obj_is_type_union_compatible,
-                                                                             obj_is_attribute_annotation_of_type,
-                                                                             value_type_matches_obj_annotation_for_attr,
-                                                                             value_type_matches_obj_annotation_for_union_and_annotated)
+                                                                             obj_is_attribute_annotation_of_type)
 from osbot_utils.utils.Json                                          import json_dumps, json_parse
 
 class An_Class:                                                                            # Simple test class with annotations
@@ -175,10 +169,10 @@ class test__perf__Type_Safe__dependencies(TestCase):                            
             return obj_is_attribute_annotation_of_type(obj, 'an_str', str)
 
         def check_value_matches():                                                   # Performance of value_type_matches_obj_annotation_for_attr()
-            return value_type_matches_obj_annotation_for_attr(obj, 'an_str', 'test')
+            return type_safe_step_init.check_if__type_matches__obj_annotation__for_attr(obj, 'an_str', 'test')
 
         def check_value_matches_union():                                             # Performance of value_type_matches_obj_annotation_for_union_and_annotated()
-            return value_type_matches_obj_annotation_for_union_and_annotated(obj, 'an_union', 'test')
+            return type_safe_step_init.check_if__type_matches__obj_annotation__for_union_and_annotated(obj, 'an_union', 'test')
 
         with Performance_Measure__Session() as session:
             session.measure(check_type_union         ).assert_time(self.time_300_ns, self.time_400_ns)
@@ -205,7 +199,7 @@ class test__perf__Type_Safe__dependencies(TestCase):                            
 
         def do_type_mismatch():                                                      # Performance of raise_exception_on_obj_type_annotation_mismatch()
             try:
-                raise_exception_on_obj_type_annotation_mismatch(obj, 'an_str', 42)
+                type_safe_step_init.raise_exception_on_obj_type_annotation_mismatch(obj, 'an_str', 42)
             except TypeError:
                 pass
 
@@ -272,13 +266,13 @@ class test__perf__Type_Safe__dependencies(TestCase):                            
         obj = An_Class()
 
         def check_none_value():                                                       # Test handling of None values
-            return value_type_matches_obj_annotation_for_attr(obj, 'an_str', None)
+            return type_safe_step_init.check_if__type_matches__obj_annotation__for_attr(obj, 'an_str', None)
 
         def check_missing_annotation():                                               # Test handling missing annotations
-            return value_type_matches_obj_annotation_for_attr(obj, 'missing', 'test')
+            return type_safe_step_init.check_if__type_matches__obj_annotation__for_attr(obj, 'missing', 'test')
 
         def check_complex_union():                                                    # Test complex union types
-            return value_type_matches_obj_annotation_for_union_and_annotated(
+            return type_safe_step_init.check_if__type_matches__obj_annotation__for_union_and_annotated(
                     obj, 'an_union', [1,2,3])
 
         with Performance_Measure__Session() as session:
