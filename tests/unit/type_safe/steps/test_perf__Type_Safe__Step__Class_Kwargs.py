@@ -22,7 +22,7 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
         cls.time_200_ns    =    200
         cls.time_300_ns    =    300
         cls.time_500_ns    =    500
-        cls.time_700_ns    =   700
+        cls.time_700_ns    =    700
         cls.time_800_ns    =    800
         cls.time_1_kns     =  1_000
         cls.time_2_kns     =  2_000
