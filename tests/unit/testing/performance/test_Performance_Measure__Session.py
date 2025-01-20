@@ -1,5 +1,6 @@
 import pytest
 from unittest                                                       import TestCase
+from osbot_utils.type_safe.shared.Type_Safe__Cache                  import type_safe_cache
 from osbot_utils.utils.Env                                          import in_github_action
 from osbot_utils.helpers.Random_Guid                                import Random_Guid
 from osbot_utils.testing.performance.Performance_Measure__Session   import Performance_Measure__Session
@@ -43,15 +44,31 @@ class test_Performance_Checks__Session(TestCase):
         class An_Class_6(Type_Safe):
             an_str: str = '42'
 
+        type_safe_cache.skip_cache = False
 
-        Performance_Measure__Session().measure(str        ).print().assert_time(self.time_100_ns, self.time_0_ns                                                          )
-        Performance_Measure__Session().measure(Random_Guid).print().assert_time(self.time_3_kns , self.time_5_kns, self.time_6_kns , self.time_7_kns                      )
-        Performance_Measure__Session().measure(An_Class_1 ).print().assert_time(self.time_100_ns                                                                          )
-        Performance_Measure__Session().measure(An_Class_2 ).print().assert_time(self.time_3_kns , self.time_4_kns , self.time_5_kns , self.time_6_kns,  self.time_7_kns   )
-        Performance_Measure__Session().measure(An_Class_3 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
-        Performance_Measure__Session().measure(An_Class_4 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
-        Performance_Measure__Session().measure(An_Class_5 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
-        Performance_Measure__Session().measure(An_Class_6 ).print().assert_time(self.time_7_kns , self.time_8_kns , self.time_10_kns, self.time_20_kns                    )
+        print()
+        with Performance_Measure__Session(assert_enabled=True) as _:
+            _.measure(str        ).print().assert_time(self.time_100_ns, self.time_0_ns                                                          )
+            _.measure(Random_Guid).print().assert_time(self.time_3_kns , self.time_5_kns, self.time_6_kns , self.time_7_kns                      )
+            _.measure(An_Class_1 ).print().assert_time(self.time_100_ns                                                                          )
+            _.measure(An_Class_2 ).print().assert_time(self.time_3_kns , self.time_4_kns , self.time_5_kns , self.time_6_kns,  self.time_7_kns   )
+            _.measure(An_Class_3 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
+            _.measure(An_Class_4 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
+            _.measure(An_Class_5 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
+            _.measure(An_Class_6 ).print().assert_time(self.time_7_kns , self.time_8_kns , self.time_10_kns, self.time_20_kns                    )
+
+        type_safe_cache.print_cache_hits()
+
+# with no cache (and other changes) the results were:
+#
+#      str          | score:     100 ns  | raw:      78 ns
+#      Random_Guid  | score:   6,000 ns  | raw:   5,554 ns
+#      An_Class_1   | score:     100 ns  | raw:     131 ns
+#      An_Class_2   | score:   9,000 ns  | raw:   8,882 ns
+#      An_Class_3   | score:  20,000 ns  | raw:  18,633 ns
+#      An_Class_4   | score:  20,000 ns  | raw:  18,801 ns
+#      An_Class_5   | score:  20,000 ns  | raw:  18,588 ns
+#      An_Class_6   | score:  20,000 ns  | raw:  18,965 ns
 
     # def test_dissaembly_both_paths(self):
     #     from osbot_utils.type_safe.Cache__Class_Kwargs import Cache__Class_Kwargs

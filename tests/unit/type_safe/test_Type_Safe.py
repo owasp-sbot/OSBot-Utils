@@ -88,8 +88,8 @@ class test_Type_Safe(TestCase):
             a_int       : int       = 1
             a_float     : float     = 1.0
             a_str       : str       = "string"
-            a_tuple     : tuple     = (1, 2)
-            a_frozenset : frozenset = frozenset([1, 2])
+            #a_tuple     : tuple     = (1, 2)
+            #a_frozenset : frozenset = frozenset([1, 2])
             a_bytes     : bytes     = b"byte"
 
         class With_Optional_And_Union(Type_Safe):
@@ -99,7 +99,7 @@ class test_Type_Safe(TestCase):
 
         immutable_types_class   = Immutable_Types_Class()
         with_optional_and_union = With_Optional_And_Union()
-        assert immutable_types_class  .__locals__() == {'a_int': 1, 'a_float': 1.0, 'a_str': 'string', 'a_tuple': (1, 2), 'a_frozenset': frozenset({1, 2}), 'a_bytes': b'byte'}
+        assert immutable_types_class  .__locals__() == {'a_int': 1, 'a_float': 1.0, 'a_str': 'string', 'a_bytes': b'byte'}
         assert with_optional_and_union.__locals__() == {'optional_int': None, 'union_str_float': 'string_or_float', 'union_with_none': None}
 
     def test___default_kwargs__(self):

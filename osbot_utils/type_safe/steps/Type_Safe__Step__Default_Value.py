@@ -32,7 +32,6 @@ class Type_Safe__Step__Default_Value:
 
     def default_value(self, _cls, var_type):
 
-
         if get_origin(var_type) is type:                        # Special handling for Type[T]  # todo: reuse the get_origin value
             type_args = get_args(var_type)
             if type_args:

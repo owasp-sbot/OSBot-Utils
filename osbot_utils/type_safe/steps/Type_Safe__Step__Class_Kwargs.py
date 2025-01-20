@@ -12,20 +12,33 @@ class Type_Safe__Step__Class_Kwargs:                                            
     def __init__(self):
         self.type_safe_cache = type_safe_cache                                           # Initialize with singleton cache
 
-    def get_cls_kwargs(self, cls                  : Type        ,                        # Get class keyword arguments
-                             include_base_classes : bool = True)\
-                    -> Dict[str, Any]:
+    def get_cls_kwargs(self, cls                  : Type        ,                        # Main entry point for getting class kwargs
+                             include_base_classes : bool = True )\
+                    -> Dict[str, Any]:                                                   # Returns dict of class kwargs
+
         if not hasattr(cls, '__mro__'):                                                  # Handle non-class inputs
             return {}
 
-        base_classes = type_safe_cache.get_class_mro(cls)                                # Get class hierarchy
-        if not include_base_classes:                                                     # Limit to current class if needed
-            base_classes = base_classes[:1]
+        if include_base_classes:
+            return self.get_cls_kwargs__with_inheritance(cls)
+        return self.get_cls_kwargs__no_inheritance(cls)
 
+    def get_cls_kwargs__no_inheritance(self, cls : Type         )\
+                                  -> Dict[str, Any]:
+        kwargs = {}                                                                      # Process current class only
+        self.process_mro_class  (cls, kwargs)                                           # Handle class variables
+        self.process_annotations(cls, cls, kwargs)                                      # Process type annotations
+
+        return kwargs
+
+    def get_cls_kwargs__with_inheritance(self, cls : Type         )\
+                                            -> Dict[str, Any]:                           # Get class kwargs with inheritance
+        base_classes = type_safe_cache.get_class_mro(cls)
         kwargs = {}                                                                      # Process inheritance chain
         for base_cls in base_classes:
-            self.process_mro_class  (base_cls, kwargs)                                  # Handle MRO class
-            self.process_annotations(cls, base_cls, kwargs)                             # Process annotations
+            self.process_mro_class  (base_cls, kwargs)                                  # Handle each class in MRO
+            self.process_annotations(cls, base_cls, kwargs)                             # Process its annotations
+
         return kwargs
 
     def handle_undefined_var(self, cls      : Type            ,                         # Handle undefined class variables
