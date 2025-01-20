@@ -2,8 +2,7 @@ from unittest import TestCase
 from osbot_utils.base_classes.Kwargs_To_Self                            import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests           import Sqlite__Cache__Requests
 from osbot_utils.helpers.sqlite.cache.Sqlite__Cache__Requests__Patch    import Sqlite__Cache__Requests__Patch
-from osbot_utils.helpers.ssh.SSH__Cache__Requests                       import SSH__Cache__Requests, SQLITE_DB_NAME__SSH_REQUESTS_CACHE, \
-    SQLITE_TABLE_NAME__SSH_REQUESTS
+from osbot_utils.helpers.ssh.SSH__Cache__Requests                       import SSH__Cache__Requests, SQLITE_DB_NAME__SSH_REQUESTS_CACHE, SQLITE_TABLE_NAME__SSH_REQUESTS
 from osbot_utils.helpers.ssh.SSH__Execute                               import ENV_VAR__SSH__HOST, SSH__Execute
 from osbot_utils.utils.Env                                              import get_env
 from osbot_utils.utils.Files                                            import temp_file, current_temp_folder, parent_folder, file_extension, file_name

@@ -2,7 +2,6 @@ from typing                                                  import get_origin, 
 from osbot_utils.type_safe.shared.Type_Safe__Cache           import type_safe_cache
 from osbot_utils.type_safe.shared.Type_Safe__Convert         import type_safe_convert
 from osbot_utils.type_safe.shared.Type_Safe__Validation      import type_safe_validation
-from osbot_utils.utils.Objects                               import all_annotations
 from osbot_utils.type_safe.validators.Type_Safe__Validator   import Type_Safe__Validator
 
 class Type_Safe__Step__Set_Attr:
@@ -74,7 +73,8 @@ class Type_Safe__Step__Set_Attr:
             if self.handle_special_generic_alias(_super, _self, name, value):
                 return
 
-        annotations = all_annotations(_self)
+        annotations = dict(type_safe_cache.get_annotations(_self))
+
         if not annotations:                                             # can't do type safety checks if the class does not have annotations
             return _super.__setattr__(name, value)
 
