@@ -15,7 +15,7 @@ from osbot_utils.testing.Stdout                              import Stdout
 from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json  import type_safe_step_from_json
 from osbot_utils.utils.Json                                  import json_dumps
 from osbot_utils.utils.Misc                                  import random_string, list_set
-from osbot_utils.utils.Objects import obj_data, __, default_value, serialize_to_dict
+from osbot_utils.utils.Objects                               import obj_data, __, default_value, serialize_to_dict
 
 
 class test_Type_Safe(TestCase):
@@ -44,14 +44,12 @@ class test_Type_Safe(TestCase):
         if sys.version_info < (3, 9):
             pytest.skip("Skipping test that doesn't work on 3.8 or lower")
 
-        assert self.Config_Class.__cls_kwargs__(include_base_classes=False) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print }
-        assert self.Config_Class.__cls_kwargs__(include_base_classes=True ) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print }
-        assert self.Extra_Config.__cls_kwargs__(include_base_classes=False) == {'attribute3': 'another_value',                     'callable_attr_2': print }
-        assert self.Extra_Config.__cls_kwargs__(include_base_classes=True ) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print ,
-                                                                                'attribute3': 'another_value',                     'callable_attr_2': print , }
-        assert self.Config_Class.__cls_kwargs__(include_base_classes=True) == self.Config_Class.__cls_kwargs__()
-        assert self.Extra_Config.__cls_kwargs__(include_base_classes=True) == self.Extra_Config.__cls_kwargs__()
 
+        assert self.Config_Class.__cls_kwargs__( ) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print }
+        assert self.Extra_Config.__cls_kwargs__( ) == {'attribute1': 'default_value', 'attribute2': True, 'callable_attr_1': print ,
+                                                       'attribute3': 'another_value',                     'callable_attr_2': print , }
+        assert self.Config_Class.__cls_kwargs__() == self.Config_Class.__cls_kwargs__()
+        assert self.Extra_Config.__cls_kwargs__() == self.Extra_Config.__cls_kwargs__()
         assert self.Config_Class.__cls_kwargs__() == self.Config_Class().__cls_kwargs__()
         assert self.Extra_Config.__cls_kwargs__() == self.Extra_Config().__cls_kwargs__()
 

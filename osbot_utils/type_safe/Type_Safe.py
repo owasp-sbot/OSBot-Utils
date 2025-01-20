@@ -27,8 +27,8 @@ class Type_Safe:
         return list_set(self.__locals__())
 
     @classmethod
-    def __cls_kwargs__(cls, include_base_classes=True):                  # Return current class dictionary of class level variables and their values
-        return type_safe_step_class_kwargs.get_cls_kwargs(cls, include_base_classes)
+    def __cls_kwargs__(cls):                                                # Return current class dictionary of class level variables and their values
+        return type_safe_step_class_kwargs.get_cls_kwargs(cls)
 
     @classmethod
     def __default__value__(cls, var_type):

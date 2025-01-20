@@ -490,6 +490,14 @@ def all_annotations(target):
                 annotations.update(base.__annotations__)
     return annotations
 
+def all_annotations__in_class(target):
+    annotations = {}
+    if hasattr(target, '__mro__'):
+        for base in reversed(target.__mro__):
+            if hasattr(base, '__annotations__'):
+                annotations.update(base.__annotations__)
+    return annotations
+
 def value_type_matches_obj_annotation_for_attr(target, attr_name, value):
     import typing
     annotations = all_annotations(target)

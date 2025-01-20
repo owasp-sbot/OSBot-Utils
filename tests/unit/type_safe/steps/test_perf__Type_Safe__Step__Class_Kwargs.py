@@ -73,13 +73,9 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
             child_int : int = 84
 
         def get_inherited_kwargs_with_base():                                        # Get kwargs including base class
-            return type_safe_step_class_kwargs.get_cls_kwargs(ChildClass, include_base_classes=True)
-
-        def get_inherited_kwargs_no_base():                                          # Get kwargs excluding base class
-            return type_safe_step_class_kwargs.get_cls_kwargs(ChildClass, include_base_classes=False)
+            return type_safe_step_class_kwargs.get_cls_kwargs(ChildClass)
 
         self.session.measure(get_inherited_kwargs_with_base).assert_time(self.time_6_kns)
-        self.session.measure(get_inherited_kwargs_no_base  ).assert_time(self.time_3_kns)
 
     def test_with_methods(self):                                                     # Test with instance and class methods
         class MethodClass:
