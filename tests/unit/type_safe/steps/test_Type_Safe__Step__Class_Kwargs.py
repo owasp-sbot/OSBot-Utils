@@ -19,6 +19,6 @@ class test_Type_Safe__Step__Class_Kwargs(TestCase):
         class Class__One_int:
             an_int : int
         assert self.step_class_kwargs.get_cls_kwargs(Class__One_int) == {'an_int': 0}
-        #Class__One_int()
-        #Class__One_int()
-        #Class__One_int()
+
+        assert self.step_class_kwargs.get_cls_kwargs(Class__One_int) == {'an_int': 0}
+

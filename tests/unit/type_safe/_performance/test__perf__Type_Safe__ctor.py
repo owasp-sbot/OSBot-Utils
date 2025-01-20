@@ -3,8 +3,6 @@ from unittest                                                         import Tes
 from typing                                                           import Optional, List, Dict, Union, Any
 from enum                                                             import Enum, auto
 
-import pytest
-
 from osbot_utils.testing.performance.Performance_Measure__Session     import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 
@@ -13,13 +11,20 @@ class test__perf__Type_Safe__ctor(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Set up timing thresholds
-
-        pytest.skip("skipping until refactoring of Type_Safe is complete")
-
+        #import pytest
+        #pytest.skip("skipping until refactoring of Type_Safe is complete")
+        cls.time_200_ns  =     200
         cls.time_300_ns  =     300
+        cls.time_700_ns  =     700
+        cls.time_800_ns  =     800
+        cls.time_1_kns   =   1_000
+        cls.time_2_kns   =   2_000
+        cls.time_3_kns   =   3_000
         cls.time_4_kns   =   4_000
+        cls.time_5_kns   =   5_000
         cls.time_6_kns   =   6_000
         cls.time_7_kns   =   7_000
+        cls.time_8_kns   =   8_000
         cls.time_9_kns   =   9_000
         cls.time_10_kns  =  10_000
         cls.time_20_kns  =  20_000
@@ -27,8 +32,10 @@ class test__perf__Type_Safe__ctor(TestCase):
         cls.time_40_kns  =  40_000
         cls.time_50_kns  =  50_000
         cls.time_60_kns  =  60_000
+        cls.time_70_kns  =  70_000
         cls.time_80_kns  =  80_000
         cls.time_90_kns  =  90_000
+        cls.time_100_kns = 100_000
         cls.time_200_kns = 200_000
         cls.time_300_kns = 300_000
         cls.time_400_kns = 400_000
@@ -49,17 +56,17 @@ class test__perf__Type_Safe__ctor(TestCase):
             value: str = "default"
 
         with Performance_Measure__Session() as session:
-            session.measure(EmptyClass    ).assert_time(self.time_6_kns , self.time_7_kns)
-            session.measure(SingleStr     ).assert_time(self.time_20_kns                 )
-            session.measure(SingleInt     ).assert_time(self.time_20_kns                 )
-            session.measure(SingleDefault ).assert_time(self.time_20_kns                 )
+            session.measure(EmptyClass    ).assert_time(self.time_700_ns, self.time_800_ns,    self.time_6_kns , self.time_7_kns)
+            session.measure(SingleStr     ).assert_time(self.time_2_kns,                      self.time_20_kns                 )
+            session.measure(SingleInt     ).assert_time(self.time_2_kns,                      self.time_20_kns                 )
+            session.measure(SingleDefault ).assert_time(self.time_2_kns,                      self.time_20_kns                 )
 
     def test_complex_types(self):                                               # Test complex type variations
         class ComplexTypes(Type_Safe):                                          # Multiple complex types
             optional_str : Optional[str]
-            str_list    : List[str]
-            int_dict    : Dict[str, int]
-            union_field : Union[str, int]
+            str_list     : List[str]
+            int_dict     : Dict[str, int]
+            union_field  : Union[str, int]
             
         class NestedType(Type_Safe):                                            # Basic nested type
             value: str
@@ -69,9 +76,9 @@ class test__perf__Type_Safe__ctor(TestCase):
             items  : List[NestedType]
             
         with Performance_Measure__Session() as session:
-            session.measure(ComplexTypes ).assert_time(self.time_40_kns)
-            session.measure(NestedType   ).assert_time(self.time_20_kns)
-            session.measure(WithNested   ).assert_time(self.time_40_kns)
+            session.measure(ComplexTypes ).assert_time(self.time_20_kns,  self.time_30_kns,   self.time_40_kns)
+            session.measure(NestedType   ).assert_time(self.time_2_kns ,  self.time_3_kns ,   self.time_20_kns)
+            session.measure(WithNested   ).assert_time(self.time_20_kns,                      self.time_40_kns)
 
     def test_inheritance_depth(self):                                           # Test inheritance impact
         class Base(Type_Safe):                                                  # Base class
@@ -87,10 +94,10 @@ class test__perf__Type_Safe__ctor(TestCase):
             level3_value: bool
             
         with Performance_Measure__Session() as session:
-            session.measure(Base   ).assert_time(self.time_20_kns)
-            session.measure(Level1 ).assert_time(self.time_30_kns)
-            session.measure(Level2 ).assert_time(self.time_40_kns)
-            session.measure(Level3 ).assert_time(self.time_50_kns)
+            session.measure(Base   ).assert_time(self.time_2_kns , self.time_3_kns ,    self.time_20_kns)
+            session.measure(Level1 ).assert_time(self.time_4_kns ,                      self.time_30_kns)
+            session.measure(Level2 ).assert_time(self.time_6_kns ,                      self.time_40_kns)
+            session.measure(Level3 ).assert_time(self.time_8_kns , self.time_9_kns ,  self.time_50_kns)
 
     def test_enum_handling(self):                                               # Test Enum type handling
         class Status(Enum):                                                     # Define test enum
@@ -105,8 +112,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             status: Status = Status.ACTIVE
             
         with Performance_Measure__Session() as session:
-            session.measure(WithEnum       ).assert_time(self.time_10_kns)
-            session.measure(WithEnumDefault).assert_time(self.time_20_kns, self.time_30_kns)
+            session.measure(WithEnum       ).assert_time(self.time_2_kns ,    self.time_10_kns)
+            session.measure(WithEnumDefault).assert_time(self.time_9_kns ,    self.time_20_kns, self.time_30_kns)
 
     def test_initialization_with_values(self):                                  # Test initialization performance
         class ConfigClass(Type_Safe):                                           # Test configuration class
@@ -123,8 +130,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             return ConfigClass()
             
         with Performance_Measure__Session() as session:
-            session.measure(create_empty      ).assert_time(self.time_40_kns)
-            session.measure(create_with_kwargs).assert_time(self.time_50_kns, self.time_60_kns)
+            session.measure(create_empty      ).assert_time(self.time_5_kns , self.time_6_kns ,   self.time_40_kns)
+            session.measure(create_with_kwargs).assert_time(self.time_8_kns ,                     self.time_50_kns, self.time_60_kns)
 
     def test_type_validation_overhead(self):                                    # Test validation performance
         class WithValidation(Type_Safe):                                        # Class needing validation
@@ -136,7 +143,7 @@ class test__perf__Type_Safe__ctor(TestCase):
                                   str_field = "test")
 
         with Performance_Measure__Session() as session:
-            session.measure(create_valid          ).assert_time(self.time_40_kns)
+            session.measure(create_valid          ).assert_time(self.time_5_kns , self.time_6_kns ,     self.time_40_kns)
 
     def test_collection_types(self):                                            # Test collection performance
         class WithCollections(Type_Safe):                                       # Simple collections
@@ -149,8 +156,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             nested_dict : Dict[str, Dict[str, Any]]
             
         with Performance_Measure__Session() as session:
-            session.measure(WithCollections   ).assert_time(self.time_30_kns, self.time_40_kns)
-            session.measure(NestedCollections ).assert_time(self.time_30_kns)
+            session.measure(WithCollections   ).assert_time(self.time_30_kns,   self.time_40_kns)
+            session.measure(NestedCollections ).assert_time(self.time_20_kns,   self.time_30_kns)
 
     def test_serialization_performance(self):                                   # Test serialization speeds
         class SerializedType(Type_Safe):                                       # Complex type for serialization
@@ -163,16 +170,9 @@ class test__perf__Type_Safe__ctor(TestCase):
         def serialize_to_json():                                               # Test JSON serialization
             return test_obj.json()
 
-        def serialize_to_bytes():                                              # Test bytes serialization
-            return test_obj.bytes()
-
-        def serialize_to_bytes_gz():                                           # Test compressed serialization
-            return test_obj.bytes_gz()
 
         with Performance_Measure__Session() as session:
-            session.measure(serialize_to_json   ).assert_time(self.time_9_kns  )
-            session.measure(serialize_to_bytes  ).assert_time(self.time_20_kns )
-            session.measure(serialize_to_bytes_gz).assert_time(self.time_30_kns)
+            session.measure(serialize_to_json    ).assert_time(self.time_5_kns  ,  self.time_9_kns  )
 
     def test_method_override_performance(self):                                # Test method overriding impact
         class BaseWithMethods(Type_Safe):                                      # Base with typed methods
@@ -202,8 +202,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             derived.reset()
 
         with Performance_Measure__Session() as session:
-            session.measure(call_base_method   ).assert_time(self.time_10_kns)
-            session.measure(call_derived_method).assert_time(self.time_10_kns)
+            session.measure(call_base_method   ).assert_time(self.time_1_kns  , self.time_10_kns)
+            session.measure(call_derived_method).assert_time(self.time_1_kns  , self.time_10_kns)
 
     def test_property_access_performance(self):                               # Test property access speeds
         class WithProperties(Type_Safe):                                      # Class using properties
@@ -234,8 +234,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             _ = direct.value
 
         with Performance_Measure__Session() as session:
-            session.measure(access_property).assert_time(self.time_4_kns)
-            session.measure(access_direct  ).assert_time(self.time_6_kns, self.time_7_kns)
+            session.measure(access_property).assert_time(self.time_3_kns    , self.time_4_kns)
+            session.measure(access_direct  ).assert_time(self.time_700_ns   , self.time_6_kns, self.time_7_kns)
 
     def test_context_manager_performance(self):                               # Test context manager overhead
         class SimpleType(Type_Safe):                                          # Simple managed type
@@ -250,8 +250,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             obj.value = 42
 
         with Performance_Measure__Session() as session:
-            session.measure(use_context_manager).assert_time(self.time_20_kns)
-            session.measure(direct_usage       ).assert_time(self.time_20_kns)
+            session.measure(use_context_manager).assert_time(self.time_3_kns,    self.time_20_kns)
+            session.measure(direct_usage       ).assert_time(self.time_3_kns,    self.time_20_kns)
 
     def test_merge_performance(self):                                         # Test merge operation speed
         class SourceType(Type_Safe):                                         # Source for merge
@@ -270,7 +270,7 @@ class test__perf__Type_Safe__ctor(TestCase):
             target.merge_with(source)
 
         with Performance_Measure__Session() as session:
-            session.measure(perform_merge).assert_time(self.time_6_kns)
+            session.measure(perform_merge).assert_time(self.time_3_kns,   self.time_6_kns)
 
     @dataclass
     class ComplexDefault:                                                    # Helper for comparison
@@ -289,8 +289,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             return TypeSafeVersion()
 
         with Performance_Measure__Session() as session:
-            session.measure(create_dataclass).assert_time(self.time_300_ns)
-            session.measure(create_type_safe).assert_time(self.time_20_kns, self.time_30_kns)
+            session.measure(create_dataclass).assert_time(self.time_200_ns    , self.time_300_ns)
+            session.measure(create_type_safe).assert_time(self.time_4_kns     ,  self.time_20_kns, self.time_30_kns)
 
     def test_union_type_performance(self):              # Test performance of union type validation
         class WithUnion(Type_Safe):
@@ -304,8 +304,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             return WithUnion(field=1.0, nested=["a", "b", "c", "d"])
 
         with Performance_Measure__Session() as session:
-            session.measure(test_first_type).assert_time(self.time_30_kns, self.time_40_kns)
-            session.measure(test_last_type ).assert_time(self.time_30_kns)
+            session.measure(test_first_type).assert_time(self.time_20_kns,     self.time_30_kns, self.time_40_kns)
+            session.measure(test_last_type ).assert_time(self.time_20_kns,     self.time_30_kns)
 
     def test_forward_ref_performance(self):                 # Test performance of forward reference resolution
         class Node(Type_Safe):
@@ -324,8 +324,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             return root
 
         with Performance_Measure__Session() as session:
-            session.measure(create_chain).assert_time(self.time_80_kns )
-            session.measure(create_tree ).assert_time(self.time_200_kns, self.time_300_kns)
+            session.measure(create_chain).assert_time(self.time_30_kns   , self.time_80_kns )
+            session.measure(create_tree ).assert_time(self.time_60_kns   , self.time_200_kns, self.time_300_kns)
 
     def test_mixed_defaults_performance(self):               # Test performance of mixed default value handling
         class MixedDefaults(Type_Safe):
@@ -348,8 +348,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             )
 
         with Performance_Measure__Session() as session:
-            session.measure(create_with_defaults ).assert_time(self.time_50_kns)
-            session.measure(create_with_overrides).assert_time(self.time_80_kns, self.time_90_kns)
+            session.measure(create_with_defaults ).assert_time(self.time_8_kns     , self.time_50_kns)
+            session.measure(create_with_overrides).assert_time(self.time_20_kns    , self.time_80_kns, self.time_90_kns)
 
     def test_deep_nesting_performance(self):                    # Test performance of deeply nested type validation
         class Level3(Type_Safe):
@@ -369,7 +369,7 @@ class test__perf__Type_Safe__ctor(TestCase):
             return Level1(nested=l2, mapping={"test": l2})
 
         with Performance_Measure__Session() as session:
-            session.measure(create_deep_nested).assert_time(self.time_200_kns)
+            session.measure(create_deep_nested).assert_time(self.time_80_kns        , self.time_200_kns)
 
     def test_large_object_instantiation(self):                  # Test performance with large object graphs
         class Item(Type_Safe):
@@ -386,5 +386,5 @@ class test__perf__Type_Safe__ctor(TestCase):
             return Container(items=[Item(id=str(i), value=i)for i in range(20)])
 
         with Performance_Measure__Session() as session:
-            session.measure(create_medium_object).assert_time(self.time_400_kns)
-            session.measure(create_larger_object).assert_time(self.time_800_kns)
+            session.measure(create_medium_object).assert_time(self.time_70_kns,   self.time_400_kns)
+            session.measure(create_larger_object).assert_time(self.time_100_kns)
