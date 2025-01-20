@@ -44,14 +44,14 @@ class test_Performance_Checks__Session(TestCase):
             an_str: str = '42'
 
 
-        Performance_Measure__Session().measure(str        ).print().assert_time(self.time_100_ns, self.time_0_ns                      )
-        Performance_Measure__Session().measure(Random_Guid).print().assert_time(self.time_3_kns , self.time_5_kns, self.time_6_kns    )
-        Performance_Measure__Session().measure(An_Class_1 ).print().assert_time(self.time_100_ns                                      )
+        Performance_Measure__Session().measure(str        ).print().assert_time(self.time_100_ns, self.time_0_ns                                                          )
+        Performance_Measure__Session().measure(Random_Guid).print().assert_time(self.time_3_kns , self.time_5_kns, self.time_6_kns , self.time_7_kns                      )
+        Performance_Measure__Session().measure(An_Class_1 ).print().assert_time(self.time_100_ns                                                                          )
         Performance_Measure__Session().measure(An_Class_2 ).print().assert_time(self.time_3_kns , self.time_4_kns , self.time_5_kns , self.time_6_kns,  self.time_7_kns   )
-        Performance_Measure__Session().measure(An_Class_3 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns  )
-        Performance_Measure__Session().measure(An_Class_4 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns  )
-        Performance_Measure__Session().measure(An_Class_5 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns  )
-        Performance_Measure__Session().measure(An_Class_6 ).print().assert_time(self.time_7_kns , self.time_8_kns , self.time_10_kns, self.time_20_kns  )
+        Performance_Measure__Session().measure(An_Class_3 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
+        Performance_Measure__Session().measure(An_Class_4 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
+        Performance_Measure__Session().measure(An_Class_5 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
+        Performance_Measure__Session().measure(An_Class_6 ).print().assert_time(self.time_7_kns , self.time_8_kns , self.time_10_kns, self.time_20_kns                    )
 
     # def test_dissaembly_both_paths(self):
     #     from osbot_utils.type_safe.Cache__Class_Kwargs import Cache__Class_Kwargs
