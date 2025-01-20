@@ -52,7 +52,7 @@ class Type_Safe__Cache:
         immutable_vars = self._cls__immutable_vars.get(cls)
         if self.skip_cache or not immutable_vars:
             annotations                    = self.get_class_annotations(cls)
-            immutable_vars                 = [key for key, value in annotations if value in IMMUTABLE_TYPES]
+            immutable_vars                 = {key: value for key, value in annotations if value in IMMUTABLE_TYPES}
             self._cls__immutable_vars[cls] = immutable_vars
         else:
             self.cache_hit__cls__immutable_vars += 1

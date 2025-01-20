@@ -137,7 +137,7 @@ class test_Type_Safe__bugs(TestCase):
         an_class =  An_Class__With_Correct_Values()             # should create ok and values should match the type
         assert an_class.__locals__() == {'an_bool': an_bool_value, 'an_int': an_int_value, 'an_str': an_str_value}
 
-        expected_message = "variable 'an_str' is defined as type '<class 'str'>' but has value 'True' of type '<class 'bool'>'"
+        expected_message = "Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'bool'>'"
         with self.assertRaises(Exception) as context:
             An_Class__With_Bad_Values()
         assert context.exception.args[0] == expected_message
@@ -174,7 +174,7 @@ class test_Type_Safe__bugs(TestCase):
             an_int  : int  = an_bool_value                      # BUG: should have thrown exception here (bool should be allowed on int)
             an_str  : str  = an_bool_value                      # will throw exception here
 
-        expected_message = "variable 'an_str' is defined as type '<class 'str'>' but has value 'True' of type '<class 'bool'>'"
+        expected_message = "Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'bool'>'"
         with self.assertRaises(Exception) as context:
             An_Class__With_Bad_Values()
         assert context.exception.args[0] == expected_message

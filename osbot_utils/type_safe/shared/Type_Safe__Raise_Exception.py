@@ -4,8 +4,8 @@ from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables import IMMUTABLE_
 
 class Type_Safe__Raise_Exception:
 
-    def type_mismatch_error(self, var_name: str, expected_type: Any, actual_value: Any) -> None:  # Raises formatted error for type validation failures
-        exception_message = f"variable '{var_name}' is defined as type '{expected_type}' but has value '{actual_value}' of type '{type(actual_value)}'"
+    def type_mismatch_error(self, var_name: str, expected_type: type, actual_type: type) -> None:                               # Raises formatted error for type validation failures
+        exception_message = f"Invalid type for attribute '{var_name}'. Expected '{expected_type}' but got '{actual_type}'"
         raise ValueError(exception_message)
 
     def immutable_type_error(self, var_name, var_type):

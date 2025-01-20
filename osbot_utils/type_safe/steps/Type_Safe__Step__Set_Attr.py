@@ -1,11 +1,12 @@
-from typing                                                 import get_origin, Annotated, get_args
-from osbot_utils.type_safe.shared.Type_Safe__Cache          import type_safe_cache
-from osbot_utils.utils.Objects                              import all_annotations
-from osbot_utils.utils.Objects                              import convert_dict_to_value_from_obj_annotation
-from osbot_utils.utils.Objects                              import convert_to_value_from_obj_annotation
-from osbot_utils.utils.Objects                              import value_type_matches_obj_annotation_for_attr
-from osbot_utils.utils.Objects                              import value_type_matches_obj_annotation_for_union_and_annotated
-from osbot_utils.type_safe.validators.Type_Safe__Validator  import Type_Safe__Validator
+from typing                                                  import get_origin, Annotated, get_args, _SpecialGenericAlias
+from osbot_utils.type_safe.shared.Type_Safe__Cache           import type_safe_cache
+from osbot_utils.type_safe.shared.Type_Safe__Raise_Exception import type_safe_raise_exception
+from osbot_utils.utils.Objects                               import all_annotations, are_types_compatible_for_assigment
+from osbot_utils.utils.Objects                               import convert_dict_to_value_from_obj_annotation
+from osbot_utils.utils.Objects                               import convert_to_value_from_obj_annotation
+from osbot_utils.utils.Objects                               import value_type_matches_obj_annotation_for_attr
+from osbot_utils.utils.Objects                               import value_type_matches_obj_annotation_for_union_and_annotated
+from osbot_utils.type_safe.validators.Type_Safe__Validator   import Type_Safe__Validator
 
 
 class Type_Safe__Step__Set_Attr:
@@ -78,6 +79,17 @@ class Type_Safe__Step__Set_Attr:
         return value
 
     def setattr(self, _super, _self, name, value):
+        if value is not None and type(value) is not _SpecialGenericAlias:                    # todo: refactor this section into a separate method
+            immutable_vars = type_safe_cache.get_class_immutable_vars(_self.__class__)
+            if name in immutable_vars:
+                expected_type = immutable_vars[name]
+                if value is not type:
+                    current_type  = type(value)
+                else:
+                    current_type = type
+                if not are_types_compatible_for_assigment(current_type, expected_type):
+                    type_safe_raise_exception.type_mismatch_error(name, expected_type, current_type)
+                return _super.__setattr__(name, value)
 
         annotations = all_annotations(_self)
         if not annotations:                                             # can't do type safety checks if the class does not have annotations

@@ -551,12 +551,12 @@ class test_Type_Safe(TestCase):
         class An_Bad_Type(Type_Safe):
             not_an_int: int = "an str"
 
-        expected_error= "variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
+        expected_error= "Invalid type for attribute 'not_an_int'. Expected '<class 'int'>' but got '<class 'str'>'"
         #with Catch(expect_exception=True, expected_error=expected_error):
         with pytest.raises(ValueError, match=expected_error ):
             An_Bad_Type().__default_kwargs__()
 
-        expected_error = "variable 'not_an_int' is defined as type '<class 'int'>' but has value 'an str' of type '<class 'str'>'"
+        expected_error = "Invalid type for attribute 'not_an_int'. Expected '<class 'int'>' but got '<class 'str'>'"
         with pytest.raises(ValueError, match=expected_error ):
             An_Bad_Type().__default_kwargs__()
 

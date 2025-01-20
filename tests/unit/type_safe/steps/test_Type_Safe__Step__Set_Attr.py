@@ -4,7 +4,7 @@ from osbot_utils.helpers.Random_Guid                        import Random_Guid
 from osbot_utils.utils.Objects                              import all_annotations
 from osbot_utils.type_safe.steps.Type_Safe__Step__Set_Attr  import Type_Safe__Step__Set_Attr
 
-from osbot_utils.helpers.trace.Trace_Call import trace_calls
+from osbot_utils.helpers.trace.Trace_Call                   import trace_calls
 
 
 class test_Type_Safe__Step__Set_Attr(TestCase):
@@ -12,6 +12,10 @@ class test_Type_Safe__Step__Set_Attr(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.step_set_attr = Type_Safe__Step__Set_Attr()
+
+    # def setUp(self):
+    #     print()
+
 
     # @trace_calls(include          = ['*'],
     #              show_internals   = True ,
@@ -27,8 +31,9 @@ class test_Type_Safe__Step__Set_Attr(TestCase):
         assert all_annotations(one_int)  == {'an_int': int}
         assert self.step_set_attr.setattr(one_int, one_int, 'an_int', 42) is None
         assert one_int.an_int == 42
-
+        #pprint()
         assert self.step_set_attr.setattr(one_int, one_int, 'an_int', 42) is None
+        #pprint()
         assert self.step_set_attr.setattr(one_int, one_int, 'an_int', 42) is None
 
     def test_class__random_guid(self):

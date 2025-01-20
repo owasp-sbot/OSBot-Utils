@@ -36,6 +36,6 @@ class Type_Safe__Validation:
 
     def validate_variable_type(self, var_name, var_type, var_value):                                # Validate type compatibility
         if var_type and not isinstance(var_value, var_type):
-            type_safe_raise_exception.type_mismatch_error(var_name, var_type, var_value)
+            type_safe_raise_exception.type_mismatch_error(var_name, var_type, type(var_value))
 
 type_safe_validation = Type_Safe__Validation()
