@@ -1,7 +1,9 @@
-from typing                               import Optional, List, Dict, Union
-from unittest                             import TestCase
-from osbot_utils.helpers.trace.Trace_Call import trace_calls
-from osbot_utils.type_safe.Type_Safe      import Type_Safe
+from typing                                         import Optional, List, Dict, Union
+from unittest                                       import TestCase
+from osbot_utils.helpers.trace.Trace_Call           import trace_calls
+from osbot_utils.type_safe.Type_Safe                import Type_Safe
+from osbot_utils.type_safe.shared.Type_Safe__Cache  import type_safe_cache
+
 
 class test__perf__Type_Safe__tracing(TestCase):
 #
@@ -50,6 +52,8 @@ class test__perf__Type_Safe__tracing(TestCase):
             #union_field  : Union    [str, int]
 
         ComplexTypes()
+
+        type_safe_cache.print_cache_hits()
 
 
 

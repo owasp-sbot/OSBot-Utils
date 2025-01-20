@@ -5,7 +5,7 @@ from osbot_utils.type_safe.shared.Type_Safe__Cache  import type_safe_cache
 class Type_Safe__Annotations:
 
     def all_annotations(self, target):
-        return type_safe_cache.get_annotations(target)                          # use cache
+        return type_safe_cache.get_obj_annotations(target)                          # use cache
 
     def all_annotations__in_class(self, cls):
         return type_safe_cache.get_class_annotations(cls)
@@ -23,5 +23,8 @@ class Type_Safe__Annotations:
             return True
         return False
 
+    def get_origin(self, var_type):
+        return type_safe_cache.get_origin(var_type)
 
 type_safe_annotations = Type_Safe__Annotations()
+

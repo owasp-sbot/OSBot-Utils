@@ -98,7 +98,7 @@ class Type_Safe__Step__From_Json:
     def deserialize_dict__using_key_value_annotations(self, _self, key, value):
         from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
 
-        annotations            = type_safe_cache.get_annotations(_self)
+        annotations            = type_safe_cache.get_obj_annotations(_self)
         dict_annotations_tuple = get_args(annotations.get(key))
         if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
             return value

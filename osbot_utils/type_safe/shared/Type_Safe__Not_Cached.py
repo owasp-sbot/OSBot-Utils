@@ -1,3 +1,5 @@
+from typing import get_origin
+
 class Type_Safe__Not_Cached:
 
     def all_annotations(self, target):
@@ -15,5 +17,8 @@ class Type_Safe__Not_Cached:
                 if hasattr(base, '__annotations__'):
                     annotations.update(base.__annotations__)
         return annotations
+
+    def get_origin(self, var_type):
+        return get_origin(var_type)
 
 type_safe_not_cached = Type_Safe__Not_Cached()

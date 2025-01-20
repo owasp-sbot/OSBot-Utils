@@ -1,11 +1,10 @@
 import types
 import typing
 from enum                                                           import EnumMeta
-from typing                                                         import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict
+from typing                                                         import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias
 from osbot_utils.type_safe.shared.Type_Safe__Annotations            import type_safe_annotations
 from osbot_utils.type_safe.shared.Type_Safe__Cache                  import type_safe_cache
 from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables      import IMMUTABLE_TYPES
-from osbot_utils.utils.Objects                                      import obj_is_type_union_compatible
 from osbot_utils.type_safe.shared.Type_Safe__Raise_Exception        import type_safe_raise_exception
 
 
@@ -50,6 +49,21 @@ class Type_Safe__Validation:
         # if class_full_name(target_type) == 'unittest.mock.MagicMock':
         #     return True
         return False
+
+    def obj_is_type_union_compatible(self, var_type, compatible_types):
+        from typing import Union
+
+        origin = get_origin(var_type)
+        if isinstance(var_type, _GenericAlias) and origin is type:              # Add handling for Type[T]
+            return type in compatible_types                                     # Allow if 'type' is in compatible types
+        if origin is Union:                                                     # For Union types, including Optionals
+            args = get_args(var_type)                                           # Get the argument types
+            for arg in args:                                                    # Iterate through each argument in the Union
+                if not (arg in compatible_types or arg is type(None)):          # Check if the argument is either in the compatible_types or is type(None)
+                    return False                                                # If any arg doesn't meet the criteria, return False immediately
+            return True                                                         # If all args are compatible, return True
+        return var_type in compatible_types or var_type is type(None)           # Check for direct compatibility or type(None) for non-Union types
+
 
     def check_if__type_matches__obj_annotation__for_union_and_annotated(self, target   : Any    ,    # Target object to check
                                                                              attr_name : str    ,    # Attribute name
@@ -141,7 +155,7 @@ class Type_Safe__Validation:
                                                                attr_name,
                                                                value
                                                          )              -> Optional[bool]:
-        annotations = type_safe_cache.get_annotations(target)
+        annotations = type_safe_cache.get_obj_annotations(target)
         attr_type   = annotations.get(attr_name)
         if attr_type:
             origin_attr_type = get_origin(attr_type)                                    # to handle when type definition contains a generic
@@ -220,7 +234,7 @@ class Type_Safe__Validation:
     # todo: see if need to add cache support to this method     (it looks like this method is not called very often)
     def validate_type_immutability(self, var_name: str, var_type: Any) -> None:                         # Validates that type is immutable or in supported format
         if var_type not in IMMUTABLE_TYPES and var_name.startswith('__') is False:                      # if var_type is not one of the IMMUTABLE_TYPES or is an __ internal
-            if obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                        # if var_type is not something like Optional[Union[int, str]]
+            if self.obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                        # if var_type is not something like Optional[Union[int, str]]
                 if var_type not in IMMUTABLE_TYPES or type(var_type) not in IMMUTABLE_TYPES:
                     if not isinstance(var_type, EnumMeta):
                         type_safe_raise_exception.immutable_type_error(var_name, var_type)

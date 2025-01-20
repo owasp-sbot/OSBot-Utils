@@ -3,10 +3,10 @@ import pytest
 from unittest                                                        import TestCase
 from typing                                                          import get_args, get_origin, List, Dict, Any, Union, Optional
 from osbot_utils.type_safe.shared.Type_Safe__Annotations             import type_safe_annotations
+from osbot_utils.type_safe.shared.Type_Safe__Validation              import type_safe_validation
 from osbot_utils.type_safe.steps.Type_Safe__Step__Init               import type_safe_step_init
 from osbot_utils.testing.performance.Performance_Measure__Session    import Performance_Measure__Session
-from osbot_utils.utils.Objects                                       import (obj_data, default_value     ,
-                                                                             obj_is_type_union_compatible)
+from osbot_utils.utils.Objects                                       import obj_data, default_value
 from osbot_utils.utils.Json                                          import json_dumps, json_parse
 
 class An_Class:                                                                            # Simple test class with annotations
@@ -163,7 +163,7 @@ class test__perf__Type_Safe__dependencies(TestCase):                            
         obj = An_Class()
 
         def check_type_union():                                                      # Performance of obj_is_type_union_compatible()
-            return obj_is_type_union_compatible(str, (str, int))
+            return type_safe_validation.obj_is_type_union_compatible(str, (str, int))
 
         def check_annotation_type():                                                 # Performance of obj_is_attribute_annotation_of_type()
             return type_safe_annotations.obj_is_attribute_annotation_of_type(obj, 'an_str', str)

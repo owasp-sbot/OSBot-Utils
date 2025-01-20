@@ -276,23 +276,6 @@ def obj_get_value(target=None, key=None, default=None):
 def obj_values(target=None):
     return list(obj_dict(target).values())
 
-
-def obj_is_type_union_compatible(var_type, compatible_types):
-    from typing import Union
-
-    origin = get_origin(var_type)
-    if isinstance(var_type, _GenericAlias) and origin is type:              # Add handling for Type[T]
-        return type in compatible_types                                     # Allow if 'type' is in compatible types
-    if origin is Union:                                                     # For Union types, including Optionals
-        args = get_args(var_type)                                           # Get the argument types
-        for arg in args:                                                    # Iterate through each argument in the Union
-            if not (arg in compatible_types or arg is type(None)):          # Check if the argument is either in the compatible_types or is type(None)
-                return False                                                # If any arg doesn't meet the criteria, return False immediately
-        return True                                                         # If all args are compatible, return True
-    return var_type in compatible_types or var_type is type(None)           # Check for direct compatibility or type(None) for non-Union types
-
-
-
 def pickle_save_to_bytes(target: object) -> bytes:
     import pickle
     return pickle.dumps(target)

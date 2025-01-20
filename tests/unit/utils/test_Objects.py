@@ -15,7 +15,7 @@ from osbot_utils.utils.Misc                             import random_int, list_
 from osbot_utils.utils.Objects                          import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, obj_dict, default_value, base_classes, \
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_data, print_obj_data_as_dict, print_object_members, \
-    obj_base_classes, obj_base_classes_names, type_mro, obj_is_type_union_compatible, pickle_save_to_bytes, pickle_load_from_bytes, dict_to_obj, obj_to_dict, __
+    obj_base_classes, obj_base_classes_names, type_mro, pickle_save_to_bytes, pickle_load_from_bytes, dict_to_obj, obj_to_dict, __
 
 
 class test_Objects(TestCase):
@@ -470,10 +470,10 @@ class test_Objects(TestCase):
         var_3: float = 1.0
         var_4: bool = True
 
-        assert obj_is_type_union_compatible(type(var_1), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_2), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_3), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_4), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_1), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_2), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_3), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_4), compatible_types) is True
 
         # Union types
         var_5: Union[str, int         ] = 2
@@ -482,13 +482,13 @@ class test_Objects(TestCase):
         var_8: Union[str, int         ] = None
         var_9: Union[str, int         ] = None
 
-        assert obj_is_type_union_compatible(Union[str, int]         , compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_5)             , compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_8)             , compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_9)             , compatible_types) is True
-        assert obj_is_type_union_compatible(Union[int, float, bytes], compatible_types) is False  # Because bytes is not compatible
-        assert obj_is_type_union_compatible(type(var_6)             , compatible_types) is True   # bytes could be one of the values, but it is not
-        assert obj_is_type_union_compatible(type(var_7)             , compatible_types) is False  # now that bytes is one of the values, it fails
+        assert type_safe_validation.obj_is_type_union_compatible(Union[str, int]         , compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_5)             , compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_8)             , compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_9)             , compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(Union[int, float, bytes], compatible_types) is False  # Because bytes is not compatible
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_6)             , compatible_types) is True   # bytes could be one of the values, but it is not
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_7)             , compatible_types) is False  # now that bytes is one of the values, it fails
 
         # Optional types (which are essentially Union[type, NoneType])
         var_10: Optional[str  ] = None
@@ -497,11 +497,11 @@ class test_Objects(TestCase):
         var_13: Optional[bytes] = 'a'
         var_14: Optional[bytes] = b'aaa'
 
-        assert obj_is_type_union_compatible(type(var_10), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_11), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_12), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_13), compatible_types) is True   # todo: BUG type safe should had picked this up
-        assert obj_is_type_union_compatible(type(var_14), compatible_types) is False  # Because bytes is not compatible
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_10), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_11), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_12), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_13), compatible_types) is True   # todo: BUG type safe should had picked this up
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_14), compatible_types) is False  # Because bytes is not compatible
 
         # Complex case with nested Unions and Optionals
         var_15: Optional[Union[int, str, None ]] = None
@@ -509,10 +509,10 @@ class test_Objects(TestCase):
         var_17: Optional[Union[int, str, bytes]] = 'a'
         var_18: Optional[Union[int, str, bytes]] = b'aaa'
 
-        assert obj_is_type_union_compatible(type(var_15), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_16), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_17), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_18), compatible_types) is False
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_15), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_16), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_17), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_18), compatible_types) is False
 
     def test_bug__obj_is_type_union_compatible(self):
         compatible_types = (int, float, str)        # bool not here
@@ -526,11 +526,11 @@ class test_Objects(TestCase):
         assert type(var_3) is float
         assert type(var_4) is bool
         assert type(var_5) is bytes
-        assert obj_is_type_union_compatible(type(var_1), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_2), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_3), compatible_types) is True
-        assert obj_is_type_union_compatible(type(var_4), compatible_types) is False
-        assert obj_is_type_union_compatible(type(var_5), compatible_types) is False
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_1), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_2), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_3), compatible_types) is True
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_4), compatible_types) is False
+        assert type_safe_validation.obj_is_type_union_compatible(type(var_5), compatible_types) is False
 
     def test_print_object_members(self):
         if sys.version_info < (3, 11):
