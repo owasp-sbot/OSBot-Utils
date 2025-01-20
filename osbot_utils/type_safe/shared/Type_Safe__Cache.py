@@ -1,8 +1,8 @@
 import inspect
 from typing                                                     import get_origin
 from weakref                                                    import WeakKeyDictionary
+from osbot_utils.type_safe.shared.Type_Safe__Not_Cached         import type_safe_not_cached
 from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables  import IMMUTABLE_TYPES
-from osbot_utils.utils.Objects                                  import all_annotations__in_class, all_annotations
 
 
 class Type_Safe__Cache:
@@ -49,7 +49,7 @@ class Type_Safe__Cache:
         annotations = self._obj__annotations_cache.get(annotations_key)                          # this is a more efficient cache retrieval pattern (we only get the data from the dict once)
         if not annotations:                                                     # todo: apply this to the other cache getters
             if self.skip_cache or annotations_key not in self._obj__annotations_cache:
-                annotations = dict(all_annotations(target).items())
+                annotations = dict(type_safe_not_cached.all_annotations(target).items())
                 self._obj__annotations_cache[annotations_key] = annotations
         else:
             self.cache_hit__obj__annotations += 1
@@ -59,7 +59,7 @@ class Type_Safe__Cache:
         annotations = self._cls__annotations_cache.get(cls)                          # this is a more efficient cache retrieval pattern (we only get the data from the dict once)
         if not annotations:                                                     # todo: apply this to the other cache getters
             if self.skip_cache or cls not in self._cls__annotations_cache:
-                annotations = all_annotations__in_class(cls).items()
+                annotations = type_safe_not_cached.all_annotations__in_class(cls).items()
                 self._cls__annotations_cache[cls] = annotations
         else:
             self.cache_hit__cls__annotations += 1

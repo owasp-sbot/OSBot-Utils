@@ -2,11 +2,11 @@ import inspect
 import pytest
 from unittest                                                        import TestCase
 from typing                                                          import get_args, get_origin, List, Dict, Any, Union, Optional
+from osbot_utils.type_safe.shared.Type_Safe__Annotations             import type_safe_annotations
 from osbot_utils.type_safe.steps.Type_Safe__Step__Init               import type_safe_step_init
 from osbot_utils.testing.performance.Performance_Measure__Session    import Performance_Measure__Session
-from osbot_utils.utils.Objects                                       import (obj_data, default_value, all_annotations,
-                                                                             obj_is_type_union_compatible,
-                                                                             obj_is_attribute_annotation_of_type)
+from osbot_utils.utils.Objects                                       import (obj_data, default_value     ,
+                                                                             obj_is_type_union_compatible)
 from osbot_utils.utils.Json                                          import json_dumps, json_parse
 
 class An_Class:                                                                            # Simple test class with annotations
@@ -152,7 +152,7 @@ class test__perf__Type_Safe__dependencies(TestCase):                            
             return default_value(str)
 
         def do_all_annotations():                                                     # Performance of all_annotations()
-            return all_annotations(obj)
+            return type_safe_annotations.all_annotations(obj)
 
         with Performance_Measure__Session() as session:
             session.measure(do_obj_data       ).assert_time(self.time_8_kns, self.time_9_kns )
@@ -166,7 +166,7 @@ class test__perf__Type_Safe__dependencies(TestCase):                            
             return obj_is_type_union_compatible(str, (str, int))
 
         def check_annotation_type():                                                 # Performance of obj_is_attribute_annotation_of_type()
-            return obj_is_attribute_annotation_of_type(obj, 'an_str', str)
+            return type_safe_annotations.obj_is_attribute_annotation_of_type(obj, 'an_str', str)
 
         def check_value_matches():                                                   # Performance of value_type_matches_obj_annotation_for_attr()
             return type_safe_step_init.check_if__type_matches__obj_annotation__for_attr(obj, 'an_str', 'test')

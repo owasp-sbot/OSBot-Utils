@@ -276,24 +276,6 @@ def obj_get_value(target=None, key=None, default=None):
 def obj_values(target=None):
     return list(obj_dict(target).values())
 
-def obj_attribute_annotation(target, attr_name):
-    if target is not None and attr_name is not None:
-        if hasattr(target, '__annotations__'):
-            obj_annotations  = target.__annotations__
-            if hasattr(obj_annotations,'get'):
-                attribute_annotation = obj_annotations.get(attr_name)
-                return attribute_annotation
-    return None
-
-def obj_is_attribute_annotation_of_type(target, attr_name, expected_type):
-    attribute_annotation = obj_attribute_annotation(target, attr_name)
-    if expected_type is attribute_annotation:
-        return True
-    if expected_type is type(attribute_annotation):
-        return True
-    if expected_type is get_origin(attribute_annotation):                               # handle genericAlias
-        return True
-    return False
 
 def obj_is_type_union_compatible(var_type, compatible_types):
     from typing import Union
@@ -347,22 +329,6 @@ def serialize_to_dict(obj):
         return data
     else:
         raise TypeError(f"Type {type(obj)} not serializable")
-    
-def all_annotations(target):
-    annotations = {}
-    if hasattr(target.__class__, '__mro__'):
-        for base in reversed(target.__class__.__mro__):
-            if hasattr(base, '__annotations__'):
-                annotations.update(base.__annotations__)
-    return annotations
-
-def all_annotations__in_class(target):
-    annotations = {}
-    if hasattr(target, '__mro__'):
-        for base in reversed(target.__mro__):
-            if hasattr(base, '__annotations__'):
-                annotations.update(base.__annotations__)
-    return annotations
 
 
 

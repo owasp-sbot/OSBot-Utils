@@ -1,9 +1,11 @@
 import types
+import typing
 from enum                                                           import EnumMeta
-from typing                                                         import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, List
+from typing                                                         import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict
+from osbot_utils.type_safe.shared.Type_Safe__Annotations            import type_safe_annotations
 from osbot_utils.type_safe.shared.Type_Safe__Cache                  import type_safe_cache
 from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables      import IMMUTABLE_TYPES
-from osbot_utils.utils.Objects                                      import obj_is_type_union_compatible, obj_attribute_annotation, all_annotations
+from osbot_utils.utils.Objects                                      import obj_is_type_union_compatible
 from osbot_utils.type_safe.shared.Type_Safe__Raise_Exception        import type_safe_raise_exception
 
 
@@ -58,7 +60,7 @@ class Type_Safe__Validation:
         from typing                                              import Union, get_origin, get_args
 
         value_type           = type(value)
-        attribute_annotation = obj_attribute_annotation(target, attr_name)
+        attribute_annotation = type_safe_annotations.obj_attribute_annotation(target, attr_name)
         origin               = get_origin(attribute_annotation)
 
         if origin is Union:
@@ -139,8 +141,7 @@ class Type_Safe__Validation:
                                                                attr_name,
                                                                value
                                                          )              -> Optional[bool]:
-        import typing
-        annotations = all_annotations(target)
+        annotations = type_safe_cache.get_annotations(target)
         attr_type   = annotations.get(attr_name)
         if attr_type:
             origin_attr_type = get_origin(attr_type)                                    # to handle when type definition contains a generic

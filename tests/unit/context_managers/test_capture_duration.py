@@ -1,8 +1,6 @@
-from unittest import TestCase
-
-from osbot_utils.testing.Stdout import Stdout
-
-from osbot_utils.context_managers.capture_duration import capture_duration
+from unittest                                       import TestCase
+from osbot_utils.testing.Stdout                     import Stdout
+from osbot_utils.context_managers.capture_duration  import capture_duration
 
 class test_capture_duration(TestCase):
 

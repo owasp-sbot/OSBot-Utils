@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Union
+from typing                               import Optional, List, Dict, Union
 from unittest                             import TestCase
 from osbot_utils.helpers.trace.Trace_Call import trace_calls
 from osbot_utils.type_safe.Type_Safe      import Type_Safe
@@ -37,16 +37,17 @@ class test__perf__Type_Safe__tracing(TestCase):
                  show_types           = False       ,
                  show_class           = True        ,
                  show_duration        = True        ,
-                 duration_padding     = 150         ,
+                 duration_padding     = 140         ,
                  #duration_bigger_than = 0.001
                  )
     def test_complex_types(self):
 
         class ComplexTypes(Type_Safe):                                          # Multiple complex types
-            optional_str : Optional [str]
-            str_list     : List     [str]
+            #an_int : int
+            #optional_str : Optional [str]
+            #str_list     : List     [str]
             int_dict     : Dict     [str, int]
-            union_field  : Union    [str, int]
+            #union_field  : Union    [str, int]
 
         ComplexTypes()
 

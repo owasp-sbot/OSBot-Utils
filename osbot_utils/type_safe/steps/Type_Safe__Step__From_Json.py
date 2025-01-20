@@ -1,16 +1,16 @@
 import sys
 import types
-from decimal                                    import Decimal
-from enum                                       import EnumMeta
-from osbot_utils.type_safe.Type_Safe            import Type_Safe
-from osbot_utils.type_safe.Type_Safe__List      import Type_Safe__List
-from osbot_utils.helpers.Random_Guid            import Random_Guid
-from osbot_utils.helpers.Random_Guid_Short      import Random_Guid_Short
-from osbot_utils.utils.Objects                  import obj_is_attribute_annotation_of_type, all_annotations
-from osbot_utils.utils.Objects                  import obj_attribute_annotation
-from osbot_utils.utils.Objects                  import enum_from_value
-from osbot_utils.helpers.Safe_Id                import Safe_Id
-from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
+from decimal                                             import Decimal
+from enum                                                import EnumMeta
+from osbot_utils.type_safe.Type_Safe                     import Type_Safe
+from osbot_utils.type_safe.Type_Safe__List               import Type_Safe__List
+from osbot_utils.helpers.Random_Guid                     import Random_Guid
+from osbot_utils.helpers.Random_Guid_Short               import Random_Guid_Short
+from osbot_utils.type_safe.shared.Type_Safe__Annotations import type_safe_annotations
+from osbot_utils.type_safe.shared.Type_Safe__Cache       import type_safe_cache
+from osbot_utils.utils.Objects                           import enum_from_value
+from osbot_utils.helpers.Safe_Id                         import Safe_Id
+from osbot_utils.helpers.Timestamp_Now                   import Timestamp_Now
 
 # todo; refactor all this python compatibility into the python_3_8 class
 if sys.version_info < (3, 8):                                           # pragma: no cover
@@ -43,12 +43,12 @@ class Type_Safe__Step__From_Json:
                             raise ValueError(f"Attribute '{key}' not found in '{_self.__class__.__name__}'")
                         else:
                             continue
-                    if obj_attribute_annotation(_self, key) == type:                                         # Handle type objects
+                    if type_safe_annotations.obj_attribute_annotation(_self, key) == type:                                         # Handle type objects
                         value = self.deserialize_type__using_value(value)
-                    elif obj_is_attribute_annotation_of_type(_self, key, dict):                                # handle the case when the value is a dict
+                    elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, dict):                                # handle the case when the value is a dict
                         value = self.deserialize_dict__using_key_value_annotations(_self, key, value)
-                    elif obj_is_attribute_annotation_of_type(_self, key, list):                              # handle the case when the value is a list
-                        attribute_annotation = obj_attribute_annotation(_self, key)                          # get the annotation for this variable
+                    elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, list):                              # handle the case when the value is a list
+                        attribute_annotation = type_safe_annotations.obj_attribute_annotation(_self, key)                          # get the annotation for this variable
                         attribute_annotation_args = get_args(attribute_annotation)
                         if attribute_annotation_args:
                             expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
@@ -62,21 +62,21 @@ class Type_Safe__Step__From_Json:
                             value = type_safe_list                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
                     else:
                         if value is not None:
-                            if obj_is_attribute_annotation_of_type(_self, key, EnumMeta):            # Handle the case when the value is an Enum
+                            if type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, EnumMeta):            # Handle the case when the value is an Enum
                                 enum_type = getattr(_self, '__annotations__').get(key)
                                 if type(value) is not enum_type:                                    # If the value is not already of the target type
                                     value = enum_from_value(enum_type, value)                       # Try to resolve the value into the enum
 
                             # todo: refactor these special cases into a separate method to class
-                            elif obj_is_attribute_annotation_of_type(_self, key, Decimal):           # handle Decimals
+                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Decimal):           # handle Decimals
                                 value = Decimal(value)
-                            elif obj_is_attribute_annotation_of_type(_self, key, Safe_Id):           # handle Safe_Id
+                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Safe_Id):           # handle Safe_Id
                                 value = Safe_Id(value)
-                            elif obj_is_attribute_annotation_of_type(_self, key, Random_Guid):       # handle Random_Guid
+                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Random_Guid):       # handle Random_Guid
                                 value = Random_Guid(value)
-                            elif obj_is_attribute_annotation_of_type(_self, key, Random_Guid_Short): # handle Random_Guid_Short
+                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Random_Guid_Short): # handle Random_Guid_Short
                                 value = Random_Guid_Short(value)
-                            elif obj_is_attribute_annotation_of_type(_self, key, Timestamp_Now):     # handle Timestamp_Now
+                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Timestamp_Now):     # handle Timestamp_Now
                                 value = Timestamp_Now(value)
                     setattr(_self, key, value)                                                   # Direct assignment for primitive types and other structures
 
@@ -97,7 +97,8 @@ class Type_Safe__Step__From_Json:
 
     def deserialize_dict__using_key_value_annotations(self, _self, key, value):
         from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
-        annotations = all_annotations(_self)
+
+        annotations            = type_safe_cache.get_annotations(_self)
         dict_annotations_tuple = get_args(annotations.get(key))
         if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
             return value

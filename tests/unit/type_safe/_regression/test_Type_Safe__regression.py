@@ -14,10 +14,11 @@ from osbot_utils.type_safe.Type_Safe__Dict                   import Type_Safe__D
 from osbot_utils.type_safe.Type_Safe__List                   import Type_Safe__List
 from osbot_utils.decorators.methods.cache_on_self            import cache_on_self
 from osbot_utils.helpers.Random_Guid                         import Random_Guid
+from osbot_utils.type_safe.shared.Type_Safe__Annotations     import type_safe_annotations
 from osbot_utils.type_safe.validators.Validator__Min         import Min
 from osbot_utils.utils.Json                                  import json_to_str, str_to_json
 from osbot_utils.utils.Misc                                  import list_set, is_guid
-from osbot_utils.utils.Objects                               import default_value, __, all_annotations
+from osbot_utils.utils.Objects                               import default_value, __
 
 class test_Type_Safe__regression(TestCase):
 
@@ -221,8 +222,8 @@ class test_Type_Safe__regression(TestCase):
             child_type: Type[Schema__Base]
 
         child = Schema__Child()
-        assert all_annotations(child)     == {'base_type' : Type[Schema__Base],
-                                              'child_type': Type[Schema__Base]}      # Confirm both annotations exist
+        assert type_safe_annotations.all_annotations(child)     == {'base_type' : Type[Schema__Base],
+                                                                    'child_type': Type[Schema__Base]}      # Confirm both annotations exist
         #assert child.base_type          is None                                      # Fixed BUG: Should be Schema__Base
         #assert child.child_type         is None                                      # Fixed BUG: Should be Schema__Base
         assert child.base_type          is Schema__Base
@@ -441,7 +442,7 @@ class test_Type_Safe__regression(TestCase):
         assert test.score == 95.5
 
         #Verify annotations are inherited correctly
-        annotations = all_annotations(test)
+        annotations = type_safe_annotations.all_annotations(test)
         assert list_set(annotations) == ['age', 'name', 'score']                        # Fixed: BUG: only the score is in the annotations
         assert get_origin(annotations['age'  ]) is Annotated      # Fixed: BUG missing annotation
         assert get_origin(annotations['name' ]) is Annotated      # Fixed: BUG missing annotation
