@@ -1,5 +1,6 @@
 from typing                                                          import Dict, Any, Type
 from osbot_utils.type_safe.shared.Type_Safe__Cache                   import Type_Safe__Cache, type_safe_cache
+from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables       import IMMUTABLE_TYPES
 from osbot_utils.type_safe.shared.Type_Safe__Validation              import type_safe_validation
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value      import type_safe_step_default_value
 
@@ -24,22 +25,31 @@ class Type_Safe__Step__Class_Kwargs:                                            
         return self.get_cls_kwargs__no_inheritance(cls)
 
     def get_cls_kwargs__no_inheritance(self, cls : Type         )\
-                                  -> Dict[str, Any]:
+                                  -> Dict[str, Any]:                                     # note: this method is mainly used by tests, so we don't need to add cache support here
         kwargs = {}                                                                      # Process current class only
-        self.process_mro_class  (cls, kwargs)                                           # Handle class variables
-        self.process_annotations(cls, cls, kwargs)                                      # Process type annotations
-
+        self.process_mro_class  (cls, kwargs)                                            # Handle class variables
+        self.process_annotations(cls, cls, kwargs)                                       # Process type annotations
         return kwargs
 
     def get_cls_kwargs__with_inheritance(self, cls : Type         )\
                                             -> Dict[str, Any]:                           # Get class kwargs with inheritance
+        kwargs  = type_safe_cache.get_cls_kwargs(cls)                                    # see if we have cached data for this class
+        if kwargs is not None:
+            return kwargs
+        else:
+            kwargs = {}
+
         base_classes = type_safe_cache.get_class_mro(cls)
-        kwargs = {}                                                                      # Process inheritance chain
         for base_cls in base_classes:
             self.process_mro_class  (base_cls, kwargs)                                  # Handle each class in MRO
             self.process_annotations(cls, base_cls, kwargs)                             # Process its annotations
 
+        if self.is_kwargs_cacheable(kwargs):                                            # if we can cache it (i.e. only IMMUTABLE_TYPES vars)
+            type_safe_cache.set_cache__cls_kwargs(cls, kwargs)                          #   cache it
         return kwargs
+
+    def is_kwargs_cacheable(self, kwargs: Dict[str, Any]) -> bool:
+        return all(isinstance(value, IMMUTABLE_TYPES) for value in kwargs.values())
 
     def handle_undefined_var(self, cls      : Type            ,                         # Handle undefined class variables
                                    kwargs   : Dict[str, Any] ,

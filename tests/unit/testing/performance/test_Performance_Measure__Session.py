@@ -15,6 +15,8 @@ class test_Performance_Checks__Session(TestCase):
            pytest.skip("Skipping tests in Github Actions")
         cls.time_0_ns    =      0
         cls.time_100_ns  =    100
+        cls.time_1_kns   =  1_000
+        cls.time_2_kns   =  2_000
         cls.time_3_kns   =  3_000
         cls.time_4_kns   =  4_000
         cls.time_5_kns   =  5_000
@@ -51,11 +53,11 @@ class test_Performance_Checks__Session(TestCase):
             _.measure(str        ).print().assert_time(self.time_100_ns, self.time_0_ns                                                          )
             _.measure(Random_Guid).print().assert_time(self.time_3_kns , self.time_5_kns, self.time_6_kns , self.time_7_kns                      )
             _.measure(An_Class_1 ).print().assert_time(self.time_100_ns                                                                          )
-            _.measure(An_Class_2 ).print().assert_time(self.time_3_kns , self.time_4_kns , self.time_5_kns , self.time_6_kns,  self.time_7_kns   )
+            _.measure(An_Class_2 ).print().assert_time(self.time_1_kns , self.time_2_kns , self.time_3_kns , self.time_4_kns , self.time_5_kns , self.time_6_kns,  self.time_7_kns   )
             _.measure(An_Class_3 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
             _.measure(An_Class_4 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
             _.measure(An_Class_5 ).print().assert_time(self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
-            _.measure(An_Class_6 ).print().assert_time(self.time_7_kns , self.time_8_kns , self.time_10_kns, self.time_20_kns                    )
+            _.measure(An_Class_6 ).print().assert_time(self.time_7_kns , self.time_8_kns ,self.time_9_kns , self.time_10_kns, self.time_20_kns                    )
 
         type_safe_cache.print_cache_hits()
 
