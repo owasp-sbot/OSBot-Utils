@@ -102,8 +102,6 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
             int_val      : int       = 42
             float_val    : float     = 3.14
             bool_val     : bool      = True
-            #tuple_val    : tuple     = (1, 2, 3)
-            #frozenset_val: frozenset = frozenset([1, 2, 3])
             bytes_val    : bytes     = b"bytes"
             enum_val     : SimpleEnum = SimpleEnum.A
 

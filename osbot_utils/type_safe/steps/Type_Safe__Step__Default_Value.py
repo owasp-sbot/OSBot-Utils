@@ -44,6 +44,7 @@ class Type_Safe__Step__Default_Value:
 
         if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
             return set()
+
         if get_origin(var_type) is set:
             return set()                                        # todo: add Type_Safe__Set
 

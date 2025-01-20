@@ -97,14 +97,13 @@ class Type_Safe__Step__Class_Kwargs:                                            
     def process_mro_class(self, base_cls : Type           ,                             # Process class in MRO chain
                                 kwargs   : Dict[str, Any] )\
                        -> None:
-        if base_cls is object:                                                          # Skip object class
+        if base_cls is object:                                                                              # Skip object class
             return
 
-        class_variables = type_safe_cache.get_valid_class_variables(                    # Get valid class variables
-            base_cls,
-            type_safe_validation.should_skip_var)
+        class_variables = type_safe_cache.get_valid_class_variables(base_cls                            ,
+                                                                    type_safe_validation.should_skip_var)   # Get valid class variables
 
-        for name, value in class_variables.items():                                     # Add non-existing variables
+        for name, value in class_variables.items():                                                         # Add non-existing variables
             if name not in kwargs:
                 kwargs[name] = value
 

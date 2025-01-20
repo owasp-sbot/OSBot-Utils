@@ -4,8 +4,6 @@ class Type_Safe__Step__Init:
 
     def init(self, __self, __class_kwargs, **kwargs):
 
-        #__class_kwargs = type_safe_step_class_kwargs.get_cls_kwargs(cls)           # todo: figure out why this doesn't work here on 1% of the tests (like the ones in CPrint)
-
         for (key, value) in __class_kwargs.items():                  # assign all default values to target
             if value is not None:                                           # when the value is explicitly set to None on the class static vars, we can't check for type safety
                 raise_exception_on_obj_type_annotation_mismatch(__self, key, value)
