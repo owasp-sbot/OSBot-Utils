@@ -8,29 +8,29 @@ from osbot_utils.helpers.trace.Trace_Call__Stack_Node   import Trace_Call__Stack
 from osbot_utils.helpers.trace.Trace_Call__Stats        import Trace_Call__Stats
 
 DEFAULT_ROOT_NODE_NODE_TITLE = 'Trace Session'
-GLOBAL_FUNCTIONS_TO_IGNORE   = ['value_type_matches_obj_annotation_for_attr'                ,            # these are type safety functions which introduce quite a lot of noise in the traces (and unless one is debugging type safety, they will not be needed)
-                                'value_type_matches_obj_annotation_for_union_and_annotated' ,            # todo: map out and document why exactly these methods are ignore (and what is the side effect)
-                                'are_types_compatible_for_assigment'                        ,
-                                'obj_attribute_annotation'                                  ,
-                                'all_annotations'                                           ,
-                                'get_origin'                                                ,
-                                'getmro'                                                    ,
-                                'default_value'                                             ,
-                                'raise_exception_on_obj_type_annotation_mismatch'           ,
-                                '__cls_kwargs__'                                            ,
-                                '__default__value__'                                        ,
-                                '__setattr__'                                               ,
-                                '<module>']
+# GLOBAL_FUNCTIONS_TO_IGNORE   = ['value_type_matches_obj_annotation_for_attr'                ,            # these are type safety functions which introduce quite a lot of noise in the traces (and unless one is debugging type safety, they will not be needed)
+#                                 'value_type_matches_obj_annotation_for_union_and_annotated' ,            # todo: map out and document why exactly these methods are ignore (and what is the side effect)
+#                                 'are_types_compatible_for_assigment'                        ,
+#                                 'obj_attribute_annotation'                                  ,
+#                                 'all_annotations'                                           ,
+#                                 'get_origin'                                                ,
+#                                 'getmro'                                                    ,
+#                                 'default_value'                                             ,
+#                                 '__cls_kwargs__'                                            ,
+#                                 '__default__value__'                                        ,
+#                                 '__setattr__'                                               ,
+#                                 '<module>']
 GLOBAL_MODULES_TO_IGNORE     = ['osbot_utils.helpers.trace.Trace_Call'                      ,            # todo: map out and document why exactly these modules are ignore (and what is the side effect)
                                 'osbot_utils.helpers.trace.Trace_Call__Config'              ,
                                 'osbot_utils.helpers.trace.Trace_Call__View_Model'          ,
                                 'osbot_utils.helpers.trace.Trace_Call__Print_Traces'        ,
                                 'osbot_utils.helpers.trace.Trace_Call__Stack'               ,
-                                'osbot_utils.base_classes.Type_Safe'                        ,
+                               # 'osbot_utils.base_classes.Type_Safe'                        ,
                                 'osbot_utils.helpers.CPrint'                                ,            #       also see if this should be done here or at the print/view stage
                                 'osbot_utils.helpers.Print_Table'                           ,
                                 'osbot_utils.decorators.methods.cache_on_self'              ,
                                 'codecs'                                                    ]
+GLOBAL_FUNCTIONS_TO_IGNORE = []
 
 #GLOBAL_MODULES_TO_IGNORE = []
 #GLOBAL_FUNCTIONS_TO_IGNORE = []

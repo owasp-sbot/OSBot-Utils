@@ -1,8 +1,6 @@
+import pytest
 import logging
 from unittest                       import TestCase
-
-import pytest
-
 from osbot_utils                    import testing
 from osbot_utils.utils.Env          import in_github_action
 from osbot_utils.testing.Logging    import Logging

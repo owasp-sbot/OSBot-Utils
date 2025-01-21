@@ -1,7 +1,6 @@
-from unittest import TestCase
-
-from osbot_utils.helpers.sqlite.Sqlite__Cursor import Sqlite__Cursor
-from osbot_utils.helpers.sqlite.Temp_Sqlite__Table import Temp_Sqlite__Table
+from unittest                                       import TestCase
+from osbot_utils.helpers.sqlite.Sqlite__Cursor      import Sqlite__Cursor
+from osbot_utils.helpers.sqlite.Temp_Sqlite__Table  import Temp_Sqlite__Table
 
 class test_Sqlite__Cursor(TestCase):
 

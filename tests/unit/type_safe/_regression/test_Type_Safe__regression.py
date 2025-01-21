@@ -14,10 +14,11 @@ from osbot_utils.type_safe.Type_Safe__Dict                   import Type_Safe__D
 from osbot_utils.type_safe.Type_Safe__List                   import Type_Safe__List
 from osbot_utils.decorators.methods.cache_on_self            import cache_on_self
 from osbot_utils.helpers.Random_Guid                         import Random_Guid
+from osbot_utils.type_safe.shared.Type_Safe__Annotations     import type_safe_annotations
 from osbot_utils.type_safe.validators.Validator__Min         import Min
 from osbot_utils.utils.Json                                  import json_to_str, str_to_json
 from osbot_utils.utils.Misc                                  import list_set, is_guid
-from osbot_utils.utils.Objects                               import default_value, __, all_annotations
+from osbot_utils.utils.Objects                               import default_value, __
 
 class test_Type_Safe__regression(TestCase):
 
@@ -221,8 +222,8 @@ class test_Type_Safe__regression(TestCase):
             child_type: Type[Schema__Base]
 
         child = Schema__Child()
-        assert all_annotations(child)     == {'base_type' : Type[Schema__Base],
-                                              'child_type': Type[Schema__Base]}      # Confirm both annotations exist
+        assert type_safe_annotations.all_annotations(child)     == {'base_type' : Type[Schema__Base],
+                                                                    'child_type': Type[Schema__Base]}      # Confirm both annotations exist
         #assert child.base_type          is None                                      # Fixed BUG: Should be Schema__Base
         #assert child.child_type         is None                                      # Fixed BUG: Should be Schema__Base
         assert child.base_type          is Schema__Base
@@ -290,22 +291,22 @@ class test_Type_Safe__regression(TestCase):
         #assert An_Class.from_json(An_Class().json()).obj() == An_Class().obj()
     def test__regression__class_level_defaults__mutable_vs_type(self):
         class Problematic(Type_Safe):
-            bad_list : list = []                  # BAD: mutable default
-            bad_dict : dict = {}                  # BAD: mutable default
-            bad_set  : set  = set()               # BAD: mutable default
+            bad_list : list                   # FIXED: BAD: mutable default
+            bad_dict : dict                   # FIXED: BAD: mutable default
+            bad_set  : set                    # FIXED: BAD: mutable default
 
         obj1 = Problematic()
         obj2 = Problematic()
 
         # Demonstrate the shared mutable state problem
         obj1.bad_list.append(42)
-        assert obj2.bad_list == [42]              # BUG: obj2's list was modified!
+        assert obj2.bad_list != [42]              # FIXED: BUG: obj2's list was modified!
 
         obj1.bad_dict['key'] = 'value'
-        assert obj2.bad_dict == {'key': 'value'}  # BUG: obj2's dict was modified!
+        assert obj2.bad_dict != {'key': 'value'}  # FIXED:BUG: obj2's dict was modified!
 
         obj1.bad_set.add('item')
-        assert obj2.bad_set == {'item'}           # BUG: obj2's set was modified!
+        assert obj2.bad_set != {'item'}           # FIXED: BUG: obj2's set was modified!
 
         # Now show that Type[T] doesn't have this problem
 
@@ -441,18 +442,18 @@ class test_Type_Safe__regression(TestCase):
         assert test.score == 95.5
 
         #Verify annotations are inherited correctly
-        annotations = all_annotations(test)
+        annotations = type_safe_annotations.all_annotations(test)
         assert list_set(annotations) == ['age', 'name', 'score']                        # Fixed: BUG: only the score is in the annotations
         assert get_origin(annotations['age'  ]) is Annotated      # Fixed: BUG missing annotation
         assert get_origin(annotations['name' ]) is Annotated      # Fixed: BUG missing annotation
         assert get_origin(annotations['score']) is Annotated
-        expected_exception_str  = "Invalid type for attribute 'age'. Expected 'typing.Annotated\[int,.* but got '<class 'str'>"
+        expected_exception_str  = "Invalid type for attribute 'age'. Expected 'typing.Annotated.*int,.* but got '<class 'str'>"
         with pytest.raises(ValueError, match=expected_exception_str):
             test.age = 'aaaa'                                                               # Fixed: BUG: should have raised exception
-        expected_exception_int  = "Invalid type for attribute 'name'. Expected 'typing.Annotated\[str,.* but got '<class 'int'>"
+        expected_exception_int  = "Invalid type for attribute 'name'. Expected 'typing.Annotated.*str,.* but got '<class 'int'>"
         with pytest.raises(ValueError, match=expected_exception_int):
             test.name = 123
-        expected_exception_float = "Invalid type for attribute 'score'. Expected 'typing.Annotated\[float,.* but got '<class 'str'>"
+        expected_exception_float = "Invalid type for attribute 'score'. Expected 'typing.Annotated.*float,.* but got '<class 'str'>"
         with pytest.raises(ValueError, match=expected_exception_float):
             test.score = "123"
 
@@ -802,7 +803,8 @@ class test_Type_Safe__regression(TestCase):
 
         class An_Class(Kwargs_To_Self):
             test_case : TestCase
-        with patch('osbot_utils.type_safe.Type_Safe.default_value') as patched_default_value:
+        with patch('osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value.default_value') as patched_default_value:
+
             patched_default_value.side_effect = default_value                   # make sure that the main code uses the original method (i.e. not the patched one)
                                                                                 #       since all we need is the ability to count how many times the method was called
             an_class = An_Class()                                               # create instance of class (which will call default_value via __default__kwargs__)

@@ -1,6 +1,4 @@
 # todo refactor into Status class
-import traceback
-
 from osbot_utils.utils.Python_Logger import Python_Logger
 
 class Status:

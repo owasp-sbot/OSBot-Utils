@@ -15,6 +15,7 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
     def setUpClass(cls) -> None:
         if not_in_github_action():
             pytest.skip("Skip test locally since it takes quite a bit to run (about 50ms, which is 25% of all helper's 400+ tests)")
+
     def setUp(self):
         self.chinook_sqlite = Sqlite__Sample_Data__Chinook()
         folder_create(PATH__DB__TESTS)                          # todo: refactor to handle this better
@@ -79,9 +80,9 @@ class test_Sqlite__Sample_Data__Chinook(TestCase):
             assert table_data__from_db == table_data__from_json
 
             assert table_row_schema is not None
-            assert table_row_schema.__name__     == f'Row_Schema__{str_cap_snake_case(table_name)}'
-            assert table_row_schema.__module__   == SQL_TABLE__MODULE_NAME__ROW_SCHEMA
-            assert table_row_schema.__schema__() == table.fields_types__cached(exclude_id=True)
+            assert table_row_schema.__name__         == f'Row_Schema__{str_cap_snake_case(table_name)}'
+            assert table_row_schema.__module__       == SQL_TABLE__MODULE_NAME__ROW_SCHEMA
+            assert table_row_schema.__annotations__ == table.fields_types__cached(exclude_id=True)
 
 
 
