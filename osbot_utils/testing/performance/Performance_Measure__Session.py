@@ -11,6 +11,7 @@ MEASURE__INVOCATION__LOOPS = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 
 class Performance_Measure__Session(Type_Safe):
     result        : Model__Performance_Measure__Result = None                                          # Current measurement result
     assert_enabled: bool = True
+    padding       : int  = 30
 
     def calculate_raw_score(self, times: List[int]) -> int:                                     # Calculate raw performance score
         if len(times) < 3:                                                                      # Need at least 3 values for stability
@@ -89,11 +90,11 @@ class Performance_Measure__Session(Type_Safe):
         print(f"Median  : {measurement.median_time:,}ns")
         print(f"StdDev  : {measurement.stddev_time:,.2f}ns")
 
-    def print(self, padding=12 ):                                                # Print measurement results
+    def print(self):                                                # Print measurement results
         if not self.result:
             print("No measurements taken yet")
             return
-        print(f"{self.result.name:{padding}} | score: {self.result.final_score:7,d} ns  | raw: {self.result.raw_score:7,d} ns")          # Print name and normalized score
+        print(f"{self.result.name:{self.padding}} | score: {self.result.final_score:7,d} ns  | raw: {self.result.raw_score:7,d} ns")          # Print name and normalized score
 
         return self
 
