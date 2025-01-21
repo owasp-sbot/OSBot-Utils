@@ -3,20 +3,14 @@ import sys
 import inspect
 import typing
 
-from osbot_utils.utils.Objects              import default_value
-from osbot_utils.type_safe.Type_Safe__List  import Type_Safe__List
-from osbot_utils.type_safe.Type_Safe__Dict  import Type_Safe__Dict
+from osbot_utils.type_safe.shared.Type_Safe__Cache import type_safe_cache
+from osbot_utils.utils.Objects                     import default_value
+from osbot_utils.type_safe.Type_Safe__List         import Type_Safe__List
+from osbot_utils.type_safe.Type_Safe__Dict         import Type_Safe__Dict
 
 
-# Backport implementations of get_origin and get_args for Python 3.7        # todo: refactor into separate class (focused on past python version compatibility)
+# Backport implementations of get_args for Python 3.7        # todo: refactor into separate class (focused on past python version compatibility)
 if sys.version_info < (3, 8):                                           # pragma: no cover
-    def get_origin(tp):
-        if isinstance(tp, typing._GenericAlias):
-            return tp.__origin__
-        elif tp is typing.Generic:
-            return typing.Generic
-        else:
-            return None
 
     def get_args(tp):
         if isinstance(tp, typing._GenericAlias):
@@ -24,15 +18,15 @@ if sys.version_info < (3, 8):                                           # pragma
         else:
             return ()
 else:
-    from typing import get_origin, get_args, ForwardRef, Any
-    from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
+    from typing import get_args, ForwardRef
 
 
 class Type_Safe__Step__Default_Value:
 
     def default_value(self, _cls, var_type):
 
-        if get_origin(var_type) is type:                        # Special handling for Type[T]  # todo: reuse the get_origin value
+        origin = type_safe_cache.get_origin(var_type)            # todo: refactor this to use the get_origin method
+        if origin is type:                        # Special handling for Type[T]  # todo: reuse the get_origin value
             type_args = get_args(var_type)
             if type_args:
                 if isinstance(type_args[0], ForwardRef):
@@ -45,13 +39,13 @@ class Type_Safe__Step__Default_Value:
         if var_type is typing.Set:                              # todo: refactor the dict, set and list logic, since they are 90% the same
             return set()
 
-        if get_origin(var_type) is set:
+        if origin is set:
             return set()                                        # todo: add Type_Safe__Set
 
         if var_type is typing.Dict:
             return {}
 
-        if get_origin(var_type) is dict:                        # e.g. Dict[key_type, value_type]
+        if origin is dict:                        # e.g. Dict[key_type, value_type]
             key_type, value_type = get_args(var_type)
             if isinstance(key_type, ForwardRef):                # Handle forward references on key_type ---
                 forward_name = key_type.__forward_arg__
@@ -66,7 +60,7 @@ class Type_Safe__Step__Default_Value:
         if var_type is typing.List:
             return []                                           # handle case when List was used with no type information provided
 
-        if get_origin(var_type) is list:                        # if we have list defined as list[type]
+        if origin is list:                        # if we have list defined as list[type]
             item_type = get_args(var_type)[0]                   #    get the type that was defined
             if isinstance(item_type, ForwardRef):               # handle the case when the type is a forward reference
                 forward_name = item_type.__forward_arg__

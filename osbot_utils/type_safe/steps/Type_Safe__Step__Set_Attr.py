@@ -29,7 +29,9 @@ class Type_Safe__Step__Set_Attr:
         return  type_safe_convert.convert_to_value_from_obj_annotation(_self, name, value)
 
     def resolve_value__from_origin(self, value):
+        #origin = type_safe_cache.get_origin(value)                                     # todo: figure out why this is the only place that the type_safe_cache.get_origin doesn't work (due to WeakKeyDictionary key error on value)
         origin = get_origin(value)
+
         if origin is not None:
             value = origin
         return value
@@ -42,16 +44,16 @@ class Type_Safe__Step__Set_Attr:
                 attribute.validate(value=value, field_name=name, target_type=target_type)
 
     def handle_get_class__dict(self, _self, name, value):
-        # todo: refactor how this actually works since it is not good to having to use the deserialize_dict__using_key_value_annotations from here
-        from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json import Type_Safe__Step__From_Json               # here because of circular dependencies
-        value = Type_Safe__Step__From_Json().deserialize_dict__using_key_value_annotations(_self, name, value)
+        if value:                                                                                                       # todo: see side effects of doing this here (since going into deserialize_dict__using_key_value_annotations has performance hit)
+            from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json import Type_Safe__Step__From_Json               # here because of circular dependencies
+            value = Type_Safe__Step__From_Json().deserialize_dict__using_key_value_annotations(_self, name, value)      # todo: refactor how this actually works since it is not good to having to use the deserialize_dict__using_key_value_annotations from here
         return value
 
     def handle_get_class(self, _self, annotations, name, value):
         if hasattr(annotations, 'get'):
             annotation = annotations.get(name)
             if annotation:
-                annotation_origin = get_origin(annotation)
+                annotation_origin = type_safe_cache.get_origin(annotation)
                 if annotation_origin is Annotated:
                     self.handle_get_class__annotated(annotation, name, value)
                 elif annotation_origin is dict:

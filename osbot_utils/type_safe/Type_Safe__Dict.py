@@ -1,4 +1,4 @@
-from osbot_utils.type_safe.Type_Safe__Base import type_str, Type_Safe__Base
+from osbot_utils.type_safe.Type_Safe__Base import Type_Safe__Base
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
     def __init__(self, expected_key_type, expected_value_type, *args, **kwargs):

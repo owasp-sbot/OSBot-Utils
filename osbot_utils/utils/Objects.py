@@ -5,27 +5,6 @@ from types  import SimpleNamespace
 class __(SimpleNamespace):
     pass
 
-# Backport implementations of get_origin and get_args for Python 3.7
-if sys.version_info < (3, 8):
-    def get_origin(tp):
-        import typing
-        if isinstance(tp, typing._GenericAlias):
-            return tp.__origin__
-        elif tp is typing.Generic:
-            return typing.Generic
-        else:
-            return None
-
-    def get_args(tp):
-        import typing
-        if isinstance(tp, typing._GenericAlias):
-            return tp.__args__
-        else:
-            return ()
-else:
-    from typing import get_origin, get_args, List, Tuple, Dict, Type, _GenericAlias, ForwardRef
-
-
 def base_classes(cls):
     if type(cls) is type:
         target = cls

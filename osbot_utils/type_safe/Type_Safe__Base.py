@@ -1,4 +1,6 @@
-from typing import get_origin, get_args, Union, Optional, Any, ForwardRef
+from typing import get_args, Union, Optional, Any, ForwardRef
+
+from osbot_utils.type_safe.shared.Type_Safe__Cache import type_safe_cache
 
 EXACT_TYPE_MATCH = (int, float, str, bytes, bool, complex)
 
@@ -8,7 +10,7 @@ class Type_Safe__Base:
             return True
         if isinstance(expected_type, ForwardRef):               # todo: add support for ForwardRef
             return True
-        origin = get_origin(expected_type)
+        origin = type_safe_cache.get_origin(expected_type)
         args   = get_args(expected_type)
         if origin is None:
             if expected_type in EXACT_TYPE_MATCH:
@@ -90,7 +92,7 @@ class Type_Safe__Base:
 
 # todo: see if we should/can move this to the Objects.py file
 def type_str(tp):
-    origin = get_origin(tp)
+    origin = type_safe_cache.get_origin(tp)
     if origin is None:
         if hasattr(tp, '__name__'):
             return tp.__name__

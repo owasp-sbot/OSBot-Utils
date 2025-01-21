@@ -34,6 +34,8 @@ class Type_Safe__Step__Class_Kwargs:                                            
 
         if self.is_kwargs_cacheable(cls, kwargs):                                            # if we can cache it (i.e. only IMMUTABLE_TYPES vars)
             type_safe_cache.set_cache__cls_kwargs(cls, kwargs)                          #   cache it
+        # else:
+        #     pass                                                  # todo:: see how we can cache more the cases when the data is clean (i.e. default values)
         return kwargs
 
     def is_kwargs_cacheable(self, cls, kwargs: Dict[str, Any]) -> bool:
@@ -42,6 +44,7 @@ class Type_Safe__Step__Class_Kwargs:                                            
 
         if match:                                                                       # check for special cases that we can't cache (like Random_Guid)
             if Random_Guid in list(dict(annotations).values()):                         # todo: need to add the other special cases (like Timestamp_Now)
+
                 return False
         return match
 

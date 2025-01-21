@@ -1,5 +1,5 @@
-from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value import get_origin
-from osbot_utils.utils.Objects                                  import base_classes_names
+from osbot_utils.type_safe.shared.Type_Safe__Cache import type_safe_cache
+from osbot_utils.utils.Objects                     import base_classes_names
 
 
 class Type_Safe__Convert:
@@ -29,7 +29,7 @@ class Type_Safe__Convert:
                 if hasattr(obj_annotations,'get'):
                     attribute_annotation = obj_annotations.get(attr_name)
                     if attribute_annotation:
-                        origin = get_origin(attribute_annotation)                               # Add handling for Type[T] annotations
+                        origin = type_safe_cache.get_origin(attribute_annotation)                               # Add handling for Type[T] annotations
                         if origin is type and isinstance(value, str):
                             try:                                                                # Convert string path to actual type
                                 if len(value.rsplit('.', 1)) > 1:

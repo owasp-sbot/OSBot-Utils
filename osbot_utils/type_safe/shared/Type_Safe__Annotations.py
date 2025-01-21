@@ -1,4 +1,3 @@
-from typing                                         import get_origin
 from osbot_utils.type_safe.shared.Type_Safe__Cache  import type_safe_cache
 
 
@@ -19,7 +18,7 @@ class Type_Safe__Annotations:
             return True
         if expected_type is type(attribute_annotation):
             return True
-        if expected_type is get_origin(attribute_annotation):           # todo: use get_origin cache                            # handle genericAlias
+        if expected_type is type_safe_cache.get_origin(attribute_annotation):                         # handle genericAlias
             return True
         return False
 

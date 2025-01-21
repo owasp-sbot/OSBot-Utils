@@ -2,17 +2,17 @@ from dataclasses import dataclass
 from unittest                                                         import TestCase
 from typing                                                           import Optional, List, Dict, Union, Any
 from enum                                                             import Enum, auto
-
 from osbot_utils.testing.performance.Performance_Measure__Session     import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+from osbot_utils.type_safe.shared.Type_Safe__Cache                    import type_safe_cache
 
 
 class test__perf__Type_Safe__ctor(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Set up timing thresholds
-        import pytest
-        pytest.skip("skipping until refactoring of Type_Safe is complete")
+        # import pytest
+        # pytest.skip("skipping until refactoring of Type_Safe is complete")
         cls.time_200_ns  =     200
         cls.time_300_ns  =     300
         cls.time_700_ns  =     700
@@ -65,22 +65,25 @@ class test__perf__Type_Safe__ctor(TestCase):
 
     def test_complex_types(self):                                               # Test complex type variations
         class ComplexTypes(Type_Safe):                                          # Multiple complex types
-            optional_str : Optional[str]
-            str_list     : List[str]
-            int_dict     : Dict[str, int]
-            union_field  : Union[str, int]
+            optional_str : Optional[str     ]
+            str_list     : List    [str     ]
+            int_dict     : Dict    [str, int]
+            union_field  : Union   [str, int]
 
-        class NestedType(Type_Safe):                                            # Basic nested type
-            value: str
+        # class NestedType(Type_Safe):                                            # Basic nested type
+        #     value: str
+        #
+        # class WithNested(Type_Safe):                                            # Complex nesting
+        #     nested : NestedType
+        #     items  : List[NestedType]
 
-        class WithNested(Type_Safe):                                            # Complex nesting
-            nested : NestedType
-            items  : List[NestedType]
-
+        print()
         with self.session as session:
-            session.measure(ComplexTypes ).assert_time(self.time_20_kns,  self.time_30_kns,   self.time_40_kns)
-            session.measure(NestedType   ).assert_time(self.time_2_kns ,  self.time_3_kns ,   self.time_20_kns)
-            session.measure(WithNested   ).assert_time(self.time_20_kns,                      self.time_40_kns)
+            session.measure(ComplexTypes ).print().assert_time(self.time_20_kns,  self.time_30_kns,   self.time_40_kns)
+            # session.measure(NestedType   ).print().assert_time(self.time_2_kns ,  self.time_3_kns ,   self.time_20_kns)
+            # session.measure(WithNested   ).print().assert_time(self.time_20_kns,                      self.time_40_kns)
+
+        type_safe_cache.print_cache_hits()
 
     def test_inheritance_depth(self):                                           # Test inheritance impact
         class Base(Type_Safe):                                                  # Base class

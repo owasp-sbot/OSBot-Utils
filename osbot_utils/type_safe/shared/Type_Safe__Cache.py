@@ -96,8 +96,11 @@ class Type_Safe__Cache:
 
     def get_origin(self, var_type):                                                             # Cache expensive get_origin calls
         if self.skip_cache or var_type not in self._type__get_origin_cache:
-            origin                                 = type_safe_not_cached.get_origin(var_type)
-            self._type__get_origin_cache[var_type] = origin
+            origin = type_safe_not_cached.get_origin(var_type)
+            try:                                                                                # this is needed for the edge case when we can't create a key from the var_type in WeakKeyDictionary (see test test__regression__type_safe_is_not_enforced_on_dict_and_Dict for an example)
+                self._type__get_origin_cache[var_type] = origin
+            except TypeError:
+                pass
             self.cache__miss__type__get_origin    += 1
         else:
             origin = self._type__get_origin_cache[var_type]
