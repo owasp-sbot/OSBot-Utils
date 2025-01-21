@@ -1,4 +1,6 @@
 from typing                                                          import Dict, Any, Type
+
+from osbot_utils.helpers.Obj_Id import Obj_Id
 from osbot_utils.helpers.Random_Guid                                 import Random_Guid
 from osbot_utils.type_safe.shared.Type_Safe__Cache                   import Type_Safe__Cache, type_safe_cache
 from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables       import IMMUTABLE_TYPES
@@ -43,8 +45,10 @@ class Type_Safe__Step__Class_Kwargs:                                            
         match      = all(isinstance(value, IMMUTABLE_TYPES) for value in kwargs.values())
 
         if match:                                                                       # check for special cases that we can't cache (like Random_Guid)
-            if Random_Guid in list(dict(annotations).values()):                         # todo: need to add the other special cases (like Timestamp_Now)
-
+            annotations_types = list(dict(annotations).values())
+            if Random_Guid in annotations_types:                         # todo: need to add the other special cases (like Timestamp_Now)
+                return False
+            if Obj_Id in annotations_types:                             # we can't cache Obj_id, since this would give us the same ID everutime
                 return False
         return match
 

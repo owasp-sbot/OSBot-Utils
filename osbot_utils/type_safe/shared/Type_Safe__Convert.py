@@ -20,8 +20,9 @@ class Type_Safe__Convert:
         from osbot_utils.helpers.Random_Guid    import Random_Guid
         from osbot_utils.helpers.Safe_Id        import Safe_Id
         from osbot_utils.helpers.Str_ASCII      import Str_ASCII
+        from osbot_utils.helpers.Obj_Id         import Obj_Id
 
-        TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Guid, Random_Guid, Safe_Id, Str_ASCII, Timestamp_Now]
+        TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES = [Guid, Random_Guid, Safe_Id, Str_ASCII, Timestamp_Now, Obj_Id]
 
         if target is not None and attr_name is not None:
             if hasattr(target, '__annotations__'):

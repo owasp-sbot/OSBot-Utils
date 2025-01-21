@@ -11,6 +11,7 @@ MEASURE__INVOCATION__LOOPS = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 
 class Performance_Measure__Session(Type_Safe):
     result        : Model__Performance_Measure__Result = None                                          # Current measurement result
     assert_enabled: bool = True
+    padding       : int  = 30
 
     def calculate_raw_score(self, times: List[int]) -> int:                                     # Calculate raw performance score
         if len(times) < 3:                                                                      # Need at least 3 values for stability
@@ -89,11 +90,11 @@ class Performance_Measure__Session(Type_Safe):
         print(f"Median  : {measurement.median_time:,}ns")
         print(f"StdDev  : {measurement.stddev_time:,.2f}ns")
 
-    def print(self, padding=12 ):                                                # Print measurement results
+    def print(self):                                                # Print measurement results
         if not self.result:
             print("No measurements taken yet")
             return
-        print(f"{self.result.name:{padding}} | score: {self.result.final_score:7,d} ns  | raw: {self.result.raw_score:7,d} ns")          # Print name and normalized score
+        print(f"{self.result.name:{self.padding}} | score: {self.result.final_score:7,d} ns  | raw: {self.result.raw_score:7,d} ns")          # Print name and normalized score
 
         return self
 
@@ -106,3 +107,22 @@ class Performance_Measure__Session(Type_Safe):
             assert last_expected_time <=  self.result.final_score <= new_expected_time, f"Performance changed for {self.result.name}: expected {last_expected_time} < {self.result.final_score:,d}ns, expected {new_expected_time}"
         else:
             assert self.result.final_score in expected_time,  f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected {expected_time}"
+
+    def assert_time(self, *expected_time: int):                                              # Assert that the final score matches the expected normalized time"""
+        if self.assert_enabled is False:
+            return
+        if in_github_action():
+            last_expected_time = expected_time[-1] + 100                                    # +100 in case it is 0
+            new_expected_time   = last_expected_time * 5                                    # using last_expected_time * 5 as the upper limit (since these tests are significantly slowed in GitHUb Actions)
+            assert last_expected_time <=  self.result.final_score <= new_expected_time, f"Performance changed for {self.result.name}: expected {last_expected_time} < {self.result.final_score:,d}ns, expected {new_expected_time}"
+        else:
+            assert self.result.final_score in expected_time,  f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected {expected_time}"
+
+    def assert_time__less_than(self, max_time: int):                                              # Assert that the final score matches the expected normalized time"""
+        if self.assert_enabled is False:
+            return
+        if in_github_action():
+            max_time   = max_time * 5               # adjust for GitHub's slowness
+
+        assert self.result.final_score <= max_time,  f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected less than {max_time}ns"
+

@@ -74,9 +74,9 @@ class SomeClass:
 
 # This style - related elements together
 class SomeClass:
-    def __init__(self, param_one,
-                       param_two )\
-              -> None:
+    def __init__(self, param_one ,
+                       param_two  
+                )               -> None:
         self.param_one = param_one
         self.param_two = param_two
 ```
@@ -146,10 +146,10 @@ from osbot_utils.helpers.Safe_Id                     import Safe_Id
 ### Method Signature Layout
 
 ```python
-def method_name(self, first_param  : Type1         ,                               # Method purpose comment
-                      second_param : Type2         ,                               # Aligned at column 80
-                      third_param  : Type3 = None  )\                              # Default values align with type
-            -> ReturnType:                                                         # Return on new line
+def method_name(self, first_param  : Type1        ,                               # Method purpose comment
+                      second_param : Type2        ,                               # Aligned at column 80
+                      third_param  : Type3 = None                                 # Default values align with type
+               )                  -> ReturnType:                                  # Return on new line
 ```
 
 Key aspects:
@@ -165,11 +165,11 @@ Key aspects:
 ### Parameter Documentation
 
 ```python
-def complex_operation(self, data_input    : Dict[str, Any]   ,                   # Primary data structure
-                           config_options : Optional[Config] ,                   # Processing configuration 
-                           max_retries    : int = 3          ,                   # Maximum retry attempts
-                           timeout_ms     : float = 1000.0   )\                  # Operation timeout
-                  -> Tuple[Results, Metrics]:                                    # Returns results and metrics
+def complex_operation(self, data_input     : Dict    [str, Any]         ,         # Primary data structure
+                            config_options : Optional[Config  ]         ,         # Processing configuration 
+                            max_retries    : int                = 3     ,         # Maximum retry attempts
+                            timeout_ms     : float              = 1000.0          # Operation timeout
+                      )                   -> Tuple[Results, Metrics]:             # Returns results and metrics
 ```
 
 Guidelines:
@@ -185,27 +185,27 @@ Methods should be grouped by functionality with clear separation:
 
 ```python
     # Core initialization methods
-    def __init__(self, config: Config )\                                         # Initialize with configuration
-              -> None:                                                           
+    def __init__(self, config : Config                                           # Initialize with configuration
+                )            -> None:                                                           
         
-    def setup(self, options: Dict[str, Any] )\                                   # Configure processing options
-           -> bool:                                                              
+    def setup(self, options: Dict[str, Any]                                      # Configure processing options
+             )            -> bool:                                                              
 
 
     # Data validation methods  
-    def validate_input(self, data        : InputData    ,                        # Validate input format
-                             strict_mode : bool = False )\                       # Enable strict validation
-                    -> ValidationResult:
+    def validate_input(self, data        : InputData        ,                    # Validate input format
+                             strict_mode : bool      = False                     # Enable strict validation
+                      )                 -> ValidationResult:
 
     def validate_output(self, result     : OutputData ,                          # Validate output format
-                              thresholds : Thresholds )\                         # Validation thresholds
-                     -> bool:
+                              thresholds : Thresholds                            # Validation thresholds
+                      )                 -> bool:
 
 
     # Processing methods
     def process_item(self, item     : DataItem ,                                 # Process single data item
-                           settings : Settings )\                                # Processing settings
-                  -> ProcessedItem:
+                           settings : Settings                                   # Processing settings
+                    )              -> ProcessedItem:
 ```
 Note how the return type name assigns with the variable self, and there is always at least one space before the : and the ,
 
@@ -218,8 +218,8 @@ def process_batch(self, items           : List[DataItem]                   ,    
                        batch_config     : BatchConfig                      ,     # Batch processing config
                        error_handler    : ErrorHandler                     ,     # Handles processing errors
                        retry_strategy   : Optional[Strategy]               ,     # Retry strategy to use
-                       metrics_callback : Callable[[Metrics], None] = None )\    # Metrics reporting callback
-                 -> BatchResults:                                                # Processed batch results
+                       metrics_callback : Callable[[Metrics], None] = None       # Metrics reporting callback
+                  )                    -> BatchResults:                          # Processed batch results
 ```
 
 Guidelines:
