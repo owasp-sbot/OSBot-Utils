@@ -3,7 +3,7 @@ import sys
 import types
 import pytest
 from enum                                                    import Enum, auto
-from typing import Union, Optional, Type, List
+from typing                                                  import Union, Optional, Type
 from unittest                                                import TestCase
 from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
 from osbot_utils.helpers.Guid                                import Guid
@@ -691,7 +691,7 @@ class test_Type_Safe(TestCase):
         type_safety = Type_Safety()
         type_safety.str_type = str                          # OK: str matches Type[str]
 
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'type'>'")):    # Should fail: int is not a subclass of str
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'int'>'")):    # Should fail: int is not a subclass of str
             type_safety.str_type = int
 
 
@@ -976,7 +976,9 @@ class test_Type_Safe(TestCase):
         An_Class(node_type=Child_Type_2)
         An_Class(node_type=Child_Type_3)
         An_Class(node_type=Child_Type_4)
-        with pytest.raises(ValueError,match=re.escape("Invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('An_Class')]' but got '<class 'type'>'")):
+
+        error_message = "Invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('An_Class')]' but got '<class 'test_Type_Safe.test_Type_Safe.test_type_checks_on__forward_ref__works_on_multiple_levels.<locals>.Should_Fail'>'"
+        with pytest.raises(ValueError,match=re.escape(error_message)):
             An_Class(node_type=Should_Fail)
 
         assert issubclass(Child_Type_1, An_Class)

@@ -8,6 +8,7 @@ from osbot_utils.helpers.Random_Guid                     import Random_Guid
 from osbot_utils.helpers.Random_Guid_Short               import Random_Guid_Short
 from osbot_utils.type_safe.shared.Type_Safe__Annotations import type_safe_annotations
 from osbot_utils.type_safe.shared.Type_Safe__Cache       import type_safe_cache
+from osbot_utils.type_safe.shared.Type_Safe__Convert import type_safe_convert
 from osbot_utils.utils.Objects                           import enum_from_value
 from osbot_utils.helpers.Safe_Id                         import Safe_Id
 from osbot_utils.helpers.Timestamp_Now                   import Timestamp_Now
@@ -43,7 +44,13 @@ class Type_Safe__Step__From_Json:
                             raise ValueError(f"Attribute '{key}' not found in '{_self.__class__.__name__}'")
                         else:
                             continue
-                    if type_safe_annotations.obj_attribute_annotation(_self, key) == type:                                         # Handle type objects
+                    annotation        = type_safe_annotations.obj_attribute_annotation(_self, key)
+                    annotation_origin = type_safe_cache.get_origin(annotation)
+
+
+                    if annotation == type:                                                  # Handle type objects
+                        value = self.deserialize_type__using_value(value)
+                    elif annotation_origin == type:                                         # Handle type objects inside ForwardRef
                         value = self.deserialize_type__using_value(value)
                     elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, dict):                                # handle the case when the value is a dict
                         value = self.deserialize_dict__using_key_value_annotations(_self, key, value)
@@ -117,6 +124,9 @@ class Type_Safe__Step__From_Json:
             if type(dict_value) == value_class:                                        # if the value is already the target, then just use it
                 new__dict_value = dict_value
             elif issubclass(value_class, Type_Safe):
+                if 'node_type' in dict_value:
+                    value_class = type_safe_convert.get_class_from_class_name(dict_value['node_type'])
+
                 new__dict_value = self.deserialize_from_dict(value_class(), dict_value)
             elif value_class is Any:
                 new__dict_value = dict_value

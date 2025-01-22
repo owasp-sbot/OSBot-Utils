@@ -1,4 +1,3 @@
-import re
 import sys
 import pytest
 from typing                                             import Optional, Union, Dict
@@ -72,10 +71,22 @@ class test_Type_Safe__bugs(TestCase):
         assert Parent_Class().json() == Parent_Class.from_json(Parent_Class().json()).json()       # Round trip of Parent_Class works
 
         # current buggy workflow
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'class_type'. Expected 'typing.Type[int]' but got '<class 'str'>'")):
-            assert Child_Class .from_json(Child_Class().json())                                 # BUG should not have raised an exception
+        # with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'class_type'. Expected 'typing.Type[int]' but got '<class 'str'>'")):
+        #     assert Child_Class .from_json(Child_Class().json())                                 # BUG should not have raised an exception
 
-        #assert Child_Class.from_json(Child_Class().json()).json() == Child_Class().json()      # BUG this should work
+        assert Child_Class.from_json(Child_Class().json()).json() == Child_Class().json()        # Fixed : works now :BUG this should work
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     def test__bug__in__convert_dict_to_value_from_obj_annotation(self):
