@@ -32,16 +32,17 @@ class Type_Safe__Convert:
                     if attribute_annotation:
                         origin = type_safe_cache.get_origin(attribute_annotation)                               # Add handling for Type[T] annotations
                         if origin is type and isinstance(value, str):
-                            try:                                                                # Convert string path to actual type
-                                if len(value.rsplit('.', 1)) > 1:
-                                    module_name, class_name = value.rsplit('.', 1)
-                                    module = __import__(module_name, fromlist=[class_name])
-                                    return getattr(module, class_name)
-                            except (ValueError, ImportError, AttributeError) as e:
-                                raise ValueError(f"Could not convert '{value}' to type: {str(e)}")
-
+                            return self.get_class_from_class_name(value)
                         if attribute_annotation in TYPE_SAFE__CONVERT_VALUE__SUPPORTED_TYPES:          # for now hard-coding this to just these types until we understand the side effects
                             return attribute_annotation(value)
         return value
 
+    def get_class_from_class_name(self, value):
+        try:                                                                # Convert string path to actual type
+            if len(value.rsplit('.', 1)) > 1:
+                module_name, class_name = value.rsplit('.', 1)
+                module = __import__(module_name, fromlist=[class_name])
+                return getattr(module, class_name)
+        except (ValueError, ImportError, AttributeError) as e:
+            raise ValueError(f"Could not convert '{value}' to type: {str(e)}")
 type_safe_convert = Type_Safe__Convert()

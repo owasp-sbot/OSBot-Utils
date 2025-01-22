@@ -228,7 +228,10 @@ class Type_Safe__Validation:
 
         if is_invalid:
             expected_type = annotations.get(name)
-            actual_type = type(value)
+            if type(value) is type:
+                actual_type = value
+            else:
+                actual_type = type(value)
             raise ValueError(f"Invalid type for attribute '{name}'. Expected '{expected_type}' but got '{actual_type}'")
 
     # todo: see if need to add cache support to this method     (it looks like this method is not called very often)

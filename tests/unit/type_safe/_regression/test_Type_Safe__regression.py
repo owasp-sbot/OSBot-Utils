@@ -22,6 +22,26 @@ from osbot_utils.utils.Objects                               import default_valu
 
 class test_Type_Safe__regression(TestCase):
 
+    def test__regression__forward_ref_type(self):
+        class Base__Type(Type_Safe):
+            ref_type: Type['Base__Type']
+
+
+        class Type__With__Forward__Ref(Base__Type):
+            pass
+
+        target = Type__With__Forward__Ref()
+
+        json_data     = target.json()                                               # This serializes ref_type as string
+        #error_message = "Invalid type for attribute 'ref_type'. Expected 'typing.Type[ForwardRef('Base__Type')]' but got '<class 'str'>'"
+        error_message = "Could not reconstruct type from 'test_Type_Safe__regression.Type__With__Forward__Ref': module 'test_Type_Safe__regression' has no attribute 'Type__With__Forward__Ref'"
+        #
+        assert json_data == {'ref_type': 'test_Type_Safe__regression.Type__With__Forward__Ref'}
+
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            Type__With__Forward__Ref.from_json(json_data)                           # Fixed we are now raising the correct exception BUG: exception should have not been raised
+
+
     def test__regression__property_descriptor_handling(self):
 
         class Regular_Class:                                            # First case: Normal Python class without Type_Safe
@@ -119,7 +139,7 @@ class test_Type_Safe__regression(TestCase):
         with self.assertRaises(ValueError) as context:
             custom_node.node_type = Other_Class
 
-        assert str(context.exception) == "Invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('Base_Node')]' but got '<class 'type'>'"
+        assert str(context.exception) == "Invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('Base_Node')]' but got '<class 'test_Type_Safe__regression.test_Type_Safe__regression.test__regression__forward_ref_handling_in_type_matches.<locals>.Other_Class'>'"
 
         # Test with more complex case (like Schema__MGraph__Node)
         from typing import Dict, Any
@@ -243,14 +263,14 @@ class test_Type_Safe__regression(TestCase):
 
         an_class.an_type__str = str
         an_class.an_type__str = Random_Guid
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type__str'. Expected 'typing.Type[str]' but got '<class 'type'>'")) :
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type__str'. Expected 'typing.Type[str]' but got '<class 'int'>'")) :
             an_class.an_type__str = int
 
         #with pytest.raises(TypeError, match=re.escape("issubclass() arg 2 must be a class, a tuple of classes, or a union")):
         #    an_class.an_type__forward_ref = An_Class_1           # Fixed; BUG: this should have worked
 
         an_class.an_type__forward_ref = An_Class_1
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type__forward_ref'. Expected 'typing.Type[ForwardRef('An_Class_1')]' but got '<class 'type'>'")):
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type__forward_ref'. Expected 'typing.Type[ForwardRef('An_Class_1')]' but got '<class 'str'>'")):
             an_class.an_type__forward_ref = str
 
         class An_Class_2(An_Class_1):
@@ -347,13 +367,13 @@ class test_Type_Safe__regression(TestCase):
         an_class.an_type_str = str
         an_class.an_type_int = int
 
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'type'>")):
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'int'>")):
             an_class.an_type_str = int                                                  # Fixed: BUG: should have raised exception
 
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_int'. Expected 'typing.Type[int]' but got '<class 'type'>")):
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_int'. Expected 'typing.Type[int]' but got '<class 'str'>")):
             an_class.an_type_int = str                                                  # Fixed: BUG: should have raised exception
 
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'str'>'")):
+        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'NoneType'>'")):
             an_class.an_type_str = 'a'
 
 
