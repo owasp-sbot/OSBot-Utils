@@ -28,6 +28,11 @@ class Type_Safe__Step__Default_Value:
     def default_value(self, _cls, var_type):
 
         origin = type_safe_cache.get_origin(var_type)            # todo: refactor this to use the get_origin method
+
+        if origin is tuple:
+            item_types = get_args(var_type)
+            return Type_Safe__Tuple(expected_types=item_types)
+
         if origin is type:                        # Special handling for Type[T]  # todo: reuse the get_origin value
             type_args = get_args(var_type)
             if type_args:
@@ -75,9 +80,6 @@ class Type_Safe__Step__Default_Value:
                     item_type = _cls                             #       set the item_type to the current class
             return Type_Safe__List(expected_type=item_type)     #    and used it as expected_type in Type_Safe__List
 
-        if origin is tuple:
-            item_types = get_args(var_type)
-            return Type_Safe__Tuple(expected_types=item_types)
 
         return default_value(var_type)                      # for all other cases call default_value, which will try to create a default instance
 

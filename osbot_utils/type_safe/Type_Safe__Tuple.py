@@ -3,12 +3,12 @@ from osbot_utils.type_safe.Type_Safe__Base import Type_Safe__Base, type_str
 class Type_Safe__Tuple(Type_Safe__Base, tuple):
 
     def __new__(cls, expected_types, items=None):
-        items = items or tuple()
+        items    = items or tuple()
         instance = super().__new__(cls, items)
         instance.expected_types = expected_types
         return instance
 
-    def __init__(self, expected_types, items=None):
+    def __init__(self, expected_types, items=None):             # todo: see if we should be assining expected_types to self here
         if items:
             self.validate_items(items)
 
