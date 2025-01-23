@@ -1,4 +1,4 @@
-# Type Safe Class Documentation
+# Type Safe Class - Usage Guide
 
 The Type_Safe class provides robust runtime type checking and serialization for Python objects. It acts as a base class that enforces type safety through Python's type hints and annotations while offering convenient serialization methods and utilities. This enables developers to create strongly-typed classes with validation, safe serialization, and clear interfaces - all with minimal boilerplate code.
 
