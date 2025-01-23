@@ -3,7 +3,7 @@ import sys
 import types
 import pytest
 from enum                                                    import Enum, auto
-from typing                                                  import Union, Optional, Type
+from typing import Union, Optional, Type, Set
 from unittest                                                import TestCase
 from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
 from osbot_utils.helpers.Guid                                import Guid
@@ -39,6 +39,19 @@ class test_Type_Safe(TestCase):
 
         def an_extra_instance_method(self):
             pass
+
+    def test__set_support(self):
+        class An_Class(Type_Safe):
+            an_set_1 : set[str]
+            an_set_2 : Set[str]
+
+        an_class = An_Class(an_set_1=set(['a', 'b']))
+        an_class.an_set_1.remove('a')
+        an_class.an_set_2.add   ('a')
+        assert an_class.json() == {'an_set_1': ['b'], 'an_set_2': ['a']}
+        assert an_class.obj () == __(an_set_1=['b'], an_set_2=['a'])
+
+
 
     def test___cls_kwargs__(self):
         if sys.version_info < (3, 9):

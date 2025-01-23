@@ -3,6 +3,7 @@ import sys
 import inspect
 import typing
 
+from osbot_utils.type_safe.Type_Safe__Set          import Type_Safe__Set
 from osbot_utils.type_safe.shared.Type_Safe__Cache import type_safe_cache
 from osbot_utils.utils.Objects                     import default_value
 from osbot_utils.type_safe.Type_Safe__List         import Type_Safe__List
@@ -40,12 +41,17 @@ class Type_Safe__Step__Default_Value:
             return set()
 
         if origin is set:
-            return set()                                        # todo: add Type_Safe__Set
+            item_type = get_args(var_type)[0]
+            if isinstance(item_type, ForwardRef):
+                forward_name = item_type.__forward_arg__
+                if forward_name == _cls.__name__:
+                    item_type = _cls
+            return Type_Safe__Set(expected_type=item_type)
 
         if var_type is typing.Dict:
             return {}
 
-        if origin is dict:                        # e.g. Dict[key_type, value_type]
+        if origin is dict:                                       # e.g. Dict[key_type, value_type]
             key_type, value_type = get_args(var_type)
             if isinstance(key_type, ForwardRef):                # Handle forward references on key_type ---
                 forward_name = key_type.__forward_arg__

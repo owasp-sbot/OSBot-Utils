@@ -6,9 +6,10 @@ from osbot_utils.type_safe.Type_Safe                     import Type_Safe
 from osbot_utils.type_safe.Type_Safe__List               import Type_Safe__List
 from osbot_utils.helpers.Random_Guid                     import Random_Guid
 from osbot_utils.helpers.Random_Guid_Short               import Random_Guid_Short
+from osbot_utils.type_safe.Type_Safe__Set                import Type_Safe__Set
 from osbot_utils.type_safe.shared.Type_Safe__Annotations import type_safe_annotations
 from osbot_utils.type_safe.shared.Type_Safe__Cache       import type_safe_cache
-from osbot_utils.type_safe.shared.Type_Safe__Convert import type_safe_convert
+from osbot_utils.type_safe.shared.Type_Safe__Convert     import type_safe_convert
 from osbot_utils.utils.Objects                           import enum_from_value
 from osbot_utils.helpers.Safe_Id                         import Safe_Id
 from osbot_utils.helpers.Timestamp_Now                   import Timestamp_Now
@@ -54,6 +55,19 @@ class Type_Safe__Step__From_Json:
                         value = self.deserialize_type__using_value(value)
                     elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, dict):                                # handle the case when the value is a dict
                         value = self.deserialize_dict__using_key_value_annotations(_self, key, value)
+                    elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, set):                              # handle the case when the value is a list
+                        attribute_annotation = type_safe_annotations.obj_attribute_annotation(_self, key)                          # get the annotation for this variable
+                        attribute_annotation_args = get_args(attribute_annotation)
+                        if attribute_annotation_args:
+                            expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
+                            type_safe_set        = Type_Safe__Set(expected_type)                               # create a new instance of Type_Safe__List
+                            for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
+                                if type(item) is dict:
+                                    new_item = expected_type(**item)                                                # create new object
+                                else:
+                                    new_item = expected_type(item)
+                                type_safe_set.add(new_item)                                                 # and add it to the new type_safe_list obejct
+                            value = type_safe_set                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
                     elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, list):                              # handle the case when the value is a list
                         attribute_annotation = type_safe_annotations.obj_attribute_annotation(_self, key)                          # get the annotation for this variable
                         attribute_annotation_args = get_args(attribute_annotation)
@@ -123,7 +137,7 @@ class Type_Safe__Step__From_Json:
 
             if type(dict_value) == value_class:                                        # if the value is already the target, then just use it
                 new__dict_value = dict_value
-            elif issubclass(value_class, Type_Safe):
+            elif isinstance(value_class, type) and issubclass(value_class, Type_Safe):
                 if 'node_type' in dict_value:
                     value_class = type_safe_convert.get_class_from_class_name(dict_value['node_type'])
 

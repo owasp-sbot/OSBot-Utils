@@ -281,6 +281,8 @@ def serialize_to_dict(obj):
         return f"{obj.__module__}.{obj.__name__}"                                   # save the full type name
     elif isinstance(obj, list) or isinstance(obj, List):
         return [serialize_to_dict(item) for item in obj]
+    elif isinstance(obj, set):
+        return [serialize_to_dict(item) for item in obj]
     elif isinstance(obj, dict):
         return {key: serialize_to_dict(value) for key, value in obj.items()}
     elif hasattr(obj, "__dict__"):

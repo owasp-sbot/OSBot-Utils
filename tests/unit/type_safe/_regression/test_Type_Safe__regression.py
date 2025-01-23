@@ -2,7 +2,7 @@ import re
 import pytest
 import sys
 from decimal                                                 import Decimal
-from typing                                                  import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any
+from typing                                                  import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set
 from unittest                                                import TestCase
 from unittest.mock                                           import patch
 from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
@@ -14,6 +14,7 @@ from osbot_utils.type_safe.Type_Safe__Dict                   import Type_Safe__D
 from osbot_utils.type_safe.Type_Safe__List                   import Type_Safe__List
 from osbot_utils.decorators.methods.cache_on_self            import cache_on_self
 from osbot_utils.helpers.Random_Guid                         import Random_Guid
+from osbot_utils.type_safe.Type_Safe__Set import Type_Safe__Set
 from osbot_utils.type_safe.shared.Type_Safe__Annotations     import type_safe_annotations
 from osbot_utils.type_safe.validators.Validator__Min         import Min
 from osbot_utils.utils.Json                                  import json_to_str, str_to_json
@@ -21,6 +22,44 @@ from osbot_utils.utils.Misc                                  import list_set, is
 from osbot_utils.utils.Objects                               import default_value, __
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__roundtrip_set_support(self):
+        class An_Class(Type_Safe):
+            an_set_1: set[str]
+            an_set_2: Set[str]
+
+        an_class = An_Class()
+        an_class.an_set_1.add   ('a')
+        an_class.an_set_1.add   ('b')
+        an_class.an_set_1.remove('a')
+        an_class.an_set_2.add   ('a')
+        assert an_class.json() == {'an_set_1': ['b'], 'an_set_2': ['a']}
+        assert an_class.obj() == __(an_set_1=['b'], an_set_2=['a'])
+        assert type(an_class.an_set_1) is Type_Safe__Set
+        assert type(an_class.an_set_2) is Type_Safe__Set
+
+        expected_message = "In Type_Safe__Set: Invalid type for item: Expected 'str', but got 'int'"
+
+        with pytest.raises(TypeError, match=re.escape(expected_message)):
+            an_class.an_set_1.add(123)                                              # confirms type safety
+        with pytest.raises(TypeError, match=re.escape(expected_message)):
+            an_class.an_set_2.add(123)                                              # confirms type safety
+
+
+        #expected_message = "Invalid type for attribute 'an_set_1'. Expected 'set[str]' but got '<class 'list'>'"
+        # with pytest.raises(ValueError, match=re.escape(expected_message)):
+        #     An_Class.from_json(an_class.json())                                    # Fixed BUG: should not have raised an exception
+        an_class_round_trip = An_Class.from_json(an_class.json())
+
+        assert an_class_round_trip.an_set_1 == {'b'}                                 # Fixed
+        assert an_class_round_trip.an_set_2 == {'a'}                                 # Fixed
+        assert type(an_class_round_trip.an_set_1) is Type_Safe__Set                  # Fixed: BUG: it should be a set
+        assert type(an_class_round_trip.an_set_1) is not list                        # Fixed: BUG: it should not be a list
+        assert type(an_class_round_trip.an_set_2) is Type_Safe__Set                  # Fixed: BUG: it should be a set
+        assert type(an_class_round_trip.an_set_2) is not list                        # Fixed BUG: it should be a set
+
+        assert an_class_round_trip.json() == an_class.json()                         # Fixed:
+
 
     def test__regression__forward_ref_type(self):
         class Base__Type(Type_Safe):
