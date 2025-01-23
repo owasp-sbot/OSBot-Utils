@@ -3,11 +3,12 @@ import sys
 import inspect
 import typing
 
-from osbot_utils.type_safe.Type_Safe__Set          import Type_Safe__Set
-from osbot_utils.type_safe.shared.Type_Safe__Cache import type_safe_cache
-from osbot_utils.utils.Objects                     import default_value
-from osbot_utils.type_safe.Type_Safe__List         import Type_Safe__List
-from osbot_utils.type_safe.Type_Safe__Dict         import Type_Safe__Dict
+from osbot_utils.type_safe.Type_Safe__Set           import Type_Safe__Set
+from osbot_utils.type_safe.Type_Safe__Tuple         import Type_Safe__Tuple
+from osbot_utils.type_safe.shared.Type_Safe__Cache  import type_safe_cache
+from osbot_utils.utils.Objects                      import default_value
+from osbot_utils.type_safe.Type_Safe__List          import Type_Safe__List
+from osbot_utils.type_safe.Type_Safe__Dict          import Type_Safe__Dict
 
 
 # Backport implementations of get_args for Python 3.7        # todo: refactor into separate class (focused on past python version compatibility)
@@ -73,8 +74,12 @@ class Type_Safe__Step__Default_Value:
                 if forward_name == _cls.__name__:                #    if the forward reference is to the current class (simple name check)
                     item_type = _cls                             #       set the item_type to the current class
             return Type_Safe__List(expected_type=item_type)     #    and used it as expected_type in Type_Safe__List
-        else:
-            return default_value(var_type)                      # for all other cases call default_value, which will try to create a default instance
+
+        if origin is tuple:
+            item_types = get_args(var_type)
+            return Type_Safe__Tuple(expected_types=item_types)
+
+        return default_value(var_type)                      # for all other cases call default_value, which will try to create a default instance
 
 
 type_safe_step_default_value = Type_Safe__Step__Default_Value()

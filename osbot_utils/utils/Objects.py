@@ -279,7 +279,7 @@ def serialize_to_dict(obj):
         return obj.name
     elif isinstance(obj, type):
         return f"{obj.__module__}.{obj.__name__}"                                   # save the full type name
-    elif isinstance(obj, list) or isinstance(obj, List):
+    elif isinstance(obj, (list, tuple, List)):  # Added tuple here
         return [serialize_to_dict(item) for item in obj]
     elif isinstance(obj, set):
         return [serialize_to_dict(item) for item in obj]

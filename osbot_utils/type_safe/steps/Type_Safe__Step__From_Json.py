@@ -53,6 +53,9 @@ class Type_Safe__Step__From_Json:
                         value = self.deserialize_type__using_value(value)
                     elif annotation_origin == type:                                         # Handle type objects inside ForwardRef
                         value = self.deserialize_type__using_value(value)
+                    if annotation_origin is tuple and isinstance(value, list):
+                        # item_types = get_args(annotation)   # todo: see if we should do type safety here
+                        value = tuple(value)
                     elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, dict):                                # handle the case when the value is a dict
                         value = self.deserialize_dict__using_key_value_annotations(_self, key, value)
                     elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, set):                              # handle the case when the value is a list
@@ -99,6 +102,7 @@ class Type_Safe__Step__From_Json:
                                 value = Random_Guid_Short(value)
                             elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Timestamp_Now):     # handle Timestamp_Now
                                 value = Timestamp_Now(value)
+
                     setattr(_self, key, value)                                                   # Direct assignment for primitive types and other structures
 
         return _self
