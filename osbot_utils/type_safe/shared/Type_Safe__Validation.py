@@ -159,6 +159,9 @@ class Type_Safe__Validation:
         attr_type   = annotations.get(attr_name)
         if attr_type:
             origin_attr_type = get_origin(attr_type)                                    # to handle when type definition contains a generic
+            if origin_attr_type is set:
+                if type(value) is list:
+                    return True                                                         # if the attribute is a set and the value is a list, then they are compatible
             if origin_attr_type is type:                                                # Add handling for Type[T]
                 type_arg = get_args(attr_type)[0]                                       # Get T from Type[T]
                 if type_arg == value:
@@ -220,7 +223,7 @@ class Type_Safe__Validation:
                                    )                 -> None:                                           # Raises ValueError if invalid
 
         direct_type_match = type_safe_validation.check_if__type_matches__obj_annotation__for_attr(target, name, value)
-        union_type_match = type_safe_validation.check_if__type_matches__obj_annotation__for_union_and_annotated(target, name, value)
+        union_type_match  = type_safe_validation.check_if__type_matches__obj_annotation__for_union_and_annotated(target, name, value)
 
         is_invalid = (direct_type_match is False and union_type_match is None) or \
                     (direct_type_match is None and union_type_match is False) or \
