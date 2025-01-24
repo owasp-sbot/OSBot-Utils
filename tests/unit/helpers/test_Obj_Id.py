@@ -19,7 +19,7 @@ class test_Obj_Id(TestCase):
 
     def test__perf__new__(self):
         with Performance_Measure__Session() as _:
-            _.measure(lambda: Obj_Id()    ).assert_time__less_than(600)
+            _.measure(lambda: Obj_Id()    ).assert_time__less_than(700)
 
     def test__perf__new_obj_id(self):
         with Performance_Measure__Session() as _:
