@@ -1,4 +1,5 @@
 from typing                                         import get_args, Union, Optional, Any, ForwardRef
+from osbot_utils.helpers.Obj_Id                     import Obj_Id
 from osbot_utils.type_safe.shared.Type_Safe__Cache  import type_safe_cache
 
 EXACT_TYPE_MATCH = (int, float, str, bytes, bool, complex)
@@ -63,6 +64,8 @@ class Type_Safe__Base:
             if len(args) != len(item):
                 raise TypeError(f"Expected tuple of length {len(args)}, but got {len(item)}")
             for idx, (elem, elem_type) in enumerate(zip(item, args)):
+                if elem_type is Obj_Id:                                     # todo: refactor this out, and figure out better way to handle this kind of de-serialisation
+                    elem = elem_type(elem)
                 try:
                     self.is_instance_of_type(elem, elem_type)
                 except TypeError as e:
