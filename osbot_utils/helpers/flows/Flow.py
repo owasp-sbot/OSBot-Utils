@@ -20,7 +20,7 @@ FLOW__LOGGING__LOG_FORMAT  = '%(asctime)s.%(msecs)03d | %(levelname)-8s | %(mess
 FLOW__LOGGING__DATE_FORMAT = '%H:%M:%S'
 
 
-
+# todo: add flow duration
 class Flow(Type_Safe):
     captured_exec_logs : list
     data               : dict                   # dict available to the tasks to add and collect data
