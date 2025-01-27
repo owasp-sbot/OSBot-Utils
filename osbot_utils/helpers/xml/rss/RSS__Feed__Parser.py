@@ -58,11 +58,12 @@ class RSS__Feed__Parser:
         # Process channel image if present
         if 'image' in channel_data:
             img_data = channel_data['image']
-            channel.image = RSS__Image( url     = img_data.get('url'       , '' ),
-                                        title   = img_data.get('title'     , '' ),
-                                        link    = img_data.get('link'      , '' ),
-                                        width   = int(img_data.get('width' , 0 )),
-                                        height  = int(img_data.get('height', 0 )))
+            if img_data:
+                channel.image = RSS__Image( url     = img_data.get('url'       , '' ),
+                                            title   = img_data.get('title'     , '' ),
+                                            link    = img_data.get('link'      , '' ),
+                                            width   = int(img_data.get('width' , 0 )),
+                                            height  = int(img_data.get('height', 0 )))
 
         known_channel_fields = {'title', 'link', 'description', 'language',         # Move non-standard channel elements to extensions
                                'lastBuildDate', 'image', 'item', 'updateFrequency', 'updatePeriod'}
