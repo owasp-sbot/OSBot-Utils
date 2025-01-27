@@ -30,3 +30,8 @@ class Type_Safe__Set(Type_Safe__Base, set):
             else:
                 result.append(item)
         return result
+
+    def __eq__(self, other):                                        # todo: see if this is needed
+        if isinstance(other, (set, Type_Safe__Set)):
+            return set(self) == set(other)
+        return False
