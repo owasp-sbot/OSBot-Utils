@@ -2,6 +2,7 @@ import sys
 import types
 from decimal                                             import Decimal
 from enum                                                import EnumMeta
+from osbot_utils.helpers.Obj_Id                          import Obj_Id
 from osbot_utils.type_safe.Type_Safe                     import Type_Safe
 from osbot_utils.type_safe.Type_Safe__List               import Type_Safe__List
 from osbot_utils.helpers.Random_Guid                     import Random_Guid
@@ -100,8 +101,10 @@ class Type_Safe__Step__From_Json:
                                 value = Random_Guid(value)
                             elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Random_Guid_Short): # handle Random_Guid_Short
                                 value = Random_Guid_Short(value)
-                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Timestamp_Now):     # handle Timestamp_Now
+                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Timestamp_Now    ): # handle Timestamp_Now
                                 value = Timestamp_Now(value)
+                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Obj_Id           ): # handle Obj_Id
+                                value = Obj_Id(value)
 
                     setattr(_self, key, value)                                                   # Direct assignment for primitive types and other structures
 

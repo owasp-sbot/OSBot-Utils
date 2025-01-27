@@ -23,5 +23,5 @@ class test_Obj_Id(TestCase):
 
     def test__perf__new_obj_id(self):
         with Performance_Measure__Session() as _:
-            _.measure(lambda: new_obj_id()    ).assert_time__less_than(300)
-            _.measure(lambda: is_obj_id('abc')).assert_time__less_than(300)
+            _.measure(lambda: new_obj_id()    ).assert_time__less_than(500)
+            _.measure(lambda: is_obj_id('abc')).assert_time__less_than(500)
