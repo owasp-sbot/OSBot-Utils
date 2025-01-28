@@ -23,16 +23,34 @@ def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=st
 def json_dumps_to_bytes(*args, **kwargs):
     return json_dumps(*args, **kwargs).encode()
 
+def json__type_key(obj: Any) -> tuple:
+    if obj is None                        : return (0, None)
+    if isinstance(obj, bool)              : return (1, obj)
+    if isinstance(obj, int)               : return (2, obj)
+    if isinstance(obj, float)             : return (3, obj)
+    if isinstance(obj, str)               : return (4, obj)
+    if isinstance(obj, (list, set, tuple)): return (5, tuple(sorted(json__type_key(x) for x in obj)))
+    if isinstance(obj, dict)              : return (6, tuple(sorted((k, json__type_key(v)) for k,v in obj.items())))
+    return (7, str(obj))                                                               # Fallback for unknown types
+
 def json__equals__list_and_set(value_1: Any, value_2: Any) -> bool:
     if isinstance(value_1, (list, set)) or isinstance(value_2, (list, set)):
-        list_1 = sorted(list(value_1))
-        list_2 = sorted(list(value_2))
-        return list_1 == list_2
+        list_1 = list(value_1)
+        list_2 = list(value_2)
+
+        if len(list_1) != len(list_2):                                                  # Quick length check
+            return False
+
+        sorted_1 = sorted(list_1, key=json__type_key)
+        sorted_2 = sorted(list_2, key=json__type_key)
+
+        return all(json__equals__list_and_set(a, b)
+                  for a, b in zip(sorted_1, sorted_2))
 
     if isinstance(value_1, dict) and isinstance(value_2, dict):
-        if value_1.keys() != value_2.keys():                                             # Check keys match
+        if value_1.keys() != value_2.keys():                                            # Check keys match
             return False
-        return all(json__equals__list_and_set(value_1[key], value_2[key])                      # Recursively compare values
+        return all(json__equals__list_and_set(value_1[key], value_2[key])             # Recursively compare values
                   for key in value_1.keys())
 
     return value_1 == value_2

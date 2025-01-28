@@ -9,7 +9,7 @@ from osbot_utils.utils.Files import file_exists, file_contents
 from osbot_utils.utils.Json import json_save_tmp_file, json_parse, json_loads, json_dumps, json_format, \
     json_load_file, json_load_file_and_delete, json_save_file_pretty_gz, json_load_file_gz, \
     json_round_trip, json_load_file_gz_and_delete, json_save_file_pretty, json_save_file, json_load, json_to_gz, \
-    gz_to_json
+    gz_to_json, json__equals__list_and_set
 from osbot_utils.utils.Misc import list_set
 from osbot_utils.utils.Status import send_status_to_logger, osbot_status, osbot_logger
 from osbot_utils.utils.Zip import str_to_gz, gz_to_str
@@ -53,6 +53,17 @@ class test_Json(TestCase):
         assert list_set(round_trip.keys())  == ['date']
         assert type(round_trip.get('date')) is str
 
+
+
+    def test_json__equals__list_and_set(self):
+        value_1 = [{'id': 2, 'name': 'second'}, {'id': 1, 'name': 'first'}]
+        value_2 = [{'id': 1, 'name': 'first' }, {'id': 2, 'name': 'second'}]
+        assert json__equals__list_and_set(value_1, value_2)
+
+        value_1 = ['two', {'three': 3}, [5, 4], 1]
+        value_2 = [1, 'two', {'three': 3}, [4, 5]]
+
+        assert json__equals__list_and_set(value_1, value_2)
 
     def test_json_parse__json_format__json_dumps__json_loads(self):
         data = {'answer': 42 }
