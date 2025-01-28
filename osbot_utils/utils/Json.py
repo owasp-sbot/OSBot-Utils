@@ -1,3 +1,5 @@
+from typing import Any
+
 
 def bytes_to_json_loads(data):
     import json
@@ -20,6 +22,20 @@ def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=st
 
 def json_dumps_to_bytes(*args, **kwargs):
     return json_dumps(*args, **kwargs).encode()
+
+def json__equals__list_and_set(value_1: Any, value_2: Any) -> bool:
+    if isinstance(value_1, (list, set)) or isinstance(value_2, (list, set)):
+        list_1 = sorted(list(value_1))
+        list_2 = sorted(list(value_2))
+        return list_1 == list_2
+
+    if isinstance(value_1, dict) and isinstance(value_2, dict):
+        if value_1.keys() != value_2.keys():                                             # Check keys match
+            return False
+        return all(json__equals__list_and_set(value_1[key], value_2[key])                      # Recursively compare values
+                  for key in value_1.keys())
+
+    return value_1 == value_2
 
 def json_lines_file_load(target_path):
     from osbot_utils.utils.Files import file_lines
