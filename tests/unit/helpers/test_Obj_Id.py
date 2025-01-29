@@ -1,8 +1,7 @@
 from unittest import TestCase
 
-from osbot_utils.helpers.Obj_Id import new_obj_id, is_obj_id, Obj_Id
+from osbot_utils.helpers.Obj_Id                                   import new_obj_id, is_obj_id, Obj_Id
 from osbot_utils.testing.performance.Performance_Measure__Session import Performance_Measure__Session
-from osbot_utils.utils.Dev import pprint
 
 
 class test_Obj_Id(TestCase):
