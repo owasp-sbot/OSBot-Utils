@@ -3,10 +3,12 @@ import logging
 import typing
 
 from osbot_utils.helpers.Dependency_Manager                 import Dependency_Manager
+from osbot_utils.helpers.flows.actions.Flow__Data           import Flow__Data
+from osbot_utils.helpers.flows.models.Flow_Run__Event       import Flow_Run__Event
 from osbot_utils.type_safe.Type_Safe                        import Type_Safe
 from osbot_utils.helpers.CFormat                            import CFormat, f_dark_grey, f_magenta, f_bold
 from osbot_utils.helpers.flows.models.Flow_Run__Config      import Flow_Run__Config
-from osbot_utils.helpers.flows.Flow__Events                 import flow_events
+from osbot_utils.helpers.flows.actions.Flow__Events         import flow_events
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Data  import Flow_Run__Event_Data
 from osbot_utils.testing.Stdout                             import Stdout
 from osbot_utils.utils.Misc                                 import random_id, lower, time_now
@@ -22,6 +24,7 @@ FLOW__LOGGING__DATE_FORMAT = '%H:%M:%S'
 
 # todo: add flow duration
 class Flow(Type_Safe):
+    flow_data          : Flow__Data
     captured_exec_logs : list
     data               : dict                   # dict available to the tasks to add and collect data
     flow_id            : str                    # rename to flow_run_id (or also capture the flow_run_id)
@@ -47,6 +50,10 @@ class Flow(Type_Safe):
                                                    type        = artifact_type or "link"))                                                   # type clashed with built-in type
         event_data.flow_run_id = self.flow_id
         flow_events.on__new_artifact(event_data)
+        self.flow_data.add_artifact(key           = key or 'default'           ,
+                                    description   = description or ''          ,
+                                    data          = data                       ,
+                                    artifact_type = artifact_type or 'default' )
 
 
     def add_flow_result(self, key, description):
@@ -55,6 +62,7 @@ class Flow(Type_Safe):
         event_data.data        = dict(result_data = dict(key         = key         ,
                                                          description = description ))
         flow_events.on__new_result(event_data)
+        self.flow_data.add_result(key, description)
 
     def config_logger(self):
         with self.logger as _:
@@ -79,9 +87,12 @@ class Flow(Type_Safe):
         try:
             with Stdout() as stdout:
                 self.invoke_flow_target()
+            self.flow_data.set_return_value(self.flow_return_value)
+            self.flow_data.set_completed()
         except Exception as error:
             self.flow_error = error
             self.log_error(self.cformat.red(f"Error executing flow: {error}"))
+            self.flow_data.set_error(error)
 
         self.log_captured_stdout        (stdout)
         self.print_flow_return_value    ()
@@ -93,6 +104,9 @@ class Flow(Type_Safe):
         if self.flow_return_value:
             self.add_flow_result(key = 'flow-return-value', description=f'{self.flow_return_value}')
         flow_events.on__flow__stop(self.flow_event_data())
+
+        if self.flow_config.raise_flow_error and self.flow_error:                                       # raise an event if there was an error and raise_flow_error is set
+            raise self.flow_error
         return self
 
     def captured_logs(self):
@@ -153,6 +167,7 @@ class Flow(Type_Safe):
                 self.logger.error(message)
             else:
                 self.logger.info(message)
+            self.flow_data.add_log(log_level, message, task_run_id)
 
     def log_messages(self):
         return ansis_to_texts(self.log_messages_with_colors())
@@ -161,6 +176,8 @@ class Flow(Type_Safe):
         return self.logger.memory_handler_messages()
 
     def print_log_messages(self, use_colors=True):
+        print()
+        print()
         if use_colors:
             if self.captured_exec_logs:
                 for message in self.captured_exec_logs:
@@ -230,9 +247,23 @@ class Flow(Type_Safe):
             _.config_logger   ()
             _.setup_flow_run  ()
             _.set_flow_name   ()
+            _.flow_data.set_flow_id  (self.flow_id)
+            _.flow_data.set_flow_name(self.flow_name)
+            _.add_event_listener()
         return self
 
     def setup_flow_run(self):
         with self as _:
             if not _.flow_id:
                 _.flow_id = self.random_flow_id()
+
+    def add_event_listener(self):
+        flow_events.event_listeners.append(self.event_listener)
+
+    def event_listener(self, flow_event: Flow_Run__Event):
+        if self.flow_config.flow_data__capture_events:
+            self.flow_data.add_event(flow_event)
+
+    def json(self) -> typing.Dict[str, typing.Any]:         # Convert flow data to JSON
+        return self.flow_data.json()
+
