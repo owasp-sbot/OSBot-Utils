@@ -2,11 +2,338 @@
 
 ## Overview
 
-The Flow system in OSBot-Utils is designed to solve the common challenge of orchestrating complex task execution in Python applications. Unlike simple sequential execution, the Flow system provides a rich context that enables monitoring, debugging, and maintenance of task execution flows. This is particularly valuable in applications that require robust error handling, detailed logging, and complex task dependencies.
+The Flow system is part of the OSBot-Utils package (available at https://github.com/owasp-sbot/OSBot-Utils) and was inspired by the excellent open-source project 'Prefect' (Pythonic orchestration for modern teams). Building on Prefect's foundations, the Flow system in OSBot-Utils is designed to solve the common challenge of orchestrating complex task execution in Python applications, with a strong focus on making the API as Pythonic and intuitive as possible.
 
-## Core Components
+Unlike simple sequential execution, the Flow system provides a rich context that enables monitoring, debugging, and maintenance of task execution flows. This is particularly valuable in applications that require robust error handling, detailed logging, and complex task dependencies.
 
-### Flow
+### Quick Start Examples
+
+The Flow system is designed to be incredibly intuitive and Pythonic. Here are some simple examples to get you started:
+
+```python
+from osbot_utils.helpers.flows.decorators.flow import flow
+from osbot_utils.helpers.flows.decorators.task import task
+
+# Simple example: A flow with a single task
+@flow()
+def simple_flow(data):
+    result = process_data(data)
+    return result
+
+@task()
+def process_data(data):
+    return data.upper()
+
+# Use it naturally like any Python function
+result = simple_flow("hello world").execute()
+```
+
+Context manager style for more complex flows:
+```python
+with ComplexDataFlow() as flow:
+    flow.input_data = my_data
+    result = flow.execute()
+    print(f"Processing complete: {result}")
+```
+
+### Prefect Compatibility
+
+The Flow system is 100% compatible with Prefect, allowing you to easily integrate with existing Prefect workflows. Here's a real-world example showing how the Flow system can be used in a web service context:
+
+```python
+def url_pdf(self, url="https://httpbin.org/get", return_file:bool=False):
+    self.install_browser()
+    with Flow__Playwright__Get_Page_Pdf() as _:
+        _.url = url
+        run_data   = _.run()
+        pdf_bytes  = run_data.get('pdf_bytes')
+        pdf_base64 = run_data.get('pdf_base64')
+
+        if return_file is True:
+            pdf_stream = io.BytesIO(pdf_bytes)
+            response = StreamingResponse(
+                pdf_stream,
+                media_type = "application/pdf",
+                headers    = {"Content-Disposition": "attachment; filename=document.pdf"}
+            )
+        else:
+            response = {'pdf_base64': pdf_base64}
+
+        return response
+```
+
+This example demonstrates how the Flow system can be used to:
+- Handle complex browser automation tasks
+- Manage resource lifecycles
+- Process and transform data
+- Integrate with web services
+- Maintain compatibility with Prefect workflows
+
+## Common Patterns and Examples
+
+### Data Processing Pipeline
+
+Here's an expanded example of a data processing pipeline that demonstrates key Flow system capabilities:
+
+```python
+class DataProcessingFlow(Type_Safe):
+    @task()
+    async def fetch_data(self, flow_data: dict):
+        # Simulating data fetch
+        raw_data = await self.data_source.fetch()
+        flow_data['raw_data'] = raw_data
+        
+    @task()
+    def validate_data(self, flow_data: dict):
+        raw_data = flow_data['raw_data']
+        if not self.validator.is_valid(raw_data):
+            raise ValueError("Invalid data format")
+            
+    @task()
+    def transform_data(self, flow_data: dict):
+        raw_data = flow_data['raw_data']
+        transformed = self.transformer.process(raw_data)
+        flow_data['transformed_data'] = transformed
+        
+    @task()
+    async def store_results(self, flow_data: dict):
+        transformed = flow_data['transformed_data']
+        await self.storage.save(transformed)
+        
+    @flow()
+    async def process_data(self) -> Flow:
+        await self.fetch_data()
+        self.validate_data()
+        self.transform_data()
+        await self.store_results()
+        return 'processing complete'
+```
+
+This example shows:
+- Task sequencing
+- Data validation
+- Error handling
+- Data sharing between tasks
+- Mixed sync/async operations
+
+### Web Automation Example
+
+Building on our previous Playwright examples, here's a complete web automation flow that demonstrates real-world usage:
+
+```python
+class Flow__Web__Automation(Type_Safe):
+    playwright_serverless : Playwright__Serverless
+    url                   : str = 'https://example.com'
+    
+    @task()
+    async def setup_browser(self) -> Browser:
+        await self.playwright_serverless.launch()
+        await self.playwright_serverless.new_page()
+        print('Browser setup complete')
+        
+    @task()
+    async def navigate_and_wait(self) -> None:
+        await self.playwright_serverless.goto(self.url)
+        await asyncio.sleep(1)  # Allow page to stabilize
+        
+    @task()
+    async def perform_interactions(self, flow_data: dict) -> None:
+        page = self.playwright_serverless.page
+        await page.click('#main-button')
+        content = await page.content()
+        flow_data['page_content'] = content
+        
+    @task()
+    def process_results(self, flow_data: dict) -> None:
+        content = flow_data['page_content']
+        results = self.analyze_content(content)
+        flow_data['analysis_results'] = results
+        
+    @flow()
+    async def execute_automation(self) -> Flow:
+        await self.setup_browser()
+        await self.navigate_and_wait()
+        await self.perform_interactions()
+        self.process_results()
+        return 'automation complete'
+```
+
+This example demonstrates:
+- Browser automation
+- Resource management
+- Error handling
+- Data capture and processing
+- Flow orchestration
+
+## Implementation Guidelines
+
+### Error Recovery Strategies
+
+1. **Task-Level Recovery**
+```python
+@task(raise_on_error=False)
+async def resilient_task(this_flow=None):
+    try:
+        await perform_operation()
+    except Exception as error:
+        this_flow.add_flow_artifact(
+            key="error_details",
+            data=str(error),
+            artifact_type="error"
+        )
+        return "fallback_value"
+```
+
+2. **Flow-Level Recovery**
+```python
+@flow()
+async def resilient_flow():
+    try:
+        await main_task()
+    except Exception:
+        await cleanup_task()
+        await fallback_task()
+```
+
+### Resource Management
+
+1. **Context Manager Pattern**
+```python
+class ManagedResourceFlow(Type_Safe):
+    def __enter__(self):
+        # Setup resources
+        return self
+        
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Cleanup resources
+        pass
+```
+
+2. **Async Resource Management**
+```python
+class AsyncResourceFlow(Type_Safe):
+    async def __aenter__(self):
+        await self.setup_resources()
+        return self
+        
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.cleanup_resources()
+```
+
+### Performance Optimization
+
+1. **Minimal Logging**
+```python
+flow_config = Flow_Run__Config(
+    log_to_memory=False,
+    log_to_console=False
+)
+```
+
+2. **Efficient Task Design**
+```python
+@task()
+def optimized_task(flow_data: dict):
+    # Process only required data
+    subset = {k: flow_data[k] for k in required_keys}
+    result = process_subset(subset)
+    # Store only necessary results
+    flow_data.update(result)
+```
+
+### Testing Strategies
+
+1. **Mock Dependencies**
+```python
+@task()
+def testable_task(this_flow=None):
+    # Dependencies can be mocked for testing
+    service = this_flow.get_service()
+    return service.operation()
+```
+
+2. **Flow Testing**
+```python
+def test_flow():
+    with MockedDependencies():
+        flow = TestFlow()
+        result = flow.execute()
+        assert result.status == 'success'
+```
+
+## Advanced Topics
+
+### Custom Event Handlers
+
+```python
+class CustomEventHandler:
+    def __init__(self):
+        self.events = []
+        
+    def handle_event(self, event: Flow_Run__Event):
+        if event.event_type == Flow_Run__Event_Type.TASK_START:
+            self.handle_task_start(event)
+        elif event.event_type == Flow_Run__Event_Type.TASK_STOP:
+            self.handle_task_stop(event)
+            
+    def handle_task_start(self, event):
+        task_name = event.event_data.task_name
+        self.events.append(f"Started: {task_name}")
+        
+    def handle_task_stop(self, event):
+        task_name = event.event_data.task_name
+        self.events.append(f"Completed: {task_name}")
+```
+
+### Custom Flow Configurations
+
+```python
+class CustomFlowConfig(Flow_Run__Config):
+    def __init__(self):
+        super().__init__()
+        self.log_to_console = True
+        self.print_logs = True
+        
+    def custom_setup(self):
+        # Additional setup logic
+        pass
+```
+
+### Integration Patterns
+
+1. **External Service Integration**
+```python
+class ServiceIntegrationFlow(Type_Safe):
+    @task()
+    async def call_service(self, flow_data: dict):
+        response = await self.service.call()
+        flow_data['service_response'] = response
+        
+    @task()
+    def process_response(self, flow_data: dict):
+        response = flow_data['service_response']
+        result = self.process(response)
+        return result
+```
+
+2. **Database Integration**
+```python
+class DatabaseFlow(Type_Safe):
+    @task()
+    async def fetch_records(self, flow_data: dict):
+        async with self.db.session() as session:
+            records = await session.query(Model).all()
+            flow_data['records'] = records
+            
+    @task()
+    def process_records(self, flow_data: dict):
+        records = flow_data['records']
+        return [self.transform(record) for record in records]
+```
+
+## Conclusion
+
+The Flow system provides a robust foundation for building complex, maintainable Python applications. By following these patterns and guidelines, developers can create reliable, testable, and efficient solutions for a wide range of use cases. Flow
 
 The Flow class serves as the execution context and lifecycle manager for tasks. Think of it as a container that provides the environment and services needed by tasks. When a Flow executes, it maintains state information, manages resources, and coordinates the execution of tasks. The Flow instance becomes a central point for monitoring progress, handling errors, and collecting results.
 
@@ -202,20 +529,40 @@ Key aspects of dependency injection:
 
 ### Async Support
 
-The Flow system fully supports asynchronous execution, allowing efficient handling of I/O-bound operations.
+The Flow system fully supports asynchronous execution, allowing efficient handling of I/O-bound operations. This is particularly valuable for web automation and network operations.
 
 ```python
 @flow()
 async def async_flow():
-    # Flows can be async
     result = await async_task()
     return result
 
 @task()
 async def async_task():
-    # Tasks can be async
     await asyncio.sleep(1)
     return "completed"
+```
+
+A real-world example from web automation shows how async flows handle complex operations:
+
+```python
+class WebAutomationFlow(Type_Safe):
+    @task()
+    async def launch_browser(self) -> Browser:
+        await self.browser_instance.launch()
+        print('launched browser')
+
+    @task()
+    async def navigate(self) -> None:
+        print(f"opening url: {self.target_url}")
+        await self.browser_instance.goto(self.target_url)
+        await asyncio.sleep(1)  # Ensure page load
+
+    @flow()
+    async def execute_automation(self) -> Flow:
+        await self.launch_browser()
+        await self.navigate()
+        return 'completed'
 ```
 
 Async support features:
@@ -223,6 +570,112 @@ Async support features:
 2. Maintains Flow context in async operations
 3. Supports mixed sync/async tasks
 4. Preserves error handling and logging
+5. Handles browser automation gracefully
+6. Supports wait operations and timing controls
+
+### Real-World Implementation Patterns
+
+#### Web Automation Pattern
+
+The Flow system excels at managing complex web automation tasks, as demonstrated by the Playwright integration examples:
+
+```python
+class Flow__Playwright__Operation(Type_Safe):
+    playwright_serverless : Playwright__Serverless
+    url                   : str = 'https://example.com'
+
+    @task()
+    def check_config(self) -> Browser:
+        print('checking config')
+
+    @task()
+    async def launch_browser(self) -> Browser:
+        await self.playwright_serverless.launch()
+
+    @task()
+    async def new_page(self) -> Browser:
+        await self.playwright_serverless.new_page()
+
+    @task()
+    async def perform_operation(self, flow_data: dict) -> None:
+        # Operation-specific logic here
+        pass
+
+    @flow()
+    async def execute(self) -> Flow:
+        self.check_config()
+        await self.launch_browser()
+        await self.new_page()
+        await self.perform_operation()
+        return 'all done'
+```
+
+This pattern showcases several important concepts:
+1. **Resource Management**: Browser lifecycle handling
+2. **Flow Data**: Using flow_data for sharing state
+3. **Async Operations**: Managing asynchronous browser interactions
+4. **Error Handling**: Graceful handling of browser operations
+5. **Task Sequencing**: Logical ordering of operations
+
+#### Data Transformation Pattern
+
+The Flow system can effectively manage data transformation pipelines, as shown in the screenshot and PDF generation examples:
+
+```python
+class Flow__Data__Transform(Type_Safe):
+    @task()
+    async def capture_data(self, flow_data: dict) -> None:
+        raw_data = await self.source.get_data()
+        flow_data['raw_data'] = raw_data
+
+    @task()
+    def transform_data(self, flow_data: dict) -> None:
+        raw_data = flow_data['raw_data']
+        transformed = self.transform_function(raw_data)
+        flow_data['transformed'] = transformed
+
+    @flow()
+    async def execute_transformation(self) -> Flow:
+        await self.capture_data()
+        self.transform_data()
+        return 'transformation complete'
+```
+
+Key aspects of this pattern:
+1. **Data Flow**: Clear data movement between tasks
+2. **State Management**: Using flow_data for intermediate results
+3. **Transform Steps**: Clearly defined transformation stages
+4. **Type Safety**: Leveraging Type_Safe for robust typing
+
+### Flow Composition and Inheritance
+
+The provided examples demonstrate effective patterns for flow composition and inheritance:
+
+```python
+class BaseWebFlow(Type_Safe):
+    @task()
+    async def common_setup(self):
+        # Shared setup logic
+        pass
+
+class SpecificWebFlow(BaseWebFlow):
+    @task()
+    async def specific_operation(self):
+        # Specific operation logic
+        pass
+
+    @flow()
+    async def execute(self) -> Flow:
+        await self.common_setup()
+        await self.specific_operation()
+        return 'operation complete'
+```
+
+Benefits of this approach:
+1. **Code Reuse**: Common operations shared across flows
+2. **Consistency**: Standardized handling of common operations
+3. **Maintainability**: Clear separation of concerns
+4. **Extensibility**: Easy to add new specialized flows
 
 ### Error Handling
 
@@ -379,143 +832,3 @@ Event data features:
 2. Context preservation
 3. Unique identification
 4. Severity classification
-
-## Best Practices
-
-### 1. Flow Organization
-Organize flows to maximize reusability and maintainability:
-- Group related tasks
-- Use meaningful names
-- Maintain single responsibility
-- Document flow purpose
-
-### 2. Error Handling
-Implement robust error handling strategies:
-- Configure appropriate levels
-- Use task-level controls
-- Add detailed logging
-- Plan recovery paths
-
-### 3. Data Management
-Manage data effectively:
-- Use appropriate scopes
-- Clean up when done
-- Document data structures
-- Handle sensitive data
-
-### 4. Event Handling
-Implement efficient event handling:
-- Keep listeners light
-- Manage listener lifecycle
-- Handle errors gracefully
-- Document event usage
-
-### 5. Async Usage
-Use async features effectively:
-- Separate I/O operations
-- Maintain clean async boundaries
-- Handle contexts properly
-- Monitor performance
-
-## Common Patterns and Examples
-
-### Data Processing Pipeline
-
-Example of a data processing pipeline:
-- Shows task sequencing
-- Demonstrates data validation
-- Illustrates error handling
-- Shows data sharing
-
-### API Integration
-
-Example of API integration:
-- Shows async usage
-- Demonstrates error handling
-- Illustrates artifact storage
-- Shows logging patterns
-
-## Advanced Features
-
-### Custom Event Handlers
-Create specialized event handlers:
-- Track metrics
-- Monitor performance
-- Log to external systems
-- Trigger actions
-
-### Flow Extensions
-
-Extend Flow functionality:
-- Add custom features
-- Enhance logging
-- Add metrics
-- Customize behavior
-
-## Debugging and Troubleshooting
-
-### Common Issues
-
-Solutions for common problems:
-1. Flow context issues
-2. Event listener problems
-3. Dependency injection failures
-4. Error handling challenges
-
-### Debugging Tools
-
-Tools and techniques for debugging:
-1. Enhanced logging
-2. Event debugging
-3. Task tracing
-4. Performance monitoring
-
-## Performance Considerations
-
-Optimize Flow system performance:
-1. Event listener efficiency
-2. Memory management
-3. Async optimization
-4. Resource cleanup
-
-## Security Considerations
-
-Implement secure Flow usage:
-1. Data handling
-2. Error message security
-3. Artifact protection
-4. Access control
-
-## Testing
-
-Implement comprehensive testing:
-1. Unit testing
-2. Integration testing
-3. Event testing
-4. Performance testing
-
-## Contributing
-
-Guidelines for contributors:
-1. Feature additions
-2. Bug fixes
-3. Documentation
-4. Testing requirements
-
-## Version History
-
-Track system evolution:
-- Initial release
-- Feature additions
-- Bug fixes
-- Improvements
-
-## Future Considerations
-
-Plan for future development:
-1. Planned features
-2. Improvements
-3. Research areas
-4. Performance enhancements
-
-Would you like me to expand on any particular aspect further or add more specific examples?
