@@ -1,7 +1,5 @@
 import logging
-
 from osbot_utils.type_safe.Type_Safe import Type_Safe
-
 
 class Flow_Run__Event_Data(Type_Safe):
     data        : dict

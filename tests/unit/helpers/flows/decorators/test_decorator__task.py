@@ -4,10 +4,9 @@ from osbot_utils.helpers.flows.decorators.task              import task
 from osbot_utils.helpers.flows.Flow                         import Flow
 from osbot_utils.context_managers.disable_root_loggers      import disable_root_loggers
 from osbot_utils.helpers.flows.models.Flow_Run__Config      import Flow_Run__Config
-from osbot_utils.helpers.flows.Flow__Events                 import flow_events
+from osbot_utils.helpers.flows.actions.Flow__Events         import flow_events
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Type  import Flow_Run__Event_Type
-
-
+from osbot_utils.testing.Stderr                             import Stderr
 
 class test_decorator__task(TestCase):
 
@@ -51,16 +50,20 @@ class test_decorator__task(TestCase):
             raise ValueError("Task error")
 
         with disable_root_loggers():
-            with self.flow as flow:
-                flow.setup(lambda: None)
+            with Stderr() as stderr:
+                with self.flow as flow:
+                    flow.setup(lambda: None)
 
-                # Test raising error
-                with self.assertRaises(Exception):
-                    failing_task_raises()
+                    # Test raising error
+                    with self.assertRaises(Exception):
+                        failing_task_raises()
 
-                # Test continuing after error
-                result = failing_task_continues()
-                assert result is None
+                    # Test continuing after error
+                    result = failing_task_continues()
+                    assert result is None
+            assert stderr.value() == ("\x1b[31mError executing 'failing_task_raises' task: Task error\x1b[0m\n"
+                                      "\x1b[31mError executing 'failing_task_continues' task: Task error\x1b[0m\n") != ''
+
 
     async def test_async_task_execution(self):
         async def async_operation():
@@ -238,10 +241,12 @@ class test_decorator__task(TestCase):
             raise ValueError("Task failed")
 
         with disable_root_loggers():
-            with self.flow as flow:
-                flow.setup(lambda: None)
-                result = failing_task()
-                assert result is None
+            with Stderr() as stderr:
+                with self.flow as flow:
+                    flow.setup(lambda: None)
+                    result = failing_task()
+                    assert result is None
+            assert stderr.value() == "\x1b[31mError executing 'failing_task' task: Task failed\x1b[0m\n"
 
     async def test_async_task_decorator(self):
         @task()

@@ -1,4 +1,5 @@
 import asyncio
+from osbot_utils.testing.Stdout                         import Stdout
 from osbot_utils.type_safe.Type_Safe                    import Type_Safe
 from osbot_utils.helpers.flows.Task                     import Task
 from unittest                                           import TestCase
@@ -46,9 +47,17 @@ class test_decorator__flow(TestCase):
             raise ValueError("Test error")
 
         with disable_root_loggers():
-            flow_instance = configured_flow().execute()
-            assert isinstance(flow_instance.flow_error, ValueError)
-            assert str(flow_instance.flow_error) == "Test error"
+            with Stdout() as stdout:
+                flow_instance = configured_flow().execute()
+                assert isinstance(flow_instance.flow_error, ValueError)
+                assert str(flow_instance.flow_error) == "Test error"
+            assert stdout.value() == ( '\n'
+                                       '\n'
+                                       '\n'
+                                       '\n'
+                                      f"Executing flow run '\x1b[1m\x1b[32m{flow_instance.flow_id}\x1b[0m\x1b[0m'\n"
+                                       '\x1b[1m\x1b[31mError executing flow: Test error\x1b[0m\x1b[0m\n'      )
+
 
     async def test_async_flow_decorator(self):
         @flow(flow_config=self.flow_config)
@@ -60,6 +69,22 @@ class test_decorator__flow(TestCase):
             flow_instance = async_flow().execute()
             assert flow_instance.flow_return_value == 42
 
+    def test_flow_print(self):
+        @task()
+        def task_one(value):
+            return value + 22
+
+        @flow(flow_config=self.flow_config)
+        def flow_1(initial_value):
+            print('in task_1')
+            return_value = task_one(initial_value)
+            return return_value
+
+        with disable_root_loggers():
+            flow_instance = flow_1(20).execute()
+            assert flow_instance.flow_return_value == 42
+            assert len(flow_instance.executed_tasks) == 1
+        assert flow_instance.obj().flow_data.logs.__sizeof__() == 104
     def test_flow_with_nested_tasks(self):
         @task()
         def task_one(value):
@@ -78,6 +103,8 @@ class test_decorator__flow(TestCase):
             flow_instance = nested_flow(20).execute()
             assert flow_instance.flow_return_value == 42
             assert len(flow_instance.executed_tasks) == 2
+        #from osbot_utils.utils.Dev import pprint
+        #pprint(flow_instance.json())
 
     def test_flow_with_error_propagation(self):
         error_config = Flow_Run__Config(raise_flow_error=True)

@@ -4,7 +4,7 @@ import typing
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Data  import Flow_Run__Event_Data
 from osbot_utils.utils.Misc                                 import random_id, lower
 from osbot_utils.helpers.Dependency_Manager                 import Dependency_Manager
-from osbot_utils.helpers.flows.Flow__Events                 import flow_events
+from osbot_utils.helpers.flows.actions.Flow__Events         import flow_events
 from osbot_utils.testing.Stdout                             import Stdout
 from osbot_utils.helpers.CFormat                            import CFormat, f_dark_grey, f_red, f_blue, f_bold
 from osbot_utils.type_safe.Type_Safe                        import Type_Safe
@@ -49,6 +49,7 @@ class Task(Type_Safe):
         return self.execute__after()
 
     def execute__before(self):
+        self.on_task_start()
         self.task_flow = self.find_flow()
         if self.task_flow is None:
             raise Exception("No Flow found for Task")
@@ -107,13 +108,14 @@ class Task(Type_Safe):
         self.print_task_finished_message()
 
         flow_events.on__task__stop(self.task_event_data())
+        self.on_task_end()
         return self.task_return_value
 
     def find_flow(self):                                                            # Find the closest Flow instance in the call stack by examining both self parameters and local variables in each frame
         stack = inspect.stack()
         for frame_info in stack:
             frame = frame_info.frame
-            for var_name, var_value in frame.f_locals.items():                      # Check all local variables in the frame
+            for var_name, var_value in list(frame.f_locals.items()):                      # Check all local variables in the frame
                 if type(var_value) is Flow:
                     return var_value
         return None
@@ -131,3 +133,14 @@ class Task(Type_Safe):
 
     def random_task_id(self):
         return lower(random_id(prefix=TASK__RANDOM_ID__PREFIX))
+
+
+    def on_task_start(self):                                             # Handle task start event
+        self.task_flow.flow_data.add_task(self.task_id, self.task_name)
+
+    def on_task_end(self):                                               # Handle task end event
+        status = 'failed' if self.task_error else 'completed'
+        self.task_flow.flow_data.update_task(self.task_id     ,
+                                             status           ,
+                                             self.task_error  ,
+                                             self.task_return_value)
