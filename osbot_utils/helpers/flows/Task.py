@@ -109,15 +109,14 @@ class Task(Type_Safe):
         flow_events.on__task__stop(self.task_event_data())
         return self.task_return_value
 
-
-    def find_flow(self):
+    def find_flow(self):                                                            # Find the closest Flow instance in the call stack by examining both self parameters and local variables in each frame
         stack = inspect.stack()
         for frame_info in stack:
             frame = frame_info.frame
-            if 'self' in frame.f_locals:
-                instance = frame.f_locals['self']
-                if type(instance) is Flow:
-                    return instance
+            for var_name, var_value in frame.f_locals.items():                      # Check all local variables in the frame
+                if type(var_value) is Flow:
+                    return var_value
+        return None
 
     def print_task_finished_message(self):
         if self.task_flow.flow_config.print_finished_message:

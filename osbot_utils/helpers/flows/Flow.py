@@ -93,6 +93,9 @@ class Flow(Type_Safe):
         if self.flow_return_value:
             self.add_flow_result(key = 'flow-return-value', description=f'{self.flow_return_value}')
         flow_events.on__flow__stop(self.flow_event_data())
+
+        if self.flow_config.raise_flow_error and self.flow_error:                                       # raise an event if there was an error and raise_flow_error is set
+            raise self.flow_error
         return self
 
     def captured_logs(self):
@@ -161,6 +164,8 @@ class Flow(Type_Safe):
         return self.logger.memory_handler_messages()
 
     def print_log_messages(self, use_colors=True):
+        print()
+        print()
         if use_colors:
             if self.captured_exec_logs:
                 for message in self.captured_exec_logs:

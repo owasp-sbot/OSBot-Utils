@@ -9,4 +9,5 @@ class Flow_Run__Config(Type_Safe):
     print_logs             : bool = False
     print_none_return_value: bool = False
     print_finished_message : bool = False
+    raise_flow_error       : bool = True
 
