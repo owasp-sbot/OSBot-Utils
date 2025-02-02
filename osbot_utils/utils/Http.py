@@ -56,7 +56,6 @@ def http_request(url, data=None, headers=None, method='GET', encoding ='utf-8', 
     ssl_request = url.startswith('https://')
     headers = headers or {}
     if data:
-        print()
         if type(data) is not str:                                   # if the data object is not a string
             if headers.get('Content-Type') == "application/json":   # and a json payload is expected
                 data = json.dumps(data)                             # convert it to json
@@ -163,6 +162,17 @@ def POST(url, data='', headers=None):
 
 def POST_json(*args, **kwargs):
     return json.loads(POST(*args, **kwargs))
+
+def POST_json_get_bytes(url=None, data=None):
+    headers          = {'Content-Type': "application/json"}     # todo add support for providing custom headers
+    kwargs = dict(url     = url   ,
+                  data    = data,
+                  headers = headers      ,
+                  method  = 'POST'       ,
+                  encoding = None
+                  )
+    response = http_request(**kwargs)
+    return response
 
 def PUT(url, data='', headers=None):
     return http_request(url, data, headers, 'PUT')
