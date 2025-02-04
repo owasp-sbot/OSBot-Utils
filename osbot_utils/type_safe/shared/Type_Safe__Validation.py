@@ -1,3 +1,5 @@
+import collections
+import inspect
 import types
 import typing
 from enum                                                           import EnumMeta
@@ -151,14 +153,15 @@ class Type_Safe__Validation:
         return all(isinstance(k, key_type) and isinstance(v, value_type)
                   for k, v in value.items())                                                        # if it is not a Union or Annotated types just return None (to give an indication to the caller that the comparison was not made)
 
-    def check_if__type_matches__obj_annotation__for_attr(self, target,
-                                                               attr_name,
-                                                               value
-                                                         )              -> Optional[bool]:
+    def check_if__type_matches__obj_annotation__for_attr(self, target, attr_name, value) -> Optional[bool]:
         annotations = type_safe_cache.get_obj_annotations(target)
         attr_type   = annotations.get(attr_name)
         if attr_type:
             origin_attr_type = get_origin(attr_type)                                    # to handle when type definition contains a generic
+
+            if origin_attr_type is collections.abc.Callable:                            # Handle Callable types
+                return self.is_callable_compatible(value, attr_type)                    # ISSUE: THIS IS NEVER CALLED
+
             if origin_attr_type is set:
                 if type(value) is list:
                     return True                                                         # if the attribute is a set and the value is a list, then they are compatible
@@ -189,6 +192,42 @@ class Type_Safe__Validation:
                 return True
             return value_type is attr_type
         return None
+
+    def is_callable_compatible(self, value, expected_type) -> bool:
+        if not callable(value):
+            return False
+
+        expected_args = get_args(expected_type)
+        if not expected_args:                                                                                   # Callable without type hints
+            return True
+
+        if len(expected_args) != 2:                                                                             # Should have args and return type
+            return False
+
+        expected_param_types = expected_args[0]                                                                 # First element is tuple of parameter types
+        expected_return_type = expected_args[1]                                                                 # Second element is return type
+
+
+        try:                                                                                                    # Get the signature of the actual value
+            sig = inspect.signature(value)
+        except ValueError:                                                                                      # Some built-in functions don't support introspection
+            return True
+
+        actual_params = list(sig.parameters.values())                                                           # Get actual parameters
+
+        if len(actual_params) != len(expected_param_types):                                                     # Check number of parameters matches
+            return False
+
+        for actual_param, expected_param_type in zip(actual_params, expected_param_types):                      # Check each parameter type
+            if actual_param.annotation != inspect.Parameter.empty:
+                if not self.are_types_compatible_for_assigment(actual_param.annotation, expected_param_type):
+                    return False                                                                                # todo: check if we shouldn't raise an exception here, since this is the only place where we actually know the types that don't match in the method signature
+
+        if sig.return_annotation != inspect.Parameter.empty:                                                    # Check return type
+            if not self.are_types_compatible_for_assigment(sig.return_annotation, expected_return_type):
+                return False                                                                                    # todo: check if we shouldn't raise an exception here, since this is the only place where we actually know the types that don't match in the method return type
+
+        return True
 
     # todo: add cache support to this method
     def should_skip_type_check(self, var_type):                                                         # Determine if type checking should be skipped
