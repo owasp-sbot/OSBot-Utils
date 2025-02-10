@@ -246,7 +246,7 @@ class Flow(Type_Safe):
             self.log_info(f"flow_run_params: {flow_run_params}")
             self.add_flow_artifact(description="Data received via FastAPI's request.json()", key='post-data', data=flow_run_params)
 
-    def main(self):         # method to be overwritten by implementing classes
+    def main(self, *args, **kwargs):         # method to be overwritten by implementing classes
         pass
 
     def setup(self, target=None, *args, **kwargs):
