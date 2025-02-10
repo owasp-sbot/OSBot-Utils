@@ -137,7 +137,13 @@ class Type_Safe__Step__From_Json:
         new_value   = Type_Safe__Dict(expected_key_type=key_class, expected_value_type=value_class)
 
         for dict_key, dict_value in value.items():
-            if issubclass(key_class, Type_Safe):
+            key_origin = type_safe_cache.get_origin(key_class)
+            if key_origin is type:
+                expected_dict_type = get_args(key_class)[0]
+                if dict_key != expected_dict_type and not issubclass(dict_key,expected_dict_type):
+                    raise TypeError(f"Expected {expected_dict_type} class for key but got instance: {dict_key}")
+                new__dict_key = get_args(key_class)[0]
+            elif issubclass(key_class, Type_Safe):
                 new__dict_key = self.deserialize_from_dict(key_class(), dict_key)
             else:
                 new__dict_key = key_class(dict_key)

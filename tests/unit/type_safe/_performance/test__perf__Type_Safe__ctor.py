@@ -2,17 +2,21 @@ from dataclasses import dataclass
 from unittest                                                         import TestCase
 from typing                                                           import Optional, List, Dict, Union, Any
 from enum                                                             import Enum, auto
+
+import pytest
+
 from osbot_utils.testing.performance.Performance_Measure__Session     import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 from osbot_utils.type_safe.shared.Type_Safe__Cache                    import type_safe_cache
+from osbot_utils.utils.Env import not_in_github_action
 
 
 class test__perf__Type_Safe__ctor(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Set up timing thresholds
-        # import pytest
-        # pytest.skip("skipping until refactoring of Type_Safe is complete")
+        if not_in_github_action():
+            pytest.skip("Only run on GitHub (too unstable locally due to local CPU load)")
         cls.time_200_ns  =     200
         cls.time_300_ns  =     300
         cls.time_700_ns  =     700
