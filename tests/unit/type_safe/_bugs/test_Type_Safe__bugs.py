@@ -1,15 +1,11 @@
-import re
 import sys
 import pytest
-from typing import Optional, Union, Dict, Set, Type
+from typing                                             import Optional, Union, Dict
 from unittest                                           import TestCase
-
-from osbot_utils.helpers.Obj_Id import Obj_Id
 from osbot_utils.type_safe.Type_Safe                    import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
 from osbot_utils.type_safe.Type_Safe__Dict              import Type_Safe__Dict
 from osbot_utils.type_safe.shared.Type_Safe__Convert    import type_safe_convert
-from osbot_utils.utils.Dev import pprint
 
 
 class test_Type_Safe__bugs(TestCase):
