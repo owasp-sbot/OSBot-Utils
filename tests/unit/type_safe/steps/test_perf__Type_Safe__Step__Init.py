@@ -21,8 +21,6 @@ class test_perf__Type_Safe__Step__Init(TestCase):                               
 
     @classmethod
     def setUpClass(cls):                                                            # Define timing thresholds
-        import pytest
-        pytest.skip('re-enabled once refactoring of Type_Safe is completed')
         cls.time_100_ns  =    100
         cls.time_200_ns  =    200
         cls.time_500_ns  =    500
@@ -51,8 +49,8 @@ class test_perf__Type_Safe__Step__Init(TestCase):                               
             type_safe_step_init.init(obj, class_kwargs, str_val="new", int_val=100)
 
         with Performance_Measure__Session() as session:
-            session.measure(init_no_kwargs   ).assert_time(self.time_4_kns)
-            session.measure(init_with_kwargs ).assert_time(self.time_4_kns)
+            session.measure(init_no_kwargs   ).assert_time__less_than(self.time_4_kns)
+            session.measure(init_with_kwargs ).assert_time__less_than(self.time_4_kns)
 
     def test_complex_init(self):                                                    # Test complex initialization
         class ComplexClass:
@@ -81,8 +79,8 @@ class test_perf__Type_Safe__Step__Init(TestCase):                               
             )
 
         with Performance_Measure__Session() as session:
-            session.measure(init_complex_default).assert_time(self.time_7_kns)
-            session.measure(init_complex_kwargs ).assert_time(self.time_8_kns)
+            session.measure(init_complex_default).assert_time__less_than(self.time_7_kns)
+            session.measure(init_complex_kwargs ).assert_time__less_than(self.time_8_kns)
 
     def test_none_handling(self):                                                   # Test None value handling
         class NoneClass:
@@ -108,6 +106,6 @@ class test_perf__Type_Safe__Step__Init(TestCase):                               
             )
 
         with Performance_Measure__Session() as session:
-            session.measure(init_with_none    ).assert_time(self.time_2_kns)
-            session.measure(init_override_none).assert_time(self.time_3_kns)
+            session.measure(init_with_none    ).assert_time__less_than(self.time_2_kns)
+            session.measure(init_override_none).assert_time__less_than(self.time_3_kns)
 

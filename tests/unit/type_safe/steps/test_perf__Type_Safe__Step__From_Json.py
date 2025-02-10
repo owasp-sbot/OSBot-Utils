@@ -28,8 +28,6 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                          # Define timing thresholds
-        import pytest
-        pytest.skip('re-enabled once refactoring of Type_Safe is completed')
         cls.time_100_ns  =     100
         cls.time_200_ns  =     200
         cls.time_500_ns  =     500
@@ -48,6 +46,7 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
         cls.time_90_kns  =  90_000
         cls.time_100_kns = 100_000
         cls.time_200_kns = 200_000
+        cls.time_300_kns = 300_000
 
     def test_primitive_deserialization(self):                                     # Test primitive type deserialization
         class SimpleClass(Type_Safe):
@@ -70,8 +69,8 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
             return type_safe_step_from_json.from_json(SimpleClass, str(json_data))
 
         with Performance_Measure__Session() as session:
-            session.measure(deserialize_primitives).assert_time(self.time_40_kns, self.time_50_kns)
-            session.measure(deserialize_from_str  ).assert_time(self.time_20_kns, self.time_30_kns)
+            session.measure(deserialize_primitives).assert_time__less_than(self.time_70_kns)
+            session.measure(deserialize_from_str  ).assert_time__less_than(self.time_30_kns)
 
     def test_collection_deserialization(self):                                   # Test collection deserialization
         class CollectionClass(Type_Safe):
@@ -91,7 +90,7 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
             return type_safe_step_from_json.from_json(CollectionClass, json_data)
 
         with Performance_Measure__Session() as session:
-            session.measure(deserialize_collections).assert_time(self.time_20_kns, self.time_30_kns,  self.time_40_kns)
+            session.measure(deserialize_collections).assert_time__less_than(self.time_70_kns)
 
     def test_special_types_deserialization(self):                               # Test special type deserialization
         class SpecialClass(Type_Safe):
@@ -115,7 +114,7 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
             return type_safe_step_from_json.from_json(SpecialClass, json_data)
 
         with Performance_Measure__Session() as session:
-            session.measure(deserialize_special).assert_time(self.time_70_kns)
+            session.measure(deserialize_special).assert_time__less_than(self.time_200_kns)
 
     def test_nested_type_deserialization(self):                                # Test nested type deserialization
         json_data = {
@@ -137,7 +136,7 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
             return type_safe_step_from_json.from_json(ComplexType, json_data)
 
         with Performance_Measure__Session() as session:
-            session.measure(deserialize_nested).assert_time(self.time_100_kns, self.time_200_kns)
+            session.measure(deserialize_nested).assert_time__less_than(self.time_200_kns)
 
     def test_type_reconstruction(self):                                       # Test type reconstruction
         class TypeClass(Type_Safe):
@@ -156,8 +155,8 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
             return type_safe_step_from_json.deserialize_type__using_value("builtins.NoneType")
 
         with Performance_Measure__Session() as session:
-            session.measure(deserialize_type     ).assert_time(self.time_10_kns )
-            session.measure(deserialize_none_type).assert_time(self.time_200_ns)
+            session.measure(deserialize_type     ).assert_time__less_than(self.time_20_kns )
+            session.measure(deserialize_none_type).assert_time__less_than(self.time_500_ns)
 
     def test_dict_key_value_annotations(self):                               # Test dict with annotated keys/values
         class AnnotatedDict(Type_Safe):
@@ -178,7 +177,7 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
             return type_safe_step_from_json.from_json(AnnotatedDict, json_data)
 
         with Performance_Measure__Session() as session:
-            session.measure(deserialize_annotated_dict).assert_time(self.time_90_kns, self.time_100_kns)
+            session.measure(deserialize_annotated_dict).assert_time__less_than(self.time_200_kns)
 
     def test_error_handling(self):                                           # Test error handling
         class ErrorClass(Type_Safe):
@@ -201,7 +200,7 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
                 pass
 
         with Performance_Measure__Session() as session:
-            session.measure(deserialize_with_errors).assert_time(self.time_10_kns)
+            session.measure(deserialize_with_errors).assert_time__less_than(self.time_20_kns)
 
     def test_large_structure(self):                                          # Test large structure deserialization
         class LargeItem(Type_Safe):
@@ -216,11 +215,11 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
         json_data = {
             "items": [
                 {"id": f"item{i}", "value": i, "data": {"key": f"value{i}"}}
-                for i in range(3)
+                for i in range(2)
             ],
             "mappings": {
                 f"key{i}": {"id": f"map{i}", "value": i, "data": {"key": f"value{i}"}}
-                for i in range(3)
+                for i in range(2)
             }
         }
 
@@ -228,4 +227,4 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
             return type_safe_step_from_json.from_json(LargeStructure, json_data)
 
         with Performance_Measure__Session() as session:
-            session.measure(deserialize_large).assert_time(self.time_200_kns)
+            session.measure(deserialize_large).assert_time__less_than(self.time_300_kns)

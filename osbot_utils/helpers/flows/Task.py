@@ -103,7 +103,7 @@ class Task(Type_Safe):
         if self.task_error:
             self.log_error(f_red(f"Error executing '{self.task_name}' task: {self.task_error}"))
             if self.raise_on_error:
-                raise Exception(f"'{self.task_name}' failed and task raise_on_error was set to True. Stopping flow execution")
+                raise Exception(f"'{self.task_name}' failed and task raise_on_error was set to True. Stopping flow execution", self.task_error)
 
         self.print_task_finished_message()
 
@@ -116,7 +116,7 @@ class Task(Type_Safe):
         for frame_info in stack:
             frame = frame_info.frame
             for var_name, var_value in list(frame.f_locals.items()):                      # Check all local variables in the frame
-                if type(var_value) is Flow:
+                if isinstance(var_value, Flow):
                     return var_value
         return None
 

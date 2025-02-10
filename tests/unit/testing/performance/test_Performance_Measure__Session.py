@@ -52,7 +52,7 @@ class test_Performance_Checks__Session(TestCase):
 
         type_safe_cache.skip_cache = False
 
-        print()
+        #print()
         with Performance_Measure__Session(assert_enabled=True) as _:
             _.measure(str        ).print().assert_time(self.time_100_ns , self.time_0_ns                                                          )
             _.measure(Random_Guid).print().assert_time(self.time_3_kns  , self.time_5_kns, self.time_6_kns , self.time_7_kns ,  self.time_8_kns                      )
@@ -63,7 +63,7 @@ class test_Performance_Checks__Session(TestCase):
             _.measure(An_Class_5 ).print().assert_time(self.time_1_kns  , self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
             _.measure(An_Class_6 ).print().assert_time(self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_7_kns , self.time_8_kns ,self.time_9_kns , self.time_10_kns, self.time_20_kns                    )
 
-        type_safe_cache.print_cache_hits()
+        #type_safe_cache.print_cache_hits()
 
 # with no cache (and other changes) the results were:
 #

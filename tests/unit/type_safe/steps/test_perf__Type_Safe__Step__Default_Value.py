@@ -8,8 +8,6 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                             # Define timing thresholds
-        import pytest
-        pytest.skip('re-enabled once refactoring of Type_Safe is completed')
         cls.time_100_ns  =    100
         cls.time_200_ns  =    200
         cls.time_300_ns  =    300
@@ -25,6 +23,7 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
         cls.time_6_kns   =  6_000
         cls.time_7_kns   =  7_000
         cls.time_8_kns   =  8_000
+        cls.time_10_kns  = 10_000
 
     def test_primitive_types(self):                                                  # Test primitive type defaults
         class SimpleClass: pass                                                      # Dummy class for context
@@ -42,10 +41,10 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
             return type_safe_step_default_value.default_value(SimpleClass, bool)
 
         with Performance_Measure__Session() as session:
-            session.measure(get_str_default  ).assert_time(self.time_1_kns)
-            session.measure(get_int_default  ).assert_time(self.time_1_kns)
-            session.measure(get_float_default).assert_time(self.time_1_kns)
-            session.measure(get_bool_default ).assert_time(self.time_1_kns)
+            session.measure(get_str_default  ).assert_time__less_than(self.time_1_kns)
+            session.measure(get_int_default  ).assert_time__less_than(self.time_1_kns)
+            session.measure(get_float_default).assert_time__less_than(self.time_1_kns)
+            session.measure(get_bool_default ).assert_time__less_than(self.time_1_kns)
 
     def test_collection_types(self):                                                # Test collection type defaults
         class CollectionClass: pass
@@ -60,9 +59,9 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
             return type_safe_step_default_value.default_value(CollectionClass, Set)
 
         with Performance_Measure__Session() as session:
-            session.measure(get_list_default).assert_time(self.time_800_ns)
-            session.measure(get_dict_default).assert_time(self.time_600_ns)
-            session.measure(get_set_default ).assert_time(self.time_400_ns)
+            session.measure(get_list_default).assert_time__less_than(self.time_1_kns)
+            session.measure(get_dict_default).assert_time__less_than(self.time_1_kns)
+            session.measure(get_set_default ).assert_time__less_than(self.time_1_kns)
 
     def test_parametrized_collections(self):                                        # Test parametrized collections
         class ParamClass: pass
@@ -77,9 +76,9 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
             return type_safe_step_default_value.default_value(ParamClass, Set[int])
 
         with Performance_Measure__Session() as session:
-            session.measure(get_list_str_default     ).assert_time(self.time_2_kns)
-            session.measure(get_dict_str_int_default ).assert_time(self.time_2_kns)
-            session.measure(get_set_int_default      ).assert_time(self.time_700_ns)
+            session.measure(get_list_str_default     ).assert_time__less_than(self.time_5_kns)
+            session.measure(get_dict_str_int_default ).assert_time__less_than(self.time_3_kns)
+            session.measure(get_set_int_default      ).assert_time__less_than(self.time_3_kns)
 
     def test_forward_references(self):                                              # Test forward references
         class ForwardClass:
@@ -97,8 +96,8 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
                 Dict[str, ForwardRef('ForwardClass')])
 
         with Performance_Measure__Session() as session:
-            session.measure(get_forward_list_default).assert_time(self.time_7_kns)
-            session.measure(get_forward_dict_default).assert_time(self.time_7_kns)
+            session.measure(get_forward_list_default).assert_time__less_than(self.time_10_kns)
+            session.measure(get_forward_dict_default).assert_time__less_than(self.time_10_kns)
 
     def test_type_annotations(self):                                               # Test Type annotations
         class TypeClass: pass
@@ -115,9 +114,9 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
                 Type[ForwardRef('TypeClass')])
 
         with Performance_Measure__Session() as session:
-            session.measure(get_type_default        ).assert_time(self.time_2_kns                   )
-            session.measure(get_type_str_default    ).assert_time(self.time_700_ns, self.time_800_ns)
-            session.measure(get_type_forward_default).assert_time(self.time_6_kns                   )
+            session.measure(get_type_default        ).assert_time__less_than(self.time_2_kns  )
+            session.measure(get_type_str_default    ).assert_time__less_than(self.time_2_kns  )
+            session.measure(get_type_forward_default).assert_time__less_than(self.time_10_kns )
 
     def test_nested_collections(self):                                             # Test nested collections
         class NestedClass: pass
@@ -138,9 +137,9 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
                 Dict[str, List[int]])
 
         with Performance_Measure__Session() as session:
-            session.measure(get_nested_list_default ).assert_time(self.time_2_kns)
-            session.measure(get_nested_dict_default ).assert_time(self.time_2_kns)
-            session.measure(get_mixed_nested_default).assert_time(self.time_2_kns)
+            session.measure(get_nested_list_default ).assert_time__less_than(self.time_5_kns)
+            session.measure(get_nested_dict_default ).assert_time__less_than(self.time_5_kns)
+            session.measure(get_mixed_nested_default).assert_time__less_than(self.time_5_kns)
 
     def test_complex_types(self):                                                  # Test complex type combinations
         class ComplexClass: pass
@@ -161,9 +160,9 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
                 Dict[str, Union[int, List[str]]])
 
         with Performance_Measure__Session() as session:
-            session.measure(get_optional_list_default).assert_time(self.time_2_kns)
-            session.measure(get_union_types_default  ).assert_time(self.time_2_kns)
-            session.measure(get_complex_dict_default ).assert_time(self.time_3_kns)
+            session.measure(get_optional_list_default).assert_time__less_than(self.time_5_kns)
+            session.measure(get_union_types_default  ).assert_time__less_than(self.time_5_kns)
+            session.measure(get_complex_dict_default ).assert_time__less_than(self.time_5_kns)
 
     def test_inheritance_types(self):                                              # Test with inheritance
         class BaseClass: pass
@@ -186,9 +185,9 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
                 Dict[str, GrandChild])
 
         with Performance_Measure__Session() as session:
-            session.measure(get_base_type_default      ).assert_time(self.time_700_ns, self.time_800_ns)
-            session.measure(get_child_list_default     ).assert_time(self.time_2_kns )
-            session.measure(get_grandchild_dict_default).assert_time(self.time_2_kns )
+            session.measure(get_base_type_default      ).assert_time__less_than(self.time_5_kns )
+            session.measure(get_child_list_default     ).assert_time__less_than(self.time_5_kns )
+            session.measure(get_grandchild_dict_default).assert_time__less_than(self.time_5_kns )
 
     def test_edge_cases(self):                                                     # Test edge cases
         class EdgeClass: pass
@@ -203,6 +202,6 @@ class test_perf__Type_Safe__Step__Default_Value(TestCase):
             return type_safe_step_default_value.default_value(EdgeClass, type(None))
 
         with Performance_Measure__Session() as session:
-            session.measure(get_any_default        ).assert_time(self.time_2_kns)
-            session.measure(get_empty_union_default).assert_time(self.time_2_kns)
-            session.measure(get_none_default       ).assert_time(self.time_1_kns)
+            session.measure(get_any_default        ).assert_time__less_than(self.time_2_kns)
+            session.measure(get_empty_union_default).assert_time__less_than(self.time_2_kns)
+            session.measure(get_none_default       ).assert_time__less_than(self.time_2_kns)

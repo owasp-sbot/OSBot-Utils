@@ -77,13 +77,13 @@ class test__perf__Type_Safe__ctor(TestCase):
         #     nested : NestedType
         #     items  : List[NestedType]
 
-        print()
+        #print()
         with self.session as session:
             session.measure(ComplexTypes ).print().assert_time(self.time_20_kns,  self.time_30_kns,   self.time_40_kns)
             # session.measure(NestedType   ).print().assert_time(self.time_2_kns ,  self.time_3_kns ,   self.time_20_kns)
             # session.measure(WithNested   ).print().assert_time(self.time_20_kns,                      self.time_40_kns)
 
-        type_safe_cache.print_cache_hits()
+        #type_safe_cache.print_cache_hits()
 
     def test_inheritance_depth(self):                                           # Test inheritance impact
         class Base(Type_Safe):                                                  # Base class
