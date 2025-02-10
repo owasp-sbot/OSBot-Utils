@@ -1,7 +1,11 @@
 from unittest                                                      import TestCase
 from typing                                                        import List, Dict, Any, Union, Optional, Annotated
+
+import pytest
+
 from osbot_utils.testing.performance.Performance_Measure__Session  import Performance_Measure__Session
 from osbot_utils.type_safe.steps.Type_Safe__Step__Set_Attr         import type_safe_step_set_attr
+from osbot_utils.utils.Env import not_in_github_action
 from tests.unit.type_safe.steps.test_perf__Type_Safe__Step__Init   import MinLengthValidator, StatusEnum
 
 
@@ -9,6 +13,8 @@ class test_perf__Type_Safe__Step__Set_Attr(TestCase):                           
 
     @classmethod
     def setUpClass(cls):                                                           # Define timing thresholds
+        if not_in_github_action():
+            pytest.skip("Only run on GitHub (too unstable locally due to local CPU load)")
         cls.time_100_ns  =    100
         cls.time_200_ns  =    200
         cls.time_500_ns  =    500

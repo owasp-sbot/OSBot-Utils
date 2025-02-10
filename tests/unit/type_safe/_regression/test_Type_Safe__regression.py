@@ -5,6 +5,8 @@ from decimal                                                 import Decimal
 from typing                                                  import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set
 from unittest                                                import TestCase
 from unittest.mock                                           import patch
+
+from osbot_utils.helpers.Obj_Id import Obj_Id
 from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
 from osbot_utils.helpers.Guid                                import Guid
 from osbot_utils.helpers.python_compatibility.python_3_8     import Annotated
@@ -22,6 +24,40 @@ from osbot_utils.utils.Misc                                  import list_set, is
 from osbot_utils.utils.Objects                               import default_value, __
 
 class test_Type_Safe__regression(TestCase):
+
+
+    def test__regression__error_when_using__dict_with_type_as_key(self):
+        class Node_Value(Type_Safe):
+            value: int
+
+        class Container(Type_Safe):
+            value_nodes: Dict[Type[Node_Value], Obj_Id]
+
+        # Case 1: Using class (should work)
+        node_type_1 = Node_Value
+        obj_id_1   = Obj_Id()
+        #with pytest.raises(TypeError, match=re.escape(expected_error)):                        # BUG should have worked
+        container_1  = Container(value_nodes={node_type_1: obj_id_1})
+
+        assert container_1.json() == {'value_nodes': { node_type_1: obj_id_1}}
+
+
+        # Case 2: Using instance
+        node_type_2 = Node_Value()
+        obj_id_2    = Obj_Id()
+
+        expected_error = "Expected <class 'test_Type_Safe__regression.test_Type_Safe__regression.test__regression__error_when_using__dict_with_type_as_key.<locals>.Node_Value'> class for key but got instance: <class 'str'>"
+        with pytest.raises(TypeError, match=re.escape(expected_error)):
+            Container(value_nodes={str: obj_id_2})                      # BUG should have raised type safety error
+
+
+        # confirm round trip
+        container = Container(value_nodes={node_type_1: obj_id_1})
+
+        serialized = container.json()
+        deserialized = Container.from_json(serialized)
+
+        self.assertEqual(container.value_nodes, deserialized.value_nodes)
 
     def test__regression__roundtrip_set_support(self):
         class An_Class(Type_Safe):

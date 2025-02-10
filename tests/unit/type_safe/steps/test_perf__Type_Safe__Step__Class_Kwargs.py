@@ -1,8 +1,13 @@
 from unittest                                                     import TestCase
 from typing                                                       import List, Dict, Any, Union, Optional, Type
 from enum                                                         import Enum
+
+import pytest
+
 from osbot_utils.testing.performance.Performance_Measure__Session import Performance_Measure__Session
 from osbot_utils.type_safe.steps.Type_Safe__Step__Class_Kwargs    import type_safe_step_class_kwargs
+from osbot_utils.utils.Env import not_in_github_action
+
 
 class SimpleEnum(Enum):                                                               # Test enum for type checking
     A = 1
@@ -16,6 +21,8 @@ class test_perf__Type_Safe__Step__Class_Kwargs(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                             # Define timing thresholds
+        if not_in_github_action():
+            pytest.skip("Only run on GitHub (too unstable locally due to local CPU load)")
         cls.assert_enabled = False
         cls.session        = Performance_Measure__Session(assert_enabled=cls.assert_enabled)
         cls.time_100_ns    =    100

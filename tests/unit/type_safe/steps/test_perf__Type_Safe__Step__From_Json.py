@@ -2,6 +2,9 @@ from unittest                                                     import TestCas
 from typing                                                       import List, Dict, Any, Union, Optional, Type
 from enum                                                         import Enum
 from decimal                                                      import Decimal
+
+import pytest
+
 from osbot_utils.testing.performance.Performance_Measure__Session import Performance_Measure__Session
 from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json       import type_safe_step_from_json
 from osbot_utils.type_safe.Type_Safe                              import Type_Safe
@@ -9,6 +12,7 @@ from osbot_utils.helpers.Random_Guid                              import Random_
 from osbot_utils.helpers.Random_Guid_Short                        import Random_Guid_Short
 from osbot_utils.helpers.Safe_Id                                  import Safe_Id
 from osbot_utils.helpers.Timestamp_Now                            import Timestamp_Now
+from osbot_utils.utils.Env import not_in_github_action
 
 
 class StatusEnum(Enum):                                                            # Test enum for deserialization
@@ -28,6 +32,8 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                          # Define timing thresholds
+        if not_in_github_action():
+            pytest.skip("Only run on GitHub (too unstable locally due to local CPU load)")
         cls.time_100_ns  =     100
         cls.time_200_ns  =     200
         cls.time_500_ns  =     500

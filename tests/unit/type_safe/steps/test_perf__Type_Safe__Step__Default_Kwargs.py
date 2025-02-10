@@ -5,6 +5,8 @@ import pytest
 
 from osbot_utils.testing.performance.Performance_Measure__Session         import Performance_Measure__Session
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Kwargs          import type_safe_step_default_kwargs
+from osbot_utils.utils.Env import not_in_github_action
+
 
 class BaseClass:                                                                      # Base class for inheritance tests
     base_str   : str = "base"
@@ -14,6 +16,8 @@ class test_perf__Type_Safe__Step__Default_Kwargs(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                             # Define timing thresholds
+        if not_in_github_action():
+            pytest.skip("Only run on GitHub (too unstable locally due to local CPU load)")
         cls.time_100_ns  =    100
         cls.time_200_ns  =    200
         cls.time_300_ns  =    300
