@@ -41,6 +41,7 @@ class Flow(Type_Safe):
     executed_tasks     : typing.List
     resolved_args      : tuple
     resolved_kwargs    : dict
+    setup_completed    : bool
 
     def add_flow_artifact(self, description=None, key=None, data=None, artifact_type=None):     # todo: figure out how to make this work since at the moment most are showing an unknown type
         event_data = Flow_Run__Event_Data()
@@ -64,6 +65,10 @@ class Flow(Type_Safe):
         flow_events.on__new_result(event_data)
         self.flow_data.add_result(key, description)
 
+    def check_setup(self):
+        if self.setup_completed is False:
+            raise ValueError("Error starting Flow, setup has not been called, use .setup(target, *args, **kwargs) to configure it")
+
     def config_logger(self):
         with self.logger as _:
             _.set_log_level(logging.DEBUG)
@@ -75,6 +80,7 @@ class Flow(Type_Safe):
         return self.execute_flow()
 
     def execute_flow(self, flow_run_params=None):                               # todo: see if it makes more sense to call this start_flow_run
+        self.check_setup()
         flow_events.on__flow__start(self.flow_event_data())
         self.log_debug(f"Created flow run '{self.f__flow_id()}' for flow '{self.f__flow_name()}'")
         self.set_flow_run_params(flow_run_params)
@@ -240,7 +246,13 @@ class Flow(Type_Safe):
             self.log_info(f"flow_run_params: {flow_run_params}")
             self.add_flow_artifact(description="Data received via FastAPI's request.json()", key='post-data', data=flow_run_params)
 
-    def setup(self, target, *args, **kwargs):
+    def main(self):         # method to be overwritten by implementing classes
+        pass
+
+    def setup(self, target=None, *args, **kwargs):
+        if target is None:
+            target = self.main
+
         with self as _:
             _.cformat.auto_bold = True
             _.set_flow_target (target, *args, **kwargs)
@@ -250,6 +262,7 @@ class Flow(Type_Safe):
             _.flow_data.set_flow_id  (self.flow_id)
             _.flow_data.set_flow_name(self.flow_name)
             _.add_event_listener()
+            _.setup_completed = True
         return self
 
     def setup_flow_run(self):

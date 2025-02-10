@@ -1,4 +1,6 @@
 import asyncio
+import re
+
 import pytest
 from osbot_utils.helpers.flows.models.Flow_Run__Config      import Flow_Run__Config
 from osbot_utils.helpers.flows.actions.Flow__Events         import flow_events
@@ -208,6 +210,16 @@ class test_Flow(TestCase):
                 assert isinstance(flow_result, Flow)
                 assert isinstance(flow_result.flow_error, Exception)
                 assert str(flow_result.flow_error) == "Failed to load current data feed"
+
+
+    def test__flow__execute__raises_exception_if_setup_is_not_called(self):
+        with Flow() as _:
+            expected_message = "Error starting Flow, setup has not been called, use .setup(target, *args, **kwargs) to configure it"
+            with pytest.raises(ValueError, match=re.escape(expected_message)):
+                _.execute()
+            _.setup()
+            _.flow_config.logging_enabled = False
+            _.execute()
 
 
 

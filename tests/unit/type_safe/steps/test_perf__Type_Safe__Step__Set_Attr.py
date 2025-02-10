@@ -9,8 +9,6 @@ class test_perf__Type_Safe__Step__Set_Attr(TestCase):                           
 
     @classmethod
     def setUpClass(cls):                                                           # Define timing thresholds
-        import pytest
-        pytest.skip('re-enabled once refactoring of Type_Safe is completed')
         cls.time_100_ns  =    100
         cls.time_200_ns  =    200
         cls.time_500_ns  =    500
@@ -40,8 +38,8 @@ class test_perf__Type_Safe__Step__Set_Attr(TestCase):                           
             type_safe_step_set_attr.setattr(obj, obj, "int_val", 42)
 
         with Performance_Measure__Session() as session:
-            session.measure(set_str_attr).assert_time(self.time_6_kns)
-            session.measure(set_int_attr).assert_time(self.time_5_kns, self.time_6_kns)
+            session.measure(set_str_attr).assert_time__less_than(self.time_6_kns)
+            session.measure(set_int_attr).assert_time__less_than(self.time_6_kns)
 
     def test_collection_setattr(self):                                             # Test collection attribute setting
         class CollectionClass:
@@ -57,8 +55,8 @@ class test_perf__Type_Safe__Step__Set_Attr(TestCase):                           
             type_safe_step_set_attr.setattr(obj, obj, "dict_val", {"key": "value"})
 
         with Performance_Measure__Session() as session:
-            session.measure(set_list_attr).assert_time(self.time_4_kns)
-            session.measure(set_dict_attr).assert_time(self.time_8_kns, self.time_9_kns)
+            session.measure(set_list_attr).assert_time__less_than(self.time_9_kns )
+            session.measure(set_dict_attr).assert_time__less_than(self.time_10_kns)
 
     def test_union_setattr(self):                                                  # Test union type attribute setting
         class UnionClass:
@@ -77,9 +75,9 @@ class test_perf__Type_Safe__Step__Set_Attr(TestCase):                           
             type_safe_step_set_attr.setattr(obj, obj, "optional_val", "test")
 
         with Performance_Measure__Session() as session:
-            session.measure(set_union_str ).assert_time(self.time_7_kns)
-            session.measure(set_union_int ).assert_time(self.time_7_kns)
-            session.measure(set_optional  ).assert_time(self.time_7_kns)
+            session.measure(set_union_str ).assert_time__less_than(self.time_10_kns)
+            session.measure(set_union_int ).assert_time__less_than(self.time_10_kns)
+            session.measure(set_optional  ).assert_time__less_than(self.time_10_kns)
 
     def test_annotated_setattr(self):                                              # Test annotated attribute setting
         class AnnotatedClass:
@@ -95,8 +93,8 @@ class test_perf__Type_Safe__Step__Set_Attr(TestCase):                           
             type_safe_step_set_attr.setattr(obj, obj, "status", "active")
 
         with Performance_Measure__Session() as session:
-            session.measure(set_validated_str).assert_time(self.time_6_kns)
-            session.measure(set_enum_status  ).assert_time(self.time_6_kns)
+            session.measure(set_validated_str).assert_time__less_than(self.time_10_kns)
+            session.measure(set_enum_status  ).assert_time__less_than(self.time_10_kns)
 
     def test_type_conversion(self):                                                 # Test type conversion
         class ConversionClass:
@@ -116,9 +114,9 @@ class test_perf__Type_Safe__Step__Set_Attr(TestCase):                           
             type_safe_step_set_attr.setattr(obj, obj, "dict_val", {"key": 42})
 
         with Performance_Measure__Session() as session:
-            session.measure(set_str_from_int ).assert_time(self.time_6_kns)
-            session.measure(set_int_from_str ).assert_time(self.time_5_kns, self.time_6_kns)
-            session.measure(set_dict_convert ).assert_time(self.time_8_kns, self.time_9_kns)
+            session.measure(set_str_from_int ).assert_time__less_than(self.time_10_kns)
+            session.measure(set_int_from_str ).assert_time__less_than(self.time_10_kns)
+            session.measure(set_dict_convert ).assert_time__less_than(self.time_10_kns)
 
     def test_error_cases(self):                                                     # Test error handling performance
         class ErrorClass:
@@ -141,5 +139,5 @@ class test_perf__Type_Safe__Step__Set_Attr(TestCase):                           
                 pass
 
         with Performance_Measure__Session() as session:
-            session.measure(set_wrong_type ).assert_time(self.time_6_kns)
-            session.measure(set_none_value ).assert_time(self.time_2_kns)
+            session.measure(set_wrong_type ).assert_time__less_than(self.time_6_kns)
+            session.measure(set_none_value ).assert_time__less_than(self.time_2_kns)

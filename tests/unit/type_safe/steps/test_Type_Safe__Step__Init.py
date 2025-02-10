@@ -59,7 +59,7 @@ class test_Type_Safe__Step__Class_Kwargs(TestCase):
         assert one_int.__dict__ == {'an_int': 0}
         assert one_int.an_int   == 0
 
-    @trace_calls(include=['*'], show_internals=True, show_duration=True, duration_padding=80)
+    #@trace_calls(include=['*'], show_internals=True, show_duration=True, duration_padding=80)
     def test_init__class_one_int__with_kwargs(self):
         class Class__One_int:
             an_int: int

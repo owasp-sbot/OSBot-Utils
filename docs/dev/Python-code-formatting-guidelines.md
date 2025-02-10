@@ -76,7 +76,7 @@ class SomeClass:
 class SomeClass:
     def __init__(self, param_one ,
                        param_two  
-                )               -> None:
+                   )-> None:
         self.param_one = param_one
         self.param_two = param_two
 ```
@@ -149,7 +149,7 @@ from osbot_utils.helpers.Safe_Id                     import Safe_Id
 def method_name(self, first_param  : Type1        ,                               # Method purpose comment
                       second_param : Type2        ,                               # Aligned at column 80
                       third_param  : Type3 = None                                 # Default values align with type
-               )                  -> ReturnType:                                  # Return on new line
+                 ) -> ReturnType:                                                # Return on new line
 ```
 
 Key aspects:
@@ -158,9 +158,11 @@ Key aspects:
 - Type hints align in their own column
 - Commas align in their own column
 - Backslash continuation before return type
-- Return type aligns with self variable name
+- Return type aligns with the first variable name
 - Comments align at column 80
 - vertical alignment on : , #
+- DON'T use this when there is only one param or when (where are no types or default values being set)
+- the format for the return type is ") -> {return type}" 
 
 ### Parameter Documentation
 
@@ -169,7 +171,7 @@ def complex_operation(self, data_input     : Dict    [str, Any]         ,       
                             config_options : Optional[Config  ]         ,         # Processing configuration 
                             max_retries    : int                = 3     ,         # Maximum retry attempts
                             timeout_ms     : float              = 1000.0          # Operation timeout
-                      )                   -> Tuple[Results, Metrics]:             # Returns results and metrics
+                       ) -> Tuple[Results, Metrics]:             # Returns results and metrics
 ```
 
 Guidelines:
@@ -186,26 +188,26 @@ Methods should be grouped by functionality with clear separation:
 ```python
     # Core initialization methods
     def __init__(self, config : Config                                           # Initialize with configuration
-                )            -> None:                                                           
+                  ) -> None:                                                           
         
     def setup(self, options: Dict[str, Any]                                      # Configure processing options
-             )            -> bool:                                                              
+               ) -> bool:                                                              
 
 
     # Data validation methods  
     def validate_input(self, data        : InputData        ,                    # Validate input format
                              strict_mode : bool      = False                     # Enable strict validation
-                      )                 -> ValidationResult:
+                        ) -> ValidationResult:
 
     def validate_output(self, result     : OutputData ,                          # Validate output format
                               thresholds : Thresholds                            # Validation thresholds
-                      )                 -> bool:
+                         ) -> bool:
 
 
     # Processing methods
     def process_item(self, item     : DataItem ,                                 # Process single data item
                            settings : Settings                                   # Processing settings
-                    )              -> ProcessedItem:
+                      ) -> ProcessedItem:
 ```
 Note how the return type name assigns with the variable self, and there is always at least one space before the : and the ,
 
@@ -215,11 +217,11 @@ For methods with complex type signatures:
 
 ```python
 def process_batch(self, items           : List[DataItem]                   ,     # Batch of items to process
-                       batch_config     : BatchConfig                      ,     # Batch processing config
-                       error_handler    : ErrorHandler                     ,     # Handles processing errors
-                       retry_strategy   : Optional[Strategy]               ,     # Retry strategy to use
-                       metrics_callback : Callable[[Metrics], None] = None       # Metrics reporting callback
-                  )                    -> BatchResults:                          # Processed batch results
+                        batch_config     : BatchConfig                      ,     # Batch processing config
+                        error_handler    : ErrorHandler                     ,     # Handles processing errors
+                        retry_strategy   : Optional[Strategy]               ,     # Retry strategy to use
+                        metrics_callback : Callable[[Metrics], None] = None       # Metrics reporting callback
+                   ) -> BatchResults:                          # Processed batch results
 ```
 
 Guidelines:
@@ -309,6 +311,8 @@ class test_Schema__MGraph__Node(TestCase):
 - Inline documentation should be minimal and descriptive
 - Comments explaining test cases should be aligned with the code
 - Complex test setups should include explanatory comments
+- DON'T add docstrings to methods or classes 
+- methods or classes can have a comment in the same line as the method return value (column aligned with the other comments on the page)
 
 ## Additional Guidelines
 - Maximum line length should be reasonable (around 120 characters)
