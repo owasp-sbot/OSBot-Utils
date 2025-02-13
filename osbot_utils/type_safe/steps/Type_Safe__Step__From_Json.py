@@ -142,7 +142,7 @@ class Type_Safe__Step__From_Json:
                 expected_dict_type = get_args(key_class)[0]
                 if dict_key != expected_dict_type and not issubclass(dict_key,expected_dict_type):
                     raise TypeError(f"Expected {expected_dict_type} class for key but got instance: {dict_key}")
-                new__dict_key = get_args(key_class)[0]
+                new__dict_key = dict_key
             elif issubclass(key_class, Type_Safe):
                 new__dict_key = self.deserialize_from_dict(key_class(), dict_key)
             else:
