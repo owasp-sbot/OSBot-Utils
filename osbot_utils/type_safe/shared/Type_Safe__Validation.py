@@ -166,12 +166,16 @@ class Type_Safe__Validation:
                 if type(value) is list:
                     return True                                                         # if the attribute is a set and the value is a list, then they are compatible
             if origin_attr_type is type:                                                # Add handling for Type[T]
-                type_arg = get_args(attr_type)[0]                                       # Get T from Type[T]
-                if type_arg == value:
-                    return True
-                if isinstance(type_arg, (str, ForwardRef)):                             # Handle forward reference
-                    type_arg = target.__class__                                         # If it's a forward reference, the target class should be the containing class
-                return isinstance(value, type) and issubclass(value, type_arg)          # Check that value is a type and is subclass of type_arg
+                type_args = get_args(attr_type)
+                if type_args:
+                    type_arg = get_args(attr_type)[0]                                       # Get T from Type[T]
+                    if type_arg == value:
+                        return True
+                    if isinstance(type_arg, (str, ForwardRef)):                             # Handle forward reference
+                        type_arg = target.__class__                                         # If it's a forward reference, the target class should be the containing class
+                    return isinstance(value, type) and issubclass(value, type_arg)          # Check that value is a type and is subclass of type_arg
+                else:
+                    return isinstance(value, type)
 
             if origin_attr_type is Annotated:                                           # if the type is Annotated
                 args             = get_args(attr_type)
