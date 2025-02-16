@@ -1,4 +1,5 @@
 import inspect
+import traceback
 import typing
 
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Data  import Flow_Run__Event_Data
@@ -49,7 +50,6 @@ class Task(Type_Safe):
         return self.execute__after()
 
     def execute__before(self):
-        self.on_task_start()
         self.task_flow = self.find_flow()
         if self.task_flow is None:
             raise Exception("No Flow found for Task")
@@ -60,6 +60,7 @@ class Task(Type_Safe):
         if not self.task_id:
             self.task_id = self.random_task_id()
 
+        self.on_task_start()
         flow_events.on__task__start(self.task_event_data())
 
         self.task_flow.executed_tasks.append(self)
@@ -87,6 +88,9 @@ class Task(Type_Safe):
                 self.task_return_value =  self.task_target(*self.resolved_args, **self.resolved_kwargs)
         except Exception as error:
             self.task_error = error
+            if self.task_flow.flow_config.print_error_stack_trace:
+                tb = traceback.format_exc()
+                print(f'{tb}')
         self.task_flow.log_captured_stdout(stdout)
 
     async def execute__task_target__async(self):
