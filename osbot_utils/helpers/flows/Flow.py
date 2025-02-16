@@ -11,6 +11,7 @@ from osbot_utils.helpers.flows.models.Flow_Run__Config      import Flow_Run__Con
 from osbot_utils.helpers.flows.actions.Flow__Events         import flow_events
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Data  import Flow_Run__Event_Data
 from osbot_utils.testing.Stdout                             import Stdout
+from osbot_utils.utils.Dev                                  import pprint
 from osbot_utils.utils.Misc                                 import random_id, lower, time_now
 from osbot_utils.utils.Python_Logger                        import Python_Logger
 from osbot_utils.utils.Str                                  import ansis_to_texts
@@ -266,4 +267,7 @@ class Flow(Type_Safe):
 
     def json(self) -> typing.Dict[str, typing.Any]:         # Convert flow data to JSON
         return self.flow_data.json()
+
+    def print__flow_data(self):
+        pprint(self.flow_data.json())
 
