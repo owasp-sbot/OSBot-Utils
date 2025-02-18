@@ -62,6 +62,10 @@ class Type_Safe:
     def json(self):
         return self.serialize_to_dict()
 
+    def json__compress(self):
+        from osbot_utils.type_safe.shared.Type_Safe__Json_Compressor import Type_Safe__Json_Compressor
+        return Type_Safe__Json_Compressor().compress(self)
+
     # todo: see if we still need this. now that Type_Safe handles base types, there should be no need for this
     def merge_with(self, target):
         original_attrs = {k: v for k, v in self.__dict__.items() if k not in target.__dict__}       # Store the original attributes of self that should be retained.
