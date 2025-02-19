@@ -10,12 +10,12 @@ class Type_Safe__Json_Compressor(Type_Safe__Base):
     def __init__(self):
         self.type_registry = Type_Safe__Json_Compressor__Type_Registry()
 
-    def compress(self, data: dict) -> dict:
-        if not data:
-            return data
+    def compress(self, obj: Any) -> dict:
+        if not obj:
+            return obj
 
         self.type_registry.clear()
-        compressed = self.compress_object(data)
+        compressed = self.compress_object(obj)
 
         if self.type_registry.registry:
             return { "_type_registry": self.type_registry.reverse,
