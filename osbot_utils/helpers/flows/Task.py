@@ -50,7 +50,10 @@ class Task(Type_Safe):
         return self.execute__after()
 
     def execute__before(self):
-        self.task_flow = self.find_flow()
+        flow_from_stack = self.find_flow()
+        if flow_from_stack:
+            self.task_flow = flow_from_stack
+
         if self.task_flow is None:
             raise Exception("No Flow found for Task")
 
