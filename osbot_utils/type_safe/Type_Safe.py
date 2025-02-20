@@ -62,7 +62,7 @@ class Type_Safe:
     def json(self):
         return self.serialize_to_dict()
 
-    def json__compress(self):
+    def json__compress(self):                                           # todo: see if this is the best place to put these Type_Safe__Json_Compressor methods
         from osbot_utils.type_safe.shared.Type_Safe__Json_Compressor import Type_Safe__Json_Compressor
         return Type_Safe__Json_Compressor().compress(self)
 
@@ -97,7 +97,7 @@ class Type_Safe:
 
         return dict_to_obj(self.json())
 
-    def serialize_to_dict(self):                        # todo: see if we need this method or if the .json() is enough
+    def serialize_to_dict(self):                                        # todo: see if we need this method or if the .json() is enough
         return serialize_to_dict(self)
 
     def print(self):
@@ -110,4 +110,8 @@ class Type_Safe:
         from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json import type_safe_step_from_json     # circular dependency on Type_Safe
         return type_safe_step_from_json.from_json(cls, json_data, raise_on_not_found)
 
-
+    @classmethod
+    def from_json__compressed(cls, json_data):                          # todo: see if this is the best place to put these Type_Safe__Json_Compressor methods
+        from osbot_utils.type_safe.shared.Type_Safe__Json_Compressor import Type_Safe__Json_Compressor
+        json_data__decompressed = Type_Safe__Json_Compressor().decompress(json_data)
+        return cls.from_json(json_data__decompressed)
