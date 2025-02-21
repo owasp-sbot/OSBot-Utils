@@ -1,3 +1,5 @@
+from typing import Type
+
 from osbot_utils.type_safe.Type_Safe__Base import Type_Safe__Base
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
@@ -27,6 +29,10 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
 
         result = {}
         for key, value in self.items():
+
+            if isinstance(key, (type, Type)):                                                     # Handle Type objects as keys
+                key = f"{key.__module__}.{key.__name__}"
+
             if isinstance(value, Type_Safe):                                                # Handle Type_Safe objects in values
                 result[key] = value.json()
             elif isinstance(value, (list, tuple)):                                          # Handle lists/tuples that might contain Type_Safe objects

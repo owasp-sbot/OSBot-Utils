@@ -110,7 +110,7 @@ class Type_Safe__Step__From_Json:
 
         return _self
 
-    def deserialize_type__using_value(self, value):
+    def deserialize_type__using_value(self, value):         # TODO: Check the security implications of this deserialisation
         if value:
             try:
                 module_name, type_name = value.rsplit('.', 1)
@@ -139,6 +139,8 @@ class Type_Safe__Step__From_Json:
         for dict_key, dict_value in value.items():
             key_origin = type_safe_cache.get_origin(key_class)
             if key_origin is type:
+                if type(dict_key) is str:
+                    dict_key = self.deserialize_type__using_value(dict_key)
                 expected_dict_type = get_args(key_class)[0]
                 if dict_key != expected_dict_type and not issubclass(dict_key,expected_dict_type):
                     raise TypeError(f"Expected {expected_dict_type} class for key but got instance: {dict_key}")
