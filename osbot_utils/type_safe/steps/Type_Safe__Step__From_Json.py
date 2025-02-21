@@ -141,9 +141,14 @@ class Type_Safe__Step__From_Json:
             if key_origin is type:
                 if type(dict_key) is str:
                     dict_key = self.deserialize_type__using_value(dict_key)
-                expected_dict_type = get_args(key_class)[0]
-                if dict_key != expected_dict_type and not issubclass(dict_key,expected_dict_type):
-                    raise TypeError(f"Expected {expected_dict_type} class for key but got instance: {dict_key}")
+                key_class_args = get_args(key_class)
+                if key_class_args:
+                    expected_dict_type = key_class_args[0]
+                    if dict_key != expected_dict_type and not issubclass(dict_key,expected_dict_type):
+                        raise TypeError(f"Expected {expected_dict_type} class for key but got instance: {dict_key}")
+                else:
+                    if not isinstance(dict_key, key_class):
+                        raise TypeError(f"Expected {key_class} class for key but got instance: {dict_key}")
                 new__dict_key = dict_key
             elif issubclass(key_class, Type_Safe):
                 new__dict_key = self.deserialize_from_dict(key_class(), dict_key)
