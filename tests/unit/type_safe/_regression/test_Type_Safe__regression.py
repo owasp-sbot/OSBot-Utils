@@ -19,16 +19,19 @@ from osbot_utils.helpers.Random_Guid                         import Random_Guid
 from osbot_utils.type_safe.Type_Safe__Set                    import Type_Safe__Set
 from osbot_utils.type_safe.shared.Type_Safe__Annotations     import type_safe_annotations
 from osbot_utils.type_safe.validators.Validator__Min         import Min
+from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json                                  import json_to_str, str_to_json
 from osbot_utils.utils.Misc                                  import list_set, is_guid
-from osbot_utils.utils.Objects                               import default_value, __
+from osbot_utils.utils.Objects import default_value, __, type_full_name
+
+
+class Node_Value(Type_Safe):
+    value: int
 
 class test_Type_Safe__regression(TestCase):
 
-
     def test__regression__error_when_using__dict_with_type_as_key(self):
-        class Node_Value(Type_Safe):
-            value: int
+
 
         class Container(Type_Safe):
             value_nodes: Dict[Type[Node_Value], Obj_Id]
@@ -39,24 +42,22 @@ class test_Type_Safe__regression(TestCase):
         #with pytest.raises(TypeError, match=re.escape(expected_error)):                        # BUG should have worked
         container_1  = Container(value_nodes={node_type_1: obj_id_1})
 
-        assert container_1.json() == {'value_nodes': { node_type_1: obj_id_1}}
+        assert container_1.json() == {'value_nodes': { type_full_name(node_type_1): obj_id_1}}
 
 
-        # Case 2: Using instance
-        node_type_2 = Node_Value()
+        # Case 2: roundtrip
         obj_id_2    = Obj_Id()
 
-        expected_error = "Expected <class 'test_Type_Safe__regression.test_Type_Safe__regression.test__regression__error_when_using__dict_with_type_as_key.<locals>.Node_Value'> class for key but got instance: <class 'str'>"
+
+        expected_error = "Expected <class 'test_Type_Safe__regression.Node_Value'> class for key but got instance: <class 'str'>"
         with pytest.raises(TypeError, match=re.escape(expected_error)):
             Container(value_nodes={str: obj_id_2})                      # BUG should have raised type safety error
 
 
         # confirm round trip
         container = Container(value_nodes={node_type_1: obj_id_1})
-
         serialized = container.json()
         deserialized = Container.from_json(serialized)
-
         self.assertEqual(container.value_nodes, deserialized.value_nodes)
 
     def test__regression__roundtrip_set_support(self):

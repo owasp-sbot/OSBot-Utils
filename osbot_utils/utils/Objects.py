@@ -284,7 +284,15 @@ def serialize_to_dict(obj):
     elif isinstance(obj, set):
         return [serialize_to_dict(item) for item in obj]
     elif isinstance(obj, dict):
-        return {key: serialize_to_dict(value) for key, value in obj.items()}
+        serialized_dict = {}                                                        # todo: refactor to separate method
+        for key, value in obj.items():
+            if isinstance(key, type):                                           # Handle type keys by converting to fully qualified string
+                serialized_key = f"{key.__module__}.{key.__name__}"
+            else:
+                serialized_key = key
+            serialized_dict[serialized_key] = serialize_to_dict(value)         # Recursively serialize the value
+        return serialized_dict
+        #return {key: serialize_to_dict(value) for key, value in obj.items()}
     elif hasattr(obj, "__dict__"):
         data = {}                                                                   # todo: look at a more advanced version which saved the type of the object, for example with {'__type__': type(obj).__name__}
         for key, value in obj.__dict__.items():

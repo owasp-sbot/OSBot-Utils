@@ -1,5 +1,5 @@
 import pytest
-from typing                                 import Any, Dict
+from typing import Any, Dict, Type, Set
 from unittest                               import TestCase
 from osbot_utils.type_safe.Type_Safe        import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Dict  import Type_Safe__Dict
