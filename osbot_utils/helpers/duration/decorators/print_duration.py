@@ -1,4 +1,4 @@
-from osbot_utils.context_managers.capture_duration import capture_duration
+from osbot_utils.helpers.duration.decorators.capture_duration import capture_duration
 
 
 class print_duration(capture_duration):

@@ -1,7 +1,8 @@
-from osbot_utils.helpers.Print_Table import Print_Table
-from osbot_utils.utils.Call_Stack import Call_Stack
+from osbot_utils.helpers.Print_Table            import Print_Table
+from osbot_utils.helpers.duration.Duration      import Duration
+from osbot_utils.utils.Call_Stack               import Call_Stack
 
-from osbot_utils.testing.Duration import Duration
+
 
 class Hook_Method:
 

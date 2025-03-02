@@ -1,7 +1,8 @@
-from unittest import TestCase
-from unittest.mock import patch, call
-from osbot_utils.utils.Misc import wait, time_delta_to_str
-from osbot_utils.testing.Duration import Duration
+from unittest                               import TestCase
+from unittest.mock                          import patch, call
+from osbot_utils.helpers.duration.Duration  import Duration
+from osbot_utils.utils.Misc                 import wait, time_delta_to_str
+
 
 
 class test_Duration(TestCase):

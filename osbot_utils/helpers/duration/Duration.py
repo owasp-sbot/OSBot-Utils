@@ -7,21 +7,7 @@ from osbot_utils.utils.Call_Stack import Call_Stack
 from osbot_utils.utils.Misc import date_time_now, time_delta_to_str
 
 
-def duration(func):
-    if inspect.iscoroutinefunction(func):
-        # It's an async function
-        @wraps(func)
-        async def async_wrapper(*args, **kwargs):
-            with Duration(prefix=f'.{func.__name__} took'):
-                return await func(*args, **kwargs)
-        return async_wrapper
-    else:
-        # It's a regular function
-        @wraps(func)
-        def sync_wrapper(*args, **kwargs):
-            with Duration(prefix=f'.{func.__name__} took'):
-                return func(*args, **kwargs)
-        return sync_wrapper
+
 
 class Duration:
     """
