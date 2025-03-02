@@ -1,18 +1,11 @@
-import inspect
-from datetime import timedelta
-from functools import wraps
+from datetime                       import timedelta
 
-from osbot_utils.utils.Call_Stack import Call_Stack
-
-from osbot_utils.utils.Misc import date_time_now, time_delta_to_str
+from osbot_utils.helpers.duration.schemas.Schema__Duration import Schema__Duration
+from osbot_utils.utils.Call_Stack   import Call_Stack
+from osbot_utils.utils.Misc         import date_time_now, time_delta_to_str
 
 
-
-
-class Duration:
-    """
-    Helper class for to capture time duration
-    """
+class Duration:                                     # Helper class for to capture time duration
     def __init__(self, prefix="\nDuration:", print_result=True, use_utc=True, print_stack=False):
         self.use_utc            = use_utc
         self.print_result       = print_result
@@ -32,6 +25,15 @@ class Duration:
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         self.end()
+
+    def data(self) -> Schema__Duration: # Returns the duration data in Schema__Duration format.
+        if not self.duration:
+            raise ValueError("Duration has not been calculated yet. Call end() first.")
+
+        return Schema__Duration( utc                = self.use_utc               ,
+                                 timestamp_start    = self.start_time.timestamp(),
+                                 timestamp_end      = self.end_time  .timestamp(),
+                                 duration_seconds   = self.seconds             ())
 
     def start(self):
         self.start_time = date_time_now(use_utc=self.use_utc, return_str=False)

@@ -2,14 +2,15 @@ import inspect
 import traceback
 import typing
 
-from osbot_utils.helpers.flows.models.Flow_Run__Event_Data  import Flow_Run__Event_Data
-from osbot_utils.utils.Misc                                 import random_id, lower
-from osbot_utils.helpers.Dependency_Manager                 import Dependency_Manager
-from osbot_utils.helpers.flows.actions.Flow__Events         import flow_events
-from osbot_utils.testing.Stdout                             import Stdout
-from osbot_utils.helpers.CFormat                            import CFormat, f_dark_grey, f_red, f_blue, f_bold
-from osbot_utils.type_safe.Type_Safe                        import Type_Safe
-from osbot_utils.helpers.flows.Flow                         import Flow
+from osbot_utils.helpers.flows.actions.Task__Stats__Collector import Task__Stats__Collector
+from osbot_utils.helpers.flows.models.Flow_Run__Event_Data    import Flow_Run__Event_Data
+from osbot_utils.utils.Misc                                   import random_id, lower
+from osbot_utils.helpers.Dependency_Manager                   import Dependency_Manager
+from osbot_utils.helpers.flows.actions.Flow__Events           import flow_events
+from osbot_utils.testing.Stdout                               import Stdout
+from osbot_utils.helpers.CFormat                              import CFormat, f_dark_grey, f_red, f_blue, f_bold
+from osbot_utils.type_safe.Type_Safe                          import Type_Safe
+from osbot_utils.helpers.flows.Flow                           import Flow
 
 TASK__RANDOM_ID__PREFIX    = 'task_id__'
 
@@ -18,6 +19,7 @@ TASK__RANDOM_ID__PREFIX    = 'task_id__'
 class Task(Type_Safe):
     data                : dict                          # dict available to the task to add and collect data
     task_id             : str
+    task_stats          : Task__Stats__Collector
     task_name           : str                           # make this the function mame
     cformat             : CFormat
     resolved_args       : tuple
@@ -63,6 +65,9 @@ class Task(Type_Safe):
         if not self.task_id:
             self.task_id = self.random_task_id()
 
+        execution_order = self.task_flow.flow_stats.get_next_execution_order()
+        self.task_stats.start(flow_id=self.task_flow.flow_id, task_id=self.task_id, task_name=self.task_name, execution_order=execution_order)
+
         self.on_task_start()
         flow_events.on__task__start(self.task_event_data())
 
@@ -105,6 +110,11 @@ class Task(Type_Safe):
         self.task_flow.log_captured_stdout(stdout)
 
     def execute__after(self):
+
+        self.task_stats.end(task_error=self.task_error)
+        self.task_flow.flow_stats.add_task_stats(self.task_stats.stats)
+
+
         self.print_task_return_value()
 
         if self.task_error:
