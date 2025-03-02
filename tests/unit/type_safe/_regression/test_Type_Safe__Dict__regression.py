@@ -1,9 +1,8 @@
-from unittest import TestCase
-
 import pytest
-from typing import Dict, Type, Set
-from osbot_utils.type_safe.Type_Safe       import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
+from unittest                               import TestCase
+from typing                                 import Dict, Type, Set
+from osbot_utils.type_safe.Type_Safe        import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Dict  import Type_Safe__Dict
 
 
 class test_Type_Safe__Dict__regression(TestCase):

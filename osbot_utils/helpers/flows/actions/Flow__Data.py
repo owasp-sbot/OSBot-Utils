@@ -5,7 +5,6 @@ from osbot_utils.helpers.flows.models.Schema__Flow__Artifact    import Schema__F
 from osbot_utils.helpers.flows.models.Schema__Flow__Result      import Schema__Flow__Result
 from osbot_utils.helpers.flows.schemas.Schema__Flow             import Schema__Flow
 from osbot_utils.helpers.flows.schemas.Schema__Flow__Data       import Schema__Flow__Data
-#from osbot_utils.helpers.flows.schemas.Schema__Flow__Event     import Schema__Flow__Event
 from osbot_utils.helpers.flows.schemas.Schema__Flow__Log        import Schema__Flow__Log
 from osbot_utils.helpers.flows.schemas.Schema__Flow__Task__Data import Schema__Flow__Task__Data
 from osbot_utils.type_safe.Type_Safe                            import Type_Safe

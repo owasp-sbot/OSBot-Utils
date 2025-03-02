@@ -176,7 +176,7 @@ class Type_Safe__Step__From_Json:
         if type(json_data) is str:
             json_data = json_parse(json_data)
         if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
-            return self.deserialize_from_dict(_cls(), json_data,raise_on_not_found=raise_on_not_found)
+            return self.deserialize_from_dict(_cls(), json_data, raise_on_not_found=raise_on_not_found)
         return _cls()
 
 type_safe_step_from_json = Type_Safe__Step__From_Json()

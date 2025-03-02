@@ -54,14 +54,14 @@ class test_Performance_Checks__Session(TestCase):
 
         #print()
         with Performance_Measure__Session(assert_enabled=True) as _:
-            _.measure(str        ).print().assert_time(self.time_100_ns , self.time_0_ns                                                          )
-            _.measure(Random_Guid).print().assert_time(self.time_3_kns  , self.time_5_kns, self.time_6_kns , self.time_7_kns ,  self.time_8_kns                      )
-            _.measure(An_Class_1 ).print().assert_time(self.time_100_ns , self.time_200_ns                                                                                            )
-            _.measure(An_Class_2 ).print().assert_time(self.time_600_ns , self.time_700_ns , self.time_800_ns, self.time_1_kns , self.time_2_kns , self.time_3_kns , self.time_4_kns , self.time_5_kns , self.time_6_kns,  self.time_7_kns   )
-            _.measure(An_Class_3 ).print().assert_time(self.time_1_kns  , self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
-            _.measure(An_Class_4 ).print().assert_time(self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
-            _.measure(An_Class_5 ).print().assert_time(self.time_1_kns  , self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
-            _.measure(An_Class_6 ).print().assert_time(self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_7_kns , self.time_8_kns ,self.time_9_kns , self.time_10_kns, self.time_20_kns                    )
+            _.measure(str        ).assert_time(self.time_100_ns , self.time_0_ns                                                          )
+            _.measure(Random_Guid).assert_time(self.time_3_kns  , self.time_5_kns, self.time_6_kns , self.time_7_kns ,  self.time_8_kns                      )
+            _.measure(An_Class_1 ).assert_time(self.time_100_ns , self.time_200_ns                                                                                            )
+            _.measure(An_Class_2 ).assert_time(self.time_600_ns , self.time_700_ns , self.time_800_ns, self.time_1_kns , self.time_2_kns , self.time_3_kns , self.time_4_kns , self.time_5_kns , self.time_6_kns,  self.time_7_kns   )
+            _.measure(An_Class_3 ).assert_time(self.time_1_kns  , self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
+            _.measure(An_Class_4 ).assert_time(self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
+            _.measure(An_Class_5 ).assert_time(self.time_1_kns  , self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_8_kns , self.time_9_kns ,self.time_10_kns, self.time_20_kns                     )
+            _.measure(An_Class_6 ).assert_time(self.time_2_kns  , self.time_3_kns , self.time_4_kns , self.time_5_kns ,   self.time_7_kns , self.time_8_kns ,self.time_9_kns , self.time_10_kns, self.time_20_kns                    )
 
         #type_safe_cache.print_cache_hits()
 

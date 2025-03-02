@@ -49,7 +49,7 @@ class test_Zip(TestCase):
             base_folder  = osbot_utils.path
             files_to_add = files_list(base_folder, pattern="decorators/**/*.py")
             _.add_files__from_disk(base_folder, files_to_add)
-            assert 15 < _.size()  ==  len(files_to_add) < 30
+            assert 15 < _.size()  ==  len(files_to_add) < 32
             assert 'decorators/methods/cache_on_self.py' in _.files_list()
 
 

@@ -1,21 +1,21 @@
 import asyncio
 import logging
 import typing
-
-from osbot_utils.helpers.Dependency_Manager                 import Dependency_Manager
-from osbot_utils.helpers.flows.actions.Flow__Data           import Flow__Data
-from osbot_utils.helpers.flows.models.Flow_Run__Event       import Flow_Run__Event
-from osbot_utils.type_safe.Type_Safe                        import Type_Safe
-from osbot_utils.helpers.CFormat                            import CFormat, f_dark_grey, f_magenta, f_bold
-from osbot_utils.helpers.flows.models.Flow_Run__Config      import Flow_Run__Config
-from osbot_utils.helpers.flows.actions.Flow__Events         import flow_events
-from osbot_utils.helpers.flows.models.Flow_Run__Event_Data  import Flow_Run__Event_Data
-from osbot_utils.testing.Stdout                             import Stdout
-from osbot_utils.utils.Dev                                  import pprint
-from osbot_utils.utils.Misc                                 import random_id, lower, time_now
-from osbot_utils.utils.Python_Logger                        import Python_Logger
-from osbot_utils.utils.Str                                  import ansis_to_texts
-from osbot_utils.utils.Threads                              import invoke_in_new_event_loop
+from osbot_utils.helpers.Dependency_Manager                     import Dependency_Manager
+from osbot_utils.helpers.flows.actions.Flow__Data               import Flow__Data
+from osbot_utils.helpers.flows.actions.Flow__Stats__Collector   import Flow__Stats__Collector
+from osbot_utils.helpers.flows.models.Flow_Run__Event           import Flow_Run__Event
+from osbot_utils.type_safe.Type_Safe                            import Type_Safe
+from osbot_utils.helpers.CFormat                                import CFormat, f_dark_grey, f_magenta, f_bold
+from osbot_utils.helpers.flows.models.Flow_Run__Config          import Flow_Run__Config
+from osbot_utils.helpers.flows.actions.Flow__Events             import flow_events
+from osbot_utils.helpers.flows.models.Flow_Run__Event_Data      import Flow_Run__Event_Data
+from osbot_utils.testing.Stdout                                 import Stdout
+from osbot_utils.utils.Dev                                      import pprint
+from osbot_utils.utils.Misc                                     import random_id, lower, time_now
+from osbot_utils.utils.Python_Logger                            import Python_Logger
+from osbot_utils.utils.Str                                      import ansis_to_texts
+from osbot_utils.utils.Threads                                  import invoke_in_new_event_loop
 
 FLOW__RANDOM_ID__PREFIX    = 'flow_id__'
 FLOW__RANDOM_NAME__PREFIX  = 'flow_name__'
@@ -23,9 +23,10 @@ FLOW__LOGGING__LOG_FORMAT  = '%(asctime)s.%(msecs)03d | %(levelname)-8s | %(mess
 FLOW__LOGGING__DATE_FORMAT = '%H:%M:%S'
 
 
-# todo: add flow duration
+# todo: replace the flow_id (and task_id) with either Obj_Id or Safe_Id
 class Flow(Type_Safe):
     flow_data          : Flow__Data
+    flow_stats         : Flow__Stats__Collector
     captured_exec_logs : list
     data               : dict                   # dict available to the tasks to add and collect data
     flow_id            : str                    # rename to flow_run_id (or also capture the flow_run_id)
@@ -82,6 +83,7 @@ class Flow(Type_Safe):
 
     def execute_flow(self, flow_run_params=None):                               # todo: see if it makes more sense to call this start_flow_run
         self.check_setup()
+        self.flow_stats.start(flow_id=self.flow_id, flow_name=self.flow_name)   # start the flow stats collector
         flow_events.on__flow__start(self.flow_event_data())
         self.log_debug(f"Created flow run '{self.f__flow_id()}' for flow '{self.f__flow_name()}'")
         self.set_flow_run_params(flow_run_params)
@@ -101,6 +103,7 @@ class Flow(Type_Safe):
             self.log_error(self.cformat.red(f"Error executing flow: {error}"))
             self.flow_data.set_error(error)
 
+        self.flow_stats.end             (self.flow_error)
         self.log_captured_stdout        (stdout)
         self.print_flow_return_value    ()
         self.print_flow_finished_message()
