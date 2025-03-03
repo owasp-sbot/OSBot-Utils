@@ -122,6 +122,11 @@ class Flow(Type_Safe):
     def captured_logs(self):
         return ansis_to_texts(self.captured_exec_logs)
 
+    def durations(self):
+        return self.flow_stats.durations()
+
+    def durations__with_tasks_status(self):
+        return self.flow_stats.durations__with_tasks_status()
 
     async def invoke_flow_target__thread(self, flow):                               # this is a REALLY important method which is used to pin the flow object to the call stack
         return await flow.flow_target(*flow.resolved_args, **flow.resolved_kwargs)          #   which is then used by the Task.find_flow method to find it
