@@ -68,13 +68,16 @@ class Flow__Stats__Collector(Type_Safe):
 
     def durations(self):
         with self.stats as _:
-            tasks_durations = dict()
-            flow_durations  = dict(flow_name     = _.flow_name                ,
-                                   flow_duration = _.duration.duration_seconds,
-                                   flow_status   = _.status.value             ,
-                                   flow_tasks    =  tasks_durations           )
+            if _.status is None:
+                flow_durations = dict()
+            else:
+                tasks_durations = dict()
+                flow_durations  = dict(flow_name     = _.flow_name                ,
+                                       flow_duration = _.duration.duration_seconds,
+                                       flow_status   = _.status.value             ,
+                                       flow_tasks    =  tasks_durations           )
 
-            for task_id, flow_task in self.stats.tasks_stats.items():
+                for task_id, flow_task in self.stats.tasks_stats.items():
 
-                tasks_durations[flow_task.task_name] = flow_task.duration.duration_seconds
+                    tasks_durations[flow_task.task_name] = flow_task.duration.duration_seconds
         return flow_durations
