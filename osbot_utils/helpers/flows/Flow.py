@@ -138,6 +138,10 @@ class Flow(Type_Safe):
         else:
             self.flow_return_value  = self.flow_target(*self.resolved_args, **self.resolved_kwargs)     # if the flow is sync, just execute the flow target
 
+    def flow_output(self):
+        return dict(output    =  self.flow_return_value,
+                    durations = self.durations()       )
+
     def f__flow_id(self):
         return self.cformat.green(self.flow_id)
 
