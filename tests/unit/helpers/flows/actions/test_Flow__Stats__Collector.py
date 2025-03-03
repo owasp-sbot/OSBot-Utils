@@ -3,7 +3,8 @@ from unittest                                                               impo
 from osbot_utils.helpers.duration.Duration                                  import Duration
 from osbot_utils.helpers.flows.Task                                         import Task
 from osbot_utils.helpers.flows.Flow                                         import Flow
-from osbot_utils.helpers.flows.actions.Flow__Stats__Collector               import Flow__Stats__Collector
+from osbot_utils.helpers.flows.actions.Flow__Stats__Collector import Flow__Stats__Collector, \
+    FLOW__ERROR_MESSAGE__TASK_FAILED
 from osbot_utils.helpers.flows.schemas.Schema__Flow__Status                 import Schema__Flow__Status
 from osbot_utils.helpers.flows.schemas.Schema__Task__Stats                  import Schema__Task__Stats
 from osbot_utils.utils.Misc                                                 import list_set
@@ -144,12 +145,12 @@ class test_Flow__Stats__Collector(TestCase):
             duration_flow   = collector.duration.data().obj()
             duration_task_1 = collector.stats.tasks_stats['task1_id'].duration.obj()
             duration_task_2 = collector.stats.tasks_stats['task2_id'].duration.obj()
-            assert collector.stats.obj() == __(error_message = None          ,
-                                               duration      = duration_flow ,
-                                               failed_tasks  = 1             ,
-                                               flow_id       = flow.flow_id  ,
-                                               flow_name     = flow_name     ,
-                                               status        = 'COMPLETED'   ,
+            assert collector.stats.obj() == __(error_message = FLOW__ERROR_MESSAGE__TASK_FAILED ,
+                                               duration      = duration_flow                    ,
+                                               failed_tasks  = 1                                ,
+                                               flow_id       = flow.flow_id                     ,
+                                               flow_name     = flow_name                        ,
+                                               status        = 'FAILED'                         ,
                                                tasks_stats=__(task1_id=__(error_message   = None            ,
                                                                           task_id         = 'task1_id'      ,
                                                                           task_name       = 'task1_name'    ,
@@ -166,3 +167,13 @@ class test_Flow__Stats__Collector(TestCase):
                                                                           parent_flow_id  = flow.flow_id      )),
                                                total_tasks=2)
             assert flow.flow_stats.json() == flow.flow_stats.stats.json()
+
+            assert flow.durations()  == { 'flow_duration':  duration_flow.duration_seconds,
+                                          'flow_name'    : 'full_lifecycle_flow'                ,
+                                          'flow_status'  : 'failed'                             ,
+                                          'tasks'        : { 1: { 'task_duration': duration_task_1.duration_seconds,
+                                                                  'task_name'    : 'task1_name' ,
+                                                                  'task_status'  : 'completed'  },
+                                                             2: { 'task_duration': duration_task_2.duration_seconds,
+                                                                  'task_name'    : 'task2_name' ,
+                                                                  'task_status'  : 'failed'     }}}
