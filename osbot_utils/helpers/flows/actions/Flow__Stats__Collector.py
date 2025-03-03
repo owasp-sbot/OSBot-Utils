@@ -50,13 +50,13 @@ class Flow__Stats__Collector(Type_Safe):
     def json(self):                                                                                                     # Return JSON representation of the stats.
         return self.stats.json()
 
-    def durations(self):
+    def durations__with_tasks_status(self):
         with self.stats as _:
             tasks_durations = dict()
             flow_durations  = dict(flow_name     = _.flow_name                ,
                                    flow_duration = _.duration.duration_seconds,
                                    flow_status   = _.status.value             ,
-                                   tasks         =  tasks_durations           )
+                                   flow_tasks    =  tasks_durations           )
 
             for task_id, flow_task in self.stats.tasks_stats.items():
                 task_duration   = dict(task_name = flow_task.task_name                     ,
@@ -64,4 +64,17 @@ class Flow__Stats__Collector(Type_Safe):
                                        task_status    = flow_task.status.value             )
                 execution_order = flow_task.execution_order
                 tasks_durations[execution_order] = task_duration
+        return flow_durations
+
+    def durations(self):
+        with self.stats as _:
+            tasks_durations = dict()
+            flow_durations  = dict(flow_name     = _.flow_name                ,
+                                   flow_duration = _.duration.duration_seconds,
+                                   flow_status   = _.status.value             ,
+                                   flow_tasks    =  tasks_durations           )
+
+            for task_id, flow_task in self.stats.tasks_stats.items():
+
+                tasks_durations[flow_task.task_name] = flow_task.duration.duration_seconds
         return flow_durations

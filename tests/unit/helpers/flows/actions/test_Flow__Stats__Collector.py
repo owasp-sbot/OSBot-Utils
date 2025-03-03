@@ -168,12 +168,18 @@ class test_Flow__Stats__Collector(TestCase):
                                                total_tasks=2)
             assert flow.flow_stats.json() == flow.flow_stats.stats.json()
 
-            assert flow.durations()  == { 'flow_duration':  duration_flow.duration_seconds,
-                                          'flow_name'    : 'full_lifecycle_flow'                ,
-                                          'flow_status'  : 'failed'                             ,
-                                          'tasks'        : { 1: { 'task_duration': duration_task_1.duration_seconds,
-                                                                  'task_name'    : 'task1_name' ,
-                                                                  'task_status'  : 'completed'  },
-                                                             2: { 'task_duration': duration_task_2.duration_seconds,
-                                                                  'task_name'    : 'task2_name' ,
-                                                                  'task_status'  : 'failed'     }}}
+
+            assert flow.durations()                     == { 'flow_duration':  duration_flow.duration_seconds,
+                                                             'flow_name'    : 'full_lifecycle_flow'                ,
+                                                             'flow_status'  : 'failed'                             ,
+                                                             'flow_tasks'   : { 'task1_name': duration_task_1.duration_seconds,
+                                                                                'task2_name': duration_task_2.duration_seconds }}
+            assert flow.durations__with_tasks_status()  == { 'flow_duration':  duration_flow.duration_seconds,
+                                                             'flow_name'    : 'full_lifecycle_flow'                ,
+                                                             'flow_status'  : 'failed'                             ,
+                                                             'flow_tasks'   : { 1: { 'task_duration': duration_task_1.duration_seconds,
+                                                                                     'task_name'    : 'task1_name' ,
+                                                                                     'task_status'  : 'completed'  },
+                                                                                2: { 'task_duration': duration_task_2.duration_seconds,
+                                                                                     'task_name'    : 'task2_name' ,
+                                                                                     'task_status'  : 'failed'     }}}
