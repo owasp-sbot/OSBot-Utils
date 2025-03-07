@@ -42,7 +42,22 @@ class Type_Safe__Method:                                                        
             self.validate_none_value(param_name, is_optional, has_default)                # Validate None value
             return                                                                        # Exit early
 
+        if is_optional:                                                                     # Extract the non-None type from Optional
+            non_none_type   = next(arg for arg in get_args(expected_type) if arg is not type(None))
+            non_none_origin = get_origin(non_none_type)
+
+            if non_none_origin is type:                                                     # If it's Optional[Type[T]], validate it
+                self.validate_type_parameter(param_name, param_value, non_none_type)
+                return
+            else:                                                                           # If it's any other Optional type, validate against the non-None type
+                self.check_parameter_value(param_name, param_value, non_none_type, bound_args)
+                return
+
         origin_type = get_origin(expected_type)                                           # Get base type
+
+        if origin_type is type:
+            self.validate_type_parameter(param_name, param_value, expected_type)
+            return
 
         if self.is_list_type(origin_type):                                               # Check if list type
             self.validate_list_type(param_name, param_value, expected_type)              # Validate list
@@ -52,9 +67,9 @@ class Type_Safe__Method:                                                        
             self.validate_union_type(param_name, param_value, expected_type)             # Validate union
             return                                                                       # Exit early
 
-        if self.try_basic_type_conversion(param_value, expected_type, param_name,        # Try basic type conversion
-                                        bound_args):                                     # Pass bound args
-            return                                                                       # Exit if conversion successful
+        # if self.try_basic_type_conversion(param_value, expected_type, param_name,        # Try basic type conversion
+        #                                 bound_args):                                     # Pass bound args
+        #    return                                                                       # Exit if conversion successful
 
         self.validate_direct_type(param_name, param_value, expected_type)                # Direct type validation
 
@@ -84,6 +99,19 @@ class Type_Safe__Method:                                                        
         for i, item in enumerate(param_value):                                        # Check each list item
             if not isinstance(item, item_type):                                       # Validate item type
                 raise ValueError(f"List item at index {i} expected type {item_type}, but got {type(item)}")  # Raise error for invalid item
+
+    def validate_type_parameter(self, param_name: str, param_value: Any, expected_type: Any):           # Validate a Type[T] parameter
+        if not isinstance(param_value, type):
+            raise ValueError(f"Parameter '{param_name}' expected a type class but got {type(param_value)}")
+
+
+        type_args = get_args(expected_type)                                                         # Extract the T from Type[T]
+        if type_args:
+            required_base = type_args[0]                                                            # get direct type (this doesn't handle Forward refs)
+            if hasattr(required_base, '__origin__') or isinstance(required_base, type):
+                if not issubclass(param_value, required_base):
+                    raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got "
+                                     f"{param_value.__module__}.{param_value.__name__} which is not a subclass of {required_base}")
 
     def is_union_type(self, origin_type: Any, is_optional: bool) -> bool:             # Check if type is a Union
         return origin_type is Union and not is_optional                               # Must be Union but not Optional

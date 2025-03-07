@@ -1,8 +1,11 @@
+import re
 import sys
 import pytest
 from unittest                                   import TestCase
-from typing                                     import Union, Optional, List
+from typing import Union, Optional, List, Type
 from dataclasses                                import dataclass
+
+from osbot_utils.helpers.Timestamp_Now import Timestamp_Now
 from osbot_utils.type_safe.Type_Safe            import Type_Safe
 from osbot_utils.helpers.Safe_Id                import Safe_Id
 from osbot_utils.helpers.Random_Guid            import Random_Guid
@@ -17,9 +20,9 @@ class test__decorator__type_safe(TestCase):
     # Basic Type Safety Tests
     def test_basic_type_safety(self):
         # Valid cases
-        assert self.test_instance.basic_method(Safe_Id("test"), 42) == "test-42"
-        assert self.test_instance.basic_method("an_safe_id"   , 42) == "an_safe_id-42"
-        assert self.test_instance.basic_method("made../..safe", 42) == "made_____safe-42"
+        assert self.test_instance.basic_method(Safe_Id("test"         ), 42) == "test-42"
+        assert self.test_instance.basic_method(Safe_Id("an_safe_id"   ), 42) == "an_safe_id-42"
+        assert self.test_instance.basic_method(Safe_Id("made../..safe"), 42) == "made_____safe-42"
 
         # Invalid cases
         with pytest.raises(ValueError, match="Parameter 'param' expected type <class 'osbot_utils.helpers.Safe_Id.Safe_Id'>, but got <class 'bytes'>"):
@@ -40,21 +43,6 @@ class test__decorator__type_safe(TestCase):
         # Test with non-optional parameters
         with pytest.raises(ValueError, match="Parameter 'param' is not optional but got None"):
             self.test_instance.basic_method(None, 42)
-
-    # Type Conversion Tests
-    def test_type_conversion(self):
-        # Test conversion from string to Safe_Id
-        result = self.test_instance.convertible_method("valid_id")
-        assert isinstance(result, Safe_Id)
-        assert str(result) == "valid_id"
-
-        # Test conversion from int to str
-        assert self.test_instance.string_method     (42) == "42"
-        assert self.test_instance.convertible_method(42) == "42"      # ints can be converted to strings and to Safe_Id
-        # Test failed conversion
-        with self.assertRaises(ValueError) as context:
-            self.test_instance.convertible_method(b"123")  # Can't convert bytes to Safe_Id
-        assert "expected type" in str(context.exception).lower()
 
     # Union Type Tests
     def test_union_types(self):
@@ -146,18 +134,109 @@ class test__decorator__type_safe(TestCase):
         def example_3(value: Safe_Id, an_str: str= None):
             return dict(value=value, an_str=an_str)
 
-        assert example_1('a', 1) == {'param_a': 'a', 'param_b': 1}
-        assert example_1('a', param_b=1) == {'param_a': 'a', 'param_b': 1}
+        assert example_1('a', 1)                == {'param_a': 'a', 'param_b': 1}
+        assert example_1('a', param_b=1)                 == {'param_a': 'a', 'param_b': 1}
 
-        assert example_2(Safe_Id('test_1'))                 == {'value': 'test_1'}
-        assert type(example_2(Safe_Id('test_2'))['value'])  is Safe_Id
-        assert example_2('test_3')                          == {'value': 'test_3'}
-        assert type(example_2('test_3')['value'])           is Safe_Id
-        assert type(example_2(value='test_3')['value'])     is Safe_Id
+        assert example_2(Safe_Id('test_1'))                      == {'value': 'test_1'}
+        assert type(example_2(Safe_Id('test_2'))['value'])       is Safe_Id
+        assert example_2(Safe_Id('test_3'))                      == {'value': 'test_3'}
+        assert type(example_2(Safe_Id('test_3'))['value'])       is Safe_Id
+        assert type(example_2(value=Safe_Id('test_3'))['value']) is Safe_Id
 
-        assert example_3('test_3')                          == {'an_str': None, 'value': 'test_3'}
-        assert type(example_3('test_3')['value'])           is Safe_Id
-        assert type(example_3(value='test_3')['value'])     is Safe_Id
+        assert example_3(Safe_Id('test_3'))                      == {'an_str': None, 'value': 'test_3'}
+        assert type(example_3(Safe_Id('test_3'))['value'])       is Safe_Id
+        assert type(example_3(value=Safe_Id('test_3'))['value']) is Safe_Id
+
+
+    def test__fixed__type_safe_decorator__using_optional(self):                 # Test to verify that @type_safe correctly handles Optional[Type[T]] parameters and properly validates the type constraints when a value is provided.
+
+        class StringClass(Type_Safe):
+            value: str
+
+        class IntClass(Type_Safe):
+            value: int
+
+        @type_safe
+        def test_function(an_str           : str,
+                          an_int           : int,
+                          optional_str     : Optional[str]       = None,
+                          optional_type    : Optional[type]      = None,
+                          optional_type_str: Optional[Type[str]] = None,
+                          optional_type_int: Optional[Type[int]] = None):
+            return {
+                'an_str': an_str,
+                'an_int': an_int,
+                'optional_str': optional_str,
+                'optional_type': optional_type,
+                'optional_type_str': optional_type_str,
+                'optional_type_int': optional_type_int
+            }
+
+        # Test basic cases work
+        result = test_function("answer", 42)
+        assert result['an_str'] == "answer"
+        assert result['an_int'] == 42
+
+        # Test with keyword arguments
+        result = test_function(an_str="answer", an_int=42)
+        assert result['an_str'] == "answer"
+        assert result['an_int'] == 42
+
+        # # Test required parameter validation
+        expected_error_1 = "Parameter 'an_int' expected type <class 'int'>, but got <class 'str'>"
+        with pytest.raises(ValueError, match=re.escape(expected_error_1)):
+            test_function(an_str="answer", an_int="not_an_int")
+
+        # Test Optional[str] validation
+        result = test_function(an_str="answer", an_int=42, optional_str="valid_string")
+        assert result['optional_str'] == "valid_string"
+
+        # Should raise error for wrong type in Optional[str]
+        expected_error_2 = "Parameter 'optional_str' expected type"
+        with pytest.raises(ValueError, match=expected_error_2):
+            test_function(an_str="answer", an_int=42, optional_str=42.12)
+
+        # Test Optional[type] validation
+        result = test_function(an_str="answer", an_int=42, optional_type=TestCase)
+        assert result['optional_type'] == TestCase
+
+        # Should raise error for non-type in Optional[type]
+        expected_error_3 = "Parameter 'optional_type' expected type <class 'type'>, but got <class 'str'>"
+        with pytest.raises(ValueError, match=expected_error_3):
+            test_function(an_str="answer", an_int=42, optional_type="not_a_type")
+
+
+        # Test Optional[Type[str]] validation
+        result = test_function(an_str="answer", an_int=42, optional_type_str=str)
+        assert result['optional_type_str'] == str
+
+        result = test_function(an_str="answer", an_int=42, optional_type_str=Safe_Id)
+        assert result['optional_type_str'] == Safe_Id  # Safe_Id is subclass of str
+
+        # Should raise error for Type[int] in Optional[Type[str]]
+        expected_error_4 = "not a subclass of"
+        with pytest.raises(ValueError, match=expected_error_4):
+            test_function(an_str="answer", an_int=42, optional_type_str=int)
+
+        # Should raise error for Timestamp_Now in Optional[Type[str]]
+        with pytest.raises(ValueError, match=expected_error_4):
+            test_function(an_str="answer", an_int=42, optional_type_str=Timestamp_Now)
+
+        # Test Optional[Type[int]] validation
+        result = test_function(an_str="answer", an_int=42, optional_type_int=int)
+        assert result['optional_type_int'] == int
+
+        result = test_function(an_str="answer", an_int=42, optional_type_int=Timestamp_Now)
+        assert result['optional_type_int'] == Timestamp_Now  # Timestamp_Now is subclass of int
+
+        # Should raise error for Type[str] in Optional[Type[int]]
+        with pytest.raises(ValueError, match=expected_error_4):
+            test_function(an_str="answer", an_int=42, optional_type_int=str)
+
+        # Should raise error for Safe_Id in Optional[Type[int]]
+        with pytest.raises(ValueError, match=expected_error_4):
+            test_function(an_str="answer", an_int=42, optional_type_int=Safe_Id)
+
 
 # Test Support Classes
 
