@@ -1,14 +1,18 @@
 import re
 import sys
 import pytest
-from unittest                                   import TestCase
-from typing                                     import Union, Optional, List, Type
-from dataclasses                                import dataclass
-from osbot_utils.helpers.Timestamp_Now          import Timestamp_Now
-from osbot_utils.type_safe.Type_Safe            import Type_Safe
-from osbot_utils.helpers.Safe_Id                import Safe_Id
-from osbot_utils.helpers.Random_Guid            import Random_Guid
-from osbot_utils.type_safe.decorators.type_safe import type_safe
+from unittest                                           import TestCase
+from typing                                             import Union, Optional, List, Type
+from dataclasses                                        import dataclass
+from osbot_utils.helpers.Obj_Id                         import Obj_Id
+from osbot_utils.helpers.Timestamp_Now                  import Timestamp_Now
+from osbot_utils.helpers.safe_str.Safe_Str              import Safe_Str
+from osbot_utils.helpers.safe_str.Safe_Str__File_Name   import Safe_Str__File_Name
+from osbot_utils.helpers.safe_str.Safe_Str__Hash        import Safe_Str__Hash
+from osbot_utils.type_safe.Type_Safe                    import Type_Safe
+from osbot_utils.helpers.Safe_Id                        import Safe_Id
+from osbot_utils.helpers.Random_Guid                    import Random_Guid
+from osbot_utils.type_safe.decorators.type_safe         import type_safe
 
 
 class test__decorator__type_safe(TestCase):
@@ -236,9 +240,47 @@ class test__decorator__type_safe(TestCase):
         with pytest.raises(ValueError, match=expected_error_4):
             test_function(an_str="answer", an_int=42, optional_type_int=Safe_Id)
 
+    def test_type_safe__detects_value_types(self):
+        def test_list_1(xyz: List[str]):
+            return xyz
+
+        @type_safe
+        def test_list_2(xyz: List[str]):
+            return xyz
+
+        assert test_list_1(['a', 'b', 123]) == ['a', 'b', 123]                  # normal python code will not pick up the bug
+
+        expected_error = ("List item at index 2 expected type <class 'str'>, "
+                          "but got <class 'int'>")
+        with pytest.raises(ValueError, match=expected_error):                   # but Type_Safe's @type_safe will
+            test_list_2(['a', 'b', 123])
+
+
+
+    def test_type_safe_only_allows_immutable_assignments(self):
+        @type_safe
+        def an_method__with_only_immutable_vars          (an_str:str, an_int:int, an_bytes:bytes): pass
+        @type_safe
+        def an_method__with_immutable_vars_and_values    (an_str: str='str', an_int: int=42, an_bytes: bytes=b"bytes"): pass
+        @type_safe
+        def an_method__with_mutable_vars                 (an_list:list, an_dict:dict, an_set: set, an_tuple: tuple): pass
+        @type_safe
+        def an_method__with_immutable_classes            (obj_id:Obj_Id, safe_id: Safe_Id, safe_str: Safe_Str): pass
+        @type_safe
+        def an_method__with_immutable_classes_and_values (obj_id: Obj_Id=Obj_Id(), safe_id: Safe_Id = Safe_Id(), safe_str: Safe_Str=Safe_Str()): pass
+        @type_safe
+        def an_method__with_immutable_safe_str_and_values(safe_str_1: Safe_Str = Safe_Str()                   ,
+                                                          safe_str_2: Safe_Str = Safe_Str__File_Name("a.txt") ,
+                                                          safe_str_3: Safe_Str = Safe_Str__Hash     ("1234567890")): pass
+
+        an_method__with_only_immutable_vars         ("str", 42, b"bytes")
+        an_method__with_immutable_vars_and_values   ()
+        an_method__with_mutable_vars                ([], {}, set(), tuple())
+        an_method__with_immutable_classes           (Obj_Id(), Safe_Id(), Safe_Str())
+        an_method__with_immutable_classes_and_values()
+        an_method__with_immutable_safe_str_and_values()
 
 # Test Support Classes
-
 @dataclass
 class ComplexType(Type_Safe):
     id: str

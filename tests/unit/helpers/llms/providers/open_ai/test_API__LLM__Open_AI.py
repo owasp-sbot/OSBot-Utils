@@ -2,8 +2,7 @@ from unittest                                                               impo
 from osbot_utils.helpers.llms.builders.LLM_Request_Builder__Open_AI         import LLM_Request_Builder__Open_AI
 from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI           import API__LLM__Open_AI, ENV_NAME_OPEN_AI__API_KEY
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
-from osbot_utils.utils.Dev                                                  import pprint
-from osbot_utils.utils.Env                                                  import load_dotenv, get_env, env_value
+from osbot_utils.utils.Env                                                  import load_dotenv, get_env
 from osbot_utils.utils.Objects                                              import obj, __
 
 
@@ -37,7 +36,7 @@ class test_API__LLM__Open_AI(TestCase):
         response       = self.api_llm.execute(payload)
         assert obj(response).choices[0].message.content == 'December'
 
-        pprint(response)
+        #pprint(response)
 
     def test_execute_with_structured_output(self):
         class Current_Month(Type_Safe):
@@ -67,5 +66,5 @@ class test_API__LLM__Open_AI(TestCase):
         current_month = Current_Month.from_json(json_data)
 
         assert current_month.obj() == __(month='December')
-        pprint(current_month.json())
-        pprint(response_json)
+        # pprint(current_month.json())
+        # pprint(response_json)

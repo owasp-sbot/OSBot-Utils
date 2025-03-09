@@ -2,6 +2,8 @@ import inspect                                                                  
 from enum       import Enum
 from typing     import get_args, get_origin, Union, List, Any, Dict                     # For type hinting utilities
 
+from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables import IMMUTABLE_TYPES
+
 
 class Type_Safe__Method:                                                                  # Class to handle method type safety validation
     def __init__(self, func):                                                             # Initialize with function
@@ -29,12 +31,23 @@ class Type_Safe__Method:                                                        
         return bound_args                                                                 # Return bound arguments
 
     def validate_parameter(self, param_name: str, param_value: Any, bound_args):          # Validate a single parameter
+        self.validate_immutable_parameter(param_name, param_value)                        # Validata the param_value (make sure if it set it is on of IMMUTABLE_TYPES)
         if param_name in self.annotations:                                                # Check if parameter is annotated
             expected_type = self.annotations[param_name]                                  # Get expected type
             self.check_parameter_value(param_name, param_value, expected_type, bound_args)# Check value against type
 
-    def check_parameter_value(self, param_name: str, param_value: Any,                    # Check parameter value against expected type
-                            expected_type: Any, bound_args):                              # Method parameters
+    def validate_immutable_parameter(self, param_name, param_value):
+        param = self.sig.parameters.get(param_name)      # Check if this is a default value from a mutable type
+        if param and param.default is param_value:       # This means the default value is being used
+            if param_value is not None:
+                if isinstance(param_value, IMMUTABLE_TYPES) is False:                            # Check if the value is an instance of any IMMUTABLE_TYPES
+                    raise ValueError(f"Parameter '{param_name}' has a mutable default value of type '{type(param_value).__name__}'. "
+                                     f"Only immutable types are allowed as default values in type_safe functions.")
+
+    def check_parameter_value(self, param_name   : str,
+                                    param_value  : Any,                    # Check parameter value against expected type
+                                    expected_type: Any,
+                                    bound_args       ):                              # Method parameters
         is_optional = self.is_optional_type(expected_type)                                # Check if type is optional
         has_default = self.has_default_value(param_name)                                  # Check if has default value
 

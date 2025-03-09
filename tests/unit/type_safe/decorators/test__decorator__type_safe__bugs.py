@@ -1,11 +1,11 @@
 from unittest                                   import TestCase
 from osbot_utils.type_safe.Type_Safe            import Type_Safe
-
+from osbot_utils.type_safe.decorators.type_safe import type_safe
 
 class test__decorator__type_safe__bugs(TestCase):
 
+
     def test__bug__kwargs_not_properly_returned_in_type_safe(self):
-        from osbot_utils.type_safe.decorators.type_safe import type_safe
 
         class Test_Class(Type_Safe):
             @type_safe

@@ -9,6 +9,27 @@ from osbot_utils.type_safe.decorators.type_safe import type_safe
 
 class test_decorator__type_safe__regression(TestCase):
 
+    def test__regression__type_safe__not_detecting_mutable_assignment(self):
+        @type_safe
+        def an_method(an_list: list = ['a', 'b', 'c']):         # FIXED: BUG should detect
+            return an_list
+        expected_error = ("Parameter 'an_list' has a mutable default value of type 'list'. "
+                          "Only immutable types are allowed as default values in type_safe functions.")
+        with pytest.raises(ValueError, match=re.escape(expected_error)):
+            an_method()                                                     # FIXED: this now raises the exception
+
+        ### the commended code below, shows the test before the fix, which is also a good example of the problems
+        ###     (and subtle bugs) that can occur when allowing mutable values to be assigned in methods parameters
+        #
+        # result_1 = an_method()                                  # first call an_list is created
+        # assert result_1 == ['a', 'b', 'c']                      # confirmed here
+        # result_1.append('d')                                    # FIXED: BUG: but adding a value to the returned list
+        # result_2 = an_method()                                  # FIXED: BUG: will exist in the an_list value inside the an_method
+        # assert result_2 == ['a', 'b', 'c', 'd']                 # FIXED: BUG: confirmed here
+        #
+        # result_3 = an_method(['f'])                             # assigning a new list object
+        # assert result_3 == ['f']                                # is the one now used
+
     def test_regression__on_type_safe__decorator_check(self):
         @type_safe
         def an_function(target:Type[Type_Safe]):
