@@ -1,9 +1,6 @@
 from unittest                                                               import TestCase
-from myfeeds_ai.providers.cyber_security.hacker_news.llms.Hacker_News__LLMs import ENV_NAME_OPEN_AI__API_KEY
 from osbot_utils.helpers.llms.builders.LLM_Request_Builder__Open_AI         import LLM_Request_Builder__Open_AI
-from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI           import API__LLM__Open_AI
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             import Schema__LLM_Request__Data
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content
+from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI           import API__LLM__Open_AI, ENV_NAME_OPEN_AI__API_KEY
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
 from osbot_utils.utils.Dev                                                  import pprint
 from osbot_utils.utils.Env                                                  import load_dotenv, get_env, env_value
