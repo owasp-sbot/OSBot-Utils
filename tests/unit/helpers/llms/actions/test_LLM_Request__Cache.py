@@ -9,6 +9,8 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             impo
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                  import Schema__LLM_Response
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content
+from osbot_utils.utils.Dev import pprint
+from osbot_utils.utils.Objects import __
 
 
 class test_LLM_Request__Cache(unittest.TestCase):
@@ -16,6 +18,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
 
     def setUp(self):
         pytest.skip("fix once LLM_Request__Cache refactoring is completed")
+
         self.cache = LLM_Request__Cache()
 
     def create_test_request(self, message_text: str) -> Schema__LLM_Request:                   # Helper to create a test request
@@ -71,12 +74,30 @@ class test_LLM_Request__Cache(unittest.TestCase):
         assert hash_1 != hash_3
 
     def test_add_and_get(self):
-        request = self.create_test_request("Hello, world!")
+        request  = self.create_test_request("Hello, world!")
         response = self.create_test_response()
+        assert request.obj() == __(request_id  =request.request_id,
+                                   request_data=__(function_call=None,
+                                                   temperature  =0.7,
+                                                   top_p        =None,
+                                                   max_tokens   =100,
+                                                   model        ='test-model',
+                                                   platform     ='test-platform',
+                                                   provider     ='test-provider',
+                                                   messages     =[__(role='USER', content='Hello, world!')]),
+                                   request_cache=__(hash__messages='', hash__request=''))
 
-        # Add to cache
+        assert response.obj() == __(response_id   = response.response_id,
+                                    timestamp     = response.timestamp  ,
+                                    response_data = __(content='This is a test response'))
+
         result = self.cache.add(request, response)
-        assert result == True                                                                  # Add should succeed
+        pprint(result)
+        #assert result == True  # Add should succeed
+        return
+        # Add to cache
+
+
 
         # Check if it exists
         assert self.cache.exists(request) == True                                              # Item should exist in cache

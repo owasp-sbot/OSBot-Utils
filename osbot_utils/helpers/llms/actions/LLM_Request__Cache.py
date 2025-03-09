@@ -26,35 +26,30 @@ class LLM_Request__Cache(Type_Safe):
 
     @type_safe
     def compute_messages_hash(self, request: Schema__LLM_Request) -> str:                   # Computes hash for messages only
-        messages_json = request.request_data.messages.json()                                # [m.json() for m in request.request_data.messages]      # todo: see if can use the Type_Safe_List.json() here
+        messages_json = request.request_data.messages.json()                                # uses Type_Safe_List.json() here
         return json_md5(messages_json)[:SIZE__VALUE_HASH]
 
     @type_safe
     def add(self, request     : Schema__LLM_Request ,                                       # Request to cache
                   response    : Schema__LLM_Response                                        # Response to store
              ) -> bool:                                                                     # Success status
-        try:
-            cache_entry = Schema__LLM_Response__Cache(cache_id     = Obj_Id(),              # Create a cache entry
-                                                      llm_request  = request ,
-                                                      llm_response = response)
+        cache_entry = Schema__LLM_Response__Cache(cache_id     = Obj_Id(),              # Create a cache entry
+                                                  llm_request  = request ,
+                                                  llm_response = response)
 
-            request_hash                         = self.compute_request_hash (request)     # calculate request hash
-            messages_hash                        = self.compute_messages_hash(request)     # calculate messages_hash hash
-            request.request_cache.hash__request  = request_hash
-            request.request_cache.hash__messages = messages_hash
+        request_hash                         = self.compute_request_hash (request)     # calculate request hash
+        messages_hash                        = self.compute_messages_hash(request)     # calculate messages_hash hash
+        request.request_cache.hash__request  = request_hash
+        request.request_cache.hash__messages = messages_hash
 
-            if messages_hash not in self.cache_index.hash__messages:
-                self.cache_index.hash__messages[messages_hash] = set()
+        if messages_hash not in self.cache_index.hash__messages:
+            self.cache_index.hash__messages[messages_hash] = set()
 
-            self.cache_index.hash__request [request_hash        ] = cache_entry.cache_id                                # Update the cache index
-            self.cache_entries             [cache_entry.cache_id] = cache_entry                                         # Store in memory
-            self.cache_index.hash__messages[messages_hash       ].add(cache_entry.cache_id)
+        self.cache_index.hash__request [request_hash        ] = cache_entry.cache_id                                # Update the cache index
+        self.cache_entries             [cache_entry.cache_id] = cache_entry                                         # Store in memory
+        self.cache_index.hash__messages[messages_hash       ].add(cache_entry.cache_id)
 
-            return self.save()
-
-        except Exception as e:
-            print(f"Error adding to cache: {e}")
-            return False
+        return self.save()
 
     def get(self, request: Schema__LLM_Request) -> Optional[Schema__LLM_Response]:                                      # Cached response or None
         request_hash = self.compute_request_hash(request)

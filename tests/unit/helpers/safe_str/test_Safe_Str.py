@@ -136,3 +136,85 @@ class test_Safe_Str(TestCase):
         assert type(an_class__round_trip.safe_str_3) is Safe_Str
         assert type(an_class__round_trip.safe_str_4) is Safe_Str
 
+    def test_strict_validation(self):
+        # Create a subclass with strict validation for testing
+        class Strict_Safe_Str(Safe_Str):
+            regex = re.compile(r'[^a-zA-Z0-9]')  # Only alphanumeric allowed
+            max_length = 20
+            strict_validation = True  # Enable strict validation
+
+        # Valid cases should pass
+        assert str(Strict_Safe_Str('abc123')) == 'abc123'
+        assert str(Strict_Safe_Str('ABC')) == 'ABC'
+        assert str(Strict_Safe_Str('123')) == '123'
+
+        # Invalid characters should raise exceptions
+        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+            Strict_Safe_Str('abc_123')  # Underscore is invalid
+
+        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+            Strict_Safe_Str('abc-123')  # Hyphen is invalid
+
+        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+            Strict_Safe_Str('abc 123')  # Space is invalid
+
+        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+            Strict_Safe_Str('abc.123')  # Period is invalid
+
+        # Mixed valid/invalid
+        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+            Strict_Safe_Str('Abc-123!@#')
+
+    def test_exact_length(self):
+        # Create a subclass that requires exact length
+        class ExactLength_Safe_Str(Safe_Str):
+            max_length = 5
+            exact_length = True  # Require exact length
+
+        # Exact length should pass
+        assert str(ExactLength_Safe_Str('abcde')) == 'abcde'
+        assert str(ExactLength_Safe_Str('12345')) == '12345'
+
+        # Too short should fail
+        with pytest.raises(ValueError, match="Value must be exactly 5 characters long") as exc_info:
+            ExactLength_Safe_Str('abc')  # Too short
+
+        # Too long should fail
+        with pytest.raises(ValueError, match="Value must be exactly 5 characters long") as exc_info:
+            ExactLength_Safe_Str('abcdef')  # Too long
+
+        # Empty string should fail
+        with pytest.raises(ValueError, match="Value must be exactly 5 characters long") as exc_info:
+            ExactLength_Safe_Str('')  # Empty
+
+    def test_combined_strict_and_exact(self):
+        # Create a subclass with both strict validation and exact length
+        class Hash_Like_Str(Safe_Str):
+            regex = re.compile(r'[^a-fA-F0-9]')  # Only hex characters
+            max_length = 10
+            strict_validation = True
+            exact_length = True
+            allow_empty = False
+            trim_whitespace = True
+
+        # Valid hash should pass
+        assert str(Hash_Like_Str('0123456789')) == '0123456789'
+        assert str(Hash_Like_Str('abcdef0123')) == 'abcdef0123'
+
+        # Invalid length should fail
+        with pytest.raises(ValueError, match="Value must be exactly 10 characters long") as exc_info:
+            Hash_Like_Str('12345')  # Too short
+
+        with pytest.raises(ValueError, match="Value must be exactly 10 characters long") as exc_info:
+            Hash_Like_Str('12345678901')  # Too long
+
+        # Invalid characters should fail
+        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+            Hash_Like_Str('12345g7890')  # 'g' is not hex
+
+        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+            Hash_Like_Str('1234-67890')  # '-' is not allowed
+
+        # Spaces should be trimmed before validation
+        with pytest.raises(ValueError, match="Value must be exactly 10 characters long") as exc_info:
+            Hash_Like_Str(' 123456789 ')  # After trimming, it's only 9 chars
