@@ -3,7 +3,7 @@ class Type_Safe__Step__Init:
     def init(self, __self         ,
                    __class_kwargs ,
                    **kwargs
-             )                   -> None:
+              ) -> None:
 
         for (key, value) in __class_kwargs.items():                             # assign all default values to target
             if hasattr(__self, key):

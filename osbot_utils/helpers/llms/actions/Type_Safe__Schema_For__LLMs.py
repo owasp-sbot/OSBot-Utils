@@ -26,10 +26,6 @@ class Type_Safe__Schema_For__LLMs(Type_Safe):
         schema = { "type"      : "object"   ,
                    "properties": properties }
 
-
-        if hasattr(target, "__name__"):                                                 # Add title if available
-            schema["title"] = target.__name__
-
         if target.__doc__:                                                              # Add description if available and requested
             schema["description"] = self.clean_docstring(target.__doc__)
 
@@ -78,10 +74,10 @@ class Type_Safe__Schema_For__LLMs(Type_Safe):
 
         schema = self.get_type_schema(var_type)                                         # Get basic type schema
 
-        if target_cls.__doc__:                                                          # Add description if available
-            doc = self.get_attribute_doc(target_cls, var_name)
-            if doc:
-                schema["description"] = doc
+        #if target_cls.__doc__:                                                          # Add description if available
+        doc = self.get_attribute_doc(target_cls, var_name)
+        if doc:
+            schema["description"] = doc
 
         for validator in validators:                                                    # Apply validators
             self._apply_validator(schema, validator)

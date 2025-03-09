@@ -4,6 +4,7 @@ import types
 import typing
 from enum                                                           import EnumMeta
 from typing                                                         import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias
+from osbot_utils.helpers.safe_str.Safe_Str                          import Safe_Str
 from osbot_utils.type_safe.shared.Type_Safe__Annotations            import type_safe_annotations
 from osbot_utils.type_safe.shared.Type_Safe__Cache                  import type_safe_cache
 from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables      import IMMUTABLE_TYPES
@@ -286,7 +287,8 @@ class Type_Safe__Validation:
             if self.obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                        # if var_type is not something like Optional[Union[int, str]]
                 if var_type not in IMMUTABLE_TYPES or type(var_type) not in IMMUTABLE_TYPES:
                     if not isinstance(var_type, EnumMeta):
-                        type_safe_raise_exception.immutable_type_error(var_name, var_type)
+                        if not issubclass(var_type, Safe_Str):
+                            type_safe_raise_exception.immutable_type_error(var_name, var_type)
 
     def validate_variable_type(self, var_name, var_type, var_value):                                # Validate type compatibility
         if type(var_type) is type and not isinstance(var_value, var_type):

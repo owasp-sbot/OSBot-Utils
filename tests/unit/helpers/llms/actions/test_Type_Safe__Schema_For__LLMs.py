@@ -1,16 +1,15 @@
-from typing                                                     import List, Dict, Optional, Union, Tuple, Set, Any
-from unittest                                                   import TestCase
-from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_utils.type_safe.export.Type_Safe__Schema_For__LLMs   import Type_Safe__Schema_For__LLMs
-from osbot_utils.type_safe.validators.Validator__Min            import Min
-from osbot_utils.type_safe.validators.Validator__Max            import Max
-from osbot_utils.type_safe.validators.Validator__Regex          import Regex
-from osbot_utils.type_safe.validators.Validator__One_Of         import One_Of
-from osbot_utils.helpers.python_compatibility.python_3_8        import Annotated
-from osbot_utils.utils.Dev                                      import pprint
+from typing                                                         import List, Dict, Optional, Union, Tuple, Set, Any
+from unittest                                                       import TestCase
+from osbot_utils.helpers.llms.actions.Type_Safe__Schema_For__LLMs   import Type_Safe__Schema_For__LLMs
+from osbot_utils.type_safe.Type_Safe                                import Type_Safe
+from osbot_utils.type_safe.validators.Validator__Min                import Min
+from osbot_utils.type_safe.validators.Validator__Max                import Max
+from osbot_utils.type_safe.validators.Validator__Regex              import Regex
+from osbot_utils.type_safe.validators.Validator__One_Of             import One_Of
+from osbot_utils.helpers.python_compatibility.python_3_8            import Annotated
 
 
-class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
+class test_Type_Safe__Schema_For__LLMs(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -51,7 +50,6 @@ class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
                                            'string_field': { 'description': 'A simple string field'  ,
                                                              'type'       : 'string'                 }},
                            'required'  : ['string_field', 'int_field', 'float_field', 'bool_field'],
-                           'title'     : 'PrimitiveTypesClass'  ,
                            'type'      : 'object'               }
 
     def test_container_types(self):                             # Test schema generation for container types.
@@ -107,7 +105,6 @@ class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
                                                                'type': 'array',
                                                                'uniqueItems': True}},
                            'required': ['string_list', 'int_dict', 'mixed_tuple', 'unique_strings'],
-                           'title': 'ContainerTypesClass',
                            'type': 'object'}
 
     def test_optional_types(self):                                  # Test schema generation for optional types."""
@@ -144,7 +141,6 @@ class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
                                                             'description': 'Field that can be string or '
                                                                            'int'}},
                            'required': ['required_field', 'union_field'],
-                           'title': 'OptionalTypesClass',
                            'type': 'object'}
 
 
@@ -179,12 +175,10 @@ class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
                                                                         'postal_code': { 'type': 'string'},
                                                                         'street': {'type': 'string'}},
                                                         'required': ['street', 'city', 'postal_code'],
-                                                        'title': 'AddressClass',
                                                         'type': 'object'},
                                            'age': {'type': 'integer'},
                                            'name': {'type': 'string'}},
                            'required': ['name', 'age', 'address'],
-                           'title': 'PersonClass',
                            'type': 'object'}
 
     def test_validators(self):  # Test schema generation with validators."""
@@ -233,7 +227,6 @@ class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
                                                          'minLength': 2,
                                                          'type': 'string'}},
                            'required': ['username', 'score', 'email', 'status'],
-                           'title': 'ValidatedClass',
                            'type': 'object'}
 
     def test_complex_structure(self):           # Test schema generation for a complex structure similar to the target example."""
@@ -308,7 +301,6 @@ class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
                                                                                'required': [ 'entity',
                                                                                              'relationship_type',
                                                                                              'strength'],
-                                                                               'title': 'RelationshipClass',
                                                                                'type': 'object'},
                                                                     'type': 'array'},
                                           'domain_relationships': { 'description': 'Related concepts',
@@ -328,7 +320,6 @@ class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
                                                                                              'relationship_type',
                                                                                              'category',
                                                                                              'strength'],
-                                                                               'title': 'DomainRelationshipClass',
                                                                                'type': 'object'},
                                                                     'type': 'array'},
                                           'ecosystem': { 'description': 'Related platforms, standards '
@@ -342,7 +333,6 @@ class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
                                                          'required': [ 'platforms',
                                                                        'standards',
                                                                        'technologies'],
-                                                         'title': 'EcosystemClass',
                                                          'type': 'object'},
                                           'functional_roles': { 'description': 'Specific '
                                                                                'functions/purposes',
@@ -360,5 +350,4 @@ class test_Enhanced_Type_Safe__Schema_For__LLMs(TestCase):
                                         'direct_relationships',
                                         'domain_relationships',
                                         'confidence'],
-                          'title': 'EntityClass',
                           'type': 'object'}
