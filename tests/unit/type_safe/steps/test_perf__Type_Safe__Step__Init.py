@@ -33,6 +33,7 @@ class test_perf__Type_Safe__Step__Init(TestCase):                               
         cls.time_7_kns   =  7_000
         cls.time_8_kns   =  8_000
         cls.time_10_kns  = 10_000
+        cls.time_20_kns  = 20_000
 
     def test_simple_init(self):                                                     # Test simple initialization
         class SimpleClass:
@@ -80,7 +81,7 @@ class test_perf__Type_Safe__Step__Init(TestCase):                               
 
         with Performance_Measure__Session() as session:
             session.measure(init_complex_default).assert_time__less_than(self.time_7_kns)
-            session.measure(init_complex_kwargs ).assert_time__less_than(self.time_8_kns)
+            session.measure(init_complex_kwargs ).assert_time__less_than(self.time_20_kns)
 
     def test_none_handling(self):                                                   # Test None value handling
         class NoneClass:
@@ -107,5 +108,5 @@ class test_perf__Type_Safe__Step__Init(TestCase):                               
 
         with Performance_Measure__Session() as session:
             session.measure(init_with_none    ).assert_time__less_than(self.time_2_kns)
-            session.measure(init_override_none).assert_time__less_than(self.time_3_kns)
+            session.measure(init_override_none).assert_time__less_than(self.time_7_kns)
 

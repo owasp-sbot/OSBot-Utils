@@ -81,6 +81,18 @@ class Type_Safe__Base:
             expected_type_name = type_str(expected_type)
             actual_type_name   = type_str(type(item))
             raise TypeError(f"Expected '{expected_type_name}', but got '{actual_type_name}'")
+        elif origin is type:                                            # Expected type is Type[T]
+            if not isinstance(item, type):                              # First check if item is actually a type
+                expected_type_name = type_str(expected_type)
+                actual_type_name = type_str(type(item))
+                raise TypeError(f"Expected {expected_type_name}, but got instance: {actual_type_name}")
+
+            args = get_args(expected_type)
+            if args:                                                    # Check if there are type arguments
+                type_arg = args[0]                                      # Then check if item is a subclass of T
+                if not issubclass(item, type_arg):
+                    raise TypeError(f"Expected subclass of {type_str(type_arg)}, got {type_str(item)}")
+            return True                                                 # If no args, any type is valid
         else:
             if isinstance(item, origin):
                 return True
