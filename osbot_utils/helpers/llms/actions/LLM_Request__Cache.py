@@ -5,6 +5,7 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index      import Schem
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request           import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response          import Schema__LLM_Response
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache   import Schema__LLM_Response__Cache
+from osbot_utils.helpers.safe_str.Safe_Str__Hash                    import Safe_Str__Hash
 from osbot_utils.type_safe.Type_Safe                                import Type_Safe
 from osbot_utils.type_safe.decorators.type_safe                     import type_safe
 from osbot_utils.utils.Json                                         import json_to_str, json_md5
@@ -20,34 +21,37 @@ class LLM_Request__Cache(Type_Safe):
         return True
 
     @type_safe
-    def compute_request_hash(self, request: Schema__LLM_Request) -> str:                    # Computes hash for full request
+    def compute_request_hash(self, request: Schema__LLM_Request) -> Safe_Str__Hash:         # Computes hash for full request
         request_json = request.request_data.json()
-        return json_md5(request_json)[:SIZE__VALUE_HASH]
+        hash_value   = json_md5(request_json)[:SIZE__VALUE_HASH]
+        return Safe_Str__Hash(hash_value)
 
     @type_safe
     def compute_messages_hash(self, request: Schema__LLM_Request) -> str:                   # Computes hash for messages only
         messages_json = request.request_data.messages.json()                                # uses Type_Safe_List.json() here
-        return json_md5(messages_json)[:SIZE__VALUE_HASH]
+        hash_value    = json_md5(messages_json)[:SIZE__VALUE_HASH]
+        return Safe_Str__Hash(hash_value)
 
     @type_safe
     def add(self, request     : Schema__LLM_Request ,                                       # Request to cache
                   response    : Schema__LLM_Response                                        # Response to store
              ) -> bool:                                                                     # Success status
-        cache_entry = Schema__LLM_Response__Cache(cache_id     = Obj_Id(),              # Create a cache entry
-                                                  llm_request  = request ,
-                                                  llm_response = response)
 
-        request_hash                         = self.compute_request_hash (request)     # calculate request hash
-        messages_hash                        = self.compute_messages_hash(request)     # calculate messages_hash hash
-        request.request_cache.hash__request  = request_hash
-        request.request_cache.hash__messages = messages_hash
+        hash_request          = self.compute_request_hash (request)                         # calculate request hash
+        hash_request_messages = self.compute_messages_hash(request)                         # calculate messages_hash hash
+        cache_entry           = Schema__LLM_Response__Cache(cache_id                = Obj_Id()             ,              # Create a cache entry
+                                                            llm_request             = request              ,
+                                                            llm_response            = response             ,
+                                                            hash__request           = hash_request         ,
+                                                            hash__request__messages = hash_request_messages)
 
-        if messages_hash not in self.cache_index.hash__messages:
-            self.cache_index.hash__messages[messages_hash] = set()
 
-        self.cache_index.hash__request [request_hash        ] = cache_entry.cache_id                                # Update the cache index
-        self.cache_entries             [cache_entry.cache_id] = cache_entry                                         # Store in memory
-        self.cache_index.hash__messages[messages_hash       ].add(cache_entry.cache_id)
+        if hash_request_messages not in self.cache_index.hash__request__messages:
+            self.cache_index.hash__request__messages[hash_request_messages] = set()
+
+        self.cache_index.hash__request          [hash_request         ] = cache_entry.cache_id                                # Update the cache index
+        self.cache_entries                      [cache_entry.cache_id ] = cache_entry                                         # Store in memory
+        self.cache_index.hash__request__messages[hash_request_messages].add(cache_entry.cache_id)
 
         return self.save()
 
@@ -70,8 +74,8 @@ class LLM_Request__Cache(Type_Safe):
         results       = []
         messages_hash = self.compute_messages_hash(request)
 
-        if messages_hash in self.cache_index.hash__messages:
-            cache_ids = self.cache_index.hash__messages[messages_hash]
+        if messages_hash in self.cache_index.hash__request__messages:
+            cache_ids = self.cache_index.hash__request__messages[messages_hash]
             for cache_id in cache_ids:
                 cache_entry = self.get_cache_entry(cache_id)
                 if cache_entry:
@@ -94,12 +98,12 @@ class LLM_Request__Cache(Type_Safe):
 
         del self.cache_index.hash__request[request_hash]                                                                # Remove from hashes
 
-        if messages_hash in self.cache_index.hash__messages:
-            if cache_id in self.cache_index.hash__messages[messages_hash]:
-                self.cache_index.hash__messages[messages_hash].remove(cache_id)
+        if messages_hash in self.cache_index.hash__request__messages:
+            if cache_id in self.cache_index.hash__request__messages[messages_hash]:
+                self.cache_index.hash__request__messages[messages_hash].remove(cache_id)
 
-            if not self.cache_index.hash__messages[messages_hash]:
-                del self.cache_index.hash__messages[messages_hash]
+            if not self.cache_index.hash__request__messages[messages_hash]:
+                del self.cache_index.hash__request__messages[messages_hash]
 
         if cache_id in self.cache_entries:                                                                              # Remove from memory
             del self.cache_entries[cache_id]

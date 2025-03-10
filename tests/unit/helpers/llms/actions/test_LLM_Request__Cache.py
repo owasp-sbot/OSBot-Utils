@@ -1,24 +1,19 @@
-import pytest
 import unittest
 from osbot_utils.helpers.Obj_Id                                             import Obj_Id
 from osbot_utils.helpers.Timestamp_Now                                      import Timestamp_Now
 from osbot_utils.helpers.llms.actions.LLM_Request__Cache                    import LLM_Request__Cache
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                   import Schema__LLM_Request
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Cache            import Schema__LLM_Request__Cache
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                  import Schema__LLM_Response
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Objects import __
+from osbot_utils.utils.Objects                                              import __
 
 
 class test_LLM_Request__Cache(unittest.TestCase):
     cache : LLM_Request__Cache
 
     def setUp(self):
-        pytest.skip("fix once LLM_Request__Cache refactoring is completed")
-
         self.cache = LLM_Request__Cache()
 
     def create_test_request(self, message_text: str) -> Schema__LLM_Request:                   # Helper to create a test request
@@ -32,12 +27,8 @@ class test_LLM_Request__Cache(unittest.TestCase):
                                                  max_tokens  = 100            )
         request_data.messages.append(message)
 
-        request_cache = Schema__LLM_Request__Cache(hash__messages = "",
-                                                   hash__request  = "")
-
         return Schema__LLM_Request(request_id    = Obj_Id()     ,
-                                   request_data  = request_data ,
-                                   request_cache = request_cache)
+                                   request_data  = request_data )
 
     def create_test_response(self) -> Schema__LLM_Response:                                    # Helper to create a test response
         return Schema__LLM_Response(response_id   = Obj_Id()                              ,
@@ -84,27 +75,21 @@ class test_LLM_Request__Cache(unittest.TestCase):
                                                    model        ='test-model',
                                                    platform     ='test-platform',
                                                    provider     ='test-provider',
-                                                   messages     =[__(role='USER', content='Hello, world!')]),
-                                   request_cache=__(hash__messages='', hash__request=''))
+                                                   messages     =[__(role='USER', content='Hello, world!')]))
 
         assert response.obj() == __(response_id   = response.response_id,
                                     timestamp     = response.timestamp  ,
                                     response_data = __(content='This is a test response'))
 
-        result = self.cache.add(request, response)
-        pprint(result)
-        #assert result == True  # Add should succeed
-        return
-        # Add to cache
-
-
+        result = self.cache.add(request, response)          # Add to cache
+        assert result is True                               # Add should succeed
 
         # Check if it exists
-        assert self.cache.exists(request) == True                                              # Item should exist in cache
+        assert self.cache.exists(request) is True                                              # Item should exist in cache
 
         # Retrieve it
-        cached_response = self.cache.get(request)
-        assert cached_response is not None                                                     # Should retrieve cached response
+        cached_response             = self.cache.get(request)
+        assert cached_response      is not None                                                # Should retrieve cached response
         assert response.response_id == cached_response.response_id                             # Response IDs should match
 
     def test_get__same_messages(self):
@@ -144,14 +129,14 @@ class test_LLM_Request__Cache(unittest.TestCase):
         assert self.cache.exists(request) == False                                             # Item should not exist after deletion
 
     def test_get_by_id(self):
-        request = self.create_test_request("Get by ID test")
+        request  = self.create_test_request("Get by ID test")
         response = self.create_test_response()
 
         self.cache.add(request, response)
 
         # Get the cache_id
         request_hash = self.cache.compute_request_hash(request)
-        cache_id = self.cache.cache_index.hash__request[request_hash]
+        cache_id     = self.cache.cache_index.hash__request[request_hash]
 
         # Get by ID
         cached_response = self.cache.get_by_id(cache_id)

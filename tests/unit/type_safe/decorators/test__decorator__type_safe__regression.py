@@ -21,11 +21,11 @@ class test_decorator__type_safe__regression(TestCase):
         ### the commended code below, shows the test before the fix, which is also a good example of the problems
         ###     (and subtle bugs) that can occur when allowing mutable values to be assigned in methods parameters
         #
-        # result_1 = an_method()                                  # first call an_list is created
+        # result_1 = an_method()                                  # BUG: first call an_list is created
         # assert result_1 == ['a', 'b', 'c']                      # confirmed here
-        # result_1.append('d')                                    # FIXED: BUG: but adding a value to the returned list
-        # result_2 = an_method()                                  # FIXED: BUG: will exist in the an_list value inside the an_method
-        # assert result_2 == ['a', 'b', 'c', 'd']                 # FIXED: BUG: confirmed here
+        # result_1.append('d')                                    # BUG: but adding a value to the returned list
+        # result_2 = an_method()                                  # BUG: will exist in the an_list value inside the an_method
+        # assert result_2 == ['a', 'b', 'c', 'd']                 # BUG: confirmed here
         #
         # result_3 = an_method(['f'])                             # assigning a new list object
         # assert result_3 == ['f']                                # is the one now used

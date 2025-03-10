@@ -111,13 +111,13 @@ class LLM_Request__Cache__Local_Folder(LLM_Request__Cache):
             if cache_entry:
                 request       = cache_entry.llm_request
                 request_hash  = request.request_cache.hash__request
-                messages_hash = request.request_cache.hash__messages
+                messages_hash = request.request_cache.hash__request__messages
 
-                if messages_hash not in self.cache_index.hash__messages:
-                    self.cache_index.hash__messages[messages_hash] = set()
+                if messages_hash not in self.cache_index.hash__request__messages:
+                    self.cache_index.hash__request__messages[messages_hash] = set()
 
                 self.cache_index.hash__request [request_hash ] = cache_entry.cache_id       # Update the index
-                self.cache_index.hash__messages[messages_hash].add(cache_entry.cache_id)
+                self.cache_index.hash__request__messages[messages_hash].add(cache_entry.cache_id)
 
         return self.save()
 
