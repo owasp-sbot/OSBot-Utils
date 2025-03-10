@@ -19,18 +19,6 @@ jobs:
       - name: Run Unit Tests (using Pytest)
         uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/pytest__run-tests@dev
 
-#    steps:
-#      - uses: actions/checkout@v4
-#
-#      - name: Poetry - Install Dependencies
-#        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/poetry__install@dev
-#        with:
-#          pip_install: '-r requirements-test.txt'
-#
-#      - name: Run Unit Tests (using Poetry)
-#        uses: owasp-sbot/OSBot-GitHub-Actions/.github/actions/poetry__run-unit-tests@dev
-
-
   increment-tag:
     name: Increment Tag - MAIN
     runs-on: ubuntu-latest

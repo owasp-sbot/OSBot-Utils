@@ -61,7 +61,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
 
         # Different messages should have different hashes
         request_3 = self.create_test_request("Different message")
-        hash_3 = self.cache.compute_messages_hash(request_3)
+        hash_3    = self.cache.compute_messages_hash(request_3)
         assert hash_1 != hash_3
 
     def test_add_and_get(self):

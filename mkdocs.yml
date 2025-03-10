@@ -1,0 +1,21 @@
+site_name: OSBot-Utils Documentation
+site_description: Documentation for OSBot-Utils
+site_url: https://owasp-sbot.github.io/OSBot-Utils
+
+theme: readthedocs
+
+nav:
+  - Home: index.md
+  - Code:
+    - OSBot Utils:
+      - Helpers:
+        - Flows: code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation.md
+  - Development:
+    - Coding Guidelines: dev/Python-code-formatting-guidelines.md
+    - Type Safety:
+      - Frameworks Compared: dev/type_safe/python-type-safety-frameworks-compared.md
+      - Technical Documentation: dev/type_safe/type-safe-technical-documentation.md
+
+markdown_extensions:
+  - toc:
+      permalink: true

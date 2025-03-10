@@ -31,17 +31,12 @@ class LLM_Request__Cache__Local_Folder(LLM_Request__Cache):
                 json_data        = json_file_load(path=path_file__cache_index)
                 self.cache_index = Schema__LLM_Cache__Index.from_json(json_data)
 
-                #self.load_cache_entries()                                                  # Load cache entries from disk
                 return True
             except Exception as e:
                 print(f"Error loading cache index: {e}")
                 return False
         return True
 
-    # def load_cache_entries(self) -> None:                                                 # Load all cache entries from disk
-    #     for cache_id in self.get_all_cache_ids():
-    #         self.load_cache_entry(cache_id)
-    #
     def get_all_cache_ids(self) -> List[Obj_Id]:                                          # Get all cache IDs from disk
         file_names = files_names_in_folder(self.path_folder__root_cache())
         cache_ids  = []

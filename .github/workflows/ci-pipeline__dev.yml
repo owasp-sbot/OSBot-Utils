@@ -10,8 +10,14 @@ env:
   RELEASE_TYPE : 'minor'
 
 jobs:
+  deploy-mkdocs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy MKDocs to GH Static Pages
+        uses: ./.github/actions/gh-pages__deploy-mkdocs
 
   run-unit-tests:
+    if: False
     runs-on: ubuntu-latest
     strategy:
       matrix:
