@@ -1,4 +1,4 @@
-from typing                                                                 import List, Optional
+from typing                                                                 import List
 from unittest                                                               import TestCase
 from osbot_utils.helpers.llms.builders.LLM_Request__Factory                 import LLM_Request__Factory
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder                 import LLM_Request__Builder

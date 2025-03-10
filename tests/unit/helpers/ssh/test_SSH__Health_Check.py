@@ -1,7 +1,5 @@
 import pytest
-
-from osbot_utils.helpers.ssh.SSH__Execute           import ENV_VAR__SSH__HOST, ENV_VAR__SSH__KEY_FILE, ENV_VAR__SSH__USER, \
-    ENV_VAR__SSH__PORT, ENV_VAR__SSH__STRICT_HOST_CHECK
+from osbot_utils.helpers.ssh.SSH__Execute           import ENV_VAR__SSH__HOST, ENV_VAR__SSH__KEY_FILE, ENV_VAR__SSH__USER, ENV_VAR__SSH__PORT, ENV_VAR__SSH__STRICT_HOST_CHECK
 from osbot_utils.helpers.ssh.SSH__Health_Check      import SSH__Health_Check
 from osbot_utils.helpers.ssh.TestCase__SSH          import TestCase__SSH
 from osbot_utils.utils.Env                          import get_env

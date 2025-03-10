@@ -1,5 +1,4 @@
-from enum import EnumMeta
-
+from enum                                                       import EnumMeta
 from osbot_utils.type_safe.shared.Type_Safe__Annotations        import type_safe_annotations
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value import type_safe_step_default_value, get_args
 
