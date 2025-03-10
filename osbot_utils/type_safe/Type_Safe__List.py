@@ -11,10 +11,14 @@ class Type_Safe__List(Type_Safe__Base, list):
         return f"list[{expected_type_name}] with {len(self)} elements"
 
     def append(self, item):
-        try:
-            self.is_instance_of_type(item, self.expected_type)
-        except TypeError as e:
-            raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}")
+        from osbot_utils.type_safe.Type_Safe import Type_Safe
+        if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe) and type(item) is dict:  # if self.expected_type is Type_Safe and we have a dict
+            item = self.expected_type.from_json(item)  # try to convert the dict into self.expected_type
+        else:
+            try:
+                self.is_instance_of_type(item, self.expected_type)
+            except TypeError as e:
+                raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}")
         super().append(item)
 
 

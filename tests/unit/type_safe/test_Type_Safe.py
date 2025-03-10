@@ -314,8 +314,8 @@ class test_Type_Safe(TestCase):
 
     def test_from_json(self):
         class An_Enum(Enum):
-            value_1 = auto()
-            value_2 = auto()
+            value_1 :str = 'value_1'
+            value_2 :str = 'value_2'
 
         class An_Class(Type_Safe):
             an_str  : str

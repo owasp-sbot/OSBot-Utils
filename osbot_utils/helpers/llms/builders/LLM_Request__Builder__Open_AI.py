@@ -1,27 +1,24 @@
-from typing                                                      import Dict, Any, Optional
-from osbot_utils.helpers.llms.builders.LLM_Request_Builder       import LLM_Request_Builder
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data  import Schema__LLM_Request__Data
-from osbot_utils.type_safe.decorators.type_safe            import type_safe
-from osbot_utils.utils.Json                                import json_dumps
+from typing                                                     import Dict, Any
+from osbot_utils.helpers.llms.builders.LLM_Request__Builder     import LLM_Request__Builder
+from osbot_utils.type_safe.decorators.type_safe                 import type_safe
 
-
-class LLM_Request_Builder__Open_AI(LLM_Request_Builder):
+class LLM_Request__Builder__Open_AI(LLM_Request__Builder):
 
     @type_safe
     def build_request_payload(self) -> Dict[str, Any]:
-        payload = { "model"          : self.llm_request.model                                                             ,
-                    "messages"       : [{"role"  : msg.role.value, "content": msg.content} for msg in self.llm_request.messages]}
-        if self.llm_request.function_call:
-            schema = self.schema_generator.export(self.llm_request.function_call.parameters)
+        payload = { "model"          : self.llm_request_data.model                                                             ,
+                    "messages"       : [{"role"  : msg.role.value, "content": msg.content} for msg in self.llm_request_data.messages]}
+        if self.llm_request_data.function_call:
+            schema = self.schema_generator.export(self.llm_request_data.function_call.parameters)
             schema["additionalProperties"] = False                                  # needs to be False when using structured outputs
             payload["response_format"    ] =  { "type"       : "json_schema",
-                                                "json_schema": { "name"  : self.llm_request.function_call.function_name,
+                                                "json_schema": { "name"  : self.llm_request_data.function_call.function_name,
                                                                  "schema": schema                                      ,
                                                                  'strict': True                                        }}
 
-        if self.llm_request.temperature is not None: payload["temperature"] = self.llm_request.temperature
-        if self.llm_request.top_p       is not None: payload["top_p"      ] = self.llm_request.top_p
-        if self.llm_request.max_tokens  is not None: payload["max_tokens" ] = self.llm_request.max_tokens
+        if self.llm_request_data.temperature is not None: payload["temperature"] = self.llm_request_data.temperature
+        if self.llm_request_data.top_p       is not None: payload["top_p"] = self.llm_request_data.top_p
+        if self.llm_request_data.max_tokens  is not None: payload["max_tokens"] = self.llm_request_data.max_tokens
 
         return payload
 

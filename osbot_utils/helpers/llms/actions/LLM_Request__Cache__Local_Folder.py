@@ -17,33 +17,26 @@ FILE_NAME__CACHE_INDEX            = "cache_index.json"
 class LLM_Request__Cache__Local_Folder(LLM_Request__Cache):
     root_folder : str                = FOLDER_NAME__CACHE_IN_TEMP_FOLDER                    # Root folder for cache storage
 
-    def save(self) -> bool:                                                                # Save cache index to disk
+    def save(self) -> bool:                                                                 # Save cache index to disk
         path_file__cache_index  = self.path_file__cache_index()
         json_data               = self.cache_index.json()
         json_file_save(path=path_file__cache_index, python_object=json_data)
         return True
 
-    def setup(self) -> bool:                                                                # Load cache from disk
-        path_file__cache_index = self.path_file__cache_index()
-        
-        if file_exists(path_file__cache_index):
-            try:
-                json_data        = json_file_load(path=path_file__cache_index)
-                self.cache_index = Schema__LLM_Cache__Index.from_json(json_data)
+    def setup(self) -> 'LLM_Request__Cache__Local_Folder':                                  # Load cache from disk
+        self.load_or_create()
+        return self
 
-                return True
-            except Exception as e:
-                print(f"Error loading cache index: {e}")
-                return False
-        return True
-
+    # todo: refactor this to use OSBot_Utils methods (which simplify this)
     def get_all_cache_ids(self) -> List[Obj_Id]:                                          # Get all cache IDs from disk
         file_names = files_names_in_folder(self.path_folder__root_cache())
         cache_ids  = []
         for file_name in file_names:
-            if is_obj_id(file_name):
-                cache_ids.append(Obj_Id(file_name))
-
+            if file_name == FILE_NAME__CACHE_INDEX:  # Skip the index file
+                continue
+            name_without_ext = os.path.splitext(file_name)[0]
+            if is_obj_id(name_without_ext):
+                cache_ids.append(Obj_Id(name_without_ext))
         return cache_ids
 
     def load_cache_entry(self, cache_id: Obj_Id) -> Optional[Schema__LLM_Response__Cache]: # Load cache entry from disk
@@ -67,65 +60,91 @@ class LLM_Request__Cache__Local_Folder(LLM_Request__Cache):
              ) -> bool:                                                                     # Success status
 
         result = super().add(request, response)
-        
+
         if result:
-            cache_id    = self.cache_index.hash__request[request.request_cache.hash__request]   # Save the cache entry to disk
-            cache_entry = self.cache_entries[cache_id]
-            cache_path  = self.path_file__cache_entry(cache_id)
-            json_file_save(cache_path, cache_entry.json())
-        
+            hash_request = self.compute_request_hash(request)
+            cache_id     = self.cache_index.hash__request[hash_request]   # Get the cache ID from the index
+            cache_entry  = self.cache_entries[cache_id]
+            cache_path   = self.path_file__cache_entry(cache_id)
+            json_file_save(cache_entry.json(), path=cache_path)
+
         return result
 
     @type_safe
     def delete(self, request: Schema__LLM_Request)-> bool:                                      # Delete from cache (overridden) , returns Success status
         request_hash = self.compute_request_hash(request)
-        
+
         if request_hash not in self.cache_index.hash__request:
             return False
-        
+
         cache_id   = self.cache_index.hash__request[request_hash]
         cache_path = self.path_file__cache_entry(cache_id)
 
-        file_delete(cache_path)                                                                 # Delete the file
+        if file_exists(cache_path):
+            file_delete(cache_path)                                                                 # Delete the file
 
         return super().delete(request)                                                          # Remove from memory and index
 
     def clear(self) -> bool:                                                                    # Clear all cache entries (overridden)
         for cache_id in self.get_all_cache_ids():                                               # Delete all files
             cache_path = self.path_file__cache_entry(cache_id)
-            file_delete(cache_path)
+            if file_exists(cache_path):
+                file_delete(cache_path)
+
+        index_path = self.path_file__cache_index()                                              # Delete the index file
+        if file_exists(index_path):
+            file_delete(index_path)
+
         return super().clear()                                                                  # Clear memory cache
 
+    def load_or_create(self):
+        folder_create(self.path_folder__root_cache())                                           # Ensure the root_folder exists
+        path_file__cache_index = self.path_file__cache_index()
+        if file_exists(path_file__cache_index):                                                 # if cache file exists
+            json_data        = json_file_load(path=path_file__cache_index)                      # get the data
+            self.cache_index = Schema__LLM_Cache__Index.from_json(json_data)                    # and load it as cache_index
+        else:
+            self.save()                                                                         # if not save the current cache_index (which should be empty)
+
     def rebuild_index(self) -> bool:                                                            # Rebuild index from disk files
-        self.cache_index   = Schema__LLM_Cache__Index()                                     # Create new empty index
+        self.cache_index   = Schema__LLM_Cache__Index()                                         # Create new empty index
         self.cache_entries = {}
 
-        for cache_id in self.get_all_cache_ids():                                           # Load all cache entries
+        for cache_id in self.get_all_cache_ids():                                               # Load all cache entries
             cache_entry = self.load_cache_entry(cache_id)
 
             if cache_entry:
-                request       = cache_entry.llm_request
-                request_hash  = request.request_cache.hash__request
-                messages_hash = request.request_cache.hash__request__messages
+                request = cache_entry.llm_request
+
+                hash_request   = self.compute_request_hash(request)                             # Recompute hashes since in case they are not be stored in the cache entry
+                messages_hash  = self.compute_messages_hash(request)                            # todo: see if we really need to recompute these hashes
 
                 if messages_hash not in self.cache_index.hash__request__messages:
                     self.cache_index.hash__request__messages[messages_hash] = set()
 
-                self.cache_index.hash__request [request_hash ] = cache_entry.cache_id       # Update the index
-                self.cache_index.hash__request__messages[messages_hash].add(cache_entry.cache_id)
+                self.cache_index.hash__request[hash_request] = cache_id       # Update the index
+                self.cache_index.hash__request__messages[messages_hash].add(cache_id)
 
         return self.save()
 
     def stats(self) -> Dict:                                                               # Cache statistics (overridden)
         stats = super().stats()
         total_size = 0                                                                      # Add disk-specific stats
+
+        # Add index file size
+        index_path = self.path_file__cache_index()
+        if file_exists(index_path):
+            total_size += os.path.getsize(index_path)
+
+        # Add cache entry files size
         for cache_id in self.get_all_cache_ids():
             cache_path = self.path_file__cache_entry(cache_id)
             if file_exists(cache_path):
                 total_size += os.path.getsize(cache_path)
-        
+
         stats["total_size_bytes"] = total_size
         stats["root_folder"     ] = self.path_folder__root_cache()
+        stats["cache_files"     ] = len(self.get_all_cache_ids())
         
         return stats
 

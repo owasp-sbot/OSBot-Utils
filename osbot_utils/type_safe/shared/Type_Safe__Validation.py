@@ -269,9 +269,9 @@ class Type_Safe__Validation:
         direct_type_match = type_safe_validation.check_if__type_matches__obj_annotation__for_attr(target, name, value)
         union_type_match  = type_safe_validation.check_if__type_matches__obj_annotation__for_union_and_annotated(target, name, value)
 
-        is_invalid = (direct_type_match is False and union_type_match is None) or \
-                    (direct_type_match is None and union_type_match is False) or \
-                    (direct_type_match is False and union_type_match is False)
+        is_invalid = (direct_type_match is False and union_type_match is None ) or \
+                     (direct_type_match is None  and union_type_match is False) or \
+                     (direct_type_match is False and union_type_match is False)
 
         if is_invalid:
             expected_type = annotations.get(name)

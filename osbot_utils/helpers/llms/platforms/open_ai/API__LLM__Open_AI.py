@@ -1,8 +1,11 @@
 from typing                             import Dict, Any
+from urllib.error import HTTPError
+
 from osbot_utils.type_safe.Type_Safe    import Type_Safe
 from osbot_utils.utils.Env              import get_env
 from osbot_utils.utils.Http             import POST_json
-from osbot_utils.utils.Json             import json_parse
+from osbot_utils.utils.Json import json_parse, str_to_json
+from osbot_utils.utils.Status import status_ok, status_error
 
 DEFAULT__LLM__SELECTED_PLATFORM = "OpenAI (Paid)"
 DEFAULT__LLM__SELECTED_PROVIDER = "OpenAI"
@@ -20,8 +23,13 @@ class API__LLM__Open_AI(Type_Safe):
         headers = { "Authorization": f"Bearer {self.api_key()}",
                     "Content-Type" : "application/json"       ,
                     'User-Agent'   : "myfeeds.ai"             }
-        response = POST_json(url, headers=headers, data=llm_payload)                #todo: add error handling
-        return response
+        try:
+            response = POST_json(url, headers=headers, data=llm_payload)                #todo: add error handling
+            return status_ok(data=response)
+        except HTTPError as error:
+            error_message = str_to_json(error.file.read().decode('utf-8'))
+            return status_error(error=error_message)
+
 
     # todo: refactor this into a separate class with better error detection and context specific methods
     def get_json(self, llm_response):
