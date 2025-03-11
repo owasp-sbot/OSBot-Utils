@@ -27,8 +27,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
                                                  max_tokens  = 100            )
         request_data.messages.append(message)
 
-        return Schema__LLM_Request(request_id    = Obj_Id()     ,
-                                   request_data  = request_data )
+        return Schema__LLM_Request(request_data  = request_data )
 
     def create_test_response(self) -> Schema__LLM_Response:                                    # Helper to create a test response
         return Schema__LLM_Response(response_id   = Obj_Id()                              ,
@@ -67,8 +66,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
     def test_add_and_get(self):
         request  = self.create_test_request("Hello, world!")
         response = self.create_test_response()
-        assert request.obj() == __(request_id  =request.request_id,
-                                   request_data=__(function_call=None,
+        assert request.obj() == __(request_data=__(function_call=None,
                                                    temperature  =0.7,
                                                    top_p        =None,
                                                    max_tokens   =100,

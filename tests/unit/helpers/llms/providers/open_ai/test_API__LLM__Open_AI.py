@@ -33,7 +33,7 @@ class test_API__LLM__Open_AI(TestCase):
             payload_2       = _.build_request_payload()
         assert payload  == payload_2
 
-        response       = self.api_llm.execute(payload).get('data')
+        response       = self.api_llm.execute(payload)
         assert obj(response).choices[0].message.content == 'December'
 
     def test_execute_with_structured_output(self):
@@ -69,7 +69,7 @@ class test_API__LLM__Open_AI(TestCase):
                                                                   'strict': True},
                                                    'type'     : 'json_schema'}}
 
-        response_json  = self.api_llm.execute(payload).get('data')
+        response_json  = self.api_llm.execute(payload)
         json_data      = response_json.get('choices')[0].get('message').get('content')
         current_month  = Current_Month.from_json(json_data)
 

@@ -23,11 +23,12 @@ class API__LLM__Open_AI(Type_Safe):
                     "Content-Type" : "application/json"       ,
                     'User-Agent'   : "myfeeds.ai"             }
         try:
-            response = POST_json(url, headers=headers, data=llm_payload)                #todo: add error handling
-            return status_ok(data=response)
+            response = POST_json(url, headers=headers, data=llm_payload)
+            return response
         except HTTPError as error:
+
             error_message = str_to_json(error.file.read().decode('utf-8'))
-            return status_error(error=error_message)
+            raise ValueError(error_message)
 
 
     # todo: refactor this into a separate class with better error detection and context specific methods

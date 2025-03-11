@@ -43,8 +43,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
                                                  max_tokens  = 100            )
         request_data.messages.append(message)
 
-        return Schema__LLM_Request(request_id    = Obj_Id()     ,
-                                   request_data  = request_data )
+        return Schema__LLM_Request(request_data  = request_data )
 
     def create_test_response(self) -> Schema__LLM_Response:                      # Helper to create a test response
         return Schema__LLM_Response(response_id   = Obj_Id()                        ,

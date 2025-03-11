@@ -18,8 +18,7 @@ class test_Schema__LLM_Request(TestCase):
         request_data = Schema__LLM_Request__Data            (messages     = [message]   )
         llm_request  = Schema__LLM_Request                  (request_data = request_data)
 
-        assert llm_request.obj() == __(request_id   = llm_request.request_id,
-                                       request_data = request_data.obj()   )
+        assert llm_request.obj() == __(request_data = request_data.obj()   )
 
         assert Schema__LLM_Request                   .from_json(llm_request .json()).json() == llm_request .json()
         assert Schema__LLM_Request__Data             .from_json(request_data.json()).json() == request_data.json()
@@ -27,8 +26,7 @@ class test_Schema__LLM_Request(TestCase):
 
 
     def test_json_roundtrip_from_json(self):
-        json_llm_request  = { 'request_id'  : Obj_Id()                                                                ,
-                              'request_data': { 'function_call': None                                                 ,
+        json_llm_request  = { 'request_data': { 'function_call': None                                                 ,
                                                                 'max_tokens'   : 100                                  ,
                                                                 'messages'     : [ { 'content': 'Test disk retrieval' ,
                                                                                      'role'   : 'USER'}]              ,
