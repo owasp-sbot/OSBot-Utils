@@ -1,3 +1,4 @@
+import os
 from typing                                                                     import List, Optional
 from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
 from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder              import Virtual_Storage__Local__Folder
@@ -62,8 +63,8 @@ class LLM_Request__Cache__Storage(Type_Safe):
         path_root               = self.virtual_storage.path_folder__root_cache()
         cache_id__to__file_path = {}
         for full_file_path in all_files_paths:
-            file_path = full_file_path.replace(path_root, '')[1:]
-            cache_id = file_name_without_extension(full_file_path)
+            file_path = os.path.relpath(full_file_path, path_root)
+            cache_id  = file_name_without_extension(full_file_path)
             if is_obj_id(cache_id):
                 cache_id__to__file_path[cache_id] = file_path
         return cache_id__to__file_path

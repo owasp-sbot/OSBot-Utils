@@ -1,7 +1,7 @@
 import sys
 import types
-from decimal import Decimal
-from enum import Enum, auto
+from decimal                              import Decimal
+from enum                                 import Enum, auto
 from osbot_utils.decorators.methods.cache import cache
 
 if sys.version_info >= (3, 10):

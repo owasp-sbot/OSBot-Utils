@@ -1,5 +1,4 @@
 import re
-
 from osbot_utils.base_classes.Kwargs_To_Self                import Kwargs_To_Self
 from osbot_utils.decorators.lists.filter_list               import filter_list
 from osbot_utils.decorators.lists.index_by                  import index_by
@@ -8,10 +7,9 @@ from osbot_utils.helpers.Print_Table                        import Print_Table
 from osbot_utils.helpers.sqlite.Sqlite__Database            import Sqlite__Database
 from osbot_utils.helpers.sqlite.Sqlite__Globals             import DEFAULT_FIELD_NAME__ID, ROW_BASE_CLASS, SQL_TABLE__MODULE_NAME__ROW_SCHEMA
 from osbot_utils.helpers.sqlite.models.Sqlite__Field__Type  import Sqlite__Field__Type
-from osbot_utils.utils.Dev import pprint
 from osbot_utils.utils.Json                                 import json_load
 from osbot_utils.utils.Misc                                 import list_set
-from osbot_utils.utils.Objects import base_types, default_value, bytes_to_obj, obj_to_bytes
+from osbot_utils.utils.Objects                              import base_types, default_value, bytes_to_obj, obj_to_bytes
 from osbot_utils.utils.Str                                  import str_cap_snake_case
 
 class Sqlite__Table(Kwargs_To_Self):

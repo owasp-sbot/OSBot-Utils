@@ -1,12 +1,12 @@
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
+from osbot_utils.base_classes.Kwargs_To_Self  import Kwargs_To_Self
 from osbot_utils.helpers.sqlite.Sqlite__Table import Sqlite__Table
-from osbot_utils.utils.Misc import timestamp_utc_now, bytes_sha256, str_sha256
-from osbot_utils.utils.Status import status_warning, status_ok
+from osbot_utils.utils.Misc                   import timestamp_utc_now, bytes_sha256, str_sha256
+from osbot_utils.utils.Status                 import status_warning, status_ok
 
 SQLITE__TABLE_NAME__FILES = 'files'
 
 class Schema__Table__Files(Kwargs_To_Self):
-    path     : str
+    path     : str                              # todo: add support for using Safe_Str__File__Path (this will need changes to how Sqlite__Field__Type is mapped in add_field_with_type)
     contents : bytes
     metadata : bytes
     timestamp: int
@@ -50,7 +50,7 @@ class Sqlite__Table__Files(Sqlite__Table):
         return status_ok(message='file deleted')
 
     def create_node_data(self, path, contents=None, metadata= None):
-        node_data = {'path'    : path     ,
+        node_data = {'path'    : str(path),
                      'contents': contents ,
                      'metadata': metadata }
         if self.set_timestamp:
