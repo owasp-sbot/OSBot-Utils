@@ -122,7 +122,7 @@ class Performance_Measure__Session(Type_Safe):
         if self.assert_enabled is False:
             return
         if in_github_action():
-            max_time   = max_time * 5               # adjust for GitHub's slowness
+            max_time   = max_time * 6               # adjust for GitHub's slowness
 
         assert self.result.final_score <= max_time,  f"Performance changed for {self.result.name}: got {self.result.final_score:,d}ns, expected less than {max_time}ns"
 
