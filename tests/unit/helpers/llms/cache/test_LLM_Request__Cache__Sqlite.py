@@ -13,7 +13,7 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                  impo
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Files                   import Sqlite__DB__Files
 
 
-class test_LLM_Request__Cache__With_Sqlite(unittest.TestCase):        # Test cache integration with SQLite storage
+class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache integration with SQLite storage
     cache    : LLM_Request__Cache__File_System
     temp_dir : str
 
@@ -23,7 +23,6 @@ class test_LLM_Request__Cache__With_Sqlite(unittest.TestCase):        # Test cac
         cls.db_path                    = os.path.join(cls.temp_dir, "llm_cache_test.sqlite")
         cls.virtual_storage            = Virtual_Storage__Sqlite()                                            # Create the SQLite virtual storage
         cls.virtual_storage.db.db_path = cls.db_path                                                          # Set database path
-        cls.storage                    = LLM_Request__Cache__Storage(virtual_storage=cls.virtual_storage)     # Wire up the sqlite virtual storage
         cls.cache                      = LLM_Request__Cache__File_System(virtual_storage=cls.virtual_storage) # Create cache system
         cls.cache.setup()                                                                                     # Initialize cache
 
@@ -79,13 +78,13 @@ class test_LLM_Request__Cache__With_Sqlite(unittest.TestCase):        # Test cac
                                                   'timestamp'    : response_timestamp         },
                                'timestamp': cached_timestamp }
         cache_index_data  = { 'cache_id__from__hash__request': { hash_request: cache_id       },
-                             'cache_id__to__file_path'       : { cache_id    : cache_path     }}
+                              'cache_id__to__file_path'       : { cache_id    : cache_path     }}
 
-        assert cache_id                                     is not None         # Verify it worked
-        assert hash_request                                 == "c1a0028346"     # Given the same import this value should always be the same
-        assert self.storage.exists__cache_entry(cache_path) is True             # Verify through storage API
-        assert cached_response                              is not None
-        assert cached_response.response_id                  == response.response_id
+        assert cache_id                                             is not None         # Verify it worked
+        assert hash_request                                         == "c1a0028346"     # Given the same import this value should always be the same
+        assert self.cache.storage().exists__cache_entry(cache_path) is True             # Verify through storage API
+        assert cached_response                                      is not None
+        assert cached_response.response_id                          == response.response_id
 
 
         assert self.cache.json() == { 'cache_entries'   : { cache_id: cache_entry_data},
@@ -100,11 +99,11 @@ class test_LLM_Request__Cache__With_Sqlite(unittest.TestCase):        # Test cac
                                                                     'db_path'        : self.db_path ,
                                                                     'deleted'        : False        ,
                                                                     'in_memory'      : False        },
-                                                             'root_folder': 'cache/'}}
+                                                             'root_folder': 'llm-cache/'}}
 
         with self.virtual_storage.db  as _:
-            file__cache_index = 'cache/cache_index.json'
-            file__cache_file  = f'cache/{cache_path}'
+            file__cache_index = 'llm-cache/cache_index.json'
+            file__cache_file  = f'llm-cache/{cache_path}'
             assert type(_)        is Sqlite__DB__Files
             assert _.file_names() == [file__cache_index, file__cache_file]
             assert _.file_contents__json(file__cache_index) == cache_index_data

@@ -8,7 +8,7 @@ from osbot_utils.utils.Json                                         import json_
 
 class Virtual_Storage__Sqlite(Virtual_Storage__Local__Folder):
     db          : Sqlite__DB__Files                                                         # SQLite database for file storage (defaults to an in memory db)
-    root_folder : Safe_Str__File__Path = Safe_Str__File__Path("cache/"                )     # Prefix for all stored files
+    root_folder : Safe_Str__File__Path = Safe_Str__File__Path("llm-cache/"                )     # Prefix for all stored files
 
     def folder__create(self, path_folder) -> None:                                          # Folders don't need to be explicitly created in SQLite storage
         pass                                                                                # They're implicitly created when files are added with path prefixes
@@ -41,9 +41,9 @@ class Virtual_Storage__Sqlite(Virtual_Storage__Local__Folder):
     # todo: see if need the filter below
     def files__all(self) -> List[str]:                                              # List all files in SQLite
         all_files = self.db.file_names()
-        return [f for f in all_files if f.startswith(self.root_folder)]             # Filter to only include files that start with our root_prefix
+        return all_files
+        #return [f for f in all_files if f.startswith(self.root_folder)]             # Filter to only include files that start with our root_prefix
 
-    # todo: see if need this
     def get_virtual_path(self, path: Safe_Str__File__Path) -> str:                  # Create a virtual path that incorporates the root_folder concept
         if path.startswith(self.root_folder):
             return path
