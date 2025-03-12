@@ -69,7 +69,7 @@ class Type_Safe__Step__Init:
                 elif origin is dict and isinstance(value, dict):
                     from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
                     key_type, value_type = get_args(annotation)
-                    type_safe_dict = Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
+                    type_safe_dict       = Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
                     for k, v in value.items():
                         type_safe_dict[k] = v
                     return type_safe_dict

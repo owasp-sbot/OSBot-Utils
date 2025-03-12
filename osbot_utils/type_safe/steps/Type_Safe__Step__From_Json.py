@@ -127,6 +127,14 @@ class Type_Safe__Step__From_Json:
                 else:
                     module = __import__(module_name, fromlist=[type_name])
                     value = getattr(module, type_name)
+                    if isinstance(value, type) is False:
+                        raise ValueError(f"Security alert, in deserialize_type__using_value only classes are allowed")
+
+                    # todo: figure out a way to do this
+                    # supported_types = (Type_Safe, str, int, type, dict)
+                    # if issubclass(value, supported_types)  is False:
+                    #     raise ValueError(f"Security alert, in deserialize_type__using_value only class of {supported_types} are allowed and it was {value}")
+
             except (ValueError, ImportError, AttributeError) as e:
                 raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")
         return value

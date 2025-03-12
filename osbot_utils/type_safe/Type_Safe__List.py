@@ -18,7 +18,7 @@ class Type_Safe__List(Type_Safe__Base, list):
             try:
                 self.is_instance_of_type(item, self.expected_type)
             except TypeError as e:
-                raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}")
+               raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}")
         super().append(item)
 
 
