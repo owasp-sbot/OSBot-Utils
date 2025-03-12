@@ -37,7 +37,6 @@ class test_Schema__LLM_Request(TestCase):
                                                                 'top_p'        : None                                 }}
         json_response_cache = { 'cache_id'               : Obj_Id()         ,
                                 'hash__request'          : None             ,
-                                'hash__request__messages': None             ,
                                 'llm_request'            : json_llm_request ,
                                 'llm_response'           : None             ,
                                 'timestamp'               : Timestamp_Now() }

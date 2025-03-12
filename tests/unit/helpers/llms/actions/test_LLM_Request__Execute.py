@@ -9,8 +9,8 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             impo
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                  import Schema__LLM_Response
-from osbot_utils.utils.Dev import pprint
-from osbot_utils.utils.Env import get_env, load_dotenv
+from osbot_utils.utils.Env                                                  import get_env, load_dotenv
+from osbot_utils.utils.Files                                                import folder_create
 
 
 class test_LLM_Request__Execute(TestCase):
@@ -22,7 +22,8 @@ class test_LLM_Request__Execute(TestCase):
     @classmethod
     def setUpClass(cls):
         load_dotenv()
-        cls.llm_cache         = LLM_Request__Cache__Local_Folder().setup()
+        cls.cache_root_folder = folder_create('/tmp/_osbot_utils/cache__test_LLM_Request__Execute')
+        cls.llm_cache         = LLM_Request__Cache__Local_Folder(root_folder=cls.cache_root_folder).setup()
         cls.llm_api           = API__LLM__Open_AI()
         cls.request_builder   = LLM_Request__Builder__Open_AI()
         cls.llm_execute       = LLM_Request__Execute(llm_cache       = cls.llm_cache      ,
@@ -36,7 +37,7 @@ class test_LLM_Request__Execute(TestCase):
 
         request_data = Schema__LLM_Request__Data(model       = "gpt-4o-mini",
                                                  platform    = "OpenAI"     ,
-                                                 provider    = "OpenAI"     ,
+                                                 provider    = "OpenAI-API" ,
                                                  temperature = 0.7          ,
                                                  max_tokens  = 50           )      # Limit tokens to reduce costs
 
@@ -118,19 +119,3 @@ class test_LLM_Request__Execute(TestCase):
     #     pprint(response)
     #     # Response should contain error info
     #     assert "error" in response.response_data
-
-    def test_cache_similar_messages(self):
-        if not self.api_key_available:
-            self.skipTest("OpenAI API key not available")
-
-        # First request
-        request1 = self.create_test_request("What is the capital of France?")
-        response1 = self.llm_execute.execute(request1)
-
-        # Get similar responses
-        request2 = self.create_test_request("What is the capital of France?")
-        similar_responses = self.llm_cache.get__same_messages(request2)
-
-        # Should find the similar response
-        assert len(similar_responses) == 1
-        assert similar_responses[0].response_id == response1.response_id

@@ -4,26 +4,25 @@ from typing                                                         import Optio
 from osbot_utils.decorators.methods.cache_on_self                   import cache_on_self
 from osbot_utils.helpers.Obj_Id                                     import Obj_Id, is_obj_id
 from osbot_utils.helpers.Safe_Id                                    import Safe_Id
-from osbot_utils.helpers.Timestamp_Now import Timestamp_Now
 from osbot_utils.helpers.llms.cache.LLM_Cache__Path_Generator       import LLM_Cache__Path_Generator
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache              import LLM_Request__Cache
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index      import Schema__LLM_Cache__Index
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request           import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response          import Schema__LLM_Response
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache   import Schema__LLM_Response__Cache
-from osbot_utils.helpers.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.helpers.safe_str.Safe_Str__File__Path              import Safe_Str__File__Path
 from osbot_utils.type_safe.decorators.type_safe                     import type_safe
-from osbot_utils.utils.Files import current_temp_folder, path_combine_safe, folder_create, file_exists, folder_exists, \
-    file_delete, files_names_in_folder, create_folder, parent_folder, files_recursive, files_names, \
-    files_names_without_extension, file_name_without_extension
+from osbot_utils.utils.Files                                        import current_temp_folder, path_combine_safe, folder_create, file_exists, folder_exists, file_delete, create_folder, parent_folder, files_recursive, file_name_without_extension
 from osbot_utils.utils.Json                                         import json_file_load, json_file_save
 
 FOLDER_NAME__CACHE_IN_TEMP_FOLDER = '_llm_requests_cache'
 FILE_NAME__CACHE_INDEX            = "cache_index.json"
 
 class LLM_Request__Cache__Local_Folder(LLM_Request__Cache):
-    root_folder   : str                       = FOLDER_NAME__CACHE_IN_TEMP_FOLDER                    # Root folder for cache storage
-    path_generator: LLM_Cache__Path_Generator
+    root_folder    : str                       = FOLDER_NAME__CACHE_IN_TEMP_FOLDER                    # Root folder for cache storage
+    path_generator : LLM_Cache__Path_Generator
+    shared_domains : List[Safe_Id]
+    shared_areas   : List[Safe_Id]
 
     def save(self) -> bool:                                                                 # Save cache index to disk
         path_file__cache_index  = self.path_file__cache_index()
@@ -113,14 +112,9 @@ class LLM_Request__Cache__Local_Folder(LLM_Request__Cache):
             if cache_entry:
                 request = cache_entry.llm_request
 
-                hash_request   = self.compute_request_hash(request)                             # Recompute hashes since in case they are not be stored in the cache entry
-                messages_hash  = self.compute_messages_hash(request)                            # todo: see if we really need to recompute these hashes
-
-                if messages_hash not in self.cache_index.cache_ids__from__hash__request__messages:
-                    self.cache_index.cache_ids__from__hash__request__messages[messages_hash] = set()
+                hash_request   = self.compute_request_hash(request)                           # Recompute hashes since in case they are not be stored in the cache entry
 
                 self.cache_index.cache_id__from__hash__request[hash_request] = cache_id       # Update the index
-                self.cache_index.cache_ids__from__hash__request__messages[messages_hash].add(cache_id)
 
         return self.save()
 
@@ -169,22 +163,18 @@ class LLM_Request__Cache__Local_Folder(LLM_Request__Cache):
 
     # todo: refactor this to not use a tuple return value (which is never a good thing)
     @type_safe
-    def extract_request_domains_areas(self, request: Schema__LLM_Request) -> Tuple[List[Safe_Id], List[Safe_Id]]: # Extract organizational information from a request.
+    def extract_domains_from_request(self, request: Schema__LLM_Request) -> List[Safe_Id]:                          # Extract organizational information from a request.
         domains = []
-        areas   = []
 
-        if request and request.request_data:                                                                        # Provider as domain
-            if request.request_data.provider:
+        if request and request.request_data:
+            if request.request_data.model:                                                                          # first add the model (if exists)
+                domains.append(Safe_Id(request.request_data.model))
+            if request.request_data.provider:                                                                       # then add the provider (if exists)
                 domains.append(Safe_Id(request.request_data.provider))
-
-            if request.request_data.platform:                                                                       # Platform as domain
+            if request.request_data.platform:                                                                       # finally add the platform (if exists)
                 domains.append(Safe_Id(request.request_data.platform))
 
-            # Model as area
-            if request.request_data.model:
-                areas.append(Safe_Id(request.request_data.model))
-
-        return domains, areas
+        return domains
 
     @type_safe
     def path_for_temporal_entry(self, cache_id  : Obj_Id              ,
@@ -206,15 +196,17 @@ class LLM_Request__Cache__Local_Folder(LLM_Request__Cache):
                   now      : datetime = None
              ) -> Obj_Id:                                                                   # Save an LLM request/response pair using temporal organization.
 
-        cache_id       = super().add(request, response)                                     # First use standard add() to handle in-memory caching
-        cache_entry    = self.cache_entries[cache_id]                                       # get the cache entry (which will exist since it was added on super().add(request, response)  )
-        domains, areas = self.extract_request_domains_areas(request)                        # Extract domains and areas for organization
-        date_time      = now or datetime.now(UTC)
+        cache_id        = super().add(request, response)                                     # First use standard add() to handle in-memory caching
+        cache_entry     = self.cache_entries[cache_id]                                       # get the cache entry (which will exist since it was added on super().add(request, response)  )
+        request_domains = self.extract_domains_from_request(request)                        # Extract domains and areas for organization
+        domains         = self.shared_domains + request_domains
+        areas           = self.shared_areas
+        date_time       = now or datetime.now(UTC)
 
-        file_path = self.path_for_temporal_entry(cache_id   = cache_id ,                    # Generate file path and save
-                                                     date_time  = date_time,
-                                                     domains    = domains  ,
-                                                     areas      = areas    )
+        file_path       = self.path_for_temporal_entry(cache_id   = cache_id ,                    # Generate file path and save
+                                                           date_time  = date_time,
+                                                           domains    = domains  ,
+                                                           areas      = areas    )
         self.cache_index.cache_id__to__file_path[cache_id] = file_path
 
         # todo: move this to a separate method

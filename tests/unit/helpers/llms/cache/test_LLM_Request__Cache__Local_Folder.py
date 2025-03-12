@@ -56,8 +56,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         cache_index_content = json_file_load(self.cache.path_file__cache_index())
         assert isinstance(cache_index_content, dict)                                # Index file should contain a valid JSON object
         assert list_set(cache_index_content) == ['cache_id__from__hash__request',
-                                                 'cache_id__to__file_path',
-                                                 'cache_ids__from__hash__request__messages']
+                                                 'cache_id__to__file_path'      ]
 
     def test_add_and_get(self):
         request         = self.create_test_request("Hello, world!")
@@ -174,7 +173,6 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         self.cache                                     = LLM_Request__Cache__Local_Folder()
         self.cache.root_folder                         = self.temp_dir
         self.cache.cache_index.cache_id__from__hash__request           = {}                               # Clear the index
-        self.cache.cache_index.cache_ids__from__hash__request__messages = {}
 
         # Rebuild index
         result = self.cache.rebuild_index()
@@ -225,21 +223,3 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         cached_response = new_cache.get(request)                                # Should be able to retrieve it
         assert cached_response is not None
         assert cached_response.response_id == response.response_id              # Should get the same response back
-
-    def test_similar_message_lookup(self):
-        # Add a request with specific parameters
-        request1 = self.create_test_request("What is the capital of France?")
-        request1.request_data.temperature = 0.7
-        response1 = self.create_test_response()
-        response1.response_data = {"content": "Paris"}
-        self.cache.add(request1, response1)
-
-        # Create a similar request with different parameters
-        request2 = self.create_test_request("What is the capital of France?")
-        request2.request_data.temperature = 0.5                                 # Different temperature
-
-        # Should find the similar response
-        similar_responses = self.cache.get__same_messages(request2)
-        assert len(similar_responses) == 1                                      # Should find one similar response
-        assert similar_responses[0].response_data["content"] == "Paris"         # Should contain the correct response
-

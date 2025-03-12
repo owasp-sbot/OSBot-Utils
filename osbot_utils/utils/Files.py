@@ -1,5 +1,5 @@
 import os
-from typing                 import Union
+from typing import Union
 
 class Files:
     @staticmethod

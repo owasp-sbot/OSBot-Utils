@@ -18,20 +18,17 @@ class LLM_Request__Execute(Type_Safe):
     @type_safe
     def execute(self, llm_request: Schema__LLM_Request) -> Schema__LLM_Response:
 
-        if self.use_cache:                                                                  # Check cache if enabled
+        if self.use_cache:                                                                          # Check cache if enabled
             cached_response = self.llm_cache.get(llm_request)
             if cached_response:
                 return cached_response
 
         self.request_builder.llm_request_data = llm_request.request_data
+        llm_payload                           = self.request_builder.build_request_payload()
+        response_data                         = self.llm_api.execute(llm_payload)                   # Make API call
+        llm_response                          = Schema__LLM_Response(response_data=response_data)   # Create response object
 
-        llm_payload = self.request_builder.build_request_payload()
-
-        response_data = self.llm_api.execute(llm_payload)                      # Make API call
-
-        llm_response = Schema__LLM_Response(response_data=response_data)                    # Create response object
-
-        if self.use_cache:                                                                  # Cache the response if enabled
+        if self.use_cache:                                                                          # Cache the response if enabled
             self.llm_cache.add(llm_request, llm_response)
 
         return llm_response

@@ -47,22 +47,6 @@ class test_LLM_Request__Cache(unittest.TestCase):
         hash_3    = self.cache.compute_request_hash(request_2)
         assert hash_1 != hash_3
 
-    def test_compute_messages_hash(self):
-        request_1 = self.create_test_request("Test message")
-        request_2 = self.create_test_request("Test message")                                    # Same message
-        request_2.request_data.temperature = 0.9                                                # But different parameters
-
-        hash_1 = self.cache.compute_messages_hash(request_1)
-        hash_2 = self.cache.compute_messages_hash(request_2)
-
-        assert hash_1 == hash_2                                                                  # Should have same message hash
-        assert len(hash_1) == 10                                                                # Hash should be of correct length
-
-        # Different messages should have different hashes
-        request_3 = self.create_test_request("Different message")
-        hash_3    = self.cache.compute_messages_hash(request_3)
-        assert hash_1 != hash_3
-
     def test_add_and_get(self):
         request  = self.create_test_request("Hello, world!")
         response = self.create_test_response()
@@ -91,31 +75,6 @@ class test_LLM_Request__Cache(unittest.TestCase):
         assert cached_response          is not None                                                # Should retrieve cached response
         assert response.response_id     == cached_response.response_id                             # Response IDs should match
         assert cache_entry.llm_response == response
-
-
-    def test_get__same_messages(self):
-        # Create two requests with the same message but different params
-        request1 = self.create_test_request("What is the capital of France?")
-        request1.request_data.temperature = 0.7
-        response1 = self.create_test_response()
-        response1.response_data = {"content": "Paris"}
-
-        request2 = self.create_test_request("What is the capital of France?")
-        request2.request_data.temperature = 0.5                                                # Different temperature
-        response2 = self.create_test_response()
-        response2.response_data = {"content": "Paris, the capital of France"}
-
-        # Add both to cache
-        self.cache.add(request1, response1)
-        self.cache.add(request2, response2)
-
-        # Create a new similar request
-        request3 = self.create_test_request("What is the capital of France?")
-        request3.request_data.temperature = 0.3                                                # Different again
-
-        # Get similar responses
-        similar_responses = self.cache.get__same_messages(request3)
-        assert len(similar_responses) == 2                                                     # Should find 2 similar responses
 
     def test_delete(self):
         request = self.create_test_request("Delete me")

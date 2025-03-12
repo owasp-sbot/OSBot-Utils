@@ -12,7 +12,6 @@ class test_Schema__LLM_Response__Cache(TestCase):
         cache_entry  = Schema__LLM_Response__Cache(llm_response=llm_response, llm_request=llm_request)
 
         assert cache_entry.obj() == __(hash__request            = None,
-                                       hash__request__messages  = None,
                                        llm_response             = __( response_id    = llm_response.response_id,
                                                                       timestamp      = llm_response.timestamp,
                                                                       response_data  = __()),
@@ -33,7 +32,6 @@ class test_Schema__LLM_Response__Cache(TestCase):
 
         cache_entry_2 = { 'cache_id': '915b1417',
                           'hash__request': '347a144f9d',
-                          'hash__request__messages': '64258e5eea',
                           'llm_request': { 'request_data': { 'function_call': None,
                                                              'max_tokens': 100,
                                                              'messages': [ { 'content': 'Test disk '
