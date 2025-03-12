@@ -2,9 +2,9 @@ import unittest
 import tempfile
 import shutil
 import os
-from osbot_utils.helpers.Obj_Id                                             import Obj_Id
+from osbot_utils.helpers.Obj_Id import Obj_Id, is_obj_id
 from osbot_utils.helpers.Timestamp_Now                                      import Timestamp_Now
-from osbot_utils.helpers.llms.actions.LLM_Request__Cache__Local_Folder      import LLM_Request__Cache__Local_Folder
+from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Local_Folder        import LLM_Request__Cache__Local_Folder
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                   import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
@@ -55,25 +55,24 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         assert file_exists  (self.cache.path_file__cache_index())                   # Index file should exist after setup
         cache_index_content = json_file_load(self.cache.path_file__cache_index())
         assert isinstance(cache_index_content, dict)                                # Index file should contain a valid JSON object
-        assert list_set(cache_index_content) == ['hash__request', 'hash__request__messages']
+        assert list_set(cache_index_content) == ['cache_id__from__hash__request',
+                                                 'cache_id__to__file_path',
+                                                 'cache_ids__from__hash__request__messages']
 
     def test_add_and_get(self):
-        request  = self.create_test_request("Hello, world!")
-        response = self.create_test_response()
+        request         = self.create_test_request("Hello, world!")
+        response        = self.create_test_response()
+        cache_id        = self.cache.add(request, response)                                        # Add to cache
+        hash_request    = self.cache.compute_request_hash(request)
+        cache_path      = self.cache.path_file__cache_entry(cache_id)
+        cached_response = self.cache.get(request)                                           # Retrieve it
 
-        result = self.cache.add(request, response)                              # Add to cache
-        assert result is True                                                   # Add should succeed
-
-        hash_request = self.cache.compute_request_hash(request)
-        cache_id     = self.cache.cache_index.hash__request[hash_request]
-        cache_path   = self.cache.path_file__cache_entry(cache_id)
-
-        assert file_exists(cache_path)                                           # Cache file should exist on disk
-        assert self.cache.exists(request) is True                                # Item should exist in cache
-
-        cached_response = self.cache.get(request)                                # Retrieve it
-        assert cached_response      is not None                                  # Should retrieve cached response
-        assert response.response_id == cached_response.response_id               # Response IDs should match
+        assert is_obj_id(cache_id)          is True
+        assert cache_id                     == self.cache.cache_index.cache_id__from__hash__request[hash_request]
+        assert file_exists(cache_path)      is True                                       # Cache file should exist on disk
+        assert self.cache.exists(request)   is True                                       # Item should exist in cache
+        assert cached_response              is not None                                   # Should retrieve cached response
+        assert response.response_id         == cached_response.response_id                # Response IDs should match
 
     def test_get_cache_entry_from_disk(self):
         request  = self.create_test_request("Test disk retrieval")
@@ -81,7 +80,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
 
         self.cache.add(request, response)                                        # Add to cache
         hash_request    = self.cache.compute_request_hash(request)
-        cache_id        = self.cache.cache_index.hash__request[hash_request]
+        cache_id        = self.cache.cache_index.cache_id__from__hash__request[hash_request]
         cache_entry_1   = self.cache.get_cache_entry(cache_id)
         path_cache_file = self.cache.path_file__cache_entry(cache_id)
 
@@ -103,7 +102,8 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         assert cache_entry_2.llm_response.response_id == response.response_id       # double check request id
 
     def test_get_all_cache_ids(self):
-        request1 = self.create_test_request("First request")
+        self.cache.clear()
+        request1 = self.create_test_request("First request" )
         request2 = self.create_test_request("Second request")
         response = self.create_test_response()
 
@@ -113,13 +113,19 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         cache_ids = self.cache.get_all_cache_ids()
         assert len(cache_ids) == 2                                               # Should find both cache files
 
+        previous_cache = self.cache.cache_index.cache_id__to__file_path.copy()      # todo: move this rebuild_cache_id_to_file_path check into a new folder
+        self.cache.rebuild_cache_id_to_file_path()
+        assert self.cache.cache_index.cache_id__to__file_path == previous_cache
+
+        #assert self.cache.get_all_cache_ids__from__disk() == cache_ids
+
     def test_delete(self):
         request  = self.create_test_request("Delete me")
         response = self.create_test_response()
 
         self.cache.add(request, response)
         hash_request = self.cache.compute_request_hash(request)
-        cache_id     = self.cache.cache_index.hash__request[hash_request]
+        cache_id     = self.cache.cache_index.cache_id__from__hash__request[hash_request]
         cache_path   = self.cache.path_file__cache_entry(cache_id)
 
         assert file_exists(cache_path)                                           # File should exist before deletion
@@ -142,7 +148,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
             self.cache.add(request, response)
 
         assert len(files_names_in_folder(self.temp_dir)) > 0                    # Should have files before clearing
-        assert len(self.cache.cache_index.hash__request) > 0                    # Should have entries before clearing
+        assert len(self.cache.cache_index.cache_id__from__hash__request) > 0                    # Should have entries before clearing
 
         clear_result = self.cache.clear()
         assert clear_result == True                                             # Clear should return True
@@ -152,7 +158,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         assert files_remaining == ['cache_index']                               # Only the index file should remain after clearing
         assert len(all_ids        ) == 0                                        # All files should be deleted
         assert len(files_remaining) == 1                                        # only one left should be the index
-        assert len(self.cache.cache_index.hash__request) == 0                   # Cache index should be cleared
+        assert len(self.cache.cache_index.cache_id__from__hash__request) == 0                   # Cache index should be cleared
         assert len(self.cache.cache_entries) == 0                               # Cache entries should be cleared
 
     def test_rebuild_index(self):
@@ -167,22 +173,22 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         # Create a new empty cache, but using the same folder
         self.cache                                     = LLM_Request__Cache__Local_Folder()
         self.cache.root_folder                         = self.temp_dir
-        self.cache.cache_index.hash__request           = {}                               # Clear the index
-        self.cache.cache_index.hash__request__messages = {}
+        self.cache.cache_index.cache_id__from__hash__request           = {}                               # Clear the index
+        self.cache.cache_index.cache_ids__from__hash__request__messages = {}
 
         # Rebuild index
         result = self.cache.rebuild_index()
         assert result == True                                                  # Rebuild should return True
 
         # After rebuild, we should have the same entries
-        assert len(self.cache.cache_index.hash__request) == 2                  # Should have 2 entries after rebuild
+        assert len(self.cache.cache_index.cache_id__from__hash__request) == 2                  # Should have 2 entries after rebuild
 
         # The requests should be accessible again
         request_hash1 = self.cache.compute_request_hash(request1)
         request_hash2 = self.cache.compute_request_hash(request2)
 
-        assert request_hash1 in self.cache.cache_index.hash__request           # Hash should be in the rebuilt index
-        assert request_hash2 in self.cache.cache_index.hash__request           # Hash should be in the rebuilt index
+        assert request_hash1 in self.cache.cache_index.cache_id__from__hash__request           # Hash should be in the rebuilt index
+        assert request_hash2 in self.cache.cache_index.cache_id__from__hash__request           # Hash should be in the rebuilt index
 
     def test_stats(self):
         self.cache.clear()
@@ -236,3 +242,4 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         similar_responses = self.cache.get__same_messages(request2)
         assert len(similar_responses) == 1                                      # Should find one similar response
         assert similar_responses[0].response_data["content"] == "Paris"         # Should contain the correct response
+

@@ -49,3 +49,12 @@ jobs:
     needs:
       - increment-tag
 
+  deploy-mkdocs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy MKDocs to GH Static Pages
+        uses: ./.github/actions/gh-pages__deploy-mkdocs
+    needs:
+      - increment-tag
+

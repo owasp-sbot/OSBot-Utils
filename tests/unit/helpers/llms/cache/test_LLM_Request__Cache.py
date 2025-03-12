@@ -1,7 +1,7 @@
 import unittest
 from osbot_utils.helpers.Obj_Id                                             import Obj_Id
 from osbot_utils.helpers.Timestamp_Now                                      import Timestamp_Now
-from osbot_utils.helpers.llms.actions.LLM_Request__Cache                    import LLM_Request__Cache
+from osbot_utils.helpers.llms.cache.LLM_Request__Cache                      import LLM_Request__Cache
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                   import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
@@ -79,16 +79,19 @@ class test_LLM_Request__Cache(unittest.TestCase):
                                     timestamp     = response.timestamp  ,
                                     response_data = __(content='This is a test response'))
 
-        result = self.cache.add(request, response)          # Add to cache
-        assert result is True                               # Add should succeed
+        cache_id = self.cache.add(request, response)            # Add to cache
+        assert type(cache_id) is Obj_Id                         # Add should succeed
 
         # Check if it exists
         assert self.cache.exists(request) is True                                              # Item should exist in cache
 
         # Retrieve it
-        cached_response             = self.cache.get(request)
-        assert cached_response      is not None                                                # Should retrieve cached response
-        assert response.response_id == cached_response.response_id                             # Response IDs should match
+        cached_response                 = self.cache.get(request)
+        cache_entry                     = self.cache.get_cache_entry(cache_id)
+        assert cached_response          is not None                                                # Should retrieve cached response
+        assert response.response_id     == cached_response.response_id                             # Response IDs should match
+        assert cache_entry.llm_response == response
+
 
     def test_get__same_messages(self):
         # Create two requests with the same message but different params
@@ -134,7 +137,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
 
         # Get the cache_id
         request_hash = self.cache.compute_request_hash(request)
-        cache_id     = self.cache.cache_index.hash__request[request_hash]
+        cache_id     = self.cache.cache_index.cache_id__from__hash__request[request_hash]
 
         # Get by ID
         cached_response = self.cache.get_by_id(cache_id)
@@ -153,14 +156,14 @@ class test_LLM_Request__Cache(unittest.TestCase):
             self.cache.add(request, response)
 
         # Verify we have entries
-        assert len(self.cache.cache_index.hash__request) == 3
+        assert len(self.cache.cache_index.cache_id__from__hash__request) == 3
 
         # Clear
         clear_result = self.cache.clear()
         assert clear_result == True
 
         # Check everything is cleared
-        assert len(self.cache.cache_index.hash__request) == 0
+        assert len(self.cache.cache_index.cache_id__from__hash__request) == 0
         assert len(self.cache.cache_entries) == 0
 
     def test_stats(self):

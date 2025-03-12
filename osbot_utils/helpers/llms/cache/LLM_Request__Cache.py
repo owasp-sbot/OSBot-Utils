@@ -35,7 +35,7 @@ class LLM_Request__Cache(Type_Safe):
     @type_safe
     def add(self, request     : Schema__LLM_Request ,                                       # Request to cache
                   response    : Schema__LLM_Response                                        # Response to store
-             ) -> bool:                                                                     # Success status
+             ) -> Obj_Id:                                                                   # returns cache_id
 
         hash_request          = self.compute_request_hash (request)                         # calculate request hash
         hash_request_messages = self.compute_messages_hash(request)                         # calculate messages_hash hash
@@ -44,22 +44,23 @@ class LLM_Request__Cache(Type_Safe):
                                                             llm_response            = response             ,
                                                             hash__request           = hash_request         ,
                                                             hash__request__messages = hash_request_messages)
+        cache_id             = cache_entry.cache_id
 
 
-        if hash_request_messages not in self.cache_index.hash__request__messages:
-            self.cache_index.hash__request__messages[hash_request_messages] = set()
+        if hash_request_messages not in self.cache_index.cache_ids__from__hash__request__messages:
+            self.cache_index.cache_ids__from__hash__request__messages[hash_request_messages] = set()
 
-        self.cache_index.hash__request          [hash_request         ] = cache_entry.cache_id                                # Update the cache index
-        self.cache_entries                      [cache_entry.cache_id ] = cache_entry                                         # Store in memory
-        self.cache_index.hash__request__messages[hash_request_messages].add(cache_entry.cache_id)
+        self.cache_index.cache_id__from__hash__request          [hash_request] = cache_id                                      # Update the cache index
+        self.cache_entries                      [cache_id             ] = cache_entry                                   # Store in memory
+        self.cache_index.cache_ids__from__hash__request__messages[hash_request_messages].add(cache_id)
 
-        return self.save()
+        return cache_id
 
     def get(self, request: Schema__LLM_Request) -> Optional[Schema__LLM_Response]:                                      # Cached response or None
         request_hash = self.compute_request_hash(request)
 
-        if request_hash in self.cache_index.hash__request:                                                              # Check if we have an exact match
-            cache_id    = self.cache_index.hash__request[request_hash]
+        if request_hash in self.cache_index.cache_id__from__hash__request:                                                              # Check if we have an exact match
+            cache_id    = self.cache_index.cache_id__from__hash__request[request_hash]
             cache_entry = self.get_cache_entry(cache_id)
             if cache_entry:
                 return cache_entry.llm_response
@@ -74,8 +75,8 @@ class LLM_Request__Cache(Type_Safe):
         results       = []
         messages_hash = self.compute_messages_hash(request)
 
-        if messages_hash in self.cache_index.hash__request__messages:
-            cache_ids = self.cache_index.hash__request__messages[messages_hash]
+        if messages_hash in self.cache_index.cache_ids__from__hash__request__messages:
+            cache_ids = self.cache_index.cache_ids__from__hash__request__messages[messages_hash]
             for cache_id in cache_ids:
                 cache_entry = self.get_cache_entry(cache_id)
                 if cache_entry:
@@ -85,25 +86,25 @@ class LLM_Request__Cache(Type_Safe):
 
     def exists(self, request: Schema__LLM_Request) -> bool:                                                             # True if in cache
         request_hash = self.compute_request_hash(request)
-        return request_hash in self.cache_index.hash__request
+        return request_hash in self.cache_index.cache_id__from__hash__request
 
     def delete(self, request : Schema__LLM_Request) -> bool:                                                            # Success status
         request_hash  = self.compute_request_hash(request)
         messages_hash = self.compute_messages_hash(request)
 
-        if request_hash not in self.cache_index.hash__request:
+        if request_hash not in self.cache_index.cache_id__from__hash__request:
             return False
 
-        cache_id = self.cache_index.hash__request[request_hash]
+        cache_id = self.cache_index.cache_id__from__hash__request[request_hash]
 
-        del self.cache_index.hash__request[request_hash]                                                                # Remove from hashes
+        del self.cache_index.cache_id__from__hash__request[request_hash]                                                                # Remove from hashes
 
-        if messages_hash in self.cache_index.hash__request__messages:
-            if cache_id in self.cache_index.hash__request__messages[messages_hash]:
-                self.cache_index.hash__request__messages[messages_hash].remove(cache_id)
+        if messages_hash in self.cache_index.cache_ids__from__hash__request__messages:
+            if cache_id in self.cache_index.cache_ids__from__hash__request__messages[messages_hash]:
+                self.cache_index.cache_ids__from__hash__request__messages[messages_hash].remove(cache_id)
 
-            if not self.cache_index.hash__request__messages[messages_hash]:
-                del self.cache_index.hash__request__messages[messages_hash]
+            if not self.cache_index.cache_ids__from__hash__request__messages[messages_hash]:
+                del self.cache_index.cache_ids__from__hash__request__messages[messages_hash]
 
         if cache_id in self.cache_entries:                                                                              # Remove from memory
             del self.cache_entries[cache_id]
@@ -123,7 +124,7 @@ class LLM_Request__Cache(Type_Safe):
 
     def stats(self) -> Dict:                                                                                            # Cache statistics
 
-        total_entries    = len(self.cache_index.hash__request)
+        total_entries    = len(self.cache_index.cache_id__from__hash__request)
         models           = {}
         oldest_timestamp = None
         newest_timestamp = None

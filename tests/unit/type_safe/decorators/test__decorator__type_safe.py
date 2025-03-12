@@ -7,7 +7,7 @@ from dataclasses                                        import dataclass
 from osbot_utils.helpers.Obj_Id                         import Obj_Id
 from osbot_utils.helpers.Timestamp_Now                  import Timestamp_Now
 from osbot_utils.helpers.safe_str.Safe_Str              import Safe_Str
-from osbot_utils.helpers.safe_str.Safe_Str__File_Name   import Safe_Str__File_Name
+from osbot_utils.helpers.safe_str.Safe_Str__File__Name  import Safe_Str__File__Name
 from osbot_utils.helpers.safe_str.Safe_Str__Hash        import Safe_Str__Hash
 from osbot_utils.type_safe.Type_Safe                    import Type_Safe
 from osbot_utils.helpers.Safe_Id                        import Safe_Id
@@ -269,8 +269,8 @@ class test__decorator__type_safe(TestCase):
         @type_safe
         def an_method__with_immutable_classes_and_values (obj_id: Obj_Id=Obj_Id(), safe_id: Safe_Id = Safe_Id(), safe_str: Safe_Str=Safe_Str()): pass
         @type_safe
-        def an_method__with_immutable_safe_str_and_values(safe_str_1: Safe_Str = Safe_Str()                   ,
-                                                          safe_str_2: Safe_Str = Safe_Str__File_Name("a.txt") ,
+        def an_method__with_immutable_safe_str_and_values(safe_str_1: Safe_Str = Safe_Str(),
+                                                          safe_str_2: Safe_Str = Safe_Str__File__Name("a.txt"),
                                                           safe_str_3: Safe_Str = Safe_Str__Hash     ("1234567890")): pass
 
         an_method__with_only_immutable_vars         ("str", 42, b"bytes")
