@@ -287,7 +287,7 @@ class Type_Safe__Validation:
             if self.obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                        # if var_type is not something like Optional[Union[int, str]]
                 if var_type not in IMMUTABLE_TYPES or type(var_type) not in IMMUTABLE_TYPES:
                     if not isinstance(var_type, EnumMeta):
-                        if not issubclass(var_type, Safe_Str):
+                        if not issubclass(var_type, str):
                             type_safe_raise_exception.immutable_type_error(var_name, var_type)
 
     def validate_variable_type(self, var_name, var_type, var_value):                                # Validate type compatibility
