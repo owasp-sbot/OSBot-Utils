@@ -3,7 +3,7 @@ from osbot_utils.helpers.llms.cache.LLM_Request__Cache                          
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache__File_System             import LLM_Request__Cache__File_System
 from osbot_utils.helpers.llms.actions.LLM_Request__Execute                      import LLM_Request__Execute
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI            import LLM_Request__Builder__Open_AI
-from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Storage__Local__Folder  import LLM_Request__Cache__Storage__Local__Folder
+from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder import Virtual_Storage__Local__Folder
 from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI               import API__LLM__Open_AI, ENV_NAME_OPEN_AI__API_KEY
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                       import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data                 import Schema__LLM_Request__Data
@@ -26,8 +26,8 @@ class test_LLM_Request__Execute(TestCase):
     def setUpClass(cls):
         load_dotenv()
         cls.cache_root_folder = Safe_Str__File__Path(folder_create(TEST__TEMP__ROOT_FOLDER))
-        cls.storage           = LLM_Request__Cache__Storage__Local__Folder(root_folder=cls.cache_root_folder)
-        cls.llm_cache         = LLM_Request__Cache__File_System(storage=cls.storage).setup()
+        cls.virtual_storage   = Virtual_Storage__Local__Folder (root_folder     = cls.cache_root_folder)
+        cls.llm_cache         = LLM_Request__Cache__File_System(virtual_storage = cls.virtual_storage  ).setup()
         cls.llm_api           = API__LLM__Open_AI()
         cls.request_builder   = LLM_Request__Builder__Open_AI()
         cls.llm_execute       = LLM_Request__Execute(llm_cache       = cls.llm_cache      ,

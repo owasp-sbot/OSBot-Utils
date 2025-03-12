@@ -5,7 +5,7 @@ import os
 from osbot_utils.helpers.Obj_Id                                                 import Obj_Id, is_obj_id
 from osbot_utils.helpers.Timestamp_Now                                          import Timestamp_Now
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache__File_System             import LLM_Request__Cache__File_System
-from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Storage__Local__Folder  import LLM_Request__Cache__Storage__Local__Folder
+from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder              import Virtual_Storage__Local__Folder
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                       import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data                 import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role        import Schema__LLM_Request__Message__Role
@@ -25,9 +25,9 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.temp_dir          = Safe_Str__File__Path(tempfile.mkdtemp())                                                      # Create a temporary directory for testing
-        cls.storage           = LLM_Request__Cache__Storage__Local__Folder(root_folder=cls.temp_dir)    # use it on the storage
-        cls.cache             = LLM_Request__Cache__File_System(storage=cls.storage)                    # Initialize the cache
+        cls.temp_dir          = Safe_Str__File__Path(tempfile.mkdtemp())                                # Create a temporary directory for testing
+        cls.virtual_storage   = Virtual_Storage__Local__Folder (root_folder     = cls.temp_dir       )  # use it on the virtual storage
+        cls.cache             = LLM_Request__Cache__File_System(virtual_storage = cls.virtual_storage)  # Initialize the cache
         cls.cache.setup()                                                                               # Setup Cache
 
     @classmethod
@@ -54,9 +54,9 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
                                     response_data = {"content": "This is a test response"})
 
     def test_initialization(self):
-        assert folder_exists(self.cache.storage.path_folder__root_cache())                  # Folder should be created on initialization
-        assert file_exists  (self.cache.storage.path_file__cache_index())                   # Index file should exist after setup
-        cache_index_content = json_file_load(self.cache.storage.path_file__cache_index())
+        assert folder_exists(self.cache.virtual_storage.path_folder__root_cache())                  # Folder should be created on initialization
+        assert file_exists  (self.cache.storage().path_file__cache_index())                   # Index file should exist after setup
+        cache_index_content = json_file_load(self.cache.storage().path_file__cache_index())
         assert isinstance(cache_index_content, dict)                                # Index file should contain a valid JSON object
         assert list_set(cache_index_content) == ['cache_id__from__hash__request',
                                                  'cache_id__to__file_path'      ]
@@ -67,7 +67,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         cache_id        = self.cache.add(request, response)                                        # Add to cache
         hash_request    = self.cache.compute_request_hash(request)
         cache_path      = self.cache.path_file__cache_entry(cache_id)
-        full_cache_path = self.storage.path_file__cache_entry(cache_path)
+        full_cache_path = self.cache.storage().path_file__cache_entry(cache_path)
         cached_response = self.cache.get(request)                                           # Retrieve it
 
         assert is_obj_id(cache_id)          is True
@@ -86,7 +86,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         cache_id             = self.cache.cache_index.cache_id__from__hash__request[hash_request]
         cache_entry_1        = self.cache.get_cache_entry(cache_id)
         path_cache_file      = self.cache.path_file__cache_entry(cache_id)
-        full_path_cache_file = self.storage.path_file__cache_entry(path_cache_file)
+        full_path_cache_file = self.cache.storage().path_file__cache_entry(path_cache_file)
 
         assert type(cache_entry_1)               is Schema__LLM_Response__Cache
         assert cache_entry_1.json()              == Schema__LLM_Response__Cache.from_json(cache_entry_1.json()).json()   # confirm json roundtrip
@@ -131,7 +131,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         hash_request    = self.cache.compute_request_hash(request)
         cache_id        = self.cache.cache_index.cache_id__from__hash__request[hash_request]
         cache_path      = self.cache.path_file__cache_entry(cache_id)
-        full_cache_path = self.storage.path_file__cache_entry(cache_path)
+        full_cache_path = self.cache.storage().path_file__cache_entry(cache_path)
 
         assert file_exists(full_cache_path)                                      # File should exist before deletion
         assert self.cache.exists(request)                                        # Entry should exist in cache
@@ -176,7 +176,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         self.cache.add(request2, response)
 
         # Create a new empty cache, but using the same folder
-        self.cache                                     = LLM_Request__Cache__File_System(storage=self.storage)
+        self.cache                                     = LLM_Request__Cache__File_System(virtual_storage=self.virtual_storage)
         self.cache.root_folder                         = self.temp_dir
         self.cache.cache_index.cache_id__from__hash__request           = {}                               # Clear the index
 
@@ -222,8 +222,8 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         self.cache.add(request, response)                                       # Add to cache
 
         # Create a new cache with the same root folder (simulating a restart)
-        storage   = LLM_Request__Cache__Storage__Local__Folder(root_folder=self.temp_dir)
-        new_cache = LLM_Request__Cache__File_System           (storage=storage).setup()
+        virtual_storage = Virtual_Storage__Local__Folder (root_folder     = self.temp_dir  )
+        new_cache       = LLM_Request__Cache__File_System(virtual_storage = virtual_storage).setup()
 
         assert new_cache.exists(request) is True                                # Item should still exist in cache after restart
 

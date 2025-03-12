@@ -1,10 +1,12 @@
 from datetime                                                                   import datetime, UTC
 from typing                                                                     import Optional, List
+from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
 from osbot_utils.helpers.Obj_Id                                                 import Obj_Id
 from osbot_utils.helpers.Safe_Id                                                import Safe_Id
 from osbot_utils.helpers.llms.cache.LLM_Cache__Path_Generator                   import LLM_Cache__Path_Generator
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache                          import LLM_Request__Cache
-from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Storage__Local__Folder  import LLM_Request__Cache__Storage__Local__Folder
+from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Storage                 import LLM_Request__Cache__Storage
+from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder              import Virtual_Storage__Local__Folder
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index                  import Schema__LLM_Cache__Index
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                       import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                      import Schema__LLM_Response
@@ -13,13 +15,17 @@ from osbot_utils.helpers.safe_str.Safe_Str__File__Path                          
 from osbot_utils.type_safe.decorators.type_safe                                 import type_safe
 
 class LLM_Request__Cache__File_System(LLM_Request__Cache):
-    storage        : LLM_Request__Cache__Storage__Local__Folder                                     # storage class (default to local folder)
+    virtual_storage: Virtual_Storage__Local__Folder    
     path_generator : LLM_Cache__Path_Generator
     shared_domains : List[Safe_Id]
     shared_areas   : List[Safe_Id]
-
+    
+    @cache_on_self
+    def storage(self):
+        return LLM_Request__Cache__Storage(virtual_storage=self.virtual_storage)
+    
     def save(self) -> bool:                                                                 # Save cache index to disk
-        self.storage.save__cache_index(cache_index=self.cache_index)
+        self.storage().save__cache_index(cache_index=self.cache_index)
         return True
 
     def setup(self) -> 'LLM_Request__Cache__File_System':                                  # Load cache from disk
@@ -31,7 +37,7 @@ class LLM_Request__Cache__File_System(LLM_Request__Cache):
 
     def load_cache_entry(self, cache_id: Obj_Id) -> Optional[Schema__LLM_Response__Cache]: # Load cache entry from disk
         cache_path  = self.path_file__cache_entry(cache_id)
-        cache_entry = self.storage.load__cache_entry(cache_path)
+        cache_entry = self.storage().load__cache_entry(cache_path)
         if cache_entry:
             self.cache_entries[cache_id] = cache_entry
             return cache_entry
@@ -52,27 +58,27 @@ class LLM_Request__Cache__File_System(LLM_Request__Cache):
         cache_id   = self.cache_index.cache_id__from__hash__request[request_hash]
         cache_path = self.path_file__cache_entry(cache_id)
 
-        self.storage.delete__cache_entry(cache_path)                                             # Delete the file
+        self.storage().delete__cache_entry(cache_path)                                             # Delete the file
 
         return super().delete(request)                                                          # Remove from memory and index
 
     def clear(self) -> bool:                                                                    # Clear all cache entries (overridden)
         for cache_id in self.get_all_cache_ids():                                               # Delete all files
             cache_path = self.path_file__cache_entry(cache_id)
-            self.storage.delete__cache_entry(cache_path)
+            self.storage().delete__cache_entry(cache_path)
 
-        self.storage.delete__cache_index()
+        self.storage().delete__cache_index()
 
         return super().clear()                                                                  # Clear memory cache
 
     def load_or_create(self):
-        if self.storage.exists__cache_index():                                                  # if cache file exists
-            self.cache_index = self.storage.load__cache_index()                                 # load it
+        if self.storage().exists__cache_index():                                                  # if cache file exists
+            self.cache_index = self.storage().load__cache_index()                                 # load it
         else:
             self.save()                                                                         # if not save the current cache_index (which should be empty)
 
     def rebuild_cache_id_to_file_path(self) -> List[Obj_Id]:                # todo: check the performance impact of this (and if we really need this method)                                    # Get all cache IDs from disk
-        self.cache_index.cache_id__to__file_path = self.storage.reload__cache_id_to_file_path()  # assign the new cache_id__to__file_path
+        self.cache_index.cache_id__to__file_path = self.storage().reload__cache_id_to_file_path()  # assign the new cache_id__to__file_path
         return self
 
 
@@ -181,7 +187,7 @@ class LLM_Request__Cache__File_System(LLM_Request__Cache):
                                                            areas      = areas    )
         self.cache_index.cache_id__to__file_path[cache_id] = file_path
 
-        self.storage.save__cache_entry(file_path, cache_entry)
+        self.storage().save__cache_entry(file_path, cache_entry)
 
         self.save()                                                                         # save the cache to disk
         return cache_id
