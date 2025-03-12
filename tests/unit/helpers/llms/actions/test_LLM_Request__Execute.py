@@ -1,17 +1,20 @@
-from unittest                                                               import TestCase
-from osbot_utils.helpers.llms.cache.LLM_Request__Cache                      import LLM_Request__Cache
-from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Local_Folder        import LLM_Request__Cache__Local_Folder
-from osbot_utils.helpers.llms.actions.LLM_Request__Execute                  import LLM_Request__Execute
-from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI        import LLM_Request__Builder__Open_AI
-from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI           import API__LLM__Open_AI, ENV_NAME_OPEN_AI__API_KEY
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                   import Schema__LLM_Request
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             import Schema__LLM_Request__Data
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                  import Schema__LLM_Response
-from osbot_utils.utils.Env                                                  import get_env, load_dotenv
-from osbot_utils.utils.Files                                                import folder_create
+from unittest                                                                   import TestCase
+from osbot_utils.helpers.llms.cache.LLM_Request__Cache                          import LLM_Request__Cache
+from osbot_utils.helpers.llms.cache.LLM_Request__Cache__File_System             import LLM_Request__Cache__File_System
+from osbot_utils.helpers.llms.actions.LLM_Request__Execute                      import LLM_Request__Execute
+from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI            import LLM_Request__Builder__Open_AI
+from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Storage__Local__Folder  import LLM_Request__Cache__Storage__Local__Folder
+from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI               import API__LLM__Open_AI, ENV_NAME_OPEN_AI__API_KEY
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                       import Schema__LLM_Request
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data                 import Schema__LLM_Request__Data
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content     import Schema__LLM_Request__Message__Content
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role        import Schema__LLM_Request__Message__Role
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                      import Schema__LLM_Response
+from osbot_utils.helpers.safe_str.Safe_Str__File__Path                          import Safe_Str__File__Path
+from osbot_utils.utils.Env                                                      import get_env, load_dotenv
+from osbot_utils.utils.Files                                                    import folder_create
 
+TEST__TEMP__ROOT_FOLDER = '/tmp/_osbot_utils/cache__test_LLM_Request__Execute'
 
 class test_LLM_Request__Execute(TestCase):
     llm_execute       : LLM_Request__Execute
@@ -22,8 +25,9 @@ class test_LLM_Request__Execute(TestCase):
     @classmethod
     def setUpClass(cls):
         load_dotenv()
-        cls.cache_root_folder = folder_create('/tmp/_osbot_utils/cache__test_LLM_Request__Execute')
-        cls.llm_cache         = LLM_Request__Cache__Local_Folder(root_folder=cls.cache_root_folder).setup()
+        cls.cache_root_folder = Safe_Str__File__Path(folder_create(TEST__TEMP__ROOT_FOLDER))
+        cls.storage           = LLM_Request__Cache__Storage__Local__Folder(root_folder=cls.cache_root_folder)
+        cls.llm_cache         = LLM_Request__Cache__File_System(storage=cls.storage).setup()
         cls.llm_api           = API__LLM__Open_AI()
         cls.request_builder   = LLM_Request__Builder__Open_AI()
         cls.llm_execute       = LLM_Request__Execute(llm_cache       = cls.llm_cache      ,
