@@ -31,6 +31,8 @@ class Type_Safe__Step__Init:
         annotation = type_safe_annotations.obj_attribute_annotation(__self, key)
         if annotation:
             if isinstance(annotation, EnumMeta) and type(value) is str:
+                if value not in annotation.__members__:
+                    raise ValueError(f"Invalid value '{value}' for enum {annotation.__name__}")
                 value = annotation[value]
             else:
 
