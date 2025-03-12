@@ -9,6 +9,124 @@ from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
 
 class test_Type_Safe__Dict(TestCase):
 
+    def test_from_json_with_nested_containers(self):
+        from osbot_utils.helpers.Obj_Id import Obj_Id
+        from osbot_utils.type_safe.Type_Safe import Type_Safe
+        from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
+        from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
+        from typing import Dict, List
+        import pytest
+
+        # Define a hierarchy of nested classes
+        class SimpleValue(Type_Safe):
+            value: str
+            tag: str = "simple"
+
+        class NestedItem(Type_Safe):
+            name: str
+            values: List[SimpleValue]
+            metadata: Dict[str, str]
+
+        class ComplexContainer(Type_Safe):
+            title       : str
+            items       : Dict[str, NestedItem]
+            tags        : List[str]
+            reference_id: Obj_Id
+
+        # Create test data as a nested JSON structure
+        reference_id = Obj_Id()
+        test_json = {
+            "title": "Test Container",
+            "items": {
+                "item1": {
+                    "name": "First Item",
+                    "values": [
+                        {"value": "value1", "tag": "custom1"},
+                        {"value": "value2", 'tag': 'simple' }
+                    ],
+                    "metadata": {
+                        "creator": "test",
+                        "version": "1.0"
+                    }
+                },
+                "item2": {
+                    "name": "Second Item",
+                    "values": [
+                        {"value": "value3", "tag": "custom2"}
+                    ],
+                    "metadata": {
+                        "creator": "test",
+                        "version": "2.0"
+                    }
+                }
+            },
+            "tags": ["important", "test"],
+            "reference_id": reference_id
+        }
+
+        # Test deserialization with from_json
+        assert ComplexContainer.from_json(test_json).json() == test_json
+        container = ComplexContainer.from_json(test_json)
+
+        assert type(container             ) is ComplexContainer
+        assert type(container.title       ) is str
+        assert type(container.items       ) is Type_Safe__Dict
+        assert type(container.tags        ) is Type_Safe__List
+        assert type(container.reference_id) is Obj_Id
+
+        # Verify the structure and types
+        assert container.title == "Test Container"
+        assert isinstance(container.items, Type_Safe__Dict)
+        assert len(container.items) == 2
+
+        # Check first item
+        item1 = container.items["item1"]
+        assert isinstance(item1, NestedItem)
+        assert item1.name == "First Item"
+
+        # Check item1's values
+        assert isinstance(item1.values, Type_Safe__List)
+        assert len(item1.values) == 2
+        assert isinstance(item1.values[0], SimpleValue)
+        assert item1.values[0].value == "value1"
+        assert item1.values[0].tag == "custom1"
+        assert item1.values[1].value == "value2"
+        assert item1.values[1].tag == "simple"  # Default value
+
+        # Check item1's metadata
+        assert isinstance(item1.metadata, Type_Safe__Dict)
+        assert item1.metadata["creator"] == "test"
+        assert item1.metadata["version"] == "1.0"
+
+        # Check second item
+        item2 = container.items["item2"]
+        assert isinstance(item2, NestedItem)
+        assert item2.name == "Second Item"
+        assert len(item2.values) == 1
+        assert item2.values[0].value == "value3"
+
+        # Check top-level properties
+        assert isinstance(container.tags, Type_Safe__List)
+        assert container.tags[0] == "important"
+        assert container.tags[1] == "test"
+        assert isinstance(container.reference_id, Obj_Id)
+        assert str(container.reference_id) == reference_id
+
+        # Test serialization back to JSON
+        output_json = container.json()
+
+        # The output should match the input (with possibly some modifications due to type conversions)
+        assert output_json["title"] == test_json["title"]
+        assert output_json["items"]["item1"]["name"] == test_json["items"]["item1"]["name"]
+        assert output_json["items"]["item1"]["values"][0]["value"] == test_json["items"]["item1"]["values"][0]["value"]
+        assert output_json["tags"] == test_json["tags"]
+        assert output_json["reference_id"] == test_json["reference_id"]
+
+        # Test full round-trip equality (if your serialization is designed to be perfectly round-trip compatible)
+        # This might not pass if serialization adds or modifies fields
+        container2 = ComplexContainer.from_json(output_json)
+        assert container2.json() == output_json
+
     def test__dict_from_json__enforces_type_safety(self):
         class An_Class__Item(Type_Safe):
             an_str: str

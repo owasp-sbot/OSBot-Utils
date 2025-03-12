@@ -1,13 +1,10 @@
-from os import environ
-
 import pytest
-
 from osbot_utils.helpers.ssh.SCP            import SCP
 from osbot_utils.helpers.ssh.SSH__Execute   import SSH__Execute
 from osbot_utils.helpers.ssh.TestCase__SSH  import TestCase__SSH
 from osbot_utils.testing.Temp_File          import Temp_File
 from osbot_utils.testing.Temp_Folder        import Temp_Folder
-from osbot_utils.utils.Files                import file_name, file_contents, file_delete, path_combine
+from osbot_utils.utils.Files                import file_name, file_contents, file_delete
 from osbot_utils.utils.Misc                 import random_text
 
 ENV_VAR_TEST_OSBOT__SSH_HOST      = 'SSH__HOST'

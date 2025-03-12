@@ -3,6 +3,7 @@ import types
 from decimal                                             import Decimal
 from enum                                                import EnumMeta
 from osbot_utils.helpers.Obj_Id                          import Obj_Id
+from osbot_utils.helpers.safe_str.Safe_Str__Hash         import Safe_Str__Hash
 from osbot_utils.type_safe.Type_Safe                     import Type_Safe
 from osbot_utils.type_safe.Type_Safe__List               import Type_Safe__List
 from osbot_utils.helpers.Random_Guid                     import Random_Guid
@@ -93,6 +94,7 @@ class Type_Safe__Step__From_Json:
                                     value = enum_from_value(enum_type, value)                       # Try to resolve the value into the enum
 
                             # todo: refactor these special cases into a separate method to class
+                            #       in fact find a better way to handle these classes that need to be converted
                             elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Decimal):           # handle Decimals
                                 value = Decimal(value)
                             elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Safe_Id):           # handle Safe_Id
@@ -105,6 +107,12 @@ class Type_Safe__Step__From_Json:
                                 value = Timestamp_Now(value)
                             elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Obj_Id           ): # handle Obj_Id
                                 value = Obj_Id(value)
+                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Safe_Str__Hash   ): # handle Obj_Id
+                                value = Safe_Str__Hash(value)
+                            # else:
+                            #     from osbot_utils.utils.Dev import pprint
+                            #     pprint(value)
+
 
                     setattr(_self, key, value)                                                   # Direct assignment for primitive types and other structures
 

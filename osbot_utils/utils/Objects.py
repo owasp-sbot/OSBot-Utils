@@ -1,5 +1,4 @@
 # todo add tests
-import sys
 from types  import SimpleNamespace
 
 class __(SimpleNamespace):

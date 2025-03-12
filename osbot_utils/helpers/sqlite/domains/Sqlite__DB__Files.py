@@ -1,7 +1,7 @@
 from osbot_utils.decorators.lists.index_by                  import index_by
 from osbot_utils.decorators.methods.cache_on_self           import cache_on_self
 from osbot_utils.helpers.sqlite.domains.Sqlite__DB__Local   import Sqlite__DB__Local
-
+from osbot_utils.utils.Json                                 import str_to_json
 
 
 class Sqlite__DB__Files(Sqlite__DB__Local):
@@ -21,8 +21,12 @@ class Sqlite__DB__Files(Sqlite__DB__Local):
     def file(self, path, include_contents=False):
         return self.table_files().file(path, include_contents=include_contents)
 
-    def file_contents(self, path):
+    def file_contents(self, path) -> str:
         return self.table_files().file_contents(path)
+
+    def file_contents__json(self, path) -> dict:
+        file_contents = self.file_contents(path)
+        return str_to_json(file_contents)
 
     def file__with_content(self, path):
         return self.file(path, include_contents=True)

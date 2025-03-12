@@ -1,11 +1,12 @@
 import pytest
-from typing                                 import List
-from unittest                               import TestCase
-from osbot_utils.type_safe.Type_Safe        import Type_Safe
-from osbot_utils.type_safe.Type_Safe__List  import Type_Safe__List
+from typing                                     import List
+from unittest                                   import TestCase
+from osbot_utils.type_safe.Type_Safe            import Type_Safe
+from osbot_utils.type_safe.Type_Safe__List      import Type_Safe__List
 
 
 class test_Type_Safe__List__bugs(TestCase):
+
     def test__bug__type_safe_list_with_callable(self):
         from typing import Callable
 

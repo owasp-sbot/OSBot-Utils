@@ -1,5 +1,4 @@
-from typing import Type
-
+from typing                                import Type
 from osbot_utils.type_safe.Type_Safe__Base import Type_Safe__Base
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
@@ -9,13 +8,8 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         self.expected_key_type   = expected_key_type
         self.expected_value_type = expected_value_type
 
-        # todo: see if we need to do this, since there was not code coverage hitting it
-        # for k, v in self.items():                           # check type-safety of ctor arguments
-        #     self.is_instance_of_type(k, self.expected_key_type  )
-        #     self.is_instance_of_type(v, self.expected_value_type)
-
     def __setitem__(self, key, value):                                  # Check type-safety before allowing assignment.
-        self.is_instance_of_type(key, self.expected_key_type)
+        self.is_instance_of_type(key  , self.expected_key_type)
         self.is_instance_of_type(value, self.expected_value_type)
         super().__setitem__(key, value)
 

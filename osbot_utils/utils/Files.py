@@ -1,5 +1,5 @@
 import os
-from typing                 import Union
+from typing import Union
 
 class Files:
     @staticmethod
@@ -18,7 +18,7 @@ class Files:
     @staticmethod
     def contains(path, content):
         text = Files.contents(path)
-        if type(content) is list:
+        if isinstance(content, list):
             for item in content:
                 if item not in text:
                     return False
@@ -183,7 +183,7 @@ class Files:
         import shutil
 
         if ignore_pattern:
-            if type(ignore_pattern) is str:
+            if isinstance(ignore_pattern, str):
                 ignore_pattern = [ignore_pattern]
             ignore = shutil.ignore_patterns(*ignore_pattern)            # for example ignore_pattern = ['*.pyc','.DS_Store']
         else:
@@ -274,7 +274,7 @@ class Files:
 
         if isinstance(target, Path):
             return target.is_file()
-        if type(target) is str:
+        if isinstance(target, str):
             if len(target) < 4096:                          # max file size in Linux (handle the cases when the file contents was used as target)
                 return os.path.isfile(target)
         return False
@@ -285,7 +285,7 @@ class Files:
 
         if isinstance(target, Path):
             return target.is_dir()
-        if type(target) is str:
+        if isinstance(target, str):
             return os.path.isdir(target)
         return False
 
@@ -391,9 +391,9 @@ class Files:
 
     @staticmethod
     def sub_folders(target):
-        if type(target) is list:
+        if isinstance(target, list):
             return Files.folders_sub_folders(target)
-        if type(target) is str:
+        if isinstance(target, str):
             return Files.folder_sub_folders(target)
         return []
 
@@ -471,7 +471,7 @@ class Files:
 
         path = path or temp_file(extension='.gz')
         contents = contents or ''
-        if type(contents) is str:
+        if isinstance(contents, str):
             contents = contents.encode()
         with gzip.open(path, "w") as file:
             file.write(contents)

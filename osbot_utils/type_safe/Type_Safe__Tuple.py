@@ -8,7 +8,7 @@ class Type_Safe__Tuple(Type_Safe__Base, tuple):
         instance.expected_types = expected_types
         return instance
 
-    def __init__(self, expected_types, items=None):             # todo: see if we should be assining expected_types to self here
+    def __init__(self, expected_types, items=None):             # todo: see if we should be assigning expected_types to self here
         if items:
             self.validate_items(items)
 

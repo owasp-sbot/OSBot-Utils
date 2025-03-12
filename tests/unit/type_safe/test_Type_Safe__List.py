@@ -6,6 +6,7 @@ from unittest                              import TestCase
 from osbot_utils.type_safe.Type_Safe       import Type_Safe
 from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
 from osbot_utils.helpers.Random_Guid       import Random_Guid
+from osbot_utils.utils.Objects import __
 
 
 class test_Type_Safe__List(TestCase):
@@ -157,10 +158,11 @@ class test_Type_Safe__List(TestCase):
         # Valid CustomType instance
         custom_item = CustomType(a=1, b='test')
         an_class.an_list__custom.append(custom_item)
-
-        # Invalid CustomType instance (missing attributes)
-        with pytest.raises(TypeError, match="Expected 'CustomType', but got 'dict'"):
-            an_class.an_list__custom.append({'a': 1})
+        an_class.an_list__custom.append({'a'     : 1})                      # will be converted to a valid class
+        an_class.an_list__custom.append({'aaaaaa': 1})                      # not relevant variables will be ignored
+        assert an_class.obj() == __(an_list__custom=[__(a=1, b='test'),
+                                                     __(a=1, b=''    ),
+                                                     __(a=0, b=''    )])
 
         # Incorrect type
         with pytest.raises(TypeError, match="Expected 'CustomType', but got 'int'"):
