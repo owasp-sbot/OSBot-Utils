@@ -47,7 +47,7 @@ class test_API__LLM__Open_AI(TestCase):
             _.llm_request_data.model = model
             _.add_message__system(system_prompt)
             _.add_message__user  (user_prompt)
-            _.set_function_call(parameters=Current_Month, function_name="get_current_month")
+            _.set__function_call(parameters=Current_Month, function_name="get_current_month")
             payload = _.build_request_payload()
 
         from osbot_utils.utils.Dev import pprint

@@ -11,6 +11,7 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content     
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role        import Schema__LLM_Request__Message__Role
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                      import Schema__LLM_Response
 from osbot_utils.helpers.safe_str.Safe_Str__File__Path                          import Safe_Str__File__Path
+from osbot_utils.helpers.safe_str.Safe_Str__Text                                import Safe_Str__Text
 from osbot_utils.utils.Env                                                      import get_env, load_dotenv
 from osbot_utils.utils.Files                                                    import folder_create
 
@@ -39,9 +40,9 @@ class test_LLM_Request__Execute(TestCase):
         message = Schema__LLM_Request__Message__Content(role    = Schema__LLM_Request__Message__Role.USER,
                                                         content = message_text                           )
 
-        request_data = Schema__LLM_Request__Data(model       = "gpt-4o-mini",
-                                                 platform    = "OpenAI"     ,
-                                                 provider    = "OpenAI-API" ,
+        request_data = Schema__LLM_Request__Data(model       = Safe_Str__Text("gpt-4o-mini"),
+                                                 platform    = Safe_Str__Text("OpenAI"     ),
+                                                 provider    = Safe_Str__Text("OpenAI-API" ),
                                                  temperature = 0.7          ,
                                                  max_tokens  = 50           )      # Limit tokens to reduce costs
 

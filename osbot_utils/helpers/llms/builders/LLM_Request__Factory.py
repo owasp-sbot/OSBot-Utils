@@ -40,9 +40,9 @@ class LLM_Request__Factory(Type_Safe):                              # Factory cl
                                          ) -> Schema__LLM_Request__Data:                       # Create a request that uses function calling with the specified schema.
 
         with self.request_builder as _:
-            _.set_function_call(parameters    = parameters   ,   # Create the function call
-                                function_name = function_name,
-                                description   = function_desc)
+            _.set__function_call(parameters    = parameters,  # Create the function call
+                                 function_name = function_name,
+                                 description   = function_desc)
 
             _.add_message__system(content=system_prompt)
             _.add_message__user  (content=user_message )

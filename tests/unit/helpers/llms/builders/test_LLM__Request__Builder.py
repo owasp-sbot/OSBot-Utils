@@ -5,6 +5,7 @@ from osbot_utils.helpers.llms.builders.LLM_Request__Builder                 impo
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
+from osbot_utils.helpers.safe_str.Safe_Str__Text                            import Safe_Str__Text
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
 from osbot_utils.type_safe.validators.Validator__Min                        import Min
 from osbot_utils.type_safe.validators.Validator__Max                        import Max
@@ -57,9 +58,9 @@ class test_LLM__Request_Builder(TestCase):                               # Tests
             score: Annotated[float, Min(0), Max(1)]
             tags : List[str]
 
-        model         = "gpt-4"
-        provider      = "openai"
-        platform      = "oai"
+        model         = Safe_Str__Text("gpt-4" )
+        provider      = Safe_Str__Text("openai")
+        platform      = Safe_Str__Text("oai"   )
         parameters    = TestEntity
         function_name = "extract_test_entity"
         function_desc = "Extract test entity from text"

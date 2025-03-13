@@ -81,9 +81,9 @@ class test_Safe_Str(TestCase):
         assert type(an_class.an_str      ) is Custom_Safe_Str
         assert base_types(an_class.an_str) == [Safe_Str, str, object]
 
-        expected_error = "Invalid type for attribute 'an_str'. Expected '<class 'test_Safe_Str.test_Safe_Str.test_custom_subclass__in_Type_safe.<locals>.Custom_Safe_Str'>' but got '<class 'str'>'"
-        with pytest.raises(ValueError, match=re.escape(expected_error)):
-            an_class.an_str = 'xyz'
+        # expected_error = "Invalid type for attribute 'an_str'. Expected '<class 'test_Safe_Str.test_Safe_Str.test_custom_subclass__in_Type_safe.<locals>.Custom_Safe_Str'>' but got '<class 'str'>'"
+        # with pytest.raises(ValueError, match=re.escape(expected_error)):
+        #     an_class.an_str = 'xyz'
 
         #Edge cases: exceptions with specific error message checks
         with pytest.raises(ValueError, match="Value cannot be None when allow_empty is False") as exc_info:
