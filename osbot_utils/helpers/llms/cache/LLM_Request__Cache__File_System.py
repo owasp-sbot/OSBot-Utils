@@ -43,7 +43,7 @@ class LLM_Request__Cache__File_System(LLM_Request__Cache):
             return cache_entry
         return None
 
-    def get_cache_entry(self, cache_id: Obj_Id) -> Optional[Schema__LLM_Response__Cache]:   # Get cache entry by ID (overridden)
+    def get__cache_entry__from__cache_id(self, cache_id: Obj_Id) -> Optional[Schema__LLM_Response__Cache]:   # Get cache entry by ID (overridden)
         if cache_id in self.cache_entries:                                                  # Check memory first
             return self.cache_entries[cache_id]
         return self.load_cache_entry(cache_id)                                              # Load from disk if not in memory
