@@ -63,7 +63,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
                                     timestamp     = response.timestamp  ,
                                     response_data = __(content='This is a test response'))
 
-        cache_id = self.cache.add(request, response)            # Add to cache
+        cache_id = self.cache.add(request, response,{})            # Add to cache
         assert type(cache_id) is Obj_Id                         # Add should succeed
 
         # Check if it exists
@@ -81,7 +81,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
         response = self.create_test_response()
 
         # Add and then delete
-        self.cache.add(request, response)
+        self.cache.add(request, response, {})
         assert self.cache.exists(request) == True                                              # Item should exist before deletion
 
         delete_result = self.cache.delete(request)
@@ -92,7 +92,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
         request  = self.create_test_request("Get by ID test")
         response = self.create_test_response()
 
-        self.cache.add(request, response)
+        self.cache.add(request, response, {})
 
         # Get the cache_id
         request_hash = self.cache.compute_request_hash(request)
@@ -112,7 +112,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
         for i in range(3):
             request = self.create_test_request(f"Clear test {i}")
             response = self.create_test_response()
-            self.cache.add(request, response)
+            self.cache.add(request, response, {})
 
         # Verify we have entries
         assert len(self.cache.cache_index.cache_id__from__hash__request) == 3
@@ -139,9 +139,9 @@ class test_LLM_Request__Cache(unittest.TestCase):
         request3.request_data.model = "model-A"                                                # Second entry for model-A
         response3 = self.create_test_response()
 
-        self.cache.add(request1, response1)
-        self.cache.add(request2, response2)
-        self.cache.add(request3, response3)
+        self.cache.add(request1, response1, {})
+        self.cache.add(request2, response2, {})
+        self.cache.add(request3, response3, {})
 
         # Get stats
         stats = self.cache.stats()

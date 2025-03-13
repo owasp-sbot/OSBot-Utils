@@ -10,4 +10,5 @@ class Schema__LLM_Response__Cache(Type_Safe):
     hash__request          : Safe_Str__Hash       = None
     llm_response           : Schema__LLM_Response = None
     llm_request            : Schema__LLM_Request  = None
+    llm_payload            : dict
     timestamp              : Timestamp_Now

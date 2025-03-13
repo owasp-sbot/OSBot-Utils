@@ -169,12 +169,13 @@ class LLM_Request__Cache__File_System(LLM_Request__Cache):
         return path
 
     @type_safe
-    def add(self, request  : Schema__LLM_Request,
+    def add(self, request  : Schema__LLM_Request ,
                   response : Schema__LLM_Response,
+                  payload  : dict                ,
                   now      : datetime = None
              ) -> Obj_Id:                                                                           # Save an LLM request/response pair using temporal organization.
 
-        cache_id        = super().add(request, response)                                            # First use standard add() to handle in-memory caching
+        cache_id        = super().add(request=request, response=response, payload=payload)                                            # First use standard add() to handle in-memory caching
         cache_entry     = self.cache_entries[cache_id]                                              # get the cache entry (which will exist since it was added on super().add(request, response)  )
         request_domains = self.extract_domains_from_request(request)                                # Extract domains and areas for organization
         domains         = self.shared_domains + request_domains

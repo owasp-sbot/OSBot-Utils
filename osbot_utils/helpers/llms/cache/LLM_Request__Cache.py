@@ -25,14 +25,16 @@ class LLM_Request__Cache(Type_Safe):
         return Safe_Str__Hash(hash_value)
 
     @type_safe
-    def add(self, request     : Schema__LLM_Request ,                                       # Request to cache
-                  response    : Schema__LLM_Response                                        # Response to store
+    def add(self, request  : Schema__LLM_Request ,                                          # Request to cache
+                  response : Schema__LLM_Response,                                          # Response to store
+                  payload  : dict                                                           # Payload to store
              ) -> Obj_Id:                                                                   # returns cache_id
 
         hash_request          = self.compute_request_hash (request)                         # calculate request hash
         cache_entry           = Schema__LLM_Response__Cache(cache_id                = Obj_Id()             ,              # Create a cache entry
                                                             llm_request             = request              ,
                                                             llm_response            = response             ,
+                                                            llm_payload             = payload          ,
                                                             hash__request           = hash_request         )
         cache_id             = cache_entry.cache_id
 

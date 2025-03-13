@@ -23,6 +23,7 @@ class test_Schema__LLM_Response__Cache(TestCase):
                                                                                           platform      = '',
                                                                                           provider      = '',
                                                                                           messages      = [])),
+                                       llm_payload             = __()                ,
                                        cache_id                = cache_entry.cache_id,
                                        timestamp               = cache_entry.timestamp)
 
@@ -45,6 +46,7 @@ class test_Schema__LLM_Response__Cache(TestCase):
                           'llm_response': { 'response_data': {'content': 'This is a test response'},
                                             'response_id': '7e744c72',
                                             'timestamp': 1741607991904},
-                          'timestamp': 1741607991906}
+                          'llm_payload' : {}            ,
+                          'timestamp'   : 1741607991906 }
 
         assert Schema__LLM_Response__Cache.from_json(cache_entry_2).json() == cache_entry_2
