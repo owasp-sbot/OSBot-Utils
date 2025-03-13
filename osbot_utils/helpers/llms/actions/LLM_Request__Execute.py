@@ -10,7 +10,7 @@ class LLM_Request__Execute(Type_Safe):
     llm_cache      : LLM_Request__Cache
     llm_api        : API__LLM__Open_AI
     use_cache      : bool = True
-    request_builder: LLM_Request__Builder
+    request_builder: LLM_Request__Builder           # todo: fix the use of LLM_Request__Builder since it not good when we when overwrite it at self.request_builder.llm_request_data = llm_request.request_data
 
     @type_safe
     def execute(self, llm_request: Schema__LLM_Request) -> Schema__LLM_Response:
