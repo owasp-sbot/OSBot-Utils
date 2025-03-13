@@ -119,9 +119,8 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
         new_virtual_storage.db.db_path = self.db_path
         new_cache                      = LLM_Request__Cache__File_System(virtual_storage=new_virtual_storage)
         new_cache.setup()
-        cache_id        = new_cache.get__cache_id__from__request(request)
-        cache_entry     = new_cache.get_cache_entry             (cache_id)
-        cached_response = new_cache.get                         (request)                   # todo: review the impact of this not finding the request until the get_cache_entry is called (recent behaviour)
+
+        cached_response = new_cache.get(request)
 
         assert new_cache.exists(request)    is True                            # Check data persistence
         assert cached_response              is not None

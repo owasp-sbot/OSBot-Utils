@@ -103,7 +103,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
 
         self.cache.cache_entries = {}                                               # Clear the in-memory cache
 
-        cache_entry_2 = self.cache.get_cache_entry(cache_id)                        # will load from disk
+        cache_entry_2 = self.cache.get__cache_entry__from__cache_id(cache_id)                        # will load from disk
 
         assert cache_entry_2                          is not None                   # confirm it was loaded
         assert cache_entry_2.json()                   == cache_entry_1.json()       # confirm match memory version
@@ -231,9 +231,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
 
         assert new_cache.exists(request) is True                                # Item should still exist in cache after restart
 
-        cache_id        = new_cache.get__cache_id__from__request(request)
-        cache_entry     = new_cache.get_cache_entry             (cache_id)
-        cached_response = new_cache.get                         (request)       # Should be able to retrieve it            # todo: review the impact of this not finding the request until the get_cache_entry is called (recent behaviour)
+        cached_response = new_cache.get(request)       # Should be able to retrieve it
 
         assert cached_response is not None
         assert cached_response.response_id == response.response_id              # Should get the same response back
