@@ -39,19 +39,20 @@ class test_LLM_Request__Execute__Sqlite(TestCase):
             assert cache_response == llm_response
 
         with self.virtual_storage as _:
-            cache_index  = _.db.file_contents__json('llm-cache/cache_index.json')
-            cache_id     = cache_index.get('cache_id__from__hash__request').get(request_hash)
-            file_path    = cache_index.get('cache_id__to__file_path'      ).get(cache_id)
-            cache_entry  = _.db.file_contents__json('llm-cache/' + file_path)
-
+            cache_index       = _.db.file_contents__json('llm-cache/cache_index.json')
+            cache_id          = cache_index.get('cache_id__from__hash__request').get(request_hash)
+            file_path         = cache_index.get('cache_id__to__file_path'      ).get(cache_id)
+            cache_entry       = _.db.file_contents__json('llm-cache/' + file_path)
+            request__duration = cache_entry.get('request__duration')
 
             assert type(cache_entry) is dict
 
-            assert cache_entry == { 'cache_id'      : cache_id,
-                                    'hash__request' : request_hash,
-                                     'llm_payload': {'messages': [{'content': 'What is 1+1', 'role': 'user'}],
-                                                                   'model'  : 'gpt-4o-mini'                },
-                                    'llm_request'   : llm_request.json(),
-                                    'llm_response'  : llm_response.json(),
-                                    'timestamp'     : cache_entry.get('timestamp')}
+            assert cache_entry == { 'cache_id'         : cache_id,
+                                    'llm__payload'     : { 'messages': [{'content': 'What is 1+1', 'role': 'user'}],
+                                                           'model'  : 'gpt-4o-mini'                               },
+                                    'llm__request'     : llm_request .json()    ,
+                                    'llm__response'    : llm_response.json()    ,
+                                    'request__duration': request__duration      ,
+                                    'request__hash'    : request_hash           ,
+                                    'timestamp'        : cache_entry.get('timestamp'),}
 

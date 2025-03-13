@@ -6,9 +6,11 @@ from osbot_utils.helpers.safe_str.Safe_Str__Hash            import Safe_Str__Has
 from osbot_utils.type_safe.Type_Safe                        import Type_Safe
 
 class Schema__LLM_Response__Cache(Type_Safe):
-    cache_id               : Obj_Id
-    hash__request          : Safe_Str__Hash       = None
-    llm_response           : Schema__LLM_Response = None
-    llm_request            : Schema__LLM_Request  = None
-    llm_payload            : dict
-    timestamp              : Timestamp_Now
+    cache_id          : Obj_Id
+    llm__payload      : dict
+    llm__request      : Schema__LLM_Request  = None
+    llm__response     : Schema__LLM_Response = None
+    request__duration : float
+    request__hash     : Safe_Str__Hash       = None
+    timestamp         : Timestamp_Now
+

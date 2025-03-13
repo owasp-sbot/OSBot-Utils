@@ -27,15 +27,16 @@ class LLM_Request__Cache(Type_Safe):
     @type_safe
     def add(self, request  : Schema__LLM_Request ,                                          # Request to cache
                   response : Schema__LLM_Response,                                          # Response to store
-                  payload  : dict                                                           # Payload to store
+                  payload  : dict  = None        ,                                          # Payload to store
+                  duration : float = None
              ) -> Obj_Id:                                                                   # returns cache_id
 
         hash_request          = self.compute_request_hash (request)                         # calculate request hash
-        cache_entry           = Schema__LLM_Response__Cache(cache_id                = Obj_Id()             ,              # Create a cache entry
-                                                            llm_request             = request              ,
-                                                            llm_response            = response             ,
-                                                            llm_payload             = payload          ,
-                                                            hash__request           = hash_request         )
+        cache_entry           = Schema__LLM_Response__Cache(llm__payload      = payload      ,
+                                                            llm__request      = request      ,
+                                                            llm__response     = response     ,
+                                                            request__duration = duration     ,
+                                                            request__hash     = hash_request )
         cache_id             = cache_entry.cache_id
 
         self.cache_index.cache_id__from__hash__request          [ hash_request         ] = cache_id                                      # Update the cache index
@@ -50,7 +51,7 @@ class LLM_Request__Cache(Type_Safe):
             cache_id    = self.cache_index.cache_id__from__hash__request[request_hash]
             cache_entry = self.get__cache_entry__from__cache_id(cache_id)
             if cache_entry:
-                return cache_entry.llm_response
+                return cache_entry.llm__response
 
         return None
 
@@ -60,17 +61,17 @@ class LLM_Request__Cache(Type_Safe):
             return self.cache_entries.get(cache_id)
 
     @type_safe
-    def get__cache_entry__from__request(self, request: Schema__LLM_Request):
+    def get__cache_entry__from__request(self, request: Schema__LLM_Request) -> Optional[Schema__LLM_Response__Cache]:
         cache_id = self.get__cache_id__from__request(request)
         return self.get__cache_entry__from__cache_id(cache_id)
 
     @type_safe
-    def get__cache_id__from__request(self, request: Schema__LLM_Request):
+    def get__cache_id__from__request(self, request: Schema__LLM_Request) -> Obj_Id:
         request_hash = self.compute_request_hash(request)
         return self.get__cache_id__from__request_hash(request_hash)
 
     @type_safe
-    def get__cache_id__from__request_hash(self, request_hash: Safe_Str__Hash):
+    def get__cache_id__from__request_hash(self, request_hash: Safe_Str__Hash) -> Obj_Id:
         return self.cache_index.cache_id__from__hash__request.get(request_hash)
 
     def exists(self, request: Schema__LLM_Request) -> bool:                                                             # True if in cache
@@ -95,7 +96,7 @@ class LLM_Request__Cache(Type_Safe):
     def get_by_id(self, cache_id : Obj_Id)-> Optional[Schema__LLM_Response]:                                            # Cached response or None
         cache_entry = self.get__cache_entry__from__cache_id(cache_id)
         if cache_entry:
-            return cache_entry.llm_response
+            return cache_entry.llm__response
         return None
 
     def clear(self) -> bool:                                                                                            # Clear all cache entries
@@ -111,13 +112,13 @@ class LLM_Request__Cache(Type_Safe):
         newest_timestamp = None
 
         for cache_id, entry in self.cache_entries.items():                                                          # Track models
-            model = entry.llm_request.request_data.model
+            model = entry.llm__request.request_data.model
             if model in models:
                 models[model] += 1
             else:
                 models[model] = 1
 
-            timestamp = entry.llm_response.timestamp                                                                # Track timestamps
+            timestamp = entry.llm__response.timestamp                                                                # Track timestamps
             if oldest_timestamp is None or timestamp < oldest_timestamp:
                 oldest_timestamp = timestamp
             if newest_timestamp is None or timestamp > newest_timestamp:
