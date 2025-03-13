@@ -1,5 +1,3 @@
-import pytest
-import re
 from unittest                                                               import TestCase
 from osbot_utils.helpers.Obj_Id                                             import Obj_Id
 from osbot_utils.helpers.Timestamp_Now                                      import Timestamp_Now
@@ -35,12 +33,13 @@ class test_Schema__LLM_Request(TestCase):
                                                                 'provider'     : 'test-provider'                      ,
                                                                 'temperature'  : 0.7                                  ,
                                                                 'top_p'        : None                                 }}
-        json_response_cache = { 'cache_id'                : Obj_Id()         ,
-                                'hash__request'           : None             ,
-                                'llm_request'             : json_llm_request ,
-                                'llm_response'            : None             ,
-                                'llm_payload'             : {}               ,
-                                'timestamp'               : Timestamp_Now() }
+        json_response_cache = { 'cache_id'         : Obj_Id()         ,
+                                'llm__request'     : json_llm_request ,
+                                'llm__response'    : None             ,
+                                'llm__payload'     : {}               ,
+                                'request__duration': 0.0              ,
+                                'request__hash'    : None             ,
+                                'timestamp'        : Timestamp_Now()  }
         Schema__LLM_Response__Cache.from_json(json_response_cache)
 
         assert Schema__LLM_Request.from_json        (json_llm_request   ).json() == json_llm_request

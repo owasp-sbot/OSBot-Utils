@@ -89,8 +89,8 @@ class LLM_Request__Cache__File_System(LLM_Request__Cache):
         for cache_id in self.get_all_cache_ids():                                               # Load all cache entries
             cache_entry = self.load_cache_entry(cache_id)
             if cache_entry:
-                request       = cache_entry.llm_request
-                hash_request  = cache_entry.hash__request
+                request       = cache_entry.llm__request
+                hash_request  = cache_entry.request__hash
                 if hash_request is None:                                                        # if hash_request doesn't exist     # todo: see if this a valid scenario
                     hash_request  = self.compute_request_hash(request)                          #   recompute hash_request
                 self.cache_index.cache_id__from__hash__request[hash_request] = cache_id         # Update the index
@@ -171,11 +171,13 @@ class LLM_Request__Cache__File_System(LLM_Request__Cache):
     @type_safe
     def add(self, request  : Schema__LLM_Request ,
                   response : Schema__LLM_Response,
-                  payload  : dict                ,
+                  duration : float    = None     ,
+                  payload  : dict     = None     ,
                   now      : datetime = None
+
              ) -> Obj_Id:                                                                           # Save an LLM request/response pair using temporal organization.
 
-        cache_id        = super().add(request=request, response=response, payload=payload)                                            # First use standard add() to handle in-memory caching
+        cache_id        = super().add(request=request, response=response, payload=payload, duration=duration)                                            # First use standard add() to handle in-memory caching
         cache_entry     = self.cache_entries[cache_id]                                              # get the cache entry (which will exist since it was added on super().add(request, response)  )
         request_domains = self.extract_domains_from_request(request)                                # Extract domains and areas for organization
         domains         = self.shared_domains + request_domains

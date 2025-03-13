@@ -64,7 +64,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
     def test_add_and_get(self):
         request         = self.create_test_request("Hello, world!")
         response        = self.create_test_response()
-        cache_id        = self.cache.add(request, response, {})                                        # Add to cache
+        cache_id        = self.cache.add(request, response)                                 # Add to cache
         hash_request    = self.cache.compute_request_hash(request)
         cache_path      = self.cache.path_file__cache_entry(cache_id)
         full_cache_path = self.cache.storage().path_file__cache_entry(cache_path)
@@ -81,7 +81,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         request  = self.create_test_request("Test disk retrieval")
         response = self.create_test_response()
 
-        self.cache.add(request, response, {})                                        # Add to cache
+        self.cache.add(request, response)                                        # Add to cache
         hash_request         = self.cache.compute_request_hash(request)
         cache_id             = self.cache.cache_index.cache_id__from__hash__request[hash_request]
         cache_entry_1        = self.cache.get__cache_entry__from__cache_id(cache_id)
@@ -93,7 +93,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         assert type(cache_id     )               is Obj_Id
         assert type(hash_request )               is Safe_Str__Hash
         assert type(cache_entry_1)               is Schema__LLM_Response__Cache
-        assert cache_entry_1.hash__request       == hash_request
+        assert cache_entry_1.request__hash == hash_request
         assert cache_entry_1.cache_id            == cache_id
         assert file_exists(full_path_cache_file) is True
         assert cache_id                          == self.cache.get__cache_id__from__request     (request     )
@@ -107,7 +107,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
 
         assert cache_entry_2                          is not None                   # confirm it was loaded
         assert cache_entry_2.json()                   == cache_entry_1.json()       # confirm match memory version
-        assert cache_entry_2.llm_response.response_id == response.response_id       # double check request id
+        assert cache_entry_2.llm__response.response_id == response.response_id       # double check request id
 
     def test_get_all_cache_ids(self):
         self.cache.clear()
@@ -115,8 +115,8 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         request2 = self.create_test_request("Second request")
         response = self.create_test_response()
 
-        self.cache.add(request1, response, {})
-        self.cache.add(request2, response, {})
+        self.cache.add(request1, response)
+        self.cache.add(request2, response)
 
         cache_ids = self.cache.get_all_cache_ids()
         assert len(cache_ids) == 2                                               # Should find both cache files
@@ -131,7 +131,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         request  = self.create_test_request("Delete me")
         response = self.create_test_response()
 
-        self.cache.add(request, response, {})
+        self.cache.add(request, response)
         hash_request    = self.cache.compute_request_hash(request)
         cache_id        = self.cache.cache_index.cache_id__from__hash__request[hash_request]
         cache_path      = self.cache.path_file__cache_entry(cache_id)
@@ -154,7 +154,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         for i in range(3):                                                      # Add several items
             request  = self.create_test_request(f"Clear test {i}")
             response = self.create_test_response()
-            self.cache.add(request, response, {})
+            self.cache.add(request, response)
 
         assert len(files_names_in_folder(self.temp_dir)) > 0                    # Should have files before clearing
         assert len(self.cache.cache_index.cache_id__from__hash__request) > 0                    # Should have entries before clearing
@@ -176,8 +176,8 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         request2 = self.create_test_request("Rebuild test 2")
         response = self.create_test_response()
 
-        self.cache.add(request1, response, {})
-        self.cache.add(request2, response, {})
+        self.cache.add(request1, response)
+        self.cache.add(request2, response)
 
         # Create a new empty cache, but using the same folder
         self.cache                                     = LLM_Request__Cache__File_System(virtual_storage=self.virtual_storage)
@@ -223,7 +223,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         request  = self.create_test_request("Persistent test")
         response = self.create_test_response()
 
-        self.cache.add(request, response, {})                                       # Add to cache
+        self.cache.add(request, response)                                       # Add to cache
 
         # Create a new cache with the same root folder (simulating a restart)
         virtual_storage = Virtual_Storage__Local__Folder (root_folder     = self.temp_dir  )

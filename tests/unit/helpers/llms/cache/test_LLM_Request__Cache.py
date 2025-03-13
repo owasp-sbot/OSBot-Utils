@@ -74,14 +74,14 @@ class test_LLM_Request__Cache(unittest.TestCase):
         cache_entry                     = self.cache.get__cache_entry__from__cache_id(cache_id)
         assert cached_response          is not None                                                # Should retrieve cached response
         assert response.response_id     == cached_response.response_id                             # Response IDs should match
-        assert cache_entry.llm_response == response
+        assert cache_entry.llm__response == response
 
     def test_delete(self):
         request = self.create_test_request("Delete me")
         response = self.create_test_response()
 
         # Add and then delete
-        self.cache.add(request, response, {})
+        self.cache.add(request, response)
         assert self.cache.exists(request) == True                                              # Item should exist before deletion
 
         delete_result = self.cache.delete(request)
@@ -92,7 +92,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
         request  = self.create_test_request("Get by ID test")
         response = self.create_test_response()
 
-        self.cache.add(request, response, {})
+        self.cache.add(request, response)
 
         # Get the cache_id
         request_hash = self.cache.compute_request_hash(request)
@@ -112,7 +112,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
         for i in range(3):
             request = self.create_test_request(f"Clear test {i}")
             response = self.create_test_response()
-            self.cache.add(request, response, {})
+            self.cache.add(request, response)
 
         # Verify we have entries
         assert len(self.cache.cache_index.cache_id__from__hash__request) == 3
