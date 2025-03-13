@@ -220,7 +220,7 @@ class LLM_Request__Cache__File_System(LLM_Request__Cache):
     #                 cache_id_str = os.path.splitext(os.path.basename(item_path))[0]
     #                 if is_obj_id(cache_id_str):
     #                     cache_id = Obj_Id(cache_id_str)
-    #                     cache_entry = self.get_cache_entry(cache_id)
+    #                     cache_entry = self.get_cache_entry__from__cache_id(cache_id)
     #                     if cache_entry:
     #                         results.append(cache_entry)
     #

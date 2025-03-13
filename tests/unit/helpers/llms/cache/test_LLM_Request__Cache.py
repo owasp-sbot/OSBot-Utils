@@ -71,7 +71,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
 
         # Retrieve it
         cached_response                 = self.cache.get(request)
-        cache_entry                     = self.cache.get_cache_entry(cache_id)
+        cache_entry                     = self.cache.get__cache_entry__from__cache_id(cache_id)
         assert cached_response          is not None                                                # Should retrieve cached response
         assert response.response_id     == cached_response.response_id                             # Response IDs should match
         assert cache_entry.llm_response == response

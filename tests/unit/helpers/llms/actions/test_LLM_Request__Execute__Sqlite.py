@@ -53,6 +53,8 @@ class test_LLM_Request__Execute__Sqlite(TestCase):
 
             assert cache_entry == { 'cache_id'      : cache_id,
                                     'hash__request' : request_hash,
+                                     'llm_payload': {'messages': [{'content': 'What is 1+1', 'role': 'user'}],
+                                                                   'model'  : 'gpt-4o-mini'                },
                                     'llm_request'   : llm_request.json(),
                                     'llm_response'  : llm_response.json(),
                                     'timestamp'     : cache_entry.get('timestamp')}

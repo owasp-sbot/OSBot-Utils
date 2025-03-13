@@ -48,15 +48,30 @@ class LLM_Request__Cache(Type_Safe):
 
         if request_hash in self.cache_index.cache_id__from__hash__request:                                                              # Check if we have an exact match
             cache_id    = self.cache_index.cache_id__from__hash__request[request_hash]
-            cache_entry = self.get_cache_entry(cache_id)
+            cache_entry = self.get__cache_entry__from__cache_id(cache_id)
             if cache_entry:
                 return cache_entry.llm_response
 
         return None
 
     @type_safe
-    def get_cache_entry(self, cache_id: Obj_Id) -> Optional[Schema__LLM_Response__Cache]:                               # Get cache entry by ID
-        return self.cache_entries.get(cache_id)
+    def get__cache_entry__from__cache_id(self, cache_id: Obj_Id) -> Optional[Schema__LLM_Response__Cache]:                               # Get cache entry by ID
+        if cache_id:
+            return self.cache_entries.get(cache_id)
+
+    @type_safe
+    def get__cache_entry__from__request(self, request: Schema__LLM_Request):
+        cache_id = self.get__cache_id__from__request(request)
+        return self.get__cache_entry__from__cache_id(cache_id)
+
+    @type_safe
+    def get__cache_id__from__request(self, request: Schema__LLM_Request):
+        request_hash = self.compute_request_hash(request)
+        return self.get__cache_id__from__request_hash(request_hash)
+
+    @type_safe
+    def get__cache_id__from__request_hash(self, request_hash: Safe_Str__Hash):
+        return self.cache_index.cache_id__from__hash__request.get(request_hash)
 
     def exists(self, request: Schema__LLM_Request) -> bool:                                                             # True if in cache
         request_hash = self.compute_request_hash(request)
@@ -78,7 +93,7 @@ class LLM_Request__Cache(Type_Safe):
         return self.save()
 
     def get_by_id(self, cache_id : Obj_Id)-> Optional[Schema__LLM_Response]:                                            # Cached response or None
-        cache_entry = self.get_cache_entry(cache_id)
+        cache_entry = self.get__cache_entry__from__cache_id(cache_id)
         if cache_entry:
             return cache_entry.llm_response
         return None
