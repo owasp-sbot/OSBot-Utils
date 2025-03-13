@@ -10,7 +10,7 @@ class LLM_Request__Builder__Open_AI(LLM_Request__Builder):
                     "messages"       : [{"role"  : msg.role.value, "content": msg.content} for msg in self.llm_request_data.messages]}
         if self.llm_request_data.function_call:
             schema = self.schema_generator.export(self.llm_request_data.function_call.parameters)
-            schema["additionalProperties"] = False                                  # needs to be False when using structured outputs
+            self.add_additional_properties_to_schema(schema)
             payload["response_format"    ] =  { "type"       : "json_schema",
                                                 "json_schema": { "name"  : self.llm_request_data.function_call.function_name,
                                                                  "schema": schema                                      ,
@@ -21,6 +21,18 @@ class LLM_Request__Builder__Open_AI(LLM_Request__Builder):
         if self.llm_request_data.max_tokens  is not None: payload["max_tokens"] = self.llm_request_data.max_tokens
 
         return payload
+
+    def add_additional_properties_to_schema(self, schema: dict) -> dict: # Recursively ensures every nested object in the schema has "additionalProperties": False.
+        if schema.get("type") == "object":
+            schema["additionalProperties"] = False
+            for prop_schema in schema.get("properties", {}).values():
+                self.add_additional_properties_to_schema(prop_schema)
+
+        elif schema.get("type") == "array":
+            items_schema = schema.get("items", {})
+            self.add_additional_properties_to_schema(items_schema)
+
+        return schema
 
     # @type_safe
     # def build_request_with_json_mode(self, request: Schema__LLM_Request
