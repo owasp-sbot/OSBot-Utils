@@ -84,7 +84,7 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         self.cache.add(request, response, {})                                        # Add to cache
         hash_request         = self.cache.compute_request_hash(request)
         cache_id             = self.cache.cache_index.cache_id__from__hash__request[hash_request]
-        cache_entry_1        = self.cache.get_cache_entry(cache_id)
+        cache_entry_1        = self.cache.get__cache_entry__from__cache_id(cache_id)
         path_cache_file      = self.cache.path_file__cache_entry(cache_id)
         full_path_cache_file = self.cache.storage().path_file__cache_entry(path_cache_file)
 
@@ -96,6 +96,10 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
         assert cache_entry_1.hash__request       == hash_request
         assert cache_entry_1.cache_id            == cache_id
         assert file_exists(full_path_cache_file) is True
+        assert cache_id                          == self.cache.get__cache_id__from__request     (request     )
+        assert cache_id                          == self.cache.get__cache_id__from__request_hash(hash_request)
+        assert cache_entry_1                     == self.cache.get__cache_entry__from__cache_id (cache_id    )
+        assert cache_entry_1                     == self.cache.get__cache_entry__from__request  (request     )
 
         self.cache.cache_entries = {}                                               # Clear the in-memory cache
 
@@ -227,6 +231,9 @@ class test_LLM_Request__Cache__Local_Folder(unittest.TestCase):
 
         assert new_cache.exists(request) is True                                # Item should still exist in cache after restart
 
-        cached_response = new_cache.get(request)                                # Should be able to retrieve it
+        cache_id        = new_cache.get__cache_id__from__request(request)
+        cache_entry     = new_cache.get_cache_entry             (cache_id)
+        cached_response = new_cache.get                         (request)       # Should be able to retrieve it            # todo: review the impact of this not finding the request until the get_cache_entry is called (recent behaviour)
+
         assert cached_response is not None
         assert cached_response.response_id == response.response_id              # Should get the same response back
