@@ -2,6 +2,7 @@ from unittest                                                           import T
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI    import LLM_Request__Builder__Open_AI
 from osbot_utils.helpers.llms.builders.LLM_Request__Factory             import LLM_Request__Factory
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data         import Schema__LLM_Request__Data
+from osbot_utils.helpers.safe_str.Safe_Str__Text                        import Safe_Str__Text
 from osbot_utils.utils.Objects                                          import __
 
 
@@ -11,9 +12,9 @@ class test_LLM__Request_Builder(TestCase):                               # Tests
         self.factory = LLM_Request__Factory()
 
     def test_create_simple_request(self):                               # Test creating a simple request without function calling.
-        model         = "gpt-4"
-        provider      = "openai"
-        platform      = "openai"
+        model         = Safe_Str__Text("gpt-4" )
+        provider      = Safe_Str__Text("openai")
+        platform      = Safe_Str__Text("openai")
         system_prompt = "You are a helpful assistant."
         user_message  = "Tell me about Python."
         self.factory.create_simple_chat_request(model         = model        ,

@@ -71,11 +71,6 @@ class test_Safe_Str__Hash(TestCase):
         container.hash_value = Safe_Str__Hash('abcdef0123')
         assert str(container.hash_value) == 'abcdef0123'
 
-        # Test error when trying to assign non-Safe_Str__Hash
-        expected_error = f"Invalid type for attribute 'hash_value'. Expected"
-        with pytest.raises(ValueError, match=expected_error):
-            container.hash_value = 'abcdef0123'  # String instead of Safe_Str__Hash
-
         # Test serialization and deserialization
         container_json = container.json()
         assert container_json == {'hash_value': 'abcdef0123'}

@@ -4,12 +4,10 @@ import types
 import typing
 from enum                                                           import EnumMeta
 from typing                                                         import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias
-from osbot_utils.helpers.safe_str.Safe_Str                          import Safe_Str
 from osbot_utils.type_safe.shared.Type_Safe__Annotations            import type_safe_annotations
 from osbot_utils.type_safe.shared.Type_Safe__Cache                  import type_safe_cache
 from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables      import IMMUTABLE_TYPES
 from osbot_utils.type_safe.shared.Type_Safe__Raise_Exception        import type_safe_raise_exception
-
 
 class Type_Safe__Validation:
 
