@@ -35,10 +35,11 @@ class test_Schema__LLM_Request(TestCase):
                                                                 'provider'     : 'test-provider'                      ,
                                                                 'temperature'  : 0.7                                  ,
                                                                 'top_p'        : None                                 }}
-        json_response_cache = { 'cache_id'               : Obj_Id()         ,
-                                'hash__request'          : None             ,
-                                'llm_request'            : json_llm_request ,
-                                'llm_response'           : None             ,
+        json_response_cache = { 'cache_id'                : Obj_Id()         ,
+                                'hash__request'           : None             ,
+                                'llm_request'             : json_llm_request ,
+                                'llm_response'            : None             ,
+                                'llm_payload'             : {}               ,
                                 'timestamp'               : Timestamp_Now() }
         Schema__LLM_Response__Cache.from_json(json_response_cache)
 

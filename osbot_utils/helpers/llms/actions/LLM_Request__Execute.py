@@ -26,6 +26,6 @@ class LLM_Request__Execute(Type_Safe):
         llm_response                          = Schema__LLM_Response(response_data=response_data)   # Create response object
 
         if self.use_cache:                                                                          # Cache the response if enabled
-            self.llm_cache.add(llm_request, llm_response)
+            self.llm_cache.add(request=llm_request, response=llm_response, payload=llm_payload)
 
         return llm_response

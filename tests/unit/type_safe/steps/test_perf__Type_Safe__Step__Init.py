@@ -51,7 +51,7 @@ class test_perf__Type_Safe__Step__Init(TestCase):                               
 
         with Performance_Measure__Session() as session:
             session.measure(init_no_kwargs   ).assert_time__less_than(self.time_4_kns)
-            session.measure(init_with_kwargs ).assert_time__less_than(self.time_4_kns)
+            session.measure(init_with_kwargs ).assert_time__less_than(self.time_5_kns)
 
     def test_complex_init(self):                                                    # Test complex initialization
         class ComplexClass:

@@ -2,7 +2,6 @@ import unittest
 import tempfile
 import os
 import shutil
-from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Storage             import LLM_Request__Cache__Storage
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache__File_System         import LLM_Request__Cache__File_System
 from osbot_utils.helpers.llms.cache.Virtual_Storage__Sqlite                 import Virtual_Storage__Sqlite
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                   import Schema__LLM_Request
@@ -49,9 +48,9 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
     def test_add_and_get(self):                                                     # Test adding and retrieving from cache
         request_text       = "Hello, SQLite world!"
         response_text      = "This is a test response"
-        request            = self.create_test_request         (request_text     )   # create a test request with a custom message
-        response           = self.create_test_response        (response_text    )   # and a test response
-        cache_id           = self.cache.add                   (request, response)   # Add to cache
+        request            = self.create_test_request         (request_text         )   # create a test request with a custom message
+        response           = self.create_test_response        (response_text        )   # and a test response
+        cache_id           = self.cache.add                   (request, response, {})   # Add to cache
 
 
         hash_request       = self.cache.compute_request_hash  (request          )   # Compute request hash
@@ -73,9 +72,10 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
                                                                     'provider'     : 'test-provider'  ,
                                                                     'temperature'  : 0.7              ,
                                                                     'top_p'        : None             }},
-                               'llm_response' : { 'response_data': { 'content': response_text},
-                                                  'response_id'  : response_id                ,
-                                                  'timestamp'    : response_timestamp         },
+                               'llm_response' : { 'response_data': { 'content': response_text}  ,
+                                                  'response_id'  : response_id                  ,
+                                                  'timestamp'    : response_timestamp           },
+                               'llm_payload'  : {}                                              ,
                                'timestamp': cached_timestamp }
         cache_index_data  = { 'cache_id__from__hash__request': { hash_request: cache_id       },
                               'cache_id__to__file_path'       : { cache_id    : cache_path     }}
@@ -113,7 +113,7 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
         request  = self.create_test_request("Persistence test")
         response = self.create_test_response()
 
-        self.cache.add(request, response)                                      # Add to cache
+        self.cache.add(request, response, {})                                      # Add to cache
 
         new_virtual_storage            = Virtual_Storage__Sqlite()             # Create new storage
         new_virtual_storage.db.db_path = self.db_path
@@ -128,7 +128,7 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
     def test_delete(self):                                                     # Test deleting from cache
         request  = self.create_test_request("Delete me from SQLite")
         response = self.create_test_response()
-        self.cache.add(request, response)                                      # Add to cache
+        self.cache.add(request, response, {})                                      # Add to cache
         assert self.cache.exists(request) is True                              # Verify it exists
         assert self.cache.delete(request) is True                              # Delete it
         assert self.cache.exists(request) is False                             # Verify it's gone
@@ -138,7 +138,7 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
         for i in range(3):
             request  = self.create_test_request(f"SQLite clear test {i}")
             response = self.create_test_response()
-            self.cache.add(request, response)                                  # Add multiple entries
+            self.cache.add(request, response, {})                                  # Add multiple entries
 
         assert len(self.cache.get_all_cache_ids()) == 3                        # Verify entries exist
         assert self.cache.clear() is True                                      # Clear cache
@@ -148,8 +148,8 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
         request1  = self.create_test_request("SQLite rebuild test 1")
         request2  = self.create_test_request("SQLite rebuild test 2")
         response  = self.create_test_response()
-        self.cache.add(request1, response)
-        self.cache.add(request2, response)
+        self.cache.add(request1, response, {})
+        self.cache.add(request2, response, {})
 
         self.cache.cache_index.cache_id__from__hash__request = {}                   # Clear index but keep data
         assert self.cache.rebuild_index()                                is True    # Rebuild index
