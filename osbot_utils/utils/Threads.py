@@ -48,12 +48,14 @@ from typing import Callable, List, TypeVar, Any, Optional
 T = TypeVar('T')  # Type of items in the list
 R = TypeVar('R')  # Return type of the function
 
-def execute_in_thread_pool(target_function  : Callable[[T], R]     ,  # Function to execute
-                          args_list         : List[T]               ,  # Items to process
+def execute_in_thread_pool(target_function  : Callable[[T], R]        ,  # Function to execute
+                          items             : List[Any]               ,  # Items to process
                           max_workers      : Optional[int]  = None ,  # Maximum worker threads
                           return_exceptions: bool           = False   # Return rather than raise exceptions
                      ) -> List[R]:                                    # List of results
     """Execute a function for each item in parallel using ThreadPoolExecutor."""
+
+    args_list = [(item,) for item in items]                                         # Convert list of items to list of single-item tuples (so that we support one or more params)
     results = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
 
