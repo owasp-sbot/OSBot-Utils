@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import typing
-from concurrent.futures import ThreadPoolExecutor
 
 def invoke_async_function(target: typing.Coroutine):
     """Run an asynchronous coroutine in a new event loop."""
