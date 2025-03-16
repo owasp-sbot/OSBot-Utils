@@ -42,6 +42,14 @@ def invoke_in_new_event_loop(target: typing.Coroutine):             # Runs a cor
         result = future.result()                                    # Wait for the result of the future
         return result                                               # Return the result from the coroutine
 
+async def async__execute_coroutines(coroutines, return_exceptions: bool = False) -> list:                                      # """ Execute multiple coroutines concurrently and wait for all to complete.
+    return await asyncio.gather(*coroutines, return_exceptions=return_exceptions)
+
+def invoke_async__coroutines(coroutines, return_exceptions: bool = False) -> list:
+    return invoke_async_function(async__execute_coroutines(coroutines, return_exceptions))
+
+
+
 # in the use cases when I tried to use this, it hanged
 # def invoke_in_current_loop(target: typing.Coroutine):
 #     try:

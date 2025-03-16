@@ -58,7 +58,7 @@ class test_decorator__flow(TestCase):
                                       f"Executing flow run '\x1b[1m\x1b[32m{flow_instance.flow_id}\x1b[0m\x1b[0m'\n"
                                        '\x1b[1m\x1b[31mError executing flow: Test error\x1b[0m\x1b[0m\n'      )
 
-
+    # todo: fix this test since this doesn't work like this in the normal (sync TestCase)
     async def test_async_flow_decorator(self):
         @flow(flow_config=self.flow_config)
         async def async_flow():

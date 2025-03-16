@@ -65,6 +65,7 @@ class test_Flow(TestCase):
         assert task_events[0].event_type == Flow_Run__Event_Type.TASK_START
         assert task_events[1].event_type == Flow_Run__Event_Type.TASK_STOP
 
+    # todo: fix this test since this doesn't work like this in the normal (sync TestCase)
     async def test_async_flow_execution(self):
         async def async_function():
             await asyncio.sleep(0.1)

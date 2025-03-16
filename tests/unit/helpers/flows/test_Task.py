@@ -84,7 +84,7 @@ class test_Task(TestCase):
                 logs = flow.log_messages()
                 assert logs == ['Info message', 'Debug message', 'Error message']
 
-
+    # todo: fix this test since this doesn't work like this in the normal (sync TestCase)
     async def test_execute_async(self):
         async def async_task_target():
             return "async task completed"
