@@ -42,13 +42,32 @@ def invoke_in_new_event_loop(target: typing.Coroutine):             # Runs a cor
         result = future.result()                                    # Wait for the result of the future
         return result                                               # Return the result from the coroutine
 
-async def async__execute_coroutines(coroutines, return_exceptions: bool = False) -> list:                                      # """ Execute multiple coroutines concurrently and wait for all to complete.
-    return await asyncio.gather(*coroutines, return_exceptions=return_exceptions)
+from concurrent.futures import ThreadPoolExecutor
+from typing import Callable, List, TypeVar, Any, Optional
 
-def invoke_async__coroutines(coroutines, return_exceptions: bool = False) -> list:
-    return invoke_async_function(async__execute_coroutines(coroutines, return_exceptions))
+T = TypeVar('T')  # Type of items in the list
+R = TypeVar('R')  # Return type of the function
 
+def execute_in_thread_pool(target_function  : Callable[[T], R]     ,  # Function to execute
+                          args_list         : List[T]               ,  # Items to process
+                          max_workers      : Optional[int]  = None ,  # Maximum worker threads
+                          return_exceptions: bool           = False   # Return rather than raise exceptions
+                     ) -> List[R]:                                    # List of results
+    """Execute a function for each item in parallel using ThreadPoolExecutor."""
+    results = []
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
 
+        futures = [executor.submit(target_function, *args) for args in args_list]    # Submit all tasks to the executor
+
+        for future in futures:                                                  # Wait for all to complete and collect results
+            try:
+                results.append(future.result())
+            except Exception as e:
+                if return_exceptions:
+                    results.append(e)
+                else:
+                    raise
+    return results
 
 # in the use cases when I tried to use this, it hanged
 # def invoke_in_current_loop(target: typing.Coroutine):
