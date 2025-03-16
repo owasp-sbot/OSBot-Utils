@@ -43,23 +43,24 @@ def invoke_in_new_event_loop(target: typing.Coroutine):             # Runs a cor
         return result                                               # Return the result from the coroutine
 
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable, List, TypeVar, Any, Optional
+from typing import Callable, List, TypeVar, Tuple, Optional, Dict
 
 T = TypeVar('T')  # Type of items in the list
 R = TypeVar('R')  # Return type of the function
 
-def execute_in_thread_pool(target_function  : Callable[[T], R]        ,  # Function to execute
-                          items             : List[Any]               ,  # Items to process
-                          max_workers      : Optional[int]  = None ,  # Maximum worker threads
-                          return_exceptions: bool           = False   # Return rather than raise exceptions
-                     ) -> List[R]:                                    # List of results
+def execute_in_thread_pool(target_function   : Callable                     ,
+                           calls             : List[Tuple[Tuple, Dict]]     ,  # List of (args, kwargs) pairs
+                           max_workers       : Optional[int] = None         ,
+                           return_exceptions : bool          = False        ):
     """Execute a function for each item in parallel using ThreadPoolExecutor."""
 
-    args_list = [(item,) for item in items]                                         # Convert list of items to list of single-item tuples (so that we support one or more params)
     results = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
 
-        futures = [executor.submit(target_function, *args) for args in args_list]    # Submit all tasks to the executor
+        futures = []
+        for args, kwargs in calls:
+            future = executor.submit(target_function, *args, **kwargs)
+            futures.append(future)                                              # Submit all tasks to the executor
 
         for future in futures:                                                  # Wait for all to complete and collect results
             try:
