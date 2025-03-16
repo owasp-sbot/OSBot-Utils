@@ -64,7 +64,7 @@ class test_decorator__task(TestCase):
             assert stderr.value() == ("\x1b[31mError executing 'failing_task_raises' task: Task error\x1b[0m\n"
                                       "\x1b[31mError executing 'failing_task_continues' task: Task error\x1b[0m\n") != ''
 
-
+    # todo: fix this test since this doesn't work like this in the normal (sync TestCase)
     async def test_async_task_execution(self):
         async def async_operation():
             await asyncio.sleep(0.1)
@@ -248,6 +248,7 @@ class test_decorator__task(TestCase):
                     assert result is None
             assert stderr.value() == "\x1b[31mError executing 'failing_task' task: Task failed\x1b[0m\n"
 
+    # todo: fix this test since this doesn't work like this in the normal (sync TestCase)
     async def test_async_task_decorator(self):
         @task()
         async def async_task(value):

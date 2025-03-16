@@ -72,6 +72,7 @@ class test_Flow_Task_Integration(TestCase):
             ]
             assert len(error_messages) > 0
 
+    # todo: fix this test since this doesn't work like this in the normal (sync TestCase)
     async def test_async_flow_with_mixed_tasks(self):
         @task()
         async def async_task(value):
