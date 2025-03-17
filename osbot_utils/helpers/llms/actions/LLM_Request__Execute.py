@@ -11,12 +11,13 @@ class LLM_Request__Execute(Type_Safe):
     llm_cache      : LLM_Request__Cache
     llm_api        : API__LLM__Open_AI
     use_cache      : bool                 = True
+    refresh_cache  : bool                 = False
     request_builder: LLM_Request__Builder           # todo: fix the use of LLM_Request__Builder since it not good when we when overwrite it at self.request_builder.llm_request_data = llm_request.request_data
 
     @type_safe
     def execute(self, llm_request: Schema__LLM_Request) -> Schema__LLM_Response:
 
-        if self.use_cache:                                                                          # Check cache if enabled
+        if self.use_cache is True and self.refresh_cache is False:                                                                          # Check cache if enabled
             cached_response = self.llm_cache.get(llm_request)
             if cached_response:
                 return cached_response
