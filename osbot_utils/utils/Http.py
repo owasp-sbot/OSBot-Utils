@@ -6,7 +6,7 @@ import ssl
 import unicodedata
 from http.cookies       import SimpleCookie
 from time               import sleep
-from urllib.parse       import quote, urljoin, urlparse, urlunparse
+from urllib.parse       import quote, urljoin, urlparse
 from   urllib.request   import Request, urlopen
 
 from osbot_utils.utils.Str import html_decode
