@@ -50,8 +50,10 @@ class Type_Safe__Step__From_Json:
                     annotation        = type_safe_annotations.obj_attribute_annotation(_self, key)
                     annotation_origin = type_safe_cache.get_origin(annotation)
 
+                    if type(annotation) is type and issubclass(annotation, Type_Safe) and type(value) is dict:          # if the annotation is a Type_Safe class and the value is a dict
+                        value = annotation.from_json(value)                                                             # we can use the Type_Safe.from_json to create the deserialized value object
 
-                    if annotation == type:                                                  # Handle type objects
+                    elif annotation == type:                                                  # Handle type objects
                         value = self.deserialize_type__using_value(value)
                     elif annotation_origin == type:                                         # Handle type objects inside ForwardRef
                         value = self.deserialize_type__using_value(value)
