@@ -3,11 +3,8 @@ from osbot_utils.decorators.methods.cache_on_self                   import cache
 from osbot_utils.helpers.safe_str.Safe_Str__File__Path              import Safe_Str__File__Path
 from osbot_utils.type_safe.Type_Safe                                import Type_Safe
 from osbot_utils.type_safe.decorators.type_safe                     import type_safe
-from osbot_utils.utils.Files                                        import current_temp_folder, path_combine_safe, folder_create, file_exists, folder_exists, file_delete, file_name_without_extension, parent_folder, create_folder, files_recursive
-from osbot_utils.utils.Json                                         import json_save_file, json_load_file, json_file_load
-
-FOLDER_NAME__CACHE_IN_TEMP_FOLDER = '_llm_requests_cache'
-FILE_NAME__CACHE_INDEX            = "cache_index.json"
+from osbot_utils.utils.Files                                        import current_temp_folder, path_combine_safe, folder_create, file_exists, folder_exists, file_delete, parent_folder, create_folder, files_recursive
+from osbot_utils.utils.Json                                         import json_save_file, json_load_file
 
 class Virtual_Storage__Local__Folder(Type_Safe):
 
