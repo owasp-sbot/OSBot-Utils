@@ -59,7 +59,7 @@ class LLM_Request__Cache__Storage(Type_Safe):
         return Safe_Str__File__Path(path)
 
     def reload__cache_id_to_file_path(self) -> List[Obj_Id]:                # todo: check the performance impact of this (and if we really need this method)                                    # Get all cache IDs from disk
-        all_files_paths         = self.virtual_storage.files__all(full_path=True)
+        all_files_paths         = self.virtual_storage.files__all()
         path_root               = self.virtual_storage.path_folder__root_cache()
         cache_id__to__file_path = {}
         for full_file_path in all_files_paths:
