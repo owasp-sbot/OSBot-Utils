@@ -40,11 +40,15 @@ class LLM_Request__Builder(Type_Safe):
         self.llm_request_data.function_call = function_call
         return self
 
-    def set__model             (self, model   : Safe_Str__Text): self.llm_request_data.model    = model   ; return self
-    def set__platform          (self, platform: Safe_Str__Text): self.llm_request_data.platform = platform; return self
-    def set__provider          (self, provider: Safe_Str__Text): self.llm_request_data.provider = provider; return self
-    def set__model__gpt_4o     (self                          ): return self.set__model('gpt-4o'     )
-    def set__model__gpt_4o_mini(self                          ): return self.set__model('gpt-4o-mini')
+    def set__model              (self, model   : Safe_Str__Text): self.llm_request_data.model    = model   ; return self
+    def set__platform           (self, platform: Safe_Str__Text): self.llm_request_data.platform = platform; return self
+    def set__provider           (self, provider: Safe_Str__Text): self.llm_request_data.provider = provider; return self
+    def set__model__gpt_4o      (self                          ): return self.set__model('gpt-4o'      )
+    def set__model__gpt_4o_mini (self                          ): return self.set__model('gpt-4o-mini' )
+    def set__model__gpt_4_1     (self                          ): return self.set__model('gpt-4.1'     )
+    def set__model__gpt_4_1_mini(self                          ): return self.set__model('gpt-4.1-mini')
+    def set__model__gpt_4_1_nano(self                          ): return self.set__model('gpt-4.1-nano')
+
 
     @type_safe
     def build_request_payload(self) -> Dict[str, Any]:
