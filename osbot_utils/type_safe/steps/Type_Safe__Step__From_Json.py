@@ -33,7 +33,8 @@ class Type_Safe__Step__From_Json:
 
     # todo: this needs refactoring, since the logic and code is getting quite complex (to be inside methods like this)
     def deserialize_from_dict(self, _self, data, raise_on_not_found=False):
-
+        if data is None:
+            return
         if hasattr(data, 'items') is False:
             raise ValueError(f"Expected a dictionary, but got '{type(data)}'")
 
@@ -81,12 +82,13 @@ class Type_Safe__Step__From_Json:
                         if attribute_annotation_args:
                             expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
                             type_safe_list       = Type_Safe__List(expected_type)                               # create a new instance of Type_Safe__List
-                            for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
-                                if type(item) is dict:
-                                    new_item = expected_type(**item)                                                # create new object
-                                else:
-                                    new_item = expected_type(item)
-                                type_safe_list.append(new_item)                                                 # and add it to the new type_safe_list obejct
+                            if value:
+                                for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
+                                    if type(item) is dict:
+                                        new_item = expected_type(**item)                                                # create new object
+                                    else:
+                                        new_item = expected_type(item)
+                                    type_safe_list.append(new_item)                                                 # and add it to the new type_safe_list obejct
                             value = type_safe_list                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
                     else:
                         if value is not None:
