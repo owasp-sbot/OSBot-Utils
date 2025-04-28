@@ -1,4 +1,6 @@
-from html.parser import HTMLParser
+from html.parser                        import HTMLParser
+from osbot_utils.helpers.html.Tag__Html import Tag__Html
+
 
 class Html_To_Dict(HTMLParser):
     def __init__(self, html):
@@ -73,3 +75,11 @@ class Html_To_Dict(HTMLParser):
     def print__lines(self, lines):
         for line in lines:
             print(line)
+
+def html_to_dict(html_code:str) -> dict:
+    try:
+        html_to_dict = Html_To_Dict(html_code)
+        html_dict     = html_to_dict.convert()
+        return html_dict
+    except:                                                 # todo: see if there is a better Exception to capture
+        return None                                         # if we couldn't part the html, just return None
