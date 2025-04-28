@@ -8,6 +8,5 @@ TYPE_SAFE_STR__URL__REGEX      = re.compile(r'^(?!https?://).*|[^a-zA-Z0-9:/\-._
 class Safe_Str__Url(Safe_Str):
     regex                      = TYPE_SAFE_STR__URL__REGEX
     max_length                 = TYPE_SAFE_STR__URL__MAX_LENGTH
-    allow_empty                = False
     trim_whitespace            = True
     allow_all_replacement_char = False

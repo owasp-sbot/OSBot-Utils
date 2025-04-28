@@ -54,11 +54,11 @@ class test_Safe_Str__Url(TestCase):
         # Edge cases: exceptions with specific error message checks
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Url(None)
-        assert "Value cannot be None when allow_empty is False" in str(exc_info.value)
+        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)                             # todo : find better way to handle this scenario (this error comes from Safe_Str
         
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Url('')
-        assert "Value cannot be empty when allow_empty is False" in str(exc_info.value)
+        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Url('example.com')  # Missing scheme
