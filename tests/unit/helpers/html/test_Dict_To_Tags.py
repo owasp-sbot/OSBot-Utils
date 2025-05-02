@@ -1,12 +1,11 @@
 import sys
-from unittest import TestCase
-
 import pytest
-
-from osbot_utils.helpers.html.Dict_To_Html import Dict_To_Html
-from osbot_utils.helpers.html.Dict_To_Tags import Dict_To_Tags
-from osbot_utils.helpers.html.Html_To_Dict import Html_To_Dict
-from tests._test_data.Sample_Test_Files    import Sample_Test_Files
+from unittest                               import TestCase
+from osbot_utils.helpers.html.Dict_To_Html  import Dict_To_Html
+from osbot_utils.helpers.html.Dict_To_Tags  import Dict_To_Tags
+from osbot_utils.helpers.html.Html_To_Dict  import Html_To_Dict
+from osbot_utils.helpers.html.Tag__Html     import Tag__Html
+from tests._test_data.Sample_Test_Files     import Sample_Test_Files
 
 
 class test_Dict_To_Tags(TestCase):
@@ -51,3 +50,30 @@ class test_Dict_To_Tags(TestCase):
         #print()
         #print()
         #html_to_dict.print()
+
+    def convert_html(self, html):
+        html_parser_    = Html_To_Dict        (html)
+        html_dict       = html_parser_.convert()
+        dict_to_tags    = Dict_To_Tags        (html_dict)
+        result          = dict_to_tags.convert()
+        return result
+
+    def test__convert_attributes(self):
+        html_1 = '<html lang="en" class="an-class"></html>'
+        with self.convert_html(html_1) as _:
+            assert type(_) is Tag__Html
+
+
+    def test__bug__class_in_xyz(self):
+
+
+        html_1           = '<html lang="en" class="js-focus-visible js" data-js-focus-visible=""></html>'
+        expected_error_1 = "Tag__Html has no attribute 'class' and cannot be assigned the value 'js-focus-visible js'. Use Tag__Html.__default_kwargs__() see what attributes are available"
+        #with pytest.raises(ValueError, match=re.escape(expected_error_1)):
+        self.convert_html(html_1)       # FIXED
+
+        html_2           = '<html lang="en" data-js-focus-visible=""></html>'
+        expected_error_2 = "Tag__Html has no attribute 'data-js-focus-visible' and cannot be assigned the value ''. Use Tag__Html.__default_kwargs__() see what attributes are available"
+        #with pytest.raises(ValueError, match=re.escape(expected_error_2)):
+        self.convert_html(html_2) #  FIXED
+

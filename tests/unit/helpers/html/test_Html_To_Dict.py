@@ -11,6 +11,7 @@ class test_Html_To_Dict(TestCase):
         sample_test_files = Sample_Test_Files()                                                      # Initialize sample test files
         html              = sample_test_files.html_bootstrap_example()                               # Load HTML sample
         html__lines       = sample_test_files.html_bootstrap_example__lines()                        # Load expected HTML lines
+
         html__roundtrip   = sample_test_files.html_bootstrap_example__roundtrip()                    # Load expected roundtrip HTML
 
         html_parser_1     = Html_To_Dict(html)                                                       # Parse HTML to dict

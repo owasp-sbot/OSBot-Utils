@@ -70,7 +70,8 @@ class Dict_To_Tags:
     def convert_to__tag__html(self, element):
         attrs    = element.get("attrs"      , {}    )
         children = element.get("children"   , []    )
-        tag_html = Tag__Html(**attrs)
+        lang     = attrs.get("lang")                        # for now hard-code this mapping
+        tag_html = Tag__Html(attributes=attrs, lang=lang)
         for child in children:
             tag_name = child.get("tag" )
             if tag_name == 'head':
