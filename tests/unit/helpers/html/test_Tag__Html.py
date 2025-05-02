@@ -85,5 +85,6 @@ class test_Tag__Html(TestCase):
         assert html_to_dict.print(just_return_lines=True) == ['html (lang="en")',
                                                               '    ├── head\n'
                                                               '    │   ├── title\n'
+                                                              '    │   │   └── TEXT: an title\n'
                                                               '    │   └── link',
                                                               '    └── body']

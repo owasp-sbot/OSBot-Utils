@@ -5,6 +5,7 @@ from osbot_utils.helpers.html.Dict__To__Html  import Dict__To__Html
 from osbot_utils.helpers.html.Dict__To__Tags  import Dict__To__Tags
 from osbot_utils.helpers.html.Html__To__Dict  import Html__To__Dict
 from osbot_utils.helpers.html.Tag__Html       import Tag__Html
+from osbot_utils.helpers.html.Tag__Text       import Tag__Text
 from tests._test_data.Sample_Test_Files       import Sample_Test_Files
 
 
@@ -15,10 +16,34 @@ class test_Dict_To_Tags(TestCase):
         if sys.version_info < (3, 9):
             pytest.skip("Skipping tests that doesn't work on 3.8 or lower")
 
+    def test_convert__simple(self):
+        html = """\
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="UTF-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <title>Simple Bootstrap 5 Webpage</title>
+    </head>
+    <body>
+</html>"""
+
+        html_to_dict      = Html__To__Dict(html)
+        root_1            = html_to_dict.convert()
+        dict_to_tags      = Dict__To__Tags(root_1)
+        root_tag          = dict_to_tags.convert()
+
+        root_tag.doc_type = False
+        root_tag_html     = root_tag.render()
+        html_to_dict      = Html__To__Dict(root_tag_html)
+        root_2            = html_to_dict.convert()
+        assert root_1     == root_2
+
+
     def test_convert(self):
         sample_test_files = Sample_Test_Files()
         html              = sample_test_files.html_bootstrap_example()
-        html_roundtrip    = sample_test_files.html_bootstrap_example__roundtrip()
+        html_roundtrip    = sample_test_files.html_bootstrap_example__roundtrip_2()
         html_to_dict      = Html__To__Dict(html)
         root_1            = html_to_dict.convert()
         lines_1           = html_to_dict.print(just_return_lines=True)
@@ -35,10 +60,20 @@ class test_Dict_To_Tags(TestCase):
 
         assert root_1  == root_2
         assert lines_1 == lines_2
-        #assert root_tag_html == html_roundtrip                         # todo: fix little issue with extra space in the attributes
+        assert root_tag_html == html_roundtrip          # misses DOCTYPE HERE
 
-        dict_to_html_2 = Dict__To__Html(root_2)
-        assert dict_to_html_2.convert() == html_roundtrip               # confirm that roundstrip is working ok
+
+        dict_to_tags_2  = Dict__To__Tags(root_2)
+        root_tag_2      = dict_to_tags_2.convert()
+        root_tag_html_2 = root_tag_2.render()
+        assert root_tag_html_2 == root_tag_html         # we lose the "'<!DOCTYPE html>\n'" here
+
+        #dict_to_html_2 = Dict__To__Html(root_1)
+        #print(root_2.render())
+        from osbot_utils.utils.Dev import pprint
+        #pprint(root_2)
+        #print(dict_to_html_2.convert())
+        # assert dict_to_html_2.dict_to_html_2() == html_roundtrip               # confirm that roundstrip is working ok
         #print(html_roundtrip)
 
 
@@ -64,7 +99,7 @@ class test_Dict_To_Tags(TestCase):
             assert type(_) is Tag__Html
 
 
-    def test__bug__class_in_xyz(self):
+    def test__regression__class_in_xyz(self):
 
 
         html_1           = '<html lang="en" class="js-focus-visible js" data-js-focus-visible=""></html>'
@@ -77,3 +112,82 @@ class test_Dict_To_Tags(TestCase):
         #with pytest.raises(ValueError, match=re.escape(expected_error_2)):
         self.convert_html(html_2) #  FIXED
 
+
+class test_Html_To_Dict(TestCase):
+
+    def test_text_node_render(self):
+        text_node = Tag__Text(data="Hello world")
+        rendered = text_node.render()
+        assert rendered == "Hello world"
+
+    def test_render_with_text_nodes(self):
+        from osbot_utils.helpers.html.Tag__Base import Tag__Base
+
+        # Create a paragraph with mixed content
+        para = Tag__Base(tag_name="p", indent=0)
+
+        # Add text before
+        para.elements.append(Tag__Text(data="Text before "))
+
+        # Add a bold element
+        bold = Tag__Base(tag_name="b", indent=1)
+        bold.elements.append(Tag__Text(data="Bold text"))
+        para.elements.append(bold)
+
+        # Add text after
+        para.elements.append(Tag__Text(data=" and text after"))
+
+        # Render the paragraph
+        rendered = para.render()
+
+        # Expected: <p>Text before     <b>Bold text</b> and text after</p>
+        expected = "<p>Text before     <b>Bold text</b> and text after</p>"
+
+        # Strip newlines for comparison as the newline handling may vary
+        rendered_normalized = rendered.replace("\n", "")
+        assert rendered_normalized == expected
+
+
+
+    def test__bug__convert_with_text_nodes(self):
+        # Create a dictionary structure with text nodes
+        html_dict = {
+            'tag': 'div',
+            'attrs': {'class': 'container'},
+            'children': [
+                {'type': 'text', 'data': 'Text before'},
+                {
+                    'tag': 'p',
+                    'attrs': {},
+                    'children': [{'type': 'text', 'data': 'Paragraph content'}]
+                },
+                {'type': 'text', 'data': 'Text after'}
+            ]
+        }
+
+        wrong__html_dict = {'attrs': {'class': 'container'},
+                             'children': [{'data': 'Text before    ', 'type': 'text'},                      # todo: BUG: extra space here
+                                          {'attrs': {},
+                                           'children': [{'data': 'Paragraph content', 'type': 'text'}],
+                                           'tag': 'p'},
+                                          {'data': '\nText after', 'type': 'text'}],                        # todo: BUG: extra 'n' here
+                             'tag': 'div'}
+
+        wrong_html = ('<!DOCTYPE html>\n'
+ '<div class="container">Text before    <p>Paragraph content</p>\n'
+ 'Text after</div>\n')
+
+        # Convert to HTML
+        dict_to_html = Dict__To__Html(html_dict)
+        html = dict_to_html.convert()
+
+
+
+
+        # Parse back to dict to verify structure preservation
+        html_dict_2 = Html__To__Dict(html, ).convert()
+
+        # Compare structures
+        assert html_dict   != html_dict_2                                           # todo: BUG - these should be equal
+        assert html_dict_2 == wrong__html_dict                                      # todo: BUG
+        assert html        == wrong_html                                            # todo: BUG

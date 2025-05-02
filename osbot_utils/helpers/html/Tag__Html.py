@@ -1,7 +1,7 @@
 from osbot_utils.helpers.html.Tag__Base import Tag__Base
 from osbot_utils.helpers.html.Tag__Body import Tag__Body
 from osbot_utils.helpers.html.Tag__Head import Tag__Head
-from osbot_utils.utils.Misc import str_to_bytes
+from osbot_utils.utils.Misc             import str_to_bytes
 
 ATTRIBUTES_NAMES__LINK = ['lang']
 

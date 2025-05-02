@@ -12,6 +12,6 @@ TYPE_SAFE_STR__HTML__MAX_LENGTH = 1048576  # 1 megabyte in bytes
 # - All other Unicode characters
 TYPE_SAFE_STR__HTML__REGEX = re.compile(r'[\x00\x01-\x08\x0B\x0C\x0E-\x1F]')
 
-class Safe_Str__HTML(Safe_Str):
+class Safe_Str__Html(Safe_Str):
     max_length                 = TYPE_SAFE_STR__HTML__MAX_LENGTH
     regex                      = TYPE_SAFE_STR__HTML__REGEX

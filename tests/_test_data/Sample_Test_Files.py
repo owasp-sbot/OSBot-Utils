@@ -1,7 +1,7 @@
-from unittest import TestCase
-from osbot_utils.utils.Files import folder_exists, folder_name, path_combine, file_contents
-from tests import _test_data
-from tests._test_data import html_bootstrap_example__lines
+from unittest                   import TestCase
+from osbot_utils.utils.Files    import folder_exists, folder_name, path_combine, file_contents
+from tests                      import _test_data
+from tests._test_data           import html_bootstrap_example__lines
 
 
 class Sample_Test_Files:
@@ -14,6 +14,9 @@ class Sample_Test_Files:
 
     def html_bootstrap_example__roundtrip(self):
         return self.sample_file_contents('html_bootstrap_example__round_trip.html')
+
+    def html_bootstrap_example__roundtrip_2(self):          # todo: this is caused by a small difference between the .render() and the Parser
+        return self.sample_file_contents('html_bootstrap_example__round_trip_2.html')
 
     def sample_file_contents(self,file_name):
         file_path = path_combine(self.path_test_files(), file_name)

@@ -1,11 +1,10 @@
-from collections import defaultdict
-
-from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
-from osbot_utils.utils.Files import file_create
+from collections                                import defaultdict
+from osbot_utils.type_safe.Type_Safe            import Type_Safe
+from osbot_utils.utils.Files                    import file_create
 
 INDENT_SIZE = 4
 
-class Tag__Base(Kwargs_To_Self):
+class Tag__Base(Type_Safe):
     attributes               : dict
     elements                 : list
     end_tag                  : bool = True
@@ -54,23 +53,43 @@ class Tag__Base(Kwargs_To_Self):
 
     def render_element(self):
         html_attributes = self.render_attributes()
-        html_elements   = self.render_elements()
-        element_indent  = " " * self.indent * INDENT_SIZE
+        element_indent = " " * self.indent * INDENT_SIZE
 
         html = f"{element_indent}<{self.tag_name}"
         if html_attributes:
             html += f" {html_attributes}"
+
         if self.end_tag:
             html += ">"
+
+            # Check for text nodes and regular element nodes
+            text_nodes = [e for e in self.elements if hasattr(e, 'type') and e.type == 'text']
+            element_nodes = [e for e in self.elements if not hasattr(e, 'type') or e.type != 'text']
+
+            has_text = bool(text_nodes) or bool(self.inner_html)
+            has_elements = bool(element_nodes)
+
+            # Add inner_html if it exists
             if self.inner_html:
                 html += self.inner_html
+
+            # Get the rendered element HTML
+            html_elements = self.render_elements()
+
+            # Add element children with proper formatting
             if html_elements:
-                if self.new_line_before_elements:
+                # Only add newlines if we have element nodes and no text nodes,
+                # or if we explicitly want newlines before elements
+                if (has_elements and not has_text) or (self.new_line_before_elements and not has_text):
                     html += "\n"
-                html += f"{html_elements}"
-                if self.new_line_before_elements:
+
+                html += html_elements
+
+                # Add closing newline and indent only for pure element content
+                if (has_elements and not has_text) or (self.new_line_before_elements and not has_text):
                     html += "\n"
-                html += element_indent
+                    html += element_indent
+
             html += f"</{self.tag_name}>"
         else:
             html += "/>"
@@ -79,12 +98,23 @@ class Tag__Base(Kwargs_To_Self):
 
     def render_elements(self):
         html_elements = ""
+        has_element_nodes = False
+
         for index, element in enumerate(self.elements):
-            if index:
+            # Handle text nodes
+            if hasattr(element, 'type') and element.type == 'text':
+                html_elements += element.data
+                continue
+
+            # Only add newlines between element nodes (not text nodes)
+            if has_element_nodes:
                 html_elements += '\n'
+
+            has_element_nodes = True
             element.indent = self.indent + 1        # set the indent of the child element based on the current one
             html_element = element.render()
             html_elements += html_element
+
         return html_elements
 
     def render(self):

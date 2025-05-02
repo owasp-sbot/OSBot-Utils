@@ -1,20 +1,26 @@
-
-HTML_SELF_CLOSING_TAGS = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
+HTML_SELF_CLOSING_TAGS     = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
+HTML_DEFAULT_DOCTYPE_VALUE = "<!DOCTYPE html>\n"
 
 class Dict__To__Html:
-    def __init__(self, root):
-        # Define a list of self-closing tags
-        self.self_closing_tags =HTML_SELF_CLOSING_TAGS # {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
-        self.root = root
+    def __init__(self, root, include_doctype=True, doctype=HTML_DEFAULT_DOCTYPE_VALUE):
+        self.self_closing_tags = HTML_SELF_CLOSING_TAGS             # Define a list of self-closing tags
+        self.root              = root
+        self.include_doctype   = include_doctype
+        self.doctype           = doctype
 
     def convert(self):
-        return self.convert_element(self.root, 0)               # Start conversion with the root element and initial indentation level 0
+        html = self.convert_element(self.root, 0)
+        if self.include_doctype:
+            return self.doctype + html
+        return html
 
     def convert_attrs(self, attrs):
         attrs_str_parts = []                                                # List to hold each attribute's string representation
         for key, value in attrs.items():
-            if '"' in value:                                                # Check if the attribute value contains double quotes
-                escaped_value = "&quot;".join(value.split("\""))            # If so, escape double quotes and format the attribute string
+            if value is None:                                               # Handle None values
+                attr_str = f'{key}'
+            elif '"' in str(value):                                         # Check if the attribute value contains double quotes
+                escaped_value = "&quot;".join(str(value).split("\""))       # If so, escape double quotes and format the attribute string
                 attr_str      = f'{key}="{escaped_value}"'
             else:
                 attr_str = f'{key}="{value}"'                               # If not, simply format the attribute string
@@ -28,32 +34,62 @@ class Dict__To__Html:
 
     def convert_element(self, element, indent_level):
         """Recursively converts a dictionary to an HTML string with indentation."""
+        # Check if this is a text node
+        if element.get("type") == "text":
+            return element.get("data", "")                                  # Return text content directly for text nodes
+
         tag      = element.get("tag")
         attrs    = element.get("attrs", {})
         children = element.get("children", [])
-        data     = element.get("data", "")
 
-        attrs_str = self.convert_attrs(attrs)                           # Convert attributes dictionary to a string
-        indent = "    " * indent_level                                  # Indentation for the current level, assuming 4 spaces per indent level
+        attrs_str = self.convert_attrs(attrs)                               # Convert attributes dictionary to a string
+        indent = "    " * indent_level                                      # Indentation for the current level, assuming 4 spaces per indent level
 
-        if tag in self.self_closing_tags:                               # Check if the tag is self-closing
+        # Handle self-closing tags
+        if tag in self.self_closing_tags and not children:                  # Check if the tag is self-closing and has no children
             return f"{indent}<{tag}{attrs_str} />\n"
 
-        html = f"{indent}<{tag}{attrs_str}>"                            # Opening tag with indentation
-        if not data:
-            html += '\n'
+        # Start building the HTML
+        html = f"{indent}<{tag}{attrs_str}>"                                # Opening tag with indentation
 
-        for child in children:                                          # Process children with incremented indent level
-            html += self.convert_element(child, indent_level + 1)
+        # Separate children into text nodes and element nodes
+        text_nodes = [child for child in children if child.get("type") == "text"]
+        element_nodes = [child for child in children if child.get("type") != "text"]
 
-        if data:                                                        # Add data if present
-            html += data
+        # If there are only element nodes, add a newline after the opening tag
+        if element_nodes and not text_nodes:
+            html += "\n"
 
-        if children:                                                    # Closing tag for non-self-closing tags, with indentation
-            html += f"{indent}</{tag}>\n"                               # Add closing tag on a new line if there are children
-        elif data:
+        # Process children, maintaining the original order but with proper formatting
+        if children:
+            # Track if we're currently in a text section or element section
+            # This helps us add newlines only between elements, not text
+            previous_was_element = False
+
+            for child in children:
+                if child.get("type") == "text":
+                    # Text node - directly append content
+                    html += child.get("data", "")
+                    previous_was_element = False
+                else:
+                    # Element node - format with proper indentation
+                    if previous_was_element:
+                        # If previous child was also an element, we may already have a newline
+                        if not html.endswith("\n"):
+                            html += "\n"
+
+                    html += self.convert_element(child, indent_level + 1)
+                    previous_was_element = True
+
+        # Handle closing tag based on content
+        if element_nodes and not text_nodes:
+            # If only element children, add indented closing tag
+            html += f"{indent}</{tag}>\n"
+        elif children:  # Any type of children
+            # If mixed content or only text, add closing tag without indentation
             html += f"</{tag}>\n"
-        else:                                                           # Place closing tag directly after opening tag if there are no children or data
+        else:
+            # Empty tag, replace with self-contained format
             html = f"{indent}<{tag}{attrs_str}></{tag}>\n"
 
         return html
