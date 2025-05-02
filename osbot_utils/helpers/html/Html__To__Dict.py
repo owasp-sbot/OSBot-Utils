@@ -1,15 +1,17 @@
 from html.parser import HTMLParser
 
 HTML_SELF_CLOSING_TAGS = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
+STRING__DATA_TEXT = 'TEXT:'
 
 class Html__To__Dict(HTMLParser):
     def __init__(self, html):
         super().__init__()
-        self.root          = None                               # No root initially
-        self.current       = None                               # No current node at the start
-        self.stack         = []                                 # Empty stack for hierarchy management
-        self.html          = html or ''
-        self.void_elements = HTML_SELF_CLOSING_TAGS             # List of void elements that are self-closing by nature
+        self.root            = None                               # No root initially
+        self.current         = None                               # No current node at the start
+        self.stack           = []                                 # Empty stack for hierarchy management
+        self.html            = html or ''
+        self.void_elements   = HTML_SELF_CLOSING_TAGS             # List of void elements that are self-closing by nature
+        self.strip_text_data = True
 
     def convert(self):
         self.feed(self.html)
@@ -55,11 +57,14 @@ class Html__To__Dict(HTMLParser):
         prefix = "" if is_root else ("└── " if last else "├── ")
 
         if node.get("type") == "text":
-            lines.append(f"{indent}{prefix}TEXT: {node.get('data')}")
+            text_data = node.get('data')
+            if self.strip_text_data:
+                text_data = text_data.strip()
+            lines.append(f"{indent}{prefix}{STRING__DATA_TEXT} {text_data}")
         else:
-            tag = node.get("tag")
-            attrs = node.get("attrs", {})
-            children = node.get("children", [])
+            tag       = node.get("tag")
+            attrs     = node.get("attrs", {})
+            children  = node.get("children", [])
             attrs_str = ' '.join(f'{key}="{value}"' for key, value in attrs.items())
             attrs_str = f' ({attrs_str})' if attrs_str else ''
 
