@@ -1,9 +1,9 @@
 import sys
 import pytest
-from unittest                               import TestCase
-from osbot_utils.helpers.html.Html_To_Dict  import Html_To_Dict
-from osbot_utils.helpers.html.Tag__Html     import Tag__Html
-from osbot_utils.helpers.html.Tag__Link     import Tag__Link
+from unittest                                import TestCase
+from osbot_utils.helpers.html.Html__To__Dict import Html__To__Dict
+from osbot_utils.helpers.html.Tag__Html      import Tag__Html
+from osbot_utils.helpers.html.Tag__Link      import Tag__Link
 
 
 class test_Tag__Html(TestCase):
@@ -79,7 +79,7 @@ class test_Tag__Html(TestCase):
     <body></body>
 </html>"""
 
-        html_to_dict = Html_To_Dict(html)
+        html_to_dict = Html__To__Dict(html)
         html_to_dict.convert()
 
         assert html_to_dict.print(just_return_lines=True) == ['html (lang="en")',

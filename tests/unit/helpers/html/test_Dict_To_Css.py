@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from osbot_utils.helpers.html.Dict_To_Css import Dict_To_Css
+from osbot_utils.helpers.html.Dict__To__Css import Dict__To__Css
 
 
 
@@ -22,7 +22,7 @@ class test_Dict_To_Css(TestCase):
                          '    font-size: 12px;\n'
                          '}')
     def setUp(self):
-        self.dict_to_css = Dict_To_Css()
+        self.dict_to_css = Dict__To__Css()
 
     def test_convert(self):
         assert self.dict_to_css.convert() == ''

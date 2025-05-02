@@ -1,8 +1,7 @@
-from unittest import TestCase
-
-from osbot_utils.helpers.html.Dict_To_Html  import Dict_To_Html
-from osbot_utils.helpers.html.Html_To_Dict  import Html_To_Dict
-from tests._test_data.Sample_Test_Files     import Sample_Test_Files
+from unittest                                 import TestCase
+from osbot_utils.helpers.html.Dict__To__Html  import Dict__To__Html
+from osbot_utils.helpers.html.Html__To__Dict  import Html__To__Dict
+from tests._test_data.Sample_Test_Files       import Sample_Test_Files
 
 
 class test_Html_To_Dict(TestCase):
@@ -14,16 +13,16 @@ class test_Html_To_Dict(TestCase):
 
         html__roundtrip   = sample_test_files.html_bootstrap_example__roundtrip()                    # Load expected roundtrip HTML
 
-        html_parser_1     = Html_To_Dict(html)                                                       # Parse HTML to dict
+        html_parser_1     = Html__To__Dict(html)                                                       # Parse HTML to dict
         root_1            = html_parser_1.convert()                                                  # Convert parsed HTML to root dict
         lines_1           = html_parser_1.print(just_return_lines=True)                              # Generate tree lines from root dict
-        dict_to_html_1    = Dict_To_Html(root_1)                                                     # Initialize conversion from dict to HTML
+        dict_to_html_1    = Dict__To__Html(root_1)                                                     # Initialize conversion from dict to HTML
         html_from_dict_1  = dict_to_html_1.convert()                                                 # Convert dict back to HTML
 
-        html_parser_2     = Html_To_Dict(html_from_dict_1)                                           # Parse the regenerated HTML to dict
+        html_parser_2     = Html__To__Dict(html_from_dict_1)                                           # Parse the regenerated HTML to dict
         root_2            = html_parser_2.convert()                                                  # Convert parsed HTML to root dict again
         lines_2           = html_parser_2.print(just_return_lines=True)                              # Generate tree lines from new root dict
-        dict_to_html_2    = Dict_To_Html(root_2)                                                     # Initialize second conversion from dict to HTML
+        dict_to_html_2    = Dict__To__Html(root_2)                                                     # Initialize second conversion from dict to HTML
         html_from_dict_2  = dict_to_html_2.convert()                                                 # Convert dict back to HTML again
 
         assert root_1           == root_2                                                            # Assert that both root dicts are equal

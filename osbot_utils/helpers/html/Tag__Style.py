@@ -1,10 +1,10 @@
-from osbot_utils.helpers.html.Dict_To_Css import Dict_To_Css
-from osbot_utils.helpers.html.Tag__Base import Tag__Base, INDENT_SIZE
+from osbot_utils.helpers.html.Dict__To__Css import Dict__To__Css
+from osbot_utils.helpers.html.Tag__Base     import Tag__Base, INDENT_SIZE
 
 
 class Tag__Style(Tag__Base):
     tag_name    : str = 'style'
-    dict_to_css : Dict_To_Css
+    dict_to_css : Dict__To__Css
 
     def add_css_entry(self, selector, data):
         self.dict_to_css.add_css_entry(selector,data)

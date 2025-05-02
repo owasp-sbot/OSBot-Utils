@@ -1,7 +1,7 @@
 
 HTML_SELF_CLOSING_TAGS = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 
-class Dict_To_Html:
+class Dict__To__Html:
     def __init__(self, root):
         # Define a list of self-closing tags
         self.self_closing_tags =HTML_SELF_CLOSING_TAGS # {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}

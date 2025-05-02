@@ -1,8 +1,7 @@
 from html.parser                        import HTMLParser
-from osbot_utils.helpers.html.Tag__Html import Tag__Html
 
 
-class Html_To_Dict(HTMLParser):
+class Html__To__Dict(HTMLParser):
     def __init__(self, html):
         super().__init__()
         self.root    = None            # No root initially
@@ -78,7 +77,7 @@ class Html_To_Dict(HTMLParser):
 
 def html_to_dict(html_code:str) -> dict:
     try:
-        html_to_dict = Html_To_Dict(html_code)
+        html_to_dict = Html__To__Dict(html_code)
         html_dict     = html_to_dict.convert()
         return html_dict
     except:                                                 # todo: see if there is a better Exception to capture
