@@ -1,5 +1,4 @@
 from unittest                           import TestCase
-from packaging.tags                     import Tag
 from osbot_utils.helpers.html.Tag__Base import Tag__Base
 from osbot_utils.helpers.html.Tag__Link import Tag__Link
 from osbot_utils.utils.Misc             import random_string

@@ -1,7 +1,7 @@
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 
 
-class Dict_To_Css(Kwargs_To_Self):
+class Dict__To__Css(Kwargs_To_Self):
     css: dict
 
 
