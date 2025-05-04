@@ -1,10 +1,9 @@
-from unittest import TestCase
-
-from osbot_utils.helpers.html.Dict__To__Css import Dict__To__Css
-
+from unittest                                   import TestCase
+from osbot_utils.helpers.html.CSS_Dict__To__Css import CSS_Dict__To__Css
 
 
-class test_Dict_To_Css(TestCase):
+
+class test_CSS_Dict__To__Css(TestCase):
 
     expected_css_text = ('.base64-image {\n'
                          '    width: 200px;\n'
@@ -22,7 +21,7 @@ class test_Dict_To_Css(TestCase):
                          '    font-size: 12px;\n'
                          '}')
     def setUp(self):
-        self.dict_to_css = Dict__To__Css()
+        self.dict_to_css = CSS_Dict__To__Css()
 
     def test_convert(self):
         assert self.dict_to_css.convert() == ''

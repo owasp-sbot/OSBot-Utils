@@ -3,7 +3,7 @@ from html.parser import HTMLParser
 HTML_SELF_CLOSING_TAGS = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 STRING__DATA_TEXT = 'TEXT:'
 
-class Html__To__Dict(HTMLParser):
+class Html__To__Html_Dict(HTMLParser):
     def __init__(self, html):
         super().__init__()
         self.root            = None                               # No root initially
@@ -95,7 +95,7 @@ class Html__To__Dict(HTMLParser):
 
 def html_to_dict(html_code: str) -> dict:
     try:
-        html_to_dict = Html__To__Dict(html_code)
+        html_to_dict = Html__To__Html_Dict(html_code)
         html_dict = html_to_dict.convert()
         return html_dict
     except:  # todo: see if there is a better Exception to capture

@@ -1,7 +1,7 @@
 HTML_SELF_CLOSING_TAGS     = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 HTML_DEFAULT_DOCTYPE_VALUE = "<!DOCTYPE html>\n"
 
-class Dict__To__Html:
+class Html_Dict__To__Html:
     def __init__(self, root, include_doctype=True, doctype=HTML_DEFAULT_DOCTYPE_VALUE):
         self.self_closing_tags = HTML_SELF_CLOSING_TAGS             # Define a list of self-closing tags
         self.root              = root

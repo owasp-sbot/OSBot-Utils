@@ -1,15 +1,15 @@
 import sys
 import pytest
-from unittest                                 import TestCase
-from osbot_utils.helpers.html.Dict__To__Html  import Dict__To__Html
-from osbot_utils.helpers.html.Dict__To__Tags  import Dict__To__Tags
-from osbot_utils.helpers.html.Html__To__Dict  import Html__To__Dict
-from osbot_utils.helpers.html.Tag__Html       import Tag__Html
-from osbot_utils.helpers.html.Tag__Text       import Tag__Text
-from tests._test_data.Sample_Test_Files       import Sample_Test_Files
+from unittest                                           import TestCase
+from osbot_utils.helpers.html.Html_Dict__To__Html       import Html_Dict__To__Html
+from osbot_utils.helpers.html.Html_Dict__To__Html_Tags  import Html_Dict__To__Html_Tags
+from osbot_utils.helpers.html.Html__To__Html_Dict       import Html__To__Html_Dict
+from osbot_utils.helpers.html.Tag__Html                 import Tag__Html
+from osbot_utils.helpers.html.Tag__Text                 import Tag__Text
+from tests._test_data.Sample_Test_Files                 import Sample_Test_Files
 
 
-class test_Dict_To_Tags(TestCase):
+class test_Html_Dict__To__Html_Tags(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -28,14 +28,14 @@ class test_Dict_To_Tags(TestCase):
     <body>
 </html>"""
 
-        html_to_dict      = Html__To__Dict(html)
+        html_to_dict      = Html__To__Html_Dict(html)
         root_1            = html_to_dict.convert()
-        dict_to_tags      = Dict__To__Tags(root_1)
+        dict_to_tags      = Html_Dict__To__Html_Tags(root_1)
         root_tag          = dict_to_tags.convert()
 
         root_tag.doc_type = False
         root_tag_html     = root_tag.render()
-        html_to_dict      = Html__To__Dict(root_tag_html)
+        html_to_dict      = Html__To__Html_Dict(root_tag_html)
         root_2            = html_to_dict.convert()
         assert root_1     == root_2
 
@@ -44,17 +44,17 @@ class test_Dict_To_Tags(TestCase):
         sample_test_files = Sample_Test_Files()
         html              = sample_test_files.html_bootstrap_example()
         html_roundtrip    = sample_test_files.html_bootstrap_example__roundtrip_2()
-        html_to_dict      = Html__To__Dict(html)
+        html_to_dict      = Html__To__Html_Dict(html)
         root_1            = html_to_dict.convert()
         lines_1           = html_to_dict.print(just_return_lines=True)
 
-        dict_to_tags      = Dict__To__Tags(root_1)
+        dict_to_tags      = Html_Dict__To__Html_Tags(root_1)
         root_tag          = dict_to_tags.convert()
 
         root_tag.doc_type = False
         root_tag_html     = root_tag.render()
 
-        html_to_dict      = Html__To__Dict(root_tag_html)
+        html_to_dict      = Html__To__Html_Dict(root_tag_html)
         root_2            = html_to_dict.convert()
         lines_2           = html_to_dict.print(just_return_lines=True)
 
@@ -63,7 +63,7 @@ class test_Dict_To_Tags(TestCase):
         assert root_tag_html == html_roundtrip          # misses DOCTYPE HERE
 
 
-        dict_to_tags_2  = Dict__To__Tags(root_2)
+        dict_to_tags_2  = Html_Dict__To__Html_Tags(root_2)
         root_tag_2      = dict_to_tags_2.convert()
         root_tag_html_2 = root_tag_2.render()
         assert root_tag_html_2 == root_tag_html         # we lose the "'<!DOCTYPE html>\n'" here
@@ -87,9 +87,9 @@ class test_Dict_To_Tags(TestCase):
         #html_to_dict.print()
 
     def convert_html(self, html):
-        html_parser_    = Html__To__Dict        (html)
+        html_parser_    = Html__To__Html_Dict        (html)
         html_dict       = html_parser_.convert()
-        dict_to_tags    = Dict__To__Tags        (html_dict)
+        dict_to_tags    = Html_Dict__To__Html_Tags        (html_dict)
         result          = dict_to_tags.convert()
         return result
 
@@ -178,14 +178,14 @@ class test_Html_To_Dict(TestCase):
  'Text after</div>\n')
 
         # Convert to HTML
-        dict_to_html = Dict__To__Html(html_dict)
+        dict_to_html = Html_Dict__To__Html(html_dict)
         html = dict_to_html.convert()
 
 
 
 
         # Parse back to dict to verify structure preservation
-        html_dict_2 = Html__To__Dict(html, ).convert()
+        html_dict_2 = Html__To__Html_Dict(html, ).convert()
 
         # Compare structures
         assert html_dict   != html_dict_2                                           # todo: BUG - these should be equal

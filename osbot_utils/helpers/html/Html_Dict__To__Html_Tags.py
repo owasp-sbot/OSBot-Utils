@@ -1,13 +1,13 @@
-from osbot_utils.helpers.html.Dict__To__Html import HTML_SELF_CLOSING_TAGS
-from osbot_utils.helpers.html.Tag__Base      import Tag__Base
-from osbot_utils.helpers.html.Tag__Body      import Tag__Body
-from osbot_utils.helpers.html.Tag__Head      import Tag__Head
-from osbot_utils.helpers.html.Tag__Html      import Tag__Html
-from osbot_utils.helpers.html.Tag__Link      import Tag__Link
-from osbot_utils.helpers.html.Tag__Text      import Tag__Text
+from osbot_utils.helpers.html.Html_Dict__To__Html import HTML_SELF_CLOSING_TAGS
+from osbot_utils.helpers.html.Tag__Base           import Tag__Base
+from osbot_utils.helpers.html.Tag__Body           import Tag__Body
+from osbot_utils.helpers.html.Tag__Head           import Tag__Head
+from osbot_utils.helpers.html.Tag__Html           import Tag__Html
+from osbot_utils.helpers.html.Tag__Link           import Tag__Link
+from osbot_utils.helpers.html.Tag__Text           import Tag__Text
 
 
-class Dict__To__Tags:
+class Html_Dict__To__Html_Tags:
 
     def __init__(self, root):
         self.root = root
