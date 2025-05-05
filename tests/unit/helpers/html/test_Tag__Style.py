@@ -1,5 +1,4 @@
-from unittest import TestCase
-
+from unittest                            import TestCase
 from osbot_utils.helpers.html.Tag__Style import Tag__Style
 
 

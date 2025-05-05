@@ -1,4 +1,4 @@
 from enum import Enum
 
-class Schema__HTML_Node__Data__Type(Enum):
+class Schema__Html_Node__Data__Type(Enum):
     TEXT : str = 'text'

@@ -3,11 +3,10 @@ import pytest
 from unittest                                           import TestCase
 from osbot_utils.helpers.html.Html_Dict__To__Html       import Html_Dict__To__Html
 from osbot_utils.helpers.html.Html_Dict__To__Html_Tags  import Html_Dict__To__Html_Tags
-from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict, STRING__SCHEMA_TEXT
+from osbot_utils.helpers.html.Html__To__Html_Dict       import Html__To__Html_Dict, STRING__SCHEMA_TEXT
 from osbot_utils.helpers.html.Tag__Html                 import Tag__Html
 from osbot_utils.helpers.html.Tag__Text                 import Tag__Text
 from tests._test_data.Sample_Test_Files                 import Sample_Test_Files
-
 
 class test_Html_Dict__To__Html_Tags(TestCase):
 
