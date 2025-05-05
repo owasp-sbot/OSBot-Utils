@@ -1,4 +1,5 @@
 from osbot_utils.helpers.html.Html_Dict__To__Html import HTML_SELF_CLOSING_TAGS
+from osbot_utils.helpers.html.Html__To__Html_Dict import STRING__SCHEMA_TEXT
 from osbot_utils.helpers.html.Tag__Base           import Tag__Base
 from osbot_utils.helpers.html.Tag__Body           import Tag__Body
 from osbot_utils.helpers.html.Tag__Head           import Tag__Head
@@ -33,12 +34,12 @@ class Html_Dict__To__Html_Tags:
         """Extract all text from an element's text node children."""
         inner_text = ""
         for child in element.get("children", []):
-            if child.get("type") == "text":
+            if child.get("type") == STRING__SCHEMA_TEXT:
                 inner_text += child.get("data", "")
         return inner_text
 
     def convert_to__tag(self, target_tag, element, indent):
-        if element.get("type") == "text":
+        if element.get("type") == STRING__SCHEMA_TEXT:
             # Handle text nodes directly
             return Tag__Text(element.get("data", ""))
 
@@ -63,7 +64,7 @@ class Html_Dict__To__Html_Tags:
 
         # Process only element nodes as children (text is already handled via inner_html)
         for child in children:
-            if child.get("type") != "text":  # Skip text nodes, they're in inner_html
+            if child.get("type") != STRING__SCHEMA_TEXT:  # Skip text nodes, they're in inner_html
                 child_tag = self.convert_to__tag(Tag__Base, child, tag_indent)
                 tag.elements.append(child_tag)
 

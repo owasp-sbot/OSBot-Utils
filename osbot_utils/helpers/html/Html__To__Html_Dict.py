@@ -1,7 +1,9 @@
 from html.parser import HTMLParser
 
 HTML_SELF_CLOSING_TAGS = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
-STRING__DATA_TEXT = 'TEXT:'
+STRING__SCHEMA_TEXT    = 'TEXT'
+STRING__DATA_TEXT      = f'{STRING__SCHEMA_TEXT}:'
+
 
 class Html__To__Html_Dict(HTMLParser):
     def __init__(self, html):
@@ -48,7 +50,7 @@ class Html__To__Html_Dict(HTMLParser):
     def handle_data(self, data):
         if data.strip():  # Ignore whitespace
             # Create a text node as a child
-            text_node = {"type": "text", "data": data}
+            text_node = {"type": STRING__SCHEMA_TEXT, "data": data}
             self.current["children"].append(text_node)
 
     def print__generate_lines(self, node, indent="", last=True, is_root=True):
@@ -56,7 +58,7 @@ class Html__To__Html_Dict(HTMLParser):
 
         prefix = "" if is_root else ("└── " if last else "├── ")
 
-        if node.get("type") == "text":
+        if node.get("type") == STRING__SCHEMA_TEXT:
             text_data = node.get('data')
             if self.strip_text_data:
                 text_data = text_data.strip()

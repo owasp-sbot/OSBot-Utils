@@ -1,3 +1,5 @@
+from osbot_utils.helpers.html.Html__To__Html_Dict import STRING__SCHEMA_TEXT
+
 HTML_SELF_CLOSING_TAGS     = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 HTML_DEFAULT_DOCTYPE_VALUE = "<!DOCTYPE html>\n"
 
@@ -35,7 +37,7 @@ class Html_Dict__To__Html:
     def convert_element(self, element, indent_level):
         """Recursively converts a dictionary to an HTML string with indentation."""
         # Check if this is a text node
-        if element.get("type") == "text":
+        if element.get("type") == STRING__SCHEMA_TEXT:
             return element.get("data", "")                                  # Return text content directly for text nodes
 
         tag      = element.get("tag")
@@ -53,8 +55,8 @@ class Html_Dict__To__Html:
         html = f"{indent}<{tag}{attrs_str}>"                                # Opening tag with indentation
 
         # Separate children into text nodes and element nodes
-        text_nodes = [child for child in children if child.get("type") == "text"]
-        element_nodes = [child for child in children if child.get("type") != "text"]
+        text_nodes = [child for child in children if child.get("type") == STRING__SCHEMA_TEXT]
+        element_nodes = [child for child in children if child.get("type") != STRING__SCHEMA_TEXT]
 
         # If there are only element nodes, add a newline after the opening tag
         if element_nodes and not text_nodes:
@@ -67,7 +69,7 @@ class Html_Dict__To__Html:
             previous_was_element = False
 
             for child in children:
-                if child.get("type") == "text":
+                if child.get("type") == STRING__SCHEMA_TEXT:
                     # Text node - directly append content
                     html += child.get("data", "")
                     previous_was_element = False

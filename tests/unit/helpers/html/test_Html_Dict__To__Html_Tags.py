@@ -3,7 +3,7 @@ import pytest
 from unittest                                           import TestCase
 from osbot_utils.helpers.html.Html_Dict__To__Html       import Html_Dict__To__Html
 from osbot_utils.helpers.html.Html_Dict__To__Html_Tags  import Html_Dict__To__Html_Tags
-from osbot_utils.helpers.html.Html__To__Html_Dict       import Html__To__Html_Dict
+from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict, STRING__SCHEMA_TEXT
 from osbot_utils.helpers.html.Tag__Html                 import Tag__Html
 from osbot_utils.helpers.html.Tag__Text                 import Tag__Text
 from tests._test_data.Sample_Test_Files                 import Sample_Test_Files
@@ -155,22 +155,22 @@ class test_Html_To_Dict(TestCase):
             'tag': 'div',
             'attrs': {'class': 'container'},
             'children': [
-                {'type': 'text', 'data': 'Text before'},
+                {'type': STRING__SCHEMA_TEXT, 'data': 'Text before'},
                 {
                     'tag': 'p',
                     'attrs': {},
-                    'children': [{'type': 'text', 'data': 'Paragraph content'}]
+                    'children': [{'type': STRING__SCHEMA_TEXT, 'data': 'Paragraph content'}]
                 },
-                {'type': 'text', 'data': 'Text after'}
+                {'type': STRING__SCHEMA_TEXT, 'data': 'Text after'}
             ]
         }
 
         wrong__html_dict = {'attrs': {'class': 'container'},
-                             'children': [{'data': 'Text before    ', 'type': 'text'},                      # todo: BUG: extra space here
+                             'children': [{'data': 'Text before    ', 'type': STRING__SCHEMA_TEXT},                      # todo: BUG: extra space here
                                           {'attrs': {},
-                                           'children': [{'data': 'Paragraph content', 'type': 'text'}],
+                                           'children': [{'data': 'Paragraph content', 'type': STRING__SCHEMA_TEXT}],
                                            'tag': 'p'},
-                                          {'data': '\nText after', 'type': 'text'}],                        # todo: BUG: extra 'n' here
+                                          {'data': '\nText after', 'type': STRING__SCHEMA_TEXT}],                        # todo: BUG: extra 'n' here
                              'tag': 'div'}
 
         wrong_html = ('<!DOCTYPE html>\n'
