@@ -1,7 +1,7 @@
-from unittest                                           import TestCase
-from osbot_utils.helpers.html.Html__To__Html_Document   import Html__To__Html_Document
+from unittest                                               import TestCase
+from osbot_utils.helpers.html.Html__To__Html_Document       import Html__To__Html_Document
 from osbot_utils.helpers.html.schemas.Schema__Html_Document import Schema__Html_Document
-from tests._test_data.Sample_Test_Files                 import Sample_Test_Files
+from tests._test_data.Sample_Test_Files                     import Sample_Test_Files
 
 
 class test_Html__To__Html_Document(TestCase):
@@ -15,3 +15,9 @@ class test_Html__To__Html_Document(TestCase):
         with self.html_to_document as _:
             assert type(_.convert()) is Schema__Html_Document
             assert _.html__document.root_node.attrs == {'lang': 'en'}
+
+    # def test__bugs__fails__docs_diniscruz_ai(self):
+    #     html = GET("https://docs.diniscruz.ai")
+    #     pprint(Html__To__Html_Document(html=html).convert().json())
+    #     #html__dict = Html__To__Html_Dict(self.html).convert()
+    #     #pprint(html__dict)
