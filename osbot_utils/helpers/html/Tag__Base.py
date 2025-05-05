@@ -78,7 +78,7 @@ class Tag__Base(Type_Safe):
             # Get the rendered element HTML
             html_elements = self.render_elements()
 
-            # Add element children with proper formatting
+            # Add element nodes with proper formatting
             if html_elements:
                 # Only add newlines if we have element nodes and no text nodes,
                 # or if we explicitly want newlines before elements

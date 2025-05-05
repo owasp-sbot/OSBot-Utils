@@ -1,4 +1,4 @@
-from osbot_utils.helpers.html.Html__To__Html_Dict import STRING__SCHEMA_TEXT
+from osbot_utils.helpers.html.Html__To__Html_Dict import STRING__SCHEMA_TEXT, STRING__SCHEMA_NODES
 
 HTML_SELF_CLOSING_TAGS     = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 HTML_DEFAULT_DOCTYPE_VALUE = "<!DOCTYPE html>\n"
@@ -40,38 +40,38 @@ class Html_Dict__To__Html:
         if element.get("type") == STRING__SCHEMA_TEXT:
             return element.get("data", "")                                  # Return text content directly for text nodes
 
-        tag      = element.get("tag")
-        attrs    = element.get("attrs", {})
-        children = element.get("children", [])
+        tag   = element.get("tag")
+        attrs = element.get("attrs", {})
+        nodes = element.get(STRING__SCHEMA_NODES, [])
 
         attrs_str = self.convert_attrs(attrs)                               # Convert attributes dictionary to a string
         indent = "    " * indent_level                                      # Indentation for the current level, assuming 4 spaces per indent level
 
         # Handle self-closing tags
-        if tag in self.self_closing_tags and not children:                  # Check if the tag is self-closing and has no children
+        if tag in self.self_closing_tags and not nodes:                  # Check if the tag is self-closing and has no nodes
             return f"{indent}<{tag}{attrs_str} />\n"
 
         # Start building the HTML
         html = f"{indent}<{tag}{attrs_str}>"                                # Opening tag with indentation
 
-        # Separate children into text nodes and element nodes
-        text_nodes = [child for child in children if child.get("type") == STRING__SCHEMA_TEXT]
-        element_nodes = [child for child in children if child.get("type") != STRING__SCHEMA_TEXT]
+        # Separate nodes into text nodes and element nodes
+        text_nodes    = [node for node in nodes if node.get("type") == STRING__SCHEMA_TEXT]
+        element_nodes = [node for node in nodes if node.get("type") != STRING__SCHEMA_TEXT]
 
         # If there are only element nodes, add a newline after the opening tag
         if element_nodes and not text_nodes:
             html += "\n"
 
-        # Process children, maintaining the original order but with proper formatting
-        if children:
+        # Process nodes, maintaining the original order but with proper formatting
+        if nodes:
             # Track if we're currently in a text section or element section
             # This helps us add newlines only between elements, not text
             previous_was_element = False
 
-            for child in children:
-                if child.get("type") == STRING__SCHEMA_TEXT:
+            for node in nodes:
+                if node.get("type") == STRING__SCHEMA_TEXT:
                     # Text node - directly append content
-                    html += child.get("data", "")
+                    html += node.get("data", "")
                     previous_was_element = False
                 else:
                     # Element node - format with proper indentation
@@ -80,14 +80,14 @@ class Html_Dict__To__Html:
                         if not html.endswith("\n"):
                             html += "\n"
 
-                    html += self.convert_element(child, indent_level + 1)
+                    html += self.convert_element(node, indent_level + 1)
                     previous_was_element = True
 
         # Handle closing tag based on content
         if element_nodes and not text_nodes:
-            # If only element children, add indented closing tag
+            # If only element nodes, add indented closing tag
             html += f"{indent}</{tag}>\n"
-        elif children:  # Any type of children
+        elif nodes:  # Any type of nodes
             # If mixed content or only text, add closing tag without indentation
             html += f"</{tag}>\n"
         else:

@@ -1,6 +1,5 @@
 from typing                                                         import Dict, Union, Any
-
-from osbot_utils.helpers.html.Html__To__Html_Dict import STRING__SCHEMA_TEXT
+from osbot_utils.helpers.html.Html__To__Html_Dict                   import STRING__SCHEMA_TEXT, STRING__SCHEMA_NODES
 from osbot_utils.helpers.html.schemas.Schema__HTML_Document         import Schema__HTML_Document
 from osbot_utils.helpers.html.schemas.Schema__HTML_Node             import Schema__HTML_Node
 from osbot_utils.helpers.html.schemas.Schema__HTML_Node__Data       import Schema__HTML_Node__Data
@@ -16,20 +15,12 @@ class Html_Dict__To__Html_Document(Type_Safe):
         self.html__document = self.parse_html_dict(self.html__dict)
         return self.html__document
 
-    def parse_html_dict(self, target: Dict[str, Any]) -> Schema__HTML_Document:                    # Parse the Html__To__Dict output
+    def parse_html_dict(self, target: Dict[str, Any]) -> Schema__HTML_Document:
         if not target or not isinstance(target, dict):
             raise ValueError("Invalid HTML dictionary structure")
 
-        children = []                                                                           # Parse root node and its children
-        if target.get('tag'):                                                               # Root has a tag, treat it as a child
-            root_child = self.parse_node(target)
-            children.append(root_child)
-        else:                                                                                  # Root doesn't have tag, parse children directly
-            for child in target.get('children', []):
-                children.append(self.parse_node(child))
-
-        return Schema__HTML_Document(attrs    = target.get('attrs', {}),
-                                     children = children)
+        root_node = self.parse_node(target)
+        return Schema__HTML_Document(root_node=root_node)
 
     def parse_node(self, target: Dict[str, Any]) -> Union[Schema__HTML_Node, Schema__HTML_Node__Data]:
 
@@ -37,10 +28,10 @@ class Html_Dict__To__Html_Document(Type_Safe):
             return Schema__HTML_Node__Data(data = target.get('data', ''),
                                            type = Schema__HTML_Node__Data__Type.TEXT)
         else:                                                                                   # Handle element nodes
-            children = []
-            for child in target.get('children', []):
-                children.append(self.parse_node(child))
+            nodes = []
+            for node in target.get(STRING__SCHEMA_NODES, []):
+                nodes.append(self.parse_node(node))
 
-            return Schema__HTML_Node(attrs    = target.get('attrs', {})           ,
-                                     children = children                              ,
-                                     tag      = target.get('tag', ''))
+            return Schema__HTML_Node(attrs = target.get('attrs', {})           ,
+                                     nodes = nodes                              ,
+                                     tag   = target.get('tag', ''))

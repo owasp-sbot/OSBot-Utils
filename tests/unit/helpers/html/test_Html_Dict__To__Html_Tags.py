@@ -154,21 +154,21 @@ class test_Html_To_Dict(TestCase):
         html_dict = {
             'tag': 'div',
             'attrs': {'class': 'container'},
-            'children': [
+            'nodes': [
                 {'type': STRING__SCHEMA_TEXT, 'data': 'Text before'},
                 {
                     'tag': 'p',
                     'attrs': {},
-                    'children': [{'type': STRING__SCHEMA_TEXT, 'data': 'Paragraph content'}]
+                    'nodes': [{'type': STRING__SCHEMA_TEXT, 'data': 'Paragraph content'}]
                 },
                 {'type': STRING__SCHEMA_TEXT, 'data': 'Text after'}
             ]
         }
 
         wrong__html_dict = {'attrs': {'class': 'container'},
-                             'children': [{'data': 'Text before    ', 'type': STRING__SCHEMA_TEXT},                      # todo: BUG: extra space here
+                             'nodes': [{'data': 'Text before    ', 'type': STRING__SCHEMA_TEXT},                      # todo: BUG: extra space here
                                           {'attrs': {},
-                                           'children': [{'data': 'Paragraph content', 'type': STRING__SCHEMA_TEXT}],
+                                           'nodes': [{'data': 'Paragraph content', 'type': STRING__SCHEMA_TEXT}],
                                            'tag': 'p'},
                                           {'data': '\nText after', 'type': STRING__SCHEMA_TEXT}],                        # todo: BUG: extra 'n' here
                              'tag': 'div'}

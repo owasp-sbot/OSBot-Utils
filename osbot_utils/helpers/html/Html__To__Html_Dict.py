@@ -2,6 +2,7 @@ from html.parser import HTMLParser
 
 HTML_SELF_CLOSING_TAGS = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
 STRING__SCHEMA_TEXT    = 'TEXT'
+STRING__SCHEMA_NODES   = 'nodes'
 STRING__DATA_TEXT      = f'{STRING__SCHEMA_TEXT}:'
 
 
@@ -20,7 +21,7 @@ class Html__To__Html_Dict(HTMLParser):
         return self.root
 
     def handle_starttag(self, tag, attrs):
-        new_tag = {"tag": tag, "attrs": dict(attrs), "children": []}
+        new_tag = {"tag": tag, "attrs": dict(attrs), STRING__SCHEMA_NODES: []}
 
         if self.current is None:
             # When the first tag is encountered, it becomes the root
@@ -28,7 +29,7 @@ class Html__To__Html_Dict(HTMLParser):
             self.current = new_tag
         else:
             # Otherwise, append the new tag as a child of the current tag
-            self.current["children"].append(new_tag)
+            self.current[STRING__SCHEMA_NODES].append(new_tag)
 
         # If this tag is not a void element, push it onto the stack
         if tag.lower() not in self.void_elements:
@@ -51,7 +52,7 @@ class Html__To__Html_Dict(HTMLParser):
         if data.strip():  # Ignore whitespace
             # Create a text node as a child
             text_node = {"type": STRING__SCHEMA_TEXT, "data": data}
-            self.current["children"].append(text_node)
+            self.current[STRING__SCHEMA_NODES].append(text_node)
 
     def print__generate_lines(self, node, indent="", last=True, is_root=True):
         lines = []
@@ -66,7 +67,7 @@ class Html__To__Html_Dict(HTMLParser):
         else:
             tag       = node.get("tag")
             attrs     = node.get("attrs", {})
-            children  = node.get("children", [])
+            nodes     = node.get(STRING__SCHEMA_NODES, [])
             attrs_str = ' '.join(f'{key}="{value}"' for key, value in attrs.items())
             attrs_str = f' ({attrs_str})' if attrs_str else ''
 
@@ -74,9 +75,9 @@ class Html__To__Html_Dict(HTMLParser):
 
             child_indent = indent + ("    " if last else "│   ")
 
-            for i, child in enumerate(children):
-                is_last = i == len(children) - 1
-                child_lines = self.print__generate_lines(child, indent=child_indent, last=is_last, is_root=False)
+            for i, node in enumerate(nodes):
+                is_last = i == len(nodes) - 1
+                child_lines = self.print__generate_lines(node, indent=child_indent, last=is_last, is_root=False)
                 lines.extend(child_lines if isinstance(child_lines, list) else [child_lines])
 
         return lines if is_root else "\n".join(lines)

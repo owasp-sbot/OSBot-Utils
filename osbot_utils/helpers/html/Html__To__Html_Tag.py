@@ -1,5 +1,5 @@
-from osbot_utils.helpers.html.Dict__To__Tags import Html_Dict__To__Html_Tags
-from osbot_utils.helpers.html.Html__To__Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.Html_Dict__To__Html_Tags import Html_Dict__To__Html_Tags
+from osbot_utils.helpers.html.Html__To__Html_Dict      import Html__To__Html_Dict
 
 
 class Html__To__Html_Tag:
