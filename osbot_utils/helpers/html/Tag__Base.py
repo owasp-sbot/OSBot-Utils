@@ -1,4 +1,6 @@
 from collections                                import defaultdict
+
+from osbot_utils.helpers.html.Html__To__Html_Dict import STRING__SCHEMA_TEXT
 from osbot_utils.type_safe.Type_Safe            import Type_Safe
 from osbot_utils.utils.Files                    import file_create
 
@@ -63,8 +65,8 @@ class Tag__Base(Type_Safe):
             html += ">"
 
             # Check for text nodes and regular element nodes
-            text_nodes = [e for e in self.elements if hasattr(e, 'type') and e.type == 'text']
-            element_nodes = [e for e in self.elements if not hasattr(e, 'type') or e.type != 'text']
+            text_nodes = [e for e in self.elements if hasattr(e, 'type') and e.type == STRING__SCHEMA_TEXT]
+            element_nodes = [e for e in self.elements if not hasattr(e, 'type') or e.type != STRING__SCHEMA_TEXT]
 
             has_text = bool(text_nodes) or bool(self.inner_html)
             has_elements = bool(element_nodes)
@@ -76,7 +78,7 @@ class Tag__Base(Type_Safe):
             # Get the rendered element HTML
             html_elements = self.render_elements()
 
-            # Add element children with proper formatting
+            # Add element nodes with proper formatting
             if html_elements:
                 # Only add newlines if we have element nodes and no text nodes,
                 # or if we explicitly want newlines before elements
@@ -102,7 +104,7 @@ class Tag__Base(Type_Safe):
 
         for index, element in enumerate(self.elements):
             # Handle text nodes
-            if hasattr(element, 'type') and element.type == 'text':
+            if hasattr(element, 'type') and element.type == STRING__SCHEMA_TEXT:
                 html_elements += element.data
                 continue
 

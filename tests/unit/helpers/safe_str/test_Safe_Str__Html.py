@@ -5,7 +5,7 @@ from osbot_utils.helpers.safe_str.Safe_Str__Html    import Safe_Str__Html, TYPE_
 from osbot_utils.utils.Objects                      import base_types
 
 
-class test_Safe_Str__HTML(TestCase):
+class test_Safe_Str__Html(TestCase):
 
     def test_Safe_Str__HTML_class(self):
         safe_str_html = Safe_Str__Html()

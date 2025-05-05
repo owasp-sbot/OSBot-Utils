@@ -1,10 +1,10 @@
-from unittest                                 import TestCase
-from osbot_utils.helpers.html.Dict__To__Html  import Dict__To__Html
-from osbot_utils.helpers.html.Html__To__Dict  import Html__To__Dict
-from tests._test_data.Sample_Test_Files       import Sample_Test_Files
+from unittest                                       import TestCase
+from osbot_utils.helpers.html.Html_Dict__To__Html   import Html_Dict__To__Html
+from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict, STRING__SCHEMA_TEXT
+from tests._test_data.Sample_Test_Files             import Sample_Test_Files
 
 
-class test_Html_To_Dict(TestCase):
+class test_Html__To__Html_Dict(TestCase):
 
     def test_convert(self):
         sample_test_files = Sample_Test_Files()                                                      # Initialize sample test files
@@ -13,16 +13,16 @@ class test_Html_To_Dict(TestCase):
 
         html__roundtrip   = sample_test_files.html_bootstrap_example__roundtrip()                    # Load expected roundtrip HTML
 
-        html_parser_1     = Html__To__Dict(html)                                                       # Parse HTML to dict
+        html_parser_1     = Html__To__Html_Dict(html)                                                       # Parse HTML to dict
         root_1            = html_parser_1.convert()                                                  # Convert parsed HTML to root dict
         lines_1           = html_parser_1.print(just_return_lines=True)                              # Generate tree lines from root dict
-        dict_to_html_1    = Dict__To__Html(root_1)                                                     # Initialize conversion from dict to HTML
+        dict_to_html_1    = Html_Dict__To__Html(root_1)                                                     # Initialize conversion from dict to HTML
         html_from_dict_1  = dict_to_html_1.convert()                                                 # Convert dict back to HTML
 
-        html_parser_2     = Html__To__Dict(html_from_dict_1)                                           # Parse the regenerated HTML to dict
+        html_parser_2     = Html__To__Html_Dict(html_from_dict_1)                                           # Parse the regenerated HTML to dict
         root_2            = html_parser_2.convert()                                                  # Convert parsed HTML to root dict again
         lines_2           = html_parser_2.print(just_return_lines=True)                              # Generate tree lines from new root dict
-        dict_to_html_2    = Dict__To__Html(root_2)                                                     # Initialize second conversion from dict to HTML
+        dict_to_html_2    = Html_Dict__To__Html(root_2)                                                     # Initialize second conversion from dict to HTML
         html_from_dict_2  = dict_to_html_2.convert()                                                 # Convert dict back to HTML again
 
         assert root_1           == root_2                                                            # Assert that both root dicts are equal
@@ -46,9 +46,9 @@ class test_Html_To_Dict(TestCase):
 </html>
 """
 
-        html_parser_1     = Html__To__Dict(html)                                                       # Parse HTML to dict
+        html_parser_1     = Html__To__Html_Dict(html)                                                       # Parse HTML to dict
         root_1            = html_parser_1.convert()                                                  # Convert parsed HTML to root dict
-        dict_to_html_1    = Dict__To__Html(root_1)                                                     # Initialize conversion from dict to HTML
+        dict_to_html_1    = Html_Dict__To__Html(root_1)                                                     # Initialize conversion from dict to HTML
         html_from_dict_1  = dict_to_html_1.convert()
 
         assert html_from_dict_1 == html
@@ -57,190 +57,190 @@ class test_Html_To_Dict(TestCase):
     def test__handle_text_variations(self):
         html_1     = "<p>aaaa</p>"
         expected_1 = {'attrs'   : {}                ,
-                      'children': [{'data': 'aaaa'  ,
-                                    'type': 'text'}],
+                      'nodes': [{'data': 'aaaa'  ,
+                                    'type': STRING__SCHEMA_TEXT}],
                       'tag'     : 'p'              }
 
         html_2     = "<p>aaaa<br></p>"
         expected_2 = {'attrs'   : {}                   ,
-                      'children': [{'data' : 'aaaa'    ,
-                                    'type' : 'text'}   ,
+                      'nodes': [{'data' : 'aaaa'    ,
+                                    'type' : STRING__SCHEMA_TEXT}   ,
                                    { 'attrs'   : {}    ,
-                                     'children': []    ,
+                                     'nodes': []    ,
                                      'tag'     : 'br'}],
                       'tag': 'p'                       }
 
         html_3     = "<p>aaaa<br>bbbb</p>"
         expected_3 = { 'attrs'   : {},
-                       'children': [{'data' : 'aaaa', 'type'    : 'text'         },
-                                    {'attrs': {}    , 'children': [], 'tag': 'br'},
-                                    {'data'  : 'bbbb', 'type'   : 'text'         }],
+                       'nodes': [{'data' : 'aaaa', 'type'    : STRING__SCHEMA_TEXT         },
+                                    {'attrs': {}    , 'nodes': [], 'tag': 'br'             },
+                                    {'data'  : 'bbbb', 'type'   : STRING__SCHEMA_TEXT         }],
                        'tag'      : 'p'}
 
            # Additional test cases
         html_4     = "<p>aaaa<b>bbbb</b>cccc</p>"
         expected_4 = {'attrs'   : {}                ,
-                      'children': [{'data' : 'aaaa' ,
-                                    'type' : 'text'},
+                      'nodes': [{'data' : 'aaaa' ,
+                                    'type' : STRING__SCHEMA_TEXT},
                                    {'attrs'   : {}  ,
-                                    'children': [{'data': 'bbbb',
-                                                  'type': 'text'}],
+                                    'nodes': [{'data': 'bbbb',
+                                                  'type': STRING__SCHEMA_TEXT}],
                                     'tag'     : 'b' },
                                    {'data' : 'cccc' ,
-                                    'type' : 'text'}],
+                                    'type' : STRING__SCHEMA_TEXT}],
                       'tag'     : 'p'               }
 
         html_5     = "<div><p>aaaa</p><p>bbbb</p></div>"
         expected_5 = {'attrs'   : {}                ,
-                      'children': [{'attrs'   : {}  ,
-                                    'children': [{'data': 'aaaa',
-                                                  'type': 'text'}],
+                      'nodes': [{'attrs'   : {}  ,
+                                    'nodes': [{'data': 'aaaa',
+                                                  'type': STRING__SCHEMA_TEXT}],
                                     'tag'     : 'p' },
                                    {'attrs'   : {}  ,
-                                    'children': [{'data': 'bbbb',
-                                                  'type': 'text'}],
+                                    'nodes': [{'data': 'bbbb',
+                                                  'type': STRING__SCHEMA_TEXT}],
                                     'tag'     : 'p' }],
                       'tag'     : 'div'             }
 
         html_6     = "<p>aaaa<br/>bbbb</p>"
         expected_6 = {'attrs'   : {}                ,
-                      'children': [{'data' : 'aaaa' ,
-                                    'type' : 'text'},
+                      'nodes': [{'data' : 'aaaa' ,
+                                    'type' : STRING__SCHEMA_TEXT},
                                    {'attrs'   : {}  ,
-                                    'children': []  ,
+                                    'nodes': []  ,
                                     'tag'     : 'br'},
                                    {'data': 'bbbb'  ,
-                                    'type': 'text'}],
+                                    'type': STRING__SCHEMA_TEXT}],
                       'tag'     : 'p'               }
 
         html_7     = "<p>aaaa<img src='image.jpg'>bbbb</p>"
         expected_7 = { 'attrs'   : {},
-                       'children': [{'data': 'aaaa', 'type': 'text'},
-                                   {'attrs': {'src': 'image.jpg'}, 'children': [], 'tag': 'img'},
-                                   {'data': 'bbbb', 'type': 'text'}],
+                       'nodes': [{'data': 'aaaa', 'type': STRING__SCHEMA_TEXT},
+                                   {'attrs': {'src': 'image.jpg'}, 'nodes': [], 'tag': 'img'},
+                                   {'data': 'bbbb', 'type': STRING__SCHEMA_TEXT}],
                        'tag'     : 'p'}
 
-        assert Html__To__Dict(html_1).convert() == expected_1
-        assert Html__To__Dict(html_2).convert() == expected_2
-        assert Html__To__Dict(html_3).convert() == expected_3
-        assert Html__To__Dict(html_4).convert() == expected_4
-        assert Html__To__Dict(html_5).convert() == expected_5
-        assert Html__To__Dict(html_6).convert() == expected_6
-        assert Html__To__Dict(html_7).convert() == expected_7
+        assert Html__To__Html_Dict(html_1).convert() == expected_1
+        assert Html__To__Html_Dict(html_2).convert() == expected_2
+        assert Html__To__Html_Dict(html_3).convert() == expected_3
+        assert Html__To__Html_Dict(html_4).convert() == expected_4
+        assert Html__To__Html_Dict(html_5).convert() == expected_5
+        assert Html__To__Html_Dict(html_6).convert() == expected_6
+        assert Html__To__Html_Dict(html_7).convert() == expected_7
 
     def test_basic_text_handling(self):
         html_1     = "<p>aaaa</p>"
         expected_1 = {'attrs'   : {}                ,
-                      'children': [{'data': 'aaaa'  ,
-                                    'type': 'text'}],
+                      'nodes': [{'data': 'aaaa'  ,
+                                    'type': STRING__SCHEMA_TEXT}],
                       'tag'     : 'p'               }
 
-        assert Html__To__Dict(html_1).convert() == expected_1
+        assert Html__To__Html_Dict(html_1).convert() == expected_1
 
     def test_void_elements(self):
         html_2     = "<p>aaaa<br></p>"
         expected_2 = {'attrs'   : {}                ,
-                      'children': [{'data' : 'aaaa' ,
-                                    'type' : 'text'},
+                      'nodes': [{'data' : 'aaaa' ,
+                                    'type' : STRING__SCHEMA_TEXT},
                                    {'attrs'   : {}  ,
-                                    'children': []  ,
+                                    'nodes': []  ,
                                     'tag'     : 'br'}],
                       'tag'     : 'p'               }
 
-        assert Html__To__Dict(html_2).convert() == expected_2
+        assert Html__To__Html_Dict(html_2).convert() == expected_2
 
     def test_text_after_void_element(self):
         html_3     = "<p>aaaa<br>bbbb</p>"
         expected_3 = {'attrs'   : {}                ,
-                      'children': [{'data' : 'aaaa' ,
-                                    'type' : 'text'},
+                      'nodes': [{'data' : 'aaaa' ,
+                                    'type' : STRING__SCHEMA_TEXT},
                                    {'attrs'   : {}  ,
-                                    'children': []  ,
+                                    'nodes': []  ,
                                     'tag'     : 'br'},
                                    {'data': 'bbbb'  ,
-                                    'type': 'text'}],
+                                    'type': STRING__SCHEMA_TEXT}],
                       'tag'     : 'p'               }
 
-        assert Html__To__Dict(html_3).convert() == expected_3
+        assert Html__To__Html_Dict(html_3).convert() == expected_3
 
     def test_text_around_regular_element(self):
         html_4     = "<p>aaaa<b>bbbb</b>cccc</p>"
         expected_4 = {'attrs'   : {}                ,
-                      'children': [{'data' : 'aaaa' ,
-                                    'type' : 'text'},
+                      'nodes': [{'data' : 'aaaa' ,
+                                    'type' : STRING__SCHEMA_TEXT},
                                    {'attrs'   : {}  ,
-                                    'children': [{'data': 'bbbb',
-                                                  'type': 'text'}],
+                                    'nodes': [{'data': 'bbbb',
+                                                  'type': STRING__SCHEMA_TEXT}],
                                     'tag'     : 'b' },
                                    {'data' : 'cccc' ,
-                                    'type' : 'text'}],
+                                    'type' : STRING__SCHEMA_TEXT}],
                       'tag'     : 'p'               }
 
-        assert Html__To__Dict(html_4).convert() == expected_4
+        assert Html__To__Html_Dict(html_4).convert() == expected_4
 
     def test_nested_elements(self):
         html_5     = "<div><p>aaaa</p><p>bbbb</p></div>"
         expected_5 = {'attrs'   : {}                ,
-                      'children': [{'attrs'   : {}  ,
-                                    'children': [{'data': 'aaaa',
-                                                  'type': 'text'}],
+                      'nodes': [{'attrs'   : {}  ,
+                                    'nodes': [{'data': 'aaaa',
+                                                  'type': STRING__SCHEMA_TEXT}],
                                     'tag'     : 'p' },
                                    {'attrs'   : {}  ,
-                                    'children': [{'data': 'bbbb',
-                                                  'type': 'text'}],
+                                    'nodes': [{'data': 'bbbb',
+                                                  'type': STRING__SCHEMA_TEXT}],
                                     'tag'     : 'p' }],
                       'tag'     : 'div'             }
 
-        assert Html__To__Dict(html_5).convert() == expected_5
+        assert Html__To__Html_Dict(html_5).convert() == expected_5
 
     def test_self_closing_syntax(self):
         html_6     = "<p>aaaa<br/>bbbb</p>"
         expected_6 = {'attrs'   : {}                ,
-                      'children': [{'data' : 'aaaa' ,
-                                    'type' : 'text'},
+                      'nodes': [{'data' : 'aaaa' ,
+                                    'type' : STRING__SCHEMA_TEXT},
                                    {'attrs'   : {}  ,
-                                    'children': []  ,
+                                    'nodes': []  ,
                                     'tag'     : 'br'},
                                    {'data': 'bbbb'  ,
-                                    'type': 'text'}],
+                                    'type': STRING__SCHEMA_TEXT}],
                       'tag'     : 'p'               }
 
-        assert Html__To__Dict(html_6).convert() == expected_6
+        assert Html__To__Html_Dict(html_6).convert() == expected_6
 
     def test_void_element_with_attributes(self):
         html_7     = "<p>aaaa<img src='image.jpg'>bbbb</p>"
         expected_7 = {'attrs'   : {}                ,
-                      'children': [{'data' : 'aaaa' ,
-                                    'type' : 'text'},
+                      'nodes': [{'data' : 'aaaa' ,
+                                    'type' : STRING__SCHEMA_TEXT},
                                    {'attrs'   : {'src': 'image.jpg'},
-                                    'children': []  ,
+                                    'nodes': []  ,
                                     'tag'     : 'img'},
                                    {'data': 'bbbb'  ,
-                                    'type': 'text'}],
+                                    'type': STRING__SCHEMA_TEXT}],
                       'tag'     : 'p'               }
 
-        assert Html__To__Dict(html_7).convert() == expected_7
+        assert Html__To__Html_Dict(html_7).convert() == expected_7
 
     def test_complex_nesting(self):
         html_8     = "<div>before<p>text1<span>inner</span>text2</p>after</div>"
         expected_8 = {'attrs'   : {}                ,
-                      'children': [{'data' : 'before',
-                                    'type' : 'text'},
+                      'nodes': [{'data' : 'before',
+                                    'type' : STRING__SCHEMA_TEXT},
                                    {'attrs'   : {}  ,
-                                    'children': [{'data' : 'text1',
-                                                  'type' : 'text'},
+                                    'nodes': [{'data' : 'text1',
+                                                  'type' : STRING__SCHEMA_TEXT},
                                                  {'attrs'   : {},
-                                                  'children': [{'data': 'inner',
-                                                                'type': 'text'}],
+                                                  'nodes': [{'data': 'inner',
+                                                                'type': STRING__SCHEMA_TEXT}],
                                                   'tag'     : 'span'},
                                                  {'data' : 'text2',
-                                                  'type' : 'text'}],
+                                                  'type' : STRING__SCHEMA_TEXT}],
                                     'tag'     : 'p' },
                                    {'data' : 'after',
-                                    'type' : 'text'}],
+                                    'type' : STRING__SCHEMA_TEXT}],
                       'tag'     : 'div'             }
 
-        assert Html__To__Dict(html_8).convert() == expected_8
+        assert Html__To__Html_Dict(html_8).convert() == expected_8
 
     def test_html_round_trip(self):
         original_html = """
@@ -252,33 +252,33 @@ class test_Html_To_Dict(TestCase):
         """
 
         expected__original_html_dict = {'attrs': {'class': 'container'},
-                              'children': [{'attrs': {},
-                                            'children': [{'data': 'Title', 'type': 'text'}],
+                              'nodes': [{'attrs': {},
+                                            'nodes': [{'data': 'Title', 'type': STRING__SCHEMA_TEXT}],
                                             'tag': 'h1'},
                                            {'attrs': {},
-                                            'children': [{'data': 'Before', 'type': 'text'},
+                                            'nodes': [{'data': 'Before', 'type': STRING__SCHEMA_TEXT},
                                                          {'attrs': {},
-                                                          'children': [{'data': 'middle', 'type': 'text'}],
+                                                          'nodes': [{'data': 'middle', 'type': STRING__SCHEMA_TEXT}],
                                                           'tag': 'strong'},
-                                                         {'data': 'after', 'type': 'text'}],
+                                                         {'data': 'after', 'type': STRING__SCHEMA_TEXT}],
                                             'tag': 'p'},
                                            {'attrs': {'alt': 'test', 'src': 'test.jpg'},
-                                            'children': [],
+                                            'nodes': [],
                                             'tag': 'img'}],
                               'tag': 'div'}
         expected__round_trip_html_dict = {'attrs': {'class': 'container'},
-                                     'children': [{'attrs': {},
-                                                   'children': [{'data': 'Title', 'type': 'text'}],
+                                     'nodes': [{'attrs': {},
+                                                   'nodes': [{'data': 'Title', 'type': STRING__SCHEMA_TEXT}],
                                                    'tag': 'h1'},
                                                   {'attrs': {},
-                                                   'children': [{'data': 'Before        ', 'type': 'text'},             # todo: BUG: extra space here
+                                                   'nodes': [{'data': 'Before        ', 'type': STRING__SCHEMA_TEXT},             # todo: BUG: extra space here
                                                                 {'attrs': {},
-                                                                 'children': [{'data': 'middle', 'type': 'text'}],
+                                                                 'nodes': [{'data': 'middle', 'type': STRING__SCHEMA_TEXT}],
                                                                  'tag': 'strong'},
-                                                                {'data': '\nafter', 'type': 'text'}],                   # todo: BUG: extra \n here
+                                                                {'data': '\nafter', 'type': STRING__SCHEMA_TEXT}],                   # todo: BUG: extra \n here
                                                    'tag': 'p'},
                                                   {'attrs': {'alt': 'test', 'src': 'test.jpg'},
-                                                   'children': [],
+                                                   'nodes': [],
                                                    'tag': 'img'}],
                                      'tag': 'div'}
         expected__html_from_dict = """\
@@ -291,14 +291,14 @@ after</p>
 </div>
 """
         # Parse HTML to dict
-        html_dict = Html__To__Dict(original_html).convert()
+        html_dict = Html__To__Html_Dict(original_html).convert()
 
         # Convert dict back to HTML
-        dict_to_html   = Dict__To__Html(html_dict)
+        dict_to_html   = Html_Dict__To__Html(html_dict)
         html_from_dict = dict_to_html.convert()
 
         # Parse the regenerated HTML back to dict
-        final_dict = Html__To__Dict(html_from_dict).convert()
+        final_dict = Html__To__Html_Dict(html_from_dict).convert()
 
         # The structure should be preserved after a round trip
 
@@ -330,12 +330,12 @@ after</p>
         """
 
         # Parse to dict and then back to HTML
-        html_dict = Html__To__Dict(bootstrap_html).convert()
-        dict_to_html = Dict__To__Html(html_dict)
+        html_dict = Html__To__Html_Dict(bootstrap_html).convert()
+        dict_to_html = Html_Dict__To__Html(html_dict)
         html_from_dict = dict_to_html.convert()
 
         # Parse the regenerated HTML back to dict
-        final_dict = Html__To__Dict(html_from_dict).convert()
+        final_dict = Html__To__Html_Dict(html_from_dict).convert()
 
         # The structure should be preserved
         assert html_dict == final_dict
@@ -356,8 +356,8 @@ after</p>
         # self.skipTest("Comment handling not yet implemented")
 
         # For now, just validate that the content part works
-        html_dict = Html__To__Dict(html_10).convert()
-        assert any(child.get('tag') == 'p' for child in html_dict.get('children', []))
+        html_dict = Html__To__Html_Dict(html_10).convert()
+        assert any(child.get('tag') == 'p' for child in html_dict.get('nodes', []))
 
 
     def test__bug__mixed_content_formatting(self):
@@ -371,20 +371,20 @@ after</p>
         """
 
         expected_wrong_final_dict  = {'attrs': {},
-                                      'children': [{'data': '\n            Text before\n                ',
-                                                    'type': 'text'},
+                                      'nodes': [{'data': '\n            Text before\n                ',
+                                                    'type': STRING__SCHEMA_TEXT},
                                                    {'attrs': {},
-                                                    'children': [{'data': 'Paragraph', 'type': 'text'}],
+                                                    'nodes': [{'data': 'Paragraph', 'type': STRING__SCHEMA_TEXT}],
                                                     'tag': 'p'},
-                                                   {'data': '\n\n            Text after\n        ', 'type': 'text'}],
+                                                   {'data': '\n\n            Text after\n        ', 'type': STRING__SCHEMA_TEXT}],
                                       'tag': 'div'}
         # Parse and then render back to HTML
-        html_dict = Html__To__Dict(html_9).convert()
-        dict_to_html = Dict__To__Html(html_dict)
+        html_dict = Html__To__Html_Dict(html_9).convert()
+        dict_to_html = Html_Dict__To__Html(html_dict)
         html_from_dict = dict_to_html.convert()
 
         # The rendered HTML should have proper indentation
         # Here we're just ensuring it doesn't crash and checking the structure
-        final_dict = Html__To__Dict(html_from_dict).convert()
+        final_dict = Html__To__Html_Dict(html_from_dict).convert()
         assert final_dict != html_dict                                              # todo: BUG should be equal
         assert final_dict == expected_wrong_final_dict                              # todo: BUG
