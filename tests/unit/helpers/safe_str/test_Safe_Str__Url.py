@@ -50,16 +50,11 @@ class test_Safe_Str__Url(TestCase):
         assert str(Safe_Str__Url('https://example.com/path?param=value+with+spaces'     )) == 'https://example.com/path?param=value+with+spaces'
         assert str(Safe_Str__Url('https://example.com/search?q=test&param="invalid"'    )) == 'https://example.com/search?q=test&param=_invalid_'
 
-        
-        # Edge cases: exceptions with specific error message checks
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Url(None)
-        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)                             # todo : find better way to handle this scenario (this error comes from Safe_Str
-        
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Url('')
-        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)
+        # Empty values allowed
+        assert Safe_Str__Url(None) == ''
+        assert Safe_Str__Url(''  ) == ''
 
+        # Edge cases: exceptions with specific error message checks
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Url('example.com')  # Missing scheme
         assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)                             # todo : find better way to handle this scenario (this error comes from Safe_Str
@@ -107,3 +102,6 @@ class test_Safe_Str__Url(TestCase):
         # Special characters in URL paths
         assert str(Safe_Str__Url('https://example.com/%7Euser/profile'          )) == 'https://example.com/%7Euser/profile'
         assert str(Safe_Str__Url('https://example.com/caf%C3%A9'                )) == 'https://example.com/caf%C3%A9'
+
+    def test_edge_cases(self):
+        assert Safe_Str__Url() == ''

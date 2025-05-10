@@ -37,6 +37,9 @@ class Safe_Str(str):
         elif not cls.exact_length and len(value) > cls.max_length:                                                      # Check max length
             raise ValueError(f"Value exceeds maximum length of {cls.max_length} characters (was {len(value)})")
 
+        if cls.allow_empty and value =='':
+            return str.__new__(cls, '')
+
         if cls.strict_validation:                                                                                       # If using strict validation, check if the value matches the regex pattern exactly
             if not cls.regex.search(value) is None:                                                                     # If there are non-matching characters
                 raise ValueError(f"Value contains invalid characters (must match pattern: {cls.regex.pattern})")
