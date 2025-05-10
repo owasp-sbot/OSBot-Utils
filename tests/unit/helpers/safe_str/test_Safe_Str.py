@@ -218,3 +218,25 @@ class test_Safe_Str(TestCase):
         # Spaces should be trimmed before validation
         with pytest.raises(ValueError, match="Value must be exactly 10 characters long") as exc_info:
             Hash_Like_Str(' 123456789 ')  # After trimming, it's only 9 chars
+
+    def test__check__trim_whitespace__allow_all_replacement_char(self):
+        class An_Safe_Str(Safe_Str):
+            allow_empty                = True
+            trim_whitespace            = True
+            allow_all_replacement_char = False
+        assert An_Safe_Str() == ''
+        expected_message = "Sanitized value consists entirely of '_' characters"
+        with pytest.raises(ValueError, match=expected_message):
+            An_Safe_Str('*')
+
+    def test__regression__regex__allow_all_replacement_char(self):
+        class An_Safe_Str(Safe_Str):
+            regex                      = re.compile(r'^(?!https?://)')          # on this type of regex
+            allow_all_replacement_char = False                                  # this will trigger the exception bellow
+
+        #expected_message = "Sanitized value consists entirely of '_' characters"
+        # with pytest.raises(ValueError, match=expected_message):
+        #     An_Safe_Str("")                                                    #  BUG: should had not raised
+        assert An_Safe_Str() == ''                                               # FIXED: correct behaviour
+        assert An_Safe_Str(None) == ''
+        assert An_Safe_Str('') == ''
