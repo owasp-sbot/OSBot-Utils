@@ -4,7 +4,7 @@ from osbot_utils.helpers.safe_str.Safe_Str import Safe_Str
 TYPE_SAFE_STR__HTTP__CONTENT_TYPE__REGEX = re.compile(r'[^a-zA-Z0-9/\-+.;= ]')
 TYPE_SAFE_STR__HTTP__CONTENT_TYPE__MAX_LENGTH = 256
 
-class Safe_Str__Http__ContentType(Safe_Str):
+class Safe_Str__Http__Content_Type(Safe_Str):
     regex                      = TYPE_SAFE_STR__HTTP__CONTENT_TYPE__REGEX
     max_length                 = TYPE_SAFE_STR__HTTP__CONTENT_TYPE__MAX_LENGTH
     allow_empty                = False
