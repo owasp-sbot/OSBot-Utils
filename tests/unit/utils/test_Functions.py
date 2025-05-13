@@ -50,11 +50,18 @@ class test_Functions(TestCase):
 
     def test_function_source_code(self):
         def an_function(): pass
-        assert function_source_code(an_function) == "def an_function(): pass"
+        assert type(an_function)                                    is types.FunctionType
+        assert isinstance(an_function, types.FunctionType)          is True
+        assert function_source_code(an_function)                    == "def an_function(): pass"
         assert function_source_code(test_Functions.test_function_file).startswith('def test_function_file(self):\n') is True
-        assert function_source_code("aaa") == "aaa"        # this function assumes that if a sting is passed in, it's already source code
-        assert function_source_code(42   ) is None
-        assert function_source_code(None ) is None
+        assert function_source_code("aaa")                          == "aaa"        # this function assumes that if a sting is passed in, it's already source code
+        assert function_source_code(42   )                          is None
+        assert function_source_code(None )                          is None
+
+        assert type(self.test_function_source_code)                is types.MethodType
+        assert function_source_code(self.test_function_source_code).startswith("def test_function_source_code(self):")
+
+
 
     def test_get_line_number(self):
         assert get_line_number(TestCase) > 300

@@ -23,25 +23,14 @@ class test_Safe_Str__Http__Last_Modified(TestCase):
         assert Safe_Str__Http__Last_Modified('Wed; 21 Oct 2023') == 'Wed_ 21 Oct 2023'
         assert Safe_Str__Http__Last_Modified('Wed, 21/Oct/2023') == 'Wed, 21_Oct_2023'
 
+        assert Safe_Str__Http__Last_Modified('<?&*^?>')  == '_______'
+        # allow empty values
+        assert Safe_Str__Http__Last_Modified(None)  == ''
+        assert Safe_Str__Http__Last_Modified('')    == ''
+        assert Safe_Str__Http__Last_Modified('   ') == '' # Spaces only (will be trimmed)
+
         # Numeric conversion
         assert Safe_Str__Http__Last_Modified(20231021) == '20231021'
-
-        # Edge cases and exceptions
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__Last_Modified(None)
-        assert "Value cannot be None when allow_empty is False" in str(exc_info.value)
-
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__Last_Modified('')
-        assert "Value cannot be empty when allow_empty is False" in str(exc_info.value)
-
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__Last_Modified('<?&*^?>')  # All invalid chars
-        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)
-
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__Last_Modified('   ')  # Spaces only (will be trimmed)
-        assert "Value cannot be empty when allow_empty is False" in str(exc_info.value)
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__Last_Modified('a' * 65)  # Exceeds max length

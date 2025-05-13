@@ -36,26 +36,15 @@ class test_Safe_Str__Http__ETag(TestCase):
         assert str(Safe_Str__Http__ETag(12345)) == '12345'
 
         # Invalid characters get replaced
-        assert str(Safe_Str__Http__ETag('"abc<script>123"')) == '"abc_script_123"'
-        assert str(Safe_Str__Http__ETag('"abc!@#$%^&*()123"')) == '"abc__________123"'
-        assert str(Safe_Str__Http__ETag('W/"abc+=[]{};\'\\<>?,123"')) == 'W/"abc_____________123"'
+        assert Safe_Str__Http__ETag('"abc<script>123"'         ) == '"abc_script_123"'
+        assert Safe_Str__Http__ETag('"abc!@#$%^&*()123"'       ) == '"abc__________123"'
+        assert Safe_Str__Http__ETag('W/"abc+=[]{};\'\\<>?,123"') == 'W/"abc_____________123"'
+        assert Safe_Str__Http__ETag('<?&*^?>'                  ) == '_______'
 
-        # Edge cases and exceptions
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__ETag(None)
-        assert "Value cannot be None when allow_empty is False" in str(exc_info.value)
-
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__ETag('')
-        assert "Value cannot be empty when allow_empty is False" in str(exc_info.value)
-
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__ETag('<?&*^?>')  # All invalid chars
-        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)
-
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__ETag('   ')  # Spaces only (will be trimmed)
-        assert "Value cannot be empty when allow_empty is False" in str(exc_info.value)
+        # empty values
+        assert Safe_Str__Http__ETag(None ) == ''
+        assert Safe_Str__Http__ETag(''   ) == ''
+        assert Safe_Str__Http__ETag('   ') == ''                # Spaces only (will be trimmed)
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__ETag('a' * 129)  # Exceeds max length
