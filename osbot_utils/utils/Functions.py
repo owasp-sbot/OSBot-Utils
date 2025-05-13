@@ -25,13 +25,13 @@ def function_name(function):
     if isinstance(function, types.FunctionType):
         return function.__name__
 
-def function_source_code(function):
-    if isinstance(function, types.FunctionType):
-        source_code = inspect.getsource(function)
+def function_source_code(target):
+    if isinstance(target, (types.FunctionType, types.MethodType)):
+        source_code = inspect.getsource(target)
         source_code = textwrap.dedent(source_code).strip()
         return source_code
-    elif isinstance(function, str):
-        return function
+    elif isinstance(target, str):                               # todo: see if we really need this logic (or we just return none when "target" is a str)
+        return target
     return None
 
 def get_line_number(function):
@@ -111,3 +111,4 @@ def type_file(target):
 
 function_line_number = get_line_number
 method_line_number   = get_line_number
+method_source_code   = function_source_code

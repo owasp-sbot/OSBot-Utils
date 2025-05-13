@@ -1,8 +1,8 @@
 import re
-from unittest                                       import TestCase
-from osbot_utils.helpers.safe_str.Safe_Str          import Safe_Str
-from osbot_utils.helpers.safe_str.Safe_Str__Html    import Safe_Str__Html, TYPE_SAFE_STR__HTML__REGEX, TYPE_SAFE_STR__HTML__MAX_LENGTH
-from osbot_utils.utils.Objects                      import base_types
+from unittest                                           import TestCase
+from osbot_utils.helpers.safe_str.Safe_Str              import Safe_Str
+from osbot_utils.helpers.safe_str.http.Safe_Str__Html   import Safe_Str__Html, TYPE_SAFE_STR__HTML__REGEX, TYPE_SAFE_STR__HTML__MAX_LENGTH
+from osbot_utils.utils.Objects                          import base_types
 
 
 class test_Safe_Str__Html(TestCase):
