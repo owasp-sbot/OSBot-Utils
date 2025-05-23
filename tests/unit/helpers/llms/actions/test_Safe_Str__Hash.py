@@ -41,7 +41,7 @@ class test_Safe_Str__Hash(TestCase):
             Safe_Str__Hash('12345678901')  # Too long
 
         # Empty or None
-        with pytest.raises(ValueError, match="Value cannot be None when allow_empty is False") as exc_info:
+        with pytest.raises(ValueError, match="in Safe_Str__Hash, value cannot be None when allow_empty is Fals") as exc_info:
             Safe_Str__Hash(None)
 
         with pytest.raises(ValueError, match=f"Value cannot be empty when allow_empty is False"):

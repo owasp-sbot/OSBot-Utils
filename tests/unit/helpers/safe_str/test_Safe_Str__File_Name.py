@@ -50,7 +50,7 @@ class test_Safe_Str__File_Name(TestCase):
         # Edge cases: exceptions with specific error message checks
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__File__Name(None)
-        assert "Value cannot be None when allow_empty is False" in str(exc_info.value)
+        assert "in Safe_Str__File__Name, value cannot be None when allow_empty is False" in str(exc_info.value)
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__File__Name('')
