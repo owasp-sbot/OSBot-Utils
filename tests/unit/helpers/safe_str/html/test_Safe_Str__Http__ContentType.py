@@ -38,7 +38,7 @@ class test_Safe_Str__Http__Content_Type(TestCase):
         # Edge cases and exceptions
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__Content_Type(None)
-        assert "Value cannot be None when allow_empty is False" in str(exc_info.value)
+        assert "in Safe_Str__Http__Content_Type, value cannot be None when allow_empty is False" in str(exc_info.value)
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__Content_Type('')

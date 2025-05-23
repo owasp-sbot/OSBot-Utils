@@ -21,7 +21,7 @@ class Safe_Str(str):
             if cls.allow_empty:
                 value = ""
             else:
-                raise ValueError("Value cannot be None when allow_empty is False")
+                raise ValueError(f"in {cls.__name__}, value cannot be None when allow_empty is False") from None
 
         if not isinstance(value, str):                                                                                  # Convert to string if not already
             value = str(value)

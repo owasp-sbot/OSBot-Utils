@@ -86,7 +86,7 @@ class test_Safe_Str(TestCase):
         #     an_class.an_str = 'xyz'
 
         #Edge cases: exceptions with specific error message checks
-        with pytest.raises(ValueError, match="Value cannot be None when allow_empty is False") as exc_info:
+        with pytest.raises(ValueError, match="in Custom_Safe_Str, value cannot be None when allow_empty is False") as exc_info:
             Custom_Safe_Str(None)  # None is not allowed by default
 
         with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False") as exc_info:
