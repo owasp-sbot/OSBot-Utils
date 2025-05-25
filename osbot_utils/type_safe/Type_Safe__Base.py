@@ -104,8 +104,25 @@ class Type_Safe__Base:
                 actual_type_name = type_str(type(item))
                 raise TypeError(f"Expected '{expected_type_name}', but got '{actual_type_name}'")
 
-    # def json(self):
-    #     pass
+    def try_convert(self, value, expected_type):    # Try to convert value to expected type using Type_Safe conversion logic.
+
+        if expected_type is Any:                                    # Handle Any type
+            return value
+
+        origin = type_safe_cache.get_origin(expected_type)          # Handle subscripted generics (like Callable, Union, etc.)
+        if origin is not None:
+            return value                                            # Can't convert generic types, let type check handle it
+
+        if isinstance(value, expected_type):        # If already correct type, return as-is
+            return value
+
+        if isinstance(expected_type, type) and type(value) in [str, int, float]:        # For types that are subclasses of built-ins (like Safe_Id extends str)
+            if issubclass(expected_type, type(value)):                                  # Only convert if the value's type is a base class of expected_type. e.g., str → Safe_Id (ok), but not int → str (not ok)
+                return expected_type(value)                                             # convert value to expected_type
+
+
+        # Return original if no conversion possible
+        return value
 
 # todo: see if we should/can move this to the Objects.py file
 def type_str(tp):

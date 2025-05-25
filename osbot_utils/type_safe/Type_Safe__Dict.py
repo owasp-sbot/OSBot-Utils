@@ -1,4 +1,7 @@
 from typing                                import Type
+
+from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
+
 from osbot_utils.type_safe.Type_Safe__Base import Type_Safe__Base
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
@@ -9,9 +12,14 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         self.expected_value_type = expected_value_type
 
     def __setitem__(self, key, value):                                  # Check type-safety before allowing assignment.
+        key   = self.try_convert(key  , self.expected_key_type  )
+        value = self.try_convert(value, self.expected_value_type)
         self.is_instance_of_type(key  , self.expected_key_type)
         self.is_instance_of_type(value, self.expected_value_type)
         super().__setitem__(key, value)
+
+    def __enter__(self): return self
+    def __exit__ (self, type, value, traceback): pass
 
     # def __repr__(self):
     #     key_type_name   = type_str(self.expected_key_type)
@@ -38,3 +46,9 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
             else:                                                                           # Regular values can be used as-is
                 result[key] = value
         return result
+
+    def keys(self) -> Type_Safe__List:
+        return Type_Safe__List(self.expected_key_type, super().keys())
+
+    def values(self) -> Type_Safe__List:
+        return Type_Safe__List(self.expected_value_type, super().values())
