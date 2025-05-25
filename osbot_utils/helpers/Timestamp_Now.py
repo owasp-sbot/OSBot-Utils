@@ -1,5 +1,6 @@
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
-class Timestamp_Now(int):
+class Timestamp_Now(Type_Safe__Primitive, int):
     def __new__(cls, value=None):
         from osbot_utils.utils.Misc import timestamp_now
 

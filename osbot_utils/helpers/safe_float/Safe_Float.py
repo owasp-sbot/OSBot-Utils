@@ -1,8 +1,10 @@
 import math
-from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
-from typing import Optional, Union
+from decimal                                    import Decimal, ROUND_HALF_UP, InvalidOperation
+from typing                                     import Optional, Union
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
-class Safe_Float(float):                             # Base class for type-safe floats with validation rules
+
+class Safe_Float(Type_Safe__Primitive, float):                             # Base class for type-safe floats with validation rules
 
     min_value      : Optional[float] = None
     max_value      : Optional[float] = None

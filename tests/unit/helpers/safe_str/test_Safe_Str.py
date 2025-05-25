@@ -1,9 +1,10 @@
 import re
 import pytest
-from unittest                              import TestCase
-from osbot_utils.helpers.safe_str.Safe_Str import Safe_Str, TYPE_SAFE__STR__MAX_LENGTH
-from osbot_utils.type_safe.Type_Safe       import Type_Safe
-from osbot_utils.utils.Objects             import __, base_types
+from unittest                                       import TestCase
+from osbot_utils.helpers.safe_str.Safe_Str          import Safe_Str, TYPE_SAFE__STR__MAX_LENGTH
+from osbot_utils.type_safe.Type_Safe                import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive     import Type_Safe__Primitive
+from osbot_utils.utils.Objects                      import __, base_types
 
 
 class test_Safe_Str(TestCase):
@@ -79,7 +80,7 @@ class test_Safe_Str(TestCase):
 
         an_class = An_Class()
         assert type(an_class.an_str      ) is Custom_Safe_Str
-        assert base_types(an_class.an_str) == [Safe_Str, str, object]
+        assert base_types(an_class.an_str) == [Safe_Str, Type_Safe__Primitive, str, object, object]
 
         # expected_error = "Invalid type for attribute 'an_str'. Expected '<class 'test_Safe_Str.test_Safe_Str.test_custom_subclass__in_Type_safe.<locals>.Custom_Safe_Str'>' but got '<class 'str'>'"
         # with pytest.raises(ValueError, match=re.escape(expected_error)):

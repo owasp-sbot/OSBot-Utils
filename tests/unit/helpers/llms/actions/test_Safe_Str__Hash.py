@@ -4,6 +4,7 @@ from unittest                                       import TestCase
 from osbot_utils.helpers.safe_str.Safe_Str__Hash    import Safe_Str__Hash, SIZE__VALUE_HASH
 from osbot_utils.helpers.safe_str.Safe_Str          import Safe_Str
 from osbot_utils.type_safe.Type_Safe                import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive     import Type_Safe__Primitive
 from osbot_utils.utils.Objects                      import __, base_types
 
 
@@ -56,7 +57,7 @@ class test_Safe_Str__Hash(TestCase):
         assert isinstance(hash_str, Safe_Str__Hash)
         assert isinstance(hash_str, Safe_Str)
         assert isinstance(hash_str, str)
-        assert base_types(hash_str) == [Safe_Str, str, object]
+        assert base_types(hash_str) == [Safe_Str, Type_Safe__Primitive, str, object, object]
 
     def test_usage_in_Type_Safe(self):
         class Hash_Container(Type_Safe):

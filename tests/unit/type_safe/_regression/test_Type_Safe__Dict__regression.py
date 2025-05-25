@@ -2,6 +2,7 @@ import pytest
 from unittest                               import TestCase
 from typing                                 import Dict, Type, Set, Any
 from osbot_utils.type_safe.Type_Safe__List  import Type_Safe__List
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 from osbot_utils.utils.Objects              import base_classes
 
 from osbot_utils.helpers.Safe_Id import Safe_Id
@@ -19,7 +20,7 @@ class test_Type_Safe__Dict__regression(TestCase):
         an_class.an_dict[Safe_Id("aaa")] = Safe_Id("bbbb")  # strongly typed
         assert isinstance(Safe_Id, str) is False            # confirm Safe_Id is not a direct string
         assert issubclass(Safe_Id, str) is True             # but has str as a base class
-        assert base_classes(Safe_Id) == [str, object]       # also confirmed by the base class list
+        assert base_classes(Safe_Id) == [Type_Safe__Primitive, str, object, object]       # also confirmed by the base class list
         #with pytest.raises(TypeError, match="Expected 'Safe_Id', but got 'str'") :
         #    an_class.an_dict[Safe_Id("aaa")] = "bbbb"                                                       # FIXED: BUG: this should be supported since we can convert the str into Safe_Id
         #with pytest.raises(TypeError, match="Expected 'Safe_Id', but got 'str'") :

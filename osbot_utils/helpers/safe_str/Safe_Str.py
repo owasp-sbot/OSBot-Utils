@@ -1,10 +1,11 @@
 import re
-from typing import Optional
+from typing                                     import Optional
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
 TYPE_SAFE__STR__REGEX__SAFE_STR = re.compile(r'[^a-zA-Z0-9]')    # Only allow alphanumerics and numbers
 TYPE_SAFE__STR__MAX_LENGTH      = 512
 
-class Safe_Str(str):
+class Safe_Str(Type_Safe__Primitive, str):
     max_length                : int           = TYPE_SAFE__STR__MAX_LENGTH
     regex                     : re.Pattern    = TYPE_SAFE__STR__REGEX__SAFE_STR
     replacement_char          : str           = '_'

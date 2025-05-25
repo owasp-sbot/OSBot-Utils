@@ -1,7 +1,5 @@
 from typing                                import Type
-
 from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
-
 from osbot_utils.type_safe.Type_Safe__Base import Type_Safe__Base
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
@@ -11,7 +9,14 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         self.expected_key_type   = expected_key_type
         self.expected_value_type = expected_value_type
 
-    def __setitem__(self, key, value):                                  # Check type-safety before allowing assignment.
+    def __getitem__(self, key):
+        try:
+            return super().__getitem__(key)                                     # First try direct lookup
+        except KeyError:
+            converted_key = self.try_convert(key, self.expected_key_type)       # Try converting the key
+            return super().__getitem__(converted_key)                           # and compare again
+
+    def __setitem__(self, key, value):                                          # Check type-safety before allowing assignment.
         key   = self.try_convert(key  , self.expected_key_type  )
         value = self.try_convert(value, self.expected_value_type)
         self.is_instance_of_type(key  , self.expected_key_type)
@@ -20,11 +25,6 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
 
     def __enter__(self): return self
     def __exit__ (self, type, value, traceback): pass
-
-    # def __repr__(self):
-    #     key_type_name   = type_str(self.expected_key_type)
-    #     value_type_name = type_str(self.expected_value_type)
-    #     return f"dict[{key_type_name}, {value_type_name}] with {len(self)} entries"
 
     def json(self):                                                                         # Convert the dictionary to a JSON-serializable format.
         from osbot_utils.type_safe.Type_Safe import Type_Safe                               # can only import this here to avoid circular imports
