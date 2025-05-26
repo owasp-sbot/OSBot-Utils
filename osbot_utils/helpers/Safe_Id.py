@@ -13,3 +13,6 @@ class Safe_Id(Type_Safe__Primitive, str):
 
     # def __str__(self):
     #     return self
+
+
+# note: here is the regex applied on safe_id:  REGEX__SAFE_ID_REGEX       = re.compile(r'[^a-zA-Z0-9_-]')
