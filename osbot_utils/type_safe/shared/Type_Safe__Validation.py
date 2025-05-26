@@ -4,6 +4,7 @@ import types
 import typing
 from enum                                                      import EnumMeta
 from typing                                                    import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias
+from osbot_utils.type_safe.Type_Safe__Primitive                import Type_Safe__Primitive
 from osbot_utils.type_safe.shared.Type_Safe__Annotations       import type_safe_annotations
 from osbot_utils.type_safe.shared.Type_Safe__Cache             import type_safe_cache
 from osbot_utils.type_safe.shared.Type_Safe__Shared__Variables import IMMUTABLE_TYPES
@@ -33,6 +34,9 @@ class Type_Safe__Validation:
                 return True
         if target_type is typing.Any:
             return True
+        if isinstance(target_type, type) and issubclass(target_type,Type_Safe__Primitive):
+            if source_type in (int, float, str):
+                return True
         return False
 
     def are_types_magic_mock(self, source_type, target_type):
@@ -277,7 +281,7 @@ class Type_Safe__Validation:
                 actual_type = value
             else:
                 actual_type = type(value)
-            raise ValueError(f"Invalid type for attribute '{name}'. Expected '{expected_type}' but got '{actual_type}'")
+            raise ValueError(f"Invalid type for attribute '{name}'. Expected '{expected_type}' but got '{actual_type}'") from None
 
     # todo: see if need to add cache support to this method     (it looks like this method is not called very often)
     def validate_type_immutability(self, var_name: str, var_type: Any) -> None:                         # Validates that type is immutable or in supported format

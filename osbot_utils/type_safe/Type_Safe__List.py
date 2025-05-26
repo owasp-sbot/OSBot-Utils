@@ -10,6 +10,9 @@ class Type_Safe__List(Type_Safe__Base, list):
         expected_type_name = type_str(self.expected_type)
         return f"list[{expected_type_name}] with {len(self)} elements"
 
+    def __enter__(self): return self
+    def __exit__ (self, type, value, traceback): pass
+
     def append(self, item):
         from osbot_utils.type_safe.Type_Safe import Type_Safe
         if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe) and type(item) is dict:  # if self.expected_type is Type_Safe and we have a dict

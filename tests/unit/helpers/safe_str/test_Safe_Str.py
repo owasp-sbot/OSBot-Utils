@@ -1,9 +1,11 @@
+import json
 import re
 import pytest
-from unittest                              import TestCase
-from osbot_utils.helpers.safe_str.Safe_Str import Safe_Str, TYPE_SAFE__STR__MAX_LENGTH
-from osbot_utils.type_safe.Type_Safe       import Type_Safe
-from osbot_utils.utils.Objects             import __, base_types
+from unittest                                       import TestCase
+from osbot_utils.helpers.safe_str.Safe_Str          import Safe_Str, TYPE_SAFE__STR__MAX_LENGTH
+from osbot_utils.type_safe.Type_Safe                import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive     import Type_Safe__Primitive
+from osbot_utils.utils.Objects                      import __, base_types
 
 
 class test_Safe_Str(TestCase):
@@ -79,7 +81,7 @@ class test_Safe_Str(TestCase):
 
         an_class = An_Class()
         assert type(an_class.an_str      ) is Custom_Safe_Str
-        assert base_types(an_class.an_str) == [Safe_Str, str, object]
+        assert base_types(an_class.an_str) == [Safe_Str, Type_Safe__Primitive, str, object, object]
 
         # expected_error = "Invalid type for attribute 'an_str'. Expected '<class 'test_Safe_Str.test_Safe_Str.test_custom_subclass__in_Type_safe.<locals>.Custom_Safe_Str'>' but got '<class 'str'>'"
         # with pytest.raises(ValueError, match=re.escape(expected_error)):
@@ -240,3 +242,26 @@ class test_Safe_Str(TestCase):
         assert An_Safe_Str() == ''                                               # FIXED: correct behaviour
         assert An_Safe_Str(None) == ''
         assert An_Safe_Str('') == ''
+
+
+    def test__json_serialisation(self):
+        class An_Class(Type_Safe):
+            an_safe_str: Safe_Str
+
+        an_class = An_Class(an_safe_str='an_value')
+        assert an_class.an_safe_str == 'an_value'
+        assert an_class.obj ()      == __(an_safe_str=Safe_Str('an_value'))
+        assert an_class.obj ()      == __(an_safe_str='an_value')
+        assert an_class.json()      == {'an_safe_str': 'an_value'}
+
+        from osbot_utils.utils.Dev import pprint
+        assert type(an_class.json().get('an_safe_str')) is str                                   # BUG: this should be str
+
+        roundtrip__an_class = An_Class.from_json(an_class.json())
+        assert roundtrip__an_class.json() == {'an_safe_str': 'an_value'}
+        assert roundtrip__an_class.json() == {'an_safe_str': Safe_Str('an_value')}
+        assert roundtrip__an_class.obj () == __(an_safe_str=Safe_Str('an_value'))
+        assert roundtrip__an_class.obj () == __(an_safe_str='an_value')
+
+        assert json.dumps(an_class           .json()) == '{"an_safe_str": "an_value"}'
+        assert json.dumps(roundtrip__an_class.json()) == '{"an_safe_str": "an_value"}'

@@ -1,9 +1,9 @@
 import pytest
 from unittest                                    import TestCase
-
-from osbot_utils.helpers.safe_float.Safe_Float import Safe_Float
+from osbot_utils.helpers.safe_float.Safe_Float   import Safe_Float
 from osbot_utils.helpers.safe_int.Safe_Int       import Safe_Int
 from osbot_utils.type_safe.Type_Safe             import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive  import Type_Safe__Primitive
 from osbot_utils.utils.Objects                   import __, base_types
 
 
@@ -92,7 +92,7 @@ class test_Safe_Int(TestCase):
 
         an_class = An_Class()
         assert type(an_class.an_int)       is Custom_Safe_Int
-        assert base_types(an_class.an_int) == [Safe_Int, int, object]
+        assert base_types(an_class.an_int) == [Safe_Int, Type_Safe__Primitive, int, object, object]
 
         # Valid assignment
         an_class.an_int = Custom_Safe_Int(100)

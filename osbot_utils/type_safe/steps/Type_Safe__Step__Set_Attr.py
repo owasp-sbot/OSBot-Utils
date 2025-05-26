@@ -1,4 +1,5 @@
 from typing                                                  import get_origin, Annotated, get_args
+from osbot_utils.type_safe.Type_Safe__Primitive              import Type_Safe__Primitive
 from osbot_utils.type_safe.shared.Type_Safe__Cache           import type_safe_cache
 from osbot_utils.type_safe.shared.Type_Safe__Convert         import type_safe_convert
 from osbot_utils.type_safe.shared.Type_Safe__Validation      import type_safe_validation
@@ -9,7 +10,9 @@ class Type_Safe__Step__Set_Attr:
     def resolve_value(self, _self, annotations, name, value):
         if type(value) is dict:
             value = self.resolve_value__dict(_self, name, value)
-        elif type(value) in [int, str]:                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
+        elif isinstance(annotations.get(name), type) and issubclass(annotations.get(name), Type_Safe__Primitive) and type(value) in (int, str, float):
+            return annotations.get(name)(value)
+        elif type(value) in (int, str):                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
             value = self.resolve_value__int_str(_self, name, value)
         else:
             value = self.resolve_value__from_origin(value)

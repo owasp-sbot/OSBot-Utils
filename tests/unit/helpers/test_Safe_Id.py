@@ -27,9 +27,12 @@ class test_Safe_Id(TestCase):
         guid_1 = Random_Guid()
         guid_2 = '13373889-3b23-4ba9-b5f7-fd1b7d2abd94'
         guid_3 = 'c13110ca-8c20-4ead-afe6-81b8eedcfc00'
-        assert str(Safe_Id(guid_1)) == guid_1
-        assert str(Safe_Id(guid_2)) == guid_2
-        assert str(Safe_Id(guid_3)) == guid_3
+        assert Safe_Id(guid_1)                 != guid_1                    # should not be equal sice types are the different
+        assert type(str(Safe_Id(guid_1)))      is str                       # confirm we get a str if we explicity convert into str
+        assert type(Safe_Id(guid_1).__str__()) is str
+        assert str(Safe_Id(guid_1)) == str(guid_1)
+        assert str(Safe_Id(guid_2)) == str(guid_2)
+        assert str(Safe_Id(guid_3)) == str(guid_3)
 
         # Abuse cases
         assert str(Safe_Id('a!@£$b'     )) == 'a____b'

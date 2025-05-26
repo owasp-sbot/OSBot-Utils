@@ -1,9 +1,9 @@
-from typing import Optional, Union
+from typing                                     import Optional, Union
+from osbot_utils.helpers.safe_float.Safe_Float  import Safe_Float
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
-from osbot_utils.helpers.safe_float.Safe_Float import Safe_Float
 
-
-class Safe_Int(int):            # Base class for type-safe integers with validation rules
+class Safe_Int(Type_Safe__Primitive, int):            # Base class for type-safe integers with validation rules
 
     min_value      : Optional[int] = None    # Minimum allowed value (inclusive)
     max_value      : Optional[int] = None    # Maximum allowed value (inclusive)
