@@ -1,10 +1,11 @@
 import re
 import sys
 import pytest
-from unittest                              import TestCase
-from typing                                import Dict, Union, Optional, Any, Callable, List, Tuple
-from osbot_utils.type_safe.Type_Safe       import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
+from unittest                                   import TestCase
+from typing                                     import Dict, Union, Optional, Any, Callable, List, Tuple
+from osbot_utils.type_safe.Type_Safe            import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Dict      import Type_Safe__Dict
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
 
 class test_Type_Safe__Dict(TestCase):
@@ -402,6 +403,45 @@ class test_Type_Safe__Dict(TestCase):
             "empty_dict": {}
         }
         assert safe_dict.json() == expected
+
+    def test___comparisons_with_type_safe_checks_and_flex_use_of_primitive_values(self):
+        class An_Str_1(Type_Safe__Primitive, str):
+            pass
+
+        class An_Str_2(Type_Safe__Primitive, str):
+            pass
+
+        an_str_1 = An_Str_1('a')
+        an_str_2 = An_Str_2('a')
+
+        assert an_str_1      == An_Str_1('a')            # direct type comparison
+        assert an_str_1      == 'a'                      # direct value comparison (equal)
+        assert an_str_1      != 'b'                      # direct value comparison (not equal)
+        assert an_str_1      != 123                      # direct value comparison (not equal)
+        assert an_str_1      != an_str_2                 # value is the same, but types are different
+        assert str(an_str_1) == str(an_str_2)            #    which we can confirm if we cast both values to str
+
+        class An_Class(Type_Safe):
+            an_dict: Dict[An_Str_1, An_Str_2]
+
+        an_class = An_Class(an_dict=dict(a='a'))
+
+        assert an_class.an_dict['a'] == 'a'
+        assert an_class.an_dict['a'] != 'ab'
+        assert an_class.an_dict['a'] != 123
+
+        an_class = An_Class(an_dict=dict(a='a'))
+        value_1 = an_class.an_dict[An_Str_1('a')]
+        assert type(value_1) is An_Str_2        # with types
+
+        assert type(an_class.an_dict['a'])     is An_Str_2          # confirms
+        assert an_class.an_dict['a']           == 'a'               # we can check by direct str values
+        assert an_class.an_dict['a']           == An_Str_2('a')     # ok since 'a' is supposed to be an An_Str_2
+        assert an_class.an_dict['a']           != An_Str_1('a')     # strongly type fails (An_Str_1 is not An_Str_2)
+        assert an_class.an_dict[An_Str_1('a')] == An_Str_2('a')     # these should be equal
+        assert an_class.an_dict[An_Str_1('a')] != An_Str_1('a')     # these should NOT be equal (since the key 'a' is assigned to An_Str_2('a')
+
+
 
 
 

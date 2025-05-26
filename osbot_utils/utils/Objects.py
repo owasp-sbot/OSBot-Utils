@@ -272,7 +272,9 @@ def serialize_to_dict(obj):
     from enum    import Enum
     from typing  import List
 
-    if isinstance(obj, (str, int, float, bool, bytes, Decimal)) or obj is None:     # todo: add support for objects like datetime
+    if hasattr(obj, '__primitive_base__') and isinstance(obj, (str, int, float)):
+        return obj.__primitive_base__(obj)
+    elif isinstance(obj, (str, int, float, bool, bytes, Decimal)) or obj is None:     # todo: add support for objects like datetime
         return obj
     elif isinstance(obj, Enum):
         return obj.name

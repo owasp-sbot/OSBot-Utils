@@ -12,10 +12,8 @@ class Type_Safe__Primitive:
     def __eq__(self, other):
         if type(self) is type(other):                                           # Same type → compare values
             return super().__eq__(other)
-
         if self.__primitive_base__ and type(other) is self.__primitive_base__:  # Compare with cached primitive base type
             return super().__eq__(other)
-
         return False                                                            # Different types → not equal
 
     def __ne__(self, other):
@@ -27,3 +25,4 @@ class Type_Safe__Primitive:
     def __repr__(self):                                                     # Enhanced repr to show type information in assertions
         value_repr = super().__repr__()
         return f"{type(self).__name__}({value_repr})"
+

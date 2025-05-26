@@ -30,7 +30,6 @@ class test_Type_Safe__regression(TestCase):
 
     def test__regression__error_when_using__dict_with_type_as_key(self):
 
-
         class Container(Type_Safe):
             value_nodes: Dict[Type[Node_Value], Obj_Id]
 

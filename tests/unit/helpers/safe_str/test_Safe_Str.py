@@ -1,3 +1,4 @@
+import json
 import re
 import pytest
 from unittest                                       import TestCase
@@ -241,3 +242,26 @@ class test_Safe_Str(TestCase):
         assert An_Safe_Str() == ''                                               # FIXED: correct behaviour
         assert An_Safe_Str(None) == ''
         assert An_Safe_Str('') == ''
+
+
+    def test__json_serialisation(self):
+        class An_Class(Type_Safe):
+            an_safe_str: Safe_Str
+
+        an_class = An_Class(an_safe_str='an_value')
+        assert an_class.an_safe_str == 'an_value'
+        assert an_class.obj ()      == __(an_safe_str=Safe_Str('an_value'))
+        assert an_class.obj ()      == __(an_safe_str='an_value')
+        assert an_class.json()      == {'an_safe_str': 'an_value'}
+
+        from osbot_utils.utils.Dev import pprint
+        assert type(an_class.json().get('an_safe_str')) is str                                   # BUG: this should be str
+
+        roundtrip__an_class = An_Class.from_json(an_class.json())
+        assert roundtrip__an_class.json() == {'an_safe_str': 'an_value'}
+        assert roundtrip__an_class.json() == {'an_safe_str': Safe_Str('an_value')}
+        assert roundtrip__an_class.obj () == __(an_safe_str=Safe_Str('an_value'))
+        assert roundtrip__an_class.obj () == __(an_safe_str='an_value')
+
+        assert json.dumps(an_class           .json()) == '{"an_safe_str": "an_value"}'
+        assert json.dumps(roundtrip__an_class.json()) == '{"an_safe_str": "an_value"}'
