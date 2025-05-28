@@ -25,7 +25,7 @@ class Type_Safe__Step__Init:
                     setattr(__self, key, value)
             else:
                 raise ValueError(f"{__self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
-                                 f"Use {__self.__class__.__name__}.__default_kwargs__() see what attributes are available")
+                                 f"Use {__self.__class__.__name__}.__default_kwargs__() see what attributes are available") from None
 
     def convert_value_to_type_safe_objects(self, __self, key, value):
         annotation = type_safe_annotations.obj_attribute_annotation(__self, key)
