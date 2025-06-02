@@ -1,6 +1,8 @@
+import re
 import pytest
 from unittest                                            import TestCase
-from osbot_utils.helpers.safe_str.Safe_Str               import TYPE_SAFE__STR__MAX_LENGTH
+from osbot_utils.helpers.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
+from osbot_utils.helpers.safe_str.Safe_Str               import TYPE_SAFE__STR__MAX_LENGTH, Safe_Str
 from osbot_utils.helpers.safe_str.Safe_Str__File__Name   import Safe_Str__File__Name
 
 
@@ -83,3 +85,43 @@ class test_Safe_Str__File_Name(TestCase):
         # Starting with dot (hidden files)
         assert str(Safe_Str__File__Name('.hidden')) == '.hidden'
         assert str(Safe_Str__File__Name('.config')) == '.config'
+
+    def test__str_concat_returns_safe_str_class(self):
+        value_1 = Safe_Str__File__Name('aaa')
+        value_2 = Safe_Str__File__Name('bbb')
+        value_3 = Safe_Str            ('ccc')
+
+        assert type(value_1) is Safe_Str__File__Name
+        assert type(value_2) is Safe_Str__File__Name
+
+        assert type(value_1 + 'xyz'  ) is Safe_Str__File__Name           # confirms we keep the Safe_Str__File__Name
+        assert type(value_1 + value_2) is Safe_Str__File__Name           # confirms we keep the Safe_Str__File__Name
+        assert type(value_1 + value_3) is Safe_Str__File__Name  # confirms we keep the Safe_Str__File__Name
+
+
+        with pytest.raises(TypeError, match=re.escape('can only concatenate str (not "int") to str')):
+            type(value_1 + 123    )                     # OK: since we don't want to prevent non string concats
+
+    def test__safe_str__mixed_types(self):
+        # Different Safe_Str subclasses
+        file_name = Safe_Str__File__Name('document')
+        file_path = Safe_Str__File__Path('/path/to/')
+
+        result = file_path + file_name
+        assert type(result) is Safe_Str__File__Path  # Left operand type wins
+
+        # Reverse order
+        result = file_name + file_path
+        assert type(result) is Safe_Str__File__Name  # Left operand type wins
+
+    def test__safe_str_file_name__string_representation(self):
+        # Valid filename
+        filename = Safe_Str__File__Name("document.pdf")
+        assert str(filename)        == "document.pdf"
+        assert f"File: {filename}"  == "File: document.pdf"
+        assert repr(filename)       == "Safe_Str__File__Name('document.pdf')"
+
+        # Filename with invalid chars (should be sanitized)
+        filename_sanitized = Safe_Str__File__Name("doc/file?.pdf")
+        assert "/" not in str(filename_sanitized)  # Path separator removed
+        assert "?" not in str(filename_sanitized)  # Invalid char removed

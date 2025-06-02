@@ -88,3 +88,10 @@ class test_Safe_Str__Text__Dangerous(TestCase):
         assert str(Safe_Str__Text__Dangerous('Items: A, B, and C')) == 'Items: A, B, and C'
         assert str(Safe_Str__Text__Dangerous('Options: 1) First 2) Second')) == 'Options: 1) First 2) Second'
         assert str(Safe_Str__Text__Dangerous('Product #123 - Version 2.0')) == 'Product #123 - Version 2.0'
+
+    def test__safe_str__dangerous_text(self):
+        # Text that might be considered dangerous
+        dangerous = Safe_Str__Text__Dangerous("<script>alert('xss')</script>")
+        # Should preserve the dangerous text but mark it as dangerous type
+        assert "<script>" in str(dangerous)
+        assert repr(dangerous).startswith("Safe_Str__Text__Dangerous(")

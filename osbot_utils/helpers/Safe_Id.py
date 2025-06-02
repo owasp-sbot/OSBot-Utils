@@ -1,6 +1,6 @@
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
-from osbot_utils.utils.Misc import random_id_short
-from osbot_utils.utils.Str  import safe_id
+from osbot_utils.utils.Misc                     import random_id_short
+from osbot_utils.utils.Str                      import safe_id
 
 SAFE_ID__MAX_LENGTH = 512
 

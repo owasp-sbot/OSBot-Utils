@@ -167,3 +167,10 @@ class test_Safe_Float__Engineering(TestCase):
         frequency_mhz = Safe_Float__Engineering(100.0)  # 100 MHz
         period_ns = (1.0 / (frequency_mhz * mega)) * (giga)  # Convert to nanoseconds
         assert float(period_ns) == 10.0  # 10 nanoseconds
+
+    def test__safe_float_engineering__string_representation(self):
+        # Engineering notation values
+        eng = Safe_Float__Engineering(1234.5678)
+        assert str(eng) == "1234.5678"
+        assert f"Measurement: {eng}" == "Measurement: 1234.5678"
+        assert repr(eng) == "Safe_Float__Engineering(1234.5678)"

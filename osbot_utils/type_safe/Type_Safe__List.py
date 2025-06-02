@@ -1,6 +1,8 @@
-from osbot_utils.type_safe.Type_Safe__Base import Type_Safe__Base, type_str
+from typing                                 import Type
+from osbot_utils.type_safe.Type_Safe__Base  import Type_Safe__Base, type_str
 
 class Type_Safe__List(Type_Safe__Base, list):
+    expected_type : Type
 
     def __init__(self, expected_type, *args):
         super().__init__(*args)
@@ -21,7 +23,7 @@ class Type_Safe__List(Type_Safe__Base, list):
             try:
                 self.is_instance_of_type(item, self.expected_type)
             except TypeError as e:
-               raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}")
+               raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}") from None
         super().append(item)
 
 

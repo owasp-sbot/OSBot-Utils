@@ -219,3 +219,95 @@ class test_Safe_Int(TestCase):
         # Boolean not allowed
         with pytest.raises(TypeError, match="Constrained_Int does not allow boolean values"):
             Constrained_Int(True)
+
+    def test__safe_int__arithmetic_operations(self):
+        # Basic Safe_Int
+        int1 = Safe_Int(10)
+        int2 = Safe_Int(20)
+
+        result = int1 + int2
+        assert type(result) is Safe_Int
+        assert result == 30
+
+        # With plain int
+        result = int1 + 5
+        assert type(result) is Safe_Int
+        assert result == 15
+
+        # Reverse order
+        result = 5 + int1
+        assert type(result) is Safe_Int
+        assert result == 15
+
+    def test__safe_int__string_representation(self):
+        # Basic Safe_Int
+        value = Safe_Int(42)
+        assert str(value) == "42"
+        assert f"{value}" == "42"
+        assert repr(value) == "Safe_Int(42)"
+
+        # Large number
+        large = Safe_Int(1234567890)
+        assert str(large) == "1234567890"
+        assert f"ID: {large}" == "ID: 1234567890"
+
+        # Zero
+        zero = Safe_Int(0)
+        assert str(zero) == "0"
+        assert f"{zero:03d}" == "000"  # Padding should work
+
+    def test__safe_int__edge_cases(self):
+        # Negative
+        negative = Safe_Int(-42)
+        assert str(negative) == "-42"
+        assert f"Temperature: {negative}°C" == "Temperature: -42°C"
+
+        # One
+        one = Safe_Int(1)
+        assert str(one) == "1"
+        assert f"{one} item" == "1 item"
+
+        # Maximum int32
+        max_int32 = Safe_Int(2147483647)
+        assert str(max_int32) == "2147483647"
+
+    def test__safe_int__arithmetic_preserves_representation(self):
+        # After arithmetic, string representation should still work
+        val1 = Safe_Int(100)
+        val2 = Safe_Int(50)
+        result = val1 + val2
+
+        assert str(result) == "150"
+        assert f"Sum: {result}" == "Sum: 150"
+        assert repr(result) == "Safe_Int(150)"
+
+    def test__safe_int__formatting_options(self):
+        # Various formatting options should work
+        num = Safe_Int(42)
+
+        # Padding
+        assert f"{num:05d}" == "00042"
+
+        # Sign
+        assert f"{num:+d}" == "+42"
+
+        # Thousands separator (Python 3.6+)
+        big = Safe_Int(1234567)
+        assert f"{big:,}" == "1,234,567"
+
+        # Different bases
+        assert f"{num:b}" == "101010"  # Binary
+        assert f"{num:x}" == "2a"      # Hex
+        assert f"{num:o}" == "52"      # Octal
+
+    def test__safe_numeric__mixed_operations(self):
+        # Int and float operations
+        int_val = Safe_Int(10)
+        float_val = Safe_Float(3.5)
+
+        # Mixed arithmetic (would return regular float)
+        result = int_val + float_val
+        assert str(result) == "13.5"
+
+        # Formatting in expressions
+        assert f"Price: {int_val} + {float_val} = {int_val + float_val}" == "Price: 10 + 3.5 = 13.5"

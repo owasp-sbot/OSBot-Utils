@@ -1,5 +1,6 @@
 import pytest
 from unittest                                                       import TestCase
+from osbot_utils.helpers.safe_str.http.Safe_Str__Http__Text         import Safe_Str__Http__Text
 from osbot_utils.helpers.safe_str.http.Safe_Str__Http__Content_Type import Safe_Str__Http__Content_Type
 
 
@@ -55,3 +56,13 @@ class test_Safe_Str__Http__Content_Type(TestCase):
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__Content_Type('a' * 257)  # Exceeds max length
         assert "Value exceeds maximum length of 256" in str(exc_info.value)
+
+    def test__safe_str__http_types(self):
+        # HTTP Content-Type
+        content_type = Safe_Str__Http__Content_Type("application/json")
+        assert str(content_type) == "application/json"
+        assert f"Content-Type: {content_type}" == "Content-Type: application/json"
+
+        # HTTP Text
+        http_text = Safe_Str__Http__Text("GET /api/users HTTP/1.1")
+        assert str(http_text) == "GET /api/users HTTP/1.1"

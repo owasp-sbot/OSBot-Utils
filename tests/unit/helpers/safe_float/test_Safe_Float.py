@@ -310,3 +310,53 @@ class test_Safe_Float(TestCase):
         decimal_val = Decimal('123.456789')
         result = Float_From_Decimal(decimal_val)
         assert float(result) == 123.4568  # Rounded to 4 places
+
+    def test__safe_float__basic_arithmetic(self):
+        # Basic Safe_Float
+        float1 = Safe_Float(10.5)
+        float2 = Safe_Float(20.3)
+
+        result = float1 + float2
+        assert type(result) is Safe_Float
+        assert result == 30.8
+
+        # With plain float
+        result = float1 + 5.5
+        assert type(result) is Safe_Float
+        assert result == 16.0
+
+    def test__safe_float__string_representation(self):
+        # Basic Safe_Float
+        value = Safe_Float(123.456)
+        assert str(value) == "123.456"
+        assert f"{value}" == "123.456"
+        assert repr(value) == "Safe_Float(123.456)"
+
+        # Scientific notation
+        large = Safe_Float(1.23e10)
+        assert str(large) == "12300000000.0"
+        assert f"Value: {large}" == "Value: 12300000000.0"
+
+        # Small numbers
+        small = Safe_Float(0.000123)
+        assert str(small) == "0.000123"
+        assert f"{small:.6f}" == "0.000123"
+
+    def test__safe_float__edge_cases(self):
+        # Zero
+        zero = Safe_Float(0.0)
+        assert str(zero) == "0.0"
+        assert f"{zero}" == "0.0"
+
+        # Negative
+        negative = Safe_Float(-123.45)
+        assert str(negative) == "-123.45"
+        assert f"Balance: {negative}" == "Balance: -123.45"
+
+        # Very small (might use scientific notation)
+        tiny = Safe_Float(0.00000001)
+        assert "e" in str(tiny) or "E" in str(tiny) or str(tiny) == "0.00000001"
+
+        # Integer-like float
+        int_like = Safe_Float(42.0)
+        assert str(int_like) == "42.0"

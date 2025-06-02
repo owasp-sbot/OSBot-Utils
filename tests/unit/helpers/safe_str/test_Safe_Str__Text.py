@@ -1,5 +1,6 @@
 import pytest
 from unittest                                    import TestCase
+from osbot_utils.helpers.safe_str.Safe_Str       import Safe_Str
 from osbot_utils.helpers.safe_str.Safe_Str__Text import Safe_Str__Text, TYPE_SAFE_STR__TEXT__MAX_LENGTH
 
 
@@ -88,3 +89,28 @@ class test_Safe_Str__Text(TestCase):
         assert str(Safe_Str__Text('Items: A, B, and C'          )) == 'Items: A, B, and C'
         assert str(Safe_Str__Text('Options: 1) First 2) Second' )) == 'Options: 1) First 2) Second'
         assert str(Safe_Str__Text('Product #123 - Version 2.0'  )) == 'Product _123 - Version 2.0'
+
+    def test__safe_str_text__string_representation(self):
+        # Regular text
+        text = Safe_Str__Text("This is a test message")
+        assert str(text) == "This is a test message"
+        assert f"{text}!" == "This is a test message!"
+        assert repr(text) == "Safe_Str__Text('This is a test message')"
+
+    def test__safe_str__edge_cases(self):
+        # Empty string
+        empty = Safe_Str("")
+        assert str(empty)   == ""
+        assert f"[{empty}]" == "[]"
+        assert repr(empty)  == "Safe_Str('')"
+
+        # Special characters that will be escaped
+        special = Safe_Str__Text("Line1\nLine2\tTab")
+        assert str(special)     == "Line1_Line2_Tab"
+        assert "\n"         not in str(special)     # Newlines not preserved
+        assert "\t"         not in str(special)     # Tabs not preserved
+
+        # Unicode
+        unicode_str = Safe_Str__Text("Hello __ _")
+        assert str(unicode_str)          == "Hello __ _"
+        assert f"Unicode: {unicode_str}" == "Unicode: Hello __ _"

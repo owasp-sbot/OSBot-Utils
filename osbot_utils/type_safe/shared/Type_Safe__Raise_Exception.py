@@ -8,7 +8,7 @@ class Type_Safe__Raise_Exception:
         raise ValueError(exception_message)
 
     def immutable_type_error(self, var_name, var_type):
-        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Type_Safe, with only the following immutable types being supported: '{IMMUTABLE_TYPES}'"
+        exception_message = f"variable '{var_name}' is defined as type '{var_type}' which is not supported by Type_Safe, with only the following immutable types being supported: '{IMMUTABLE_TYPES}' and the following subclasses (int, float, str)"
         raise ValueError(exception_message)
 
 type_safe_raise_exception = Type_Safe__Raise_Exception()

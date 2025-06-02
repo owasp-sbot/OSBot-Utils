@@ -1,5 +1,6 @@
 import pytest
 from unittest                                   import TestCase
+from osbot_utils.helpers.safe_str.Safe_Str      import Safe_Str
 from osbot_utils.helpers.safe_str.Safe_Str__Url import Safe_Str__Url, TYPE_SAFE_STR__URL__MAX_LENGTH
 
 
@@ -105,3 +106,29 @@ class test_Safe_Str__Url(TestCase):
 
     def test_edge_cases(self):
         assert Safe_Str__Url() == ''
+
+    def test__safe_str__concat_with_validation(self):
+        # Test that validation/sanitization still applies after concatenation
+        url = Safe_Str__Url('https://example.com/path')
+        result = url + '?query="test"'  # Should sanitize the quotes
+
+        assert type(result) is Safe_Str__Url
+        assert '"' not in str(result)  # Quotes should be sanitized
+
+        # Test max length enforcement
+        short_str = Safe_Str('a' * 500)  # Near max length
+        with pytest.raises(ValueError, match="exceeds maximum length"):
+            short_str + ('b' * 20)  # Should exceed max length
+
+    def test__safe_str_url__string_representation(self):
+        # URL with query params
+        url = Safe_Str__Url('https://example.com/path?query=test&foo=bar')
+        assert str(url) == 'https://example.com/path?query=test&foo=bar'
+        assert f"Visit: {url}" == "Visit: https://example.com/path?query=test&foo=bar"
+        assert repr(url) == "Safe_Str__Url('https://example.com/path?query=test&foo=bar')"
+
+        # URL with sanitization
+        url_sanitized = Safe_Str__Url('https://example.com/path?q="test"')
+        expected = 'https://example.com/path?q=_test_'  # Quotes should be sanitized
+        assert str(url_sanitized) == expected
+        assert f"{url_sanitized}" == expected

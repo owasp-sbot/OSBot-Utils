@@ -265,3 +265,52 @@ class test_Safe_Str(TestCase):
 
         assert json.dumps(an_class           .json()) == '{"an_safe_str": "an_value"}'
         assert json.dumps(roundtrip__an_class.json()) == '{"an_safe_str": "an_value"}'
+
+    def test__str_concat_returns_safe_str_class(self):
+        value_1 = Safe_Str('aaa')
+        value_2 = Safe_Str('bbb')
+
+        assert type(value_1) is Safe_Str
+        assert type(value_2) is Safe_Str
+
+        assert type(value_1 + 'xyz'  ) is Safe_Str           # confirms we keep the Safe_Str
+        assert type(value_1 + value_2) is Safe_Str           # confirms we keep the Safe_Str
+
+        with pytest.raises(TypeError, match=re.escape('can only concatenate str (not "int") to str')):
+            type(value_1 + 123    )                     # OK: since we don't want to prevent non string concats
+
+    def test__safe_str__string_representation(self):
+        # Basic Safe_Str
+        text = Safe_Str("Hello World")
+        assert str(text) == "Hello_World"
+        assert f"{text}" == "Hello_World"
+        assert repr(text) == "Safe_Str('Hello_World')"
+
+        # With sanitization
+        text_sanitized = Safe_Str("Hello@World!")  # Should sanitize @ and !
+        assert str(text_sanitized) == "Hello_World_"
+        assert f"Message: {text_sanitized}" == "Message: Hello_World_"
+
+    def test__safe_str__concatenation_preserves_representation(self):
+        # After concatenation, string representation should still work
+        str1 = Safe_Str("Hello")
+        str2 = Safe_Str(" World")
+        result = str1 + str2
+
+        assert str(result) == "Hello_World"
+        assert f"{result}!" == "Hello_World!"
+        assert repr(result) == "Safe_Str('Hello_World')"
+
+    def test__safe_str__string_methods_return_correct_types(self):
+        # Ensure string methods that return strings maintain safe type
+        text = Safe_Str("hello world")
+
+        # These should return regular strings (not Safe_Str)
+        assert type(text.upper()) is str
+        assert text.upper() == "HELLO_WORLD"
+
+        assert type(text.replace("world", "python")) is str
+        assert text.replace("world", "python") == "hello_python"
+
+        # But our concatenation returns Safe_Str
+        assert type(text + "!") is Safe_Str

@@ -191,3 +191,44 @@ class test_Safe_Float__Money(TestCase):
 
         large = Safe_Float__Money(1234567.89)
         assert f"${float(large):,.2f}" == "$1,234,567.89"
+
+    def test__safe_float__money_precision(self):
+        # Money with 2 decimal places
+        price1 = Safe_Float__Money(10.99)
+        price2 = Safe_Float__Money(5.50)
+
+        result = price1 + price2
+        assert type(result)           is Safe_Float__Money
+        assert result                 == 16.49  # Should maintain precision
+        assert type(str(result))      is str
+        assert f"{result}"            == '16.49'             # Test that precision is maintained (Not 16.490000000000002)
+        assert f"{float(result):.2f}" == '16.49'
+        assert str(result)            == '16.49'
+
+    def test__safe_float_money__string_representation(self):
+        # Money with 2 decimal precision
+        price = Safe_Float__Money(19.99)
+        assert str(price) == "19.99"
+        assert f"${price}" == "$19.99"
+        assert repr(price) == "Safe_Float__Money(19.99)"
+
+        # Money with rounding
+        price_rounded = Safe_Float__Money(19.999)  # Should round to 19.99
+        assert str(price_rounded) == "20.0"
+        assert f"Total: ${price_rounded}" == "Total: $20.0"
+
+        # Zero money
+        zero = Safe_Float__Money(0.00)
+        assert str(zero) == "0.0"
+        assert f"${zero:.2f}" == "$0.00"
+
+
+    def test__safe_float__arithmetic_preserves_representation(self):
+        # After arithmetic, string representation should still work
+        val1 = Safe_Float__Money(10.50)
+        val2 = Safe_Float__Money(5.25)
+        result = val1 + val2
+
+        assert str(result) == "15.75"
+        assert f"Total: ${result}" == "Total: $15.75"
+        assert repr(result) == "Safe_Float__Money(15.75)"

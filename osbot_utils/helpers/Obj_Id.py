@@ -1,4 +1,5 @@
 import random
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
 _hex_table = [f"{i:02x}" for i in range(256)]
 
@@ -14,7 +15,7 @@ def is_obj_id(value: str):
 def new_obj_id():
     return hex(random.getrandbits(32))[2:].zfill(8)  # slice off '0x' and pad
 
-class Obj_Id(str):
+class Obj_Id(Type_Safe__Primitive,str):
     def __new__(cls, value: str=None):
         if value:
             if is_obj_id(value):
