@@ -173,3 +173,10 @@ class test_Safe_UInt__Percentage(TestCase):
         after_discount2 = after_discount1 * (100 - int(discount2)) / 100
         assert after_discount1 == 90.0
         assert after_discount2 == 85.5
+
+    def test__safe_int_percentage__string_representation(self):
+        # Percentage as int
+        percent = Safe_UInt__Percentage(75)
+        assert str(percent) == "75"
+        assert f"{percent}%" == "75%"
+        assert repr(percent) == "Safe_UInt__Percentage(75)"

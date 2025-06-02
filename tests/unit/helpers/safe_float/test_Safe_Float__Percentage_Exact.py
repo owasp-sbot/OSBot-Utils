@@ -174,3 +174,30 @@ class test_Safe_Float__Percentage_Exact(TestCase):
 
         with pytest.raises(ValueError):
             assert Safe_Float__Percentage_Exact(101.004) == 100.0
+
+    def test__safe_float__percentage_constraints(self):
+        # Percentage (0-100)
+        percent1 = Safe_Float__Percentage_Exact(50.0)
+        percent2 = Safe_Float__Percentage_Exact(30.0)
+
+        result = percent1 + percent2
+        assert type(result) is Safe_Float__Percentage_Exact
+        assert result == 80.0
+
+        # Should fall back when exceeding 100
+        percent3 = Safe_Float__Percentage_Exact(90.0)
+        result = percent3 + 20.0  # Would be 110
+        assert type(result) is float  # Falls back to float
+        assert result == 110.0
+
+    def test__safe_float_percentage__string_representation(self):
+        # Percentage values
+        percent = Safe_Float__Percentage_Exact(75.50)
+        assert str(percent) == "75.5"
+        assert f"{percent}%" == "75.5%"
+        assert repr(percent) == "Safe_Float__Percentage_Exact(75.5)"
+
+        # Whole number percentage
+        whole = Safe_Float__Percentage_Exact(100.0)
+        assert str(whole) == "100.0"
+        assert f"Complete: {whole}%" == "Complete: 100.0%"

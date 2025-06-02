@@ -148,3 +148,28 @@ class test_Safe_UInt__Port(TestCase):
             Safe_UInt__Port(TYPE_SAFE_UINT__PORT__MIN_VALUE - 1)
         with pytest.raises(ValueError):
             Safe_UInt__Port(TYPE_SAFE_UINT__PORT__MAX_VALUE + 1)
+
+    def test__safe_int__constrained_types(self):
+        # Port number (0-65535)
+        port = Safe_UInt__Port(8080)
+
+        result = port + 100
+        assert type(result) is Safe_UInt__Port
+        assert result == 8180
+
+        # Should fall back to regular int when exceeding constraints
+        result = port + 60000  # Would exceed 65535
+        assert type(result) is int  # Falls back to int
+        assert result == 68080
+
+    def test__safe_int_port__string_representation(self):
+        # Port number
+        port = Safe_UInt__Port(8080)
+        assert str(port) == "8080"
+        assert f"localhost:{port}" == "localhost:8080"
+        assert repr(port) == "Safe_UInt__Port(8080)"
+
+        # Well-known port
+        http = Safe_UInt__Port(80)
+        assert str(http) == "80"
+        assert f"http://example.com:{http}" == "http://example.com:80"

@@ -185,5 +185,5 @@ class Type_Safe__Method:                                                        
             base_type = expected_type
 
         if not isinstance(param_value, base_type):
-            raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}")
+            raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}") from None
         return True

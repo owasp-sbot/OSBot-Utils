@@ -1,4 +1,3 @@
-import re
 import pytest
 from unittest                                       import TestCase
 from osbot_utils.helpers.safe_str.Safe_Str__Hash    import Safe_Str__Hash, SIZE__VALUE_HASH
@@ -86,3 +85,10 @@ class test_Safe_Str__Hash(TestCase):
         # These would be the results of truncated MD5 hashes as mentioned in requirements
         assert str(Safe_Str__Hash('4f705147de')) == '4f705147de'
         assert str(Safe_Str__Hash('b27d7492c0')) == 'b27d7492c0'
+
+    def test__safe_str_hash__string_representation(self):
+        # Hash value
+        hash_val = Safe_Str__Hash("a1b2c3d4e5")
+        assert str(hash_val) == "a1b2c3d4e5"
+        assert f"Hash: {hash_val}" == "Hash: a1b2c3d4e5"
+        assert repr(hash_val) == "Safe_Str__Hash('a1b2c3d4e5')"

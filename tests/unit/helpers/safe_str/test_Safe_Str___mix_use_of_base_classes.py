@@ -43,7 +43,7 @@ class Safe_Str__Password(Safe_Str):
         return result
 
 
-class test_Safe_Str__Custom_Examples(TestCase):
+class test_Safe_Str___mix_use_of_base_classes(TestCase):
 
     def test_Safe_Str__Username(self):
         # Valid usernames
