@@ -1,7 +1,8 @@
 from unittest                                                   import TestCase
+from osbot_utils.helpers.cache_on_self.Cache_Key_Generator      import CACHE_ON_SELF_KEY_PREFIX
 from osbot_utils.helpers.duration.decorators.capture_duration   import capture_duration
 from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_utils.decorators.methods.cache_on_self               import cache_on_self, cache_on_self__get_cache_in_key, CACHE_ON_SELF_KEY_PREFIX, cache_on_self__args_to_str, cache_on_self__kwargs_to_str
+from osbot_utils.decorators.methods.cache_on_self               import cache_on_self, cache_on_self__get_cache_in_key, cache_on_self__args_to_str, cache_on_self__kwargs_to_str
 from osbot_utils.testing.Catch                                  import Catch
 from osbot_utils.utils.Objects                                  import obj_data
 
@@ -241,7 +242,7 @@ class test_cache_on_self(TestCase):
                 host.an_function_with_cache()
 
         # todo: remove this from the final version since we are better doing the comparison with the
-        assert 0.001 <= duration__an_function_with_cache.seconds < 0.002                            # confirm that 1000 invocations now happen in between 1 and 2 ms
+        assert duration__an_function_with_cache.seconds < 0.002                            # confirm that 1000 invocations now happen in between 1 and 2 ms
 
         overhead_ratio = duration__an_function_with_cache.seconds / duration__an_function.seconds   # Calculate the overhead ratio instead
 

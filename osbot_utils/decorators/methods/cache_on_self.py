@@ -1,64 +1,75 @@
-from typing                 import Any, Callable, TypeVar
+from functools import wraps
+from typing import Callable, TypeVar, Any
 
-CACHE_ON_SELF_KEY_PREFIX = '__cache_on_self__'
-CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
-                            complex, str]
+from osbot_utils.helpers.cache_on_self.Cache_Controller import Cache_Controller
+from osbot_utils.helpers.cache_on_self.Cache_Key_Generator import Cache_Key_Generator
+from osbot_utils.helpers.cache_on_self.Cache_Metrics import Cache_Metrics
+from osbot_utils.helpers.cache_on_self.Cache_Storage import Cache_Storage
 
 
-T = TypeVar('T', bound=Callable[..., Any])      # so that we have type hinting when using this class
-
-def cache_on_self(function: T) -> T:            # Use this for cases where we want the cache to be tied to the Class instance (i.e. not global for all executions)
-    import inspect
-    from functools import wraps
-
+def create_cache_wrapper(function       : Callable                  ,
+                         key_generator  : Cache_Key_Generator = None,
+                         storage        : Cache_Storage       = None,
+                         controller     : Cache_Controller    = None,
+                         metrics        : Cache_Metrics       = None
+                    ) -> Callable:                              # Create the cache wrapper with injected dependencies
+    
+    # Use defaults if not provided
+    key_gen     = key_generator or Cache_Key_Generator()
+    storage     = storage or Cache_Storage
+    controller  = controller or Cache_Controller
+    
     @wraps(function)
     def wrapper(*args, **kwargs):
+        self                        = controller.validate_self_argument(args  )                                         # Validate self argument
+        should_reload, clean_kwargs = controller.should_reload_cache   (kwargs)                                         # Check reload cache parameter
+        cache_key                   = key_gen   .generate_key          (function, args, clean_kwargs)                   # Generate cache key
 
+        if should_reload or not storage.has_cached_value(self, cache_key):                                              # Check cache and execute if needed
+            if metrics:
+                metrics.record_miss() if not should_reload else metrics.record_reload()
 
-        if len(args) == 0 or inspect.isclass(type(args[0])) is False:
-            raise Exception("In Method_Wrappers.cache_on_self could not find self")
+            result = function(*args, **clean_kwargs)                                                                    # Execute function
 
-        reload_cache = False                                                # default is not to reload cache
-        if 'reload_cache' in kwargs:                                        # if the reload parameter is set to True
-            if kwargs['reload_cache'] is True:                              # only if the reload is explicitly set to True
-                reload_cache = True                                         # set reload value to True
-            del kwargs['reload_cache']                                      # remove the reload parameter from the kwargs
+            storage.set_cached_value(self, cache_key, result)                                                           # Store in cache
+        else:
+            if metrics:
+                metrics.record_hit()
 
-        self     = args[0]                                                  # get self
-        cache_id = cache_on_self__get_cache_in_key(function, args, kwargs)  # get cache_id value
-
-        if reload_cache is True or hasattr(self, cache_id) is False:        # check if return_value has been set or if reload is True
-            return_value = function(*args, **kwargs)                        # invoke function and capture the return value
-            setattr(self, cache_id,return_value)                            # set the return value in the cache
-        return getattr(self, cache_id)                                      # return the return value
+        return storage.get_cached_value(self, cache_key)                                                                # Return cached value
+    
+    # Attach utilities for testing/debugging        # todo: this is really not a good idea, since it is kinda a hack
+    wrapper._cache_key_generator = key_gen
+    wrapper._cache_storage       = storage
+    wrapper._cache_controller    = controller
+    wrapper._cache_metrics       = metrics
+    
     return wrapper
 
-def cache_on_self__args_to_str(args):
-    args_values_as_str = ''
-    if args:
-        for arg in args:
-            if type(arg) in CACHE_ON_SELF_TYPES:
-                args_values_as_str += str(arg)
-    return args_values_as_str
+T = TypeVar('T', bound=Callable[..., Any])
 
-def cache_on_self__kwargs_to_str(kwargs):
-    kwargs_values_as_str = ''
-    if kwargs:
-        for key,value in kwargs.items():
-            if type(value) in CACHE_ON_SELF_TYPES:
-                kwargs_values_as_str += f'{key}:{value}|'
-    return kwargs_values_as_str
+def cache_on_self(function: T) -> T:                                                    # Main decorator function (maintains original interface)
+    """
+    Decorator to cache method results on the instance.
 
-def cache_on_self__get_cache_in_key(function, args=None, kwargs=None):
-    from osbot_utils.utils.Misc import str_md5
+    Use this for cases where we want the cache to be tied to the
+    Class instance (i.e. not global for all executions)
+    """
+    return create_cache_wrapper(function)
 
-    key_name   = function.__name__
-    args_md5   = ''
-    kwargs_md5 = ''
-    args_values_as_str   = cache_on_self__args_to_str(args)
-    kwargs_values_as_str = cache_on_self__kwargs_to_str(kwargs)
-    if args_values_as_str:
-        args_md5 = str_md5(args_values_as_str)
-    if kwargs_values_as_str:
-        kwargs_md5 = str_md5(kwargs_values_as_str)
-    return f'{CACHE_ON_SELF_KEY_PREFIX}_{key_name}_{args_md5}_{kwargs_md5}'
+
+# Convenience functions for backwards compatibility
+
+def cache_on_self__get_cache_in_key(function, args=None, kwargs=None):                                                  # Get cache key - backwards compatibility
+    key_gen = Cache_Key_Generator()
+    return key_gen.generate_key(function, args or (), kwargs or {})
+
+
+def cache_on_self__args_to_str(args):                                                                                   # Convert args to string - backwards compatibility
+    key_gen = Cache_Key_Generator()
+    return key_gen.args_to_str(args)
+
+
+def cache_on_self__kwargs_to_str(kwargs):                                                                               # Convert kwargs to string - backwards compatibility
+    key_gen = Cache_Key_Generator()
+    return key_gen.kwargs_to_str(kwargs)

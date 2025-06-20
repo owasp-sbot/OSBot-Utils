@@ -1,0 +1,145 @@
+# note 1: this __init__.py file needs to be here (vs inside the /utils/ast/nodes folder)
+#         so that the methods registration happens as soon as somebody uses a method from the /utils/ast folder/package
+# note 2: this is needed due to the circular dependencyes between the Ast_Node and the
+#         clases that use it as a base class
+
+import ast
+from osbot_utils.helpers.Type_Registry                import type_registry
+from osbot_utils.helpers.ast.nodes.Ast_Add            import Ast_Add
+from osbot_utils.helpers.ast.nodes.Ast_Alias          import Ast_Alias
+from osbot_utils.helpers.ast.nodes.Ast_And            import Ast_And
+from osbot_utils.helpers.ast.nodes.Ast_Argument       import Ast_Argument
+from osbot_utils.helpers.ast.nodes.Ast_Arguments      import Ast_Arguments
+from osbot_utils.helpers.ast.nodes.Ast_Assert         import Ast_Assert
+from osbot_utils.helpers.ast.nodes.Ast_Assign         import Ast_Assign
+from osbot_utils.helpers.ast.nodes.Ast_Attribute      import Ast_Attribute
+from osbot_utils.helpers.ast.nodes.Ast_Aug_Assign     import Ast_Aug_Assign
+from osbot_utils.helpers.ast.nodes.Ast_Bin_Op         import Ast_Bin_Op
+from osbot_utils.helpers.ast.nodes.Ast_Bool_Op        import Ast_Bool_Op
+from osbot_utils.helpers.ast.nodes.Ast_Break          import Ast_Break
+from osbot_utils.helpers.ast.nodes.Ast_Call           import Ast_Call
+from osbot_utils.helpers.ast.nodes.Ast_Class_Def      import Ast_Class_Def
+from osbot_utils.helpers.ast.nodes.Ast_Compare        import Ast_Compare
+from osbot_utils.helpers.ast.nodes.Ast_Comprehension  import Ast_Comprehension
+from osbot_utils.helpers.ast.nodes.Ast_Constant       import Ast_Constant
+from osbot_utils.helpers.ast.nodes.Ast_Continue       import Ast_Continue
+from osbot_utils.helpers.ast.nodes.Ast_Dict           import Ast_Dict
+from osbot_utils.helpers.ast.nodes.Ast_Eq             import Ast_Eq
+from osbot_utils.helpers.ast.nodes.Ast_Except_Handler import Ast_Except_Handler
+from osbot_utils.helpers.ast.nodes.Ast_Expr           import Ast_Expr
+from osbot_utils.helpers.ast.nodes.Ast_For            import Ast_For
+from osbot_utils.helpers.ast.nodes.Ast_Function_Def   import Ast_Function_Def
+from osbot_utils.helpers.ast.nodes.Ast_Generator_Exp  import Ast_Generator_Exp
+from osbot_utils.helpers.ast.nodes.Ast_Gt             import Ast_Gt
+from osbot_utils.helpers.ast.nodes.Ast_GtE            import Ast_GtE
+from osbot_utils.helpers.ast.nodes.Ast_If             import Ast_If
+from osbot_utils.helpers.ast.nodes.Ast_If_Exp         import Ast_If_Exp
+from osbot_utils.helpers.ast.nodes.Ast_Import         import Ast_Import
+from osbot_utils.helpers.ast.nodes.Ast_Import_From    import Ast_Import_From
+from osbot_utils.helpers.ast.nodes.Ast_In             import Ast_In
+from osbot_utils.helpers.ast.nodes.Ast_Is             import Ast_Is
+from osbot_utils.helpers.ast.nodes.Ast_Is_Not         import Ast_Is_Not
+from osbot_utils.helpers.ast.nodes.Ast_Keyword        import Ast_Keyword
+from osbot_utils.helpers.ast.nodes.Ast_Lambda         import Ast_Lambda
+from osbot_utils.helpers.ast.nodes.Ast_List           import Ast_List
+from osbot_utils.helpers.ast.nodes.Ast_List_Comp      import Ast_List_Comp
+from osbot_utils.helpers.ast.nodes.Ast_Load           import Ast_Load
+from osbot_utils.helpers.ast.nodes.Ast_Lt             import Ast_Lt
+from osbot_utils.helpers.ast.nodes.Ast_LtE            import Ast_LtE
+from osbot_utils.helpers.ast.nodes.Ast_Mod            import Ast_Mod
+from osbot_utils.helpers.ast.nodes.Ast_Module         import Ast_Module
+from osbot_utils.helpers.ast.nodes.Ast_Mult           import Ast_Mult
+from osbot_utils.helpers.ast.nodes.Ast_Name           import Ast_Name
+from osbot_utils.helpers.ast.nodes.Ast_Not            import Ast_Not
+from osbot_utils.helpers.ast.nodes.Ast_Not_Eq         import Ast_Not_Eq
+from osbot_utils.helpers.ast.nodes.Ast_Not_In         import Ast_Not_In
+from osbot_utils.helpers.ast.nodes.Ast_Or             import Ast_Or
+from osbot_utils.helpers.ast.nodes.Ast_Pass           import Ast_Pass
+from osbot_utils.helpers.ast.nodes.Ast_Pow            import Ast_Pow
+from osbot_utils.helpers.ast.nodes.Ast_Raise          import Ast_Raise
+from osbot_utils.helpers.ast.nodes.Ast_Return         import Ast_Return
+from osbot_utils.helpers.ast.nodes.Ast_Set            import Ast_Set
+from osbot_utils.helpers.ast.nodes.Ast_Slice          import Ast_Slice
+from osbot_utils.helpers.ast.nodes.Ast_Starred        import Ast_Starred
+from osbot_utils.helpers.ast.nodes.Ast_Store          import Ast_Store
+from osbot_utils.helpers.ast.nodes.Ast_Sub            import Ast_Sub
+from osbot_utils.helpers.ast.nodes.Ast_Subscript      import Ast_Subscript
+from osbot_utils.helpers.ast.nodes.Ast_Try            import Ast_Try
+from osbot_utils.helpers.ast.nodes.Ast_Tuple          import Ast_Tuple
+from osbot_utils.helpers.ast.nodes.Ast_Unary_Op       import Ast_Unary_Op
+from osbot_utils.helpers.ast.nodes.Ast_While          import Ast_While
+from osbot_utils.helpers.ast.nodes.Ast_With           import Ast_With
+from osbot_utils.helpers.ast.nodes.Ast_With_Item      import Ast_With_Item
+from osbot_utils.helpers.ast.nodes.Ast_Yield          import Ast_Yield
+
+ast_types = {
+    ast.Add           : Ast_Add           ,
+    ast.alias         : Ast_Alias         ,
+    ast.And           : Ast_And           ,
+    ast.Assert        : Ast_Assert        ,
+    ast.Assign        : Ast_Assign        ,
+    ast.Attribute     : Ast_Attribute     ,
+    ast.arg           : Ast_Argument      ,
+    ast.arguments     : Ast_Arguments     ,
+    ast.AugAssign     : Ast_Aug_Assign    ,
+    ast.BinOp         : Ast_Bin_Op        ,
+    ast.BoolOp        : Ast_Bool_Op       ,
+    ast.Break         : Ast_Break         ,
+    ast.Call          : Ast_Call          ,
+    ast.ClassDef      : Ast_Class_Def     ,
+    ast.Compare       : Ast_Compare       ,
+    ast.Constant      : Ast_Constant      ,
+    ast.Continue      : Ast_Continue      ,
+    ast.comprehension : Ast_Comprehension ,
+    ast.Dict          : Ast_Dict          ,
+    ast.ExceptHandler : Ast_Except_Handler,
+    ast.Expr          : Ast_Expr          ,
+    ast.Eq            : Ast_Eq            ,
+    ast.Gt            : Ast_Gt            ,
+    ast.GtE           : Ast_GtE           ,
+    ast.Import        : Ast_Import        ,
+    ast.ImportFrom    : Ast_Import_From   ,
+    ast.In            : Ast_In            ,
+    ast.For           : Ast_For           ,
+    ast.FunctionDef   : Ast_Function_Def  ,
+    ast.GeneratorExp  : Ast_Generator_Exp ,
+    ast.If            : Ast_If            ,
+    ast.IfExp         : Ast_If_Exp        ,
+    ast.Is            : Ast_Is            ,
+    ast.IsNot         : Ast_Is_Not        ,
+    ast.keyword       : Ast_Keyword       ,
+    ast.Lambda        : Ast_Lambda        ,
+    ast.List          : Ast_List          ,
+    ast.ListComp      : Ast_List_Comp     ,
+    ast.Lt            : Ast_Lt            ,
+    ast.LtE           : Ast_LtE           ,
+    ast.Load          : Ast_Load          ,
+    ast.Mod           : Ast_Mod           ,
+    ast.Module        : Ast_Module        ,
+    ast.Mult          : Ast_Mult          ,
+    ast.Name          : Ast_Name          ,
+    ast.Not           : Ast_Not           ,
+    ast.NotEq         : Ast_Not_Eq        ,
+    ast.NotIn         : Ast_Not_In        ,
+    ast.Or            : Ast_Or            ,
+    ast.Pass          : Ast_Pass          ,
+    ast.Pow           : Ast_Pow           ,
+    ast.Raise         : Ast_Raise         ,
+    ast.Return        : Ast_Return        ,
+    ast.Slice         : Ast_Slice         ,
+    ast.Starred       : Ast_Starred       ,
+    ast.Store         : Ast_Store         ,
+    ast.Set           : Ast_Set           ,
+    ast.Sub           : Ast_Sub           ,
+    ast.Subscript     : Ast_Subscript     ,
+    ast.Try           : Ast_Try           ,
+    ast.Tuple         : Ast_Tuple         ,
+    ast.UnaryOp       : Ast_Unary_Op      ,
+    ast.While         : Ast_While         ,
+    ast.With          : Ast_With          ,
+    ast.withitem      : Ast_With_Item     ,
+    ast.Yield         : Ast_Yield         ,
+}
+
+for key, value in ast_types.items():
+    type_registry.register(key, value)

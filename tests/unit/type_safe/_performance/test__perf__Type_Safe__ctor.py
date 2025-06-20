@@ -1,14 +1,12 @@
-from dataclasses import dataclass
+import pytest
+from dataclasses                                                      import dataclass
 from unittest                                                         import TestCase
 from typing                                                           import Optional, List, Dict, Union, Any
 from enum                                                             import Enum, auto
-
-import pytest
-
+from osbot_utils.helpers.duration.decorators.capture_duration         import capture_duration
 from osbot_utils.testing.performance.Performance_Measure__Session     import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
-from osbot_utils.type_safe.shared.Type_Safe__Cache                    import type_safe_cache
-from osbot_utils.utils.Env import not_in_github_action
+from osbot_utils.utils.Env                                            import not_in_github_action
 
 
 class test__perf__Type_Safe__ctor(TestCase):
@@ -397,3 +395,29 @@ class test__perf__Type_Safe__ctor(TestCase):
         with self.session as session:
             session.measure(create_medium_object).assert_time(self.time_70_kns,   self.time_400_kns)
             session.measure(create_larger_object).assert_time(self.time_100_kns)
+
+    def test__Type_Safe__ctor_impact(self):
+        class Native_Class():
+            pass
+
+        class Type_Safe_Class(Type_Safe):
+            pass
+
+
+        invocation_count = 1000
+        with capture_duration(precision=5) as duration__native_class:
+            for i in range(invocation_count):
+                Native_Class()
+
+        assert duration__native_class.seconds < 0.0002
+
+        invocation_count = 1000
+        with capture_duration(precision=5) as duration__type_safe_class:
+            for i in range(invocation_count):
+                Type_Safe_Class()
+
+        assert duration__type_safe_class.seconds < 0.002
+
+        overhead_ratio = duration__type_safe_class.seconds / duration__native_class.seconds
+
+        assert overhead_ratio < 15                          # confirm the overhead is about ~10  (which is not bad since the python normal class creation is alredy quite efficient
