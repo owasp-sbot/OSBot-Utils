@@ -4,12 +4,6 @@ CACHE_ON_SELF_KEY_PREFIX = '__cache_on_self__'
 CACHE_ON_SELF_TYPES      = [int, float, bytearray, bytes, bool,
                             complex, str]
 
-# not supported for now (need to understand side effect, )
-# - set, dict, range,, tuple, list      : cloud have inner objects
-# - memoryview                          : returns unique memory location value
-
-
-
 
 T = TypeVar('T', bound=Callable[..., Any])      # so that we have type hinting when using this class
 
@@ -68,13 +62,3 @@ def cache_on_self__get_cache_in_key(function, args=None, kwargs=None):
     if kwargs_values_as_str:
         kwargs_md5 = str_md5(kwargs_values_as_str)
     return f'{CACHE_ON_SELF_KEY_PREFIX}_{key_name}_{args_md5}_{kwargs_md5}'
-
-    # class_name = self_obj.__class__.__name__
-    #
-    # function_name = function_obj.__name__
-    # if params:
-    #     params_as_string = '_'.join(str(x) for x in params).replace('/',' ')
-    #     params_md5       = str_md5(params_as_string)
-    #     return f'{class_name}_{function_name}_{params_md5}.gz'
-    # else:
-    #     return f'{class_name}_{function_name}.gz'
