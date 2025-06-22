@@ -26,7 +26,7 @@ class Cache_On_Self(Type_Safe):
         self.function       = function
         self.function_name  = function.__name__ if function else ''
         self.no_args_key    = f'{CACHE_ON_SELF_KEY_PREFIX}_{self.function_name}__' # Pre-compute for performance
-        self.cache_storage  = Cache_Storage(self)
+        self.cache_storage  = Cache_Storage()
         self.controller     = Cache_Controller()
         self.key_generator  = Cache_Key_Generator(supported_types)
         self.metrics        = Cache_Metrics()
@@ -36,17 +36,16 @@ class Cache_On_Self(Type_Safe):
             target_self = args[0]
             cache_key   = self.no_args_key
 
+            if self.cache_storage.has_cached_value(target_self, cache_key):         # Use cache_storage
+                self.metrics.hits += 1                                              # Increment cache Hit
+                return self.cache_storage.get_cached_value(target_self, cache_key)  # Use cache_storage
 
-            if hasattr(target_self, cache_key):                                     # Direct attribute check - faster than method calls
-                self.metrics.hits += 1                                              # Direct increment
-                return getattr(target_self, cache_key)
-
-            self.metrics.misses += 1                                                # Cache miss - execute and store (Direct increment)
+            self.metrics.misses += 1                                                # Increment cache miss - execute and store (Direct increment)
             result = self.function(*args)
-            setattr(target_self, cache_key, result)
+            self.cache_storage.set_cached_value(target_self, cache_key, result)    # Use cache_storage instead of setattr
             return result
 
-        return self.handle_call_full(args, kwargs)                                  # Slower path for args/kwargs/special cases
+        return self.handle_call_full(args, kwargs)
 
     def handle_call_full(self, args  : tuple,
                                kwargs: dict

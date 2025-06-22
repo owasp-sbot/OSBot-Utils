@@ -59,7 +59,10 @@ class test_Cache_On_Self(TestCase):
         assert result == 42
         assert self.cache_on_self.metrics.hits   == 0
         assert self.cache_on_self.metrics.misses == 1
-        assert hasattr(test_obj, '__cache_on_self___<lambda>__')
+
+        # Verify cache is stored internally, not on instance
+        assert hasattr(test_obj, '__cache_on_self___<lambda>__') is False
+        assert self.cache_on_self.cache_storage.has_cached_value(test_obj, self.cache_on_self.no_args_key)
 
         # Second call - cache hit
         result = self.cache_on_self.handle_call(args, kwargs)
@@ -160,8 +163,10 @@ class test_Cache_On_Self(TestCase):
 
         cache.execute_and_cache(args, clean_kwargs, should_reload=False)
 
-        assert hasattr(test_obj, 'test_key')
-        assert getattr(test_obj, 'test_key') == 42
+        # Verify cache is stored internally, not on instance
+        assert not hasattr(test_obj, 'test_key')
+        assert cache.cache_storage.has_cached_value(test_obj, 'test_key')
+        assert cache.cache_storage.get_cached_value(test_obj, 'test_key') == 42
         assert cache.metrics.misses == 1
 
         # Test with reload
@@ -176,13 +181,13 @@ class test_Cache_On_Self(TestCase):
         self.cache_on_self.target_self = test_obj
         self.cache_on_self.current_cache_key = 'test_key'
 
-        # Set a cached value
-        setattr(test_obj, 'test_key', 'cached_value')
-        assert hasattr(test_obj, 'test_key')
+        # Set a cached value internally
+        self.cache_on_self.cache_storage.set_cached_value(test_obj, 'test_key', 'cached_value')
+        assert self.cache_on_self.cache_storage.has_cached_value(test_obj, 'test_key')
 
         # Clear it
         self.cache_on_self.clear()
-        assert not hasattr(test_obj, 'test_key')
+        assert not self.cache_on_self.cache_storage.has_cached_value(test_obj, 'test_key')
 
     def test_clear_all(self):
         class TestClass:
@@ -191,17 +196,23 @@ class test_Cache_On_Self(TestCase):
         test_obj = TestClass()
         self.cache_on_self.target_self = test_obj
 
-        # Set multiple cached values
-        setattr(test_obj, '__cache_on_self___method1__', 'value1')
-        setattr(test_obj, '__cache_on_self___method2_hash_', 'value2')
-        setattr(test_obj, 'regular_attribute', 'not_cached')
+        # Set multiple cached values internally
+        storage = self.cache_on_self.cache_storage
+        storage.set_cached_value(test_obj, '__cache_on_self___method1__', 'value1')
+        storage.set_cached_value(test_obj, '__cache_on_self___method2_hash_', 'value2')
+
+        # Also add a regular attribute to the instance
+        test_obj.regular_attribute = 'not_cached'
 
         # Clear all cache
         self.cache_on_self.clear_all()
 
-        assert not hasattr(test_obj, '__cache_on_self___method1__')
-        assert not hasattr(test_obj, '__cache_on_self___method2_hash_')
-        assert hasattr(test_obj, 'regular_attribute')  # Should not be cleared
+        # Verify cache is cleared
+        assert not storage.has_cached_value(test_obj, '__cache_on_self___method1__')
+        assert not storage.has_cached_value(test_obj, '__cache_on_self___method2_hash_')
+
+        # Instance attribute should not be affected
+        assert hasattr(test_obj, 'regular_attribute')
 
     def test_get_all_keys(self):
         class TestClass:
@@ -213,9 +224,10 @@ class test_Cache_On_Self(TestCase):
         # No cache initially
         assert self.cache_on_self.get_all_keys() == []
 
-        # Add some cache entries
-        setattr(test_obj, '__cache_on_self___method1__', 'value1')
-        setattr(test_obj, '__cache_on_self___method2_hash_', 'value2')
+        # Add some cache entries internally
+        storage = self.cache_on_self.cache_storage
+        storage.set_cached_value(test_obj, '__cache_on_self___method1__', 'value1')
+        storage.set_cached_value(test_obj, '__cache_on_self___method2_hash_', 'value2')
 
         keys = self.cache_on_self.get_all_keys()
         assert len(keys) == 2
@@ -267,3 +279,33 @@ class test_Cache_On_Self(TestCase):
         assert stats['hits']     == 1
         assert stats['misses']   == 2
         assert stats['hit_rate'] == 1/3
+
+    def test__verify_no_instance_pollution(self):
+        """Verify that using cache_on_self doesn't pollute the instance's __dict__"""
+        def some_method(self, value):
+            return value * 10
+
+        cache = Cache_On_Self(function=some_method)
+
+        class CleanClass:
+            def __init__(self):
+                self.my_attribute = "original"
+
+        obj = CleanClass()
+
+        # Get initial state of instance
+        initial_dict = dict(obj.__dict__)
+
+        # Make several cached calls
+        cache.handle_call((obj, 5), {})
+        cache.handle_call((obj, 5), {})  # Cache hit
+        cache.handle_call((obj, 10), {})
+        cache.handle_call((obj, 15), {})
+
+        # Verify instance __dict__ hasn't changed
+        final_dict = dict(obj.__dict__)
+        assert initial_dict == final_dict
+        assert final_dict == {'my_attribute': 'original'}
+
+        # But cache should exist internally
+        assert len(cache.get_all_keys()) == 3  # Three different cache entries
