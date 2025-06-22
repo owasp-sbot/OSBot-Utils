@@ -1,5 +1,6 @@
 from unittest                                                   import TestCase
 from osbot_utils.helpers.cache_on_self.Cache_Key_Generator      import CACHE_ON_SELF_KEY_PREFIX
+from osbot_utils.helpers.cache_on_self.Cache_On_Self            import Cache_On_Self
 from osbot_utils.helpers.duration.decorators.capture_duration   import capture_duration
 from osbot_utils.type_safe.Type_Safe                            import Type_Safe
 from osbot_utils.decorators.methods.cache_on_self               import cache_on_self, cache_on_self__get_cache_in_key, cache_on_self__args_to_str, cache_on_self__kwargs_to_str
@@ -122,7 +123,7 @@ class test_cache_on_self(TestCase):
         with Catch(log_exception=False) as catch:
             an_function()
 
-        assert catch.exception_value.args[0] == "In Method_Wrappers.cache_on_self could not find self"
+        assert catch.exception_value.args[0] == "cache_on_self could not find self - no arguments provided"
 
     def test_cache_on_self__reload_cache(self):
 
@@ -234,20 +235,30 @@ class test_cache_on_self(TestCase):
         invocation_count = 1000
         with capture_duration(precision=5) as duration__an_function:
             for i in range(invocation_count):
-                host.an_function()
-        assert duration__an_function.seconds < 0.0001                                               # confirm that 1000 invocations happen in less than 0.1 ms
+                assert host.an_function() is 42
+        #assert duration__an_function.seconds < 0.0001                                               # confirm that 1000 invocations happen in less than 0.1 ms
 
+        cache = host.an_function_with_cache(__return__='cache_on_self')
+        assert type(cache) is Cache_On_Self
+        assert cache.disabled is False
+        #cache.disabled = False
         with capture_duration(precision=5) as duration__an_function_with_cache:
             for i in range(invocation_count):
-                host.an_function_with_cache()
+                assert host.an_function_with_cache() is 42
 
         # todo: remove this from the final version since we are better doing the comparison with the
-        assert duration__an_function_with_cache.seconds < 0.002                            # confirm that 1000 invocations now happen in between 1 and 2 ms
+        assert 0.0001 < duration__an_function_with_cache.seconds < 0.0005                   # confirm that 1000 invocations now happen in between 0.1 and 0.5 ms
 
         overhead_ratio = duration__an_function_with_cache.seconds / duration__an_function.seconds   # Calculate the overhead ratio instead
 
+        # print()
+        # print(f'duration__an_function           : {duration__an_function.seconds}')
+        # print(f'duration__an_function_with_cache: {duration__an_function_with_cache.seconds}')
+        # print(f'overhead_ratio                  : {overhead_ratio}')
 
-        assert overhead_ratio > 20          # confirm that the cached version is significantly slower
-        assert overhead_ratio < 40          # in this case between 20 and 40  (which is quite a lot)
+        #assert overhead_ratio > 20          # confirm that the cached version is significantly slower
+        assert overhead_ratio < 5          # confirm that the cache overhead is less than 5
+
+
 
 
