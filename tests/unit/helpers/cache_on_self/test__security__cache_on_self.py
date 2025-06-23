@@ -48,8 +48,8 @@ class test__security__cache_on_self(TestCase):
 
         # Due to collision bug, attacker could craft args that produce same cache key
         # For example, if they know the concatenated string is "adminsecret"
-        assert obj.check_permission("admins", "ecret") == "granted"  # BUG: Security issue!
-        assert obj.check_permission("ad", "minsecret") == "granted"  # BUG: Security issue!
+        assert obj.check_permission("admins", "ecret") == "denied"  # FIXED: BUG: Security issue!
+        assert obj.check_permission("ad", "minsecret") == "denied"  # FIXED: BUG: Security issue!
 
     def test__security__no_direct_cache_access(self):
         """Verify that external code cannot directly access or modify the cache"""

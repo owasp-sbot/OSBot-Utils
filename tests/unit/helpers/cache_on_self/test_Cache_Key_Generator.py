@@ -30,7 +30,8 @@ class test_Cache_Key_Generator(TestCase):
         args = ('self', 42, 'test')
         kwargs = {}
 
-        expected_args_str = 'self42test'
+        # With new format: [index]:<type>:value separated by |
+        expected_args_str = '[0]:<str>:self|[1]:<int>:42|[2]:<str>:test'
         expected_hash = str_md5(expected_args_str)
 
         key = self.key_generator.generate_key(self.test_function, args, kwargs)
@@ -40,7 +41,8 @@ class test_Cache_Key_Generator(TestCase):
         args = ()
         kwargs = {'key1': 'value1', 'key2': 42}
 
-        expected_kwargs_str = 'key1:value1|key2:42|'
+        # With new format: key:<type>:value| for each kwarg
+        expected_kwargs_str = 'key1:<str>:value1|key2:<int>:42'
         expected_hash = str_md5(expected_kwargs_str)
 
         key = self.key_generator.generate_key(self.test_function, args, kwargs)
@@ -50,8 +52,9 @@ class test_Cache_Key_Generator(TestCase):
         args = ('self', 100)
         kwargs = {'name': 'test'}
 
-        expected_args_str = 'self100'
-        expected_kwargs_str = 'name:test|'
+        # With new format including type prefixes
+        expected_args_str = '[0]:<str>:self|[1]:<int>:100'
+        expected_kwargs_str = 'name:<str>:test'
         expected_args_hash = str_md5(expected_args_str)
         expected_kwargs_hash = str_md5(expected_kwargs_str)
 
@@ -62,7 +65,7 @@ class test_Cache_Key_Generator(TestCase):
         # Test with all supported types
         args = (42, 3.14, bytearray(b'test'), b'bytes', True, complex(1, 2), 'string')
         result = self.key_generator.args_to_str(args)
-        assert result == "423.14bytearray(b'test')b'bytes'True(1+2j)string"
+        assert result == "[0]:<int>:42|[1]:<float>:3.14|[2]:<bytearray>:bytearray(b'test')|[3]:<bytes>:b'bytes'|[4]:<bool>:True|[5]:<complex>:(1+2j)|[6]:<str>:string"
 
         # Test with empty args
         assert self.key_generator.args_to_str(()) == ''
@@ -70,9 +73,11 @@ class test_Cache_Key_Generator(TestCase):
 
     def test_args_to_str__unsupported_types(self):
         # Test with unsupported types (should be ignored)
-        args = ('valid', [1, 2, 3], {'key': 'value'}, None, object(), 'another_valid')
+        obj = object()
+        args = ('valid', [1, 2, 3], {'key': 'value'}, None, obj, 'another_valid')
         result = self.key_generator.args_to_str(args)
-        assert result == 'validanother_valid'  # Only strings included
+        assert result == ('[0]:<str>:valid|[1]:<list>:[1,2,3]|[2]:<dict>:[["key","value"]]|[3]:<none>|[4]:other:'
+                          f'{obj}|[5]:<str>:another_valid')
 
     def test_args_to_str__potential_collision(self):
         # These different args produce the same string (collision)
@@ -80,48 +85,45 @@ class test_Cache_Key_Generator(TestCase):
         args2 = (12, 3)
         args3 = (123,)
 
-        assert self.key_generator.args_to_str(args1) == '123'
-        assert self.key_generator.args_to_str(args2) == '123'
-        assert self.key_generator.args_to_str(args3) == '123'
+        assert self.key_generator.args_to_str(args1) == '[0]:<int>:1|[1]:<int>:23'
+        assert self.key_generator.args_to_str(args2) == '[0]:<int>:12|[1]:<int>:3'
+        assert self.key_generator.args_to_str(args3) == '[0]:<int>:123'
 
     def test_kwargs_to_str__supported_types(self):
-        kwargs = {
-            'int_val': 42,
-            'float_val': 3.14,
-            'str_val': 'test',
-            'bool_val': False,
-            'bytes_val': b'data',
-            'complex_val': complex(3, 4)
-        }
+        kwargs = {  'int_val'    : 42           ,
+                    'float_val'  : 3.14         ,
+                    'str_val'    : 'test'       ,
+                    'bool_val'   : False        ,
+                    'bytes_val'  : b'data'      ,
+                    'complex_val': complex(3, 4)}
 
         result = self.key_generator.kwargs_to_str(kwargs)
-        # Order might vary, so check components
-        assert 'int_val:42|' in result
-        assert 'float_val:3.14|' in result
-        assert 'str_val:test|' in result
-        assert 'bool_val:False|' in result
-        assert 'bytes_val:b\'data\'|' in result
-        assert 'complex_val:(3+4j)|' in result
+        assert result == ("bool_val:<bool>:False|"
+                          "bytes_val:<bytes>:b'data'|"
+                          "complex_val:<complex>:(3+4j)|"
+                          "float_val:<float>:3.14|"
+                          "int_val:<int>:42|"
+                          "str_val:<str>:test")
+
 
         # Test empty kwargs
         assert self.key_generator.kwargs_to_str({}) == ''
         assert self.key_generator.kwargs_to_str(None) == ''
 
     def test_kwargs_to_str__unsupported_types(self):
-        kwargs = {
-            'valid': 'string',
-            'list': [1, 2, 3],
-            'dict': {'nested': 'value'},
-            'none': None,
-            'also_valid': 42
-        }
+        kwargs = {  'valid': 'string',
+                    'list': [1, 2, 3],
+                    'dict': {'nested': 'value'},
+                    'none': None,
+                    'also_valid': 42}
 
         result = self.key_generator.kwargs_to_str(kwargs)
-        assert 'valid:string|' in result
-        assert 'also_valid:42|' in result
-        assert 'list' not in result
-        assert 'dict' not in result
-        assert 'none' not in result
+        assert result == ('also_valid:<int>:42|'
+                          'dict:<dict>:[["nested","value"]]|'
+                          'list:<list>:[1,2,3]|'
+                          'none:<none>|'
+                          'valid:<str>:string')
+
 
     def test_compute_hash(self):
         # Test hash computation
@@ -144,7 +146,7 @@ class test_Cache_Key_Generator(TestCase):
 
         # With no hashable args
         args = ([1, 2], {'a': 'b'}, None)
-        assert self.key_generator.get_args_hash(args) == ''
+        assert self.key_generator.get_args_hash(args) == '2faf49f97e4130a0675885dcb67f9de5'
 
         # Empty args
         assert self.key_generator.get_args_hash(()) == ''
@@ -159,7 +161,7 @@ class test_Cache_Key_Generator(TestCase):
 
         # With no hashable kwargs
         kwargs = {'list': [1, 2], 'none': None}
-        assert self.key_generator.get_kwargs_hash(kwargs) == ''
+        assert self.key_generator.get_kwargs_hash(kwargs) == '4ad35c3976fb45c49b40a78926d39eaf'
 
         # Empty kwargs
         assert self.key_generator.get_kwargs_hash({}) == ''
@@ -170,8 +172,8 @@ class test_Cache_Key_Generator(TestCase):
 
         args = ('string', 42, 3.14, True)
         result = str_only_gen.args_to_str(args)
-        assert result == 'string'  # Only string included
+        assert result == '[0]:<str>:string|[1]:other:42|[2]:other:3.14|[3]:other:True'
 
         kwargs = {'str_key': 'value', 'int_key': 123}
         result = str_only_gen.kwargs_to_str(kwargs)
-        assert result == 'str_key:value|'  # Only string value included
+        assert result == 'int_key:other:123|str_key:<str>:value'

@@ -1,4 +1,7 @@
 from unittest                                                   import TestCase
+
+from osbot_utils.utils.Env import in_github_action
+
 from osbot_utils.helpers.cache_on_self.Cache_On_Self            import Cache_On_Self
 from osbot_utils.helpers.duration.decorators.capture_duration   import capture_duration
 from osbot_utils.decorators.methods.cache_on_self               import cache_on_self
@@ -48,7 +51,10 @@ class test__performance__cache_on_self(TestCase):
                 return a + b + c
 
         obj = Performance_Test_Class()
-        iterations = 1000
+        if in_github_action():
+            iterations = 10000                      # in GH actions try with 10000x (which should take about 190ms
+        else:
+            iterations = 100                        # locally do 100x (which taks about 1.9 ms)
 
         # Warm up
         obj.no_cache_method(1, 2, 3)
@@ -147,15 +153,19 @@ class test__performance__cache_on_self(TestCase):
 
         obj = Large_Cache_Class()
 
+        if in_github_action():
+            iterations = 1000                   # takes about 30ms
+        else:
+            iterations = 100                    # takes about 3 ms
         # Fill cache with many entries
-        for i in range(1000):
+        for i in range(iterations):
             obj.method(i)
 
         # Measure lookup time with large cache
         with capture_duration(precision=5) as duration_lookup:
-            for _ in range(1000):
-                obj.method(500)  # Hit in middle of cache
+            for _ in range(iterations):
+                obj.method(iterations/2)  # Hit in middle of cache
 
         # Even with large cache, lookups should be fast
-        avg_lookup_time = duration_lookup.seconds / 1000
+        avg_lookup_time = duration_lookup.seconds / iterations
         assert avg_lookup_time < 0.0001     # Less than 0.1 milliseconds per lookup

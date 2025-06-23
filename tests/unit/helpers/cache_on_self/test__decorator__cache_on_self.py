@@ -1,5 +1,5 @@
 from unittest                                                   import TestCase
-from osbot_utils.helpers.cache_on_self.Cache_Key_Generator      import CACHE_ON_SELF_KEY_PREFIX
+from osbot_utils.helpers.cache_on_self.Cache_Key_Generator import CACHE_ON_SELF_KEY_PREFIX, Cache_Key_Generator
 from osbot_utils.type_safe.Type_Safe                            import Type_Safe
 from osbot_utils.decorators.methods.cache_on_self               import cache_on_self, cache_on_self__get_cache_in_key, cache_on_self__args_to_str, cache_on_self__kwargs_to_str
 from osbot_utils.testing.Catch                                  import Catch
@@ -78,26 +78,26 @@ class test__decorator__cache_on_self(TestCase):
         args      = ('a', 1, 1.0)
         an_class = An_Class()
         assert an_class.echo_args(*args) == args
-        assert cache_on_self__args_to_str(args) == "a11.0"
+        assert cache_on_self__args_to_str(args) == "[0]:<str>:a|[1]:<int>:1|[2]:<float>:1.0"
 
         args = ('a', None, 'bbb', [], {})
         assert an_class.echo_args(*args) == args
-        assert cache_on_self__args_to_str(args) == "abbb"
+        assert cache_on_self__args_to_str(args) == "[0]:<str>:a|[1]:<none>|[2]:<str>:bbb|[3]:<list>:[]|[4]:<dict>:[]"
 
         args = ('a', -1, ['a'], {'b':None})
         assert an_class.echo_args(*args) == args
-        assert cache_on_self__args_to_str(args) == "a-1"
+        assert cache_on_self__args_to_str(args) == '[0]:<str>:a|[1]:<int>:-1|[2]:<list>:["a"]|[3]:<dict>:[["b",null]]'
 
         args = (1, int(1), float(1), bytearray(b'1'), bytes(b'1'), bool(True), complex(1), str('1'))
         assert an_class.echo_args(*args)        == args
         assert an_class.echo_args(*args)        == (1, 1, 1.0, bytearray(b'1'), b'1', True, (1 + 0j), '1')
-        assert cache_on_self__args_to_str(args) == "111.0bytearray(b'1')b'1'True(1+0j)1"
+        assert cache_on_self__args_to_str(args) == "[0]:<int>:1|[1]:<int>:1|[2]:<float>:1.0|[3]:<bytearray>:bytearray(b'1')|[4]:<bytes>:b'1'|[5]:<bool>:True|[6]:<complex>:(1+0j)|[7]:<str>:1"
 
     def test_cache_on_self__kwargs_to_str(self):
-        assert cache_on_self__kwargs_to_str({"an":"value"    }) == 'an:value|'
-        assert cache_on_self__kwargs_to_str({"a": "b","c":"d"}) == 'a:b|c:d|'
-        assert cache_on_self__kwargs_to_str({"an": None      }) == ''
-        assert cache_on_self__kwargs_to_str({"an": 1         }) == 'an:1|'
+        assert cache_on_self__kwargs_to_str({"an":"value"    }) == 'an:<str>:value'
+        assert cache_on_self__kwargs_to_str({"a": "b","c":"d"}) == 'a:<str>:b|c:<str>:d'
+        assert cache_on_self__kwargs_to_str({"an": None      }) == 'an:<none>'
+        assert cache_on_self__kwargs_to_str({"an": 1         }) == 'an:<int>:1'
 
     def test_cache_on_self__outside_an_class(self):
         @cache_on_self
@@ -477,3 +477,115 @@ class test__decorator__cache_on_self(TestCase):
 
         # Verify instance remains clean
         assert obj.__dict__ == {}
+
+
+    def test__no_collision_between_none_and_strings(self):
+        """Test that None doesn't collide with any string value"""
+        class Test_Class:
+            @cache_on_self
+            def process(self, data):
+                return f"processing: {repr(data)}"
+
+        obj = Test_Class()
+
+        # Test potential collision strings
+        result_none = obj.process(None)
+        result_str1 = obj.process('<none>')
+        result_str2 = obj.process('none:None')
+        result_str3 = obj.process('__CACHE_NONE_VALUE__')
+
+        assert result_none == "processing: None"
+        assert result_str1 == "processing: '<none>'"
+        assert result_str2 == "processing: 'none:None'"
+        assert result_str3 == "processing: '__CACHE_NONE_VALUE__'"
+
+        # All should be different
+        assert result_none != result_str1
+        assert result_none != result_str2
+        assert result_none != result_str3
+
+    def test__no_collision_between_types(self):
+        """Test that different types with similar string representations don't collide"""
+        class Test_Class:
+            @cache_on_self
+            def process(self, data):
+                return f"type: {type(data).__name__}, value: {repr(data)}"
+
+        obj = Test_Class()
+
+        # These could have similar string representations without type prefixes
+        assert obj.process("123") == "type: str, value: '123'"
+        assert obj.process(123) == "type: int, value: 123"
+        assert obj.process(123.0) == "type: float, value: 123.0"
+        assert obj.process(True) == "type: bool, value: True"
+        assert obj.process("True") == "type: str, value: 'True'"
+        assert obj.process("<dict>:[1,2,3]") == "type: str, value: '<dict>:[1,2,3]'"
+        assert obj.process({"a": 1}) == "type: dict, value: {'a': 1}"
+
+    def test__cache_key_generator_type_prefixes(self):
+        """Test that cache key generator adds proper type prefixes"""
+        key_gen = Cache_Key_Generator()
+
+        # Primitive types get type prefix
+        assert key_gen.value_to_cache_str("hello") == "<str>:hello"
+        assert key_gen.value_to_cache_str(123) == "<int>:123"
+        assert key_gen.value_to_cache_str(123.45) == "<float>:123.45"
+        assert key_gen.value_to_cache_str(True) == "<bool>:True"
+        assert key_gen.value_to_cache_str(b"bytes") == "<bytes>:b'bytes'"
+
+        # None gets special treatment
+        assert key_gen.value_to_cache_str(None) == "<none>"
+
+        # Collections get type prefix
+        assert key_gen.value_to_cache_str([1, 2, 3]).startswith("<list>:")
+        assert key_gen.value_to_cache_str({"a": 1}).startswith("<dict>:")
+        assert key_gen.value_to_cache_str({1, 2, 3}).startswith("<set>:")
+        assert key_gen.value_to_cache_str((1, 2, 3)).startswith("<tuple>:")
+
+        # Unsupported types still return empty string
+        class CustomObject:
+            pass
+        assert key_gen.value_to_cache_str(CustomObject()) == ""
+
+    def test__complex_collision_scenarios(self):
+        """Test various complex scenarios that could cause collisions"""
+        class Test_Class:
+            @cache_on_self
+            def process(self, *args):
+                return f"args: {args}"
+
+        obj = Test_Class()
+
+        # These should all generate different cache keys
+        results = [
+            obj.process(None),
+            obj.process("None"),
+            obj.process("<none>"),
+            obj.process({"<none>": True}),
+            obj.process(["<none>"]),
+            obj.process("<dict>", "123"),
+            obj.process({"key": "value"}),
+            obj.process("<list>:[1,2,3]"),
+            obj.process([1, 2, 3]),
+        ]
+
+        # All results should be unique
+        for i, result_i in enumerate(results):
+            for j, result_j in enumerate(results):
+                if i != j:
+                    assert result_i != result_j, f"Collision between index {i} and {j}"
+
+    def test__args_with_type_prefixes(self):
+        """Test that args_to_str properly handles the new type prefixes"""
+        key_gen = Cache_Key_Generator()
+
+        # Test with mixed types
+        args = ("hello", 123, None, [1, 2], {"a": 1})
+        args_str = key_gen.args_to_str(args)
+
+        # Verify format includes indices and type prefixes
+        assert "[0]:<str>:hello" in args_str
+        assert "[1]:<int>:123" in args_str
+        assert "[2]:<none>" in args_str
+        assert "[3]:<list>:" in args_str
+        assert "[4]:<dict>:" in args_str

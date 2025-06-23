@@ -1,5 +1,5 @@
-from unittest                                      import TestCase
-from osbot_utils.decorators.methods.cache_on_self  import cache_on_self
+from unittest                                        import TestCase
+from osbot_utils.decorators.methods.cache_on_self    import cache_on_self
 from osbot_utils.helpers.cache_on_self.Cache_On_Self import Cache_On_Self
 
 
@@ -79,14 +79,16 @@ class test__regression__cache_on_self(TestCase):
         # Different cache managers
         assert cache_a is not cache_b
 
-        cache_key_1 = cache_a.key_generator.generate_key(function=obj.method_a, args=[42], kwargs={})
-        cache_key_2 = cache_a.key_generator.generate_key(function=obj.method_b, args=[42], kwargs={})
+        cache_key_1 = cache_a.key_generator.generate_key(function=obj.method_a, args=(obj, 42), kwargs={})
+        cache_key_2 = cache_a.key_generator.generate_key(function=obj.method_b, args=(obj, 42), kwargs={})
 
         # Both have cached values but in separate storage
+
         assert cache_a.cache_storage.has_cached_value(obj, cache_key_1) is True
         assert cache_b.cache_storage.has_cached_value(obj, cache_key_2) is True
-        assert cache_key_1 == "__cache_on_self___method_a_a1d0c6e83f027327d8461063f4ac58a6_"
-        assert cache_key_2 == "__cache_on_self___method_b_a1d0c6e83f027327d8461063f4ac58a6_"
+        assert cache_key_1 != cache_key_2
+        assert cache_key_1 == "__cache_on_self___method_a_ad5d62e7fc98fba2d0bd5069a26b55ab_"
+        assert cache_key_2 == "__cache_on_self___method_b_ad5d62e7fc98fba2d0bd5069a26b55ab_"
 
     def test__regression__cache_with_inheritance(self):
         """Verify cache works correctly with inheritance"""
@@ -182,3 +184,157 @@ class test__regression__cache_on_self(TestCase):
         assert obj2 not in cache_mgr.cache_storage.cache_data           # FIXED: BUG obj2 was in  cache_data
 
         # This means any instance can potentially access any other instance's cache!
+
+    def test__regression__cache_on_self__complete_cache_collision__after__non_supported_values(self):
+        class Test_Class:
+            @cache_on_self
+            def process(self, data):
+                return f"processing: {repr(data)}"
+
+        obj_a = Test_Class()
+
+        result_a_1 = obj_a.process(obj_a )      # using an object
+        result_a_2 = obj_a.process(self)        # using another object
+
+        assert result_a_1 == f"processing: {repr(obj_a)}"                   # ok
+        assert result_a_2 == f"processing: {repr(obj_a)}"                   # Fixed: BUG
+        assert result_a_2 != f"processing: {repr(self)}"                    # Fixed: BUG
+
+        obj_b = Test_Class()
+
+        result_b_1 = obj_b.process(None)  # starting with None
+        result_b_2 = obj_b.process(self)  # using an obj
+
+        assert result_b_1 == f"processing: None"                            # ok
+        assert result_b_2 == f"processing: {repr(self)}"                    # Fixed:  BUG
+
+        obj_c = Test_Class()
+
+        result_c_1 = obj_b.process(None)    # starting with None
+        result_c_2 = obj_b.process(123)     # using a supported value
+        result_c_3 = obj_b.process(self)    # using an obj
+
+        assert result_c_1 == f"processing: None"            # ok
+        assert result_c_2 == f"processing: 123"             # ok
+        assert result_c_3 == f"processing: {repr(self)}"    # Fixed: BUG      (picks up the 'non-supported' value)
+
+        assert obj_a.__dict__ == {}
+        assert obj_b.__dict__ == {}
+        assert obj_c.__dict__ == {}
+
+
+    def test__regression__cache_on_self__complete_cache_collision(self):
+        class Test_Class:
+            @cache_on_self
+            def process(self, data):
+                return f"processing: {repr(data)}"
+
+        obj = Test_Class()
+
+        # All these different calls will share the SAME cache entry!
+        result_1 = obj.process({'a': 1})
+        result_2 = obj.process({'b': 2, 'c': 3})
+        result_3 = obj.process([1, 2, 3])
+        result_4 = obj.process(set([4, 5, 6]))
+        result_5 = obj.process(None)
+        result_6 = obj.process(obj)  # Even passing self!
+
+        # They all return the FIRST cached value
+        #assert result_1 == "processing: {'a': 1}"
+        # assert result_2 == "processing: {'a': 1}"  # BUG!
+        # assert result_3 == "processing: {'a': 1}"  # BUG!
+        # assert result_4 == "processing: {'a': 1}"  # BUG!
+        # assert result_5 == "processing: {'a': 1}"  # BUG!
+        # assert result_6 == "processing: {'a': 1}"  # BUG!
+
+        assert result_2 == "processing: {'b': 2, 'c': 3}"   # Fixed
+        assert result_3 == "processing: [1, 2, 3]"          # Fixed
+        assert result_4 == "processing: {4, 5, 6}"          # Fixed
+        assert result_5 == "processing: None"               # Fixed
+        assert result_6 == f"processing: {repr(obj)}"       # Fixed
+
+        # Verify instance remains clean
+        assert obj.__dict__ == {}
+
+    def test__regression__cache_on_self__caching__mutable_arguments(self):
+        class Test_Class:
+            @cache_on_self
+            def process_dict(self, data):
+                # Return a value that includes the dict's content
+                return f"processed: {data.get('key', 'no-key')}"
+
+            @cache_on_self
+            def process_list(self, items):
+                return f"count: {len(items)}"
+
+        obj = Test_Class()
+
+        # Test with dict
+        data    = {'key': 'value_1'}
+        result_1 = obj.process_dict(data)
+        assert result_1 == "processed: value_1"
+
+        # Mutate the dict
+        data['key'] = 'value_2'
+        result_2 = obj.process_dict(data)
+        assert result_2 == "processed: value_2"             # FIXED: BUG: should be "processed: value_2"
+
+        # Test with list
+        items = [1, 2, 3]
+        list_result_1 = obj.process_list(items)
+        assert list_result_1 == "count: 3"
+
+        items.append(4)
+        list_result_2 = obj.process_list(items)
+        assert list_result_2 == "count: 4"                  # FIXED: BUG: should be "count: 4"
+
+        # Verify instance remains clean
+        assert obj.__dict__ == {}
+
+
+    def test__regression__cache_on_self__string_concatenation_collision(self):
+        """Test the string concatenation collision bug"""
+        class Collision_Class:
+            call_count = 0
+
+            @cache_on_self
+            def concat_numbers(self, *args):
+                self.call_count += 1
+                return f"call {self.call_count}: {args}"
+
+        obj = Collision_Class()
+
+        # These should all have different cache entries but they collide
+        result1 = obj.concat_numbers(1, 23    )   # "123"
+        result2 = obj.concat_numbers(12, 3    )   # "123"
+        result3 = obj.concat_numbers(123            )   # "123"
+        result4 = obj.concat_numbers("12", "3")   # "123"
+
+
+        assert result1 == "call 1: (1, 23)"             # Fixed: BUG: All return the same cached value despite different args
+        assert result2 == "call 2: (12, 3)"             # Fixed: BUG: Should be "call 2: (12, 3)"
+        assert result3 == "call 3: (123,)"              # Fixed: BUG: Should be "call 3: (123,)"
+        assert result4 == "call 4: ('12', '3')"         # Fixed: BUG: Should be "call 4: ('12', '3')"
+
+        assert obj.call_count == 4                      # FIXED : BUG: Only called once due to collision
+
+    def test__regression__cache_on_self__mixed_type_arguments(self):
+        """Test bug with mixed supported and unsupported types"""
+        class Mixed_Types_Class:
+            @cache_on_self
+            def process_mixed(self, name, data, count):
+                return f"{name}: {len(data)} items, count={count}"
+
+        obj = Mixed_Types_Class()
+
+        # First call with list
+        result1 = obj.process_mixed("test1", [1, 2, 3], 100)
+        assert result1 == "test1: 3 items, count=100"
+
+        # Different list but same name and count - should be different but isn't
+        result2 = obj.process_mixed("test1", [1, 2, 3, 4, 5], 100)
+        assert result2 == "test1: 5 items, count=100"           # FIXED: BUG: Should be "test1: 5 items, count=100"
+
+        # Different name - creates new entry
+        result3 = obj.process_mixed("test2", [1, 2], 100)
+        assert result3 == "test2: 2 items, count=100"
