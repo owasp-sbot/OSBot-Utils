@@ -32,42 +32,8 @@ class test__bugs__cache_on_self(TestCase):
         gc.collect()
         assert len(cache_manager.cache_storage.cache_data) == 1             # BUG: reference is still there
 
-    def test__bug__cache_on_self__recursive_calls(self):                          # Test caching with recursive method calls
-        class Recursive_Class:
-
-            def fibonacci__no_cache(self, n):
-                if n <= 1:
-                    return n
-                return self.fibonacci__no_cache(n - 1) + self.fibonacci__no_cache(n - 2)        # Recursive calls will also use cache
-
-            @cache_on_self
-            def fibonacci(self, n):
-                if n <= 1:
-                    return n
-                return self.fibonacci(n - 1) + self.fibonacci(n - 2)        # Recursive calls will also use cache
-
-        obj = Recursive_Class()
-
-        # Calculate fibonacci(5) without cache
-        assert obj.fibonacci__no_cache(5) == 5                              # OK should be 5 (no cache response)
-        assert obj.fibonacci__no_cache(5) == 5                              # OK multiple calls return same value
-        assert obj.fibonacci__no_cache(5) == 5                              # OK multiple calls return same value
-        assert obj.fibonacci__no_cache(4) == 3                              # OK, confirm other values
-        assert obj.fibonacci__no_cache(3) == 2
-        assert obj.fibonacci__no_cache(2) == 1
-        assert obj.fibonacci__no_cache(1) == 1
-        # Calculate fibonacci(5) with cache
-
-        assert obj.fibonacci(5) == 14                                       # BUG should be 5
-        assert obj.fibonacci(5) == 252                                      # BUG should be 5
-        cache = obj.fibonacci(__return__='cache_on_self')
-        cache.disabled = True                                               # BUG: Disable should had kicked in
-        assert obj.fibonacci(5) == 4536                                     # BUG should be 5
-        # Verify instance remains clean
-        assert obj.__dict__ == {}
-
-    def test__bug__reload_next_flag_affects_all_instances(self):
-        """Test that reload_next flag affects all instances"""
+    def test__bug__reload_next_flag_isolation_between_instances(self):
+        """Test that reload_next flag is properly isolated between instances"""
         class Reload_Flag_Class:
             def __init__(self, name):
                 self.name = name
@@ -87,11 +53,19 @@ class test__bugs__cache_on_self(TestCase):
 
         # Set reload_next on obj1's cache manager
         cache1 = obj1.method(__return__='cache_on_self')
+        cache2 = obj2.method(__return__='cache_on_self')
+
         cache1.reload_next = True
 
-        # This affects obj2 as well!
-        assert obj2.method() == "obj2 call 1"   # BUG: Should use cache but doesn't!
-        assert cache1.reload_next is True      # Flag was reset
+        # Verify isolation - obj2 uses cache, obj1 reloads
+        assert obj2.method() == "obj2 call 1"   # Cache hit - correct!
+        assert obj1.method() != "obj1 call 2"   # Reload triggered          # BUG should be equal
+        assert obj1.method() == "obj1 call 1"   # Reload triggered
+
+
+        # Verify flags
+        assert cache1.reload_next is True  # Reset after use            # BUG should be False
+        assert cache2.reload_next is False  # Reset after use
 
     def test__bug__clear_all_affects_other_instances(self):
         """Test that clear_all can affect other instances"""

@@ -6,7 +6,7 @@ from enum                                                             import Enu
 from osbot_utils.helpers.duration.decorators.capture_duration         import capture_duration
 from osbot_utils.testing.performance.Performance_Measure__Session     import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
-from osbot_utils.utils.Env                                            import not_in_github_action
+from osbot_utils.utils.Env                                            import not_in_github_action, in_github_action
 
 
 class test__perf__Type_Safe__ctor(TestCase):
@@ -397,6 +397,8 @@ class test__perf__Type_Safe__ctor(TestCase):
             session.measure(create_larger_object).assert_time(self.time_100_kns)
 
     def test__Type_Safe__ctor_impact(self):
+        if in_github_action():
+            pytest.skip("disable in GH actions since the durations are much slower there")
         class Native_Class():
             pass
 

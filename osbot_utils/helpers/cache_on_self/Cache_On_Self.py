@@ -18,7 +18,7 @@ class Cache_On_Self(Type_Safe):
     current_cache_key   : str                        = ''                           # Current cache key
     current_cache_value : Any                        = None                         # Current cached value
     reload_next         : bool                       = False                        # Force reload on next call
-    disabled            : bool                       = False                        # cache disable status
+    disabled            : bool                       = False                         # cache disable status
 
     def __init__(self, function       : Callable                   = None ,
                        supported_types: List[type]                 = None ):
@@ -32,6 +32,10 @@ class Cache_On_Self(Type_Safe):
         self.metrics        = Cache_Metrics()
 
     def handle_call(self, args: tuple, kwargs: dict) -> Any:                        # Main entry point for cached calls
+        # Check if caching is disabled
+        if self.disabled:
+            return self.execute(args, kwargs)
+
         if not kwargs and len(args) == 1:                                           # Fast path for common case: no kwargs, single arg (self)
             target_self = args[0]
             cache_key   = self.no_args_key
@@ -50,40 +54,54 @@ class Cache_On_Self(Type_Safe):
     def handle_call_full(self, args  : tuple,
                                kwargs: dict
                           ) -> Any:                                                 # Full logic for complex cases
-        self.target_self              = self.controller.extract_self_from_args(args)
-        clean_kwargs                  = self.controller.extract_clean_kwargs(kwargs)
-        should_reload                 = self.controller.should_reload(kwargs, self.reload_next)
-        self.current_cache_key        = self.key_generator.generate_key(self.function, args, clean_kwargs)
+        # Check if caching is disabled
+        if self.disabled:
+            clean_kwargs = self.controller.extract_clean_kwargs(kwargs)
+            return self.execute(args, clean_kwargs)
+
+        # Extract values - don't store as instance variables to avoid recursion issues
+        target_self   = self.controller.extract_self_from_args(args)
+        clean_kwargs  = self.controller.extract_clean_kwargs(kwargs)
+        should_reload = self.controller.should_reload(kwargs, self.reload_next)
+        cache_key     = self.key_generator.generate_key(self.function, args, clean_kwargs)
 
         if should_reload:
             self.reload_next = False                                                # Reset reload flag
 
-        cached_exists = self.cache_storage.has_cached_value(self.target_self, self.current_cache_key)
+        cached_exists = self.cache_storage.has_cached_value(target_self, cache_key)
 
         if should_reload or not cached_exists:
-            self.execute_and_cache(args, clean_kwargs, should_reload)
+            # Execute and cache, passing the cache key directly
+            result = self.execute_and_cache(args, clean_kwargs, target_self, cache_key, should_reload)
         else:
             self.metrics.record_hit()
+            result = self.cache_storage.get_cached_value(target_self, cache_key)
 
-        self.current_cache_value = self.cache_storage.get_cached_value(self.target_self, self.current_cache_key)
-        return self.current_cache_value
+        # Update instance state only for external inspection
+        self.target_self = target_self
+        self.current_cache_key = cache_key
+        self.current_cache_value = result
+
+        return result
 
     def execute(self, args   : tuple,
                       kwargs : dict ,
                  ) -> Any:                                # Execute function
         return self.function(*args, **kwargs)
 
-
-    def execute_and_cache(self, args         : tuple ,
-                                clean_kwargs : dict  ,
-                                should_reload: bool  ) -> None:                     # Execute function and store result
+    def execute_and_cache(self, args         : tuple,
+                                clean_kwargs : dict,
+                                target_self  : Any,
+                                cache_key    : str,
+                                should_reload: bool) -> Any:                      # Execute function and store result
         if should_reload:
             self.metrics.record_reload()
         else:
             self.metrics.record_miss()
 
         result = self.execute(args=args, kwargs=clean_kwargs)
-        self.cache_storage.set_cached_value(self.target_self, self.current_cache_key, result)
+        self.cache_storage.set_cached_value(target_self, cache_key, result)
+        return result
 
     def clear(self) -> None:                                                        # Clear current cache entry
         if self.target_self and self.current_cache_key:

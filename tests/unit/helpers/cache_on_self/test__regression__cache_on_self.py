@@ -338,3 +338,51 @@ class test__regression__cache_on_self(TestCase):
         # Different name - creates new entry
         result3 = obj.process_mixed("test2", [1, 2], 100)
         assert result3 == "test2: 2 items, count=100"
+
+    def test__regression__cache_on_self__recursive_calls(self):                          # Test caching with recursive method calls
+        class Recursive_Class:
+
+            def fibonacci__no_cache(self, n):
+                if n <= 1:
+                    return n
+                return self.fibonacci__no_cache(n - 1) + self.fibonacci__no_cache(n - 2)        # Recursive calls will also use cache
+
+            @cache_on_self
+            def fibonacci(self, n):
+                if n <= 1:
+                    return n
+                return self.fibonacci(n - 1) + self.fibonacci(n - 2)        # Recursive calls will also use cache
+
+        obj = Recursive_Class()
+
+        assert obj.fibonacci(1) == 1
+        assert obj.fibonacci(2) == 1
+        assert obj.fibonacci(3) == 2        # Fixed: BUG should be 2
+        assert obj.fibonacci(4) == 3        # Fixed: BUG should be 3
+        assert obj.fibonacci(5) == 5        # Fixed:BUG should be 5
+
+        obj_1 = Recursive_Class()
+
+        assert obj_1.fibonacci(1) == 1      # ok
+        assert obj_1.fibonacci(1) == 1      # here there are no side effect of multiple class
+        assert obj_1.fibonacci(2) == 1      # ok
+        assert obj_1.fibonacci(2) == 1      # Fixed:BUG: should still be 1
+
+
+        # Calculate fibonacci(5) without cache
+        assert obj.fibonacci__no_cache(5) == 5                              # OK should be 5 (no cache response)
+        assert obj.fibonacci__no_cache(5) == 5                              # OK multiple calls return same value
+        assert obj.fibonacci__no_cache(5) == 5                              # OK multiple calls return same value
+        assert obj.fibonacci__no_cache(4) == 3                              # OK, confirm other values
+        assert obj.fibonacci__no_cache(3) == 2
+        assert obj.fibonacci__no_cache(2) == 1
+        assert obj.fibonacci__no_cache(1) == 1
+        # Calculate fibonacci(5) with cache
+
+        assert obj.fibonacci(5) == 5                                       # BUG should be 5 (not 14)
+        assert obj.fibonacci(5) == 5                                      # BUG should be 5 (not 252)
+        cache = obj.fibonacci(__return__='cache_on_self')
+        cache.disabled = True                                               # BUG: Disable should had kicked in
+        assert obj.fibonacci(5) == 5                                        # FIXED: BUG should be 5
+        # Verify instance remains clean
+        assert obj.__dict__ == {}

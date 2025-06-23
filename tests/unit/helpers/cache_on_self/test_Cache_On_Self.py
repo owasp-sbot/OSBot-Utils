@@ -155,22 +155,26 @@ class test_Cache_On_Self(TestCase):
             pass
 
         test_obj = TestClass()
-        cache.target_self = test_obj
-        cache.current_cache_key = 'test_key'
+        cache_key = 'test_key'
 
         args = (test_obj, 14)
         clean_kwargs = {}
 
-        cache.execute_and_cache(args, clean_kwargs, should_reload=False)
+        # Call the new _execute_and_cache with all required parameters
+        result = cache.execute_and_cache(args, clean_kwargs, test_obj, cache_key, should_reload=False)
+
+        # Verify the result
+        assert result == 42
 
         # Verify cache is stored internally, not on instance
         assert not hasattr(test_obj, 'test_key')
-        assert cache.cache_storage.has_cached_value(test_obj, 'test_key')
-        assert cache.cache_storage.get_cached_value(test_obj, 'test_key') == 42
+        assert cache.cache_storage.has_cached_value(test_obj, cache_key)
+        assert cache.cache_storage.get_cached_value(test_obj, cache_key) == 42
         assert cache.metrics.misses == 1
 
         # Test with reload
-        cache.execute_and_cache(args, clean_kwargs, should_reload=True)
+        result2 = cache.execute_and_cache(args, clean_kwargs, test_obj, cache_key, should_reload=True)
+        assert result2 == 42
         assert cache.metrics.reloads == 1
 
     def test_clear(self):

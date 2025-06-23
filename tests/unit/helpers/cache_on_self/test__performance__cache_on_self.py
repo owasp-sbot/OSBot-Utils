@@ -1,7 +1,6 @@
+import pytest
 from unittest                                                   import TestCase
-
-from osbot_utils.utils.Env import in_github_action
-
+from osbot_utils.utils.Env                                      import in_github_action
 from osbot_utils.helpers.cache_on_self.Cache_On_Self            import Cache_On_Self
 from osbot_utils.helpers.duration.decorators.capture_duration   import capture_duration
 from osbot_utils.decorators.methods.cache_on_self               import cache_on_self
@@ -10,6 +9,8 @@ from osbot_utils.decorators.methods.cache_on_self               import cache_on_
 class test__performance__cache_on_self(TestCase):
 
     def test__performance__confirm__cache_on_self__current_invocation_overhead(self):
+        if in_github_action():
+            pytest.skip("disable in GH actions since the durations are much slower there")
         class Performance_Host:
             def an_function(self):
                 return 42
