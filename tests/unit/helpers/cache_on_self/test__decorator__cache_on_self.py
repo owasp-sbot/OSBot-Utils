@@ -1,7 +1,7 @@
 from unittest                                                   import TestCase
 from osbot_utils.helpers.cache_on_self.Cache_Key_Generator import CACHE_ON_SELF_KEY_PREFIX, Cache_Key_Generator
 from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_utils.decorators.methods.cache_on_self               import cache_on_self, cache_on_self__get_cache_in_key, cache_on_self__args_to_str, cache_on_self__kwargs_to_str
+from osbot_utils.decorators.methods.cache_on_self               import cache_on_self
 from osbot_utils.testing.Catch                                  import Catch
 from osbot_utils.utils.Objects                                  import obj_data
 
@@ -19,6 +19,25 @@ class An_Class:
     def echo_args(self, *args):
         return args
 
+# Convenience functions for backwards compatibility
+
+# todo: these functions need to be refactored out (good news is that at the moment they are only used in tests)
+def cache_on_self__get_cache_in_key(function, args=None, kwargs=None):              # Get cache key - backwards compatibility
+    from osbot_utils.helpers.cache_on_self.Cache_Key_Generator import Cache_Key_Generator
+    key_gen = Cache_Key_Generator()
+    return key_gen.generate_key(function, args or (), kwargs or {})
+
+
+def cache_on_self__args_to_str(args):                                              # Convert args to string - backwards compatibility
+    from osbot_utils.helpers.cache_on_self.Cache_Key_Generator import Cache_Key_Generator
+    key_gen = Cache_Key_Generator()
+    return key_gen.args_to_str(args)
+
+
+def cache_on_self__kwargs_to_str(kwargs):                                          # Convert kwargs to string - backwards compatibility
+    from osbot_utils.helpers.cache_on_self.Cache_Key_Generator import Cache_Key_Generator
+    key_gen = Cache_Key_Generator()
+    return key_gen.kwargs_to_str(kwargs)
 
 class test__decorator__cache_on_self(TestCase):
 

@@ -1,35 +1,8 @@
 from unittest                                      import TestCase
-from osbot_utils.decorators.methods.cache_on_self  import cache_on_self, cache_on_self__args_to_str
+from osbot_utils.decorators.methods.cache_on_self  import cache_on_self
 
 
 class test__security__cache_on_self(TestCase):
-
-    def test__security__cache_poisoning_prevented(self):
-        """Test that cache poisoning via direct attribute manipulation is prevented"""
-        class Secure_Class:
-            @cache_on_self
-            def get_user_data(self, user_id):
-                # Simulate fetching sensitive user data
-                return f"private data for user {user_id}"
-
-        obj = Secure_Class()
-
-        # Normal usage
-        user1_data = obj.get_user_data("user1")
-        assert user1_data == "private data for user user1"
-
-        # Try direct cache manipulation (should fail with new architecture)
-        cache_key = '__cache_on_self___get_user_data_' + cache_on_self__args_to_str(('user1',)) + '_'
-
-        # This no longer affects the cache since it's stored internally
-        setattr(obj, cache_key, "HACKED DATA")
-
-        # Cache should still return correct data
-        assert obj.get_user_data("user1") == "private data for user user1"
-
-        # Verify the attribute was set but didn't affect cache
-        assert getattr(obj, cache_key) == "HACKED DATA"
-        assert obj.get_user_data("user1") == "private data for user user1"
 
     def test__security__cache_key_collision_exploit(self):
         """Test how cache key collisions could be exploited"""

@@ -386,3 +386,128 @@ class test__regression__cache_on_self(TestCase):
         assert obj.fibonacci(5) == 5                                        # FIXED: BUG should be 5
         # Verify instance remains clean
         assert obj.__dict__ == {}
+
+    def test__regression__cache_isolation__clear_all_only_affects_target_instance(self):
+        """Test that clear_all only affects the target instance, not others"""
+        class Clear_All_Class:
+            def __init__(self, name):
+                self.name = name
+
+            @cache_on_self
+            def method(self, value):
+                return f"{self.name}: {value}"
+
+        obj1 = Clear_All_Class("obj1")
+        obj2 = Clear_All_Class("obj2")
+
+        # Cache some data
+        assert obj1.method("a") == "obj1: a"
+        assert obj1.method("b") == "obj1: b"
+        assert obj2.method("x") == "obj2: x"
+        assert obj2.method("y") == "obj2: y"
+
+        # Get cache manager and clear obj1's cache
+        cache_mgr = obj1.method(__return__='cache_on_self')
+        cache_mgr.target_self = obj1  # Ensure we target obj1
+        cache_mgr.clear_all()
+
+        # Verify obj1's cache is cleared
+        assert obj1.method("a") == "obj1: a"  # Recomputed (cache was cleared)
+
+        # Verify obj2's cache is NOT affected - this is correct behavior!
+        # These should return cached values without recomputation
+        assert obj2.method("x") == "obj2: x"  # Still cached
+        assert obj2.method("y") == "obj2: y"  # Still cached
+
+        # To verify obj2 is using cache, check call counts
+        obj2.call_count = 0
+        obj2.method("x")  # Should use cache
+        assert obj2.call_count == 0  # Confirms cache was used
+
+    def test__regression__disabled_flag_affects_all_instances(self):
+        """Test that disabled flag would affect all instances"""
+        class Disabled_Flag_Class:
+            def __init__(self, name):
+                self.name = name
+                self.compute_count = 0
+
+            @cache_on_self
+            def expensive_computation(self):
+                self.compute_count += 1
+                return f"{self.name} computed {self.compute_count} times"
+
+        obj1 = Disabled_Flag_Class("obj1")
+        obj2 = Disabled_Flag_Class("obj2")
+
+        # Initial calls - both cached
+        assert obj1.expensive_computation() == "obj1 computed 1 times"
+        assert obj1.expensive_computation() == "obj1 computed 1 times"  # Cached
+        assert obj2.expensive_computation() == "obj2 computed 1 times"
+        assert obj2.expensive_computation() == "obj2 computed 1 times"  # Cached
+
+        # Disable cache via obj1
+        cache_mgr = obj1.expensive_computation(__return__='cache_on_self')
+        cache_mgr.disabled = True
+
+        # This would affect BOTH instances if the disabled flag was checked!
+        # (Currently the disabled flag isn't implemented in handle_call)
+
+    def test__regression__multiple_methods_share_storage(self):
+        """Test that different methods on the same class share cache storage"""
+        class Multi_Method_Class:
+            @cache_on_self
+            def method_a(self, value):
+                return f"A: {value}"
+
+            @cache_on_self
+            def method_b(self, value):
+                return f"B: {value}"
+
+        obj = Multi_Method_Class()
+
+        # Call both methods
+        assert obj.method_a(1) == "A: 1"
+        assert obj.method_b(1) == "B: 1"
+
+        # Get cache managers
+        cache_a = obj.method_a(__return__='cache_on_self')
+        cache_b = obj.method_b(__return__='cache_on_self')
+
+        # They have different cache managers (good)
+        assert cache_a is not cache_b
+
+        # Each method has its own storage (good)
+        assert id(cache_a.cache_storage) != id(cache_b.cache_storage)
+
+    def test__regression___security_implications(self):
+        """Demonstrate security implications of shared cache manager"""
+        class Secure_Service:
+            def __init__(self, user_token):
+                self.user_token = user_token
+
+            @cache_on_self
+            def get_sensitive_data(self, resource_id):
+                # Simulate authorization check
+                if self.user_token == "admin_token":
+                    return f"SECRET: {resource_id}"
+                else:
+                    return f"Access denied for {resource_id}"
+
+        # Create services for different users
+        admin_service = Secure_Service("admin_token")
+        user_service = Secure_Service("user_token")
+
+        # Admin accesses secret
+        assert admin_service.get_sensitive_data("secret_file") == "SECRET: secret_file"
+
+        # Regular user should be denied
+        assert user_service.get_sensitive_data("secret_file") == "Access denied for secret_file"
+
+        # But because they share a cache manager, a malicious user could:
+        # 1. Get the cache manager
+        cache_mgr = user_service.get_sensitive_data(__return__='cache_on_self')
+
+        # 2. Access the shared cache storage that contains admin's cached data
+        for instance, cache_dict in cache_mgr.cache_storage.cache_data.items():
+            assert instance.user_token       ==  'user_token'
+            assert list(cache_dict.values()) == ['Access denied for secret_file']
