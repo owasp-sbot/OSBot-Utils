@@ -49,4 +49,4 @@ class test_cache(TestCase):
         with Catch(log_exception=False) as catch:
             an_function()
 
-        assert catch.exception_value.args[0] == "In Method_Wrappers.cache_on_self could not find self"
+        assert catch.exception_value.args[0] == "cache_on_self could not find self - no arguments provided"
