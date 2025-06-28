@@ -104,9 +104,13 @@ class Type_Safe__Method:                                                        
         if not isinstance(param_value, list):                                         # Check if value is a list
             raise ValueError(f"Parameter '{param_name}' expected a list but got {type(param_value)}")  # Raise error if not list
 
-        item_type = get_args(expected_type)[0]                                        # Get list item type
-        for i, item in enumerate(param_value):                                        # Check each list item
-            if not isinstance(item, item_type):                                       # Validate item type
+        item_type = get_args(expected_type)[0]                                          # Get list item type
+        if get_origin(item_type) is not None:                                           # Handle the case when item_type is a subscripted type (which is not supported at the moment)
+            raise NotImplementedError(f"Validation for list items with subscripted type"
+                                      f" '{item_type}' is not yet supported "
+                                      f"in parameter '{param_name}'.")                  # todo: add support for checking for subscripted types
+        for i, item in enumerate(param_value):                                          # Check each list item
+            if not isinstance(item, item_type):                                         # Validate item type
                 raise ValueError(f"List item at index {i} expected type {item_type}, but got {type(item)}")  # Raise error for invalid item
 
     def validate_type_parameter(self, param_name: str, param_value: Any, expected_type: Any):           # Validate a Type[T] parameter
@@ -174,10 +178,17 @@ class Type_Safe__Method:                                                        
                 if value_type is Any:                                                                       # if value type is Any, we don't need to do any checks since they will all match
                     return True
                 for k, v in param_value.items():
-                    if not isinstance(k, key_type):
-                        raise ValueError(f"Dict key '{k}' expected type {key_type}, but got {type(k)}")
-                    if not isinstance(v, value_type):
-                        raise ValueError(f"Dict value for key '{k}' expected type {value_type}, but got {type(v)}")
+                    if get_origin(key_type) is None:
+                        if not isinstance(k, key_type):
+                            raise ValueError(f"Dict key '{k}' expected type {key_type}, but got {type(k)}")
+                    else:
+                        raise NotImplementedError(f"Validation for subscripted key type '{key_type}' not yet supported in parameter '{param_name}'")
+
+                    if get_origin(value_type) is None:
+                        if not isinstance(v, value_type):
+                            raise ValueError(f"Dict value for key '{k}' expected type {value_type}, but got {type(v)}")
+                    elif value_type is not Any:
+                        raise NotImplementedError(f"Validation for subscripted value type '{value_type}' not yet supported in parameter '{param_name}'")
                 return True
             base_type = origin
         else:

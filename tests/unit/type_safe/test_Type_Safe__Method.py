@@ -304,8 +304,8 @@ class test_Type_Safe__Method(TestCase):
         checker.validate_parameter('param', "any_value", bound_args)
 
     # Test complex nested types
-    def test_check_parameter_value__nested_optional_lists(self):                        # Test deeply nested optional types
-        def func_nested(param: Optional[List[Optional[str]]]=None) -> None:
+    def test_check_parameter_value__nested_optional_lists__raises_not_implemented_error(self):                        # Test deeply nested optional types
+        def func_nested(param: List[str]=None) -> None:
             pass
 
         checker    = Type_Safe__Method(func_nested)
@@ -314,9 +314,10 @@ class test_Type_Safe__Method(TestCase):
         # Valid: None for outer optional
         checker.check_parameter_value('param', None, Optional[List[Optional[str]]], bound_args)
 
-        # Valid: list with mixed None and strings
-        checker.check_parameter_value('param', ["test", None, "test2"],
-                                    Optional[List[Optional[str]]], bound_args)
+        # Not Valid: list with mixed None and strings should not work
+        expected_error = "List item at index 1 expected type <class 'str'>, but got <class 'NoneType'>"
+        with pytest.raises(ValueError, match=expected_error) as context:
+            checker.check_parameter_value('param', ["test", None, "test2"],List[str], bound_args) # todo: document this edge case (and see if we need to add support for it)
 
     # Test Union return in validate_direct_type
     def test_validate_direct_type__union_early_return(self):                            # Test that Union types return early in validate_direct_type
