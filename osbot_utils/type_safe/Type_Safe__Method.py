@@ -10,6 +10,7 @@ class Type_Safe__Method:                                                        
         self.func         = func                                                          # Store original function
         self.sig          = inspect.signature(func)                                       # Get function signature
         self.annotations  = func.__annotations__                                          # Get function annotations
+        self.params       = list(self.sig.parameters.keys())
 
     def check_for_any_use(self):
         for param_name, type_hint in self.annotations.items():
