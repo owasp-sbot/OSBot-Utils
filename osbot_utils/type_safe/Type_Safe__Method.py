@@ -10,12 +10,13 @@ class Type_Safe__Method:                                                        
         self.func         = func                                                          # Store original function
         self.sig          = inspect.signature(func)                                       # Get function signature
         self.annotations  = func.__annotations__                                          # Get function annotations
+        self.params       = list(self.sig.parameters.keys())
 
     def check_for_any_use(self):
         for param_name, type_hint in self.annotations.items():
             if type_hint is any:  # Detect incorrect usage of lowercase any
                 raise ValueError(f"Parameter '{param_name}' uses lowercase 'any' instead of 'Any' from typing module. "
-                              f"Please use 'from typing import Any' and annotate as '{param_name}: Any'")
+                                f"Please use 'from typing import Any' and annotate as '{param_name}: Any'")
 
     def handle_type_safety(self, args: tuple, kwargs: dict):                              # Main method to handle type safety
         self.check_for_any_use()
@@ -80,10 +81,6 @@ class Type_Safe__Method:                                                        
             self.validate_union_type(param_name, param_value, expected_type)             # Validate union
             return                                                                       # Exit early
 
-        # if self.try_basic_type_conversion(param_value, expected_type, param_name,        # Try basic type conversion
-        #                                 bound_args):                                     # Pass bound args
-        #    return                                                                       # Exit if conversion successful
-
         self.validate_direct_type(param_name, param_value, expected_type)                # Direct type validation
 
     def is_optional_type(self, type_hint: Any) -> bool:                                  # Check if type is Optional
@@ -108,9 +105,13 @@ class Type_Safe__Method:                                                        
         if not isinstance(param_value, list):                                         # Check if value is a list
             raise ValueError(f"Parameter '{param_name}' expected a list but got {type(param_value)}")  # Raise error if not list
 
-        item_type = get_args(expected_type)[0]                                        # Get list item type
-        for i, item in enumerate(param_value):                                        # Check each list item
-            if not isinstance(item, item_type):                                       # Validate item type
+        item_type = get_args(expected_type)[0]                                          # Get list item type
+        if get_origin(item_type) is not None:                                           # Handle the case when item_type is a subscripted type (which is not supported at the moment)
+            raise NotImplementedError(f"Validation for list items with subscripted type"
+                                      f" '{item_type}' is not yet supported "
+                                      f"in parameter '{param_name}'.")                  # todo: add support for checking for subscripted types
+        for i, item in enumerate(param_value):                                          # Check each list item
+            if not isinstance(item, item_type):                                         # Validate item type
                 raise ValueError(f"List item at index {i} expected type {item_type}, but got {type(item)}")  # Raise error for invalid item
 
     def validate_type_parameter(self, param_name: str, param_value: Any, expected_type: Any):           # Validate a Type[T] parameter
@@ -163,6 +164,7 @@ class Type_Safe__Method:                                                        
             is_optional = self.is_optional_type(expected_type)                            # Check if type is optional
             has_default = self.has_default_value(param_name)                              # Check if has default value
             self.validate_none_value(param_name, is_optional, has_default)                # Validate None value
+            return True
 
         origin = get_origin(expected_type)
 
@@ -174,11 +176,20 @@ class Type_Safe__Method:                                                        
                 if not isinstance(param_value, dict):
                     raise ValueError(f"Parameter '{param_name}' expected dict but got {type(param_value)}")
                 key_type, value_type = get_args(expected_type)
+                if value_type is Any:                                                                       # if value type is Any, we don't need to do any checks since they will all match
+                    return True
                 for k, v in param_value.items():
-                    if not isinstance(k, key_type):
-                        raise ValueError(f"Dict key '{k}' expected type {key_type}, but got {type(k)}")
-                    if not isinstance(v, value_type):
-                        raise ValueError(f"Dict value for key '{k}' expected type {value_type}, but got {type(v)}")
+                    if get_origin(key_type) is None:
+                        if not isinstance(k, key_type):
+                            raise ValueError(f"Dict key '{k}' expected type {key_type}, but got {type(k)}")
+                    else:
+                        raise NotImplementedError(f"Validation for subscripted key type '{key_type}' not yet supported in parameter '{param_name}'")
+
+                    if get_origin(value_type) is None:
+                        if not isinstance(v, value_type):
+                            raise ValueError(f"Dict value for key '{k}' expected type {value_type}, but got {type(v)}")
+                    elif value_type is not Any:
+                        raise NotImplementedError(f"Validation for subscripted value type '{value_type}' not yet supported in parameter '{param_name}'")
                 return True
             base_type = origin
         else:
