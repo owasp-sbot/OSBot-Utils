@@ -1,9 +1,7 @@
+import pytest
 from enum                                    import Enum
 from unittest                                import TestCase
 from typing                                  import Optional, Union, List, Dict, Any, Type
-
-import pytest
-
 from osbot_utils.helpers.Safe_Id             import Safe_Id
 from osbot_utils.helpers.Random_Guid         import Random_Guid
 from osbot_utils.type_safe.Type_Safe__Method import Type_Safe__Method
