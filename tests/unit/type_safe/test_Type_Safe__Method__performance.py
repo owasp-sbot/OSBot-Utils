@@ -72,7 +72,7 @@ class test__decorator__type_safe__performance(TestCase):
         # print('overhead             :', overhead)
         #assert overhead < 250  # Current baseline which is really high
         #assert overhead < 70  # Current baseline which is really high
-        assert overhead < 5  # Current baseline which is really high
+        assert overhead < 1.1  # Current baseline which is really high
 
 
 
