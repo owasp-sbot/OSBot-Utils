@@ -1,29 +1,6 @@
 from unittest                                                   import TestCase
-from typing                                                     import List, Dict, Optional, Union, Any, Type
-from dataclasses                                                import dataclass
-from enum                                                       import Enum
 from osbot_utils.helpers.duration.decorators.capture_duration   import capture_duration
 from osbot_utils.type_safe.decorators.type_safe                 import type_safe
-from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_utils.helpers.Safe_Id                                import Safe_Id
-from osbot_utils.helpers.Random_Guid                            import Random_Guid
-
-
-# class StatusEnum(Enum):
-#     ACTIVE = "active"
-#     INACTIVE = "inactive"
-#     PENDING = "pending"
-#
-#
-# @dataclass
-# class DataClass:
-#     name: str
-#     value: int
-#
-#
-# class CustomType(Type_Safe):
-#     id: str
-#     data: Dict[str, Any]
 
 
 class test__decorator__type_safe__performance(TestCase):
@@ -72,7 +49,7 @@ class test__decorator__type_safe__performance(TestCase):
         # print('overhead             :', overhead)
         #assert overhead < 250  # Current baseline which is really high
         #assert overhead < 70  # Current baseline which is really high
-        assert overhead < 5  # Current baseline which is really high
+        assert overhead < 1.1  # Current baseline which is really high
 
 
 

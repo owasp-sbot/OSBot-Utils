@@ -1,6 +1,7 @@
 import re
+from typing                                 import Any
 from osbot_utils.helpers.safe_str.Safe_Str  import Safe_Str
-from osbot_utils.utils.Misc                 import str_md5
+from osbot_utils.utils.Misc                 import bytes_md5
 
 # Constants for hash validation
 SIZE__VALUE_HASH           = 10
@@ -14,5 +15,11 @@ class Safe_Str__Hash(Safe_Str):
     strict_validation         = True                                    # Enable strict validation - new attribute
     exact_length              = True                                    # Require exact length match - new attribute
 
-def safe_str_hash(value : str):
-    return str_md5(value)[0:SIZE__VALUE_HASH]
+def safe_str_hash(value: Any) -> Safe_Str__Hash:
+    if isinstance(value, str):
+        value = value.encode()
+    elif not isinstance(value, bytes):
+        raise ValueError('In safe_str_hash, value must be a string or bytes')
+
+    hash_value = bytes_md5(value)[0:SIZE__VALUE_HASH]
+    return Safe_Str__Hash(hash_value)

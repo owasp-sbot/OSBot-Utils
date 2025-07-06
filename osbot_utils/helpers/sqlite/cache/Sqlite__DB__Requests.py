@@ -26,7 +26,7 @@ class Sqlite__DB__Requests(Sqlite__DB__Local):
         with self.table_requests() as _:
             _.row_schema = self.table_schema                    # set the table_class
             if _.exists() is False:
-                _.create()                                          # create if it doesn't exist
+                _.create()  # create if it doesn't exist
                 _.index_create('request_hash')                      # add index to the request_hash field
                 return True
         return False

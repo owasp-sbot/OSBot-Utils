@@ -15,7 +15,7 @@ class PubSub__Sqlite(Sqlite__Database):
         with self.table_clients() as _:
             _.row_schema = TABLE_SCHEMA__PUB_SUB__CLIENTS
             if _.exists() is False:
-                _.create()                      # create if it doesn't exist
+                _.create()  # create if it doesn't exist
                 return True
         return False
 
