@@ -20,7 +20,7 @@ class Kwargs_To_Disk:
         else:
             self._local_cache.set(key, value)
 
-    def _cache_create        (self): return self._local_cache.create         ()
+    def _cache_create        (self): return self._local_cache.create()
     def _cache_delete        (self): return self._local_cache.cache_delete   ()
     def _cache_data          (self): return self._local_cache.data           ()
     def _cache_exists        (self): return self._local_cache.cache_exists   ()
