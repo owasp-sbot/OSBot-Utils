@@ -1,4 +1,5 @@
 from typing                                                  import get_origin, Annotated, get_args
+from osbot_utils.type_safe.Type_Safe__List                   import Type_Safe__List
 from osbot_utils.type_safe.Type_Safe__Primitive              import Type_Safe__Primitive
 from osbot_utils.type_safe.shared.Type_Safe__Cache           import type_safe_cache
 from osbot_utils.type_safe.shared.Type_Safe__Convert         import type_safe_convert
@@ -33,24 +34,20 @@ class Type_Safe__Step__Set_Attr:
 
         return  type_safe_convert.convert_to_value_from_obj_annotation(_self, name, value)
 
-    def resolve_value__list(self, _self, name, value):                      # Convert regular lists to Type_Safe__List instances
-        from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
-
+    def resolve_value__list(self, _self, name, value):                                  # Convert regular lists to Type_Safe__List instances
         annotations = type_safe_cache.get_obj_annotations(_self)
-        annotation = annotations.get(name)
+        annotation  = annotations.get(name)
 
         if annotation:
             origin = type_safe_cache.get_origin(annotation)
             if origin is list:
-                # Get the list element type
-                args = get_args(annotation)
+                args = get_args(annotation)                                             # Get the list element type
                 if args:
                     element_type = args[0]
-                    # Create a Type_Safe__List with the expected type
-                    type_safe_list = Type_Safe__List(element_type)
-                    # Validate and add each element
-                    for item in value:
-                        type_safe_list.append(item)  # This will validate the type
+
+                    type_safe_list = Type_Safe__List(element_type)                      # Create a Type_Safe__List with the expected type
+                    for item in value:                                                  # Validate and add each element
+                        type_safe_list.append(item)                                     # This will validate the type
                     return type_safe_list
 
         return value
