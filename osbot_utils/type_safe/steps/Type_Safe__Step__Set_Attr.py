@@ -10,6 +10,8 @@ class Type_Safe__Step__Set_Attr:
     def resolve_value(self, _self, annotations, name, value):
         if type(value) is dict:
             value = self.resolve_value__dict(_self, name, value)
+        elif type(value) is list:
+            value = self.resolve_value__list(_self, name, value)
         elif isinstance(annotations.get(name), type) and issubclass(annotations.get(name), Type_Safe__Primitive) and type(value) in (int, str, float):
             return annotations.get(name)(value)
         elif type(value) in (int, str):                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
@@ -31,6 +33,27 @@ class Type_Safe__Step__Set_Attr:
 
         return  type_safe_convert.convert_to_value_from_obj_annotation(_self, name, value)
 
+    def resolve_value__list(self, _self, name, value):                      # Convert regular lists to Type_Safe__List instances
+        from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
+
+        annotations = type_safe_cache.get_obj_annotations(_self)
+        annotation = annotations.get(name)
+
+        if annotation:
+            origin = type_safe_cache.get_origin(annotation)
+            if origin is list:
+                # Get the list element type
+                args = get_args(annotation)
+                if args:
+                    element_type = args[0]
+                    # Create a Type_Safe__List with the expected type
+                    type_safe_list = Type_Safe__List(element_type)
+                    # Validate and add each element
+                    for item in value:
+                        type_safe_list.append(item)  # This will validate the type
+                    return type_safe_list
+
+        return value
     def resolve_value__from_origin(self, value):
         #origin = type_safe_cache.get_origin(value)                                     # todo: figure out why this is the only place that the type_safe_cache.get_origin doesn't work (due to WeakKeyDictionary key error on value)
         origin = get_origin(value)

@@ -93,7 +93,8 @@ class Type_Safe__Method:                                                        
                 self.sig.parameters[param_name].default is not inspect._empty)          # Check has non-empty default
 
     def validate_none_value(self, param_name: str,                                      # Validate None value
-                          is_optional: bool, has_default: bool):                        # Optional and default flags
+                                  is_optional: bool,
+                                  has_default: bool):
         if not (is_optional or has_default):                                            # If neither optional nor default
             raise ValueError(f"Parameter '{param_name}' is not optional but got None")  # Raise error for None value
 

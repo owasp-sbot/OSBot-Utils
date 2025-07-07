@@ -11,6 +11,25 @@ from osbot_utils.utils.Objects              import __
 
 class test_Type_Safe__List__regression(TestCase):
 
+    def test__regression__list__type_safety__not_checked_on_assigment(self):
+        class An_Class(Type_Safe):
+            list__str : List[str]
+
+        with An_Class() as _:
+            assert type(_.list__str) is Type_Safe__List
+            assert _.list__str.expected_type is str
+
+            with pytest.raises(TypeError, match="In Type_Safe__List: Invalid type for item: Expected 'str', but got 'int'"):
+                _.list__str = [123]
+                #_.list__str = [123]                                 # Fixed: BUG: this breaks type safety (an exception should have been raised)
+                #assert type(_.list__str) is list                    # Fixed: BUG: should be Type_Safe__List
+
+            _.list__str = []                                        # this should be allowed, but not if we lost the Type_Safe__List and the expected_type
+            #assert type(_.list__str) is list                       # FIXED: BUG: should be Type_Safe__List
+            assert type(_.list__str) is Type_Safe__List             # confirm we didn't list the Type_Safe__List
+
+
+
     def test__regression__type_safe_list__on__init__with_values(self):
         class An_Class(Type_Safe):
             an_dict : Dict [str, str]
