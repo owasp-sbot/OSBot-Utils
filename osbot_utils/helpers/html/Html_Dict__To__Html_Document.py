@@ -6,7 +6,6 @@ from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data       import Schem
 from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data__Type import Schema__Html_Node__Data__Type
 from osbot_utils.type_safe.Type_Safe                                import Type_Safe
 
-
 class Html_Dict__To__Html_Document(Type_Safe):
     html__dict    : dict                  = None
     html__document: Schema__Html_Document = None

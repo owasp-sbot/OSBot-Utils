@@ -8,7 +8,6 @@ from osbot_utils.type_safe.Type_Safe__Set   import Type_Safe__Set
 from osbot_utils.type_safe.Type_Safe__Tuple import Type_Safe__Tuple
 from osbot_utils.utils.Objects              import __
 
-
 class test_Type_Safe__List__regression(TestCase):
 
     def test__regression__list__forward_ref__fails_roundtrip(self):

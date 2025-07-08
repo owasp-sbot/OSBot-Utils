@@ -1,6 +1,5 @@
 from enum                                                       import EnumMeta
-from typing import ForwardRef
-
+from typing                                                     import ForwardRef
 from osbot_utils.type_safe.shared.Type_Safe__Annotations        import type_safe_annotations
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value import type_safe_step_default_value, get_args
 
@@ -29,7 +28,7 @@ class Type_Safe__Step__Init:
                 raise ValueError(f"{__self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
                                  f"Use {__self.__class__.__name__}.__default_kwargs__() see what attributes are available") from None
 
-    def convert_value_to_type_safe_objects(self, __self, key, value):
+    def convert_value_to_type_safe_objects(self, __self, key, value):                                # todo: see if we should use _self here (like in Type_Safe__Step__From_Json, or vice versa)
         annotation = type_safe_annotations.obj_attribute_annotation(__self, key)
         if annotation:
             if isinstance(annotation, EnumMeta) and type(value) is str:
