@@ -11,6 +11,21 @@ from osbot_utils.utils.Objects              import __
 
 class test_Type_Safe__List__regression(TestCase):
 
+    def test__regression__list__forward_ref__fails_roundtrip(self):
+        class An_Class(Type_Safe):
+            an_str: str
+            an_list: List['An_Class']
+        an_class_1      = An_Class(an_str  = 'an_class_1')
+        an_class_2      = An_Class(an_str  = 'an_class_2' ,
+                                   an_list = [an_class_1])
+        an_class_2_json = an_class_2.json()
+        assert  an_class_2_json == {'an_list': [{'an_list': []            ,
+                                                  'an_str' : 'an_class_1'}],
+                                     'an_str' : 'an_class_2' }
+        #with pytest.raises(TypeError, match="'ForwardRef' object is not callable"):
+        #    An_Class.from_json(an_class_2_json)                                    # Fixed: BUG: ForwardRef not being handled
+        assert  An_Class.from_json(an_class_2_json).json() == an_class_2_json
+
     def test__regression__list__type_safety__not_checked_on_assigment(self):
         class An_Class(Type_Safe):
             list__str : List[str]

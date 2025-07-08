@@ -1,4 +1,6 @@
 from enum                                                       import EnumMeta
+from typing import ForwardRef
+
 from osbot_utils.type_safe.shared.Type_Safe__Annotations        import type_safe_annotations
 from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value import type_safe_step_default_value, get_args
 
@@ -47,6 +49,10 @@ class Type_Safe__Step__Init:
                 elif origin is list and isinstance(value, list):
                     from osbot_utils.type_safe.Type_Safe__List import Type_Safe__List
                     item_type = get_args(annotation)[0]
+                    if isinstance(item_type, ForwardRef):
+                        forward_name = item_type.__forward_arg__
+                        if forward_name == __self.__class__.__name__:
+                            item_type = __self.__class__
                     type_safe_list = Type_Safe__List(expected_type=item_type)
                     for item in value:
                         type_safe_list.append(item)

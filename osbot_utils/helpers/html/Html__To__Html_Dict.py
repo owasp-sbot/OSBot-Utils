@@ -1,8 +1,11 @@
 from html.parser import HTMLParser
 
 HTML_SELF_CLOSING_TAGS = {'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'}
-STRING__SCHEMA_TEXT    = 'TEXT'
+STRING__SCHEMA_ATTRS   = 'attrs'
 STRING__SCHEMA_NODES   = 'nodes'
+STRING__SCHEMA_TEXT    = 'TEXT'
+STRING__SCHEMA_TAG     = 'tag'
+
 STRING__DATA_TEXT      = f'{STRING__SCHEMA_TEXT}:'
 
 

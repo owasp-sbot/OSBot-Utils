@@ -26,7 +26,7 @@ if sys.version_info < (3, 8):                                           # pragma
         else:
             return ()
 else:
-    from typing import get_args, Any
+    from typing import get_args, Any, ForwardRef
 
 
 class Type_Safe__Step__From_Json:
@@ -83,6 +83,10 @@ class Type_Safe__Step__From_Json:
                             expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
                             type_safe_list       = Type_Safe__List(expected_type)                               # create a new instance of Type_Safe__List
                             if value:
+                                if isinstance(expected_type, ForwardRef):                                       # Check if it's a self-reference
+                                    forward_name = expected_type.__forward_arg__
+                                    if forward_name == _self.__class__.__name__:
+                                        expected_type = _self.__class__
                                 for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
                                     if type(item) is dict:
                                         new_item = expected_type(**item)                                                # create new object
