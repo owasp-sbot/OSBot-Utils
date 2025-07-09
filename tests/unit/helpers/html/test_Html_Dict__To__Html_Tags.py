@@ -148,7 +148,7 @@ class test_Html_To_Dict(TestCase):
 
 
 
-    def test__bug__convert_with_text_nodes(self):
+    def test__regression__convert_with_text_nodes(self):
         # Create a dictionary structure with text nodes
         html_dict = {
             'tag': 'div',
@@ -164,29 +164,25 @@ class test_Html_To_Dict(TestCase):
             ]
         }
 
-        wrong__html_dict = {'attrs': {'class': 'container'},
-                             'nodes': [{'data': 'Text before    ', 'type': STRING__SCHEMA_TEXT},                      # todo: BUG: extra space here
-                                          {'attrs': {},
-                                           'nodes': [{'data': 'Paragraph content', 'type': STRING__SCHEMA_TEXT}],
-                                           'tag': 'p'},
-                                          {'data': '\nText after', 'type': STRING__SCHEMA_TEXT}],                        # todo: BUG: extra 'n' here
-                             'tag': 'div'}
-
+        # wrong__html_dict = {'attrs': {'class': 'container'},
+        #                      'nodes': [{'data': 'Text before    ', 'type': STRING__SCHEMA_TEXT},                      # todo: BUG: extra space here
+        #                                   {'attrs': {},
+        #                                    'nodes': [{'data': 'Paragraph content', 'type': STRING__SCHEMA_TEXT}],
+        #                                    'tag': 'p'},
+        #                                   {'data': '\nText after', 'type': STRING__SCHEMA_TEXT}],                        # todo: BUG: extra 'n' here
+        #                      'tag': 'div'}
+        expected_html = '<div class="container">Text before<p>Paragraph content</p>Text after</div>\n'
         wrong_html = ('<!DOCTYPE html>\n'
  '<div class="container">Text before    <p>Paragraph content</p>\n'
  'Text after</div>\n')
 
-        # Convert to HTML
-        dict_to_html = Html_Dict__To__Html(html_dict)
-        html = dict_to_html.convert()
 
-
-
-
-        # Parse back to dict to verify structure preservation
-        html_dict_2 = Html__To__Html_Dict(html, ).convert()
+        dict_to_html = Html_Dict__To__Html(html_dict)                                # Convert to HTML
+        html         = dict_to_html.convert()
+        html_dict_2  = Html__To__Html_Dict(html).convert()                          # Parse back to dict to verify structure preservation
 
         # Compare structures
-        assert html_dict   != html_dict_2                                           # todo: BUG - these should be equal
-        assert html_dict_2 == wrong__html_dict                                      # todo: BUG
-        assert html        == wrong_html                                            # todo: BUG
+        assert html_dict   == html_dict_2                                            # FIXED: BUG - these should be equal
+        assert html        == expected_html
+        #assert html_dict_2 == wrong__html_dict                                      # FIXED: BUG
+        #assert html        == wrong_html                                            # FIXED: BUG
