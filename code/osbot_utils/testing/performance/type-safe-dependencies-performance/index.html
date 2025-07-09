@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/testing/performance/type-safe-dependencies-performance/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Type_Safe Dependencies Performance Analysis - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Dependencies Performance Analysis";
+        var mkdocs_page_input_path = "code/osbot_utils/testing/performance/type-safe-dependencies-performance.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/testing/performance/type-safe-dependencies-performance/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Dependencies Performance Analysis</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-dependencies-performance-analysis">Type_Safe Dependencies Performance Analysis<a class="headerlink" href="#type_safe-dependencies-performance-analysis" title="Permanent link">&para;</a></h1>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>This document presents a detailed performance analysis of the core dependencies and underlying operations that power the Type_Safe system. Through comprehensive benchmarking of Python native operations and OSBot_Utils utilities, we can better understand the performance characteristics of Type_Safe's foundational components.</p>
+<h2 id="core-operations-performance-map">Core Operations Performance Map<a class="headerlink" href="#core-operations-performance-map" title="Permanent link">&para;</a></h2>
+<h3 id="python-native-type-operations">Python Native Type Operations<a class="headerlink" href="#python-native-type-operations" title="Permanent link">&para;</a></h3>
+<p>These baseline operations form the foundation of Type_Safe's type checking system:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>isinstance() check</td>
+<td>0-100</td>
+<td>Type verification baseline</td>
+</tr>
+<tr>
+<td>issubclass() check</td>
+<td>0-100</td>
+<td>Inheritance verification</td>
+</tr>
+<tr>
+<td>type() check</td>
+<td>0</td>
+<td>Type identification</td>
+</tr>
+</tbody>
+</table>
+<p>The near-zero overhead of these operations demonstrates that Python's native type system provides an efficient foundation for Type_Safe's enhanced type checking.</p>
+<h3 id="attribute-access-operations">Attribute Access Operations<a class="headerlink" href="#attribute-access-operations" title="Permanent link">&para;</a></h3>
+<p>Basic attribute manipulation shows minimal overhead:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>getattr()</td>
+<td>0-100</td>
+<td>Basic attribute retrieval</td>
+</tr>
+<tr>
+<td>hasattr()</td>
+<td>0-100</td>
+<td>Attribute existence check</td>
+</tr>
+<tr>
+<td>setattr()</td>
+<td>100</td>
+<td>Attribute assignment</td>
+</tr>
+<tr>
+<td>getattr with default</td>
+<td>100</td>
+<td>Safe attribute access</td>
+</tr>
+<tr>
+<td>getattr missing</td>
+<td>300</td>
+<td>Exception handling cost</td>
+</tr>
+</tbody>
+</table>
+<p>The slightly higher cost for setattr() reflects the complexity of Python's attribute assignment mechanism.</p>
+<h3 id="reflection-and-introspection">Reflection and Introspection<a class="headerlink" href="#reflection-and-introspection" title="Permanent link">&para;</a></h3>
+<p>Class and object inspection operations show varying costs:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>vars()</td>
+<td>0-100</td>
+<td>Object attribute dictionary</td>
+</tr>
+<tr>
+<td><strong>annotations</strong> access</td>
+<td>0-100</td>
+<td>Type hints retrieval</td>
+</tr>
+<tr>
+<td>MRO traversal</td>
+<td>100</td>
+<td>Inheritance chain analysis</td>
+</tr>
+<tr>
+<td>dir()</td>
+<td>2,000</td>
+<td>Complete attribute listing</td>
+</tr>
+<tr>
+<td>class <strong>dict</strong> access</td>
+<td>0-100</td>
+<td>Class attribute access</td>
+</tr>
+<tr>
+<td>class <strong>bases</strong> access</td>
+<td>0-100</td>
+<td>Base class access</td>
+</tr>
+</tbody>
+</table>
+<p>The higher cost of dir() suggests careful consideration when performing full object inspection.</p>
+<h3 id="typing-module-operations">Typing Module Operations<a class="headerlink" href="#typing-module-operations" title="Permanent link">&para;</a></h3>
+<p>Type hint processing shows consistent overhead:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>get_origin (simple)</td>
+<td>200-300</td>
+<td>Basic type extraction</td>
+</tr>
+<tr>
+<td>get_origin (complex)</td>
+<td>300-500</td>
+<td>Nested type handling</td>
+</tr>
+<tr>
+<td>get_args (simple)</td>
+<td>300</td>
+<td>Type argument extraction</td>
+</tr>
+<tr>
+<td>get_args (complex)</td>
+<td>500-600</td>
+<td>Nested type arguments</td>
+</tr>
+</tbody>
+</table>
+<p>The increased cost for complex types reflects the recursive nature of type argument processing.</p>
+<h3 id="dictionary-operations">Dictionary Operations<a class="headerlink" href="#dictionary-operations" title="Permanent link">&para;</a></h3>
+<p>Dictionary manipulation shows efficient performance:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dict.get()</td>
+<td>0-100</td>
+<td>Key retrieval</td>
+</tr>
+<tr>
+<td>dict contains check</td>
+<td>0-100</td>
+<td>Key existence</td>
+</tr>
+<tr>
+<td>dict length check</td>
+<td>0-100</td>
+<td>Size determination</td>
+</tr>
+<tr>
+<td>dict iteration</td>
+<td>100</td>
+<td>Key traversal</td>
+</tr>
+<tr>
+<td>dict items()</td>
+<td>200</td>
+<td>Key-value pair access</td>
+</tr>
+<tr>
+<td>dict update()</td>
+<td>100</td>
+<td>Bulk modification</td>
+</tr>
+</tbody>
+</table>
+<p>These operations demonstrate Python's optimized dictionary implementation.</p>
+<h3 id="osbot_utils-core-operations">OSBot_Utils Core Operations<a class="headerlink" href="#osbot_utils-core-operations" title="Permanent link">&para;</a></h3>
+<p>Higher-level utilities show expected overhead from their enhanced functionality:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>obj_data()</td>
+<td>8,000-9,000</td>
+<td>Complete object analysis</td>
+</tr>
+<tr>
+<td>default_value()</td>
+<td>100</td>
+<td>Type default creation</td>
+</tr>
+<tr>
+<td>all_annotations()</td>
+<td>300-500</td>
+<td>Annotation collection</td>
+</tr>
+<tr>
+<td>json_dumps()</td>
+<td>4,000</td>
+<td>Serialization</td>
+</tr>
+<tr>
+<td>json_parse()</td>
+<td>700-800</td>
+<td>Deserialization</td>
+</tr>
+</tbody>
+</table>
+<p>The higher cost of obj_data() reflects its comprehensive object analysis capabilities.</p>
+<h3 id="type-checking-operations">Type Checking Operations<a class="headerlink" href="#type-checking-operations" title="Permanent link">&para;</a></h3>
+<p>Specialized type checking shows varying complexity:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>obj_is_type_union_compatible()</td>
+<td>300-400</td>
+<td>Union type validation</td>
+</tr>
+<tr>
+<td>obj_is_attribute_annotation_of_type()</td>
+<td>200</td>
+<td>Annotation type check</td>
+</tr>
+<tr>
+<td>value_type_matches_obj_annotation_for_attr()</td>
+<td>800-900</td>
+<td>Full type validation</td>
+</tr>
+<tr>
+<td>value_type_matches_obj_annotation_for_union()</td>
+<td>700</td>
+<td>Union validation</td>
+</tr>
+<tr>
+<td>check_none_value</td>
+<td>1,000</td>
+<td>None handling</td>
+</tr>
+<tr>
+<td>check_missing_annotation</td>
+<td>500</td>
+<td>Missing annotation handling</td>
+</tr>
+<tr>
+<td>check_complex_union</td>
+<td>700-800</td>
+<td>Complex union validation</td>
+</tr>
+</tbody>
+</table>
+<p>These operations form the core of Type_Safe's runtime type checking system.</p>
+<h2 id="performance-patterns-and-observations">Performance Patterns and Observations<a class="headerlink" href="#performance-patterns-and-observations" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Native Operation Efficiency</li>
+<li>Python's native type operations (isinstance, issubclass) show negligible overhead (0-100ns)</li>
+<li>Basic attribute access operations maintain good performance (0-100ns)</li>
+<li>
+<p>Dictionary operations are highly optimized (0-200ns range)</p>
+</li>
+<li>
+<p>Typing System Overhead</p>
+</li>
+<li>Simple type operations cost 200-300ns</li>
+<li>Complex type operations (nested types, unions) cost 500-600ns</li>
+<li>
+<p>Full type validation can cost up to 900ns</p>
+</li>
+<li>
+<p>Utility Operation Costs</p>
+</li>
+<li>Basic utilities maintain sub-microsecond performance</li>
+<li>Complex operations (obj_data, json_dumps) show expected higher costs</li>
+<li>
+<p>Exception handling adds consistent overhead (300ns)</p>
+</li>
+<li>
+<p>Scaling Characteristics</p>
+</li>
+<li>Type complexity correlates with processing time</li>
+<li>Dictionary operations scale well with size</li>
+<li>Reflection operations show consistent performance</li>
+</ol>
+<h2 id="time-threshold-categories">Time Threshold Categories<a class="headerlink" href="#time-threshold-categories" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Time Range (ns)</th>
+<th>Operations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zero-Cost</td>
+<td>0-100</td>
+<td>Native type checks, basic attribute access</td>
+</tr>
+<tr>
+<td>Very Fast</td>
+<td>100-300</td>
+<td>Simple type operations, dict operations</td>
+</tr>
+<tr>
+<td>Fast</td>
+<td>300-500</td>
+<td>Basic type validation, annotation handling</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>500-1000</td>
+<td>Complex type validation, union checking</td>
+</tr>
+<tr>
+<td>Higher-Cost</td>
+<td>1000-5000</td>
+<td>JSON operations, comprehensive analysis</td>
+</tr>
+<tr>
+<td>Complex</td>
+<td>5000+</td>
+<td>Full object analysis (obj_data)</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
