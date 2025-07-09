@@ -1,7 +1,7 @@
 from unittest                                                   import TestCase
+from osbot_utils.utils.Env                                      import in_github_action
 from osbot_utils.helpers.duration.decorators.capture_duration   import capture_duration
 from osbot_utils.type_safe.decorators.type_safe                 import type_safe
-
 
 class test__decorator__type_safe__performance(TestCase):
 
@@ -49,7 +49,11 @@ class test__decorator__type_safe__performance(TestCase):
         # print('overhead             :', overhead)
         #assert overhead < 250  # Current baseline which is really high
         #assert overhead < 70  # Current baseline which is really high
-        assert overhead < 1.1  # Current baseline which is really high
+        if in_github_action():        # Current baseline which is nice and low
+            assert overhead < 2.0
+        else:
+            assert overhead < 1.1
+
 
 
 

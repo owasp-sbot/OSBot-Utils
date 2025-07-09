@@ -19,19 +19,17 @@ class Html_Dict__To__Html_Tags:
     def convert_element(self, element):
         tag_name = element.get("tag")
 
-        # Handle special tag types with dedicated conversion methods
-        if tag_name == 'html':
+
+        if tag_name == 'html':                                  # Handle special tag types with dedicated conversion methods
             return self.convert_to__tag__html(element)
         elif tag_name == 'head':
-            return self.convert_to__tag__head(element, 0)  # Default indent 0
+            return self.convert_to__tag__head(element, 0)       # Default indent 0
         elif tag_name == 'link':
             return self.convert_to__tag__link(element)
-        else:
-            # Default case: convert to a generic Tag__Base
+        else:                                                   # Default case: convert to a generic Tag__Base
             return self.convert_to__tag(Tag__Base, element, 0)  # Default indent 0
 
-    def collect_inner_text(self, element):
-        """Extract all text from an element's text node nodes."""
+    def collect_inner_text(self, element):                      # Extract all text from an element's text node nodes.
         inner_text = ""
         for node in element.get(STRING__SCHEMA_NODES, []):
             if node.get("type") == STRING__SCHEMA_TEXT:
@@ -39,8 +37,7 @@ class Html_Dict__To__Html_Tags:
         return inner_text
 
     def convert_to__tag(self, target_tag, element, indent):
-        if element.get("type") == STRING__SCHEMA_TEXT:
-            # Handle text nodes directly
+        if element.get("type") == STRING__SCHEMA_TEXT:          # Handle text nodes directly
             return Tag__Text(element.get("data", ""))
 
         tag_name   = element.get("tag")
@@ -49,51 +46,68 @@ class Html_Dict__To__Html_Tags:
         end_tag    = tag_name not in HTML_SELF_CLOSING_TAGS
         tag_indent = indent + 1
 
-        # Collect inner text from all text node nodes
-        inner_html = self.collect_inner_text(element)
+        node_positions = []                                                     # Create node lists with position tracking
 
-        tag_kwargs = dict(
-            tag_name   = tag_name,
-            attributes = attrs,
-            end_tag    = end_tag,
-            indent     = tag_indent,
-            inner_html = inner_html
-        )
+        for idx, node in enumerate(nodes):                                      # Process all nodes and track their positions
+            if node.get("type") == STRING__SCHEMA_TEXT:
+                text_obj = Tag__Text(node.get("data", ""))                      # Create text node with position info
+                node_positions.append((idx, 'text', text_obj))
+            else:
+                child_tag = self.convert_to__tag(Tag__Base, node, tag_indent)   # Create element node
+                node_positions.append((idx, 'element', child_tag))
 
-        tag = target_tag(**tag_kwargs)
+        node_positions.sort(key=lambda x: x[0])                                 # Sort by position (though they should already be in order)
 
-        # Process only element nodes as nodes (text is already handled via inner_html)
-        for node in nodes:
-            if node.get("type") != STRING__SCHEMA_TEXT:  # Skip text nodes, they're in inner_html
-                child_tag = self.convert_to__tag(Tag__Base, node, tag_indent)
-                tag.elements.append(child_tag)
+
+        inner_html = ""                                                         # Collect consecutive text nodes at the beginning for inner_html
+        first_element_idx = None
+
+        for idx, (pos, node_type, node_obj) in enumerate(node_positions):
+            if node_type == 'element':
+                first_element_idx = idx
+                break
+            else:
+                inner_html += node_obj.data
+
+
+        if first_element_idx is None:                                                           # If all nodes are text, use them all as inner_html
+            inner_html = "".join(n[2].data for n in node_positions if n[1] == 'text')
+            elements = []
+        else:
+            inner_html = "".join(n[2].data for i, n in enumerate(node_positions)                # Only use text before first element as inner_html
+                               if n[1] == 'text' and i < first_element_idx)
+            elements = [n[2] for i, n in enumerate(node_positions) if i >= first_element_idx]   # All nodes go into elements (including remaining text nodes)
+
+        tag_kwargs   = dict(tag_name   = tag_name   ,
+                            attributes = attrs     ,
+                            end_tag    = end_tag   ,
+                            indent     = tag_indent,
+                            inner_html = inner_html)
+        tag          = target_tag(**tag_kwargs)
+        tag.elements = elements
 
         return tag
 
     def convert_to__tag__head(self, element, indent):
-        attrs = element.get("attrs", {})
-        nodes = element.get(STRING__SCHEMA_NODES, [])
-
+        attrs       = element.get("attrs", {})
+        nodes       = element.get(STRING__SCHEMA_NODES, [])
         head_indent = indent + 1
-        tag_head = Tag__Head(indent=head_indent, **attrs)
+        tag_head    = Tag__Head(indent=head_indent, **attrs)
 
         for node in nodes:
             tag_name = node.get("tag")
 
             if tag_name == 'title':
-                # Extract title text from text node nodes
-                tag_head.title = self.collect_inner_text(node)
+                tag_head.title = self.collect_inner_text(node)                                  # Extract title text from text node nodes
             elif tag_name == 'link':
                 tag_head.links.append(self.convert_to__tag__link(node))
             elif tag_name == 'meta':
                 tag_head.elements.append(self.convert_to__tag(Tag__Base, node, head_indent))
             elif tag_name == 'style':
-                # For style tags, collect the CSS content from text nodes
-                style_element = self.convert_to__tag(Tag__Base, node, head_indent)
+                style_element = self.convert_to__tag(Tag__Base, node, head_indent)              # For style tags, collect the CSS content from text nodes
                 tag_head.elements.append(style_element)
             else:
-                # Handle any other head elements
-                tag_head.elements.append(self.convert_to__tag(Tag__Base, node, head_indent))
+                tag_head.elements.append(self.convert_to__tag(Tag__Base, node, head_indent))    # Handle any other head elements
 
         return tag_head
 
@@ -104,8 +118,7 @@ class Html_Dict__To__Html_Tags:
 
         tag_html = Tag__Html(attributes=attrs, lang=lang, doc_type=False)
 
-        # Initialize head and body if not found
-        head_found = False
+        head_found = False                                                      # Initialize head and body if not found
         body_found = False
 
         for node in nodes:
@@ -118,16 +131,12 @@ class Html_Dict__To__Html_Tags:
                 tag_html.body = self.convert_to__tag(Tag__Body, node, tag_html.indent)
                 body_found = True
             else:
-                # Log unexpected child elements of html
-                print(f'Unexpected child of html tag: {tag_name}')
+                print(f'Unexpected child of html tag: {tag_name}')                          # Log unexpected child elements of html
 
-        # Handle missing head or body (required for valid HTML structure)
-        if not head_found:
-            #print("Warning: No head element found, creating empty one")
+        if not head_found:                                                                  # Handle missing head or body (required for valid HTML structure)
             tag_html.head = Tag__Head(indent=tag_html.indent + 1)
 
         if not body_found:
-            #print("Warning: No body element found, creating empty one")
             tag_html.body = Tag__Body(indent=tag_html.indent + 1)
 
         return tag_html

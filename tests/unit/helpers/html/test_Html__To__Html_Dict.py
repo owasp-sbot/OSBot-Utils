@@ -1,6 +1,6 @@
 from unittest                                       import TestCase
 from osbot_utils.helpers.html.Html_Dict__To__Html   import Html_Dict__To__Html
-from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict, STRING__SCHEMA_TEXT
+from osbot_utils.helpers.html.Html__To__Html_Dict   import Html__To__Html_Dict, STRING__SCHEMA_TEXT
 from tests._test_data.Sample_Test_Files             import Sample_Test_Files
 
 
@@ -32,7 +32,6 @@ class test_Html__To__Html_Dict(TestCase):
 
 
         assert html_from_dict_1 == html__roundtrip                                                   # Assert that generated HTML matches expected HTML
-        #print(html_from_dict_1)
 
     def test_convert__simple(self):
         html = """\
@@ -243,13 +242,13 @@ class test_Html__To__Html_Dict(TestCase):
         assert Html__To__Html_Dict(html_8).convert() == expected_8
 
     def test_html_round_trip(self):
-        original_html = """
-        <div class="container">
-            <h1>Title</h1>
-            <p>Before<strong>middle</strong>after</p>
-            <img src="test.jpg" alt="test">
-        </div>
-        """
+        original_html = """\
+<div class="container">
+    <h1>Title</h1>
+    <p>Before<strong>middle</strong>after</p>
+    <img src="test.jpg" alt="test" />
+</div>
+"""
 
         expected__original_html_dict = {'attrs': {'class': 'container'},
                               'nodes': [{'attrs': {},
@@ -266,46 +265,15 @@ class test_Html__To__Html_Dict(TestCase):
                                             'nodes': [],
                                             'tag': 'img'}],
                               'tag': 'div'}
-        expected__round_trip_html_dict = {'attrs': {'class': 'container'},
-                                     'nodes': [{'attrs': {},
-                                                   'nodes': [{'data': 'Title', 'type': STRING__SCHEMA_TEXT}],
-                                                   'tag': 'h1'},
-                                                  {'attrs': {},
-                                                   'nodes': [{'data': 'Before        ', 'type': STRING__SCHEMA_TEXT},             # todo: BUG: extra space here
-                                                                {'attrs': {},
-                                                                 'nodes': [{'data': 'middle', 'type': STRING__SCHEMA_TEXT}],
-                                                                 'tag': 'strong'},
-                                                                {'data': '\nafter', 'type': STRING__SCHEMA_TEXT}],                   # todo: BUG: extra \n here
-                                                   'tag': 'p'},
-                                                  {'attrs': {'alt': 'test', 'src': 'test.jpg'},
-                                                   'nodes': [],
-                                                   'tag': 'img'}],
-                                     'tag': 'div'}
-        expected__html_from_dict = """\
-<!DOCTYPE html>
-<div class="container">
-    <h1>Title</h1>
-    <p>Before        <strong>middle</strong>
-after</p>
-    <img src="test.jpg" alt="test" />
-</div>
-"""
-        # Parse HTML to dict
-        html_dict = Html__To__Html_Dict(original_html).convert()
 
-        # Convert dict back to HTML
-        dict_to_html   = Html_Dict__To__Html(html_dict)
+        html_dict      = Html__To__Html_Dict(original_html).convert()               # Parse HTML to dict
+        dict_to_html   = Html_Dict__To__Html(html_dict)                             # Convert dict back to HTML
         html_from_dict = dict_to_html.convert()
+        final_dict     = Html__To__Html_Dict(html_from_dict).convert()              # Parse the regenerated HTML back to dict
 
-        # Parse the regenerated HTML back to dict
-        final_dict = Html__To__Html_Dict(html_from_dict).convert()
-
-        # The structure should be preserved after a round trip
-
-        assert html_dict      == expected__original_html_dict
-        assert html_from_dict == expected__html_from_dict
-        assert final_dict     == expected__round_trip_html_dict
-        assert html_dict != final_dict                                                                                  # todo: BUG these should match
+        assert html_dict      == expected__original_html_dict                       # The structure should be preserved after a round trip
+        assert html_from_dict == original_html
+        assert html_dict      == final_dict                                         # confirm roundtrip was successful
 
     def test_bootstrap_example(self):
         # This is a more complex test with a realistic Bootstrap HTML example
@@ -360,7 +328,7 @@ after</p>
         assert any(child.get('tag') == 'p' for child in html_dict.get('nodes', []))
 
 
-    def test__bug__mixed_content_formatting(self):
+    def test__regression__mixed_content_formatting(self):
         # Test proper indentation with mixed text and element content
         html_9 = """
         <div>
@@ -370,14 +338,14 @@ after</p>
         </div>
         """
 
-        expected_wrong_final_dict  = {'attrs': {},
-                                      'nodes': [{'data': '\n            Text before\n                ',
-                                                    'type': STRING__SCHEMA_TEXT},
-                                                   {'attrs': {},
-                                                    'nodes': [{'data': 'Paragraph', 'type': STRING__SCHEMA_TEXT}],
-                                                    'tag': 'p'},
-                                                   {'data': '\n\n            Text after\n        ', 'type': STRING__SCHEMA_TEXT}],
-                                      'tag': 'div'}
+        # expected_wrong_final_dict  = {'attrs': {},
+        #                               'nodes': [{'data': '\n            Text before\n                ',
+        #                                             'type': STRING__SCHEMA_TEXT},
+        #                                            {'attrs': {},
+        #                                             'nodes': [{'data': 'Paragraph', 'type': STRING__SCHEMA_TEXT}],
+        #                                             'tag': 'p'},
+        #                                            {'data': '\n\n            Text after\n        ', 'type': STRING__SCHEMA_TEXT}],
+        #                               'tag': 'div'}
         # Parse and then render back to HTML
         html_dict = Html__To__Html_Dict(html_9).convert()
         dict_to_html = Html_Dict__To__Html(html_dict)
@@ -386,5 +354,5 @@ after</p>
         # The rendered HTML should have proper indentation
         # Here we're just ensuring it doesn't crash and checking the structure
         final_dict = Html__To__Html_Dict(html_from_dict).convert()
-        assert final_dict != html_dict                                              # todo: BUG should be equal
-        assert final_dict == expected_wrong_final_dict                              # todo: BUG
+        assert final_dict == html_dict                                               # FIXED: BUG should be equal
+        #assert final_dict == expected_wrong_final_dict                              # FIXED: BUG
