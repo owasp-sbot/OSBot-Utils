@@ -5,6 +5,7 @@ from osbot_utils.helpers.llms.actions.LLM_Request__Execute                      
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI            import LLM_Request__Builder__Open_AI
 from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder              import Virtual_Storage__Local__Folder
 from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI               import API__LLM__Open_AI, ENV_NAME_OPEN_AI__API_KEY
+from osbot_utils.helpers.llms.schemas.Safe_Str__LLM__Model_Name                 import Safe_Str__LLM__Model_Name
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                       import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data                 import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content     import Schema__LLM_Request__Message__Content
@@ -40,9 +41,9 @@ class test_LLM_Request__Execute(TestCase):
         message = Schema__LLM_Request__Message__Content(role    = Schema__LLM_Request__Message__Role.USER,
                                                         content = message_text                           )
 
-        request_data = Schema__LLM_Request__Data(model       = Safe_Str__Text("gpt-4o-mini"),
-                                                 platform    = Safe_Str__Text("OpenAI"     ),
-                                                 provider    = Safe_Str__Text("OpenAI-API" ),
+        request_data = Schema__LLM_Request__Data(model       = Safe_Str__LLM__Model_Name("gpt-4o-mini"),
+                                                 platform    = Safe_Str__Text           ("OpenAI"     ),
+                                                 provider    = Safe_Str__Text           ("OpenAI-API" ),
                                                  temperature = 0.7          ,
                                                  max_tokens  = 50           )      # Limit tokens to reduce costs
 

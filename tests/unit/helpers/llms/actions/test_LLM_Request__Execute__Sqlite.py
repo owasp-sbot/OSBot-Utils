@@ -5,6 +5,7 @@ from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI    import L
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache__File_System     import LLM_Request__Cache__File_System
 from osbot_utils.helpers.llms.cache.Virtual_Storage__Sqlite             import Virtual_Storage__Sqlite
 from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI       import ENV_NAME_OPEN_AI__API_KEY, API__LLM__Open_AI
+from osbot_utils.helpers.llms.schemas.Safe_Str__LLM__Model_Name         import Safe_Str__LLM__Model_Name
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request               import Schema__LLM_Request
 from osbot_utils.utils.Env                                              import get_env, load_dotenv
 
@@ -28,7 +29,7 @@ class test_LLM_Request__Execute__Sqlite(TestCase):
 
     def test_execute(self):
         with self.request_builder as _:
-            _.llm_request_data.model = 'gpt-4o-mini'
+            _.llm_request_data.model = Safe_Str__LLM__Model_Name('gpt-4o-mini')
             _.add_message__user("What is 1+1")
             llm_request  = Schema__LLM_Request(request_data=_.llm_request_data)
             llm_response = self.llm_execute.execute(llm_request)
@@ -40,7 +41,7 @@ class test_LLM_Request__Execute__Sqlite(TestCase):
 
         with self.virtual_storage as _:
             cache_index       = _.db.file_contents__json('llm-cache/cache_index.json')
-            cache_id          = cache_index.get('cache_id__from__hash__request').get(request_hash)
+            cache_id          = cache_index.get('cache_id__from__hash__request').get(str(request_hash))
             file_path         = cache_index.get('cache_id__to__file_path'      ).get(cache_id)
             cache_entry       = _.db.file_contents__json('llm-cache/' + file_path)
             request__duration = cache_entry.get('request__duration')
