@@ -137,7 +137,7 @@ def zip_bytes__replace_files(zip_bytes, files_to_replace):
 def zip_bytes__unzip(zip_bytes, target_folder=None):
     target_folder = target_folder or temp_folder()              # Use the provided target folder or create a temporary one
     zip_buffer = io.BytesIO(zip_bytes)                          # Create a BytesIO buffer from the zip bytes
-    with zipfile.ZipFile(zip_buffer, 'r') as zf:          # Open the zip file from the buffer
+    with zipfile.ZipFile(zip_buffer, 'r') as zf:                # Open the zip file from the buffer
         zf.extractall(target_folder)                            # Extract all files to the target folder
     return target_folder                                        # Return the path of the target folder
 
