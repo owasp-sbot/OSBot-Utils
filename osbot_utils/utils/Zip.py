@@ -79,6 +79,8 @@ def zip_bytes__add_files(zip_bytes, files_to_add):                              
                 file_contents = file_contents.encode('utf-8')
             elif not isinstance(file_contents, bytes):
                 continue
+            if file_path.startswith(('/', '\\')):                                       # Strip leading slash or backslash to make the path relative
+                file_path = file_path.lstrip('/\\')
             zf.writestr(file_path, file_contents)
 
     return zip_buffer.getvalue()
@@ -200,16 +202,18 @@ def zip_folder_to_file (root_dir, target_file):
     zip_file = zip_folder(root_dir)
     return file_move(zip_file, target_file)
 
-def zip_folder_to_bytes(root_dir):      # todo add unit test
+def zip_folder_to_bytes(root_dir, files_to_ignore:list=None):      # todo add unit test
     zip_buffer = io.BytesIO()                                                   # Create a BytesIO buffer to hold the zipped file
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:          # Create a ZipFile object with the buffer as the target
         for foldername, subfolders, filenames in os.walk(root_dir):             # Walk the root_dir and add all files and folders to the zip file
             for filename in filenames:
+                if files_to_ignore and filename in files_to_ignore:
+                    continue
                 absolute_path = os.path.join(foldername, filename)              # Create the complete filepath
                 arcname = os.path.relpath(absolute_path, root_dir)              # Define the arcname, which is the name inside the zip file
                 zf.write(absolute_path, arcname)                                # Add the file to the zip file
     zip_buffer.seek(0)                                                          # Reset buffer position
-    return zip_buffer
+    return zip_buffer.getvalue()
 
 def zip_files(base_folder, file_pattern="*.*", target_file=None):
     base_folder = abspath(base_folder)

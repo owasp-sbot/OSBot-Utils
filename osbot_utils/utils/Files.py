@@ -1,5 +1,8 @@
 import os
-from typing import Union
+from typing import Union, List
+
+from osbot_utils.helpers.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+
 
 class Files:
     @staticmethod
@@ -72,15 +75,24 @@ class Files:
         return glob.glob(path_pattern, recursive=recursive)
 
     @staticmethod
-    def files(path, pattern= '*', only_files=True):
+    def files(path, pattern= '*', only_files=True, include_path=True) -> List[Safe_Str__File__Path]:
+
         from pathlib import Path
 
-        result = []
+        result   = []
         for file in Path(path).rglob(pattern):
             if only_files and is_not_file(file):
                 continue
-            result.append(str(file))                                  # todo: see if there is a better way to do this conversion to string
+            file_path = file.as_posix()
+            if include_path is False:
+                file_path = str(file.relative_to(path))
+            result.append(Safe_Str__File__Path(file_path))
+
         return sorted(result)
+
+    @staticmethod
+    def files__virtual_paths(path, pattern='*', only_files=True):
+        return Files.files(path, pattern=pattern, only_files=only_files, include_path=False)
 
     @staticmethod
     def files_names(files : list, check_if_exists=True):
@@ -628,6 +640,7 @@ filter_parent_folder           = Files.filter_parent_folder
 files_find                     = Files.find
 files_recursive                = Files.files_recursive
 files_list                     = Files.files
+files_list__virtual_paths      = Files.files__virtual_paths
 files_names                    = Files.files_names
 
 find_files                     = Files.files
