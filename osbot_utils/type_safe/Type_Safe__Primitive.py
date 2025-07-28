@@ -29,6 +29,12 @@ class Type_Safe__Primitive:
             return super().__eq__(other)
         return False                                                            # Different types → not equal
 
+    def __enter__(self):                                                        # support context manager
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return
+
     def __ne__(self, other):
         return not self.__eq__(other)
 
