@@ -2,7 +2,9 @@
 from types  import SimpleNamespace
 
 class __(SimpleNamespace):
-    pass
+
+    def __enter__(self)                          : return self
+    def __exit__(self, exc_type, exc_val, exc_tb): return False
 
 def base_classes(cls):
     if type(cls) is type:
