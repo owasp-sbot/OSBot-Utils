@@ -1,20 +1,15 @@
 import json
-import os
 import re
 import socket
 import ssl
 import unicodedata
-from http.cookies       import SimpleCookie
-from time               import sleep
-from urllib.parse       import quote, urljoin, urlparse
-from   urllib.request   import Request, urlopen
-
-from osbot_utils.utils.Str import html_decode
-
-from osbot_utils.utils.Misc import url_decode
-
-from osbot_utils.utils.Files import save_bytes_as_file, file_size, file_bytes, file_open_bytes, file_create
-from osbot_utils.utils.Python_Logger import Python_Logger
+from http.cookies            import SimpleCookie
+from time                    import sleep
+from urllib.parse            import quote, urljoin, urlparse
+from   urllib.request        import Request, urlopen
+from osbot_utils.utils.Str   import html_decode
+from osbot_utils.utils.Misc  import url_decode
+from osbot_utils.utils.Files import save_bytes_as_file, file_create
 
 URL_CHECK_HOST_ONLINE         = 'https://www.google.com'
 URL_JOIN_SAFE__MAX_ITERATIONS = 5
