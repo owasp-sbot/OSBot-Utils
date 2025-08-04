@@ -1,19 +1,22 @@
 import re
-from typing                                     import Optional
-from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
+from typing                                                          import Optional
+from osbot_utils.helpers.safe_str.schemas.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
+from osbot_utils.type_safe.Type_Safe__Primitive                      import Type_Safe__Primitive
 
 TYPE_SAFE__STR__REGEX__SAFE_STR = re.compile(r'[^a-zA-Z0-9]')    # Only allow alphanumerics and numbers
 TYPE_SAFE__STR__MAX_LENGTH      = 512
 
+
 class Safe_Str(Type_Safe__Primitive, str):
-    max_length                : int           = TYPE_SAFE__STR__MAX_LENGTH
-    regex                     : re.Pattern    = TYPE_SAFE__STR__REGEX__SAFE_STR
-    replacement_char          : str           = '_'
-    allow_empty               : bool          = True
-    trim_whitespace           : bool          = False
-    allow_all_replacement_char: bool          = True
-    strict_validation         : bool          = False               # If True, don't replace invalid chars, raise an error instead
-    exact_length              : bool          = False               # If True, require exact length match, not just max length
+    max_length                : int                        = TYPE_SAFE__STR__MAX_LENGTH
+    regex                     : re.Pattern                 = TYPE_SAFE__STR__REGEX__SAFE_STR
+    regex_mode                : Enum__Safe_Str__Regex_Mode = Enum__Safe_Str__Regex_Mode.REPLACE
+    replacement_char          : str                        = '_'
+    allow_empty               : bool                       = True
+    trim_whitespace           : bool                       = False
+    allow_all_replacement_char: bool                       = True
+    strict_validation         : bool                       = False               # If True, don't replace invalid chars, raise an error instead
+    exact_length              : bool                       = False               # If True, require exact length match, not just max length
 
 
     def __new__(cls, value: Optional[str] = None) -> 'Safe_Str':
@@ -41,14 +44,32 @@ class Safe_Str(Type_Safe__Primitive, str):
         if cls.allow_empty and value =='':
             return str.__new__(cls, '')
 
-        if cls.strict_validation:                                                                                       # If using strict validation, check if the value matches the regex pattern exactly
-            if not cls.regex.search(value) is None:                                                                     # If there are non-matching characters
-                raise ValueError(f"Value contains invalid characters (must match pattern: {cls.regex.pattern})")
-            sanitized_value = value
-        else:
-            sanitized_value = cls.regex.sub(cls.replacement_char, value)                                                    # Apply regex sanitization
+        sanitized_value = cls.validate_and_sanitize(value)
 
-            if not cls.allow_all_replacement_char and set(sanitized_value) == {cls.replacement_char} and sanitized_value:   # Check if sanitized value consists entirely of replacement characters
-                raise ValueError(f"Sanitized value consists entirely of '{cls.replacement_char}' characters")
 
         return str.__new__(cls, sanitized_value)
+
+    @classmethod
+    def validate_and_sanitize(cls, value):
+        if cls.strict_validation:
+            if cls.regex_mode == Enum__Safe_Str__Regex_Mode.MATCH:               # For 'match' mode, regex defines the valid pattern (like version numbers)
+                if not cls.regex.match(value):
+                    raise ValueError(f"Value does not match required pattern: {cls.regex.pattern}")
+                return value
+            elif cls.regex_mode == Enum__Safe_Str__Regex_Mode.REPLACE:           # For 'replace' mode, regex defines invalid characters to replace
+                if cls.regex.search(value) is not None:
+                    raise ValueError(f"Value contains invalid characters (must not match pattern: {cls.regex.pattern})")
+                return value
+            else:
+                raise ValueError(f"in {cls.__name__}, regex_mode value cannot be None when strict_validation is True")
+        else:
+            if cls.regex_mode == Enum__Safe_Str__Regex_Mode.MATCH:               # Cannot do replacement when regex defines valid pattern
+                raise ValueError(f"Cannot use regex_mode='match' without strict_validation=True")
+            else:                                                                # assume the default Enum__Safe_Str__Regex_Mode.MATCH
+                sanitized_value =  cls.regex.sub(cls.replacement_char, value)
+
+                if not cls.allow_all_replacement_char and set(sanitized_value) == {
+                    cls.replacement_char} and sanitized_value:
+                    raise ValueError(f"Sanitized value consists entirely of '{cls.replacement_char}' characters")
+
+                return sanitized_value
