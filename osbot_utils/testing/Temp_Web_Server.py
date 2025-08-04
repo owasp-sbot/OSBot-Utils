@@ -1,14 +1,11 @@
-from contextlib import contextmanager
-from functools import partial
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from threading import Thread
-from urllib.parse import urljoin
-
-from osbot_utils.utils.Files import file_create, path_combine, temp_filename, file_create_all_parent_folders
-
-from osbot_utils.utils.Misc import random_port, random_string
-
-from osbot_utils.utils.Http import port_is_open, GET
+from contextlib                 import contextmanager
+from functools                  import partial
+from http.server                import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from threading                  import Thread
+from urllib.parse               import urljoin
+from osbot_utils.utils.Files    import file_create, path_combine, temp_filename, file_create_all_parent_folders
+from osbot_utils.utils.Misc     import random_port, random_string
+from osbot_utils.utils.Http     import port_is_open, GET
 
 
 class Temp_Web_Server:
@@ -67,6 +64,7 @@ class Temp_Web_Server:
             self.server_thread.join()
         else:
             self.server._BaseServer__shutdown_request = True  # simulate what happens inside self.server.shutdown()
+        return self
 
     def start(self):
         if self.http_handler is  SimpleHTTPRequestHandler:
@@ -76,6 +74,7 @@ class Temp_Web_Server:
         self.server        = ThreadingHTTPServer((self.host, self.port), handler_config)
         self.server_thread = Thread(target=self.server.serve_forever, name=self.server_name)
         self.server_thread.start()
+        return self
 
     def url(self,path=''):
         base_url = f"http://{self.host}:{self.port}"
