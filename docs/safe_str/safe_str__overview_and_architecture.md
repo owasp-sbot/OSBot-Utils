@@ -229,7 +229,7 @@ hash = Safe_Str__Hash("xyz")         # ✗ ValueError - not hex
 hash = Safe_Str__Hash("a1b2c3d4e5f") # ✗ ValueError - wrong length
 
 # Helper function for creating hashes
-from osbot_utils.helpers.safe_str.Safe_Str__Hash import safe_str_hash
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Hash import safe_str_hash
 hash_value = safe_str_hash("my data")  # Creates 10-char MD5 hash
 ```
 
@@ -321,7 +321,7 @@ if safe_name.startswith("my"):    # No extra validation
 
 ```python
 import re
-from osbot_utils.helpers.safe_str.Safe_Str import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
 
 class Safe_Str__Username(Safe_Str):
     regex = re.compile(r'[^a-z0-9_]')  # Only lowercase, numbers, underscore

@@ -3,7 +3,7 @@ from unittest                                                        import Test
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI import LLM_Request__Builder__Open_AI
 from osbot_utils.helpers.llms.builders.LLM_Request__Factory          import LLM_Request__Factory
 from osbot_utils.helpers.llms.schemas.Safe_Str__LLM__Model_Name      import Safe_Str__LLM__Model_Name
-from osbot_utils.helpers.safe_str.Safe_Str__Text                     import Safe_Str__Text
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Text                     import Safe_Str__Text
 from osbot_utils.type_safe.Type_Safe                                 import Type_Safe
 
 class test_LLM_Request__Builder__Open_AI(TestCase):

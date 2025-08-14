@@ -1,7 +1,7 @@
 from typing                                             import Dict
 from osbot_utils.helpers.Obj_Id                         import Obj_Id
-from osbot_utils.helpers.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
-from osbot_utils.helpers.safe_str.Safe_Str__Hash        import Safe_Str__Hash
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Hash        import Safe_Str__Hash
 from osbot_utils.type_safe.Type_Safe                    import Type_Safe
 
 class Schema__LLM_Cache__Index(Type_Safe):

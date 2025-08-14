@@ -40,7 +40,7 @@ pip install git+https://github.com/owasp-sbot/OSBot-Utils.git@dev
 ### Using Type-Safe Primitives
 
 ```python
-from osbot_utils.helpers.safe_str.Safe_Str import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
 
 class Username(Safe_Str):
     max_length = 20

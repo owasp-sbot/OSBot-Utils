@@ -37,7 +37,7 @@ get_user_unsafe("admin' OR '1'='1")  # Returns all users!
 
 ```python
 import re
-from osbot_utils.helpers.safe_str.Safe_Str import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
 
 class Safe_Str__SQL_Identifier(Safe_Str):
     """Safe SQL identifier - table/column names only"""
@@ -160,8 +160,8 @@ read_user_file_unsafe("123", "../../etc/passwd")  # Reads system file!
 ### Safe_Str Protection
 
 ```python
-from osbot_utils.helpers.safe_str.Safe_Str__File__Name import Safe_Str__File__Name
-from osbot_utils.helpers.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__File__Name import Safe_Str__File__Name
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
 from pathlib import Path
 
 class SecureFileAccess(Type_Safe):
@@ -217,7 +217,7 @@ html = render_comment_unsafe("<script>alert('XSS')</script>")
 ### Safe_Str Protection
 
 ```python
-from osbot_utils.helpers.safe_str.Safe_Str__Text import Safe_Str__Text
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Text import Safe_Str__Text
 from osbot_utils.helpers.safe_str.http.Safe_Str__Html import Safe_Str__Html
 import html
 
@@ -328,7 +328,7 @@ redirect_unsafe("//evil.com")
 ### Safe_Str Protection
 
 ```python
-from osbot_utils.helpers.safe_str.Safe_Str__Url import Safe_Str__Url
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Url import Safe_Str__Url
 from urllib.parse import urlparse
 
 class Safe_Str__Redirect_Url(Safe_Str__Url):

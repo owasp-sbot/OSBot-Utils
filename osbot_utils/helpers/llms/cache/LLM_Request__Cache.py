@@ -4,7 +4,7 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index    import Schema_
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request         import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response        import Schema__LLM_Response
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache import Schema__LLM_Response__Cache
-from osbot_utils.helpers.safe_str.Safe_Str__Hash                  import Safe_Str__Hash
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Hash                  import Safe_Str__Hash
 from osbot_utils.type_safe.Type_Safe                              import Type_Safe
 from osbot_utils.type_safe.decorators.type_safe                   import type_safe
 from osbot_utils.utils.Json                                       import json_md5

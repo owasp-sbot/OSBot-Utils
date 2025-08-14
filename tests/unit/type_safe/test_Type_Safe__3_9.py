@@ -2,7 +2,7 @@ import sys
 import pytest
 from typing                                              import List, get_origin, get_args, Optional
 from unittest                                            import TestCase
-from osbot_utils.type_safe.Type_Safe                  import Type_Safe
+from osbot_utils.type_safe.Type_Safe                     import Type_Safe
 from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
 
 class test_Type_Safe__3_9(TestCase):

@@ -85,7 +85,7 @@ Safe_Int provides six configuration attributes that control validation and conve
 Safe_Int intelligently handles various input types:
 
 ```python
-from osbot_utils.helpers.safe_int.Safe_Int import Safe_Int
+from osbot_utils.type_safe.primitives.safe_int.Safe_Int import Safe_Int
 
 # String conversion (when allow_str=True)
 value = Safe_Int("42")        # ✓ Returns Safe_Int(42)

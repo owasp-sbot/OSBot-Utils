@@ -302,7 +302,7 @@ def safe_str_hash(value: Any) -> Safe_Str__Hash:
 hash_val = Safe_Str__Hash("a1b2c3d4e5")  # ✓ Valid
 
 # Using helper
-from osbot_utils.helpers.safe_str.Safe_Str__Hash import safe_str_hash
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Hash import safe_str_hash
 hash_val = safe_str_hash("my data")  # Creates hash
 ```
 
@@ -342,7 +342,7 @@ version = Safe_Str__Version("v1.2")       # ✗ Missing patch
 
 ```python
 import re
-from osbot_utils.helpers.safe_str.Safe_Str import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
 
 class Safe_Str__Username(Safe_Str):
     regex = re.compile(r'[^a-z0-9_]')

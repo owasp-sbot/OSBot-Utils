@@ -12,8 +12,8 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role        
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                      import Schema__LLM_Response
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content     import Schema__LLM_Request__Message__Content
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache               import Schema__LLM_Response__Cache
-from osbot_utils.helpers.safe_str.Safe_Str__File__Path                          import Safe_Str__File__Path
-from osbot_utils.helpers.safe_str.Safe_Str__Hash                                import Safe_Str__Hash
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__File__Path                          import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Hash                                import Safe_Str__Hash
 from osbot_utils.utils.Files                                                    import file_exists, folder_exists, files_names_in_folder
 from osbot_utils.utils.Json                                                     import json_file_load
 from osbot_utils.utils.Misc                                                     import list_set

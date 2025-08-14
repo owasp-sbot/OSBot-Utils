@@ -80,8 +80,8 @@ completion = 100 * (7/9)   # 77.77777777777779
 ### Safe_Float Solutions
 
 ```python
-from osbot_utils.helpers.safe_float.Safe_Float__Money import Safe_Float__Money
-from osbot_utils.helpers.safe_float.Safe_Float__Percentage_Exact import Safe_Float__Percentage_Exact
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money import Safe_Float__Money
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Percentage_Exact import Safe_Float__Percentage_Exact
 
 # Exact money calculations
 price = Safe_Float__Money(19.99)
@@ -218,7 +218,7 @@ value = Safe_Float(1.0 / 0.0)  # ✗ ValueError: does not allow infinite values
 ### Safe_Float__Money - Financial Calculations
 
 ```python
-from osbot_utils.helpers.safe_float.Safe_Float__Money import Safe_Float__Money
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money import Safe_Float__Money
 
 # Configuration:
 # - decimal_places = 2 (cents precision)
@@ -247,7 +247,7 @@ refund = Safe_Float__Money(-10.00)  # ✗ ValueError: must be >= 0.0
 ### Safe_Float__Percentage_Exact - Precise Percentages
 
 ```python
-from osbot_utils.helpers.safe_float.Safe_Float__Percentage_Exact import Safe_Float__Percentage_Exact
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Percentage_Exact import Safe_Float__Percentage_Exact
 
 # Configuration:
 # - min_value = 0.0, max_value = 100.0
@@ -269,7 +269,7 @@ under = Safe_Float__Percentage_Exact(-1.0)   # ✗ ValueError: must be >= 0.0
 ### Safe_Float__Engineering - Engineering Calculations
 
 ```python
-from osbot_utils.helpers.safe_float.Safe_Float__Engineering import Safe_Float__Engineering
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Engineering import Safe_Float__Engineering
 
 # Configuration:
 # - epsilon = 1e-6 (engineering tolerance)

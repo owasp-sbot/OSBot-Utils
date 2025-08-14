@@ -1,12 +1,12 @@
 # todo: find a way to add these documentations strings to a separate location so that
 #       the data is available in IDE's code complete
-from osbot_utils.type_safe.shared.Type_Safe__Validation             import type_safe_validation
-from osbot_utils.type_safe.steps.Type_Safe__Step__Class_Kwargs      import type_safe_step_class_kwargs
-from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Kwargs    import type_safe_step_default_kwargs
-from osbot_utils.type_safe.steps.Type_Safe__Step__Default_Value     import type_safe_step_default_value
-from osbot_utils.type_safe.steps.Type_Safe__Step__Init              import type_safe_step_init
-from osbot_utils.type_safe.steps.Type_Safe__Step__Set_Attr          import type_safe_step_set_attr
-from osbot_utils.utils.Objects                                      import serialize_to_dict
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation import type_safe_validation
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Class_Kwargs   import type_safe_step_class_kwargs
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Default_Kwargs  import type_safe_step_default_kwargs
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Default_Value  import type_safe_step_default_value
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Init           import type_safe_step_init
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Set_Attr       import type_safe_step_set_attr
+from osbot_utils.utils.Objects                                                  import serialize_to_dict
 
 class Type_Safe:
 
@@ -63,7 +63,7 @@ class Type_Safe:
         return self.serialize_to_dict()
 
     def json__compress(self):                                           # todo: see if this is the best place to put these Type_Safe__Json_Compressor methods
-        from osbot_utils.type_safe.shared.Type_Safe__Json_Compressor import Type_Safe__Json_Compressor
+        from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Json_Compressor import Type_Safe__Json_Compressor
         return Type_Safe__Json_Compressor().compress(self)
 
     # todo: see if we still need this. now that Type_Safe handles base types, there should be no need for this
@@ -107,11 +107,12 @@ class Type_Safe:
 
     @classmethod
     def from_json(cls, json_data, raise_on_not_found=False):
-        from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json import type_safe_step_from_json     # circular dependency on Type_Safe
+        from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__From_Json import type_safe_step_from_json      # circular dependency on Type_Safe
         return type_safe_step_from_json.from_json(cls, json_data, raise_on_not_found)
 
     @classmethod
     def from_json__compressed(cls, json_data):                          # todo: see if this is the best place to put these Type_Safe__Json_Compressor methods
-        from osbot_utils.type_safe.shared.Type_Safe__Json_Compressor import Type_Safe__Json_Compressor
+
+        from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Json_Compressor import Type_Safe__Json_Compressor
         json_data__decompressed = Type_Safe__Json_Compressor().decompress(json_data)
         return cls.from_json(json_data__decompressed)
