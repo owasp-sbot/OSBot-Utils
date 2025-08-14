@@ -89,7 +89,7 @@ class Service(Type_Safe):
 ## Type-Safe Primitives
 
 ```python
-from osbot_utils.helpers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
 
 class UserId(Safe_Id): pass
 class OrderId(Safe_Id): pass
@@ -242,7 +242,7 @@ from osbot_utils.type_safe.validators import (
 )
 
 # Safe Primitives
-from osbot_utils.helpers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
 from osbot_utils.helpers.safe_str import Safe_Str
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
 from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict

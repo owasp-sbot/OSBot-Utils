@@ -13,7 +13,7 @@ Here's a simple example of using the framework to measure class instantiation pe
 
 ```python
 from osbot_utils.testing.performance import Performance_Measure__Session
-from osbot_utils.helpers.Random_Guid import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
 
 # Basic performance test
 def test_instantiation_performance():

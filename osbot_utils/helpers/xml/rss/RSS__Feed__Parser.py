@@ -1,5 +1,5 @@
 from typing                                     import Dict, Any
-from osbot_utils.helpers.Guid                   import Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid                   import Guid
 from osbot_utils.helpers.xml.rss.RSS__Channel   import RSS__Channel
 from osbot_utils.helpers.xml.rss.RSS__Feed      import RSS__Feed
 from osbot_utils.helpers.xml.rss.RSS__Image     import RSS__Image

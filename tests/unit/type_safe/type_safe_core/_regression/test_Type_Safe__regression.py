@@ -6,13 +6,13 @@ from typing                                                             import O
 from unittest                                                           import TestCase
 from unittest.mock                                                      import patch
 from osbot_utils.helpers.Obj_Id                                         import Obj_Id
-from osbot_utils.helpers.Timestamp_Now                                  import Timestamp_Now
-from osbot_utils.helpers.Guid                                           import Guid
+from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now            import Timestamp_Now
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid         import Guid
 from osbot_utils.helpers.python_compatibility.python_3_8                import Annotated
 from osbot_utils.base_classes.Kwargs_To_Self                            import Kwargs_To_Self
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
 from osbot_utils.decorators.methods.cache_on_self                       import cache_on_self
-from osbot_utils.helpers.Random_Guid                                    import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set    import Type_Safe__Set
@@ -359,8 +359,8 @@ class test_Type_Safe__regression(TestCase):
         # with pytest.raises(TypeError, match="Subscripted generics cannot be used with class and instance checks"):
         #     An_Class()                                #  FXIED BUG
 
-        assert An_Class().obj() == __(an_guid       = 'osbot_utils.helpers.Guid.Guid'                   ,
-                                      an_time_stamp = 'osbot_utils.helpers.Timestamp_Now.Timestamp_Now' )
+        assert An_Class().obj() == __(an_guid       = 'osbot_utils.type_safe.primitives.safe_str.identifiers.Guid.Guid'                   ,
+                                      an_time_stamp = 'osbot_utils.type_safe.primitives.safe_int.Timestamp_Now.Timestamp_Now' )
 
     def test__regression__type_from_json(self):
         class An_Class(Type_Safe):
@@ -369,18 +369,18 @@ class test_Type_Safe__regression(TestCase):
             str_type         : Type[str        ] = str
 
         an_class_json = An_Class().json()
-        assert an_class_json == { 'guid_type'       : 'osbot_utils.helpers.Guid.Guid'               ,
-                                  'random_guid_type': 'osbot_utils.helpers.Random_Guid.Random_Guid' ,
+        assert an_class_json == { 'guid_type'       : 'osbot_utils.type_safe.primitives.safe_str.identifiers.Guid.Guid'               ,
+                                  'random_guid_type': 'osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid.Random_Guid' ,
                                   'str_type'        : 'builtins.str'                                }
-        # with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'guid_type'. Expected 'typing.Type[osbot_utils.helpers.Guid.Guid]' but got '<class 'str'>'")):
+        # with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'guid_type'. Expected 'typing.Type[from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid.Guid]' but got '<class 'str'>'")):
         #     An_Class.from_json(an_class_json)       # Fixed BUG
 
         assert An_Class.from_json(an_class_json).json() == an_class_json
         assert An_Class.from_json(an_class_json).obj () == An_Class().obj()
 
-        # assert obj3.obj () == __(guid_type   = 'osbot_utils.helpers.Guid.Guid'    ,
+        # assert obj3.obj () == __(guid_type   = 'from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid.Guid'    ,
         #                          str_type    = 'builtins.str'                     ,
-        #                          str_type_2  = 'osbot_utils.helpers.Guid.Guid'    ,)
+        #                          str_type_2  = 'from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid.Guid'    ,)
         #assert An_Class.from_json(An_Class().json()).obj() == An_Class().obj()
     def test__regression__class_level_defaults__mutable_vs_type(self):
         class Problematic(Type_Safe):
@@ -424,7 +424,7 @@ class test_Type_Safe__regression(TestCase):
         assert obj3.obj () == obj4.obj ()
 
         # Can't modify type objects
-        with pytest.raises(ValueError, match=re.escape("Can't set None, to a variable that is already set. Invalid type for attribute 'guid_type'. Expected 'typing.Type[osbot_utils.helpers.Guid.Guid]' but got '<class 'NoneType'>'")):
+        with pytest.raises(ValueError, match=re.escape("Can't set None, to a variable that is already set. Invalid type for attribute 'guid_type'. Expected 'typing.Type[osbot_utils.type_safe.primitives.safe_str.identifiers.Guid.Guid]' but got '<class 'NoneType'>'")):
             obj3.guid_type = None                 # Can't modify type
         with pytest.raises(ValueError, match=re.escape("Can't set None, to a variable that is already set. Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'NoneType'>'")):
             obj4.str_type = None                  # Can't modify type

@@ -1,5 +1,5 @@
 from unittest                                        import TestCase
-from osbot_utils.helpers.Guid                        import Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid                        import Guid
 from osbot_utils.helpers.xml.Xml__File__Load         import Xml__File__Load
 from osbot_utils.helpers.xml.Xml__File__To_Dict      import Xml__File__To_Dict
 from osbot_utils.helpers.xml.rss.RSS__Feed__Parser   import RSS__Feed__Parser

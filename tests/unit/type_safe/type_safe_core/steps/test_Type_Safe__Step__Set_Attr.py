@@ -2,7 +2,7 @@ from unittest                                                               impo
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations     import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Set_Attr   import Type_Safe__Step__Set_Attr
 from osbot_utils.utils.Misc                                                 import random_guid
-from osbot_utils.helpers.Random_Guid                                        import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid      import Random_Guid
 #from osbot_utils.helpers.trace.Trace_Call                   import trace_calls
 
 

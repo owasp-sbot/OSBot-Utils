@@ -5,10 +5,10 @@ from enum                                                                   impo
 from decimal                                                                import Decimal
 from osbot_utils.testing.performance.Performance_Measure__Session           import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
-from osbot_utils.helpers.Random_Guid                                        import Random_Guid
-from osbot_utils.helpers.Random_Guid_Short                                  import Random_Guid_Short
-from osbot_utils.helpers.Safe_Id                                            import Safe_Id
-from osbot_utils.helpers.Timestamp_Now                                      import Timestamp_Now
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid      import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid_Short                                  import Random_Guid_Short
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id          import Safe_Id
+from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                 import Timestamp_Now
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__From_Json  import type_safe_step_from_json
 from osbot_utils.utils.Env                                                  import not_in_github_action
 

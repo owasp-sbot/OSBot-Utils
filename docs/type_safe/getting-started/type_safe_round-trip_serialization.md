@@ -133,8 +133,8 @@ assert len(reconstructed.branches) == 2
 ### Type-Safe Primitives Serialization
 
 ```python
-from osbot_utils.helpers.Safe_Id import Safe_Id
-from osbot_utils.helpers.Random_Guid import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
 
 class UserId(Safe_Id): pass
 class OrderId(Safe_Id): pass

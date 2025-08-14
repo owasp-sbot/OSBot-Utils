@@ -1,6 +1,6 @@
 from unittest                                                               import TestCase
 from osbot_utils.helpers.Obj_Id                                             import Obj_Id
-from osbot_utils.helpers.Timestamp_Now                                      import Timestamp_Now
+from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                 import Timestamp_Now
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                   import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content

@@ -1,5 +1,5 @@
 from unittest                                   import TestCase
-from osbot_utils.helpers.Random_Guid            import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid            import Random_Guid
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 from osbot_utils.utils.Json                     import json_to_str, json_round_trip
 from osbot_utils.utils.Misc                     import is_guid

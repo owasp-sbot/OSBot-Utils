@@ -1,12 +1,12 @@
 import re
 import sys
 import pytest
-from typing                                                           import List, Dict, Union, Optional, Any
-from unittest                                                         import TestCase
-from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
-from osbot_utils.helpers.Random_Guid                                  import Random_Guid
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
-from osbot_utils.utils.Objects                                        import __
+from typing                                                            import List, Dict, Union, Optional, Any
+from unittest                                                          import TestCase
+from osbot_utils.type_safe.Type_Safe                                   import Type_Safe
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List  import Type_Safe__List
+from osbot_utils.utils.Objects                                         import __
 
 
 class test_Type_Safe__List(TestCase):

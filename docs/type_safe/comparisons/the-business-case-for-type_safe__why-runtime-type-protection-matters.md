@@ -125,7 +125,7 @@ def transfer_funds(from_account, to_account, amount):
 **The Type_Safe Solution**:
 
 ```python
-from osbot_utils.helpers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
 
 class UserId(Safe_Id): pass
 class AccountId(Safe_Id): pass

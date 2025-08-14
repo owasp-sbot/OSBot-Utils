@@ -5,11 +5,11 @@ from unittest                                                                   
 from typing                                                                       import Union, Optional, List, Type
 from dataclasses                                                                  import dataclass
 from osbot_utils.helpers.Obj_Id                                                   import Obj_Id
-from osbot_utils.helpers.Timestamp_Now                                            import Timestamp_Now
+from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                       import Timestamp_Now
 from osbot_utils.type_safe.primitives.safe_str.Safe_Str                           import Safe_Str
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
-from osbot_utils.helpers.Safe_Id                                                  import Safe_Id
-from osbot_utils.helpers.Random_Guid                                              import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid            import Random_Guid
 from osbot_utils.type_safe.primitives.safe_str.cryptography.hashes.Safe_Str__Hash import Safe_Str__Hash
 from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Name    import Safe_Str__File__Name
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                    import type_safe
@@ -28,7 +28,7 @@ class test__decorator__type_safe(TestCase):
         assert self.test_instance.basic_method(Safe_Id("made../..safe"), 42) == "made_____safe-42"
 
         # Invalid cases
-        with pytest.raises(ValueError, match="Parameter 'param' expected type <class 'osbot_utils.helpers.Safe_Id.Safe_Id'>, but got <class 'bytes'>"):
+        with pytest.raises(ValueError, match="Parameter 'param' expected type <class 'osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id.Safe_Id'>, but got <class 'bytes'>"):
             self.test_instance.basic_method(b"not_safe_id", 42)
         with pytest.raises(ValueError, match="Parameter 'number' expected type <class 'int'>, but got <class 'str'>"):
             self.test_instance.basic_method(Safe_Id("test"), "not_int")

@@ -1,5 +1,5 @@
 from typing                             import Any
-from osbot_utils.helpers.Timestamp_Now  import Timestamp_Now
+from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now  import Timestamp_Now
 from osbot_utils.type_safe.Type_Safe    import Type_Safe
 
 

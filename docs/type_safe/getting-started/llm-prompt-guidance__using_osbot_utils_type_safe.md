@@ -109,7 +109,7 @@ class Calculator(Type_Safe):
 
 ### Rule 7: Use Type-Safe Primitives for Domain Types
 ```python
-from osbot_utils.helpers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
 
 # ✓ CORRECT - Domain-specific type
 class UserId(Safe_Id): pass
