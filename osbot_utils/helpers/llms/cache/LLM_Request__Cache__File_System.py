@@ -11,8 +11,9 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index                  
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                       import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                      import Schema__LLM_Response
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache               import Schema__LLM_Response__Cache
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str__File__Path                          import Safe_Str__File__Path
-from osbot_utils.type_safe.decorators.type_safe                                 import type_safe
+from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
+
 
 class LLM_Request__Cache__File_System(LLM_Request__Cache):
     virtual_storage: Virtual_Storage__Local__Folder    

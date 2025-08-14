@@ -1,14 +1,14 @@
 import re
-from typing                                                     import Type, Any, List, Dict, Tuple, Set, Optional, Union, get_origin, get_args
-from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_utils.type_safe.decorators.type_safe                 import type_safe
-from osbot_utils.type_safe.shared.Type_Safe__Cache              import type_safe_cache
-from osbot_utils.type_safe.validators.Type_Safe__Validator      import Type_Safe__Validator
-from osbot_utils.type_safe.validators.Validator__Min            import Validator__Min
-from osbot_utils.type_safe.validators.Validator__Max            import Validator__Max
-from osbot_utils.type_safe.validators.Validator__Regex          import Validator__Regex
-from osbot_utils.type_safe.validators.Validator__One_Of         import Validator__One_Of
-from osbot_utils.helpers.python_compatibility.python_3_8        import Annotated
+from typing                                                         import Type, Any, List, Dict, Tuple, Set, Optional, Union, get_origin, get_args
+from osbot_utils.type_safe.Type_Safe                                import Type_Safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe      import type_safe
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache   import type_safe_cache
+from osbot_utils.type_safe.validators.Type_Safe__Validator          import Type_Safe__Validator
+from osbot_utils.type_safe.validators.Validator__Min                import Validator__Min
+from osbot_utils.type_safe.validators.Validator__Max                import Validator__Max
+from osbot_utils.type_safe.validators.Validator__Regex              import Validator__Regex
+from osbot_utils.type_safe.validators.Validator__One_Of             import Validator__One_Of
+from osbot_utils.helpers.python_compatibility.python_3_8            import Annotated
 import inspect
 
 

@@ -1,6 +1,7 @@
 from typing                                                     import Dict, Any
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder     import LLM_Request__Builder
-from osbot_utils.type_safe.decorators.type_safe                 import type_safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe  import type_safe
+
 
 class LLM_Request__Builder__Open_AI(LLM_Request__Builder):
 

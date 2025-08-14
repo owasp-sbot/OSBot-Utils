@@ -1,7 +1,8 @@
-from unittest                                   import TestCase
-from osbot_utils.type_safe.Type_Safe__Dict   import Type_Safe__Dict
-from osbot_utils.helpers.xml.Xml__Element       import XML__Element
-from osbot_utils.helpers.xml.Xml__File          import Xml__File
+from unittest                                                         import TestCase
+from osbot_utils.helpers.xml.Xml__Element                             import XML__Element
+from osbot_utils.helpers.xml.Xml__File                                import Xml__File
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+
 
 class test_Xml__File(TestCase):
     def setUp(self):
