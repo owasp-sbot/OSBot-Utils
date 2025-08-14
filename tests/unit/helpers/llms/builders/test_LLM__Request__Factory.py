@@ -3,7 +3,7 @@ from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI    import L
 from osbot_utils.helpers.llms.builders.LLM_Request__Factory             import LLM_Request__Factory
 from osbot_utils.helpers.llms.schemas.Safe_Str__LLM__Model_Name         import Safe_Str__LLM__Model_Name
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data         import Schema__LLM_Request__Data
-from osbot_utils.helpers.safe_str.Safe_Str__Text                        import Safe_Str__Text
+from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text      import Safe_Str__Text
 from osbot_utils.utils.Objects                                          import __
 
 

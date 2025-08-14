@@ -1,5 +1,5 @@
 from typing                                                     import Optional, Dict, List, Any
-from osbot_utils.helpers.Timestamp_Now                          import Timestamp_Now
+from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now     import Timestamp_Now
 from osbot_utils.helpers.flows.models.Flow_Run__Event           import Flow_Run__Event
 from osbot_utils.helpers.flows.models.Schema__Flow__Artifact    import Schema__Flow__Artifact
 from osbot_utils.helpers.flows.models.Schema__Flow__Result      import Schema__Flow__Result

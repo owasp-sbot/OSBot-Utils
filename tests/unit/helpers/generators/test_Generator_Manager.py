@@ -5,7 +5,7 @@ from types                                                      import Generator
 from unittest                                                   import TestCase
 from threading                                                  import Thread, Event
 from time                                                       import sleep
-from osbot_utils.helpers.Random_Guid                            import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                            import Random_Guid
 from osbot_utils.helpers.generators.Generator_Context_Manager   import Generator_Context_Manager
 from osbot_utils.helpers.generators.Generator_Manager           import Generator_Manager
 from osbot_utils.helpers.generators.Model__Generator_State      import Model__Generator_State

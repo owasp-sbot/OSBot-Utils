@@ -2,7 +2,7 @@ from typing                                                     import Type, Opt
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder     import LLM_Request__Builder
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data import Schema__LLM_Request__Data
 from osbot_utils.type_safe.Type_Safe                            import Type_Safe
-from osbot_utils.type_safe.decorators.type_safe                 import type_safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe  import type_safe
 
 
 class LLM_Request__Factory(Type_Safe):                              # Factory class for creating common LLM request patterns.

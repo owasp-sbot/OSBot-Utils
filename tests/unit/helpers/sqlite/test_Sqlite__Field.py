@@ -1,7 +1,7 @@
 from typing                                                     import Union, Optional
 from unittest                                                   import TestCase
 from osbot_utils.helpers.sqlite.Sqlite__Field                   import Sqlite__Field, Sqlite__Field__Type
-from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json     import type_safe_step_from_json
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__From_Json     import type_safe_step_from_json
 from osbot_utils.utils.Misc                                     import random_string
 
 

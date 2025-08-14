@@ -2,20 +2,20 @@ import re
 import sys
 import types
 import pytest
-from enum                                                    import Enum, auto
-from typing import Union, Optional, Type, Set
-from unittest                                                import TestCase
-from osbot_utils.helpers.Timestamp_Now                       import Timestamp_Now
-from osbot_utils.helpers.Guid                                import Guid
-from osbot_utils.helpers.Random_Guid                         import Random_Guid
-from osbot_utils.type_safe.Type_Safe                         import Type_Safe
-from osbot_utils.type_safe.Type_Safe__List                   import Type_Safe__List
-from osbot_utils.testing.Catch                               import Catch
-from osbot_utils.testing.Stdout                              import Stdout
-from osbot_utils.type_safe.steps.Type_Safe__Step__From_Json  import type_safe_step_from_json
-from osbot_utils.utils.Json                                  import json_dumps
-from osbot_utils.utils.Misc                                  import random_string, list_set
-from osbot_utils.utils.Objects                               import obj_data, __, default_value, serialize_to_dict
+from enum                                                                   import Enum, auto
+from typing                                                                 import Union, Optional, Type, Set
+from unittest                                                               import TestCase
+from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                import Timestamp_Now
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid             import Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid      import Random_Guid
+from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List       import Type_Safe__List
+from osbot_utils.testing.Catch                                              import Catch
+from osbot_utils.testing.Stdout                                             import Stdout
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__From_Json  import type_safe_step_from_json
+from osbot_utils.utils.Json                                                 import json_dumps
+from osbot_utils.utils.Misc                                                 import random_string, list_set
+from osbot_utils.utils.Objects                                              import obj_data, __, default_value, serialize_to_dict
 
 
 class test_Type_Safe(TestCase):
@@ -963,7 +963,8 @@ class test_Type_Safe(TestCase):
             an_guid      : Type[Guid]
             an_time_stamp: Type[Timestamp_Now]
 
-        assert An_Class_1().json() == {'an_guid': 'osbot_utils.helpers.Guid.Guid', 'an_time_stamp': 'osbot_utils.helpers.Timestamp_Now.Timestamp_Now'}
+        assert An_Class_1().json() == {'an_guid'      : 'osbot_utils.type_safe.primitives.safe_str.identifiers.Guid.Guid'       ,
+                                       'an_time_stamp': 'osbot_utils.type_safe.primitives.safe_int.Timestamp_Now.Timestamp_Now' }
 
     def test_type_checks_on__forward_ref__works_on_multiple_levels(self):
         class An_Class(Type_Safe):

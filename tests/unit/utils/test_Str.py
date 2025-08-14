@@ -1,6 +1,6 @@
 import pytest
 from unittest                        import TestCase
-from osbot_utils.helpers.Random_Guid import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
 from osbot_utils.utils.Str           import trim, safe_id
 
 

@@ -78,7 +78,7 @@ store.index["key"] = "value"     # ✗ TypeError on value!
 Domain-specific types with built-in validation:
 
 ```python
-from osbot_utils.helpers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
 from osbot_utils.type_safe.decorators import type_safe
 
 class UserId(Safe_Id): pass

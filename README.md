@@ -1,6 +1,6 @@
 # OSBot-Utils
 
-![Current Release](https://img.shields.io/badge/release-v2.73.0-blue)
+![Current Release](https://img.shields.io/badge/release-v2.73.3-blue)
 ![Python](https://img.shields.io/badge/python-3.8+-green)
 ![Type-Safe](https://img.shields.io/badge/Type--Safe-✓-brightgreen)
 ![Caching](https://img.shields.io/badge/Caching-Built--In-orange)
@@ -40,7 +40,7 @@ pip install git+https://github.com/owasp-sbot/OSBot-Utils.git@dev
 ### Using Type-Safe Primitives
 
 ```python
-from osbot_utils.helpers.safe_str.Safe_Str import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
 
 class Username(Safe_Str):
     max_length = 20

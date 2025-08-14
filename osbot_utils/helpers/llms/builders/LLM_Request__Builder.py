@@ -6,9 +6,10 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             impo
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Function_Call    import Schema__LLM_Request__Function_Call
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
-from osbot_utils.helpers.safe_str.Safe_Str__Text                            import Safe_Str__Text
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
-from osbot_utils.type_safe.decorators.type_safe                             import type_safe
+from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text          import Safe_Str__Text
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe              import type_safe
+
 
 class LLM_Request__Builder(Type_Safe):
     schema_generator : Type_Safe__Schema_For__LLMs

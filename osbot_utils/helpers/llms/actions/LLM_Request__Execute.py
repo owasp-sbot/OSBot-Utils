@@ -5,7 +5,8 @@ from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI   import API__
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request           import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response          import Schema__LLM_Response
 from osbot_utils.type_safe.Type_Safe                                import Type_Safe
-from osbot_utils.type_safe.decorators.type_safe                     import type_safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe      import type_safe
+
 
 class LLM_Request__Execute(Type_Safe):
     llm_cache      : LLM_Request__Cache

@@ -1,7 +1,6 @@
 import os
-from typing import Union, List
-
-from osbot_utils.helpers.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from typing                                                                    import Union, List
+from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path import Safe_Str__File__Path
 
 
 class Files:
