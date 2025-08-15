@@ -2,7 +2,7 @@ import pytest
 from typing                                                             import List, Dict, Set, Tuple
 from unittest                                                           import TestCase
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str                 import Safe_Str
 from osbot_utils.utils.Objects                                          import __
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
