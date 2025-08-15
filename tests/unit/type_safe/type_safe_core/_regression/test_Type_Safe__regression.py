@@ -1,32 +1,53 @@
 import re
 import pytest
 import sys
-from decimal                                                            import Decimal
-from typing                                                             import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set
-from unittest                                                           import TestCase
-from unittest.mock                                                      import patch
-from osbot_utils.helpers.Obj_Id                                         import Obj_Id
-from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now            import Timestamp_Now
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid         import Guid
-from osbot_utils.helpers.python_compatibility.python_3_8                import Annotated
-from osbot_utils.base_classes.Kwargs_To_Self                            import Kwargs_To_Self
-from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
-from osbot_utils.decorators.methods.cache_on_self                       import cache_on_self
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set    import Type_Safe__Set
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations import type_safe_annotations
-from osbot_utils.type_safe.validators.Validator__Min                    import Min
-from osbot_utils.utils.Json                                             import json_to_str, str_to_json
-from osbot_utils.utils.Misc                                             import list_set, is_guid
-from osbot_utils.utils.Objects                                          import default_value, __, type_full_name
+from decimal                                                                    import Decimal
+from typing                                                                     import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set
+from unittest                                                                   import TestCase
+from unittest.mock                                                              import patch
+from osbot_utils.helpers.Obj_Id                                                 import Obj_Id
+from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                    import Timestamp_Now
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str                         import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid                 import Guid
+from osbot_utils.helpers.python_compatibility.python_3_8                        import Annotated
+from osbot_utils.base_classes.Kwargs_To_Self                                    import Kwargs_To_Self
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid          import Random_Guid
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict           import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set            import Type_Safe__Set
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations         import type_safe_annotations
+from osbot_utils.type_safe.validators.Validator__Min                            import Min
+from osbot_utils.utils.Json                                                     import json_to_str, str_to_json
+from osbot_utils.utils.Misc                                                     import list_set, is_guid
+from osbot_utils.utils.Objects                                                  import default_value, __, type_full_name
 
 
 class Node_Value(Type_Safe):
     value: int
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__fast_api_routes__no_support_for_slashes_in_path(self):
+        class An_Class(Type_Safe):
+            tag : Safe_Str             = 'aaaa/bbbb'
+            path: Safe_Str__File__Path = 'cccc/dddd'
+
+        #error_message = "Invalid type for attribute 'tag'. Expected '<class 'osbot_utils.type_safe.primitives.safe_str.Safe_Str.Safe_Str'>' but got '<class 'str'>'"
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     An_Class()                                                            # FIXED: BUG it should be possible to assign values to primitive classes
+
+        assert An_Class().obj()  == __(tag='aaaa_bbbb', path='cccc/dddd')           # FIXED
+        assert type(An_Class().tag) is Safe_Str
+        assert type(An_Class().path) is Safe_Str__File__Path
+
+        class An_Class_2(Type_Safe):
+            tag : Safe_Str             = Safe_Str            ('eeee/ffff')
+            path: Safe_Str__File__Path = Safe_Str__File__Path('gggg/hhhh')
+
+        assert An_Class_2().obj()  == __(tag='eeee_ffff', path='gggg/hhhh')           # this works because of the assignment of a Safe_Str value
 
     def test__regression__error_when_using__dict_with_type_as_key(self):
 
