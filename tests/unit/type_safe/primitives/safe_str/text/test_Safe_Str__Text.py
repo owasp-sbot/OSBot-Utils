@@ -27,11 +27,11 @@ class test_Safe_Str__Text(TestCase):
         # Brackets and parentheses
         assert str(Safe_Str__Text('This (item) is [available]' )) == 'This (item) is [available]'
         assert str(Safe_Str__Text('Required {min: 1, max: 10}' )) == 'Required _min: 1, max: 10_'
-        assert str(Safe_Str__Text('Points (10 + 5) * 2 = 30'   )) == 'Points (10 + 5) _ 2 = 30'
+        assert str(Safe_Str__Text('Points (10 + 5) * 2 = 30'   )) == 'Points (10 + 5) * 2 = 30'
 
         # Mathematical symbols
         assert str(Safe_Str__Text('x + y = z'           )) == 'x + y = z'
-        assert str(Safe_Str__Text('5 * 10 = 50'         )) == '5 _ 10 = 50'
+        assert str(Safe_Str__Text('5 * 10 = 50'         )) == '5 * 10 = 50'
         assert str(Safe_Str__Text('Price: $10 - $5 = $5')) == 'Price: _10 - _5 = _5'
 
         # Quotes and apostrophes
@@ -57,9 +57,9 @@ class test_Safe_Str__Text(TestCase):
         assert str(Safe_Str__Text('\n\tHello\r\n')) == '__Hello__'
 
         # Security patterns
-        assert str(Safe_Str__Text('../etc/passwd'          )) == '.._etc_passwd'  # This is valid in Safe_Str__Text
-        assert str(Safe_Str__Text('SELECT * FROM users'    )) == 'SELECT _ FROM users'
-        assert str(Safe_Str__Text("/bin/bash -c 'rm -rf /'")) == "_bin_bash -c _rm -rf __"
+        assert str(Safe_Str__Text('../etc/passwd'                       )) == '.._etc_passwd'
+        assert str(Safe_Str__Text('SELECT * FROM users | drop table'    )) == 'SELECT * FROM users _ drop table'
+        assert str(Safe_Str__Text("/bin/bash -c 'rm -rf /'"             )) == "_bin_bash -c _rm -rf __"
 
         # Edge cases: exceptions with specific error message checks
         Safe_Str__Text(None)

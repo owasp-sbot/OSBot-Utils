@@ -1,5 +1,8 @@
-from typing                                 import Type
-from osbot_utils.type_safe.Type_Safe__Base  import Type_Safe__Base, type_str
+from typing                                     import Type
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
+from osbot_utils.type_safe.Type_Safe__Base      import Type_Safe__Base, type_str
+
+
 
 class Type_Safe__List(Type_Safe__Base, list):
     expected_type : Type
@@ -16,14 +19,27 @@ class Type_Safe__List(Type_Safe__Base, list):
     def __exit__ (self, type, value, traceback): pass
 
     def append(self, item):
-        from osbot_utils.type_safe.Type_Safe import Type_Safe
-        if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe) and type(item) is dict:  # if self.expected_type is Type_Safe and we have a dict
-            item = self.expected_type.from_json(item)  # try to convert the dict into self.expected_type
-        else:
-            try:
-                self.is_instance_of_type(item, self.expected_type)
-            except TypeError as e:
-               raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}") from None
+        from osbot_utils.type_safe.Type_Safe        import Type_Safe                                                    # to prevent circular imports
+
+        # Handle Type_Safe objects from dicts
+        if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe) and type(item) is dict:
+            item = self.expected_type.from_json(item)
+        # Handle Type_Safe__Primitive conversions (str -> Safe_Str, etc.)
+        elif type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe__Primitive):
+            if not isinstance(item, self.expected_type):
+                try:
+                    item = self.expected_type(item)
+                except (ValueError, TypeError) as e:
+                    # Re-raise with more context about what failed
+                    raise TypeError(f"In Type_Safe__List: Could not convert {type(item).__name__} to {self.expected_type.__name__}: {e}") from None
+
+
+        # Now validate the (possibly converted) item
+        try:
+            self.is_instance_of_type(item, self.expected_type)
+        except TypeError as e:
+            raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}") from None
+
         super().append(item)
 
 

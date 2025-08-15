@@ -2,6 +2,7 @@ import pytest
 from typing                                                             import List, Dict, Set, Tuple
 from unittest                                                           import TestCase
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str                 import Safe_Str
 from osbot_utils.utils.Objects                                          import __
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
@@ -10,6 +11,36 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple  import T
 
 
 class test_Type_Safe__List__regression(TestCase):
+
+    def test__bug__in_type_safe__list__nested_conversion(self):
+        class Schema__Model(Type_Safe):
+            an_list : List[Safe_Str]
+
+        class Schema__Models(Type_Safe):
+            data: List[Schema__Model]
+
+        model        = Schema__Model (an_list=[Safe_Str('abc')])
+        models       = Schema__Models(data=[model])
+        model__json  = model.json()
+        models__json = models.json()
+
+        assert model__json  == {'an_list': ['abc']}
+        assert models__json == {'data': [{'an_list': ['abc']}]}
+
+        model__roundtrip = Schema__Model.from_json(model__json)                     # roundtrip model directly
+        assert model__roundtrip.json() == model__json                               # works
+
+        # BUG
+        # error_message_2 = "In Type_Safe__List: Invalid type for item: Expected 'Safe_Str', but got 'str'"
+        # with pytest.raises(TypeError, match=error_message_2):
+        #     Schema__Model (an_list=['abc'])                     # BUG this should support just 'abc'
+        assert Schema__Model(an_list=['abc']).json() == {'an_list': ['abc']}                            # FIXED
+
+        # error_message_2 = "In Type_Safe__List: Invalid type for item: Expected 'Safe_Str', but got 'str'"
+        # with pytest.raises(TypeError, match=error_message_2):
+        #     Schema__Models.from_json(models__json)              # BUG but roundtrip from list fails
+        assert Schema__Models.from_json(models__json).json() == {'data': [{'an_list': ['abc']}]}        # FIXED
+
 
     def test__regression__list__forward_ref__fails_roundtrip(self):
         class An_Class(Type_Safe):

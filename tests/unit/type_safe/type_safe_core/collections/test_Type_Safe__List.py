@@ -1,12 +1,14 @@
 import re
 import sys
 import pytest
-from typing                                                            import List, Dict, Union, Optional, Any
-from unittest                                                          import TestCase
-from osbot_utils.type_safe.Type_Safe                                   import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List  import Type_Safe__List
-from osbot_utils.utils.Objects                                         import __
+from typing                                                             import List, Dict, Union, Optional, Any
+from unittest                                                           import TestCase
+from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id      import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__IP_Address import Safe_Str__IP_Address
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
+from osbot_utils.utils.Objects                                          import __
 
 
 class test_Type_Safe__List(TestCase):
@@ -514,3 +516,131 @@ class test_Type_Safe__List(TestCase):
             [{"value": "test"}, {"value": "other"}]
         ]
         assert tuple_list.json() == expected
+
+    def test__type_safe_list__primitive_conversions(self):      # Test that Type_Safe__List handles various primitive conversions
+
+        # Test with different Safe_Str variants
+        class Schema(Type_Safe):
+            ips: List[Safe_Str__IP_Address]
+            ids: List[Safe_Id]
+
+        # Should work
+        schema = Schema(ips=['192.168.1.1'], ids=['test-id'])
+        assert schema.json() == {'ips': ['192.168.1.1'], 'ids': ['test-id']}
+
+        # Should fail with invalid IP
+        with pytest.raises(TypeError):
+            Schema(ips=['not-an-ip'])
+
+    def test__type_safe_list__primitive_conversions_with_detailed_errors(self): # Test that Type_Safe__List handles various primitive conversions and provides detailed error messages
+
+        from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__IP_Address      import Safe_Str__IP_Address
+        from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id           import Safe_Id
+        from osbot_utils.type_safe.primitives.safe_str.Safe_Str                      import Safe_Str
+        from osbot_utils.type_safe.primitives.safe_int.Safe_Int                      import Safe_Int
+        from osbot_utils.type_safe.primitives.safe_str.github.Safe_Str__GitHub__Repo import Safe_Str__GitHub__Repo
+
+        # Test with different Safe_Str variants
+        class Schema(Type_Safe):
+            ips: List[Safe_Str__IP_Address]
+            ids: List[Safe_Id]
+            repos: List[Safe_Str__GitHub__Repo]
+            numbers: List[Safe_Int]
+
+        # Should work - valid conversions
+        schema = Schema(
+            ips=['192.168.1.1', '10.0.0.1'],
+            ids=['test-id', 'another_id'],
+            repos=['owner/repo', 'microsoft/vscode'],
+            numbers=[1, 2, '3', '42']
+        )
+        assert schema.json() == {
+            'ips': ['192.168.1.1', '10.0.0.1'],
+            'ids': ['test-id', 'another_id'],
+            'repos': ['owner/repo', 'microsoft/vscode'],
+            'numbers': [1, 2, 3, 42]
+        }
+
+        # Test roundtrip
+        schema_roundtrip = Schema.from_json(schema.json())
+        assert schema_roundtrip.json() == schema.json()
+
+        # Should fail with invalid IP - check detailed error message
+        error_msg = r"In Type_Safe__List: Could not convert str to Safe_Str__IP_Address: Invalid IP address: not-an-ip"
+        with pytest.raises(TypeError, match=error_msg):
+            Schema(
+                ips=['192.168.1.1', 'not-an-ip'],  # Invalid IP
+                ids=['test'],
+                repos=['owner/repo'],
+                numbers=[1]
+            )
+
+        # Should fail with invalid GitHub repo format
+        error_msg = r"In Type_Safe__List: Could not convert str to Safe_Str__GitHub__Repo: GitHub repository must be in 'owner/repo' format: invalid"
+        with pytest.raises(TypeError, match=error_msg):
+            Schema(
+                ips=['192.168.1.1'],
+                ids=['test'],
+                repos=['invalid'],  # Missing owner/repo format
+                numbers=[1]
+            )
+
+        # Should fail with invalid number
+        error_msg = r"In Type_Safe__List: Could not convert str to Safe_Int: Cannot convert 'not-a-number' to integer"
+        with pytest.raises(TypeError, match=error_msg):
+            Schema(
+                ips=['192.168.1.1'],
+                ids=['test'],
+                repos=['owner/repo'],
+                numbers=[1, 'not-a-number']  # Invalid number
+            )
+
+        # Test with nested Type_Safe objects containing primitive lists
+        class NestedSchema(Type_Safe):
+            name: Safe_Str
+            data: List[Schema]
+
+        # Should work with nested conversion
+        nested = NestedSchema(
+            name='test',
+            data=[
+                {'ips': ['127.0.0.1'], 'ids': ['id1'], 'repos': ['user/repo'], 'numbers': [1, 2]},
+                {'ips': ['::1'], 'ids': ['id2'], 'repos': ['org/project'], 'numbers': ['3', 4]}
+            ]
+        )
+        assert nested.json() == {
+            'name': 'test',
+            'data': [
+                {'ips': ['127.0.0.1'], 'ids': ['id1'], 'repos': ['user/repo'], 'numbers': [1, 2]},
+                {'ips': ['::1'], 'ids': ['id2'], 'repos': ['org/project'], 'numbers': [3, 4]}
+            ]
+        }
+
+        # Test edge cases
+        class EdgeCaseSchema(Type_Safe):
+            empty_list: List[Safe_Str]
+            mixed_types: List[Safe_Id]
+
+        # Empty lists should work
+        edge_case = EdgeCaseSchema(
+            empty_list=[],
+            mixed_types=[]
+        )
+        assert edge_case.json() == {'empty_list': [], 'mixed_types': []}
+
+        # Test with very long strings that exceed Safe_Id max length
+        error_msg = r"In Type_Safe__List: Could not convert str to Safe_Id: Invalid ID: The ID must not exceed 512 characters (was 1000)."
+        with pytest.raises(TypeError, match=re.escape(error_msg)):
+            EdgeCaseSchema(
+                empty_list=[],
+                mixed_types=['a' * 1000]  # Exceeds Safe_Id max length of 512
+            )
+
+        # Test that original TypeError from validation still works for non-convertible types
+        class StrictSchema(Type_Safe):
+            strings: List[str]
+
+        # Should fail when trying to append a non-string, non-convertible type
+        error_msg = r"In Type_Safe__List: Invalid type for item: Expected 'str', but got 'dict'"
+        with pytest.raises(TypeError, match=error_msg):
+            StrictSchema(strings=[{'not': 'a string'}])
