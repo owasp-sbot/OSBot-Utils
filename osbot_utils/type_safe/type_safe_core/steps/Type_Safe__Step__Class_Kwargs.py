@@ -65,15 +65,39 @@ class Type_Safe__Step__Class_Kwargs:                                            
                                  var_name : str  ,
                                  var_type : Type )\
                         -> None:
-        var_value = getattr(base_cls, var_name)                                         # Get current value
-        if var_value is None:                                                           # Allow None assignments
+        # var_value = getattr(base_cls, var_name)                                         # Get current value
+        # if var_value is None:                                                           # Allow None assignments
+        #     return
+        #
+        # if type_safe_validation.should_skip_type_check(var_type):                       # Skip validation if needed
+        #     return
+        #
+        # type_safe_validation.validate_variable_type    (var_name, var_type, var_value)  # Validate type
+        # type_safe_validation.validate_type_immutability(var_name, var_type)             # Validate immutability
+
+        var_value = getattr(base_cls, var_name)
+        if var_value is None:
+            return
+        if type_safe_validation.should_skip_type_check(var_type):
             return
 
-        if type_safe_validation.should_skip_type_check(var_type):                       # Skip validation if needed
-            return
+        # NEW: Try to convert primitive values to Type_Safe__Primitive types
+        from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
+        if (isinstance(var_type, type) and
+            issubclass(var_type, Type_Safe__Primitive) and
+            type(var_value) in (str, int, float)):
+            try:
+                # Attempt conversion and validate the converted value
+                converted_value = var_type(var_value)
+                # Set the converted value back on the class
+                setattr(base_cls, var_name, converted_value)
+                var_value = converted_value
+            except (ValueError, TypeError):
+                # If conversion fails, let the original validation handle it
+                pass
 
-        type_safe_validation.validate_variable_type    (var_name, var_type, var_value)  # Validate type
-        type_safe_validation.validate_type_immutability(var_name, var_type)             # Validate immutability
+        type_safe_validation.validate_variable_type(var_name, var_type, var_value)
+        type_safe_validation.validate_type_immutability(var_name, var_type)
 
     def process_annotation(self, cls      : Type           ,                            # Process single annotation
                                  base_cls : Type           ,
