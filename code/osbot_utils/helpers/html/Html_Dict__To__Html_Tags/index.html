@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/Html_Dict__To__Html_Tags/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Html_Dict__To__Html_Tags - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Html_Dict__To__Html_Tags";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/Html_Dict__To__Html_Tags.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/Html_Dict__To__Html_Tags/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Html_Dict__To__Html_Tags</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="html_dict__to__html_tags">Html_Dict__To__Html_Tags<a class="headerlink" href="#html_dict__to__html_tags" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Html_Dict__To__Html_Tags</code> converts dictionary representations of HTML into object-oriented tag instances. This converter bridges the gap between parsed HTML dictionaries and the tag-based rendering system, enabling programmatic HTML manipulation through tag objects.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Html_Dict__To__Html_Tags:
+    def __init__(self, root):
+        self.root = root
+</code></pre>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>This converter enables:
+1. <strong>Object-Oriented HTML</strong>: Work with HTML as objects rather than dictionaries
+2. <strong>Type-Specific Tags</strong>: Creates appropriate tag classes (Tag__Html, Tag__Head, etc.)
+3. <strong>Programmatic Manipulation</strong>: Modify HTML structure through object methods
+4. <strong>Alternative Rendering</strong>: Use tag system instead of direct dict-to-HTML conversion</p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="convert-tag__base"><code>convert() -&gt; Tag__Base</code><a class="headerlink" href="#convert-tag__base" title="Permanent link">&para;</a></h3>
+<p>Main conversion method that returns the root tag object.</p>
+<pre><code class="language-python">converter = Html_Dict__To__Html_Tags(html_dict)
+root_tag = converter.convert()
+</code></pre>
+<h3 id="convert_elementelement-dict-tag__base"><code>convert_element(element: dict) -&gt; Tag__Base</code><a class="headerlink" href="#convert_elementelement-dict-tag__base" title="Permanent link">&para;</a></h3>
+<p>Routes elements to appropriate conversion methods based on tag type.</p>
+<h3 id="convert_to__tagtarget_tag-element-indent-tag__base"><code>convert_to__tag(target_tag, element, indent) -&gt; Tag__Base</code><a class="headerlink" href="#convert_to__tagtarget_tag-element-indent-tag__base" title="Permanent link">&para;</a></h3>
+<p>Generic conversion for any tag type, handling:
+- Attribute mapping
+- Text content extraction
+- Child element recursion
+- Proper indentation</p>
+<h3 id="convert_to__tag__htmlelement-tag__html"><code>convert_to__tag__html(element) -&gt; Tag__Html</code><a class="headerlink" href="#convert_to__tag__htmlelement-tag__html" title="Permanent link">&para;</a></h3>
+<p>Specialized conversion for HTML root elements.</p>
+<h3 id="convert_to__tag__headelement-indent-tag__head"><code>convert_to__tag__head(element, indent) -&gt; Tag__Head</code><a class="headerlink" href="#convert_to__tag__headelement-indent-tag__head" title="Permanent link">&para;</a></h3>
+<p>Specialized conversion for head elements, handling:
+- Title extraction
+- Link elements
+- Meta tags
+- Style elements</p>
+<h3 id="convert_to__tag__linkelement-tag__link"><code>convert_to__tag__link(element) -&gt; Tag__Link</code><a class="headerlink" href="#convert_to__tag__linkelement-tag__link" title="Permanent link">&para;</a></h3>
+<p>Creates Tag__Link instances with proper attributes.</p>
+<h3 id="collect_inner_textelement-str"><code>collect_inner_text(element) -&gt; str</code><a class="headerlink" href="#collect_inner_textelement-str" title="Permanent link">&para;</a></h3>
+<p>Extracts all text content from text nodes within an element.</p>
+<h2 id="conversion-process">Conversion Process<a class="headerlink" href="#conversion-process" title="Permanent link">&para;</a></h2>
+<h3 id="1-dictionary-analysis">1. Dictionary Analysis<a class="headerlink" href="#1-dictionary-analysis" title="Permanent link">&para;</a></h3>
+<p>The converter analyzes the dictionary structure to determine:
+- Tag type for specialized handling
+- Presence of text nodes
+- Child element structure</p>
+<h3 id="2-tag-selection">2. Tag Selection<a class="headerlink" href="#2-tag-selection" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">if tag_name == 'html':
+    return self.convert_to__tag__html(element)
+elif tag_name == 'head':
+    return self.convert_to__tag__head(element, indent)
+elif tag_name == 'link':
+    return self.convert_to__tag__link(element)
+else:
+    return self.convert_to__tag(Tag__Base, element, indent)
+</code></pre>
+<h3 id="3-content-processing">3. Content Processing<a class="headerlink" href="#3-content-processing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Text nodes are collected as inner_html</li>
+<li>Element nodes become child tags</li>
+<li>Attributes are preserved</li>
+<li>Indentation is calculated</li>
+</ul>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-conversion">Basic Conversion<a class="headerlink" href="#basic-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Tags import Html_Dict__To__Html_Tags
+
+# Parse HTML to dict
+html = &quot;&lt;div class='container'&gt;&lt;p&gt;Hello World&lt;/p&gt;&lt;/div&gt;&quot;
+html_dict = Html__To__Html_Dict(html).convert()
+
+# Convert to tags
+converter = Html_Dict__To__Html_Tags(html_dict)
+root_tag = converter.convert()
+
+# Work with tag objects
+print(root_tag.tag_name)  # 'div'
+print(root_tag.attributes['class'])  # 'container'
+print(len(root_tag.elements))  # 1
+</code></pre>
+<h3 id="complex-html-structure">Complex HTML Structure<a class="headerlink" href="#complex-html-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">html = &quot;&quot;&quot;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;title&gt;My Page&lt;/title&gt;
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;styles.css&quot;&gt;
+        &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Welcome&lt;/h1&gt;
+        &lt;p&gt;Content goes here&lt;/p&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+&quot;&quot;&quot;
+
+# Convert to tags
+html_dict = Html__To__Html_Dict(html).convert()
+html_tag = Html_Dict__To__Html_Tags(html_dict).convert()
+
+# Access structured elements
+assert isinstance(html_tag, Tag__Html)
+assert html_tag.lang == 'en'
+assert html_tag.head.title == 'My Page'
+assert len(html_tag.head.links) == 1
+assert html_tag.head.links[0].href == 'styles.css'
+</code></pre>
+<h3 id="modifying-structure">Modifying Structure<a class="headerlink" href="#modifying-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Convert HTML to tags
+html_dict = Html__To__Html_Dict(html).convert()
+root_tag = Html_Dict__To__Html_Tags(html_dict).convert()
+
+# Modify through tag objects
+if isinstance(root_tag, Tag__Html):
+    # Add CSS to head
+    root_tag.head.add_css_bootstrap()
+
+    # Add new element to body
+    new_div = Tag__Div()
+    new_div.inner_html = &quot;New content&quot;
+    new_div.tag_classes = ['alert', 'alert-info']
+    root_tag.body.append(new_div)
+
+# Render modified HTML
+modified_html = root_tag.render()
+</code></pre>
+<h2 id="special-tag-handling">Special Tag Handling<a class="headerlink" href="#special-tag-handling" title="Permanent link">&para;</a></h2>
+<h3 id="html-tag">HTML Tag<a class="headerlink" href="#html-tag" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def convert_to__tag__html(self, element):
+    attrs = element.get(&quot;attrs&quot;, {})
+    lang = attrs.get(&quot;lang&quot;)
+
+    tag_html = Tag__Html(
+        attributes=attrs,
+        lang=lang,
+        doc_type=False  # DOCTYPE handled separately
+    )
+
+    # Process head and body
+    for node in element.get('nodes', []):
+        if node.get('tag') == 'head':
+            tag_html.head = self.convert_to__tag__head(node, 1)
+        elif node.get('tag') == 'body':
+            tag_html.body = self.convert_to__tag(Tag__Body, node, 1)
+</code></pre>
+<h3 id="head-tag">Head Tag<a class="headerlink" href="#head-tag" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def convert_to__tag__head(self, element, indent):
+    tag_head = Tag__Head(indent=indent + 1)
+
+    for node in element.get('nodes', []):
+        tag_name = node.get('tag')
+
+        if tag_name == 'title':
+            tag_head.title = self.collect_inner_text(node)
+        elif tag_name == 'link':
+            tag_head.links.append(self.convert_to__tag__link(node))
+        elif tag_name == 'meta':
+            tag_head.elements.append(
+                self.convert_to__tag(Tag__Base, node, indent + 1)
+            )
+</code></pre>
+<h2 id="mixed-content-handling">Mixed Content Handling<a class="headerlink" href="#mixed-content-handling" title="Permanent link">&para;</a></h2>
+<p>The converter handles mixed text and element content:</p>
+<pre><code class="language-python"># HTML: &lt;p&gt;Hello &lt;strong&gt;World&lt;/strong&gt;!&lt;/p&gt;
+# Dict structure has mixed nodes
+
+# Conversion process:
+# 1. First text node becomes inner_html
+# 2. Element nodes become children
+# 3. Subsequent text nodes become Tag__Text elements
+</code></pre>
+<h2 id="integration-patterns">Integration Patterns<a class="headerlink" href="#integration-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="with-html-parser-pipeline">With HTML Parser Pipeline<a class="headerlink" href="#with-html-parser-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def html_to_tags(html_string):
+    &quot;&quot;&quot;Complete pipeline from HTML to tags.&quot;&quot;&quot;
+    # Parse HTML
+    html_dict = Html__To__Html_Dict(html_string).convert()
+
+    # Convert to tags
+    return Html_Dict__To__Html_Tags(html_dict).convert()
+</code></pre>
+<h3 id="tag-manipulation-utilities">Tag Manipulation Utilities<a class="headerlink" href="#tag-manipulation-utilities" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class TagManipulator:
+    def __init__(self, html):
+        self.root_tag = html_to_tags(html)
+
+    def add_css_class(self, selector, class_name):
+        &quot;&quot;&quot;Add CSS class to elements matching selector.&quot;&quot;&quot;
+        elements = self.find_by_selector(selector)
+        for elem in elements:
+            if hasattr(elem, 'tag_classes'):
+                elem.tag_classes.append(class_name)
+
+    def set_attribute(self, selector, attr_name, attr_value):
+        &quot;&quot;&quot;Set attribute on matching elements.&quot;&quot;&quot;
+        elements = self.find_by_selector(selector)
+        for elem in elements:
+            elem.attributes[attr_name] = attr_value
+
+    def render(self):
+        &quot;&quot;&quot;Render modified HTML.&quot;&quot;&quot;
+        return self.root_tag.render()
+</code></pre>
+<h3 id="validation-after-conversion">Validation After Conversion<a class="headerlink" href="#validation-after-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def validate_tag_structure(root_tag):
+    &quot;&quot;&quot;Validate converted tag structure.&quot;&quot;&quot;
+    errors = []
+
+    # Check HTML structure
+    if isinstance(root_tag, Tag__Html):
+        if not root_tag.head:
+            errors.append(&quot;Missing head element&quot;)
+        if not root_tag.body:
+            errors.append(&quot;Missing body element&quot;)
+
+    # Validate recursively
+    def check_tag(tag, path=&quot;&quot;):
+        current_path = f&quot;{path}/{tag.tag_name}&quot;
+
+        # Check for required attributes
+        if tag.tag_name == 'img' and 'src' not in tag.attributes:
+            errors.append(f&quot;Missing src attribute at {current_path}&quot;)
+
+        # Check children
+        for child in tag.elements:
+            if hasattr(child, 'tag_name'):
+                check_tag(child, current_path)
+
+    check_tag(root_tag)
+    return errors
+</code></pre>
+<h2 id="advanced-usage">Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permanent link">&para;</a></h2>
+<h3 id="custom-tag-creation">Custom Tag Creation<a class="headerlink" href="#custom-tag-creation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def create_custom_tags(element_dict):
+    &quot;&quot;&quot;Create custom tag classes based on data attributes.&quot;&quot;&quot;
+    if element_dict.get('attrs', {}).get('data-component') == 'card':
+        return Tag__Card(element_dict)
+    elif element_dict.get('attrs', {}).get('data-component') == 'modal':
+        return Tag__Modal(element_dict)
+    else:
+        return Html_Dict__To__Html_Tags(element_dict).convert()
+</code></pre>
+<h3 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class OptimizedTagConverter:
+    def __init__(self):
+        self.tag_cache = {}
+
+    def convert_with_cache(self, element_dict):
+        &quot;&quot;&quot;Cache converted tags for reuse.&quot;&quot;&quot;
+        # Create cache key from element
+        cache_key = self._create_cache_key(element_dict)
+
+        if cache_key in self.tag_cache:
+            return self.tag_cache[cache_key]
+
+        # Convert and cache
+        converter = Html_Dict__To__Html_Tags(element_dict)
+        tag = converter.convert()
+        self.tag_cache[cache_key] = tag
+
+        return tag
+</code></pre>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def safe_convert_to_tags(element_dict):
+    &quot;&quot;&quot;Safely convert with error handling.&quot;&quot;&quot;
+    try:
+        converter = Html_Dict__To__Html_Tags(element_dict)
+        return converter.convert(), None
+    except Exception as e:
+        # Return a fallback tag with error info
+        error_tag = Tag__Div()
+        error_tag.tag_classes = ['conversion-error']
+        error_tag.inner_html = f&quot;Conversion error: {str(e)}&quot;
+        return error_tag, str(e)
+</code></pre>
+<h2 id="testing-patterns">Testing Patterns<a class="headerlink" href="#testing-patterns" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def test_tag_conversion():
+    &quot;&quot;&quot;Test dictionary to tag conversion.&quot;&quot;&quot;
+    test_dict = {
+        'tag': 'div',
+        'attrs': {'id': 'test'},
+        'nodes': [
+            {'type': 'TEXT', 'data': 'Hello '},
+            {'tag': 'span', 'attrs': {}, 'nodes': [
+                {'type': 'TEXT', 'data': 'World'}
+            ]}
+        ]
+    }
+
+    converter = Html_Dict__To__Html_Tags(test_dict)
+    tag = converter.convert()
+
+    assert tag.tag_name == 'div'
+    assert tag.attributes['id'] == 'test'
+    assert tag.inner_html == 'Hello '
+    assert len(tag.elements) == 1
+    assert tag.elements[0].tag_name == 'span'
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Check Tag Types</strong>: Use isinstance() for specialized tags</li>
+<li><strong>Preserve Structure</strong>: Maintain the original HTML structure</li>
+<li><strong>Handle Missing Elements</strong>: Provide defaults for required elements</li>
+<li><strong>Validate Results</strong>: Check converted tags for completeness</li>
+<li><strong>Memory Management</strong>: Be aware of object creation overhead</li>
+</ol>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Memory Usage</strong>: Tag objects use more memory than dicts</li>
+<li><strong>Performance</strong>: Object creation has overhead</li>
+<li><strong>Circular References</strong>: Avoid creating parent references</li>
+<li><strong>Type Matching</strong>: Not all HTML elements have specialized classes</li>
+<li><strong>Mixed Content</strong>: Complex mixed content may need special handling</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

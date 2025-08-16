@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/primitives/foundation/type_safe__primitive__the_foundation_of_safe_str/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Type_Safe__Primitive: The Foundation of Safe Python Primitives (str, int, float) - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe__Primitive: The Foundation of Safe Python Primitives (str, int, float)";
+        var mkdocs_page_input_path = "type_safe/primitives/foundation/type_safe__primitive__the_foundation_of_safe_str.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/primitives/foundation/type_safe__primitive__the_foundation_of_safe_str/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe__Primitive: The Foundation of Safe Python Primitives (str, int, float)</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe__primitive-the-foundation-of-safe-python-primitives-str-int-float">Type_Safe__Primitive: The Foundation of Safe Python Primitives (str, int, float)<a class="headerlink" href="#type_safe__primitive-the-foundation-of-safe-python-primitives-str-int-float" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Type_Safe__Primitive</code> is the foundational base class that enables the creation of type-safe primitive wrappers in OSBot-Utils. It provides the core machinery that allows classes like <code>Safe_Str</code>, <code>Safe_Int</code>, and <code>Safe_Float</code> to behave exactly like Python's built-in primitives (str, int, float) while adding validation, type safety, and domain-specific constraints.</p>
+<h2 id="core-architecture">Core Architecture<a class="headerlink" href="#core-architecture" title="Permanent link">&para;</a></h2>
+<pre><code class="language-mermaid">classDiagram
+    class Type_Safe__Primitive {
+        +__primitive_base__: type
+        +__init_subclass__(cls, **kwargs)
+        +__add__(other)
+        +__radd__(other)
+        +__eq__(other)
+        +__ne__(other)
+        +__hash__()
+        +__str__()
+        +__repr__()
+        +__enter__()
+        +__exit__(exc_type, exc_val, exc_tb)
+    }
+
+    class str {
+        &lt;&lt;built-in&gt;&gt;
+    }
+
+    class int {
+        &lt;&lt;built-in&gt;&gt;
+    }
+
+    class float {
+        &lt;&lt;built-in&gt;&gt;
+    }
+
+    class Safe_Str {
+        +validation rules
+        +sanitization
+    }
+
+    class Safe_Int {
+        +min_value
+        +max_value
+        +validation
+    }
+
+    class Safe_Float {
+        +precision
+        +rounding
+        +validation
+    }
+
+    str &lt;|-- Safe_Str
+    int &lt;|-- Safe_Int
+    float &lt;|-- Safe_Float
+
+    Type_Safe__Primitive &lt;|-- Safe_Str
+    Type_Safe__Primitive &lt;|-- Safe_Int
+    Type_Safe__Primitive &lt;|-- Safe_Float
+</code></pre>
+<p>The key insight is that Safe types <strong>inherit from both</strong> Type_Safe__Primitive AND a built-in type (str, int, or float), creating a multiple inheritance pattern that combines primitive behavior with type safety.</p>
+<h2 id="key-components-explained">Key Components Explained<a class="headerlink" href="#key-components-explained" title="Permanent link">&para;</a></h2>
+<h3 id="1-primitive-base-type-caching">1. Primitive Base Type Caching<a class="headerlink" href="#1-primitive-base-type-caching" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">__primitive_base__ = None  # Cache the primitive base type at class level
+
+def __init_subclass__(cls, **kwargs):
+    super().__init_subclass__(**kwargs)
+    for base in cls.__mro__:  # Find and cache the primitive base type
+        if base in (str, int, float):  # Currently supports these primitives
+            cls.__primitive_base__ = base
+            break
+</code></pre>
+<p><strong>What it does:</strong>
+- <code>__init_subclass__</code> is called automatically when a class inherits from Type_Safe__Primitive
+- It walks the Method Resolution Order (MRO) to find which primitive type (str, int, or float) the subclass inherits from
+- Caches this information in <code>__primitive_base__</code> for efficient access later</p>
+<p><strong>Why it's important:</strong>
+- Avoids repeated MRO traversal at runtime
+- Enables different behavior based on the primitive type
+- Makes operator overloading efficient</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python">class Safe_Str(Type_Safe__Primitive, str):
+    pass
+
+# When Safe_Str is defined, __init_subclass__ runs:
+# - Examines MRO: [Safe_Str, Type_Safe__Primitive, str, object]
+# - Finds 'str' in the MRO
+# - Sets Safe_Str.__primitive_base__ = str
+</code></pre>
+<h3 id="2-type-safe-arithmetic-operations">2. Type-Safe Arithmetic Operations<a class="headerlink" href="#2-type-safe-arithmetic-operations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __add__(self, other):
+    &quot;&quot;&quot;Override addition/concatenation to maintain type safety&quot;&quot;&quot;
+    if self.__primitive_base__ is str:  # For string concatenation
+        result = super().__add__(other)
+        return type(self)(result)  # Return instance of the safe type
+    else:  # For numeric types (int, float)
+        result = super().__add__(other)
+        try:
+            return type(self)(result)  # Try to create safe type
+        except (ValueError, TypeError):
+            return result  # Fall back to primitive if constraints violated
+</code></pre>
+<p><strong>What it does:</strong>
+- Overrides the <code>+</code> operator to maintain type safety
+- For strings: Always returns a new instance of the safe type
+- For numbers: Attempts to return safe type, but falls back to primitive if constraints are violated</p>
+<p><strong>Why it's clever:</strong>
+- Preserves type safety through operations
+- Gracefully degrades when results violate constraints
+- Maintains the intuitive behavior of primitives</p>
+<p><strong>Examples:</strong></p>
+<pre><code class="language-python"># String concatenation maintains type
+username1 = Safe_Str__Username(&quot;john&quot;)
+username2 = Safe_Str__Username(&quot;_doe&quot;)
+result = username1 + username2  # Returns Safe_Str__Username(&quot;john_doe&quot;)
+
+# Integer addition with constraints
+class Safe_Int__Byte(Safe_Int):
+    max_value = 255
+    min_value = 0
+
+byte1 = Safe_Int__Byte(200)
+byte2 = Safe_Int__Byte(50)
+result = byte1 + byte2  # Returns Safe_Int__Byte(250)
+
+byte3 = Safe_Int__Byte(200)
+byte4 = Safe_Int__Byte(100)
+result = byte3 + byte4  # Returns int(300) - falls back because 300 &gt; 255
+</code></pre>
+<h3 id="3-reverse-addition-support">3. Reverse Addition Support<a class="headerlink" href="#3-reverse-addition-support" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __radd__(self, other):
+    &quot;&quot;&quot;Reverse addition/concatenation for when safe type is on the right&quot;&quot;&quot;
+    if self.__primitive_base__ is str:
+        result = other + str(self)
+        return type(self)(result)
+    else:
+        result = other + self.__primitive_base__(self)
+        try:
+            return type(self)(result)
+        except (ValueError, TypeError):
+            return result
+</code></pre>
+<p><strong>What it does:</strong>
+- Handles cases where the safe type is on the right side of addition
+- Enables expressions like <code>"Hello " + safe_string</code></p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python">safe_name = Safe_Str__Username(&quot;alice&quot;)
+greeting = &quot;Hello &quot; + safe_name  # __radd__ is called
+# Returns Safe_Str__Username(&quot;Hello alice&quot;)
+</code></pre>
+<h3 id="4-smart-equality-comparison">4. Smart Equality Comparison<a class="headerlink" href="#4-smart-equality-comparison" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __eq__(self, other):
+    if type(self) is type(other):  # Same type → compare values
+        return super().__eq__(other)
+    if self.__primitive_base__ and type(other) is self.__primitive_base__:
+        return super().__eq__(other)  # Compare with primitive
+    return False  # Different types → not equal
+</code></pre>
+<p><strong>What it does:</strong>
+- Allows comparison between safe types of the same class
+- Allows comparison with the underlying primitive type
+- Prevents comparison between different safe types</p>
+<p><strong>Why it matters:</strong>
+- Prevents type confusion bugs
+- Maintains type safety while allowing practical comparisons</p>
+<p><strong>Examples:</strong></p>
+<pre><code class="language-python"># Same safe type - compares values
+user1 = Safe_Str__Username(&quot;alice&quot;)
+user2 = Safe_Str__Username(&quot;alice&quot;)
+assert user1 == user2  # True
+
+# Safe type vs primitive - allowed
+user = Safe_Str__Username(&quot;alice&quot;)
+assert user == &quot;alice&quot;  # True - convenience comparison
+
+# Different safe types - not equal even if values match
+class UserId(Safe_Str): pass
+class ProductId(Safe_Str): pass
+
+user_id = UserId(&quot;123&quot;)
+product_id = ProductId(&quot;123&quot;)
+assert user_id != product_id  # True - different types!
+</code></pre>
+<h3 id="5-hash-implementation-for-dictionary-keys">5. Hash Implementation for Dictionary Keys<a class="headerlink" href="#5-hash-implementation-for-dictionary-keys" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __hash__(self):
+    &quot;&quot;&quot;Include type in hash to maintain hash/eq contract&quot;&quot;&quot;
+    return hash((type(self).__name__, super().__hash__()))
+</code></pre>
+<p><strong>What it does:</strong>
+- Creates a hash that includes both the type name and the value
+- Ensures that objects that are not equal (different types) have different hashes</p>
+<p><strong>Why it's important:</strong>
+- Allows safe types to be used as dictionary keys
+- Maintains Python's hash/equality contract
+- Prevents hash collisions between different safe types with same values</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python"># Different types with same value have different hashes
+user_id = UserId(&quot;123&quot;)
+product_id = ProductId(&quot;123&quot;)
+
+data = {
+    user_id: &quot;User data&quot;,
+    product_id: &quot;Product data&quot;
+}
+# Both keys can exist in the same dict despite having value &quot;123&quot;
+</code></pre>
+<h3 id="6-string-representation">6. String Representation<a class="headerlink" href="#6-string-representation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __str__(self):
+    &quot;&quot;&quot;Return the primitive string representation&quot;&quot;&quot;
+    if self.__primitive_base__ is float:
+        return format(float(self), '')
+    elif self.__primitive_base__ is int:
+        return format(int(self), '')
+    elif self.__primitive_base__ is str:
+        return str.__str__(self)
+    return super().__str__()
+</code></pre>
+<p><strong>What it does:</strong>
+- Provides clean string representation matching the primitive type
+- Uses appropriate formatting for each primitive type</p>
+<h3 id="7-debug-representation">7. Debug Representation<a class="headerlink" href="#7-debug-representation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __repr__(self):
+    &quot;&quot;&quot;Enhanced repr for debugging that shows type information&quot;&quot;&quot;
+    value_str = self.__str__()
+    if self.__primitive_base__ is str:
+        return f&quot;{type(self).__name__}('{value_str}')&quot;
+    else:
+        return f&quot;{type(self).__name__}({value_str})&quot;
+</code></pre>
+<p><strong>What it does:</strong>
+- Shows both the type and value for debugging
+- Makes it clear when you're dealing with a safe type vs primitive</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python">username = Safe_Str__Username(&quot;alice&quot;)
+print(repr(username))  # Safe_Str__Username('alice')
+
+age = Safe_Int__Age(25)
+print(repr(age))  # Safe_Int__Age(25)
+</code></pre>
+<h3 id="8-context-manager-support">8. Context Manager Support<a class="headerlink" href="#8-context-manager-support" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __enter__(self):
+    return self
+
+def __exit__(self, exc_type, exc_val, exc_tb):
+    return
+</code></pre>
+<p><strong>What it does:</strong>
+- Allows safe types to be used in <code>with</code> statements
+- Useful for temporary type enforcement or scoped validation</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python">with Safe_Str__TempFile(&quot;temp_data.txt&quot;) as filename:
+    # Use filename with confidence it's safe
+    process_file(filename)
+# Any cleanup could happen in __exit__ if needed
+</code></pre>
+<h2 id="design-patterns-and-philosophy">Design Patterns and Philosophy<a class="headerlink" href="#design-patterns-and-philosophy" title="Permanent link">&para;</a></h2>
+<h3 id="1-transparent-proxy-pattern">1. <strong>Transparent Proxy Pattern</strong><a class="headerlink" href="#1-transparent-proxy-pattern" title="Permanent link">&para;</a></h3>
+<p>Type_Safe__Primitive acts as a transparent proxy to the underlying primitive, intercepting operations to add type safety while maintaining the primitive's interface.</p>
+<h3 id="2-graceful-degradation">2. <strong>Graceful Degradation</strong><a class="headerlink" href="#2-graceful-degradation" title="Permanent link">&para;</a></h3>
+<p>When operations produce results that violate constraints, the system gracefully falls back to returning primitive types rather than raising exceptions.</p>
+<h3 id="3-type-identity-preservation">3. <strong>Type Identity Preservation</strong><a class="headerlink" href="#3-type-identity-preservation" title="Permanent link">&para;</a></h3>
+<p>The type of the safe wrapper is part of its identity, preventing accidental mixing of different domain types even when values are identical.</p>
+<h3 id="4-zero-cost-abstraction-almost">4. <strong>Zero-Cost Abstraction (Almost)</strong><a class="headerlink" href="#4-zero-cost-abstraction-almost" title="Permanent link">&para;</a></h3>
+<p>After creation, safe types behave like primitives with minimal overhead. The validation cost is paid once at creation time.</p>
+<h2 id="advanced-usage-patterns">Advanced Usage Patterns<a class="headerlink" href="#advanced-usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="creating-a-custom-safe-type">Creating a Custom Safe Type<a class="headerlink" href="#creating-a-custom-safe-type" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Safe_Int__Port(Type_Safe__Primitive, int):
+    min_value = 0
+    max_value = 65535
+
+    def __new__(cls, value):
+        if not cls.min_value &lt;= value &lt;= cls.max_value:
+            raise ValueError(f&quot;Port must be between {cls.min_value} and {cls.max_value}&quot;)
+        return super().__new__(cls, value)
+
+# Usage
+port = Safe_Int__Port(8080)
+print(port + 1)  # 8081 (returns Safe_Int__Port if valid)
+
+high_port = Safe_Int__Port(65000)
+result = high_port + 1000  # Returns int(66000) - outside valid range
+</code></pre>
+<h3 id="type-safe-collections">Type-Safe Collections<a class="headerlink" href="#type-safe-collections" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Create a dictionary with type-safe keys
+user_scores = {}
+user_scores[UserId(&quot;user_123&quot;)] = 100
+user_scores[UserId(&quot;user_456&quot;)] = 200
+
+# These are different keys even though the string value is the same
+user_scores[UserId(&quot;123&quot;)] = 10
+user_scores[ProductId(&quot;123&quot;)] = 20
+print(len(user_scores))  # 4 entries
+</code></pre>
+<h3 id="domain-modeling">Domain Modeling<a class="headerlink" href="#domain-modeling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class EmailAddress(Type_Safe__Primitive, str):
+    def __new__(cls, value):
+        if '@' not in value:
+            raise ValueError(&quot;Invalid email address&quot;)
+        return super().__new__(cls, value.lower())
+
+class Username(Type_Safe__Primitive, str):
+    def __new__(cls, value):
+        if not value.replace('_', '').isalnum():
+            raise ValueError(&quot;Username must be alphanumeric&quot;)
+        return super().__new__(cls, value.lower())
+
+# Now emails and usernames can't be accidentally mixed
+def send_email(to: EmailAddress, subject: str):
+    # Can't accidentally pass a Username here
+    pass
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Creation Overhead</strong>: Validation happens at object creation</li>
+<li><strong>Operation Overhead</strong>: Minimal - one extra function call for operators</li>
+<li><strong>Memory Overhead</strong>: One additional class attribute (<code>__primitive_base__</code>)</li>
+<li><strong>Cache Efficiency</strong>: Type information cached at class level, not instance</li>
+</ol>
+<h2 id="security-benefits">Security Benefits<a class="headerlink" href="#security-benefits" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Type Confusion Prevention</strong>: Different safe types are truly different types</li>
+<li><strong>Invariant Maintenance</strong>: Constraints are enforced through operations</li>
+<li><strong>Fail-Safe Defaults</strong>: Invalid operations return primitives, not corrupted safe types</li>
+<li><strong>Clear Boundaries</strong>: Type information preserved in repr/debugging</li>
+</ol>
+<h2 id="common-pitfalls-and-solutions">Common Pitfalls and Solutions<a class="headerlink" href="#common-pitfalls-and-solutions" title="Permanent link">&para;</a></h2>
+<h3 id="pitfall-1-forgetting-type-changes-in-operations">Pitfall 1: Forgetting Type Changes in Operations<a class="headerlink" href="#pitfall-1-forgetting-type-changes-in-operations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Problem
+byte = Safe_Int__Byte(200)
+result = byte + 100  # Returns int(300), not Safe_Int__Byte
+
+# Solution: Check type when it matters
+if isinstance(result, Safe_Int__Byte):
+    # Safe to use as byte
+    pass
+else:
+    # Handle overflow case
+    pass
+</code></pre>
+<h3 id="pitfall-2-assuming-all-operations-return-safe-types">Pitfall 2: Assuming All Operations Return Safe Types<a class="headerlink" href="#pitfall-2-assuming-all-operations-return-safe-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># String operations might not return safe types
+safe_str = Safe_Str__Username(&quot;alice&quot;)
+upper = safe_str.upper()  # Returns regular str, not Safe_Str__Username
+
+# Solution: Re-wrap if needed
+upper_safe = Safe_Str__Username(upper)
+</code></pre>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Type_Safe__Primitive provides a sophisticated foundation for creating type-safe primitive wrappers that:</p>
+<ol>
+<li><strong>Maintain primitive behavior</strong> while adding validation</li>
+<li><strong>Preserve type identity</strong> to prevent domain confusion</li>
+<li><strong>Support all primitive operations</strong> with type safety</li>
+<li><strong>Gracefully handle</strong> constraint violations</li>
+<li><strong>Integrate seamlessly</strong> with Python's type system</li>
+</ol>
+<p>This design enables the creation of domain-specific types that are both safe and ergonomic, making it easy to write secure code without sacrificing Python's flexibility and expressiveness.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
