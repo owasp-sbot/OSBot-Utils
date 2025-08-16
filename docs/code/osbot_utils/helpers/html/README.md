@@ -77,7 +77,7 @@ HTML String
 ### Basic HTML Parsing
 
 ```python
-from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
 
 html = "<div><p>Hello World</p></div>"
 parser = Html__To__Html_Dict(html)
@@ -87,10 +87,10 @@ html_dict = parser.convert()
 ### Full Roundtrip Conversion
 
 ```python
-from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict
-from osbot_utils.helpers.html.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
-from osbot_utils.helpers.html.Html_Document__To__Html_Dict import Html_Document__To__Html_Dict
-from osbot_utils.helpers.html.Html_Dict__To__Html import Html_Dict__To__Html
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
+from osbot_utils.helpers.html.transformers.Html_Document__To__Html_Dict import Html_Document__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html import Html_Dict__To__Html
 
 # Parse HTML to dictionary
 html_dict = Html__To__Html_Dict(html).convert()
@@ -110,8 +110,8 @@ html_back = Html_Dict__To__Html(dict_back).convert()
 ### Creating HTML with Tag Classes
 
 ```python
-from osbot_utils.helpers.html.Tag__Html import Tag__Html
-from osbot_utils.helpers.html.Tag__Div import Tag__Div
+from osbot_utils.helpers.html.tags.Tag__Html import Tag__Html
+from osbot_utils.helpers.html.tags.Tag__Div import Tag__Div
 
 html = Tag__Html()
 html.head.title = "My Page"

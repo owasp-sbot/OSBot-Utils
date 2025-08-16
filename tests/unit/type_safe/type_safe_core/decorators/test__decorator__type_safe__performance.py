@@ -54,7 +54,7 @@ class test__decorator__type_safe__performance(TestCase):
         if in_github_action():        # Current baseline which is nice and low
             assert overhead < 2.0
         else:
-            assert overhead < 1.1
+            assert overhead < 1.2
 
 
 

@@ -72,7 +72,7 @@ fetcher.fetch(10)  # Returns cached result
 ### HTML Parsing
 
 ```python
-from osbot_utils.helpers.html.Html__To__Html_Dict import html_to_dict
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import html_to_dict
 
 html_code = "<html><body><h1>Hello</h1></body></html>"
 print(html_to_dict(html_code))

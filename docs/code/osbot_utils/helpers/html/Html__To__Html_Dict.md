@@ -102,7 +102,7 @@ The parser produces dictionaries with this structure:
 ### Basic Parsing
 
 ```python
-from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
 
 html = """
 <div class="container">

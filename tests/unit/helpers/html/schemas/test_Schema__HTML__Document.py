@@ -1,5 +1,5 @@
 from unittest                                                       import TestCase
-from osbot_utils.helpers.html.Html__To__Html_Dict                   import STRING__SCHEMA_TEXT, STRING__SCHEMA_NODES
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict      import STRING__SCHEMA_TEXT, STRING__SCHEMA_NODES
 from osbot_utils.helpers.html.schemas.Schema__Html_Document         import Schema__Html_Document
 from osbot_utils.helpers.html.schemas.Schema__Html_Node             import Schema__Html_Node
 from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data       import Schema__Html_Node__Data
