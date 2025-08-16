@@ -2,57 +2,16 @@ from unittest                                                import TestCase
 from osbot_utils.helpers.html.utils.Html__Query              import Html__Query
 from osbot_utils.helpers.html.schemas.Schema__Html_Document  import Schema__Html_Document
 from osbot_utils.helpers.html.schemas.Schema__Html_Node      import Schema__Html_Node
+from osbot_utils.testing.test_data.const__test__data__html   import TEST__DATA__HTML__SIMPLE, TEST__DATA__HTML__SWAGGER, TEST__DATA__HTML__MIXED_CONTENT
 
 
 class test_Html__Query(TestCase):
 
-    def setUp(self):                                                              # Setup test HTML samples
-        self.html_simple = """
-            <html>
-                <head>
-                    <title>Test Page</title>
-                    <link rel="stylesheet" href="/css/main.css">
-                    <link rel="shortcut icon" href="/favicon.ico">
-                    <meta name="description" content="Test description">
-                </head>
-                <body>
-                    <div id="main">Content</div>
-                    <script src="/js/app.js"></script>
-                    <script>console.log('inline');</script>
-                </body>
-            </html>
-        """
-
-        self.html_swagger = """
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <link type="text/css" rel="stylesheet" href="/static/swagger-ui/swagger-ui.css">
-                    <link rel="shortcut icon" href="/static/swagger-ui/favicon.png">
-                    <title>Fast_API - Swagger UI</title>
-                </head>
-                <body>
-                    <div id="swagger-ui"></div>
-                    <script src="/static/swagger-ui/swagger-ui-bundle.js"></script>
-                    <script>
-                        const ui = SwaggerUIBundle({
-                            url: '/openapi.json',
-                            "dom_id": "#swagger-ui"
-                        })
-                    </script>
-                </body>
-            </html>
-        """
-
-        self.html_mixed_content = """
-            <div class="container">
-                Text before
-                <p class="paragraph">Paragraph content</p>
-                Text middle
-                <span class="highlight">Highlighted</span>
-                Text after
-            </div>
-        """
+    @classmethod
+    def setUpClass(cls):                                                              # Setup test HTML samples
+        cls.html_simple        = TEST__DATA__HTML__SIMPLE
+        cls.html_swagger       = TEST__DATA__HTML__SWAGGER
+        cls.html_mixed_content = TEST__DATA__HTML__MIXED_CONTENT
 
 
     def test__init__(self):                                                       # Test initialization
@@ -168,24 +127,6 @@ class test_Html__Query(TestCase):
         with Html__Query(html=self.html_simple) as query:
             assert query.stylesheets == query.css_links
             assert query.stylesheets == ['/css/main.css']
-
-
-    def test_has_swagger_ui(self):                                                # Test Swagger UI detection
-        with Html__Query(html=self.html_swagger) as query:
-            assert query.has_swagger_ui is True
-
-        with Html__Query(html=self.html_simple) as query:
-            assert query.has_swagger_ui is False
-
-
-    def test_has_redoc(self):                                                     # Test ReDoc detection
-        redoc_html = '<html><body><script src="/static/redoc/redoc.js"></script></body></html>'
-        with Html__Query(html=redoc_html) as query:
-            assert query.has_redoc is True
-
-        with Html__Query(html=self.html_simple) as query:
-            assert query.has_redoc is False
-
 
     # Query method tests
     def test_has_link(self):                                                      # Test has_link method
@@ -335,21 +276,3 @@ class test_Html__Query(TestCase):
             assert 'Text middle'       in text
             assert 'Highlighted'       in text
             assert 'Text after'        in text
-
-
-    # Integration test with FastAPI docs
-    def test_with_fastapi_swagger_html(self):                                     # Test with actual FastAPI Swagger HTML
-        with Html__Query(html=self.html_swagger) as query:
-            assert query.title                                                 == 'Fast_API - Swagger UI'
-            assert query.has_link(href = '/static/swagger-ui/swagger-ui.css' ,
-                                 rel  = 'stylesheet'                         ) is True
-            assert '/static/swagger-ui/swagger-ui.css'                        in query.css_links
-            assert query.has_link(href = '/static/swagger-ui/favicon.png'    ,
-                                 rel  = 'shortcut icon'                      ) is True
-            assert '/static/swagger-ui/swagger-ui-bundle.js'                  in query.script_sources
-            assert any('SwaggerUIBundle' in script for script in query.inline_scripts)
-
-            swagger_div = query.find_by_id('swagger-ui')
-            assert swagger_div      is not None
-            assert swagger_div.tag  == 'div'
-            assert query.has_swagger_ui is True

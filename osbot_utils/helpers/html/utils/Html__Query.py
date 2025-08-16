@@ -79,24 +79,12 @@ class Html__Query(Type_Safe):
 
     @property
     def favicon(self) -> Optional[str]:                                           # Get favicon URL if present
-        for link in self.links:
-            if link.get('rel') in ['shortcut icon', 'icon']:
-                return link.get('href')
-        return None
+        return (self.find_link_by_rel('shortcut icon') or
+                self.find_link_by_rel('icon'))
 
     @property
     def stylesheets(self) -> List[str]:                                           # Alias for css_links
         return self.css_links
-
-    @property
-    def has_swagger_ui(self) -> bool:                                             # Check if page has Swagger UI setup
-        return (self.find_by_id('swagger-ui') is not None and
-                any('SwaggerUIBundle' in s for s in self.inline_scripts))
-
-    @property
-    def has_redoc(self) -> bool:                                                  # Check if page has ReDoc setup
-        return any('redoc' in src.lower() for src in self.script_sources)
-
 
     # Query methods
     def has_link(self, href : str  = None ,                                       # Check if link exists with attributes
@@ -218,6 +206,12 @@ class Html__Query(Type_Safe):
             result.extend(self.find_all(child))
 
         return result
+
+    def find_link_by_rel(self, rel_value: str) -> Optional[str]:
+        for link in self.links:
+            if link.get('rel') == rel_value:
+                return link.get('href')
+        return None
 
     def get_text_content(self, node : Schema__Html_Node                           # Get all text content from node
                          ) -> str:
