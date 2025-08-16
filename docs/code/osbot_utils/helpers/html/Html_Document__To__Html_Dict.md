@@ -80,7 +80,7 @@ The converter:
 
 ```python
 from osbot_utils.helpers.html.schemas.Schema__Html_Document import Schema__Html_Document
-from osbot_utils.helpers.html.Html_Document__To__Html_Dict import Html_Document__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Document__To__Html_Dict import Html_Document__To__Html_Dict
 
 # Assume we have a document
 document = Schema__Html_Document.from_json(json_data)

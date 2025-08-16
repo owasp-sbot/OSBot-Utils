@@ -92,8 +92,8 @@ Positions are assigned to maintain the original order of mixed content:
 ### Basic Conversion
 
 ```python
-from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict
-from osbot_utils.helpers.html.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
 
 # Parse HTML
 html = "<div><p>Hello</p></div>"

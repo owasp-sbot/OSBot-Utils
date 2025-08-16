@@ -99,8 +99,8 @@ restored_document = Schema__Html_Document.from_json(loaded_data)
 ### Complete Roundtrip Example
 
 ```python
-from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict
-from osbot_utils.helpers.html.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
 
 # Parse HTML to document
 html = "<html><body><p>Hello World</p></body></html>"

@@ -103,7 +103,7 @@ Processes child nodes with appropriate indentation.
 ### Basic Conversion
 
 ```python
-from osbot_utils.helpers.html.Html_Dict__To__Html import Html_Dict__To__Html
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html import Html_Dict__To__Html
 
 html_dict = {
     'tag': 'html',

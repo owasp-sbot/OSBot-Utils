@@ -67,7 +67,7 @@ css_string = css_converter.convert()
 ### Basic CSS Generation
 
 ```python
-from osbot_utils.helpers.html.CSS_Dict__To__Css import CSS_Dict__To__Css
+from osbot_utils.helpers.html.transformers.CSS_Dict__To__Css import CSS_Dict__To__Css
 
 # Create CSS converter
 css_converter = CSS_Dict__To__Css()
@@ -152,8 +152,8 @@ indented_css = css_converter.convert(indent='        ')
 ### Adding CSS to HTML Documents
 
 ```python
-from osbot_utils.helpers.html.Tag__Style import Tag__Style
-from osbot_utils.helpers.html.CSS_Dict__To__Css import CSS_Dict__To__Css
+from osbot_utils.helpers.html.tags.Tag__Style import Tag__Style
+from osbot_utils.helpers.html.transformers.CSS_Dict__To__Css import CSS_Dict__To__Css
 
 # Create style tag
 style_tag = Tag__Style()

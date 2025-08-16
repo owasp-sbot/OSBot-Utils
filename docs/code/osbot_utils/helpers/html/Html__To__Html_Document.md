@@ -42,7 +42,7 @@ The method:
 ### Basic Conversion
 
 ```python
-from osbot_utils.helpers.html.Html__To__Html_Document import Html__To__Html_Document
+from osbot_utils.helpers.html.transformers.Html__To__Html_Document import Html__To__Html_Document
 
 html = """
 <!DOCTYPE html>

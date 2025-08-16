@@ -94,8 +94,8 @@ else:
 ### Basic Conversion
 
 ```python
-from osbot_utils.helpers.html.Html__To__Html_Dict import Html__To__Html_Dict
-from osbot_utils.helpers.html.Html_Dict__To__Html_Tags import Html_Dict__To__Html_Tags
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Tags import Html_Dict__To__Html_Tags
 
 # Parse HTML to dict
 html = "<div class='container'><p>Hello World</p></div>"

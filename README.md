@@ -1,6 +1,6 @@
 # OSBot-Utils
 
-![Current Release](https://img.shields.io/badge/release-v2.76.0-blue)
+![Current Release](https://img.shields.io/badge/release-v2.76.1-blue)
 ![Python](https://img.shields.io/badge/python-3.8+-green)
 ![Type-Safe](https://img.shields.io/badge/Type--Safe-✓-brightgreen)
 ![Caching](https://img.shields.io/badge/Caching-Built--In-orange)
@@ -72,7 +72,7 @@ fetcher.fetch(10)  # Returns cached result
 ### HTML Parsing
 
 ```python
-from osbot_utils.helpers.html.Html__To__Html_Dict import html_to_dict
+from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import html_to_dict
 
 html_code = "<html><body><h1>Hello</h1></body></html>"
 print(html_to_dict(html_code))
