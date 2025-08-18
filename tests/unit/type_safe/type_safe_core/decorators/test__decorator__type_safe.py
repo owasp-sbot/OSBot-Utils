@@ -2,7 +2,7 @@ import re
 import sys
 import pytest
 from unittest                                                                     import TestCase
-from typing                                                                       import Union, Optional, List, Type
+from typing import Union, Optional, List, Type, Callable, Any
 from dataclasses                                                                  import dataclass
 from osbot_utils.helpers.Obj_Id                                                   import Obj_Id
 from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                       import Timestamp_Now
@@ -279,6 +279,75 @@ class test__decorator__type_safe(TestCase):
         an_method__with_immutable_classes           (Obj_Id(), Safe_Id(), Safe_Str())
         an_method__with_immutable_classes_and_values()
         an_method__with_immutable_safe_str_and_values()
+
+    def test__type_safe__list_callable_param__type_checking(self):
+        from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+
+        @type_safe
+        def process_with_transforms(transformations: List[Callable[[Any], Any]]):
+            pass
+
+        # Valid callables - should pass
+        def func1(x): return x
+        def func2(x): return x * 2
+        lambda_func = lambda x: x + 1
+
+        process_with_transforms(transformations=[func1, func2])                       # Functions work
+        process_with_transforms(transformations=[lambda_func])                        # Lambda works
+        process_with_transforms(transformations=[func1, lambda_func, func2])         # Mix of functions and lambdas
+        process_with_transforms(transformations=[])                                   # Empty list is valid
+        process_with_transforms(transformations=[str.upper, str.lower])              # Built-in methods work
+        process_with_transforms(transformations=[len, abs, round])                   # Built-in functions work
+
+        # Type checking validation - should fail
+        with pytest.raises(ValueError, match="List item at index 0 expected callable but got <class 'str'>"):
+            process_with_transforms(transformations=["not_a_function"])              # String is not callable
+
+        with pytest.raises(ValueError, match="List item at index 1 expected callable but got <class 'int'>"):
+            process_with_transforms(transformations=[func1, 123])                    # Int is not callable
+
+        with pytest.raises(ValueError, match="List item at index 0 expected callable but got <class 'dict'>"):
+            process_with_transforms(transformations=[{"key": "value"}])              # Dict is not callable
+
+        with pytest.raises(ValueError, match="List item at index 2 expected callable but got <class 'NoneType'>"):
+            process_with_transforms(transformations=[func1, func2, None])            # None is not callable
+
+        with pytest.raises(ValueError, match="Parameter 'transformations' expected a list but got <class 'function'>"):
+            process_with_transforms(transformations=func1)                           # Single function not in list
+
+        with pytest.raises(ValueError, match="Parameter 'transformations' expected a list but got <class 'str'>"):
+            process_with_transforms(transformations="not_a_list")                    # String instead of list
+
+        with pytest.raises(ValueError, match="Parameter 'transformations' expected a list but got <class 'dict'>"):
+            process_with_transforms(transformations={})                              # Dict instead of list
+
+        with pytest.raises(ValueError, match="Parameter 'transformations' is not optional but got None"):
+            process_with_transforms(transformations=None)                            # None for non-optional param
+
+        # Mixed valid and invalid items
+        with pytest.raises(ValueError, match="List item at index 1 expected callable but got <class 'bool'>"):
+            process_with_transforms(transformations=[func1, True, func2])            # Boolean is not callable
+
+        with pytest.raises(ValueError, match="List item at index 3 expected callable but got <class 'list'>"):
+            process_with_transforms(transformations=[func1, func2, lambda x: x, []])  # Nested list is not callable
+
+        # Class instances with __call__ method should work
+        class CallableClass:
+            def __call__(self, x):
+                return x * 2
+
+        callable_instance = CallableClass()
+        process_with_transforms(transformations=[callable_instance])                 # Callable class instance works
+        process_with_transforms(transformations=[func1, callable_instance, func2])   # Mixed with functions
+
+        # But non-callable class instances should fail
+        class NonCallableClass:
+            pass
+
+        non_callable_instance = NonCallableClass()
+        with pytest.raises(ValueError, match="List item at index 0 expected callable but got <class '.*NonCallableClass'>"):
+            process_with_transforms(transformations=[non_callable_instance])         # Non-callable class instance fails
+
 
 # Test Support Classes
 @dataclass

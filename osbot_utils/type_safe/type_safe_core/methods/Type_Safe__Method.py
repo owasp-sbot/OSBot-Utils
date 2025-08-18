@@ -1,3 +1,4 @@
+import collections
 import inspect                                                                                                                       # For function introspection
 from enum                                                                     import Enum
 from typing                                                                   import get_args, get_origin, Union, List, Any, Dict    # For type hinting utilities
@@ -100,26 +101,30 @@ class Type_Safe__Method:                                                        
     def is_list_type(self, origin_type: Any) -> bool:                                 # Check if type is a List
         return origin_type is list or origin_type is List                             # Check against list types
 
-    def validate_list_type(self, param_name: str,                                                                       # Validate list type and contents
-                         param_value: Any, expected_type: Any):                                                         # List parameters
-        if not isinstance(param_value, list):                                                                           # Check if value is a list
+    def validate_list_type(self, param_name: str,                                     # Validate list type and contents
+                         param_value: Any, expected_type: Any):                        # List parameters
+        if not isinstance(param_value, list):                                         # Check if value is a list
             raise ValueError(f"Parameter '{param_name}' expected a list but got {type(param_value)}")  # Raise error if not list
 
-        item_type = get_args(expected_type)[0]                                                                          # Get list item type
-        item_origin = get_origin(item_type)                                                                             # Get origin of item type
+        item_type = get_args(expected_type)[0]                                        # Get list item type
+        item_origin = get_origin(item_type)                                           # Get origin of item type
 
-        if item_origin is dict or item_origin is Dict:                                                                  # Handle Dict[K, V] items
-            key_type, value_type = get_args(item_type)                                                                  # Extract key and value types
-            for i, item in enumerate(param_value):                                                                      # Validate each dict in list
-                if not isinstance(item, dict):                                                                          # Check item is a dict
-                    raise ValueError(f"List item at index {i} expected dict but got {type(item)}")                      # Raise error if not dict
-                for k, v in item.items():                                                                               # Validate dict contents
-                    if not isinstance(k, key_type):                                                                     # Check key type
-                        raise ValueError(f"Dict key '{k}' at index {i} expected type {key_type}, but got {type(k)}")    # Raise error for invalid key
-                    if not isinstance(v, value_type):                                                                   # Check value type
-                        raise ValueError(f"Dict value for key '{k}' at index {i} "
-                                         f"expected type {value_type}, but got {type(v)}")                              # Raise error for invalid value
-        elif item_origin is not None:                                                                                   # Handle other subscripted types
+        if item_origin is dict or item_origin is Dict:                                # Handle Dict[K, V] items
+            key_type, value_type = get_args(item_type)                                # Extract key and value types
+            for i, item in enumerate(param_value):                                    # Validate each dict in list
+                if not isinstance(item, dict):                                        # Check item is a dict
+                    raise ValueError(f"List item at index {i} expected dict but got {type(item)}")  # Raise error if not dict
+                for k, v in item.items():                                             # Validate dict contents
+                    if not isinstance(k, key_type):                                   # Check key type
+                        raise ValueError(f"Dict key '{k}' at index {i} expected type {key_type}, but got {type(k)}")  # Raise error for invalid key
+                    if not isinstance(v, value_type):                                 # Check value type
+                        raise ValueError(f"Dict value for key '{k}' at index {i} expected type {value_type}, but got {type(v)}")  # Raise error for invalid value
+        elif item_origin is collections.abc.Callable:                                 # Handle Callable[[...], ...] items
+            for i, item in enumerate(param_value):                                    # Validate each callable in list
+                if not callable(item):                                                # Check item is callable
+                    raise ValueError(f"List item at index {i} expected callable but got {type(item)}")  # Raise error if not callable
+                # Note: Full signature validation would require is_callable_compatible method
+        elif item_origin is not None:                                                 # Handle other subscripted types
             raise NotImplementedError(f"Validation for list items with subscripted type"
                                       f" '{item_type}' is not yet supported "
                                       f"in parameter '{param_name}'.")                # todo: add support for checking for subscripted types
