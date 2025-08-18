@@ -1,11 +1,12 @@
 import pytest
-from typing                                                    import List, Dict, Callable
-from unittest                                                  import TestCase
-from osbot_utils.type_safe.Type_Safe                           import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+from typing                                                     import List, Dict, Callable
+from unittest                                                   import TestCase
+from osbot_utils.type_safe.Type_Safe                            import Type_Safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe  import type_safe
 
 
 class test__decorator__type_safe__bugs(TestCase):
+
 
     def test__bug__type_safe__list_callable_with_signatures(self):
 

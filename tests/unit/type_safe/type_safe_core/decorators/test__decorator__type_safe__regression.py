@@ -1,6 +1,6 @@
 import re
 import pytest
-from typing                                                         import Any, Dict, Optional, Type
+from typing                                                         import Any, Dict, Optional, Type, List
 from unittest                                                       import TestCase
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id  import Safe_Id
 from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now        import Timestamp_Now
@@ -9,6 +9,40 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe      import type_
 
 
 class test_decorator__type_safe__regression(TestCase):
+
+    def test__regression__in_method_conversion(self):
+
+        @type_safe
+        def create_operation(parameters              : List[Dict[str, Any]] = None):
+            pass
+
+        create_operation()
+        create_operation(parameters=None)
+        create_operation(parameters=[]  )
+        create_operation(parameters=[{}])
+        #error_message = "typing.Any cannot be used with isinstance()"          # FIXED:  BUG
+        # with pytest.raises(TypeError, match=re.escape(error_message)):        # FIXED:  BUG
+        #     create_operation(parameters=[{'a':'b'}])                          # FIXED:  BUG
+        # now that it is working we can double-check the typesafety checks
+
+        create_operation(parameters=[{'a': 'b'      }])     # since it is Any
+        create_operation(parameters=[{'a': None     }])     # the value can be anyhing
+        create_operation(parameters=[{'a': 123      }])
+        create_operation(parameters=[{'a': TestCase }])
+        with pytest.raises(ValueError, match=re.escape("Parameter 'parameters' expected a list but got <class 'dict'>")):
+            create_operation(parameters={})
+        with pytest.raises(ValueError, match=re.escape("Parameter 'parameters' expected a list but got <class 'str'>")):
+            create_operation(parameters="aaa")
+        with pytest.raises(ValueError, match=re.escape("Parameter 'parameters' expected a list but got <class 'int'>")):
+            create_operation(parameters=42   )
+        with pytest.raises(ValueError, match=re.escape("List item at index 0 expected dict but got <class 'int'>")):
+            create_operation(parameters=[42]   )
+        with pytest.raises(ValueError, match=re.escape("List item at index 0 expected dict but got <class 'list'>")):
+            create_operation(parameters=[[]])
+        with pytest.raises(ValueError, match=re.escape("Dict key '42' at index 0 expected type <class 'str'>, but got <class 'int'>")):
+            create_operation(parameters=[{ 42 : 'b'}]   )
+        with pytest.raises(ValueError, match=re.escape("Dict key '111' at index 0 expected type <class 'str'>, but got <class 'int'>")):
+            create_operation(parameters=[{ 'a': "b", 111 : 'b'}]   )
 
     def test__regression__type_safe__not_detecting_mutable_assignment(self):
         @type_safe
