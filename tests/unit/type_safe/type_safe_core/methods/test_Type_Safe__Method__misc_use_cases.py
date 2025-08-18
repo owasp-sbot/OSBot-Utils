@@ -119,9 +119,10 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         test_data = [ {"name": "alice", "score": 10, "rate": 0.5},
                       {"name": "bob"  , "score": 20, "rate": 0.8}]
 
-        expected_error = "Validation for list items with subscripted type 'typing.Dict[str, typing.Union[str, int, float]]' is not yet supported in parameter 'data'."
+        expected_error = "Validation for list items with subscripted type 'typing.Callable[[typing.Any], typing.Any]' is not yet supported in parameter 'transformations'."
         with pytest.raises(NotImplementedError, match=re.escape(expected_error)):
-            bound_args = checker.handle_type_safety((test_data, [uppercase_strings, multiply_numbers], {"debug": True}),{})
+            checker.handle_type_safety((test_data, [uppercase_strings, multiply_numbers], {"debug": True}),{})
+        # todo: should we add this as a bug?
 
         # result = process_data(**bound_args.arguments)
         # assert result[0]["name"]  == "ALICE"
