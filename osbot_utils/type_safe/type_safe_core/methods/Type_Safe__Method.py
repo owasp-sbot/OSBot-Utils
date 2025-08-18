@@ -114,10 +114,12 @@ class Type_Safe__Method:                                                        
             for i, item in enumerate(param_value):                                    # Validate each dict in list
                 if not isinstance(item, dict):                                        # Check item is a dict
                     raise ValueError(f"List item at index {i} expected dict but got {type(item)}")  # Raise error if not dict
+                if key_type is Any and value_type is Any:                            # Skip validation if both are Any
+                    continue                                                           # No type checking needed
                 for k, v in item.items():                                             # Validate dict contents
-                    if not isinstance(k, key_type):                                   # Check key type
+                    if key_type is not Any and not isinstance(k, key_type):           # Check key type if not Any
                         raise ValueError(f"Dict key '{k}' at index {i} expected type {key_type}, but got {type(k)}")  # Raise error for invalid key
-                    if not isinstance(v, value_type):                                 # Check value type
+                    if value_type is not Any and not isinstance(v, value_type):       # Check value type if not Any
                         raise ValueError(f"Dict value for key '{k}' at index {i} expected type {value_type}, but got {type(v)}")  # Raise error for invalid value
         elif item_origin is collections.abc.Callable:                                 # Handle Callable[[...], ...] items
             for i, item in enumerate(param_value):                                    # Validate each callable in list
