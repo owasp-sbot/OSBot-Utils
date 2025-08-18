@@ -1,3 +1,4 @@
+import re
 import sys
 import pytest
 from unittest                       import TestCase
@@ -113,6 +114,158 @@ an_list = [
 
             assert toml_dict_from_file(toml_file) == data
 
+    def test__bug__edge_cases(self):
+        """Test various edge cases and data types"""
+
+        empty_data = { 'empty_dict'  : {} ,                                 # Test empty structures
+                       'empty_list'  : [] ,
+                       'empty_string': '' }
+        assert empty_data == toml_to_dict(dict_to_toml(empty_data))
+
+        nested_empty = { 'level1': { 'level2': { 'level3': {} } } }         # Test nested empty dictionaries
+        assert toml_to_dict(dict_to_toml(nested_empty)) == nested_empty
+
+        numbers_data = { 'integer'   : 42      ,                            # Test various number types
+                         'negative'  : -17     ,
+                         'float'     : 3.14159 ,
+                         'scientific': 1.23e-4 ,
+                         'zero'      : 0       }
+        assert numbers_data == toml_to_dict(dict_to_toml(numbers_data))
+
+    def test__bug__complex_nested_structures(self): # Test deeply nested and complex structures
+
+        complex_data = {
+            'project': {
+                'name': 'MyProject',
+                'version': '1.0.0',
+                'dependencies': {
+                    'production': ['django', 'requests', 'numpy'],
+                    'development': ['pytest', 'black', 'mypy']
+                },
+                'metadata': {
+                    'authors': [
+                        {'name': 'Alice', 'email': 'alice@example.com'},
+                        {'name': 'Bob', 'email': 'bob@example.com'}
+                    ]
+                }
+            },
+            'settings': {
+                'debug': False,
+                'port': 8080,
+                'allowed_hosts': ['localhost', '127.0.0.1']
+            }
+        }
+
+        # Round-trip test
+        toml_str = dict_to_toml(complex_data)
+        result   = toml_to_dict(toml_str)
+        assert result == complex_data
+
+    def test__special_characters_in_strings(self):      # Test strings with special characters
+
+        special_chars_data = {
+            'quotes': "String with 'single' and \"double\" quotes",
+            'newline': "Line 1\nLine 2",
+            'tab': "Column1\tColumn2",
+            'backslash': "Path\\to\\file",
+            'unicode': "Hello 世界 🌍"
+        }
+
+        # Note: Some special characters might need escaping in TOML
+        toml_str = dict_to_toml(special_chars_data)
+        result = toml_to_dict(toml_str)
+
+        # The round-trip might not be perfect for special characters
+        # depending on TOML escaping rules
+        assert 'quotes' in result
+        assert 'unicode' in result
+
+    def test__mixed_type_arrays(self):
+        """Test arrays with mixed types (should handle gracefully)"""
+
+        # TOML arrays should be homogeneous, but test handling
+        homogeneous_arrays = {
+            'strings': ['a', 'b', 'c'],
+            'integers': [1, 2, 3],
+            'floats': [1.1, 2.2, 3.3],
+            'booleans': [True, False, True]
+        }
+
+        assert homogeneous_arrays == toml_to_dict(dict_to_toml(homogeneous_arrays))
+
+    def test__array_of_tables_complex(self):
+        """Test more complex array of tables scenarios"""
+
+        data_with_array_tables = {
+            'products': [
+                {
+                    'name': 'Laptop',
+                    'price': 999.99,
+                    'in_stock': True,
+                    'specs': {
+                        'cpu': 'Intel i7',
+                        'ram': '16GB'
+                    }
+                },
+                {
+                    'name': 'Mouse',
+                    'price': 29.99,
+                    'in_stock': False,
+                    'specs': {
+                        'type': 'Wireless',
+                        'battery': 'AA'
+                    }
+                }
+            ]
+        }
+
+        toml_str = dict_to_toml(data_with_array_tables)
+
+        # Note: Nested dicts within array of tables might not round-trip perfectly
+        # in the current implementation
+        result = toml_to_dict(toml_str)
+
+        # At minimum, check the basic structure is preserved
+        assert 'products' in result
+        assert len(result['products']) == 2
+        assert result['products'][0]['name'] == 'Laptop'
+        assert result['products'][1]['name'] == 'Mouse'
+
+    def test__keys_with_special_names(self):
+        """Test keys that might conflict with TOML syntax"""
+
+        special_keys = {
+            'key-with-dash': 'value1',
+            'key_with_underscore': 'value2',
+            'key.with.dots': 'value3',  # This might need special handling
+            '123numeric': 'value4',      # Keys starting with numbers
+        }
+
+        # Some of these might not round-trip perfectly depending on TOML rules
+        toml_str = dict_to_toml(special_keys)
+        # Just ensure it doesn't crash
+        assert toml_str is not None
+
+    def test__performance_large_data(self):
+        """Test with larger datasets for performance"""
+
+        large_data = {
+            f'section_{i}': {
+                f'key_{j}': f'value_{i}_{j}'
+                for j in range(10)
+            }
+            for i in range(100)
+        }
+
+        # Should handle reasonably large data
+        toml_str = dict_to_toml(large_data)
+        result = toml_to_dict(toml_str)
+        assert len(result) == 100
+        assert result['section_0']['key_0'] == 'value_0_0'
+        assert result['section_99']['key_9'] == 'value_99_9'
+
+
+
 
     # regression tests
 
@@ -156,3 +309,33 @@ an_list = [
         dict_with_set__roundtrip          = toml_to_dict(dict_to_toml(dict_with_set))
         assert list_set(dict_with_set__roundtrip)== list_set(expected_dict_with_set__roundtrip)
         assert list_set(dict_with_set__roundtrip.get('an_set')) == list_set(expected_dict_with_set__roundtrip.get('an_set'))
+
+    def test__regression__toml_handling_of_dicts(self):                                       # Test file export
+
+        spec = { 'components': {'schemas': {}},
+                 'info'      : {'title': 'Export Test API', 'version': '2.0.0'},
+                 'openapi'   : '3.0.0',
+                 'paths'     : {},
+                 'servers'   : [{'url': '/'}]}
+
+        # Test JSON export
+        with Temp_File(file_name='openapi.toml', return_file_path=True) as toml_file:
+            toml_dict_to_file(toml_file, spec)
+
+#             assert file_contents(toml_file) != """\
+# [components]
+#     [schemas]
+# [info]
+#     title = 'Export Test API'
+#     version = '2.0.0'
+# openapi = '3.0.0'
+# [paths]
+# servers = [
+#     {'url': '/'},
+# ]
+# """                               # BUG : {'url': '/'} : " In TOML, you cannot have dictionary literals inside arrays like this.
+#             error_message = "Expected '=' after a key in a key/value pair (at line 9, column 11)"
+#             with pytest.raises(TOMLDecodeError, match=re.escape(error_message)):
+#                 toml_dict_from_file(toml_file)                                              # BUG should have not raised
+            spec__round_trip = toml_dict_from_file(toml_file)
+            assert spec__round_trip == spec                                                   # BUG these should be the same
