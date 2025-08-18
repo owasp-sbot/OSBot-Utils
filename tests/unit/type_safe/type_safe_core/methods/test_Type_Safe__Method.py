@@ -1,10 +1,10 @@
 import pytest
-from enum                                                           import Enum
-from unittest                                                       import TestCase
-from typing                                                         import Optional, Union, List, Dict, Any, Type
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id  import Safe_Id
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                                import Random_Guid
-from osbot_utils.type_safe.type_safe_core.methods.Type_Safe__Method import Type_Safe__Method
+from enum                                                               import Enum
+from unittest                                                           import TestCase
+from typing                                                             import Optional, Union, List, Dict, Any, Type, Callable
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id      import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
+from osbot_utils.type_safe.type_safe_core.methods.Type_Safe__Method     import Type_Safe__Method
 
 
 class TestEnum(Enum):                                                                    # Test enum for conversion tests
@@ -557,3 +557,38 @@ class test_Type_Safe__Method(TestCase):
         checker    = Type_Safe__Method(MyClass.static_method)
         bound_args = checker.handle_type_safety((42,), {})
         assert bound_args.arguments['param'] == 42
+
+    def test_regression__data_processing_pipeline__checks_not_implemented_error(self):                                             # Test validation for data processing functions
+        def process_data(data            : List[Dict[str, Union[str, int, float]]],
+                         transformations : List[Callable[[Any], Any]]        ,
+                         options         : Dict[str, Any]                    ,
+                         output_format   : str                        = "json"
+                    ) -> List[Dict[str, Any]]:                                        # Process data through transformation pipeline
+            result = data
+            for transform in transformations:
+                result = [transform(item) for item in result]
+            return result
+
+        checker = Type_Safe__Method(process_data)
+
+        # Define transformations
+        def uppercase_strings(item):
+            return {k: v.upper() if isinstance(v, str) else v
+                   for k, v in item.items()}
+
+        def multiply_numbers(item):
+            return {k: v * 2 if isinstance(v, (int, float)) else v
+                   for k, v in item.items()}
+
+        # Valid pipeline
+        test_data = [ {"name": "alice", "score": 10, "rate": 0.5},
+                      {"name": "bob"  , "score": 20, "rate": 0.8}]
+
+        # expected_error = "Validation for list items with subscripted type 'typing.Callable[[typing.Any], typing.Any]' is not yet supported in parameter 'transformations'."
+        # with pytest.raises(NotImplementedError, match=re.escape(expected_error)):
+        #     checker.handle_type_safety((test_data, [uppercase_strings, multiply_numbers], {"debug": True}),{})      # BUG: should be handled
+        bound_args = checker.handle_type_safety((test_data, [uppercase_strings, multiply_numbers], {"debug": True}), {})         # FIXED: doesn't raise exception
+
+        result = process_data(**bound_args.arguments)
+        assert result == [{'name': 'ALICE', 'rate': 1.0, 'score': 20},
+                          {'name': 'BOB'  , 'rate': 1.6, 'score': 40}]

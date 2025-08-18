@@ -93,39 +93,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                 {"config_class": str}                                                    # str is not a subclass of ConfigBase
             )
 
-    def test_data_processing_pipeline__checks_not_implemented_error(self):                                             # Test validation for data processing functions
-        def process_data(data            : List[Dict[str, Union[str, int, float]]],
-                         transformations : List[Callable[[Any], Any]]        ,
-                         options         : Dict[str, Any]                    ,
-                         output_format   : str                        = "json"
-                    ) -> List[Dict[str, Any]]:                                        # Process data through transformation pipeline
-            result = data
-            for transform in transformations:
-                result = [transform(item) for item in result]
-            return result
 
-        checker = Type_Safe__Method(process_data)
-
-        # Define transformations
-        def uppercase_strings(item):
-            return {k: v.upper() if isinstance(v, str) else v
-                   for k, v in item.items()}
-
-        def multiply_numbers(item):
-            return {k: v * 2 if isinstance(v, (int, float)) else v
-                   for k, v in item.items()}
-
-        # Valid pipeline
-        test_data = [ {"name": "alice", "score": 10, "rate": 0.5},
-                      {"name": "bob"  , "score": 20, "rate": 0.8}]
-
-        expected_error = "Validation for list items with subscripted type 'typing.Dict[str, typing.Union[str, int, float]]' is not yet supported in parameter 'data'."
-        with pytest.raises(NotImplementedError, match=re.escape(expected_error)):
-            bound_args = checker.handle_type_safety((test_data, [uppercase_strings, multiply_numbers], {"debug": True}),{})
-
-        # result = process_data(**bound_args.arguments)
-        # assert result[0]["name"]  == "ALICE"
-        # assert result[0]["score"] == 20
 
     def test_database_query_builder(self):                                               # Test validation for a database query builder
         def build_query(table      : str                           ,
