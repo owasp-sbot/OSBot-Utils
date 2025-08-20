@@ -466,8 +466,9 @@ class Files:
 
     @staticmethod
     def write(path = None,contents=None, extension=None, mode='w'):
-        path     = path or temp_file(extension)
-        contents = contents or ''
+        path = path or temp_file(extension)
+        if contents is None:
+            contents = b'' if 'b' in mode else ''
         with open(file=path, mode=mode) as file:
             file.write(contents)
         return path
