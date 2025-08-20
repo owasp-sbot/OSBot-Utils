@@ -3,7 +3,7 @@ import inspect
 import types
 import typing
 from enum                                                                     import EnumMeta
-from typing                                                                   import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias
+from typing                                                                   import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias # noqa (_GenericAlias does exist)
 from osbot_utils.type_safe.Type_Safe__Primitive                               import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations       import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache             import type_safe_cache
@@ -50,11 +50,20 @@ class Type_Safe__Validation:
             return True
         if target_type is MagicMock:
             return True
-        # if class_full_name(source_type) == 'unittest.mock.MagicMock':
-        #     return True
-        # if class_full_name(target_type) == 'unittest.mock.MagicMock':
-        #     return True
         return False
+
+    def obj_is_type_literal_compatible(self, var_type) -> bool:     # Check if a Literal type contains only immutable values
+        from typing import Literal
+
+        origin = get_origin(var_type)
+        if origin is not Literal:
+            return False
+
+        literal_values = get_args(var_type)
+        for value in literal_values:
+            if value is not None and type(value) not in (bool, int, float, complex, str, bytes):
+                return False
+        return True
 
     def obj_is_type_union_compatible(self, var_type, compatible_types):
         from typing import Union
@@ -92,7 +101,7 @@ class Type_Safe__Validation:
         return None
 
     def check_if__value_is__special_generic_alias(self, value):
-        from typing import _SpecialGenericAlias                                     # todo see if there is a better way to do this since typing is showing as not having _SpecialGenericAlias (this is to handle case like List, Dict, etc...)
+        from typing import _SpecialGenericAlias                                     # noqa todo see if there is a better way to do this since typing is showing as not having _SpecialGenericAlias (this is to handle case like List, Dict, etc...)
         return value is not None and type(value) is not _SpecialGenericAlias
 
     def check_if__type_matches__union_type(self, annotation : Any,                                      # Union type annotation
@@ -162,6 +171,10 @@ class Type_Safe__Validation:
         attr_type   = annotations.get(attr_name)
         if attr_type:
             origin_attr_type = get_origin(attr_type)                                    # to handle when type definition contains a generic
+
+            if origin_attr_type is typing.Literal:                                      # Add Literal support
+                literal_values = get_args(attr_type)
+                return value in literal_values
 
             if origin_attr_type is collections.abc.Callable:                            # Handle Callable types
                 return self.is_callable_compatible(value, attr_type)                    # ISSUE: THIS IS NEVER CALLED
@@ -286,12 +299,27 @@ class Type_Safe__Validation:
 
     # todo: see if need to add cache support to this method     (it looks like this method is not called very often)
     def validate_type_immutability(self, var_name: str, var_type: Any) -> None:                         # Validates that type is immutable or in supported format
-        if var_type not in IMMUTABLE_TYPES and var_name.startswith('__') is False:                      # if var_type is not one of the IMMUTABLE_TYPES or is an __ internal
-            if self.obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                        # if var_type is not something like Optional[Union[int, str]]
-                if var_type not in IMMUTABLE_TYPES or type(var_type) not in IMMUTABLE_TYPES:
-                    if not isinstance(var_type, EnumMeta):
-                        if not (isinstance(var_type, type) and issubclass(var_type, (int,str, float))):
-                            type_safe_raise_exception.immutable_type_error(var_name, var_type)
+        if var_type in IMMUTABLE_TYPES or var_name.startswith('__'):                                      # if var_type is not one of the IMMUTABLE_TYPES or is an __ internal
+            return
+        if self.obj_is_type_literal_compatible(var_type):
+            return
+        if self.obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) :                                   # if var_type is not something like Optional[Union[int, str]]
+            return
+        if var_type in IMMUTABLE_TYPES:
+            return
+        if  isinstance(var_type, EnumMeta):
+            return
+        if isinstance(var_type, type) and issubclass(var_type, (int,str, float)):
+            return
+        type_safe_raise_exception.immutable_type_error(var_name, var_type)
+
+    # def validate_type_immutability(self, var_name: str, var_type: Any) -> None:                         # Validates that type is immutable or in supported format
+    #     if var_type not in IMMUTABLE_TYPES and var_name.startswith('__') is False:                      # if var_type is not one of the IMMUTABLE_TYPES or is an __ internal
+    #         if self.obj_is_type_union_compatible(var_type, IMMUTABLE_TYPES) is False:                        # if var_type is not something like Optional[Union[int, str]]
+    #             if var_type not in IMMUTABLE_TYPES or type(var_type) not in IMMUTABLE_TYPES:
+    #                 if not isinstance(var_type, EnumMeta):
+    #                     if not (isinstance(var_type, type) and issubclass(var_type, (int,str, float))):
+    #                         type_safe_raise_exception.immutable_type_error(var_name, var_type)
 
     def validate_variable_type(self, var_name, var_type, var_value):                                # Validate type compatibility
         if type(var_type) is type and not isinstance(var_value, var_type):

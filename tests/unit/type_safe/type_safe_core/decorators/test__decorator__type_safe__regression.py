@@ -26,7 +26,7 @@ class test_decorator__type_safe__regression(TestCase):
         # now that it is working we can double-check the typesafety checks
 
         create_operation(parameters=[{'a': 'b'      }])     # since it is Any
-        create_operation(parameters=[{'a': None     }])     # the value can be anyhing
+        create_operation(parameters=[{'a': None     }])     # the value can be anything
         create_operation(parameters=[{'a': 123      }])
         create_operation(parameters=[{'a': TestCase }])
         with pytest.raises(ValueError, match=re.escape("Parameter 'parameters' expected a list but got <class 'dict'>")):
