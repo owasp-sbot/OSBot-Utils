@@ -1,10 +1,10 @@
-from typing                                                  import get_origin, Annotated, get_args
-from osbot_utils.type_safe.Type_Safe__Primitive              import Type_Safe__Primitive
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert import type_safe_convert
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation import type_safe_validation
-from osbot_utils.type_safe.validators.Type_Safe__Validator   import Type_Safe__Validator
+from typing                                                             import get_origin, Annotated, get_args, Literal, Union
+from osbot_utils.type_safe.Type_Safe__Primitive                         import Type_Safe__Primitive
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache       import type_safe_cache
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert     import type_safe_convert
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation  import type_safe_validation
+from osbot_utils.type_safe.validators.Type_Safe__Validator              import Type_Safe__Validator
 
 class Type_Safe__Step__Set_Attr:
 
@@ -19,6 +19,8 @@ class Type_Safe__Step__Set_Attr:
             value = self.resolve_value__int_str(_self, name, value)
         else:
             value = self.resolve_value__from_origin(value)
+
+        self.validate_literal_value(annotations, name, value)                            # Check Literal value constraints before generic type checking
 
         type_safe_validation.validate_type_compatibility(_self, annotations, name, value)
         return value
@@ -110,6 +112,32 @@ class Type_Safe__Step__Set_Attr:
             type_safe_validation.validate_if_value_has_been_set(_self, annotations, name, value)
 
         _super.__setattr__(name, value)
+
+    def validate_literal_value(self, annotations, name, value):     # Check if a value is valid for a Literal type annotation
+
+        annotation = annotations.get(name)
+        if not annotation:
+            return
+
+        origin = get_origin(annotation)
+
+        if origin is Union:                                                     # Handle Optional[Literal[...]] by unwrapping the Optional
+            args = get_args(annotation)
+            if type(None) in args:                                              # Check if it's Optional (Union with None)
+                for arg in args:                                                # Find the non-None type
+                    if arg is not type(None) and get_origin(arg) is Literal:
+                        allowed_values = get_args(arg)                          # Found Literal inside Optional
+                        if value is not None and value not in allowed_values:
+                            allowed_str = ', '.join(repr(v) for v in allowed_values)
+                            raise ValueError(f"Invalid value for '{name}': must be one of [{allowed_str}], got {repr(value)}")
+                        return
+
+
+        elif origin is Literal:                                                 # Handle direct Literal[...]
+            allowed_values = get_args(annotation)
+            if value not in allowed_values:
+                allowed_str = ', '.join(repr(v) for v in allowed_values)
+                raise ValueError(f"Invalid value for '{name}': must be one of [{allowed_str}], got {repr(value)}")
 
 
 type_safe_step_set_attr = Type_Safe__Step__Set_Attr()

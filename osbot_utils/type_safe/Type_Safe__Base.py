@@ -1,5 +1,5 @@
 import types
-from typing                                                       import get_args, Union, Optional, Any, ForwardRef
+from typing                                                       import get_args, Union, Optional, Any, ForwardRef, Literal
 from osbot_utils.helpers.Obj_Id                                   import Obj_Id
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
 
@@ -13,6 +13,13 @@ class Type_Safe__Base:
             return True
         origin = type_safe_cache.get_origin(expected_type)
         args   = get_args(expected_type)
+
+        if origin is Literal:                                       # Add Literal support
+            if item not in args:
+                allowed_values = ', '.join(repr(v) for v in args)
+                raise ValueError(f"Literal value must be one of {allowed_values}, got {repr(item)}")
+            return True
+
         if origin is None:
             if expected_type in EXACT_TYPE_MATCH:
                 if type(item) is expected_type:
