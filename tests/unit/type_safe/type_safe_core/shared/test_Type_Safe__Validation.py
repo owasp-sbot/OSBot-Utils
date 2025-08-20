@@ -397,3 +397,16 @@ class test_Type_Safe__Validation(TestCase):
         # Demonstrate the right way with Type_Safe
         GoodLiteral = Literal["text", "json", 42, True, None]  # Only immutable values
         type_safe_validation.validate_type_immutability("good", GoodLiteral)  # This passes!
+
+    def test__bug__type_safe__literal_optional_assignment(self):
+        class An_Class_1(Type_Safe):
+            an_optional_literal: Optional[Literal["allow", "deny"]] = None  # Data collection preference
+
+        error_messsage__1 = "Invalid type for attribute 'an_optional_literal'. Expected 'typing.Optional[typing.Literal['allow', 'deny']]' but got '<class 'str'>"
+        with pytest.raises(ValueError, match=re.escape(error_messsage__1)):
+            An_Class_1(an_optional_literal='allow')                              # BUG
+
+        class An_Class_2(Type_Safe):
+            an_literal: Literal["allow", "deny"] = None  # Data collection preference
+
+        An_Class_2(an_literal='allow')                                          # works as expected
