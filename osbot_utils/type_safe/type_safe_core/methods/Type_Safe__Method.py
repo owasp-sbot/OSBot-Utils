@@ -2,8 +2,7 @@ import collections
 import inspect                                                                                                                       # For function introspection
 from enum                                                                     import Enum
 from typing                                                                   import get_args, get_origin, Union, List, Any, Dict    # For type hinting utilities
-
-from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
+from osbot_utils.type_safe.Type_Safe__Primitive                               import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables import IMMUTABLE_TYPES
 
 

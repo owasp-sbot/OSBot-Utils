@@ -2,8 +2,6 @@ import pytest
 from typing                                                                    import List, Dict, Callable
 from unittest                                                                  import TestCase
 from osbot_utils.type_safe.Type_Safe                                           import Type_Safe
-from osbot_utils.type_safe.primitives.safe_int import Safe_Int
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path import Safe_Str__File__Path
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                 import type_safe
 
 

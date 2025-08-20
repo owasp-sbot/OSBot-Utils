@@ -1,16 +1,14 @@
-from inspect import BoundArguments
-
 import pytest
-from enum                                                               import Enum
-from unittest                                                           import TestCase
-from typing                                                             import Optional, Union, List, Dict, Any, Type, Callable
-
-from osbot_utils.type_safe.primitives.safe_int import Safe_Int
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id      import Safe_Id
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
-from osbot_utils.type_safe.type_safe_core.methods.Type_Safe__Method     import Type_Safe__Method
+from inspect                                                                    import BoundArguments
+from enum                                                                       import Enum
+from unittest                                                                   import TestCase
+from typing                                                                     import Optional, Union, List, Dict, Any, Type, Callable
+from osbot_utils.type_safe.primitives.safe_int                                  import Safe_Int
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str                         import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id              import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid          import Random_Guid
+from osbot_utils.type_safe.type_safe_core.methods.Type_Safe__Method             import Type_Safe__Method
 from osbot_utils.utils.Dev import pprint
 
 
