@@ -1,10 +1,15 @@
 import pytest
-from enum                                                               import Enum
-from unittest                                                           import TestCase
-from typing                                                             import Optional, Union, List, Dict, Any, Type, Callable
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id      import Safe_Id
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
-from osbot_utils.type_safe.type_safe_core.methods.Type_Safe__Method     import Type_Safe__Method
+from inspect                                                                    import BoundArguments
+from enum                                                                       import Enum
+from unittest                                                                   import TestCase
+from typing                                                                     import Optional, Union, List, Dict, Any, Type, Callable
+from osbot_utils.type_safe.primitives.safe_int                                  import Safe_Int
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str                         import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id              import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid          import Random_Guid
+from osbot_utils.type_safe.type_safe_core.methods.Type_Safe__Method             import Type_Safe__Method
+from osbot_utils.utils.Dev import pprint
 
 
 class TestEnum(Enum):                                                                    # Test enum for conversion tests
@@ -592,3 +597,135 @@ class test_Type_Safe__Method(TestCase):
         result = process_data(**bound_args.arguments)
         assert result == [{'name': 'ALICE', 'rate': 1.0, 'score': 20},
                           {'name': 'BOB'  , 'rate': 1.6, 'score': 40}]
+
+
+    def test_convert_primitive_parameters(self):
+
+        def test_func(path       : Safe_Str__File__Path,                    # Create a real function with Type_Safe__Primitive parameters
+                      count      : Safe_Int            ,
+                      name       : Safe_Str            ,
+                      regular_str: str                 ,
+                      regular_int: int                 ):
+            return path, count, name, regular_str, regular_int
+
+        method = Type_Safe__Method(test_func)
+
+        # Create real bound_args using the actual binding
+        bound_args = method.bind_args(args   = ()                       ,
+                                      kwargs = { 'path': '/tmp/test.txt',        # str that should convert to Safe_Str__File__Path
+                                                 'count': '42'          ,        # str that should convert to Safe_Int
+                                                 'name': 'test_name'    ,        # str that should convert to Safe_Str
+                                                 'regular_str': 'normal',        # str that should stay str
+                                                 'regular_int': 100     })       # int that should stay int
+
+
+        assert type(bound_args) is BoundArguments
+        assert bound_args.arguments == { 'count'      : '42'            ,
+                                         'name'       : 'test_name'     ,
+                                         'path'       : '/tmp/test.txt' ,
+                                         'regular_int': 100             ,
+                                         'regular_str': 'normal'        }
+
+        assert type(bound_args.arguments['path']) is str                                    # Store original types for comparison
+        assert type(bound_args.arguments['count']) is str
+        assert type(bound_args.arguments['name']) is str
+
+
+        method.convert_primitive_parameters(bound_args)                                     # Run conversion
+
+
+        assert type(bound_args.arguments['path']) is Safe_Str__File__Path                   # Check conversions happened
+        assert bound_args.arguments['path'] == '/tmp/test.txt'
+
+
+        assert type(bound_args.arguments['count']) is Safe_Int
+        assert bound_args.arguments['count']       == 42
+
+        assert type(bound_args.arguments['name']) is Safe_Str
+        assert bound_args.arguments['name'] == 'test_name'
+
+        # Regular types should not be converted
+        assert type(bound_args.arguments['regular_str']) is str
+        assert bound_args.arguments['regular_str'] == 'normal'
+
+        assert type(bound_args.arguments['regular_int']) is int
+        assert bound_args.arguments['regular_int'] == 100
+
+        # Test with invalid conversion (should silently fail and let validation handle it)
+        def test_func_invalid(value: Safe_Int):
+            return value
+
+        method_invalid = Type_Safe__Method(test_func_invalid)
+        bound_args_invalid = method_invalid.bind_args(args=(), kwargs={'value': 'not_a_number'})
+
+        # This should not raise during conversion
+        method_invalid.convert_primitive_parameters(bound_args_invalid)
+
+        # Value should remain unchanged since conversion failed
+        assert bound_args_invalid.arguments['value'] == 'not_a_number'
+        assert type(bound_args_invalid.arguments['value']) is str
+
+    def test_handle_type_safety(self):
+
+        # Test successful conversion and validation
+        def good_func(path: Safe_Str__File__Path, count: Safe_Int):
+            return path, count
+
+        method = Type_Safe__Method(good_func)
+
+        # Test with valid inputs that need conversion
+        bound_args = method.handle_type_safety(
+            args=(),
+            kwargs={'path': '/tmp/file.txt', 'count': '100'}
+        )
+
+        # Check conversions happened
+        assert type(bound_args.arguments['path']) is Safe_Str__File__Path
+        assert bound_args.arguments['path'] == '/tmp/file.txt'
+        assert type(bound_args.arguments['count']) is Safe_Int
+        assert bound_args.arguments['count'] == 100
+
+        # Test with invalid type that can't be converted
+        def strict_func(value: Safe_Int):
+            return value
+
+        method_strict = Type_Safe__Method(strict_func)
+
+        # This should raise because dict can't convert to Safe_Int
+        with pytest.raises(ValueError, match="Parameter 'value' expected type"):
+            method_strict.handle_type_safety(args=(), kwargs={'value': {'key': 'value'}})
+
+        # Test with optional parameters
+        def optional_func(value: Safe_Int = 10):
+            return value
+
+        method_optional = Type_Safe__Method(optional_func)
+
+        # Should use default when not provided
+        bound_args = method_optional.handle_type_safety(args=(), kwargs={})
+        assert bound_args.arguments['value'] == 10
+
+        # Should convert when provided
+        bound_args = method_optional.handle_type_safety(args=(), kwargs={'value': '20'})
+        assert type(bound_args.arguments['value']) is Safe_Int
+        assert bound_args.arguments['value'] == 20
+
+        # Test with mixed types
+        def mixed_func(safe_path: Safe_Str__File__Path, regular_str: str, safe_int: Safe_Int, regular_int: int):
+            return safe_path, regular_str, safe_int, regular_int
+
+        method_mixed = Type_Safe__Method(mixed_func)
+        bound_args = method_mixed.handle_type_safety(
+            args=(),
+            kwargs={
+                'safe_path': 'path.txt',     # Should convert
+                'regular_str': 'text',        # Should stay str
+                'safe_int': '42',            # Should convert
+                'regular_int': 99            # Should stay int
+            }
+        )
+
+        assert type(bound_args.arguments['safe_path']) is Safe_Str__File__Path
+        assert type(bound_args.arguments['regular_str']) is str
+        assert type(bound_args.arguments['safe_int']) is Safe_Int
+        assert type(bound_args.arguments['regular_int']) is int
