@@ -2,6 +2,9 @@ import re
 import pytest
 from typing                                                         import Any, Dict, Optional, Type, List
 from unittest                                                       import TestCase
+
+from osbot_utils.type_safe.primitives.safe_int import Safe_Int
+from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id  import Safe_Id
 from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now        import Timestamp_Now
 from osbot_utils.type_safe.Type_Safe                                import Type_Safe
@@ -9,6 +12,37 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe      import type_
 
 
 class test_decorator__type_safe__regression(TestCase):
+
+    def test__regression__decorator__type_safe__casts_into_str_instead_if_safe_int(self):
+        from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+        @type_safe
+        def an_method(an_int: Safe_Int):
+            return an_int
+
+        result = an_method('42')
+        #assert type(result) is str                      # Fixed: BUG
+        #assert type(result) is not Safe_Int             # Fixed: BUG
+        #assert result == '42'                           # Fixed: BUG
+        #assert result != 42                             # Fixed: BUG
+        assert type(result) is Safe_Int
+        assert result       == 42
+
+
+    def test__regression__decorator__type_safe__str__to__str_safe_path(self):
+        @type_safe
+        def an_method(an_path: Safe_Str__File__Path):
+            return an_path
+        # error_message = "Parameter 'an_path' expected type <class 'osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path.Safe_Str__File__Path'>, but got <class 'str'>"
+        # with pytest.raises(ValueError, match=error_message):
+        #     an_method('abc')                                      # BUG: should not rasie
+
+        assert an_method('abc')       == 'abc'                      # FIXED :)
+        assert type(an_method('abc')) == Safe_Str__File__Path
+        assert type(an_method('abc')) is not str
+        error_message = "Parameter 'an_path' expected type <class 'osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path.Safe_Str__File__Path'>, but got <class 'int'>"
+        with pytest.raises(ValueError, match=error_message):
+            an_method(123)
+
 
     def test__regression__in_method_conversion(self):
 

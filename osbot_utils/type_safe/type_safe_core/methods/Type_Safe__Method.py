@@ -2,6 +2,8 @@ import collections
 import inspect                                                                                                                       # For function introspection
 from enum                                                                     import Enum
 from typing                                                                   import get_args, get_origin, Union, List, Any, Dict    # For type hinting utilities
+
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables import IMMUTABLE_TYPES
 
 
@@ -18,24 +20,53 @@ class Type_Safe__Method:                                                        
                 raise ValueError(f"Parameter '{param_name}' uses lowercase 'any' instead of 'Any' from typing module. "
                                 f"Please use 'from typing import Any' and annotate as '{param_name}: Any'")
 
-    def handle_type_safety(self, args: tuple, kwargs: dict):                              # Main method to handle type safety
+    def convert_primitive_parameters(self, bound_args):         # Convert parameters to Type_Safe__Primitive types where applicable
+
+        for param_name, param_value in bound_args.arguments.items():
+            if param_name == 'self' or param_name not in self.annotations:
+                continue
+
+            expected_type = self.annotations[param_name]
+
+            if not (isinstance(expected_type, type) and issubclass(expected_type, Type_Safe__Primitive)):           # Check if expected type is a Type_Safe__Primitive subclass
+                continue
+
+            primitive_base = expected_type.__primitive_base__                                                       # Try direct conversion for common cases
+
+            if primitive_base in (int, float) and isinstance(param_value, str):                                     # Handle string to int/float conversion
+                try:
+                    bound_args.arguments[param_name] = expected_type(param_value)
+                    continue
+                except (ValueError, TypeError):
+                    pass                                                                                            # Let normal validation handle the error
+
+            if primitive_base and isinstance(param_value, primitive_base):                                          # Handle values that match the primitive base type
+                try:
+                    bound_args.arguments[param_name] = expected_type(param_value)
+                except (ValueError, TypeError):
+                    pass                                                                                            # Let normal validation handle the error
+
+    def handle_type_safety(self, args: tuple, kwargs: dict):                                # Main method to handle type safety
         self.check_for_any_use()
-        bound_args = self.bind_args(args, kwargs)                                         # Bind arguments to parameters
-        for param_name, param_value in bound_args.arguments.items():                      # Iterate through arguments
-            if param_name != 'self':                                                      # Skip self parameter
-                self.validate_parameter(param_name, param_value, bound_args)              # Validate each parameter
-        return bound_args                                                                 # Return bound arguments
+        bound_args = self.bind_args(args, kwargs)                                           # Bind arguments to parameters
 
-    def bind_args(self, args: tuple, kwargs: dict):                                       # Bind args to parameters
-        bound_args = self.sig.bind(*args, **kwargs)                                       # Bind arguments to signature
-        bound_args.apply_defaults()                                                       # Apply default values
-        return bound_args                                                                 # Return bound arguments
+        self.convert_primitive_parameters(bound_args)                                       # Pre-process primitive type conversions
 
-    def validate_parameter(self, param_name: str, param_value: Any, bound_args):          # Validate a single parameter
-        self.validate_immutable_parameter(param_name, param_value)                        # Validata the param_value (make sure if it set it is on of IMMUTABLE_TYPES)
-        if param_name in self.annotations:                                                # Check if parameter is annotated
-            expected_type = self.annotations[param_name]                                  # Get expected type
-            self.check_parameter_value(param_name, param_value, expected_type, bound_args)# Check value against type
+        for param_name, param_value in bound_args.arguments.items():                        # Iterate through arguments
+            if param_name != 'self':                                                        # Skip self parameter
+                self.validate_parameter(param_name, param_value, bound_args)                # Validate each parameter
+        return bound_args                                                                   # Return bound arguments
+
+    def bind_args(self, args: tuple, kwargs: dict):                                         # Bind args to parameters
+        bound_args = self.sig.bind(*args, **kwargs)                                         # Bind arguments to signature
+        bound_args.apply_defaults()                                                         # Apply default values
+        return bound_args                                                                   # Return bound arguments
+
+    def validate_parameter(self, param_name: str, param_value: Any, bound_args):            # Validate a single parameter
+        self.validate_immutable_parameter(param_name, param_value)                          # Validata the param_value (make sure if it set it is on of IMMUTABLE_TYPES)
+        if param_name in self.annotations:                                                  # Check if parameter is annotated
+            expected_type = self.annotations[param_name]                                    # Get expected type
+            self.check_parameter_value(param_name, param_value, expected_type, bound_args)  # Check value against type
 
     def validate_immutable_parameter(self, param_name, param_value):
         param = self.sig.parameters.get(param_name)      # Check if this is a default value from a mutable type
