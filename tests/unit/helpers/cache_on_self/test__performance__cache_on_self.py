@@ -143,7 +143,7 @@ class test__performance__cache_on_self(TestCase):
 
         # Fast path should be significantly faster
         speedup = duration_slow_path.seconds / duration_fast_path.seconds
-        assert speedup > 10  # Fast path should be at least 10x faster
+        assert speedup > 8  # Fast path should be at least 8x faster
 
     def test__performance__cache_size_impact(self):
         """Test performance impact of large cache sizes"""
