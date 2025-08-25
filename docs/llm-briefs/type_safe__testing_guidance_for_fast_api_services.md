@@ -55,7 +55,7 @@ def test__init__(self):
     assert type(order.id) is Safe_Str__OrderId
 ```
 
-### 3. Use .obj() for Readable Comparisons
+### 4. Use .obj() for Readable Comparisons
 
 **IMPORTANT**: Use the `.obj()` method with the `__` helper for comprehensive object comparisons. This creates much more readable test assertions than multiple individual checks.
 
@@ -88,7 +88,7 @@ def test__init__(self):
 - The object structure is relatively stable
 
 **Avoid .obj() when:**
-- The object is very large (>20 fields) - becomes brittle
+- The object is very large (>40 fields) - becomes brittle
 - Field names aren't valid Python identifiers (use .json() instead)
 - You only care about a few specific fields
 - The structure changes frequently
@@ -124,7 +124,7 @@ def test_nested_initialization(self):
                             storage_fs   = __(content_data = __()))
 ```
 
-### 4. Optimize Performance with setUpClass
+### 5. Optimize Performance with setUpClass
 
 **CRITICAL**: Use `setUpClass` for expensive operations to dramatically improve test performance. Creating services, database connections, or S3 clients in `setUp` instead of `setUpClass` can make tests 10-100x slower.
 
@@ -217,7 +217,8 @@ Understanding the execution order helps optimize setup/teardown:
    - `tearDown`
 3. `tearDownClass` (once at end)
 
-### 5. Standard Test Class Structure
+
+--- 
 
 ## Testing Patterns by Component Type
 
@@ -445,6 +446,9 @@ class test_Open_Router__Cache(TestCase):
             assert _.load_from_latest("test-id") is None
 ```
 
+---
+
+
 ## Critical Testing Requirements
 
 ### 1. Always Test Type Safety
@@ -548,6 +552,145 @@ def test_s3_operations(self):
         # Test S3 operations work
         assert _.s3.bucket_exists(self.test_bucket) is True
 ```
+
+### 6. Testing Safe Type Auto-Conversion and Validation
+
+#### The Auto-Conversion Edge Case
+
+Type_Safe automatically converts raw strings to Safe types during initialization, but this conversion can mask validation bugs in custom Safe types. Always test with both pre-converted Safe types AND raw values to ensure proper validation.
+
+#### Testing Pattern for Safe Type Validation
+
+```python
+def test__init__with_safe_types(self):                                  # Test with pre-converted Safe types
+    test_id   = Safe_Id("test-persona-1")
+    test_name = Safe_Str__Text("Test Persona")
+    test_lang = Safe_Str__Language_Code("pt-PT")
+    
+    with Schema__Persona(id       = test_id,
+                        name     = test_name,
+                        language = test_lang) as _:
+        assert _.id       == test_id
+        assert _.name     == test_name
+        assert _.language == test_lang                                  # May pass even with bugs
+
+def test__init__with_raw_values(self):                                  # Test with raw string values
+    test_id   = "test-persona-1"
+    test_name = "Test Persona"
+    test_lang = "pt-PT"
+    
+    with Schema__Persona(id       = test_id,
+                        name     = test_name,
+                        language = test_lang) as _:
+        # These reveal validation bugs
+        assert _.id       == test_id                                    # Safe_Id conversion works
+        assert _.name     == test_name                                  # Safe_Str__Text works
+        assert _.language != test_lang                                  # BUG: reveals issue
+        assert _.language == '_'                                        # BUG: incorrect conversion
+```
+
+#### Why This Pattern Matters
+
+##### The Hidden Bug Pattern
+
+```python
+class Safe_Str__Language_Code(Safe_Str):
+    max_length = 5
+    regex      = re.compile(r'[^a-zA-Z-]')                             # BUG: removes the dash!
+    regex_mode = 'REPLACE'
+    
+# When using pre-converted type:
+lang = Safe_Str__Language_Code("pt-PT")                                # Creates with "pt-PT"
+assert lang == "pt-PT"                                                 # Passes - no validation yet
+
+# When Type_Safe auto-converts:
+schema = Schema__Persona(language="pt-PT")                             # Auto-converts
+assert schema.language == "pt-PT"                                      # FAILS: actually "pt_PT" or "_"
+```
+
+#### Comprehensive Testing Strategy
+
+```python
+def test_safe_type_validation_both_ways(self):                         # Test both conversion paths
+    # Test 1: Pre-converted Safe types (may hide bugs)
+    with Schema__Config() as _:
+        _.api_key = Safe_Str__API_Key("KEY-123-ABC")
+        assert _.api_key == "KEY-123-ABC"                              # Might pass
+        
+    # Test 2: Raw values (reveals conversion bugs)
+    with Schema__Config(api_key="KEY-123-ABC") as _:
+        assert _.api_key == "KEY-123-ABC"                              # Might fail if validation wrong
+        
+    # Test 3: Use .obj() to see actual stored value
+    with Schema__Config(api_key="KEY-123-ABC") as _:
+        actual_obj = _.obj()
+        assert actual_obj.api_key == "KEY-123-ABC"                     # Shows real value
+```
+
+---
+
+## Common Safe Type Validation Bugs
+
+### 1. Regex Removing Valid Characters
+
+```python
+def test_regex_validation_bug(self):
+    # Bug: Language code regex removes dashes
+    with Schema__Persona(language="en-US") as _:
+        assert _.language != "en-US"                                   # BUG: dash removed
+        assert _.language == "enUS" or _.language == "_"               # Actual buggy result
+```
+
+### 2. Overly Restrictive Length Limits
+
+```python
+def test_length_validation_bug(self):
+    # Bug: UUID max_length too short
+    test_uuid = "550e8400-e29b-41d4-a716-446655440000"
+    with Schema__Resource(resource_id=test_uuid) as _:
+        assert _.resource_id != test_uuid                              # BUG: truncated
+        assert len(_.resource_id) == 32                                # Max length hit
+```
+
+### 3. Case Sensitivity Issues
+
+```python
+def test_case_sensitivity_bug(self):
+    # Bug: Email validation changes case
+    with Schema__User(email="John.Doe@Example.COM") as _:
+        assert _.email != "John.Doe@Example.COM"                       # BUG: case changed
+        assert _.email == "john.doe@example.com"                       # Forced lowercase
+```
+
+---
+
+## Example: Complete Safe Type Validation Test
+
+```python
+def test_complete_safe_type_validation(self):                          # Comprehensive validation test
+    # Test all input formats
+    test_cases = [
+        ("raw string"        , "test-id-123"),
+        ("safe type"         , Safe_Id("test-id-123")),
+        ("with special chars", "test_id!@#"),
+        ("empty"             , ""),
+        ("max length"        , "x" * 100)
+    ]
+    
+    for description, input_value in test_cases:
+        with self.subTest(description):
+            if description in ["with special chars", "empty"]:
+                # Should reject invalid values
+                with pytest.raises(ValueError):
+                    Schema__Test(id=input_value)
+            else:
+                # Should accept and preserve valid values
+                with Schema__Test(id=input_value) as _:
+                    expected = input_value[:50] if len(str(input_value)) > 50 else input_value
+                    assert _.id == expected
+```
+
+---
 
 ## Test Organization Best Practices
 
@@ -751,6 +894,8 @@ if in_github_action():
     pytest.skip("Flaky in GitHub Actions")
 ```
 
+---
+
 ## Bug Testing and Regression Pattern
 
 ### Writing Passing Tests for Bugs
@@ -864,32 +1009,6 @@ def test__bug__nested_types__not_supported(self):
 4. **Progress tracking**: See bugs get fixed over time
 5. **No lost knowledge**: Bug context preserved in tests
 
-## Testing Checklist
-
-When writing tests for a Type_Safe service:
-
-- [ ] Test file mirrors source structure under `tests/unit/`
-- [ ] Test class named `test_ClassName` 
-- [ ] Use `setUpClass` for all expensive operations (services, connections)
-- [ ] Use `setUp` only for lightweight, test-specific data
-- [ ] Implement proper `tearDownClass` and `tearDown` cleanup
-- [ ] Use context managers with `_` throughout
-- [ ] Use `.obj()` with `__` for comprehensive comparisons
-- [ ] Use `.json()` for API responses with special characters
-- [ ] `test__init__` verifies Type_Safe inheritance and attributes
-- [ ] Test type enforcement for all Safe types
-- [ ] Test serialization round-trips preserve types
-- [ ] Test auto-initialization creates isolated instances
-- [ ] Test error conditions and edge cases
-- [ ] Use `setup__service_fast_api_test_objs()` for LocalStack
-- [ ] Skip tests requiring API keys when not available
-- [ ] Test FastAPI routes with TestClient
-- [ ] Verify S3 operations use LocalStack
-- [ ] Group related tests logically
-- [ ] Use descriptive test method names
-- [ ] Define reusable test data in `setUpClass`
-- [ ] Verify service atomicity (can be reused across tests)
-
 ## Common Assertions Reference
 
 ```python
@@ -922,6 +1041,9 @@ assert response.status_code == 200
 assert 'field' in response.json()
 assert response.json()['field'] == expected_value
 ```
+
+---
+
 
 ## Error Message Testing Pattern
 
@@ -1086,5 +1208,50 @@ class test_LLM_Service(TestCase):
                                                                 timeout      = 30   ),
                                              models         = service.config.models )
 ```
+
+---
+
+## Testing Checklist
+
+### For Safe Types
+
+When testing schemas with custom Safe types:
+
+- [ ] Test with pre-converted Safe type instances
+- [ ] Test with raw string/int/float values
+- [ ] Compare both results - they should match
+- [ ] Use `.obj()` to see actual stored values
+- [ ] Test edge cases: special characters, max length, empty values
+- [ ] Test invalid inputs to ensure proper rejection
+- [ ] Document any conversion behavior as intentional or bug
+
+---
+
+
+### For a Type_Safe service:
+
+- [ ] Test file mirrors source structure under `tests/unit/`
+- [ ] Test class named `test_ClassName` 
+- [ ] Use `setUpClass` for all expensive operations (services, connections)
+- [ ] Use `setUp` only for lightweight, test-specific data
+- [ ] Implement proper `tearDownClass` and `tearDown` cleanup
+- [ ] Use context managers with `_` throughout
+- [ ] Use `.obj()` with `__` for comprehensive comparisons
+- [ ] Use `.json()` for API responses with special characters
+- [ ] `test__init__` verifies Type_Safe inheritance and attributes
+- [ ] Test type enforcement for all Safe types
+- [ ] Test serialization round-trips preserve types
+- [ ] Test auto-initialization creates isolated instances
+- [ ] Test error conditions and edge cases
+- [ ] Use `setup__service_fast_api_test_objs()` for LocalStack
+- [ ] Skip tests requiring API keys when not available
+- [ ] Test FastAPI routes with TestClient
+- [ ] Verify S3 operations use LocalStack
+- [ ] Group related tests logically
+- [ ] Use descriptive test method names
+- [ ] Define reusable test data in `setUpClass`
+- [ ] Verify service atomicity (can be reused across tests)
+
+## Wrapping up
 
 This guide ensures consistent, thorough testing of Type_Safe services while maintaining the visual formatting patterns and type safety guarantees that make the framework valuable.
