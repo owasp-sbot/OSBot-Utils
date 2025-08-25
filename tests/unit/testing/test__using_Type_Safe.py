@@ -20,7 +20,7 @@ class test__using_Type_Safe(TestCase):
         class Schema__Order(Type_Safe):
             order_id    : str
             user        : Schema__User
-            items       : List[Dict[str, Any]]
+            items       : List[Dict[str, any]]
             total       : float = 0.0
             status      : str = 'pending'
 
