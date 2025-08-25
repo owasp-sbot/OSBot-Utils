@@ -760,8 +760,7 @@ if in_github_action():
 ```python
 class test_Type_Safe__bugs(TestCase):
     
-    def test__bug__type_safety_assignments__on_obj__bool_assigned_to_int(self):
-        """Document bug where bool values are incorrectly allowed in int fields"""
+    def test__bug__type_safety_assignments__on_obj__bool_assigned_to_int(self):     # Document bug where bool values are incorrectly allowed in int fields
         
         class An_Class(Type_Safe):
             an_int: int
@@ -773,11 +772,10 @@ class test_Type_Safe__bugs(TestCase):
         
         # Document the current buggy behavior
         an_class.an_int = True                              # BUG: should have raised exception
-        assert an_class.an_int is True                      # BUG: confirming int field contains bool
+        assert an_class.an_int       is True                # BUG: confirming int field contains bool
         assert type(an_class.an_int) is bool                # BUG: type is bool not int
         
-    def test__bug__roundtrip_tuple_support(self):
-        """Document bug in tuple type safety and serialization"""
+    def test__bug__roundtrip_tuple_support(self):           # Document bug in tuple type safety and serialization
         
         class An_Class(Type_Safe):
             tuple_1: tuple[str, str]
@@ -790,7 +788,7 @@ class test_Type_Safe__bugs(TestCase):
         
         # Document current buggy behavior
         an_class.tuple_1 = (123, '123')                     # BUG: accepts invalid types
-        assert type(an_class.tuple_1) is tuple              # BUG: should be Type_Safe__Tuple
+        assert type(an_class.tuple_1)     is tuple          # BUG: should be Type_Safe__Tuple
         assert an_class.json()['tuple_1'] == [123, '123']   # BUG: wrong values in JSON
 ```
 
@@ -799,8 +797,7 @@ class test_Type_Safe__bugs(TestCase):
 When bugs are fixed, uncomment the correct assertions and comment out the buggy behavior:
 
 ```python
-def test__regression__list__forward_ref__fails_roundtrip(self):
-    """Regression test for forward reference handling in lists"""
+def test__regression__list__forward_ref__fails_roundtrip(self):             # Regression test for forward reference handling in lists
     
     class An_Class(Type_Safe):
         an_list: List['An_Class']
@@ -867,17 +864,6 @@ def test__bug__nested_types__not_supported(self):
 4. **Progress tracking**: See bugs get fixed over time
 5. **No lost knowledge**: Bug context preserved in tests
 
-### Migration Workflow
-
-When fixing a bug:
-1. Find the test in `test_*__bugs.py`
-2. Uncomment the correct assertions
-3. Comment/remove the buggy assertions
-4. Move test to `test_*__regression.py`
-5. Add `# FIXED:` markers for clarity
-
-This approach ensures bugs are never forgotten and fixes are never regressed!
-
 ## Testing Checklist
 
 When writing tests for a Type_Safe service:
@@ -926,8 +912,9 @@ assert any(term in text for term in ["expected", "terms"])
 # Exception testing
 with pytest.raises(TypeError):
     invalid_operation()
-    
-with pytest.raises(ValueError, match="specific error"):
+
+error_message = "specific error"    
+with pytest.raises(ValueError, match=re.escape(error_message)):
     invalid_value()
 
 # API response testing
