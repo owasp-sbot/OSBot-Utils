@@ -73,8 +73,8 @@ class Settings(Type_Safe):
 ```python
 class TreeNode(Type_Safe):
     value  : int
-    parent : Optional['TreeNode'] = None    # ✓ Same class
-    # parent: Optional['Node']              # ✗ Different class
+    parent : 'TreeNode' = None    # ✓ Same class
+    # parent: 'Node'              # ✗ Different class
 ```
 
 ### 5. Method Validation
@@ -229,6 +229,156 @@ class Safe_UInt__DB_ID(Safe_UInt):
     allow_none  = False
 ```
 
+## Default Values and Auto-initialization in Type_Safe
+
+Type_Safe automatically initializes attributes based on their types - you rarely need to use `None` or `Optional`. Understanding this auto-initialization behavior is key to writing clean Type_Safe code.
+
+### Why Type_Safe Prohibits Mutable Default Values
+
+**CRITICAL**: Type_Safe prevents you from assigning mutable default values (lists, dicts, objects) directly in class definitions. This is a security feature that prevents one of Python's most dangerous gotchas - shared mutable state across instances:
+
+```python
+# ❌ DANGEROUS Python Pattern (Type_Safe prevents this)
+class DangerousClass:
+    items = []  # This list is SHARED across ALL instances!
+    
+obj1 = DangerousClass()
+obj2 = DangerousClass()
+obj1.items.append("secret_data")
+print(obj2.items)  # ['secret_data'] - DATA LEAK! 
+
+# ✅ Type_Safe PREVENTS this vulnerability
+class SafeClass(Type_Safe):
+    items: List[str]  # Each instance gets its OWN list
+    
+obj1 = SafeClass()
+obj2 = SafeClass()
+obj1.items.append("secret_data")
+print(obj2.items)  # [] - Safe! Each instance is isolated
+```
+
+This shared mutable state has caused:
+- **Security breaches**: User A seeing User B's data
+- **Memory leaks**: Objects never garbage collected
+- **Race conditions**: Concurrent modifications to shared state
+- **Data corruption**: Unexpected modifications from other instances
+
+### How Type_Safe Auto-initialization Works
+
+```python
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+from typing import List, Dict, Set
+
+class Schema__Message(Type_Safe):
+    # Safe primitives auto-initialize to their empty/zero values
+    content     : Safe_Str                    # Auto-initializes to ''
+    count       : Safe_UInt                   # Auto-initializes to 0
+    price       : Safe_Float__Money           # Auto-initializes to 0.00
+    
+    # Collections auto-initialize to empty (NEW instance per object!)
+    tags        : List[Safe_Str]              # Auto-initializes to [] (unique instance)
+    metadata    : Dict[str, str]              # Auto-initializes to {} (unique instance)
+    unique_ids  : Set[Safe_Id]                # Auto-initializes to set() (unique instance)
+    
+    # Custom Type_Safe classes auto-initialize if possible
+    options     : Schema__Options             # Auto-initializes to Schema__Options()
+    
+    # Use explicit None ONLY when you truly need nullable
+    parent_id   : Safe_Id = None              # Explicitly nullable
+    expires_at  : Safe_Str__Timestamp = None  # Explicitly nullable
+
+# Usage example
+message = Schema__Message()
+print(message.content)      # ''  - auto-initialized
+print(message.count)        # 0   - auto-initialized  
+print(message.tags)         # []  - auto-initialized (unique to this instance)
+print(message.options)      # Schema__Options() - auto-initialized
+print(message.parent_id)    # None - explicitly set
+```
+
+### Complex Object Auto-initialization During __init__
+
+When Type_Safe classes are used as attributes in other classes, they're automatically instantiated during the parent's `__init__` phase:
+
+```python
+class Schema__Config(Type_Safe):
+    retry_count : Safe_UInt                   # Auto: 0
+    timeout     : Safe_UInt = 30              # Explicit default: 30
+    max_retries : Safe_UInt = 3               # Explicit default: 3
+
+class Schema__Database__Config(Type_Safe):
+    host        : Safe_Str__Host              # Auto: ''
+    port        : Safe_UInt__Port             # Auto: 0 (or could set default)
+    ssl_enabled : bool = True                 # Explicit default: True
+
+class Schema__Service(Type_Safe):
+    name        : Safe_Str                    # Auto: ''
+    config      : Schema__Config              # Auto: NEW Schema__Config() during __init__
+    db_config   : Schema__Database__Config    # Auto: NEW Schema__Database__Config() during __init__
+    fallback    : Schema__Config = None       # Explicitly nullable - no auto-init
+
+# During instantiation, Type_Safe's __init__ creates new instances
+service1 = Schema__Service()
+service2 = Schema__Service()
+
+# Each service has its OWN config instances (not shared!)
+service1.config.retry_count = 5
+service2.config.retry_count = 10
+
+print(service1.config.retry_count)  # 5 - instance 1's value
+print(service2.config.retry_count)  # 10 - instance 2's value (not affected!)
+
+# The nested objects are fully initialized with their defaults
+print(service1.config.timeout)       # 30 - explicit default preserved
+print(service1.config.max_retries)   # 3  - explicit default preserved
+print(service1.db_config.ssl_enabled) # True - nested default preserved
+print(service1.db_config.port)       # 0 - auto-initialized
+
+# Nullable fields remain None
+print(service1.fallback)             # None - explicitly nullable, not auto-initialized
+```
+
+### When to Use None vs Relying on Auto-initialization
+
+```python
+class Schema__User(Type_Safe):
+    # ✓ GOOD: Let Type_Safe handle defaults
+    username    : Safe_Str__Username          # Auto: '' (or min length if required)
+    age         : Safe_UInt__Age              # Auto: 0
+    tags        : List[Safe_Str]              # Auto: [] (unique list)
+    settings    : Schema__User_Settings       # Auto: Schema__User_Settings() (unique instance)
+    
+    # ✓ GOOD: Explicit None for truly optional fields with semantic meaning
+    deleted_at  : Safe_Str__Timestamp = None  # None means "never deleted"
+    referrer_id : Safe_Id             = None  # None means "no referrer"
+    supervisor  : 'Schema__User'      = None  # None means "no supervisor"
+    
+    # ✗ AVOID: Using Optional when auto-init would work
+    # description : Optional[Safe_Str]        # Just use Safe_Str
+    # items      : Optional[List[str]]        # Just use List[str]
+```
+
+### Best Practices
+
+1. **Trust auto-initialization** - Most types have sensible defaults
+2. **Never assign mutable defaults in class definition** - Type_Safe prevents this footgun
+3. **Use explicit `= None` sparingly** - Only when `None` has semantic meaning (e.g., "not set", "deleted", "unlimited")
+4. **Avoid `Optional[]` in most cases** - Type_Safe handles this better with auto-init
+5. **Document when None matters** - If `None` has special meaning, comment it
+6. **Remember each instance is isolated** - No shared state between instances
+
+
+### Security Benefits Summary
+
+By preventing mutable defaults and auto-initializing unique instances, Type_Safe eliminates:
+- **Data leaks** between user sessions
+- **State pollution** across requests
+- **Memory leaks** from shared references
+- **Race conditions** in concurrent code
+- **Debugging nightmares** from unexpected shared state
+
+Each Type_Safe instance is a clean, isolated environment with its own state - exactly what secure, maintainable code needs.
+
 ## Advanced Topics
 
 ### Using Literal for Quick Enums
@@ -236,13 +386,13 @@ class Safe_UInt__DB_ID(Safe_UInt):
 Type_Safe now supports `Literal` types with runtime enforcement - perfect for quick enums without creating separate Enum classes:
 
 ```python
-from typing import Literal, Optional
+from typing import Literal
 
 class Schema__Open_Router__Message(Type_Safe):
     # Literal enforces these exact values at runtime!
     role    : Literal["assistant", "system", "user", "tool"]  # Only these 4 values allowed
     content : Safe_Str__Message_Content
-    tool_id : Optional[Safe_Str] = None
+    tool_id : Safe_Str = None
 
 # Runtime validation works!
 message      = Schema__Open_Router__Message()
@@ -251,7 +401,7 @@ message.role = "admin"      # ✗ ValueError: must be one of ["assistant", "syst
 
 class Schema__Provider_Preferences(Type_Safe):
     # Mix Literal with other types
-    data_collection : Literal["allow", "deny"]        = "deny"    # Two-state without boolean
+    data_collection : Literal["allow", "deny"]         = "deny"   # Two-state without boolean
     priority        : Literal["low", "medium", "high"] = "medium" # Quick priority levels
     mode            : Literal["dev", "test", "prod"]   = "dev"    # Environment modes
 ```
@@ -435,10 +585,10 @@ Benefits of Type_Safe over Pydantic in FastAPI:
 
 ```python
 from osbot_utils.type_safe.Type_Safe                                import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
-from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money import Safe_Float__Money
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Url       import Safe_Str__Url
-from typing                                                         import List, Dict, Optional
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id  import Safe_Id
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money  import Safe_Float__Money
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Url        import Safe_Str__Url
+from typing                                                         import List, Dict
 
 # Domain IDs
 class UserId(Safe_Id): pass
@@ -451,8 +601,8 @@ class Order(Type_Safe):
     items    : Dict[ProductId, int]
     subtotal : Safe_Float__Money
     tax      : Safe_Float__Money
-    status   : str                        = "pending"
-    tracking : Optional[Safe_Str__Url]    = None
+    status   : str                  = "pending"
+    tracking : Safe_Str__Url         = None
     
     def total(self) -> Safe_Float__Money:                                 # Calculate total
         return self.subtotal + self.tax
