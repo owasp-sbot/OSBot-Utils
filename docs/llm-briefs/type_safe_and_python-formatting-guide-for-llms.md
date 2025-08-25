@@ -94,12 +94,24 @@ class Calculator(Type_Safe):
 def method_name(self, first_param  : Type1        ,                               # Method purpose comment
                       second_param : Type2        ,                               # Aligned at column 80
                       third_param  : Type3 = None                                 # Default values align
-                ) -> ReturnType:                                                  # Return on new line
+                 ) -> ReturnType:                                                 # Return on new line
 ```
+
 - Parameters stack vertically with opening parenthesis
+- **First letter of return type aligns with first letter of parameter names** (the `R` in `ReturnType` aligns with `f` in `first_param`, `s` in `second_param`, etc.)
 - Vertical alignment on `:`, `,`, `#`
-- Return type format: `) -> ReturnType:`
+- Return type format: `) -> ReturnType:` where the closing `)` is positioned to achieve the return type alignment
 - Skip formatting for single param or no types/defaults
+- ONLY do this when there is at least one parameter: for cases like `method_a(self)` just do `method_a(self) -> ReturnType:`
+
+#### Alignment Example - Focus on Return Type
+```python
+def process_data(self, input_data   : Dict[str, Any] ,                            # Raw input data
+                       validator    : Schema__Validator,                          # Validation schema
+                       timeout      : int = 30                                    # Timeout in seconds
+                  ) -> Schema__Result:                                            # Processed result
+    #                  ^-- Note: 'S' in Schema__Result aligns with 'i' in input_data and 'v' in validator
+```
 
 ### Variable Assignment & Assertions
 ```python
@@ -121,10 +133,105 @@ node_config = Schema__MGraph__Node__Config(node_id    = Random_Guid(),
 
 ### Imports
 ```python
-from unittest                                                       import TestCase
+from unittest                                                      import TestCase
 from mgraph_ai.schemas.Schema__MGraph__Node                        import Schema__MGraph__Node
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
 ```
+
+
+### Documentation Style - NEVER Use Docstrings
+
+**CRITICAL**: In Type_Safe code, NEVER use Python docstrings. All documentation must be inline comments aligned at the end of lines. This maintains the visual pattern recognition that makes Type_Safe code readable.
+
+#### ✗ NEVER DO THIS - Docstrings Break Visual Patterns
+
+```python
+# ✗ WRONG - Docstrings clutter the code and break alignment
+class Persona__Service(Type_Safe):
+    """Core service for persona-based translation and impersonation"""
+    
+    prompt_builder : Persona__Prompt_Builder
+    persona_manager: Persona__Manager
+    llm_client     : LLM__Client
+    environment    : Enum__Deployment_Environment
+    
+    def setup(self) -> 'Persona__Service':
+        """Initialize the service with configuration"""
+        pass
+        
+    def translate(self, text: Safe_Str, target_persona: Schema__Persona) -> Safe_Str:
+        """
+        Translate text using the specified persona.
+        
+        Args:
+            text: The text to translate
+            target_persona: The persona to use for translation
+            
+        Returns:
+            The translated text
+        """
+        pass
+```
+
+#### ✓ ALWAYS DO THIS - Inline Comments with Alignment
+
+```python
+# ✓ CORRECT - Clean visual lanes with aligned comments
+class Persona__Service(Type_Safe):                              # Core service for persona-based translation and impersonation
+    prompt_builder  : Persona__Prompt_Builder                   # Builds prompts for LLM interactions
+    persona_manager : Persona__Manager                          # Manages available personas
+    llm_client      : LLM__Client                               # Client for LLM API calls
+    environment     : Enum__Deployment_Environment              # Current deployment environment
+    
+    def setup(self) -> 'Persona__Service':                      # Initialize the service with configuration
+        self.prompt_builder  = Persona__Prompt_Builder()
+        self.persona_manager = Persona__Manager()
+        return self
+        
+    def translate(self, text          : Safe_Str          ,     # Text to translate
+                        target_persona : Schema__Persona        # Persona for translation style
+                   ) -> Safe_Str:                               # Returns translated text
+        prompt = self.prompt_builder.build(text, target_persona)
+        return self.llm_client.complete(prompt)
+```
+
+#### Key Rules for Comments
+
+1. **Class comments**: Always at the end of the class declaration line
+2. **Attribute comments**: Aligned at the same column (typically column 60-80)
+3. **Method comments**: At the end of the method signature line
+4. **Parameter comments**: Aligned with other parameter comments
+5. **Return type comments**: On the same line as the return type annotation
+
+#### Why No Docstrings?
+
+- **Visual consistency**: Docstrings break the vertical alignment patterns
+- **Information density**: Inline comments keep related information on the same line
+- **Scanability**: Eyes can follow the visual lanes to quickly understand structure
+- **Debugging efficiency**: All information visible without scrolling or expanding
+- **Pattern recognition**: Misalignments immediately signal potential issues
+
+#### Complex Method Documentation
+
+For methods that need extensive documentation, use a comment block ABOVE the method, not a docstring:
+
+```python
+# Transform user input into a structured query by:
+# 1. Sanitizing dangerous characters
+# 2. Normalizing whitespace and case
+# 3. Applying persona-specific transformations
+# 4. Validating against schema constraints
+def transform_input(self, raw_input    : str                   ,    # Raw user input
+                          persona      : Schema__Persona       ,    # Active persona
+                          constraints  : Schema__Constraints        # Validation constraints
+                     ) -> Safe_Str__Query:                          # Sanitized, validated query
+    # Implementation here
+    pass
+```
+
+#### Remember
+
+The entire Type_Safe philosophy is about making code structure visible through alignment. Docstrings are vertical space wasters that hide the elegant patterns that make Type_Safe code self-documenting. Every piece of documentation should enhance the visual structure, not obscure it.
 
 ## Safe Primitives Reference
 
@@ -296,6 +403,41 @@ print(message.options)      # Schema__Options() - auto-initialized
 print(message.parent_id)    # None - explicitly set
 ```
 
+#### Special Auto-initializing Types
+
+Some Type_Safe types have built-in auto-initialization behavior that generates new values on each instantiation. **Never override `__init__` to set these values** - Type_Safe handles this automatically:
+
+```python
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Timestamp_Now import Timestamp_Now
+
+class Schema__Response(Type_Safe):          # These types auto-generate values on instantiation:
+    request_id : Random_Guid                # Auto-generates new GUID each time
+    timestamp  : Timestamp_Now               # Auto-generates current timestamp
+    
+    # ✗ NEVER DO THIS - redundant __init__ override!
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
+    #     if self.timestamp is None:
+    #         self.timestamp = Timestamp_Now()  # Already handled!
+
+# Usage
+response1 = Schema__Response()
+response2 = Schema__Response()
+
+print(response1.request_id)  # e.g., "a4f3c2b1-..."
+print(response2.request_id)  # Different: "b7d9e4a2-..."
+print(response1.timestamp)   # e.g., "2024-01-15T10:30:45Z"
+print(response2.timestamp)   # Different: "2024-01-15T10:30:46Z"
+```
+
+**Auto-initializing types include:**
+- `Random_Guid` - Generates unique UUID on each instantiation
+- `Timestamp_Now` - Captures current timestamp on instantiation
+- Any custom Type_Safe class with default generation logic
+
+**Key principle:** If a type generates its own default value, don't override `__init__` to set it. The whole point of these types is to auto-generate their values!
+
 ### Complex Object Auto-initialization During __init__
 
 When Type_Safe classes are used as attributes in other classes, they're automatically instantiated during the parent's `__init__` phase:
@@ -325,17 +467,17 @@ service2 = Schema__Service()
 service1.config.retry_count = 5
 service2.config.retry_count = 10
 
-print(service1.config.retry_count)  # 5 - instance 1's value
-print(service2.config.retry_count)  # 10 - instance 2's value (not affected!)
+print(service1.config.retry_count)      # 5 - instance 1's value
+print(service2.config.retry_count)      # 10 - instance 2's value (not affected!)
 
 # The nested objects are fully initialized with their defaults
-print(service1.config.timeout)       # 30 - explicit default preserved
-print(service1.config.max_retries)   # 3  - explicit default preserved
-print(service1.db_config.ssl_enabled) # True - nested default preserved
-print(service1.db_config.port)       # 0 - auto-initialized
+print(service1.config.timeout)          # 30 - explicit default preserved
+print(service1.config.max_retries)      # 3  - explicit default preserved
+print(service1.db_config.ssl_enabled)   # True - nested default preserved
+print(service1.db_config.port)          # 0 - auto-initialized
 
 # Nullable fields remain None
-print(service1.fallback)             # None - explicitly nullable, not auto-initialized
+print(service1.fallback)                # None - explicitly nullable, not auto-initialized
 ```
 
 ### When to Use None vs Relying on Auto-initialization
@@ -451,9 +593,8 @@ Exceptions are rare and usually involve overriding Type_Safe methods for special
 class Schema__Special(Type_Safe):
     value: Safe_Str
     
-    def __setattr__(self, name, value):
-        # Only override Type_Safe internals when absolutely required
-        if name == 'value' and value == 'special_case':
+    def __setattr__(self, name, value):        
+        if name == 'value' and value == 'special_case':             # Only override Type_Safe internals when absolutely required
             value = transform_special(value)
         super().__setattr__(name, value)
 ```
@@ -529,22 +670,19 @@ class UserResponse(Type_Safe):
     id         : Safe_Str__UserId
     username   : Safe_Str__Username
     created_at : Safe_Str__Timestamp
-
-# Use directly in routes - automatic conversion happens!
-class Routes_Users(Fast_API__Routes):
+    
+class Routes_Users(Fast_API__Routes):                                   # Use directly in routes - automatic conversion happens!
     tag = 'users'
     
-    def create_user(self, request: UserRequest) -> UserResponse:
-        # request is Type_Safe with full validation
+    def create_user(self, request: UserRequest) -> UserResponse:        # request is Type_Safe with full validation
         # No manual conversion needed!
         user_id = self.user_service.create(request)
         
         return UserResponse(id         = user_id              ,
-                           username   = request.username      ,
-                           created_at = timestamp_now()       )
+                            username   = request.username     ,
+                            created_at = timestamp_now()      )
     
-    def get_user(self, user_id: Safe_Str__UserId) -> UserResponse:
-        # Even path parameters can use Safe types!
+    def get_user(self, user_id: Safe_Str__UserId) -> UserResponse:      # Even path parameters can use Safe types!
         return self.user_service.get(user_id)
     
     def setup_routes(self):
@@ -663,23 +801,23 @@ company = Company.from_json({
 
 ```python
 # Core
-from osbot_utils.type_safe.Type_Safe                                       import Type_Safe
-from osbot_utils.type_safe.decorators                                      import type_safe
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.decorators                                               import type_safe
 
 # Safe Strings
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str                    import Safe_Str
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Name     import Safe_Str__File__Name
-from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__Url          import Safe_Str__Url
-from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__IP_Address   import Safe_Str__IP_Address
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str                             import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Name      import Safe_Str__File__Name
+from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__Url                    import Safe_Str__Url
+from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__IP_Address             import Safe_Str__IP_Address
 
 # Safe Numbers  
-from osbot_utils.type_safe.primitives.safe_int.Safe_Int                   import Safe_Int
-from osbot_utils.type_safe.primitives.safe_uint.Safe_UInt__Port           import Safe_UInt__Port
-from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money        import Safe_Float__Money
+from osbot_utils.type_safe.primitives.safe_int.Safe_Int                             import Safe_Int
+from osbot_utils.type_safe.primitives.safe_uint.Safe_UInt__Port                     import Safe_UInt__Port
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money                  import Safe_Float__Money
 
 # Identifiers
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id        import Safe_Id
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid    import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                  import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid              import Random_Guid
 ```
 
 ## Key Benefits
