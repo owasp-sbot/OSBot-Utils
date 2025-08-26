@@ -603,6 +603,178 @@ Understanding the execution order helps optimize setup/teardown:
    - `tearDown`
 3. `tearDownClass` (once at end)
 
+### 7. Testing Type_Safe Auto-Conversion Behavior
+
+#### Understanding Auto-Conversion vs Type Enforcement
+
+Type_Safe automatically converts compatible values to their Safe type equivalents when possible. This is a **feature**, not a bug. Understanding when auto-conversion happens vs when TypeError is raised is critical for writing correct tests.
+
+#### Auto-Conversion Rules
+
+Type_Safe attempts conversion in this order:
+1. **Direct assignment** if already correct type
+2. **Auto-conversion** if source type can be converted (str→Safe_Str, int→str→Safe_Str, etc.)
+3. **Validation** after conversion (may raise ValueError)
+4. **TypeError** only if conversion is impossible
+
+#### Testing Pattern for Auto-Conversion
+
+```python
+def test_type_auto_conversion(self):                                    # Test Type_Safe's automatic type conversion
+    with Schema__Persona() as _:
+        # Type_Safe auto-converts compatible values to Safe types
+        # This is EXPECTED BEHAVIOR, not a bug
+        
+        # String to Safe_Id - sanitizes special characters
+        _.id = "raw-string!@£"
+        assert type(_.id) is Safe_Id                                   # Auto-converted to Safe_Id
+        assert _.id == 'raw-string___'                                 # Special chars replaced with _
+        
+        # Integer to Safe_Str - converts via str()
+        _.name = 123
+        assert type(_.name) is Safe_Str__Text                         # Auto-converted
+        assert _.name == '123'                                        # Integer stringified
+        
+        # Float to Safe_Str - converts via str()
+        _.description = 45.67
+        assert type(_.description) is Safe_Str__Text                  # Auto-converted
+        assert _.description == '45.67'                               # Float stringified
+        
+        # String to Safe_Str__Language_Code - validates format
+        _.language = "en-US"
+        assert type(_.language) is Safe_Str__Language_Code            # Auto-converted
+        assert _.language == 'en-US'                                  # Valid format preserved
+        
+        # Auto-conversion can still fail validation
+        with pytest.raises(ValueError, match=re.escape("Invalid language code format: 'invalid-format'")):
+            _.language = "invalid-format"                             # Conversion succeeds, validation fails
+
+def test_type_enforcement_incompatible_types(self):                     # Test what CANNOT be auto-converted
+    with Schema__User() as _:
+        # Some conversions are impossible and will raise TypeError
+        
+        # Dict cannot become Safe_Str
+        with pytest.raises(TypeError):
+            _.name = {'dict': 'value'}                                # Cannot convert dict to string
+            
+        # List cannot become Safe_Id  
+        with pytest.raises(TypeError):
+            _.user_id = ['list', 'of', 'items']                      # Cannot convert list to Safe_Id
+            
+        # Complex objects cannot be auto-converted
+        from datetime import datetime
+        with pytest.raises(TypeError):
+            _.age = datetime.now()                                    # Cannot convert datetime to int
+            
+        # None to non-nullable field
+        with pytest.raises(TypeError):
+            _.required_field = None                                   # Non-nullable field rejects None
+```
+
+#### Common Auto-Conversion Scenarios
+
+```python
+def test_safe_type_conversions_matrix(self):                          # Document all conversion behaviors
+    with Schema__Test() as _:
+        # Safe_Id conversions
+        _.user_id = "valid-id-123"                                    # str → Safe_Id ✓
+        assert _.user_id == "valid-id-123"
+        
+        _.user_id = "invalid!@#$%"                                    # str → Safe_Id (sanitized) ✓
+        assert _.user_id == "invalid_____"                            # Special chars become _
+        
+        # Safe_UInt conversions  
+        _.age = 25                                                    # int → Safe_UInt ✓
+        assert _.age == 25
+        
+        _.age = "30"                                                  # str → int → Safe_UInt ✓
+        assert _.age == 30
+        
+        with pytest.raises(ValueError):
+            _.age = -5                                                # Negative fails validation
+            
+        with pytest.raises(ValueError):
+            _.age = "not-a-number"                                   # Non-numeric string fails
+            
+        # Safe_Float__Money conversions
+        _.price = 19.99                                              # float → Safe_Float__Money ✓
+        assert _.price == 19.99
+        
+        _.price = "29.99"                                            # str → float → Safe_Float__Money ✓
+        assert _.price == 29.99
+        
+        _.price = 30                                                 # int → float → Safe_Float__Money ✓
+        assert _.price == 30.00
+```
+
+#### Testing Strategy for Auto-Conversion
+
+1. **Test the conversion path**: Verify type after assignment
+   ```python
+   _.field = "raw_value"
+   assert type(_.field) is Expected_Safe_Type
+   ```
+
+2. **Test the sanitization result**: Verify how value was transformed
+   ```python
+   _.field = "test!@#"
+   assert _.field == "test___"  # Sanitized result
+   ```
+
+3. **Test validation failures**: Conversion works but validation fails
+   ```python
+   with pytest.raises(ValueError):  # Not TypeError!
+       _.field = "invalid_but_convertible"
+   ```
+
+4. **Test true type incompatibilities**: Cannot convert at all
+   ```python
+   with pytest.raises(TypeError):  # Cannot convert dict to str
+       _.field = {"dict": "value"}
+   ```
+
+#### Key Testing Principles
+
+- **ValueError = Validation failed** (after successful conversion)
+- **TypeError = Conversion impossible** (incompatible types)
+- **Always check type()** after assignment to verify conversion
+- **Test sanitization rules** for Safe_Str types (special chars → _)
+- **Test numeric bounds** for Safe_Int/UInt types
+- **Document expected transformations** in test comments
+
+#### Anti-Pattern to Avoid
+
+```python
+# ✗ WRONG - Assumes no auto-conversion
+def test_type_enforcement_wrong(self):
+    with Schema__User() as _:
+        with pytest.raises(TypeError):  # WRONG! Will auto-convert
+            _.name = 123                 # Gets converted to "123"
+            
+        with pytest.raises(TypeError):  # WRONG! Will auto-convert  
+            _.id = "raw-string"         # Gets converted to Safe_Id
+
+# ✓ CORRECT - Tests actual conversion behavior
+def test_type_enforcement_correct(self):
+    with Schema__User() as _:
+        _.name = 123
+        assert _.name == "123"                                        # Verify conversion
+        assert type(_.name) is Safe_Str__Username                    # Verify type
+        
+        _.id = "raw-string!@#"  
+        assert _.id == "raw-string___"                               # Verify sanitization
+        assert type(_.id) is Safe_Id                                 # Verify type
+```
+
+#### Summary
+
+Type_Safe's auto-conversion is a powerful feature that reduces boilerplate while maintaining type safety. Tests should:
+- Verify conversions happen correctly
+- Check sanitization/transformation rules
+- Test validation boundaries
+- Only expect TypeError for truly incompatible types
+
+This behavior makes Type_Safe practical for real-world use where data often comes from JSON, forms, or APIs as raw primitives that need to be safely converted to domain types.
 
 --- 
 
