@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/type_safe__testing_guidance_for_fast_api_services/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Type_Safe Testing Guidance for Fast_API Services - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Testing Guidance for Fast_API Services";
+        var mkdocs_page_input_path = "llm-briefs/type_safe__testing_guidance_for_fast_api_services.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/type_safe__testing_guidance_for_fast_api_services/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Testing Guidance for Fast_API Services</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-testing-guidance-for-fast_api-services">Type_Safe Testing Guidance for Fast_API Services<a class="headerlink" href="#type_safe-testing-guidance-for-fast_api-services" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>version</strong>: v2.84.1</li>
+<li><strong>updated</strong>: 25th Aug 2025</li>
+</ul>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide provides comprehensive instructions for writing tests for Type_Safe-based services using the OSBot framework. When given a service's source code, follow these patterns to create thorough, maintainable test suites that validate both the type safety guarantees and business logic.</p>
+<h2 id="core-testing-principles">Core Testing Principles<a class="headerlink" href="#core-testing-principles" title="Permanent link">&para;</a></h2>
+<h3 id="1-test-file-naming-and-structure">1. Test File Naming and Structure<a class="headerlink" href="#1-test-file-naming-and-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># For service file: mgraph_ai_service_llms/service/llms/LLM__Service.py
+# Test file path: tests/unit/service/llms/test_LLM__Service.py
+
+# Always prefix test files with 'test_'
+# Mirror the source directory structure under tests/unit/
+</code></pre>
+<h3 id="2-no-docstrings-use-inline-comments">2. No Docstrings - Use Inline Comments<a class="headerlink" href="#2-no-docstrings-use-inline-comments" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL</strong>: Never use docstrings in tests. All documentation must be inline comments at the end of lines, maintaining Type_Safe's visual alignment patterns.</p>
+<pre><code class="language-python"># ✗ NEVER DO THIS - Docstrings break visual patterns
+def test__init__(self):
+    &quot;&quot;&quot;Test auto-initialization of Schema__Persona&quot;&quot;&quot;    # NO!
+    with Schema__Persona() as _:
+        assert type(_) is Schema__Persona
+
+# ✓ ALWAYS DO THIS - Inline comments maintain alignment
+def test__init__(self):                                   # Test auto-initialization of Schema__Persona
+    with Schema__Persona() as _:
+        assert type(_)         is Schema__Persona
+        assert base_classes(_) == [Type_Safe, object]
+
+        assert type(_.id)      is Safe_Id                 # Test all fields are initialized
+        assert type(_.name)    is Safe_Str__Text
+</code></pre>
+<h3 id="3-context-manager-pattern-with-_">3. Context Manager Pattern with '_'<a class="headerlink" href="#3-context-manager-pattern-with-_" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL</strong>: Always use context managers with <code>_</code> for better readability and automatic resource management. This is the preferred pattern throughout Type_Safe testing.</p>
+<pre><code class="language-python"># ✓ PREFERRED - Context manager with underscore
+def test__init__(self):
+    with Schema__Order() as _:
+        assert type(_.id)     is Safe_Str__OrderId
+        assert _.items        == []
+        assert _.status       == &quot;pending&quot;
+
+# ✗ AVOID - Direct variable assignment
+def test__init__(self):
+    order = Schema__Order()
+    assert type(order.id) is Safe_Str__OrderId
+</code></pre>
+<h3 id="4-use-obj-for-readable-comparisons">4. Use .obj() for Readable Comparisons<a class="headerlink" href="#4-use-obj-for-readable-comparisons" title="Permanent link">&para;</a></h3>
+<p><strong>IMPORTANT</strong>: Use the <code>.obj()</code> method with the <code>__</code> helper for comprehensive object comparisons. This creates much more readable test assertions than multiple individual checks.</p>
+<pre><code class="language-python">from osbot_utils.utils.Objects import __
+
+def test__init__(self):
+    with Schema__Order() as _:
+        # ✓ PREFERRED - Single comprehensive comparison
+        assert _.obj() == __(id          = _.id                    ,  # Use actual value for auto-generated
+                            items       = []                        ,
+                            total       = 0.00                      ,
+                            status      = &quot;pending&quot;                 ,
+                            tracking    = None                      ,
+                            created_at  = _.created_at              )  # Use actual for timestamps
+
+        # ✗ AVOID - Multiple individual assertions
+        # assert _.items == []
+        # assert _.total == 0.00  
+        # assert _.status == &quot;pending&quot;
+        # assert _.tracking is None
+</code></pre>
+<h4 id="when-to-use-obj">When to Use .obj()<a class="headerlink" href="#when-to-use-obj" title="Permanent link">&para;</a></h4>
+<p><strong>Use .obj() when:</strong>
+- Testing initialization with default values
+- Comparing complex nested structures
+- Verifying complete object state after operations
+- The object structure is relatively stable</p>
+<p><strong>Avoid .obj() when:</strong>
+- The object is very large (&gt;40 fields) - becomes brittle
+- Field names aren't valid Python identifiers (use .json() instead)
+- You only care about a few specific fields
+- The structure changes frequently</p>
+<h4 id="using-json-as-alternative">Using .json() as Alternative<a class="headerlink" href="#using-json-as-alternative" title="Permanent link">&para;</a></h4>
+<p>When <code>.obj()</code> isn't suitable (e.g., keys with special characters), use <code>.json()</code>:</p>
+<pre><code class="language-python">def test_api_response(self):
+    response = self.client.post('/llms/complete', json={})
+
+    # Use .json() for API responses with special characters in keys
+    assert response.json() == {'detail': [{'input': None               ,
+                                          'loc'  : ['query', 'prompt'] ,
+                                          'msg'  : 'Field required'    ,
+                                          'type' : 'missing'           }]}
+</code></pre>
+<h4 id="complex-nested-structures">Complex Nested Structures<a class="headerlink" href="#complex-nested-structures" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">def test_nested_initialization(self):
+    with File_FS() as _:
+        assert _.obj() == __(file__config = __(exists_strategy = 'FIRST'              ,
+                                              file_id         = _.file__config.file_id ,
+                                              file_paths      = []                     ,
+                                              file_type       = __(name           = 'json',
+                                                                  content_type   = 'JSON' ,
+                                                                  file_extension = 'json' ,
+                                                                  encoding       = 'UTF_8',
+                                                                  serialization  = 'JSON')),
+                            storage_fs   = __(content_data = __()))
+</code></pre>
+<h3 id="5-enhanced-testing-with-obj-and-the-__-class">5. Enhanced Testing with .obj() and the __ Class<a class="headerlink" href="#5-enhanced-testing-with-obj-and-the-__-class" title="Permanent link">&para;</a></h3>
+<h4 id="overview_1">Overview<a class="headerlink" href="#overview_1" title="Permanent link">&para;</a></h4>
+<p>The <code>.obj()</code> method on Type_Safe objects returns an instance of the <code>__</code> class (double underscore), which provides powerful testing capabilities beyond simple comparisons. This enhanced object allows you to handle dynamic values, perform partial matching, debug differences, and create test data variations efficiently.</p>
+<h4 id="the-__-class-capabilities">The __ Class Capabilities<a class="headerlink" href="#the-__-class-capabilities" title="Permanent link">&para;</a></h4>
+<p>The <code>__</code> class extends <code>SimpleNamespace</code> with these key features:
+- <strong><code>__SKIP__</code></strong>: Skip comparison of dynamic fields (IDs, timestamps)
+- <strong><code>.contains()</code></strong>: Partial object matching
+- <strong><code>.diff()</code></strong>: Show differences between objects
+- <strong><code>.excluding()</code></strong>: Remove fields from comparison
+- <strong><code>.merge()</code></strong>: Create object variations</p>
+<h4 id="basic-usage-with-obj">Basic Usage with .obj()<a class="headerlink" href="#basic-usage-with-obj" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">def test__init__(self):
+    with Schema__User() as _:
+        # .obj() returns a __ instance with all Type_Safe fields
+        obj = _.obj()
+        assert type(obj).__name__ == '__'                           # Returns __ class
+
+        # Can use __ for comprehensive comparison
+        assert _.obj() == __(user_id     = _.user_id              ,  # Auto-generated
+                            name        = ''                       ,  # Empty default
+                            email       = ''                       ,
+                            age         = 0                        ,
+                            is_active   = True                     ,  # Explicit default
+                            tags        = []                       ,  # Type_Safe__List as []
+                            preferences = __()                     )  # Type_Safe__Dict as __()
+</code></pre>
+<h4 id="handling-dynamic-values-with-skip">Handling Dynamic Values with <strong>SKIP</strong><a class="headerlink" href="#handling-dynamic-values-with-skip" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: Auto-generated IDs, timestamps, and other dynamic values make tests brittle.</p>
+<p><strong>Solution</strong>: Use <code>__SKIP__</code> to ignore specific fields during comparison.</p>
+<pre><code class="language-python">from osbot_utils.testing.__ import __, __SKIP__
+
+def test__with_dynamic_fields(self):
+    with Schema__Order() as order:
+        # Order has auto-generated ID and timestamp
+        order.items = [{'product': 'laptop', 'qty': 1}]
+        order.total = 999.99
+
+        # Skip dynamic fields in comparison
+        assert order.obj() == __(order_id   = __SKIP__           ,  # Skip auto-generated ID
+                                items      = [__(product='laptop', qty=1)],
+                                total      = 999.99                ,
+                                status     = 'pending'             ,
+                                created_at = __SKIP__              ,  # Skip timestamp
+                                updated_at = __SKIP__              )  # Skip timestamp
+</code></pre>
+<h5 id="when-to-use-skip">When to Use <strong>SKIP</strong><a class="headerlink" href="#when-to-use-skip" title="Permanent link">&para;</a></h5>
+<p>Use <code>__SKIP__</code> for:
+- Auto-generated IDs (<code>Safe_Id</code>, UUIDs)
+- Timestamps (<code>created_at</code>, <code>updated_at</code>)
+- Random values or tokens
+- External API response IDs
+- Any value you don't control</p>
+<p>Don't use <code>__SKIP__</code> for:
+- Values you explicitly set
+- Business logic results
+- Values that should be deterministic</p>
+<h4 id="partial-matching-with-contains">Partial Matching with .contains()<a class="headerlink" href="#partial-matching-with-contains" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: You only care about specific fields, not the entire object.</p>
+<p><strong>Solution</strong>: Use <code>.contains()</code> for subset matching.</p>
+<pre><code class="language-python">def test__partial_matching(self):
+    with Schema__User() as user:
+        user.user_id = 'u-123'
+        user.name    = 'Alice'
+        user.email   = 'alice@test.com'
+        user.age     = 30
+        user.tags    = ['admin', 'developer']
+
+        # Only verify specific fields
+        assert user.obj().contains(__(name='Alice', age=30))                    # Subset match
+        assert user.obj().contains(__(email='alice@test.com'))                  # Single field
+        assert not user.obj().contains(__(name='Bob'))                          # Negative check
+
+        # Works with nested structures
+        assert user.obj().contains(__(tags=['admin', 'developer']))             # Collection match
+</code></pre>
+<h5 id="use-cases-for-contains">Use Cases for .contains()<a class="headerlink" href="#use-cases-for-contains" title="Permanent link">&para;</a></h5>
+<ul>
+<li>Verify critical fields without full object comparison</li>
+<li>Test API responses where you only care about specific data</li>
+<li>Validate nested structures partially</li>
+<li>Quick assertions in integration tests</li>
+</ul>
+<h4 id="debugging-with-diff">Debugging with .diff()<a class="headerlink" href="#debugging-with-diff" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: Test failures with large objects are hard to debug.</p>
+<p><strong>Solution</strong>: Use <code>.diff()</code> to see exactly what's different.</p>
+<pre><code class="language-python">def test__debugging_differences(self):
+    with Schema__User() as user1:
+        user1.user_id = 'u-100'
+        user1.name    = 'Alice'
+        user1.email   = 'alice@old.com'
+        user1.age     = 25
+
+    with Schema__User() as user2:
+        user2.user_id = 'u-100'
+        user2.name    = 'Alice'
+        user2.email   = 'alice@new.com'    # Different
+        user2.age     = 26                  # Different
+
+    # Get detailed difference report
+    diff = user1.obj().diff(user2.obj())
+    assert diff == {
+        'email': {'actual': 'alice@old.com', 'expected': 'alice@new.com'},
+        'age':   {'actual': 25, 'expected': 26}
+    }
+
+    # Use in test failures for better debugging
+    if user1.obj() != user2.obj():
+        print(f&quot;Objects differ: {user1.obj().diff(user2.obj())}&quot;)
+</code></pre>
+<h4 id="excluding-fields-with-excluding">Excluding Fields with .excluding()<a class="headerlink" href="#excluding-fields-with-excluding" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: Some fields (timestamps, metadata) shouldn't be part of comparison.</p>
+<p><strong>Solution</strong>: Use <code>.excluding()</code> to remove fields before comparison.</p>
+<pre><code class="language-python">def test__excluding_metadata(self):
+    with Schema__Event() as event:
+        event.event_id   = 'evt-123'
+        event.type       = 'user_login'
+        event.user_id    = 'u-456'
+        event.created_at = '2024-01-01T12:00:00Z'
+        event.updated_at = '2024-01-02T15:30:00Z'
+        event.request_id = 'req-789-xyz'
+
+        # Exclude volatile fields for stable comparison
+        assert event.obj().excluding('created_at', 'updated_at', 'request_id') == __(
+            event_id = 'evt-123',
+            type     = 'user_login',
+            user_id  = 'u-456'
+        )
+</code></pre>
+<h5 id="when-to-use-excluding">When to Use .excluding()<a class="headerlink" href="#when-to-use-excluding" title="Permanent link">&para;</a></h5>
+<ul>
+<li>Remove timestamps from comparisons</li>
+<li>Ignore metadata fields</li>
+<li>Focus on business data only</li>
+<li>Create reusable test assertions</li>
+</ul>
+<h4 id="creating-variations-with-merge">Creating Variations with .merge()<a class="headerlink" href="#creating-variations-with-merge" title="Permanent link">&para;</a></h4>
+<p><strong>Problem</strong>: Need multiple test data variations based on a template.</p>
+<p><strong>Solution</strong>: Use <code>.merge()</code> to create modified copies.</p>
+<pre><code class="language-python">def test__test_data_variations(self):
+    # Create base test data
+    with Schema__Request() as base_request:
+        base_request.model       = 'gpt-4'
+        base_request.prompt      = 'Hello'
+        base_request.temperature = 0.7
+        base_request.max_tokens  = 100
+
+    base_obj = base_request.obj()
+
+    # Create variations for different test scenarios
+    high_temp_request = base_obj.merge(temperature=0.9, top_p=0.95)
+    low_temp_request  = base_obj.merge(temperature=0.1, max_tokens=50)
+    streaming_request = base_obj.merge(stream=True, temperature=0.5)
+
+    # Verify variations
+    assert high_temp_request.temperature == 0.9
+    assert high_temp_request.model      == 'gpt-4'              # Base preserved
+    assert high_temp_request.top_p      == 0.95                 # New field added
+
+    assert low_temp_request.temperature == 0.1
+    assert low_temp_request.max_tokens  == 50                   # Override base
+
+    assert streaming_request.stream     == True                 # New field
+    assert streaming_request.prompt     == 'Hello'              # Base preserved
+</code></pre>
+<h4 id="advanced-patterns">Advanced Patterns<a class="headerlink" href="#advanced-patterns" title="Permanent link">&para;</a></h4>
+<h5 id="nested-type_safe-objects">Nested Type_Safe Objects<a class="headerlink" href="#nested-type_safe-objects" title="Permanent link">&para;</a></h5>
+<pre><code class="language-python">def test__nested_structures(self):
+    with Schema__Order() as order:
+        with Schema__User() as user:
+            user.user_id = 'u-001'
+            user.name    = 'Alice'
+
+        order.order_id = 'ord-001'
+        order.user     = user
+        order.items    = [{'product': 'laptop', 'qty': 1}]
+
+        # Nested Type_Safe becomes nested __ in .obj()
+        assert order.obj() == __(
+            order_id = 'ord-001',
+            user     = __(user_id = 'u-001',             # Nested __ object
+                         name    = 'Alice',
+                         email   = '',
+                         age     = 0),
+            items    = [__(product='laptop', qty=1)],    # List items as __
+            total    = 0.0,
+            status   = 'pending'
+        )
+</code></pre>
+<h5 id="combining-techniques">Combining Techniques<a class="headerlink" href="#combining-techniques" title="Permanent link">&para;</a></h5>
+<pre><code class="language-python">def test__api_response_validation(self):
+    # Simulate API response
+    with Service__API() as service:
+        response = service.create_user(name='Test User', email='test@api.com')
+
+        # Combine multiple __ techniques for robust testing
+        expected = __(
+            status_code = 200,
+            data = __(
+                user_id    = __SKIP__,                   # Skip generated ID
+                name       = 'Test User',
+                email      = 'test@api.com',
+                created_at = __SKIP__,                   # Skip timestamp
+                api_token  = __SKIP__                    # Skip generated token
+            )
+        )
+
+        # Full structure validation with dynamic fields skipped
+        assert response.obj() == expected
+
+        # Partial validation of critical fields
+        assert response.obj().data.contains(__(name='Test User', email='test@api.com'))
+
+        # Debug if needed
+        if response.obj() != expected:
+            diff = response.obj().diff(expected)
+            self.fail(f&quot;Response differs: {diff}&quot;)
+</code></pre>
+<h5 id="test-data-factory-pattern">Test Data Factory Pattern<a class="headerlink" href="#test-data-factory-pattern" title="Permanent link">&para;</a></h5>
+<pre><code class="language-python">@classmethod
+def setUpClass(cls):
+    # Define base test objects using __
+    cls.base_user = __(
+        user_id     = 'test-user',
+        name        = 'Test User',
+        email       = 'test@example.com',
+        age         = 30,
+        is_active   = True,
+        tags        = [],
+        preferences = __()
+    )
+
+    # Create variations for different scenarios
+    cls.admin_user = cls.base_user.merge(
+        user_id = 'test-admin',
+        name    = 'Admin User',
+        tags    = ['admin', 'moderator']
+    )
+
+    cls.inactive_user = cls.base_user.merge(
+        user_id   = 'test-inactive',
+        is_active = False
+    )
+
+def test__with_test_data(self):
+    with Schema__User.from_dict(self.admin_user.__dict__) as admin:
+        assert admin.tags == ['admin', 'moderator']
+        assert admin.email == 'test@example.com'              # Base preserved
+</code></pre>
+<h4 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Use <code>__SKIP__</code> liberally</strong>: Don't test what you don't control</li>
+<li><strong>Prefer <code>.contains()</code> for API responses</strong>: Focus on what matters</li>
+<li><strong>Add <code>.diff()</code> to failure messages</strong>: Makes debugging easier</li>
+<li><strong>Use <code>.excluding()</code> for cleaner assertions</strong>: Remove noise from tests</li>
+<li><strong>Build test data with <code>.merge()</code></strong>: DRY principle for test data</li>
+<li><strong>Combine techniques</strong>: Use multiple __ methods together for powerful assertions</li>
+</ol>
+<h4 id="common-patterns-reference">Common Patterns Reference<a class="headerlink" href="#common-patterns-reference" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Full comparison with skips
+assert obj == __(field1=value1, field2=__SKIP__, field3=value3)
+
+# Partial matching
+assert obj.contains(__(critical_field=expected_value))
+
+# Exclude volatile fields
+assert obj.excluding('timestamp', 'request_id') == expected_obj
+
+# Create variation
+variation = base_obj.merge(field=new_value, new_field=added_value)
+
+# Debug differences
+if obj != expected:
+    print(f&quot;Diff: {obj.diff(expected)}&quot;)
+
+# Nested structures
+assert obj == __(outer=__(inner=__(value=123)))
+
+# Multiple techniques
+assert (obj.excluding('id', 'timestamp')
+           .contains(__(status='success', data=__SKIP__)))
+</code></pre>
+<h4 id="type_safe-collections-in-obj">Type_Safe Collections in .obj()<a class="headerlink" href="#type_safe-collections-in-obj" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">def test__collections_in_obj(self):
+    with Schema__Data() as data:
+        # Type_Safe__List becomes regular list in .obj()
+        data.items.append('item1')
+        data.items.append('item2')
+
+        # Type_Safe__Dict becomes __ in .obj()
+        data.config['key1'] = 'value1'
+        data.config['key2'] = 'value2'
+
+        # Type_Safe__Set becomes list in .obj()
+        data.tags.add('tag1')
+        data.tags.add('tag2')
+
+        assert data.obj() == __(
+            items  = ['item1', 'item2'],              # List
+            config = __(key1='value1', key2='value2'), # Dict as __
+            tags   = ['tag1', 'tag2']                 # Set as sorted list
+        )
+</code></pre>
+<h4 id="migration-from-simple-comparisons">Migration from Simple Comparisons<a class="headerlink" href="#migration-from-simple-comparisons" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># OLD: Brittle, hard to maintain
+def test__old_way(self):
+    with Schema__User() as user:
+        assert user.user_id == user.user_id    # Tautology for dynamic values
+        assert user.name == ''
+        assert user.email == ''
+        assert user.age == 0
+        # Must update every time schema changes
+
+# NEW: Flexible, maintainable
+def test__new_way(self):
+    with Schema__User() as user:
+        assert user.obj() == __(
+            user_id     = __SKIP__,             # Handle dynamic ID
+            name        = '',
+            email       = '',
+            age         = 0,
+            is_active   = True,
+            tags        = [],
+            preferences = __()
+        )
+        # Or focus on what matters
+        assert user.obj().contains(__(is_active=True, age=0))
+</code></pre>
+<p>This enhanced testing approach with <code>.obj()</code> and the <code>__</code> class provides the flexibility and power needed for comprehensive Type_Safe testing while maintaining readability and maintainability.</p>
+<h3 id="6-optimize-performance-with-setupclass">6. Optimize Performance with setUpClass<a class="headerlink" href="#6-optimize-performance-with-setupclass" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL</strong>: Use <code>setUpClass</code> for expensive operations to dramatically improve test performance. Creating services, database connections, or S3 clients in <code>setUp</code> instead of <code>setUpClass</code> can make tests 10-100x slower.</p>
+<pre><code class="language-python">class test_Heavy_Service(TestCase):
+
+    @classmethod
+    def setUpClass(cls):                                              # ONE-TIME expensive setup
+        # Create expensive resources ONCE
+        setup__service_fast_api_test_objs()                          # LocalStack setup
+        cls.s3_client = S3()                                         # Reuse S3 connection
+        cls.test_bucket = create_test_bucket()                       # Create bucket once
+        cls.service = Heavy_Service()                                # Initialize service once
+        cls.service.connect_to_database()                            # Connect to DB once
+
+        # Define reusable test data
+        cls.test_request = {'model': 'gpt-4', 'prompt': 'test'}
+        cls.test_response = {'status': 'success', 'data': {}}
+
+    @classmethod  
+    def tearDownClass(cls):                                          # ONE-TIME cleanup
+        # Clean up in reverse order of creation
+        cls.service.disconnect()                                     # Disconnect DB
+        cls.s3_client.bucket_delete_all_files(cls.test_bucket)      # Clear bucket
+        cls.s3_client.bucket_delete(cls.test_bucket)                # Delete bucket
+
+    def setUp(self):                                                 # PER-TEST lightweight setup
+        # Only create test-specific, lightweight items here
+        self.test_id = Random_Guid()                                # Unique ID per test
+        self.temp_file = f&quot;test_{self.test_id}.json&quot;               # Unique filename
+
+    def tearDown(self):                                             # PER-TEST cleanup
+        # Reset state between tests
+        self.service.clear_cache()                                  # Clear any cached data
+        if self.s3_client.file_exists(self.test_bucket, self.temp_file):
+            self.s3_client.file_delete(self.test_bucket, self.temp_file)
+</code></pre>
+<h4 id="when-to-use-setupclass-vs-setup">When to Use setUpClass vs setUp<a class="headerlink" href="#when-to-use-setupclass-vs-setup" title="Permanent link">&para;</a></h4>
+<p><strong>Use setUpClass for:</strong>
+- Service initialization
+- Database/S3/API connections
+- Loading configuration
+- Creating test buckets/tables
+- Any operation taking &gt;100ms
+- Resources that can be safely shared</p>
+<p><strong>Use setUp for:</strong>
+- Test-specific IDs/timestamps
+- Temporary files/data
+- Mutable state that must be fresh
+- Quick variable assignments (&lt;10ms)</p>
+<h4 id="test-atomicity-validation">Test Atomicity Validation<a class="headerlink" href="#test-atomicity-validation" title="Permanent link">&para;</a></h4>
+<p>If you find yourself needing fresh instances for every test, this indicates potential design issues:</p>
+<pre><code class="language-python"># ❌ BAD SIGN - Service can't be reused
+class test_Problematic_Service(TestCase):
+    def setUp(self):
+        self.service = Problematic_Service()  # Required fresh for each test
+
+    def test_1(self):
+        self.service.process(&quot;data&quot;)
+
+    def test_2(self):
+        # This fails if using shared instance - indicates hidden state!
+        self.service.process(&quot;data&quot;)
+
+# ✓ GOOD - Service is properly atomic
+class test_Atomic_Service(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.service = Atomic_Service()  # Can be safely shared
+
+    def tearDown(self):
+        self.service.reset()  # Explicit state reset if needed
+</code></pre>
+<h4 id="execution-order">Execution Order<a class="headerlink" href="#execution-order" title="Permanent link">&para;</a></h4>
+<p>Understanding the execution order helps optimize setup/teardown:</p>
+<ol>
+<li><code>setUpClass</code> (once at start)</li>
+<li>For each test method:</li>
+<li><code>setUp</code></li>
+<li><code>test_method</code></li>
+<li><code>tearDown</code></li>
+<li><code>tearDownClass</code> (once at end)</li>
+</ol>
+<h3 id="7-testing-type_safe-auto-conversion-behavior">7. Testing Type_Safe Auto-Conversion Behavior<a class="headerlink" href="#7-testing-type_safe-auto-conversion-behavior" title="Permanent link">&para;</a></h3>
+<h4 id="understanding-auto-conversion-vs-type-enforcement">Understanding Auto-Conversion vs Type Enforcement<a class="headerlink" href="#understanding-auto-conversion-vs-type-enforcement" title="Permanent link">&para;</a></h4>
+<p>Type_Safe automatically converts compatible values to their Safe type equivalents when possible. This is a <strong>feature</strong>, not a bug. Understanding when auto-conversion happens vs when TypeError is raised is critical for writing correct tests.</p>
+<h4 id="auto-conversion-rules">Auto-Conversion Rules<a class="headerlink" href="#auto-conversion-rules" title="Permanent link">&para;</a></h4>
+<p>Type_Safe attempts conversion in this order:
+1. <strong>Direct assignment</strong> if already correct type
+2. <strong>Auto-conversion</strong> if source type can be converted (str→Safe_Str, int→str→Safe_Str, etc.)
+3. <strong>Validation</strong> after conversion (may raise ValueError)
+4. <strong>TypeError</strong> only if conversion is impossible</p>
+<h4 id="testing-pattern-for-auto-conversion">Testing Pattern for Auto-Conversion<a class="headerlink" href="#testing-pattern-for-auto-conversion" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">def test_type_auto_conversion(self):                                    # Test Type_Safe's automatic type conversion
+    with Schema__Persona() as _:
+        # Type_Safe auto-converts compatible values to Safe types
+        # This is EXPECTED BEHAVIOR, not a bug
+
+        # String to Safe_Id - sanitizes special characters
+        _.id = &quot;raw-string!@£&quot;
+        assert type(_.id) is Safe_Id                                   # Auto-converted to Safe_Id
+        assert _.id == 'raw-string___'                                 # Special chars replaced with _
+
+        # Integer to Safe_Str - converts via str()
+        _.name = 123
+        assert type(_.name) is Safe_Str__Text                         # Auto-converted
+        assert _.name == '123'                                        # Integer stringified
+
+        # Float to Safe_Str - converts via str()
+        _.description = 45.67
+        assert type(_.description) is Safe_Str__Text                  # Auto-converted
+        assert _.description == '45.67'                               # Float stringified
+
+        # String to Safe_Str__Language_Code - validates format
+        _.language = &quot;en-US&quot;
+        assert type(_.language) is Safe_Str__Language_Code            # Auto-converted
+        assert _.language == 'en-US'                                  # Valid format preserved
+
+        # Auto-conversion can still fail validation
+        with pytest.raises(ValueError, match=re.escape(&quot;Invalid language code format: 'invalid-format'&quot;)):
+            _.language = &quot;invalid-format&quot;                             # Conversion succeeds, validation fails
+
+def test_type_enforcement_incompatible_types(self):                     # Test what CANNOT be auto-converted
+    with Schema__User() as _:
+        # Some conversions are impossible and will raise TypeError
+
+        # Dict cannot become Safe_Str
+        with pytest.raises(TypeError):
+            _.name = {'dict': 'value'}                                # Cannot convert dict to string
+
+        # List cannot become Safe_Id  
+        with pytest.raises(TypeError):
+            _.user_id = ['list', 'of', 'items']                      # Cannot convert list to Safe_Id
+
+        # Complex objects cannot be auto-converted
+        from datetime import datetime
+        with pytest.raises(TypeError):
+            _.age = datetime.now()                                    # Cannot convert datetime to int
+
+        # None to non-nullable field
+        with pytest.raises(TypeError):
+            _.required_field = None                                   # Non-nullable field rejects None
+</code></pre>
+<h4 id="common-auto-conversion-scenarios">Common Auto-Conversion Scenarios<a class="headerlink" href="#common-auto-conversion-scenarios" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">def test_safe_type_conversions_matrix(self):                          # Document all conversion behaviors
+    with Schema__Test() as _:
+        # Safe_Id conversions
+        _.user_id = &quot;valid-id-123&quot;                                    # str → Safe_Id ✓
+        assert _.user_id == &quot;valid-id-123&quot;
+
+        _.user_id = &quot;invalid!@#$%&quot;                                    # str → Safe_Id (sanitized) ✓
+        assert _.user_id == &quot;invalid_____&quot;                            # Special chars become _
+
+        # Safe_UInt conversions  
+        _.age = 25                                                    # int → Safe_UInt ✓
+        assert _.age == 25
+
+        _.age = &quot;30&quot;                                                  # str → int → Safe_UInt ✓
+        assert _.age == 30
+
+        with pytest.raises(ValueError):
+            _.age = -5                                                # Negative fails validation
+
+        with pytest.raises(ValueError):
+            _.age = &quot;not-a-number&quot;                                   # Non-numeric string fails
+
+        # Safe_Float__Money conversions
+        _.price = 19.99                                              # float → Safe_Float__Money ✓
+        assert _.price == 19.99
+
+        _.price = &quot;29.99&quot;                                            # str → float → Safe_Float__Money ✓
+        assert _.price == 29.99
+
+        _.price = 30                                                 # int → float → Safe_Float__Money ✓
+        assert _.price == 30.00
+</code></pre>
+<h4 id="testing-strategy-for-auto-conversion">Testing Strategy for Auto-Conversion<a class="headerlink" href="#testing-strategy-for-auto-conversion" title="Permanent link">&para;</a></h4>
+<ol>
+<li>
+<p><strong>Test the conversion path</strong>: Verify type after assignment
+   <code>python
+   _.field = "raw_value"
+   assert type(_.field) is Expected_Safe_Type</code></p>
+</li>
+<li>
+<p><strong>Test the sanitization result</strong>: Verify how value was transformed
+   <code>python
+   _.field = "test!@#"
+   assert _.field == "test___"  # Sanitized result</code></p>
+</li>
+<li>
+<p><strong>Test validation failures</strong>: Conversion works but validation fails
+   <code>python
+   with pytest.raises(ValueError):  # Not TypeError!
+       _.field = "invalid_but_convertible"</code></p>
+</li>
+<li>
+<p><strong>Test true type incompatibilities</strong>: Cannot convert at all
+   <code>python
+   with pytest.raises(TypeError):  # Cannot convert dict to str
+       _.field = {"dict": "value"}</code></p>
+</li>
+</ol>
+<h4 id="key-testing-principles">Key Testing Principles<a class="headerlink" href="#key-testing-principles" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>ValueError = Validation failed</strong> (after successful conversion)</li>
+<li><strong>TypeError = Conversion impossible</strong> (incompatible types)</li>
+<li><strong>Always check type()</strong> after assignment to verify conversion</li>
+<li><strong>Test sanitization rules</strong> for Safe_Str types (special chars → _)</li>
+<li><strong>Test numeric bounds</strong> for Safe_Int/UInt types</li>
+<li><strong>Document expected transformations</strong> in test comments</li>
+</ul>
+<h4 id="anti-pattern-to-avoid">Anti-Pattern to Avoid<a class="headerlink" href="#anti-pattern-to-avoid" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># ✗ WRONG - Assumes no auto-conversion
+def test_type_enforcement_wrong(self):
+    with Schema__User() as _:
+        with pytest.raises(TypeError):  # WRONG! Will auto-convert
+            _.name = 123                 # Gets converted to &quot;123&quot;
+
+        with pytest.raises(TypeError):  # WRONG! Will auto-convert  
+            _.id = &quot;raw-string&quot;         # Gets converted to Safe_Id
+
+# ✓ CORRECT - Tests actual conversion behavior
+def test_type_enforcement_correct(self):
+    with Schema__User() as _:
+        _.name = 123
+        assert _.name == &quot;123&quot;                                        # Verify conversion
+        assert type(_.name) is Safe_Str__Username                    # Verify type
+
+        _.id = &quot;raw-string!@#&quot;  
+        assert _.id == &quot;raw-string___&quot;                               # Verify sanitization
+        assert type(_.id) is Safe_Id                                 # Verify type
+</code></pre>
+<h4 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h4>
+<p>Type_Safe's auto-conversion is a powerful feature that reduces boilerplate while maintaining type safety. Tests should:
+- Verify conversions happen correctly
+- Check sanitization/transformation rules
+- Test validation boundaries
+- Only expect TypeError for truly incompatible types</p>
+<p>This behavior makes Type_Safe practical for real-world use where data often comes from JSON, forms, or APIs as raw primitives that need to be safely converted to domain types.</p>
+<hr />
+<h2 id="testing-patterns-by-component-type">Testing Patterns by Component Type<a class="headerlink" href="#testing-patterns-by-component-type" title="Permanent link">&para;</a></h2>
+<h3 id="1-type_safe-schema-classes">1. Type_Safe Schema Classes<a class="headerlink" href="#1-type_safe-schema-classes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Objects import __
+
+class test_Schema__Order(TestCase):
+
+    def test__init__(self):                                            # Test auto-initialization
+        with Schema__Order() as _:
+            assert type(_)         is Schema__Order
+            assert base_classes(_) == [Type_Safe, object]
+
+            # Verify type initialization - collections become Type_Safe variants
+            assert type(_.id)       is Safe_Str__OrderId
+            assert type(_.items)    is Type_Safe__Dict              # Dict[K,V] -&gt; Type_Safe__Dict
+            assert type(_.tags)     is Type_Safe__List              # List[T] -&gt; Type_Safe__List
+            assert type(_.categories) is Type_Safe__Set             # Set[T] -&gt; Type_Safe__Set
+            assert type(_.total)    is Safe_Float__Money
+            assert type(_.metadata) is Type_Safe__Dict              # All dicts become Type_Safe__Dict
+
+            # Use .obj() for comprehensive state verification
+            assert _.obj() == __(id          = _.id               ,    # Auto-generated values
+                                items       = {}                   ,    # Empty dict (not regular dict)
+                                tags        = []                   ,    # Empty list (Type_Safe__List)
+                                categories  = []                   ,    # Empty set shows as list in obj()
+                                total       = 0.00                 ,    # Zero values
+                                status      = &quot;pending&quot;            ,    # Explicit defaults
+                                metadata    = {}                   ,    # Type_Safe__Dict shows as {}
+                                tracking_url = None                ,    # Nullable fields
+                                created_at  = _.created_at         )    # Timestamps
+
+    def test_type_enforcement(self):                                   # Test runtime type checking
+        with Schema__Order() as _:
+            # Test valid assignments
+            _.id = Safe_Str__OrderId(&quot;ORD-123&quot;)                       # ✓ Correct type
+
+            # Test type violations
+            with pytest.raises(TypeError):
+                _.id = &quot;raw-string&quot;                                    # ✗ Wrong type
+
+            with pytest.raises(ValueError):
+                _.id = Safe_Str__ProductId(&quot;PRD-123&quot;)                 # ✗ Different Safe_Id subtype
+
+    def test_serialization_round_trip(self):                          # Test JSON conversion
+        with Schema__Order(id    = &quot;ORD-123&quot;,
+                          items = {&quot;PRD-1&quot;: 2},
+                          total = 99.99) as _:
+            # Serialize
+            json_data = _.json()
+
+            # Deserialize and verify with .obj()
+            with Schema__Order.from_json(json_data) as restored:
+                assert restored.obj() == _.obj()                      # Perfect round-trip
+</code></pre>
+<h3 id="2-service-classes-with-dependencies">2. Service Classes with Dependencies<a class="headerlink" href="#2-service-classes-with-dependencies" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_Service__OpenRouter(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        setup__service_fast_api_test_objs()                           # Setup LocalStack/mocks
+        cls.service = Service__OpenRouter()
+
+        # Mock or skip tests if API key missing
+        if not get_env(ENV_NAME_OPEN_ROUTER__API_KEY):
+            pytest.skip(&quot;OpenRouter API key required&quot;)
+
+    def test_setup(self):                                             # Test initialization chain
+        with self.service as _:
+            assert _.api_base_url      == &quot;https://openrouter.ai/api&quot;
+            assert type(_.models_service) is Service__OpenRouter__Models
+            assert _.s3_storage        is not None
+
+    def test_api_call_with_mock(self):                               # Test with mocked response
+        with self.service as _:
+            # Store original method
+            original_execute = _.execute
+
+            # Mock the API call
+            def mock_execute(payload):
+                return {&quot;choices&quot;: [{&quot;message&quot;: {&quot;content&quot;: &quot;mocked&quot;}}]}
+
+            _.execute = mock_execute
+
+            try:
+                result = _.chat_completion(&quot;test prompt&quot;)
+                assert result[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;] == &quot;mocked&quot;
+            finally:
+                _.execute = original_execute                          # Restore original
+
+    @pytest.mark.skip(reason=&quot;Costs money&quot;)                          # Skip expensive tests
+    def test_paid_model(self):
+        with self.service as _:
+            result = _.chat_completion(
+                prompt = &quot;test&quot;,
+                model  = &quot;openai/gpt-4&quot;
+            )
+            assert 'choices' in result
+</code></pre>
+<h3 id="3-fastapi-route-classes-with-shared-test-objects">3. FastAPI Route Classes with Shared Test Objects<a class="headerlink" href="#3-fastapi-route-classes-with-shared-test-objects" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL PATTERN</strong>: Use a shared test objects file at <code>tests/unit/Service__Fast_API__Test_Objs.py</code> to create FastAPI, TestClient, and LocalStack instances ONCE for the entire test suite. This dramatically improves test performance.</p>
+<pre><code class="language-python"># tests/unit/Service__Fast_API__Test_Objs.py
+from fastapi                                    import FastAPI
+from osbot_fast_api.api.Fast_API                import Fast_API
+from osbot_utils.type_safe.Type_Safe            import Type_Safe
+from starlette.testclient                       import TestClient
+from mgraph_ai_service_llms.fast_api.Service__Fast_API import Service__Fast_API
+from mgraph_ai_service_llms.utils.LocalStack__Setup    import LocalStack__Setup
+
+class Service__Fast_API__Test_Objs(Type_Safe):
+    fast_api         : Service__Fast_API     = None
+    fast_api__app    : FastAPI               = None
+    fast_api__client : TestClient            = None
+    localstack_setup : LocalStack__Setup     = None
+    setup_completed  : bool                  = False
+
+service_fast_api_test_objs = Service__Fast_API__Test_Objs()  # Singleton instance
+
+def setup__service_fast_api_test_objs():
+    with service_fast_api_test_objs as _:
+        if _.setup_completed is False:                       # Only setup once
+            _.localstack_setup = LocalStack__Setup().setup() # Setup LocalStack
+            _.fast_api         = Service__Fast_API().setup() # Setup Fast_API service
+            _.fast_api__app    = _.fast_api.app()           # Get FastAPI app
+            _.fast_api__client = _.fast_api.client()        # Create TestClient
+            _.setup_completed  = True                        # Mark as complete
+    return service_fast_api_test_objs
+</code></pre>
+<h4 id="using-shared-test-objects-in-tests">Using Shared Test Objects in Tests<a class="headerlink" href="#using-shared-test-objects-in-tests" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">class test_Routes__LLMs__client(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        with setup__service_fast_api_test_objs() as _:       # Get shared objects
+            cls.client = _.fast_api__client                  # Reuse TestClient
+            cls.app    = _.fast_api__app                     # Reuse FastAPI app
+            cls.client.headers[TEST_API_KEY__NAME] = TEST_API_KEY__VALUE
+
+    def test__llms__models(self):                            # Test endpoint responses
+        response = self.client.get('/llms/models')           # Uses shared client
+
+        assert response.status_code == 200
+        result = response.json()
+        assert 'models' in result
+</code></pre>
+<h4 id="key-benefits">Key Benefits<a class="headerlink" href="#key-benefits" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Performance</strong>: FastAPI app and LocalStack setup happen ONCE, not per test class</li>
+<li><strong>Consistency</strong>: All tests use the same configured environment</li>
+<li><strong>No state pollution</strong>: Tests shouldn't modify FastAPI state anyway</li>
+<li><strong>Fast startup</strong>: Modern setup() is very quick with proper configuration</li>
+</ol>
+<h4 id="osbot-fast-api-integration">OSBot-Fast-API Integration<a class="headerlink" href="#osbot-fast-api-integration" title="Permanent link">&para;</a></h4>
+<p>This pattern leverages two key packages:
+- <strong><code>osbot-fast-api</code></strong>: Provides Type_Safe-aware FastAPI integration
+- <strong><code>osbot-fast-api-serverless</code></strong>: Adds AWS Lambda/serverless support</p>
+<p>These packages provide:
+- Automatic Type_Safe ↔ Pydantic conversion
+- Built-in authentication middleware
+- Request/response validation
+- Lambda handler integration
+- TestClient with proper Type_Safe support</p>
+<pre><code class="language-python">from osbot_fast_api.api.Fast_API import Fast_API              # Base Fast_API class
+from osbot_fast_api_serverless.fast_api.Serverless__Fast_API import Serverless__Fast_API
+
+class Service__Fast_API(Serverless__Fast_API):                # Inherit serverless support
+    def setup_routes(self):
+        self.add_routes(Routes__LLMs())                        # Type_Safe routes work directly
+        self.add_routes(Routes__Info())
+</code></pre>
+<h3 id="4-cache-and-storage-classes">4. Cache and Storage Classes<a class="headerlink" href="#4-cache-and-storage-classes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_Open_Router__Cache(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        setup__service_fast_api_test_objs()
+
+        # Use test bucket to avoid polluting production
+        cls.test_bucket = str_to_valid_s3_bucket_name(random_string_short(&quot;test-cache-&quot;))
+        cls.cache = Open_Router__Cache(s3__bucket=cls.test_bucket).setup()
+
+    @classmethod
+    def tearDownClass(cls):                                           # Clean up test resources
+        with cls.cache.s3__storage.s3 as _:
+            if _.bucket_exists(cls.test_bucket):
+                _.bucket_delete_all_files(cls.test_bucket)
+                _.bucket_delete(cls.test_bucket)
+
+    def tearDown(self):                                               # Clean between tests
+        self.cache.clear_all()
+
+    def test_save_and_load(self):                                     # Test basic operations
+        test_data = {&quot;key&quot;: &quot;value&quot;}
+
+        with self.cache as _:
+            # Save
+            assert _.save_to_latest(&quot;test-id&quot;, test_data) is True
+
+            # Load
+            loaded = _.load_from_latest(&quot;test-id&quot;)
+            assert loaded == test_data
+
+            # Delete
+            assert _.delete_latest(&quot;test-id&quot;) is True
+            assert _.load_from_latest(&quot;test-id&quot;) is None
+</code></pre>
+<hr />
+<h2 id="critical-testing-requirements">Critical Testing Requirements<a class="headerlink" href="#critical-testing-requirements" title="Permanent link">&para;</a></h2>
+<h3 id="1-always-test-type-safety">1. Always Test Type Safety<a class="headerlink" href="#1-always-test-type-safety" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Objects import __
+
+def test_type_safety_enforcement(self):
+    with Schema__User() as _:
+        # Verify collections become Type_Safe variants
+        assert type(_.preferences) is Type_Safe__Dict            # Dict -&gt; Type_Safe__Dict
+        assert type(_.tags)        is Type_Safe__List            # List -&gt; Type_Safe__List  
+        assert type(_.permissions) is Type_Safe__Set             # Set -&gt; Type_Safe__Set
+
+        # NEVER accept raw primitives where Safe types expected
+        with pytest.raises(TypeError):
+            _.user_id = &quot;raw-string&quot;                             # Must be Safe_Id
+
+        with pytest.raises(ValueError):  
+            _.age = -5                                           # Safe_UInt rejects negative
+
+        with pytest.raises(ValueError):
+            _.email = &quot;not-an-email&quot;                            # Safe_Str__Email validates format
+</code></pre>
+<h3 id="2-test-collection-type-conversion">2. Test Collection Type Conversion<a class="headerlink" href="#2-test-collection-type-conversion" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL</strong>: All <code>list</code>, <code>dict</code>, and <code>set</code> annotations in Type_Safe classes are automatically converted to their Type_Safe equivalents:</p>
+<pre><code class="language-python">def test_collection_type_conversion(self):                      # Verify Type_Safe collection conversion
+    class Schema__Test(Type_Safe):
+        regular_dict : dict                                     # Becomes Type_Safe__Dict
+        typed_dict   : Dict[str, int]                          # Becomes Type_Safe__Dict
+        regular_list : list                                     # Becomes Type_Safe__List
+        typed_list   : List[str]                               # Becomes Type_Safe__List
+        regular_set  : set                                      # Becomes Type_Safe__Set
+        typed_set    : Set[int]                                # Becomes Type_Safe__Set
+
+    with Schema__Test() as _:
+        # All collections are Type_Safe variants, never raw Python types
+        assert type(_.regular_dict) is Type_Safe__Dict
+        assert type(_.typed_dict)   is Type_Safe__Dict
+        assert type(_.regular_list) is Type_Safe__List
+        assert type(_.typed_list)   is Type_Safe__List
+        assert type(_.regular_set)  is Type_Safe__Set
+        assert type(_.typed_set)    is Type_Safe__Set
+
+        # Never raw Python collections
+        assert type(_.regular_dict) is not dict
+        assert type(_.regular_list) is not list
+        assert type(_.regular_set)  is not set
+</code></pre>
+<h3 id="3-test-serialization-fidelity">3. Test Serialization Fidelity<a class="headerlink" href="#3-test-serialization-fidelity" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_json_preserves_types(self):
+    with Schema__Complex(id     = Safe_Id(&quot;TEST-123&quot;),
+                        amount = Safe_Float__Money(99.99),
+                        items  = [Safe_Str(&quot;item1&quot;), Safe_Str(&quot;item2&quot;)]) as original:
+
+        json_data = original.json()
+
+        with Schema__Complex.from_json(json_data) as restored:
+            # Use .obj() to verify complete round-trip
+            assert restored.obj() == original.obj()
+
+            # Also verify specific type preservation
+            assert type(restored.id)        is Safe_Id
+            assert type(restored.amount)    is Safe_Float__Money
+            assert type(restored.items[0])  is Safe_Str
+</code></pre>
+<h3 id="4-test-complex-nested-structures">4. Test Complex Nested Structures<a class="headerlink" href="#4-test-complex-nested-structures" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_complex_initialization(self):
+    with File_FS() as _:
+        # Use .obj() with __ for nested structure verification
+        assert _.obj() == __(file__config = __(exists_strategy = 'FIRST'              ,
+                                              file_id         = _.file__config.file_id ,
+                                              file_paths      = []                     ,
+                                              file_type       = __(name           = 'json',
+                                                                  content_type   = 'JSON' ,
+                                                                  file_extension = 'json' ,
+                                                                  encoding       = 'UTF_8',
+                                                                  serialization  = 'JSON')),
+                            storage_fs   = __(content_data = __()))
+</code></pre>
+<h3 id="5-test-localstack-integration">5. Test LocalStack Integration<a class="headerlink" href="#5-test-localstack-integration" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_s3_operations(self):
+    with self.storage as _:
+        # Verify LocalStack is being used
+        assert aws_config.account_id()  == OSBOT_AWS__LOCAL_STACK__AWS_ACCOUNT_ID
+        assert aws_config.region_name() == OSBOT_AWS__LOCAL_STACK__AWS_DEFAULT_REGION
+
+        # Test S3 operations work
+        assert _.s3.bucket_exists(self.test_bucket) is True
+</code></pre>
+<h3 id="6-testing-safe-type-auto-conversion-and-validation">6. Testing Safe Type Auto-Conversion and Validation<a class="headerlink" href="#6-testing-safe-type-auto-conversion-and-validation" title="Permanent link">&para;</a></h3>
+<h4 id="the-auto-conversion-edge-case">The Auto-Conversion Edge Case<a class="headerlink" href="#the-auto-conversion-edge-case" title="Permanent link">&para;</a></h4>
+<p>Type_Safe automatically converts raw strings to Safe types during initialization, but this conversion can mask validation bugs in custom Safe types. Always test with both pre-converted Safe types AND raw values to ensure proper validation.</p>
+<h4 id="testing-pattern-for-safe-type-validation">Testing Pattern for Safe Type Validation<a class="headerlink" href="#testing-pattern-for-safe-type-validation" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">def test__init__with_safe_types(self):                                  # Test with pre-converted Safe types
+    test_id   = Safe_Id(&quot;test-persona-1&quot;)
+    test_name = Safe_Str__Text(&quot;Test Persona&quot;)
+    test_lang = Safe_Str__Language_Code(&quot;pt-PT&quot;)
+
+    with Schema__Persona(id       = test_id,
+                        name     = test_name,
+                        language = test_lang) as _:
+        assert _.id       == test_id
+        assert _.name     == test_name
+        assert _.language == test_lang                                  # May pass even with bugs
+
+def test__init__with_raw_values(self):                                  # Test with raw string values
+    test_id   = &quot;test-persona-1&quot;
+    test_name = &quot;Test Persona&quot;
+    test_lang = &quot;pt-PT&quot;
+
+    with Schema__Persona(id       = test_id,
+                        name     = test_name,
+                        language = test_lang) as _:
+        # These reveal validation bugs
+        assert _.id       == test_id                                    # Safe_Id conversion works
+        assert _.name     == test_name                                  # Safe_Str__Text works
+        assert _.language != test_lang                                  # BUG: reveals issue
+        assert _.language == '_'                                        # BUG: incorrect conversion
+</code></pre>
+<h4 id="why-this-pattern-matters">Why This Pattern Matters<a class="headerlink" href="#why-this-pattern-matters" title="Permanent link">&para;</a></h4>
+<h5 id="the-hidden-bug-pattern">The Hidden Bug Pattern<a class="headerlink" href="#the-hidden-bug-pattern" title="Permanent link">&para;</a></h5>
+<pre><code class="language-python">class Safe_Str__Language_Code(Safe_Str):
+    max_length = 5
+    regex      = re.compile(r'[^a-zA-Z-]')                             # BUG: removes the dash!
+    regex_mode = 'REPLACE'
+
+# When using pre-converted type:
+lang = Safe_Str__Language_Code(&quot;pt-PT&quot;)                                # Creates with &quot;pt-PT&quot;
+assert lang == &quot;pt-PT&quot;                                                 # Passes - no validation yet
+
+# When Type_Safe auto-converts:
+schema = Schema__Persona(language=&quot;pt-PT&quot;)                             # Auto-converts
+assert schema.language == &quot;pt-PT&quot;                                      # FAILS: actually &quot;pt_PT&quot; or &quot;_&quot;
+</code></pre>
+<h4 id="comprehensive-testing-strategy">Comprehensive Testing Strategy<a class="headerlink" href="#comprehensive-testing-strategy" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">def test_safe_type_validation_both_ways(self):                         # Test both conversion paths
+    # Test 1: Pre-converted Safe types (may hide bugs)
+    with Schema__Config() as _:
+        _.api_key = Safe_Str__API_Key(&quot;KEY-123-ABC&quot;)
+        assert _.api_key == &quot;KEY-123-ABC&quot;                              # Might pass
+
+    # Test 2: Raw values (reveals conversion bugs)
+    with Schema__Config(api_key=&quot;KEY-123-ABC&quot;) as _:
+        assert _.api_key == &quot;KEY-123-ABC&quot;                              # Might fail if validation wrong
+
+    # Test 3: Use .obj() to see actual stored value
+    with Schema__Config(api_key=&quot;KEY-123-ABC&quot;) as _:
+        actual_obj = _.obj()
+        assert actual_obj.api_key == &quot;KEY-123-ABC&quot;                     # Shows real value
+</code></pre>
+<hr />
+<h2 id="common-safe-type-validation-bugs">Common Safe Type Validation Bugs<a class="headerlink" href="#common-safe-type-validation-bugs" title="Permanent link">&para;</a></h2>
+<h3 id="1-regex-removing-valid-characters">1. Regex Removing Valid Characters<a class="headerlink" href="#1-regex-removing-valid-characters" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_regex_validation_bug(self):
+    # Bug: Language code regex removes dashes
+    with Schema__Persona(language=&quot;en-US&quot;) as _:
+        assert _.language != &quot;en-US&quot;                                   # BUG: dash removed
+        assert _.language == &quot;enUS&quot; or _.language == &quot;_&quot;               # Actual buggy result
+</code></pre>
+<h3 id="2-overly-restrictive-length-limits">2. Overly Restrictive Length Limits<a class="headerlink" href="#2-overly-restrictive-length-limits" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_length_validation_bug(self):
+    # Bug: UUID max_length too short
+    test_uuid = &quot;550e8400-e29b-41d4-a716-446655440000&quot;
+    with Schema__Resource(resource_id=test_uuid) as _:
+        assert _.resource_id != test_uuid                              # BUG: truncated
+        assert len(_.resource_id) == 32                                # Max length hit
+</code></pre>
+<h3 id="3-case-sensitivity-issues">3. Case Sensitivity Issues<a class="headerlink" href="#3-case-sensitivity-issues" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_case_sensitivity_bug(self):
+    # Bug: Email validation changes case
+    with Schema__User(email=&quot;John.Doe@Example.COM&quot;) as _:
+        assert _.email != &quot;John.Doe@Example.COM&quot;                       # BUG: case changed
+        assert _.email == &quot;john.doe@example.com&quot;                       # Forced lowercase
+</code></pre>
+<hr />
+<h2 id="example-complete-safe-type-validation-test">Example: Complete Safe Type Validation Test<a class="headerlink" href="#example-complete-safe-type-validation-test" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def test_complete_safe_type_validation(self):                          # Comprehensive validation test
+    # Test all input formats
+    test_cases = [
+        (&quot;raw string&quot;        , &quot;test-id-123&quot;),
+        (&quot;safe type&quot;         , Safe_Id(&quot;test-id-123&quot;)),
+        (&quot;with special chars&quot;, &quot;test_id!@#&quot;),
+        (&quot;empty&quot;             , &quot;&quot;),
+        (&quot;max length&quot;        , &quot;x&quot; * 100)
+    ]
+
+    for description, input_value in test_cases:
+        with self.subTest(description):
+            if description in [&quot;with special chars&quot;, &quot;empty&quot;]:
+                # Should reject invalid values
+                with pytest.raises(ValueError):
+                    Schema__Test(id=input_value)
+            else:
+                # Should accept and preserve valid values
+                with Schema__Test(id=input_value) as _:
+                    expected = input_value[:50] if len(str(input_value)) &gt; 50 else input_value
+                    assert _.id == expected
+</code></pre>
+<hr />
+<h2 id="test-organization-best-practices">Test Organization Best Practices<a class="headerlink" href="#test-organization-best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-one-to-one-method-mapping">1. One-to-One Method Mapping<a class="headerlink" href="#1-one-to-one-method-mapping" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL</strong>: Maintain a one-to-one mapping between class methods and test methods. Every public method should have a corresponding test method, with variations using double underscore suffixes.</p>
+<pre><code class="language-python">class An_Class(Type_Safe):
+    an_str : Safe_Str = 'abc'
+
+    def method_1(self):
+        return self.an_str
+
+    def method_2(self, var_1):
+        return self.an_str + var_1
+
+class test_An_Class(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.an_class = An_Class()
+
+    def test__init__(self):                                           # Always test initialization
+        with An_Class() as _:
+            assert type(_) is An_Class
+            assert _.an_str == 'abc'
+
+    def test_method_1(self):                                          # Direct mapping to method_1
+        with self.an_class as _:
+            assert _.method_1() == 'abc'
+
+    def test_method_2(self):                                          # Direct mapping to method_2
+        var_1 = '_var_1'
+        with self.an_class as _:
+            assert _.method_2(var_1) == 'abc_var_1'                   # Static for readability
+            assert _.method_2(var_1) == f'abc{var_1}'                # Dynamic for maintainability
+
+    def test_method_2__handle_bad_data(self):                         # Variation with __ suffix
+        with self.an_class as _:
+            assert _.method_2(None) == 'abcNone'
+            assert _.method_2('')   == 'abc'
+
+    def test_method_2__with_special_chars(self):                      # Another variation
+        with self.an_class as _:
+            assert _.method_2('!@#') == 'abc!@#'
+
+    # Tests starting with __ are for scenarios/integrations
+    def test__with_custom_values(self):                               # Scenario test
+        with An_Class(an_str='xyz') as _:
+            assert _.method_1() == 'xyz'
+            assert _.method_2('123') == 'xyz123'
+
+    def test__integration_scenario(self):                             # Integration test
+        # Tests that cross method boundaries or test workflows
+        pass
+</code></pre>
+<h4 id="method-naming-convention">Method Naming Convention<a class="headerlink" href="#method-naming-convention" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>test_method_name()</code> - Primary test for the method</li>
+<li><code>test_method_name__variation()</code> - Specific variations (edge cases, error handling)</li>
+<li><code>test__scenario_name()</code> - Cross-method scenarios or integration tests</li>
+</ul>
+<p>This ensures:
+- <strong>Complete coverage</strong> - Easy to see if any method lacks a test
+- <strong>Organized variations</strong> - Related tests grouped by method name
+- <strong>Clear scenarios</strong> - Double underscore prefix for non-method-specific tests</p>
+<h3 id="2-context-manager-pattern-throughout">2. Context Manager Pattern Throughout<a class="headerlink" href="#2-context-manager-pattern-throughout" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_Service__LLM(TestCase):
+
+    # Always use context managers with '_'
+    def test__init__(self):
+        with self.service as _:
+            assert type(_)         is Service__LLM
+            assert base_classes(_) == [Type_Safe, object]
+
+    def test_execute_request(self):
+        with self.service as _:
+            result = _.execute_request(prompt=&quot;test&quot;)
+            assert 'response' in result
+
+    def test__nested_operations(self):
+        with self.service as _:
+            with _.get_provider() as provider:
+                with provider.create_session() as session:
+                    result = session.execute(payload)
+                    assert result['status'] == 'success'
+</code></pre>
+<h3 id="2-group-related-tests">2. Group Related Tests<a class="headerlink" href="#2-group-related-tests" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_Service__LLM(TestCase):
+
+    # Initialization tests
+    def test__init__(self): 
+        with self.service as _:
+            assert type(_) is Service__LLM
+
+    def test_setup(self): 
+        with self.service as _:
+            _.setup()
+            assert _.is_configured is True
+
+    # Core functionality tests  
+    def test_execute_request(self): 
+        with self.service as _:
+            result = _.execute_request(&quot;test&quot;)
+            assert result is not None
+
+    def test_execute_request__with_system_prompt(self): 
+        with self.service as _:
+            result = _.execute_request(&quot;test&quot;, system=&quot;prompt&quot;)
+            assert 'system' in result
+
+    def test_execute_request__error_handling(self): 
+        with self.service as _:
+            with pytest.raises(ValueError):
+                _.execute_request(&quot;&quot;)
+
+    # Edge cases
+    def test__empty_prompt(self): 
+        with self.service as _:
+            with pytest.raises(ValueError):
+                _.execute_request(&quot;&quot;)
+
+    def test__max_tokens_exceeded(self): 
+        with self.service as _:
+            with pytest.raises(ValueError):
+                _.execute_request(&quot;test&quot;, max_tokens=999999)
+
+    # Integration tests
+    @pytest.mark.skip(reason=&quot;requires API key&quot;)
+    def test__with_actual_api(self): 
+        with self.service as _:
+            result = _.execute_request(&quot;test&quot;)
+            assert len(result['response']) &gt; 0
+</code></pre>
+<h3 id="2-use-descriptive-test-names">2. Use Descriptive Test Names<a class="headerlink" href="#2-use-descriptive-test-names" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Good test names - describe what's being tested
+def test__cache_models__response(self): pass
+def test__get_cached_models__when__expired(self): pass
+def test__calculate_cost__with__cache_hits(self): pass
+
+# Bad test names - too vague
+def test_cache(self): pass
+def test_models(self): pass
+def test_cost(self): pass
+</code></pre>
+<h3 id="3-test-data-patterns-with-context-managers">3. Test Data Patterns with Context Managers<a class="headerlink" href="#3-test-data-patterns-with-context-managers" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@classmethod
+def setUpClass(cls):
+    # Define reusable test data
+    cls.test_request_simple = {
+        'model'   : 'openai/gpt-4o-mini',
+        'messages': [{'role': 'user', 'content': 'Hello'}],
+        'temperature': 0.7
+    }
+
+    cls.test_response_simple = {
+        'choices': [{'message': {'content': 'Hi there!'}}],
+        'usage'  : {'total_tokens': 25}
+    }
+
+def test__with_test_data(self):
+    with self.service as _:
+        result = _.process(self.test_request_simple)
+        # Use class-level test data for consistency
+        assert result['status'] == 'success'
+
+def test__multiple_contexts(self):
+    # Nested context managers for complex scenarios
+    with self.service as service:
+        with service.create_request(self.test_request_simple) as request:
+            with service.execute(request) as response:
+                assert response.data == self.test_response_simple
+</code></pre>
+<h3 id="4-skip-patterns-for-external-dependencies">4. Skip Patterns for External Dependencies<a class="headerlink" href="#4-skip-patterns-for-external-dependencies" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Skip when API key missing
+if not get_env(ENV_NAME_OPEN_ROUTER__API_KEY):
+    pytest.skip(&quot;OpenRouter API key required&quot;)
+
+# Skip expensive operations
+@pytest.mark.skip(reason=&quot;Costs money - run manually&quot;)
+def test_paid_api_call(self): pass
+
+# Skip in CI/CD
+if in_github_action():
+    pytest.skip(&quot;Flaky in GitHub Actions&quot;)
+</code></pre>
+<hr />
+<h2 id="bug-testing-and-regression-pattern">Bug Testing and Regression Pattern<a class="headerlink" href="#bug-testing-and-regression-pattern" title="Permanent link">&para;</a></h2>
+<h3 id="writing-passing-tests-for-bugs">Writing Passing Tests for Bugs<a class="headerlink" href="#writing-passing-tests-for-bugs" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL PATTERN</strong>: When encountering bugs, write tests that PASS with the current buggy behavior, clearly documenting what SHOULD happen. These automatically become regression tests when the bug is fixed.</p>
+<pre><code class="language-python">class test_Type_Safe__bugs(TestCase):
+
+    def test__bug__type_safety_assignments__on_obj__bool_assigned_to_int(self):     # Document bug where bool values are incorrectly allowed in int fields
+
+        class An_Class(Type_Safe):
+            an_int: int
+
+        an_class = An_Class()
+
+        # Document the correct behavior that should happen
+        # asserts_exception('an_int', True, 'int', 'bool')  # Should raise but doesn't
+
+        # Document the current buggy behavior
+        an_class.an_int = True                              # BUG: should have raised exception
+        assert an_class.an_int       is True                # BUG: confirming int field contains bool
+        assert type(an_class.an_int) is bool                # BUG: type is bool not int
+
+    def test__bug__roundtrip_tuple_support(self):           # Document bug in tuple type safety and serialization
+
+        class An_Class(Type_Safe):
+            tuple_1: tuple[str, str]
+
+        an_class = An_Class()
+
+        # Document what should happen
+        # with pytest.raises(TypeError, match=&quot;Expected 'str', but got 'int'&quot;):
+        #     an_class.tuple_1 = (123, '123')                # BUG: should have raised
+
+        # Document current buggy behavior
+        an_class.tuple_1 = (123, '123')                     # BUG: accepts invalid types
+        assert type(an_class.tuple_1)     is tuple          # BUG: should be Type_Safe__Tuple
+        assert an_class.json()['tuple_1'] == [123, '123']   # BUG: wrong values in JSON
+</code></pre>
+<h3 id="regression-test-pattern">Regression Test Pattern<a class="headerlink" href="#regression-test-pattern" title="Permanent link">&para;</a></h3>
+<p>When bugs are fixed, uncomment the correct assertions and comment out the buggy behavior:</p>
+<pre><code class="language-python">def test__regression__list__forward_ref__fails_roundtrip(self):             # Regression test for forward reference handling in lists
+
+    class An_Class(Type_Safe):
+        an_list: List['An_Class']
+
+    an_class = An_Class(an_list=[An_Class()])
+    json_data = an_class.json()
+
+    # Original bug (now commented out after fix)
+    # with pytest.raises(TypeError, match=&quot;'ForwardRef' object is not callable&quot;):
+    #     An_Class.from_json(json_data)                  # BUG: ForwardRef not handled
+
+    # Fixed behavior (was commented during bug phase)
+    assert An_Class.from_json(json_data).json() == json_data  # FIXED: Works correctly
+</code></pre>
+<h3 id="bug-test-organization">Bug Test Organization<a class="headerlink" href="#bug-test-organization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Separate files for different bug categories
+tests/unit/type_safe/
+    test_Type_Safe__bugs.py              # Active bugs in main Type_Safe
+    test_Type_Safe__Dict__bugs.py        # Active bugs in Dict implementation
+    test_Type_Safe__List__bugs.py        # Active bugs in List implementation
+    test_Type_Safe__regression.py        # Fixed bugs (regression suite)
+    test_Type_Safe__Dict__regression.py  # Fixed Dict bugs
+    test_Type_Safe__List__regression.py  # Fixed List bugs
+</code></pre>
+<h3 id="bug-documentation-standards">Bug Documentation Standards<a class="headerlink" href="#bug-documentation-standards" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Clear bug markers</strong>: Use <code># BUG:</code> comments to mark buggy behavior</li>
+<li><strong>Expected behavior</strong>: Comment out what SHOULD happen with explanation</li>
+<li><strong>Current behavior</strong>: Assert what ACTUALLY happens (passing test)</li>
+<li><strong>Context</strong>: Include enough setup to reproduce the issue</li>
+<li><strong>Migration path</strong>: Structure so uncommenting fixes the test when bug is fixed</li>
+</ol>
+<pre><code class="language-python">def test__bug__nested_types__not_supported(self):
+    &quot;&quot;&quot;Bug: Type_Safe__Dict doesn't validate nested custom types&quot;&quot;&quot;
+
+    class Inner(Type_Safe):
+        value: str
+
+    class Outer(Type_Safe):
+        items: Dict[str, Inner]
+
+    outer = Outer()
+
+    # What SHOULD happen (currently commented)
+    # with pytest.raises(TypeError, match=&quot;Expected 'Inner', but got 'str'&quot;):
+    #     outer.items['key'] = &quot;not_an_inner&quot;           # Should reject string
+
+    # What ACTUALLY happens (bug - test passes)
+    outer.items['key'] = &quot;not_an_inner&quot;                   # BUG: accepts invalid type
+    assert type(outer.items['key']) is str                # BUG: stored as string
+    assert outer.items['key'] == &quot;not_an_inner&quot;           # BUG: no type conversion
+</code></pre>
+<h3 id="benefits-of-this-pattern">Benefits of This Pattern<a class="headerlink" href="#benefits-of-this-pattern" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Living documentation</strong>: Bugs are documented with executable tests</li>
+<li><strong>Automatic regression suite</strong>: Fixed bugs stay fixed</li>
+<li><strong>Clear communication</strong>: Team knows about issues without breaking CI</li>
+<li><strong>Progress tracking</strong>: See bugs get fixed over time</li>
+<li><strong>No lost knowledge</strong>: Bug context preserved in tests</li>
+</ol>
+<h2 id="common-assertions-reference">Common Assertions Reference<a class="headerlink" href="#common-assertions-reference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Type checking
+assert type(obj)           is ExpectedClass
+assert base_classes(obj)   == [Type_Safe, object]
+assert isinstance(obj, Type_Safe)
+
+# Value checking  
+assert obj.value           == expected_value
+assert obj.json()          == expected_dict
+assert len(collection)     == expected_count
+
+# Collection membership
+assert item in collection
+assert key in dictionary
+assert all(condition for item in collection)
+assert any(term in text for term in [&quot;expected&quot;, &quot;terms&quot;])
+
+# Exception testing
+with pytest.raises(TypeError):
+    invalid_operation()
+
+error_message = &quot;specific error&quot;    
+with pytest.raises(ValueError, match=re.escape(error_message)):
+    invalid_value()
+
+# API response testing
+assert response.status_code == 200
+assert 'field' in response.json()
+assert response.json()['field'] == expected_value
+</code></pre>
+<hr />
+<h2 id="error-message-testing-pattern">Error Message Testing Pattern<a class="headerlink" href="#error-message-testing-pattern" title="Permanent link">&para;</a></h2>
+<h3 id="full-error-message-validation">Full Error Message Validation<a class="headerlink" href="#full-error-message-validation" title="Permanent link">&para;</a></h3>
+<p>When testing exceptions, always validate the complete error message rather than partial matches. This ensures error messages remain consistent and catches unintended changes to error text.</p>
+<pre><code class="language-python">import re
+from unittest import TestCase
+import pytest
+
+class test_Service__Validation(TestCase):
+
+    def test_validation_errors(self):
+        # ✗ AVOID - Partial match can hide message changes
+        with pytest.raises(ValueError, match=&quot;specific error&quot;):
+            self.service.validate(&quot;bad_input&quot;)
+
+        # ✓ PREFERRED - Full message with re.escape for special characters
+        error_message = &quot;Invalid type for attribute 'user_id'. Expected '&lt;class 'Safe_Id'&gt;' but got '&lt;class 'str'&gt;'&quot;
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            self.service.validate(&quot;bad_input&quot;)
+</code></pre>
+<h3 id="multiple-error-scenarios">Multiple Error Scenarios<a class="headerlink" href="#multiple-error-scenarios" title="Permanent link">&para;</a></h3>
+<p>When testing multiple error conditions, use descriptive variable names for each error message:</p>
+<pre><code class="language-python">def test_multiple_validation_errors(self):                              # Test various error conditions
+    # Test missing required field
+    error_message_missing_field = &quot;Required field 'user_id' is missing from request&quot;
+    with pytest.raises(ValueError, match=re.escape(error_message_missing_field)):
+        self.service.process({})
+
+    # Test invalid type
+    error_message_invalid_type = &quot;Invalid type for attribute 'age'. Expected '&lt;class 'int'&gt;' but got '&lt;class 'str'&gt;'&quot;
+    with pytest.raises(TypeError, match=re.escape(error_message_invalid_type)):
+        self.service.process({'user_id': '123', 'age': 'not_a_number'})
+
+    # Test out of range
+    error_message_out_of_range = &quot;Value 999 exceeds maximum allowed value of 150 for field 'age'&quot;
+    with pytest.raises(ValueError, match=re.escape(error_message_out_of_range)):
+        self.service.process({'user_id': '123', 'age': 999})
+</code></pre>
+<h3 id="benefits-of-full-message-testing">Benefits of Full Message Testing<a class="headerlink" href="#benefits-of-full-message-testing" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Regression detection</strong>: Catches any changes to error messages</li>
+<li><strong>Documentation</strong>: Error messages serve as documentation</li>
+<li><strong>User experience</strong>: Ensures consistent error messages for API users</li>
+<li><strong>Debugging</strong>: Full messages make test failures more informative</li>
+<li><strong>Special character safety</strong>: <code>re.escape()</code> handles regex special characters</li>
+</ol>
+<h3 id="pattern-for-type_safe-errors">Pattern for Type_Safe Errors<a class="headerlink" href="#pattern-for-type_safe-errors" title="Permanent link">&para;</a></h3>
+<p>Type_Safe generates consistent error messages that should be tested in full:</p>
+<pre><code class="language-python">def test_type_safe_enforcement_errors(self):
+    with Schema__User() as _:
+        # Test each type violation with full message
+        error_bool_to_str = &quot;Invalid type for attribute 'name'. Expected '&lt;class 'str'&gt;' but got '&lt;class 'bool'&gt;'&quot;
+        with pytest.raises(ValueError, match=re.escape(error_bool_to_str)):
+            _.name = True
+
+        error_int_to_safe_id = &quot;Invalid type for attribute 'user_id'. Expected 'Safe_Id' but got '&lt;class 'int'&gt;'&quot;
+        with pytest.raises(TypeError, match=re.escape(error_int_to_safe_id)):
+            _.user_id = 12345
+
+        error_negative_age = &quot;Value -5 is below minimum value 0 for Safe_UInt__Age&quot;
+        with pytest.raises(ValueError, match=re.escape(error_negative_age)):
+            _.age = -5
+</code></pre>
+<h3 id="complex-error-messages-with-special-characters">Complex Error Messages with Special Characters<a class="headerlink" href="#complex-error-messages-with-special-characters" title="Permanent link">&para;</a></h3>
+<p>Some error messages contain regex special characters that must be escaped:</p>
+<pre><code class="language-python">def test_error_with_special_characters(self):
+    # Error message with parentheses, brackets, dots
+    error_complex = &quot;Invalid format for field 'config'. Expected Dict[str, Any] but got &lt;class 'list'&gt;&quot;
+    with pytest.raises(TypeError, match=re.escape(error_complex)):
+        self.service.set_config([1, 2, 3])
+
+    # Error with file paths
+    error_file_path = &quot;File not found: /path/to/file.json (expected .yaml extension)&quot;
+    with pytest.raises(FileNotFoundError, match=re.escape(error_file_path)):
+        self.service.load_config(&quot;/path/to/file.json&quot;)
+</code></pre>
+<h3 id="best-practices_1">Best Practices<a class="headerlink" href="#best-practices_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Store messages in variables</strong>: Makes tests more readable and maintainable</li>
+<li><strong>Use descriptive variable names</strong>: <code>error_message_invalid_type</code> not <code>err1</code></li>
+<li><strong>Always use <code>re.escape()</code></strong>: Prevents regex interpretation of special characters</li>
+<li><strong>Test the exact message</strong>: Not just keywords or partial matches</li>
+<li><strong>Group related errors</strong>: Keep error tests for similar functionality together</li>
+</ol>
+<h2 id="example-complete-test-file-with-context-managers-and-obj">Example: Complete Test File with Context Managers and .obj()<a class="headerlink" href="#example-complete-test-file-with-context-managers-and-obj" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from unittest                                      import TestCase
+import pytest
+from osbot_utils.utils.Env                         import get_env, load_dotenv
+from osbot_utils.utils.Objects                     import base_classes, __
+from mgraph_ai_service_llms.service.llms.LLM_Service import LLM_Service
+from tests.unit.Service__Fast_API__Test_Objs       import setup__service_fast_api_test_objs
+
+class test_LLM_Service(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        load_dotenv()
+        setup__service_fast_api_test_objs()
+        cls.service = LLM_Service()
+
+        if not get_env(&quot;OPEN_ROUTER__API_KEY&quot;):
+            pytest.skip(&quot;API key required&quot;)
+
+    def test__init__(self):
+        with self.service as _:
+            # Use .obj() for comprehensive verification
+            assert _.obj() == __(provider       = _.provider         ,  # Auto-initialized
+                                cache_enabled  = True                ,
+                                max_retries    = 3                   ,
+                                timeout        = 30                  ,
+                                api_key        = _.api_key           )  # Loaded from env
+
+    def test_execute_request(self):
+        with self.service as _:
+            result = _.execute_request(
+                prompt = &quot;Say 'test'&quot;,
+                model  = &quot;mistral-small-free&quot;
+            )
+
+            # Use dict comparison for API responses
+            assert result == {'model'    : 'mistral-small-free'      ,
+                            'prompt'   : &quot;Say 'test'&quot;                ,
+                            'response' : result['response']          ,  # Dynamic value
+                            'usage'    : result['usage']             ,  # Dynamic value
+                            'status'   : 'success'                   }
+
+    def test_execute_request__error_handling(self):
+        with self.service as _:
+            with pytest.raises(ValueError, match=&quot;Input must have&quot;):
+                _.execute_request(prompt=&quot;&quot;, model=&quot;test&quot;)
+
+    def test_complex_nested_state(self):
+        with self.service as service:
+            service.configure(cache=True, retries=5)
+
+            # Verify complete configuration state
+            assert service.config.obj() == __(cache_settings = __(enabled     = True ,
+                                                                  ttl_seconds = 3600 ,
+                                                                  max_size    = 1000 ),
+                                             retry_settings = __(max_attempts = 5    ,
+                                                                backoff      = 2.0  ,
+                                                                timeout      = 30   ),
+                                             models         = service.config.models )
+</code></pre>
+<hr />
+<h2 id="testing-checklist">Testing Checklist<a class="headerlink" href="#testing-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="for-safe-types">For Safe Types<a class="headerlink" href="#for-safe-types" title="Permanent link">&para;</a></h3>
+<p>When testing schemas with custom Safe types:</p>
+<ul>
+<li>[ ] Test with pre-converted Safe type instances</li>
+<li>[ ] Test with raw string/int/float values</li>
+<li>[ ] Compare both results - they should match</li>
+<li>[ ] Use <code>.obj()</code> to see actual stored values</li>
+<li>[ ] Test edge cases: special characters, max length, empty values</li>
+<li>[ ] Test invalid inputs to ensure proper rejection</li>
+<li>[ ] Document any conversion behavior as intentional or bug</li>
+</ul>
+<hr />
+<h3 id="for-a-type_safe-service">For a Type_Safe service:<a class="headerlink" href="#for-a-type_safe-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Test file mirrors source structure under <code>tests/unit/</code></li>
+<li>[ ] Test class named <code>test_ClassName</code> </li>
+<li>[ ] Use <code>setUpClass</code> for all expensive operations (services, connections)</li>
+<li>[ ] Use <code>setUp</code> only for lightweight, test-specific data</li>
+<li>[ ] Implement proper <code>tearDownClass</code> and <code>tearDown</code> cleanup</li>
+<li>[ ] Use context managers with <code>_</code> throughout</li>
+<li>[ ] Use <code>.obj()</code> with <code>__</code> for comprehensive comparisons</li>
+<li>[ ] Use <code>.json()</code> for API responses with special characters</li>
+<li>[ ] <code>test__init__</code> verifies Type_Safe inheritance and attributes</li>
+<li>[ ] Test type enforcement for all Safe types</li>
+<li>[ ] Test serialization round-trips preserve types</li>
+<li>[ ] Test auto-initialization creates isolated instances</li>
+<li>[ ] Test error conditions and edge cases</li>
+<li>[ ] Use <code>setup__service_fast_api_test_objs()</code> for LocalStack</li>
+<li>[ ] Skip tests requiring API keys when not available</li>
+<li>[ ] Test FastAPI routes with TestClient</li>
+<li>[ ] Verify S3 operations use LocalStack</li>
+<li>[ ] Group related tests logically</li>
+<li>[ ] Use descriptive test method names</li>
+<li>[ ] Define reusable test data in <code>setUpClass</code></li>
+<li>[ ] Verify service atomicity (can be reused across tests)</li>
+</ul>
+<h2 id="wrapping-up">Wrapping up<a class="headerlink" href="#wrapping-up" title="Permanent link">&para;</a></h2>
+<p>This guide ensures consistent, thorough testing of Type_Safe services while maintaining the visual formatting patterns and type safety guarantees that make the framework valuable.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
