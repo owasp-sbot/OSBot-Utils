@@ -23,7 +23,7 @@ class Safe_Str__Git__Ref_Base(Safe_Str):
     """
     regex                      = TYPE_SAFE_STR__GIT_REF__REGEX
     max_length                 = TYPE_SAFE_STR__GIT_REF__MAX_LENGTH
-    allow_empty                = False
+    allow_empty                = True
     trim_whitespace            = True
     allow_all_replacement_char = True
 

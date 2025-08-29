@@ -58,15 +58,15 @@ class test_Safe_Str__Url(TestCase):
         # Edge cases: exceptions with specific error message checks
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Url('example.com')  # Missing scheme
-        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)                             # todo : find better way to handle this scenario (this error comes from Safe_Str
+        assert "in Safe_Str__Url, sanitized value consists entirely of '_' characters" in str(exc_info.value)                             # todo : find better way to handle this scenario (this error comes from Safe_Str
         
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Url('ftp://example.com')  # Invalid scheme (only http/https allowed)
-        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)                             # todo : find better way to handle this scenario (this error comes from Safe_Str
+        assert "in Safe_Str__Url, sanitized value consists entirely of '_' characters" in str(exc_info.value)                             # todo : find better way to handle this scenario (this error comes from Safe_Str
         
         with pytest.raises(ValueError) as exc_info:  # exceeds max length
             Safe_Str__Url('https://example.com/' + 'a' * TYPE_SAFE_STR__URL__MAX_LENGTH)
-        assert f"Value exceeds maximum length of {TYPE_SAFE_STR__URL__MAX_LENGTH}" in str(exc_info.value)
+        assert f"in Safe_Str__Url, value exceeds maximum length of {TYPE_SAFE_STR__URL__MAX_LENGTH}" in str(exc_info.value)
 
 
     def test_url_components(self):                                                                                      # Tests specific to URL components.

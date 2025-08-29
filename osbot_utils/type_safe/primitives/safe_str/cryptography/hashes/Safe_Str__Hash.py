@@ -10,10 +10,10 @@ TYPE_SAFE_STR__HASH__REGEX = re.compile(r'[^a-fA-F0-9]')                # Only a
 class Safe_Str__Hash(Safe_Str):
     regex                     = TYPE_SAFE_STR__HASH__REGEX
     max_length                = SIZE__VALUE_HASH
-    allow_empty               = False                                   # Don't allow empty hash values
-    trim_whitespace           = True                                    # Trim any whitespace
-    strict_validation         = True                                    # Enable strict validation - new attribute
-    exact_length              = True                                    # Require exact length match - new attribute
+    allow_empty               = True                                   # Don't allow empty hash values
+    trim_whitespace           = True                                   # Trim any whitespace
+    strict_validation         = True                                   # Enable strict validation - new attribute
+    exact_length              = True                                   # Require exact length match - new attribute
 
 def safe_str_hash(value: Any) -> Safe_Str__Hash:
     if isinstance(value, str):

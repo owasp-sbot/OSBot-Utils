@@ -174,14 +174,14 @@ class test_Safe_Str__Git__Ref_Base(TestCase):
 
     def test_empty_and_none(self):
         """Test empty and None values."""
-        with pytest.raises(ValueError, match="in Safe_Str__Git__Ref_Base, value cannot be None when allow_empty is False"):
-            Safe_Str__Git__Ref_Base(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__Git__Ref_Base, value cannot be None when allow_empty is False"):
+        assert Safe_Str__Git__Ref_Base(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__Git__Ref_Base('')
+        #with pytest.raises(ValueError, match="in Safe_Str__Git__Ref_Base, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__Git__Ref_Base('') == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__Git__Ref_Base('   ')  # Just whitespace (gets trimmed)
+        #with pytest.raises(ValueError, match="in Safe_Str__Git__Ref_Base, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__Git__Ref_Base('   ') ==''  # Just whitespace (gets trimmed)
 
     def test_max_length(self):
         """Test maximum length constraint."""
@@ -190,7 +190,7 @@ class test_Safe_Str__Git__Ref_Base(TestCase):
         assert str(Safe_Str__Git__Ref_Base(max_ref)) == max_ref
 
         # Invalid: exceeds max length
-        with pytest.raises(ValueError, match=f"Value exceeds maximum length of {TYPE_SAFE_STR__GIT_REF__MAX_LENGTH}"):
+        with pytest.raises(ValueError, match=f"in Safe_Str__Git__Ref_Base, value exceeds maximum length of {TYPE_SAFE_STR__GIT_REF__MAX_LENGTH}"):
             Safe_Str__Git__Ref_Base('a' * (TYPE_SAFE_STR__GIT_REF__MAX_LENGTH + 1))
 
     def test_edge_cases(self):

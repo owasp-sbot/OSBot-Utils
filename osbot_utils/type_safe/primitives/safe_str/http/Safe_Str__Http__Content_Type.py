@@ -7,6 +7,6 @@ TYPE_SAFE_STR__HTTP__CONTENT_TYPE__MAX_LENGTH = 256
 class Safe_Str__Http__Content_Type(Safe_Str):
     regex                      = TYPE_SAFE_STR__HTTP__CONTENT_TYPE__REGEX
     max_length                 = TYPE_SAFE_STR__HTTP__CONTENT_TYPE__MAX_LENGTH
-    allow_empty                = False
+    allow_empty                = True
     trim_whitespace            = True
     allow_all_replacement_char = False

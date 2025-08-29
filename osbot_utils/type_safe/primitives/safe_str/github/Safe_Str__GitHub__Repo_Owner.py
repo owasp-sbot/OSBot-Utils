@@ -16,7 +16,7 @@ class Safe_Str__GitHub__Repo_Owner(Safe_Str):
     """
     regex                      = TYPE_SAFE_STR__GITHUB__REPO_OWNER__REGEX
     max_length                 = TYPE_SAFE_STR__GITHUB__REPO_OWNER__MAX_LENGTH
-    allow_empty                = False
+    allow_empty                = True
     trim_whitespace            = True
     allow_all_replacement_char = False
 
@@ -26,13 +26,13 @@ class Safe_Str__GitHub__Repo_Owner(Safe_Str):
 
         if result:                                                                                  # Additional GitHub-specific validation
             if result.startswith('-') or result.endswith('-'):                                      # Check for leading/trailing hyphens
-                raise ValueError(f"GitHub owner name cannot start or end with a hyphen: {result}")
+                raise ValueError(f"in {cls.__name__}, gitHub owner name cannot start or end with a hyphen: {result}")
 
             if '--' in result:                                                                      # Check for consecutive hyphens
-                raise ValueError(f"GitHub owner name cannot contain consecutive hyphens: {result}")
+                raise ValueError(f"in {cls.__name__}, gitHub owner name cannot contain consecutive hyphens: {result}")
 
             if result.replace('_', '') == '':                                                       # Check for all underscores (sanitized invalid input)
-                raise ValueError(f"Invalid GitHub owner name: {result}")
+                raise ValueError(f"in {cls.__name__}, invalid GitHub owner name: {result}")
 
         return result
 

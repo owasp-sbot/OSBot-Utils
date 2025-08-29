@@ -49,7 +49,7 @@ class test_Safe_Str(TestCase):
         Safe_Str('______'    )  # All sanitised chars allowed
         Safe_Str('    '      )  # all strings allowed
 
-        with pytest.raises(ValueError, match=f"Value exceeds maximum length of {TYPE_SAFE__STR__MAX_LENGTH}") as exc_info:  # exceeds max length
+        with pytest.raises(ValueError, match=f"in Safe_Str, value exceeds maximum length of {TYPE_SAFE__STR__MAX_LENGTH}") as exc_info:  # exceeds max length
             Safe_Str('a' * (TYPE_SAFE__STR__MAX_LENGTH + 1))
 
     def test_custom_subclass(self):
@@ -67,7 +67,7 @@ class test_Safe_Str(TestCase):
         # Length validation still applies
         with pytest.raises(ValueError) as exc_info:
             Custom_Safe_Str('a' * 11)  # Exceeds custom max
-        assert "Value exceeds maximum length of 10" in str(exc_info.value)
+        assert "in Custom_Safe_Str, value exceeds maximum length of 10" in str(exc_info.value)
 
     def test_custom_subclass__in_Type_safe(self):
         class Custom_Safe_Str(Safe_Str):
@@ -91,16 +91,16 @@ class test_Safe_Str(TestCase):
         with pytest.raises(ValueError, match="in Custom_Safe_Str, value cannot be None when allow_empty is False") as exc_info:
             Custom_Safe_Str(None)  # None is not allowed by default
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False") as exc_info:
+        with pytest.raises(ValueError, match="in Custom_Safe_Str, value cannot be empty when allow_empty is False") as exc_info:
             Custom_Safe_Str('')  # Empty string is not allowed
 
-        with pytest.raises(ValueError, match="Sanitized value consists entirely of '_' characters") as exc_info:
+        with pytest.raises(ValueError, match="in Custom_Safe_Str, sanitized value consists entirely of '_' characters") as exc_info:
           Custom_Safe_Str('!@#$%^&*()')
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False") as exc_info:  # spaces only
+        with pytest.raises(ValueError, match="in Custom_Safe_Str, value cannot be empty when allow_empty is False") as exc_info:  # spaces only
             Custom_Safe_Str('    ')
 
-        with pytest.raises(ValueError, match="Sanitized value consists entirely of '_' characters") as exc_info:  # underscores only
+        with pytest.raises(ValueError, match="in Custom_Safe_Str, sanitized value consists entirely of '_' characters") as exc_info:  # underscores only
             Custom_Safe_Str('______')
 
         an_class_round_trip = An_Class.from_json(an_class.json())
@@ -151,20 +151,20 @@ class test_Safe_Str(TestCase):
         assert str(Strict_Safe_Str('123')) == '123'
 
         # Invalid characters should raise exceptions
-        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+        with pytest.raises(ValueError, match="in Strict_Safe_Str, value contains invalid characters") as exc_info:
             Strict_Safe_Str('abc_123')  # Underscore is invalid
 
-        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+        with pytest.raises(ValueError, match="in Strict_Safe_Str, value contains invalid characters") as exc_info:
             Strict_Safe_Str('abc-123')  # Hyphen is invalid
 
-        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+        with pytest.raises(ValueError, match="in Strict_Safe_Str, value contains invalid characters") as exc_info:
             Strict_Safe_Str('abc 123')  # Space is invalid
 
-        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+        with pytest.raises(ValueError, match="in Strict_Safe_Str, value contains invalid characters") as exc_info:
             Strict_Safe_Str('abc.123')  # Period is invalid
 
         # Mixed valid/invalid
-        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+        with pytest.raises(ValueError, match="in Strict_Safe_Str, value contains invalid characters") as exc_info:
             Strict_Safe_Str('Abc-123!@#')
 
     def test_exact_length(self):
@@ -178,16 +178,16 @@ class test_Safe_Str(TestCase):
         assert str(ExactLength_Safe_Str('12345')) == '12345'
 
         # Too short should fail
-        with pytest.raises(ValueError, match="Value must be exactly 5 characters long") as exc_info:
+        with pytest.raises(ValueError, match="in ExactLength_Safe_Str, value must be exactly 5 characters long") as exc_info:
             ExactLength_Safe_Str('abc')  # Too short
 
         # Too long should fail
-        with pytest.raises(ValueError, match="Value must be exactly 5 characters long") as exc_info:
+        with pytest.raises(ValueError, match="in ExactLength_Safe_Str, value must be exactly 5 characters long") as exc_info:
             ExactLength_Safe_Str('abcdef')  # Too long
 
         # Empty string should fail
-        with pytest.raises(ValueError, match="Value must be exactly 5 characters long") as exc_info:
-            ExactLength_Safe_Str('')  # Empty
+        #with pytest.raises(ValueError, match="in ExactLength_Safe_Str, value must be exactly 5 characters long") as exc_info:
+        assert ExactLength_Safe_Str('') == '' # Empty
 
     def test_combined_strict_and_exact(self):
         # Create a subclass with both strict validation and exact length
@@ -204,21 +204,21 @@ class test_Safe_Str(TestCase):
         assert str(Hash_Like_Str('abcdef0123')) == 'abcdef0123'
 
         # Invalid length should fail
-        with pytest.raises(ValueError, match="Value must be exactly 10 characters long") as exc_info:
+        with pytest.raises(ValueError, match="in Hash_Like_Str, value must be exactly 10 characters long") as exc_info:
             Hash_Like_Str('12345')  # Too short
 
-        with pytest.raises(ValueError, match="Value must be exactly 10 characters long") as exc_info:
+        with pytest.raises(ValueError, match="in Hash_Like_Str, value must be exactly 10 characters long") as exc_info:
             Hash_Like_Str('12345678901')  # Too long
 
         # Invalid characters should fail
-        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+        with pytest.raises(ValueError, match="in Hash_Like_Str, value contains invalid characters") as exc_info:
             Hash_Like_Str('12345g7890')  # 'g' is not hex
 
-        with pytest.raises(ValueError, match="Value contains invalid characters") as exc_info:
+        with pytest.raises(ValueError, match="in Hash_Like_Str, value contains invalid characters") as exc_info:
             Hash_Like_Str('1234-67890')  # '-' is not allowed
 
         # Spaces should be trimmed before validation
-        with pytest.raises(ValueError, match="Value must be exactly 10 characters long") as exc_info:
+        with pytest.raises(ValueError, match="in Hash_Like_Str, value must be exactly 10 characters long") as exc_info:
             Hash_Like_Str(' 123456789 ')  # After trimming, it's only 9 chars
 
     def test__check__trim_whitespace__allow_all_replacement_char(self):
@@ -227,7 +227,7 @@ class test_Safe_Str(TestCase):
             trim_whitespace            = True
             allow_all_replacement_char = False
         assert An_Safe_Str() == ''
-        expected_message = "Sanitized value consists entirely of '_' characters"
+        expected_message = "in An_Safe_Str, sanitized value consists entirely of '_' characters"
         with pytest.raises(ValueError, match=expected_message):
             An_Safe_Str('*')
 

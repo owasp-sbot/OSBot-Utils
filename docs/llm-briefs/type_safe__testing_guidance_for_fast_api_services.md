@@ -1,5 +1,8 @@
 # Type_Safe Testing Guidance for Fast_API Services 
 
+- **version**: v2.84.1
+- **updated**: 25th Aug 2025
+
 ## Overview
 
 This guide provides comprehensive instructions for writing tests for Type_Safe-based services using the OSBot framework. When given a service's source code, follow these patterns to create thorough, maintainable test suites that validate both the type safety guarantees and business logic.
@@ -124,7 +127,393 @@ def test_nested_initialization(self):
                             storage_fs   = __(content_data = __()))
 ```
 
-### 5. Optimize Performance with setUpClass
+
+### 5. Enhanced Testing with .obj() and the __ Class
+
+#### Overview
+
+The `.obj()` method on Type_Safe objects returns an instance of the `__` class (double underscore), which provides powerful testing capabilities beyond simple comparisons. This enhanced object allows you to handle dynamic values, perform partial matching, debug differences, and create test data variations efficiently.
+
+#### The __ Class Capabilities
+
+The `__` class extends `SimpleNamespace` with these key features:
+- **`__SKIP__`**: Skip comparison of dynamic fields (IDs, timestamps)
+- **`.contains()`**: Partial object matching
+- **`.diff()`**: Show differences between objects
+- **`.excluding()`**: Remove fields from comparison
+- **`.merge()`**: Create object variations
+
+#### Basic Usage with .obj()
+
+```python
+def test__init__(self):
+    with Schema__User() as _:
+        # .obj() returns a __ instance with all Type_Safe fields
+        obj = _.obj()
+        assert type(obj).__name__ == '__'                           # Returns __ class
+        
+        # Can use __ for comprehensive comparison
+        assert _.obj() == __(user_id     = _.user_id              ,  # Auto-generated
+                            name        = ''                       ,  # Empty default
+                            email       = ''                       ,
+                            age         = 0                        ,
+                            is_active   = True                     ,  # Explicit default
+                            tags        = []                       ,  # Type_Safe__List as []
+                            preferences = __()                     )  # Type_Safe__Dict as __()
+```
+
+#### Handling Dynamic Values with __SKIP__
+
+**Problem**: Auto-generated IDs, timestamps, and other dynamic values make tests brittle.
+
+**Solution**: Use `__SKIP__` to ignore specific fields during comparison.
+
+```python
+from osbot_utils.testing.__ import __, __SKIP__
+
+def test__with_dynamic_fields(self):
+    with Schema__Order() as order:
+        # Order has auto-generated ID and timestamp
+        order.items = [{'product': 'laptop', 'qty': 1}]
+        order.total = 999.99
+        
+        # Skip dynamic fields in comparison
+        assert order.obj() == __(order_id   = __SKIP__           ,  # Skip auto-generated ID
+                                items      = [__(product='laptop', qty=1)],
+                                total      = 999.99                ,
+                                status     = 'pending'             ,
+                                created_at = __SKIP__              ,  # Skip timestamp
+                                updated_at = __SKIP__              )  # Skip timestamp
+```
+
+##### When to Use __SKIP__
+
+Use `__SKIP__` for:
+- Auto-generated IDs (`Safe_Id`, UUIDs)
+- Timestamps (`created_at`, `updated_at`)
+- Random values or tokens
+- External API response IDs
+- Any value you don't control
+
+Don't use `__SKIP__` for:
+- Values you explicitly set
+- Business logic results
+- Values that should be deterministic
+
+#### Partial Matching with .contains()
+
+**Problem**: You only care about specific fields, not the entire object.
+
+**Solution**: Use `.contains()` for subset matching.
+
+```python
+def test__partial_matching(self):
+    with Schema__User() as user:
+        user.user_id = 'u-123'
+        user.name    = 'Alice'
+        user.email   = 'alice@test.com'
+        user.age     = 30
+        user.tags    = ['admin', 'developer']
+        
+        # Only verify specific fields
+        assert user.obj().contains(__(name='Alice', age=30))                    # Subset match
+        assert user.obj().contains(__(email='alice@test.com'))                  # Single field
+        assert not user.obj().contains(__(name='Bob'))                          # Negative check
+        
+        # Works with nested structures
+        assert user.obj().contains(__(tags=['admin', 'developer']))             # Collection match
+```
+
+##### Use Cases for .contains()
+
+- Verify critical fields without full object comparison
+- Test API responses where you only care about specific data
+- Validate nested structures partially
+- Quick assertions in integration tests
+
+#### Debugging with .diff()
+
+**Problem**: Test failures with large objects are hard to debug.
+
+**Solution**: Use `.diff()` to see exactly what's different.
+
+```python
+def test__debugging_differences(self):
+    with Schema__User() as user1:
+        user1.user_id = 'u-100'
+        user1.name    = 'Alice'
+        user1.email   = 'alice@old.com'
+        user1.age     = 25
+        
+    with Schema__User() as user2:
+        user2.user_id = 'u-100'
+        user2.name    = 'Alice'
+        user2.email   = 'alice@new.com'    # Different
+        user2.age     = 26                  # Different
+        
+    # Get detailed difference report
+    diff = user1.obj().diff(user2.obj())
+    assert diff == {
+        'email': {'actual': 'alice@old.com', 'expected': 'alice@new.com'},
+        'age':   {'actual': 25, 'expected': 26}
+    }
+    
+    # Use in test failures for better debugging
+    if user1.obj() != user2.obj():
+        print(f"Objects differ: {user1.obj().diff(user2.obj())}")
+```
+
+#### Excluding Fields with .excluding()
+
+**Problem**: Some fields (timestamps, metadata) shouldn't be part of comparison.
+
+**Solution**: Use `.excluding()` to remove fields before comparison.
+
+```python
+def test__excluding_metadata(self):
+    with Schema__Event() as event:
+        event.event_id   = 'evt-123'
+        event.type       = 'user_login'
+        event.user_id    = 'u-456'
+        event.created_at = '2024-01-01T12:00:00Z'
+        event.updated_at = '2024-01-02T15:30:00Z'
+        event.request_id = 'req-789-xyz'
+        
+        # Exclude volatile fields for stable comparison
+        assert event.obj().excluding('created_at', 'updated_at', 'request_id') == __(
+            event_id = 'evt-123',
+            type     = 'user_login',
+            user_id  = 'u-456'
+        )
+```
+
+##### When to Use .excluding()
+
+- Remove timestamps from comparisons
+- Ignore metadata fields
+- Focus on business data only
+- Create reusable test assertions
+
+#### Creating Variations with .merge()
+
+**Problem**: Need multiple test data variations based on a template.
+
+**Solution**: Use `.merge()` to create modified copies.
+
+```python
+def test__test_data_variations(self):
+    # Create base test data
+    with Schema__Request() as base_request:
+        base_request.model       = 'gpt-4'
+        base_request.prompt      = 'Hello'
+        base_request.temperature = 0.7
+        base_request.max_tokens  = 100
+        
+    base_obj = base_request.obj()
+    
+    # Create variations for different test scenarios
+    high_temp_request = base_obj.merge(temperature=0.9, top_p=0.95)
+    low_temp_request  = base_obj.merge(temperature=0.1, max_tokens=50)
+    streaming_request = base_obj.merge(stream=True, temperature=0.5)
+    
+    # Verify variations
+    assert high_temp_request.temperature == 0.9
+    assert high_temp_request.model      == 'gpt-4'              # Base preserved
+    assert high_temp_request.top_p      == 0.95                 # New field added
+    
+    assert low_temp_request.temperature == 0.1
+    assert low_temp_request.max_tokens  == 50                   # Override base
+    
+    assert streaming_request.stream     == True                 # New field
+    assert streaming_request.prompt     == 'Hello'              # Base preserved
+```
+
+#### Advanced Patterns
+
+##### Nested Type_Safe Objects
+
+```python
+def test__nested_structures(self):
+    with Schema__Order() as order:
+        with Schema__User() as user:
+            user.user_id = 'u-001'
+            user.name    = 'Alice'
+            
+        order.order_id = 'ord-001'
+        order.user     = user
+        order.items    = [{'product': 'laptop', 'qty': 1}]
+        
+        # Nested Type_Safe becomes nested __ in .obj()
+        assert order.obj() == __(
+            order_id = 'ord-001',
+            user     = __(user_id = 'u-001',             # Nested __ object
+                         name    = 'Alice',
+                         email   = '',
+                         age     = 0),
+            items    = [__(product='laptop', qty=1)],    # List items as __
+            total    = 0.0,
+            status   = 'pending'
+        )
+```
+
+##### Combining Techniques
+
+```python
+def test__api_response_validation(self):
+    # Simulate API response
+    with Service__API() as service:
+        response = service.create_user(name='Test User', email='test@api.com')
+        
+        # Combine multiple __ techniques for robust testing
+        expected = __(
+            status_code = 200,
+            data = __(
+                user_id    = __SKIP__,                   # Skip generated ID
+                name       = 'Test User',
+                email      = 'test@api.com',
+                created_at = __SKIP__,                   # Skip timestamp
+                api_token  = __SKIP__                    # Skip generated token
+            )
+        )
+        
+        # Full structure validation with dynamic fields skipped
+        assert response.obj() == expected
+        
+        # Partial validation of critical fields
+        assert response.obj().data.contains(__(name='Test User', email='test@api.com'))
+        
+        # Debug if needed
+        if response.obj() != expected:
+            diff = response.obj().diff(expected)
+            self.fail(f"Response differs: {diff}")
+```
+
+##### Test Data Factory Pattern
+
+```python
+@classmethod
+def setUpClass(cls):
+    # Define base test objects using __
+    cls.base_user = __(
+        user_id     = 'test-user',
+        name        = 'Test User',
+        email       = 'test@example.com',
+        age         = 30,
+        is_active   = True,
+        tags        = [],
+        preferences = __()
+    )
+    
+    # Create variations for different scenarios
+    cls.admin_user = cls.base_user.merge(
+        user_id = 'test-admin',
+        name    = 'Admin User',
+        tags    = ['admin', 'moderator']
+    )
+    
+    cls.inactive_user = cls.base_user.merge(
+        user_id   = 'test-inactive',
+        is_active = False
+    )
+    
+def test__with_test_data(self):
+    with Schema__User.from_dict(self.admin_user.__dict__) as admin:
+        assert admin.tags == ['admin', 'moderator']
+        assert admin.email == 'test@example.com'              # Base preserved
+```
+
+#### Best Practices
+
+1. **Use `__SKIP__` liberally**: Don't test what you don't control
+2. **Prefer `.contains()` for API responses**: Focus on what matters
+3. **Add `.diff()` to failure messages**: Makes debugging easier
+4. **Use `.excluding()` for cleaner assertions**: Remove noise from tests
+5. **Build test data with `.merge()`**: DRY principle for test data
+6. **Combine techniques**: Use multiple __ methods together for powerful assertions
+
+#### Common Patterns Reference
+
+```python
+# Full comparison with skips
+assert obj == __(field1=value1, field2=__SKIP__, field3=value3)
+
+# Partial matching
+assert obj.contains(__(critical_field=expected_value))
+
+# Exclude volatile fields
+assert obj.excluding('timestamp', 'request_id') == expected_obj
+
+# Create variation
+variation = base_obj.merge(field=new_value, new_field=added_value)
+
+# Debug differences
+if obj != expected:
+    print(f"Diff: {obj.diff(expected)}")
+    
+# Nested structures
+assert obj == __(outer=__(inner=__(value=123)))
+
+# Multiple techniques
+assert (obj.excluding('id', 'timestamp')
+           .contains(__(status='success', data=__SKIP__)))
+```
+
+#### Type_Safe Collections in .obj()
+
+```python
+def test__collections_in_obj(self):
+    with Schema__Data() as data:
+        # Type_Safe__List becomes regular list in .obj()
+        data.items.append('item1')
+        data.items.append('item2')
+        
+        # Type_Safe__Dict becomes __ in .obj()
+        data.config['key1'] = 'value1'
+        data.config['key2'] = 'value2'
+        
+        # Type_Safe__Set becomes list in .obj()
+        data.tags.add('tag1')
+        data.tags.add('tag2')
+        
+        assert data.obj() == __(
+            items  = ['item1', 'item2'],              # List
+            config = __(key1='value1', key2='value2'), # Dict as __
+            tags   = ['tag1', 'tag2']                 # Set as sorted list
+        )
+```
+
+#### Migration from Simple Comparisons
+
+```python
+# OLD: Brittle, hard to maintain
+def test__old_way(self):
+    with Schema__User() as user:
+        assert user.user_id == user.user_id    # Tautology for dynamic values
+        assert user.name == ''
+        assert user.email == ''
+        assert user.age == 0
+        # Must update every time schema changes
+
+# NEW: Flexible, maintainable
+def test__new_way(self):
+    with Schema__User() as user:
+        assert user.obj() == __(
+            user_id     = __SKIP__,             # Handle dynamic ID
+            name        = '',
+            email       = '',
+            age         = 0,
+            is_active   = True,
+            tags        = [],
+            preferences = __()
+        )
+        # Or focus on what matters
+        assert user.obj().contains(__(is_active=True, age=0))
+```
+
+This enhanced testing approach with `.obj()` and the `__` class provides the flexibility and power needed for comprehensive Type_Safe testing while maintaining readability and maintainability.
+
+
+### 6. Optimize Performance with setUpClass
 
 **CRITICAL**: Use `setUpClass` for expensive operations to dramatically improve test performance. Creating services, database connections, or S3 clients in `setUp` instead of `setUpClass` can make tests 10-100x slower.
 
@@ -217,6 +606,178 @@ Understanding the execution order helps optimize setup/teardown:
    - `tearDown`
 3. `tearDownClass` (once at end)
 
+### 7. Testing Type_Safe Auto-Conversion Behavior
+
+#### Understanding Auto-Conversion vs Type Enforcement
+
+Type_Safe automatically converts compatible values to their Safe type equivalents when possible. This is a **feature**, not a bug. Understanding when auto-conversion happens vs when TypeError is raised is critical for writing correct tests.
+
+#### Auto-Conversion Rules
+
+Type_Safe attempts conversion in this order:
+1. **Direct assignment** if already correct type
+2. **Auto-conversion** if source type can be converted (str→Safe_Str, int→str→Safe_Str, etc.)
+3. **Validation** after conversion (may raise ValueError)
+4. **TypeError** only if conversion is impossible
+
+#### Testing Pattern for Auto-Conversion
+
+```python
+def test_type_auto_conversion(self):                                    # Test Type_Safe's automatic type conversion
+    with Schema__Persona() as _:
+        # Type_Safe auto-converts compatible values to Safe types
+        # This is EXPECTED BEHAVIOR, not a bug
+        
+        # String to Safe_Id - sanitizes special characters
+        _.id = "raw-string!@£"
+        assert type(_.id) is Safe_Id                                   # Auto-converted to Safe_Id
+        assert _.id == 'raw-string___'                                 # Special chars replaced with _
+        
+        # Integer to Safe_Str - converts via str()
+        _.name = 123
+        assert type(_.name) is Safe_Str__Text                         # Auto-converted
+        assert _.name == '123'                                        # Integer stringified
+        
+        # Float to Safe_Str - converts via str()
+        _.description = 45.67
+        assert type(_.description) is Safe_Str__Text                  # Auto-converted
+        assert _.description == '45.67'                               # Float stringified
+        
+        # String to Safe_Str__Language_Code - validates format
+        _.language = "en-US"
+        assert type(_.language) is Safe_Str__Language_Code            # Auto-converted
+        assert _.language == 'en-US'                                  # Valid format preserved
+        
+        # Auto-conversion can still fail validation
+        with pytest.raises(ValueError, match=re.escape("Invalid language code format: 'invalid-format'")):
+            _.language = "invalid-format"                             # Conversion succeeds, validation fails
+
+def test_type_enforcement_incompatible_types(self):                     # Test what CANNOT be auto-converted
+    with Schema__User() as _:
+        # Some conversions are impossible and will raise TypeError
+        
+        # Dict cannot become Safe_Str
+        with pytest.raises(TypeError):
+            _.name = {'dict': 'value'}                                # Cannot convert dict to string
+            
+        # List cannot become Safe_Id  
+        with pytest.raises(TypeError):
+            _.user_id = ['list', 'of', 'items']                      # Cannot convert list to Safe_Id
+            
+        # Complex objects cannot be auto-converted
+        from datetime import datetime
+        with pytest.raises(TypeError):
+            _.age = datetime.now()                                    # Cannot convert datetime to int
+            
+        # None to non-nullable field
+        with pytest.raises(TypeError):
+            _.required_field = None                                   # Non-nullable field rejects None
+```
+
+#### Common Auto-Conversion Scenarios
+
+```python
+def test_safe_type_conversions_matrix(self):                          # Document all conversion behaviors
+    with Schema__Test() as _:
+        # Safe_Id conversions
+        _.user_id = "valid-id-123"                                    # str → Safe_Id ✓
+        assert _.user_id == "valid-id-123"
+        
+        _.user_id = "invalid!@#$%"                                    # str → Safe_Id (sanitized) ✓
+        assert _.user_id == "invalid_____"                            # Special chars become _
+        
+        # Safe_UInt conversions  
+        _.age = 25                                                    # int → Safe_UInt ✓
+        assert _.age == 25
+        
+        _.age = "30"                                                  # str → int → Safe_UInt ✓
+        assert _.age == 30
+        
+        with pytest.raises(ValueError):
+            _.age = -5                                                # Negative fails validation
+            
+        with pytest.raises(ValueError):
+            _.age = "not-a-number"                                   # Non-numeric string fails
+            
+        # Safe_Float__Money conversions
+        _.price = 19.99                                              # float → Safe_Float__Money ✓
+        assert _.price == 19.99
+        
+        _.price = "29.99"                                            # str → float → Safe_Float__Money ✓
+        assert _.price == 29.99
+        
+        _.price = 30                                                 # int → float → Safe_Float__Money ✓
+        assert _.price == 30.00
+```
+
+#### Testing Strategy for Auto-Conversion
+
+1. **Test the conversion path**: Verify type after assignment
+   ```python
+   _.field = "raw_value"
+   assert type(_.field) is Expected_Safe_Type
+   ```
+
+2. **Test the sanitization result**: Verify how value was transformed
+   ```python
+   _.field = "test!@#"
+   assert _.field == "test___"  # Sanitized result
+   ```
+
+3. **Test validation failures**: Conversion works but validation fails
+   ```python
+   with pytest.raises(ValueError):  # Not TypeError!
+       _.field = "invalid_but_convertible"
+   ```
+
+4. **Test true type incompatibilities**: Cannot convert at all
+   ```python
+   with pytest.raises(TypeError):  # Cannot convert dict to str
+       _.field = {"dict": "value"}
+   ```
+
+#### Key Testing Principles
+
+- **ValueError = Validation failed** (after successful conversion)
+- **TypeError = Conversion impossible** (incompatible types)
+- **Always check type()** after assignment to verify conversion
+- **Test sanitization rules** for Safe_Str types (special chars → _)
+- **Test numeric bounds** for Safe_Int/UInt types
+- **Document expected transformations** in test comments
+
+#### Anti-Pattern to Avoid
+
+```python
+# ✗ WRONG - Assumes no auto-conversion
+def test_type_enforcement_wrong(self):
+    with Schema__User() as _:
+        with pytest.raises(TypeError):  # WRONG! Will auto-convert
+            _.name = 123                 # Gets converted to "123"
+            
+        with pytest.raises(TypeError):  # WRONG! Will auto-convert  
+            _.id = "raw-string"         # Gets converted to Safe_Id
+
+# ✓ CORRECT - Tests actual conversion behavior
+def test_type_enforcement_correct(self):
+    with Schema__User() as _:
+        _.name = 123
+        assert _.name == "123"                                        # Verify conversion
+        assert type(_.name) is Safe_Str__Username                    # Verify type
+        
+        _.id = "raw-string!@#"  
+        assert _.id == "raw-string___"                               # Verify sanitization
+        assert type(_.id) is Safe_Id                                 # Verify type
+```
+
+#### Summary
+
+Type_Safe's auto-conversion is a powerful feature that reduces boilerplate while maintaining type safety. Tests should:
+- Verify conversions happen correctly
+- Check sanitization/transformation rules
+- Test validation boundaries
+- Only expect TypeError for truly incompatible types
+
+This behavior makes Type_Safe practical for real-world use where data often comes from JSON, forms, or APIs as raw primitives that need to be safely converted to domain types.
 
 --- 
 

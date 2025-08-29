@@ -55,7 +55,7 @@ class test_Safe_Str__Http__Text(TestCase):
         # Text exceeding the limit
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__Text("a" * (TYPE_SAFE_STR__TEXT__MAX_LENGTH + 1))
-        assert f"Value exceeds maximum length of {TYPE_SAFE_STR__TEXT__MAX_LENGTH}" in str(exc_info.value)
+        assert f"in Safe_Str__Http__Text, value exceeds maximum length of {TYPE_SAFE_STR__TEXT__MAX_LENGTH}" in str(exc_info.value)
 
     def test_Safe_Str__Http__Text_code_snippets(self):
         # Python code snippet

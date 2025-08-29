@@ -67,11 +67,11 @@ class test_Safe_Str__Git__Ref(TestCase):
             Safe_Str__Git__Ref('branch@{1}')  # Contains @{
 
         # Empty or None
-        with pytest.raises(ValueError, match="in Safe_Str__Git__Ref, value cannot be None when allow_empty is False"):
-            Safe_Str__Git__Ref(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__Git__Ref, value cannot be None when allow_empty is False"):
+        assert Safe_Str__Git__Ref(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__Git__Ref('')
+        #with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
+        assert Safe_Str__Git__Ref('') == ''
 
     def test_usage_in_github_api(self):
         """Test usage in GitHub API path construction."""

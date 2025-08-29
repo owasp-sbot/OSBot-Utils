@@ -15,7 +15,7 @@ class Safe_Str__GitHub__Repo_Name(Safe_Str):
     """
     regex                      = TYPE_SAFE_STR__GITHUB__REPO_NAME__REGEX
     max_length                 = TYPE_SAFE_STR__GITHUB__REPO_NAME__MAX_LENGTH
-    allow_empty                = False
+    allow_empty                = True
     trim_whitespace            = True
     allow_all_replacement_char = False
 
@@ -26,10 +26,10 @@ class Safe_Str__GitHub__Repo_Name(Safe_Str):
         if result:
             # Check if it's just periods (reserved names)
             if result in ['.', '..']:
-                raise ValueError(f"Invalid repository name: {result}")
+                raise ValueError(f"in {cls.__name__}, invalid repository name: {result}")
 
             # Check for all replacement characters
             if set(result) == {'_'} and len(result) > 0:
-                raise ValueError(f"Invalid repository name: {result}")
+                raise ValueError(f"in {cls.__name__}, invalid repository name: {result}")
 
         return result

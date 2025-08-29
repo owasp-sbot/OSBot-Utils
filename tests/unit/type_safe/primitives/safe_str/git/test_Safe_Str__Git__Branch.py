@@ -82,11 +82,11 @@ class test_Safe_Str__Git__Branch(TestCase):
             Safe_Str__Git__Branch('branch/')
 
         # Empty or None
-        with pytest.raises(ValueError, match="in Safe_Str__Git__Branch, value cannot be None when allow_empty is False"):
-            Safe_Str__Git__Branch(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__Git__Branch, value cannot be None when allow_empty is False"):
+        assert Safe_Str__Git__Branch(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__Git__Branch('')
+        #with pytest.raises(ValueError, match="in Safe_Str__Git__Branch, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__Git__Branch('') == ''
 
     def test_branch_forbidden_characters(self):
         # Test forbidden characters (should be replaced with _)

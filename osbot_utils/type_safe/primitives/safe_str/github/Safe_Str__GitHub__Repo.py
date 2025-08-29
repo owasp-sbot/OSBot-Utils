@@ -20,7 +20,7 @@ class Safe_Str__GitHub__Repo(Safe_Str):
     """
     regex                      = TYPE_SAFE_STR__GITHUB__REPO__REGEX
     max_length                 = TYPE_SAFE_STR__GITHUB__REPO__MAX_LENGTH
-    allow_empty                = False
+    allow_empty                = True
     trim_whitespace            = True
     allow_all_replacement_char = False
     repo_owner                 : Safe_Str__GitHub__Repo_Owner = None                                 # note: due to the str override these will not show in the Pycharm code hints (but they will work)
@@ -31,16 +31,20 @@ class Safe_Str__GitHub__Repo(Safe_Str):
         
         if result:
             if '/' not in result:                                                                   # Check for the required forward slash
-                raise ValueError(f"GitHub repository must be in 'owner/repo' format: {result}")
+                raise ValueError(f"in {cls.__name__}, gitHub repository must be in 'owner/repo' format: {result}")
             
 
             parts = result.split('/')                                                               # Split and validate components using the dedicated classes
             if len(parts) != 2:
-                raise ValueError(f"GitHub repository must be in 'owner/repo' format: {result}")
+                raise ValueError(f"in {cls.__name__}, gitHub repository must be in 'owner/repo' format: {result}")
             
             owner_part, repo_part = parts
 
             result.repo_owner = Safe_Str__GitHub__Repo_Owner(owner_part)                            # Validate using the dedicated classes (and store the references)
-            result.repo_name  = Safe_Str__GitHub__Repo_Name(repo_part  )                            # This will raise appropriate errors if validation fails
+            result.repo_name  = Safe_Str__GitHub__Repo_Name(repo_part  )
+            if not result.repo_owner:
+                raise ValueError(f"in {cls.__name__}, missing owner, gitHub repository must be in 'owner/repo' format: {result}")
+            if not result.repo_name:
+                raise ValueError(f"in {cls.__name__}, missing name, gitHub repository must be in 'owner/repo' format: {result}")
         
         return result

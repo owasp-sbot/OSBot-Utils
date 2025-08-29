@@ -20,7 +20,7 @@ class Safe_Str__Email(Safe_Str):
         result = super().__new__(cls, value)
         # Additional validation for email format
         if '@' not in result:
-            raise ValueError("Email must contain an @ symbol")
+            raise ValueError(f"in {cls.__name__}, email must contain an @ symbol")
         return result
 
 
@@ -59,7 +59,7 @@ class test_Safe_Str___mix_use_of_base_classes(TestCase):
         # Length limitation
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Username('a' * 33)  # Exceeds custom max length
-        assert "Value exceeds maximum length of 32" in str(exc_info.value)
+        assert "in Safe_Str__Username, value exceeds maximum length of 32" in str(exc_info.value)
 
     def test_Safe_Str__Email(self):
         # Valid emails
@@ -74,7 +74,7 @@ class test_Safe_Str___mix_use_of_base_classes(TestCase):
         # Missing @ symbol
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Email('invalid-email')
-        assert "Email must contain an @ symbol" in str(exc_info.value)
+        assert "in Safe_Str__Email, email must contain an @ symbol" in str(exc_info.value)
 
     def test_Safe_Str__Code(self):
         # Valid code snippets

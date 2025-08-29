@@ -48,7 +48,7 @@ class test_Safe_Str__Http__ETag(TestCase):
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__ETag('a' * 129)  # Exceeds max length
-        assert "Value exceeds maximum length of 128" in str(exc_info.value)
+        assert "in Safe_Str__Http__ETag, value exceeds maximum length of 128" in str(exc_info.value)
 
     def test_special_etag_formats(self):
         # More complex ETags that servers might generate

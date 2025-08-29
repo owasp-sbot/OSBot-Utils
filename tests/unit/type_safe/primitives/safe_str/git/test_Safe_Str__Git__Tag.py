@@ -81,11 +81,11 @@ class test_Safe_Str__Git__Tag(TestCase):
             Safe_Str__Git__Tag('tag/')
 
         # Empty or None
-        with pytest.raises(ValueError, match="in Safe_Str__Git__Tag, value cannot be None when allow_empty is False"):
-            Safe_Str__Git__Tag(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__Git__Tag, value cannot be None when allow_empty is False"):
+        assert Safe_Str__Git__Tag(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__Git__Tag('')
+        #with pytest.raises(ValueError, match="in Safe_Str__Git__Tag, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__Git__Tag('') == ''
 
     def test_tag_forbidden_characters(self):
         # Test forbidden characters (should be replaced with _)

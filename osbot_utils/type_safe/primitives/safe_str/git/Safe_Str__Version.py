@@ -9,7 +9,7 @@ class Safe_Str__Version(Safe_Str):
     regex             = TYPE_SAFE_STR__VERSION__REGEX
     regex_mode        =  Enum__Safe_Str__Regex_Mode.MATCH                                            # in this case we need an exact match of the version regex
     max_length        = TYPE_SAFE_STR__VERSION__MAX_LENGTH
-    allow_empty       = False
+    allow_empty       = True
     trim_whitespace   = True
     strict_validation = True                                                                        # Ensure the value exactly matches the regex
 

@@ -23,7 +23,7 @@ class test_Safe_Str__Version(TestCase):
         assert str(Safe_Str__Version("v000.001.002")) == "v000.001.002"
 
     def test_invalid_versions(self):
-        expected_error_message = re.escape("Value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$")
+        expected_error_message = re.escape("in Safe_Str__Version, value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$")
         # Exceeds max digits
         with pytest.raises(ValueError, match=expected_error_message):
             Safe_Str__Version("v1000.1.1")
@@ -57,11 +57,11 @@ class test_Safe_Str__Version(TestCase):
             Safe_Str__Version("v1..3")
 
         # Empty or None
-        with pytest.raises(ValueError, match="in Safe_Str__Version, value cannot be None when allow_empty is False"):
-            Safe_Str__Version(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__Version, value cannot be None when allow_empty is False"):
+        assert Safe_Str__Version(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__Version("")
+        #with pytest.raises(ValueError, match="in Safe_Str__Version, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__Version("") == ''
 
         # Exceeds max length
         with pytest.raises(ValueError, match="exceeds maximum length"):
