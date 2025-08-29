@@ -576,7 +576,7 @@ class test_Type_Safe__List(TestCase):
             )
 
         # Should fail with invalid GitHub repo format
-        error_msg = r"In Type_Safe__List: Could not convert str to Safe_Str__GitHub__Repo: GitHub repository must be in 'owner/repo' format: invalid"
+        error_msg = r"In Type_Safe__List: Could not convert str to Safe_Str__GitHub__Repo: in Safe_Str__GitHub__Repo, gitHub repository must be in 'owner/repo' format: invalid"
         with pytest.raises(TypeError, match=error_msg):
             Schema(
                 ips=['192.168.1.1'],

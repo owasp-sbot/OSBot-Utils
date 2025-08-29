@@ -22,28 +22,28 @@ class test_Safe_Str__SHA1(TestCase):
 
     def test_invalid_full_sha(self):
         # Wrong length (too short)
-        with pytest.raises(ValueError, match="Value must be exactly 40 characters long"):
+        with pytest.raises(ValueError, match="in Safe_Str__SHA1, value must be exactly 40 characters long"):
             Safe_Str__SHA1('7fd1a60')  # Only 7 chars
 
-        with pytest.raises(ValueError, match="Value must be exactly 40 characters long"):
+        with pytest.raises(ValueError, match="in Safe_Str__SHA1, value must be exactly 40 characters long"):
             Safe_Str__SHA1('7fd1a60b01f91b314f59955a4e4d4e80d8edf11')  # 39 chars
 
         # Wrong length (too long)
-        with pytest.raises(ValueError, match="Value must be exactly 40 characters long"):
+        with pytest.raises(ValueError, match="in Safe_Str__SHA1, value must be exactly 40 characters long"):
             Safe_Str__SHA1('7fd1a60b01f91b314f59955a4e4d4e80d8edf11d0')  # 41 chars
 
         # Invalid characters
-        with pytest.raises(ValueError, match="Value does not match required pattern"):
+        with pytest.raises(ValueError, match="in Safe_Str__SHA1, value does not match required pattern"):
             Safe_Str__SHA1('7fd1a60b01f91b314f59955a4e4d4e80d8edf11g')  # 'g' is not hex
 
-        with pytest.raises(ValueError, match="Value does not match required pattern"):
+        with pytest.raises(ValueError, match="in Safe_Str__SHA1, value does not match required pattern"):
             Safe_Str__SHA1('7fd1a60b01f91b314f59955a4e4d4e80d8edf11-')  # '-' is not hex
 
         # Empty or None
-        with pytest.raises(ValueError, match="in Safe_Str__SHA1, value cannot be None when allow_empty is False"):
-            Safe_Str__SHA1(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__SHA1, value cannot be None when allow_empty is False"):
+        assert Safe_Str__SHA1(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__SHA1('')
+        #with pytest.raises(ValueError, match="in Safe_Str__SHA1, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__SHA1('') == ''
 
 

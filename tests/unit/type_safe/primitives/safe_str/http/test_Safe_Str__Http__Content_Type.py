@@ -37,25 +37,25 @@ class test_Safe_Str__Http__Content_Type(TestCase):
         assert Safe_Str__Http__Content_Type('text@html') == 'text_html'
 
         # Edge cases and exceptions
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__Content_Type(None)
-        assert "in Safe_Str__Http__Content_Type, value cannot be None when allow_empty is False" in str(exc_info.value)
+        #with pytest.raises(ValueError) as exc_info:
+        assert Safe_Str__Http__Content_Type(None) == ''
+        #assert "in Safe_Str__Http__Content_Type, value cannot be None when allow_empty is False" in str(exc_info.value)
 
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__Content_Type('')
-        assert "Value cannot be empty when allow_empty is False" in str(exc_info.value)
+        #with pytest.raises(ValueError) as exc_info:
+        assert Safe_Str__Http__Content_Type('') == ''
+        #assert "Value cannot be empty when allow_empty is False" in str(exc_info.value)
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__Content_Type('<?&*^?>')  # All invalid chars
-        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)
+        assert "in Safe_Str__Http__Content_Type, sanitized value consists entirely of '_' characters" in str(exc_info.value)
 
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__Http__Content_Type('   ')  # Spaces only (will be trimmed)
-        assert "Value cannot be empty when allow_empty is False" in str(exc_info.value)
+        #with pytest.raises(ValueError) as exc_info:
+        assert Safe_Str__Http__Content_Type('   ') == '' # Spaces only (will be trimmed)
+        #assert "in Safe_Str__Http__Content_Type, value cannot be empty when allow_empty is False" in str(exc_info.value)
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__Content_Type('a' * 257)  # Exceeds max length
-        assert "Value exceeds maximum length of 256" in str(exc_info.value)
+        assert "in Safe_Str__Http__Content_Type, value exceeds maximum length of 256" in str(exc_info.value)
 
     def test__safe_str__http_types(self):
         # HTTP Content-Type

@@ -50,25 +50,25 @@ class test_Safe_Str__File_Name(TestCase):
         assert str(Safe_Str__File__Name('`rm -rf /`')) == '_rm -rf __'
 
         # Edge cases: exceptions with specific error message checks
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__File__Name(None)
-        assert "in Safe_Str__File__Name, value cannot be None when allow_empty is False" in str(exc_info.value)
+        #with pytest.raises(ValueError) as exc_info:
+        assert Safe_Str__File__Name(None) == ''
+        #assert "in Safe_Str__File__Name, value cannot be None when allow_empty is False" in str(exc_info.value)
 
-        with pytest.raises(ValueError) as exc_info:
-            Safe_Str__File__Name('')
-        assert "Value cannot be empty when allow_empty is False" in str(exc_info.value)
+        #with pytest.raises(ValueError) as exc_info:
+        assert Safe_Str__File__Name('') == ''
+        #assert "in Safe_Str__File__Name, value cannot be empty when allow_empty is False" in str(exc_info.value)
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__File__Name('<?&*^?>')  # All invalid chars
-        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)
+        assert "in Safe_Str__File__Name, sanitized value consists entirely of '_' characters" in str(exc_info.value)
 
         with pytest.raises(ValueError) as exc_info:  # spaces only
             Safe_Str__File__Name('  &  ')
-        assert "Sanitized value consists entirely of '_' characters" in str(exc_info.value)
+        assert "in Safe_Str__File__Name, sanitized value consists entirely of '_' characters" in str(exc_info.value)
 
         with pytest.raises(ValueError) as exc_info:  # exceeds max length
             Safe_Str__File__Name('a' * (TYPE_SAFE__STR__MAX_LENGTH + 1))
-        assert f"Value exceeds maximum length of {TYPE_SAFE__STR__MAX_LENGTH}" in str(exc_info.value)
+        assert f"in Safe_Str__File__Name, value exceeds maximum length of {TYPE_SAFE__STR__MAX_LENGTH}" in str(exc_info.value)
 
     def test_filename_extensions(self):
         """Tests specific to filename extensions."""

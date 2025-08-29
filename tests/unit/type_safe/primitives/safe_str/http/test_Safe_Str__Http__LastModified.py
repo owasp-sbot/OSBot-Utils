@@ -34,4 +34,4 @@ class test_Safe_Str__Http__Last_Modified(TestCase):
 
         with pytest.raises(ValueError) as exc_info:
             Safe_Str__Http__Last_Modified('a' * 65)  # Exceeds max length
-        assert "Value exceeds maximum length of 64" in str(exc_info.value)
+        assert "in Safe_Str__Http__Last_Modified, value exceeds maximum length of 64" in str(exc_info.value)

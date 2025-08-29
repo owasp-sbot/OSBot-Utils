@@ -22,6 +22,6 @@ class Safe_Str__NaCl__Private_Key(Safe_Str):
     regex_mode        = Enum__Safe_Str__Regex_Mode.MATCH
     max_length        = TYPE_SAFE_STR__NACL__PRIVATE_KEY__LENGTH
     exact_length      = True
-    allow_empty       = False
+    allow_empty       = True
     trim_whitespace   = True
     strict_validation = True

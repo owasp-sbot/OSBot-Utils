@@ -29,25 +29,25 @@ class test_Safe_Str__GitHub__Repo_Name(TestCase):
         assert str(Safe_Str__GitHub__Repo_Name('repo!name')) == 'repo_name'
 
         # Reserved names
-        with pytest.raises(ValueError, match="Invalid repository name"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Name, invalid repository name"):
             Safe_Str__GitHub__Repo_Name('.')
 
-        with pytest.raises(ValueError, match="Invalid repository name"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Name, invalid repository name"):
             Safe_Str__GitHub__Repo_Name('..')
 
         # Empty or None
-        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Name, value cannot be None when allow_empty is False"):
-            Safe_Str__GitHub__Repo_Name(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Name, value cannot be None when allow_empty is False"):
+        assert Safe_Str__GitHub__Repo_Name(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__GitHub__Repo_Name('')
+        #with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Name, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__GitHub__Repo_Name('') == ''
 
         # Exceeds max length
-        with pytest.raises(ValueError, match=f"Value exceeds maximum length of {TYPE_SAFE_STR__GITHUB__REPO_NAME__MAX_LENGTH}"):
+        with pytest.raises(ValueError, match=f"in Safe_Str__GitHub__Repo_Name, value exceeds maximum length of {TYPE_SAFE_STR__GITHUB__REPO_NAME__MAX_LENGTH}"):
             Safe_Str__GitHub__Repo_Name('a' * 101)
 
         # All invalid characters
-        with pytest.raises(ValueError, match="Sanitized value consists entirely of '_' characters"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Name, sanitized value consists entirely of '_' characters"):
             Safe_Str__GitHub__Repo_Name('!@#$%^&*()')
 
     def test_common_repo_names(self):

@@ -24,7 +24,7 @@ class Safe_Str__Git__Ref(Safe_Str):
     - /repos/{owner}/{repo}/commits/{ref}
     """
     max_length      = 255
-    allow_empty     = False
+    allow_empty     = True
     trim_whitespace = True
 
     def __new__(cls, value=None):

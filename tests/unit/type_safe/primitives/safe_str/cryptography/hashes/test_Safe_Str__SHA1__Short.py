@@ -23,25 +23,25 @@ class test_Safe_Str__SHA1__Short(TestCase):
 
     def test_invalid_short_sha(self):
         # Wrong length (too short)
-        with pytest.raises(ValueError, match="Value must be exactly 7 characters long"):
+        with pytest.raises(ValueError, match="in Safe_Str__SHA1__Short, value must be exactly 7 characters long"):
             Safe_Str__SHA1__Short('abc123')  # Only 6 chars
 
         # Wrong length (too long)
-        with pytest.raises(ValueError, match="Value must be exactly 7 characters long"):
+        with pytest.raises(ValueError, match="in Safe_Str__SHA1__Short, value must be exactly 7 characters long"):
             Safe_Str__SHA1__Short('abc12345')  # 8 chars
 
         # Invalid characters
-        with pytest.raises(ValueError, match="Value does not match required pattern"):
+        with pytest.raises(ValueError, match="in Safe_Str__SHA1__Short, value does not match required pattern"):
             Safe_Str__SHA1__Short('abc123g')  # 'g' is not hex
 
-        with pytest.raises(ValueError, match="Value does not match required pattern"):
+        with pytest.raises(ValueError, match="in Safe_Str__SHA1__Short, value does not match required pattern"):
             Safe_Str__SHA1__Short('abc-123')  # '-' is not hex
 
         # Empty or None
-        with pytest.raises(ValueError, match="in Safe_Str__SHA1__Short, value cannot be None when allow_empty is False"):
-            Safe_Str__SHA1__Short(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__SHA1__Short, value cannot be None when allow_empty is False"):
+        assert Safe_Str__SHA1__Short(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__SHA1__Short('')
+        #with pytest.raises(ValueError, match="in Safe_Str__SHA1__Short, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__SHA1__Short('') == ''
 
 

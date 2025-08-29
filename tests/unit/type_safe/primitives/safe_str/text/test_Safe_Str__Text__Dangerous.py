@@ -70,7 +70,7 @@ class test_Safe_Str__Text__Dangerous(TestCase):
 
         with pytest.raises(ValueError) as exc_info:  # exceeds max length
             Safe_Str__Text__Dangerous('a' * (TYPE_SAFE_STR__TEXT__DANGEROUS__MAX_LENGTH + 1))
-        assert f"Value exceeds maximum length of {TYPE_SAFE_STR__TEXT__DANGEROUS__MAX_LENGTH}" in str(exc_info.value)
+        assert f"in Safe_Str__Text__Dangerous, value exceeds maximum length of {TYPE_SAFE_STR__TEXT__DANGEROUS__MAX_LENGTH}" in str(exc_info.value)
 
     def test_common_text_formats(self):
         """Test common text formats and patterns."""

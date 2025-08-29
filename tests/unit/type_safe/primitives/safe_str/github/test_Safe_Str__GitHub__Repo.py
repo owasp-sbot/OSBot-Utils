@@ -25,50 +25,50 @@ class test_Safe_Str__GitHub__Repo(TestCase):
         assert str(Safe_Str__GitHub__Repo('user@org/repo#1')) == 'user_org/repo_1'
 
         # Missing slash
-        with pytest.raises(ValueError, match="GitHub repository must be in 'owner/repo' format"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo, gitHub repository must be in 'owner/repo' format"):
             Safe_Str__GitHub__Repo('justreponame')
 
         # Multiple slashes
-        with pytest.raises(ValueError, match="GitHub repository must be in 'owner/repo' format"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo, gitHub repository must be in 'owner/repo' format"):
             Safe_Str__GitHub__Repo('owner/repo/extra')
 
         # Empty owner - will fail in Safe_Str__GitHub__Repo_Owner validation
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo, missing owner, gitHub repository must be in 'owner/repo' format: /reponame"):
             Safe_Str__GitHub__Repo('/reponame')
 
         # Empty repo - will fail in Safe_Str__GitHub__Repo_Name validation
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo, missing name, gitHub repository must be in 'owner/repo' format: owner/"):
             Safe_Str__GitHub__Repo('owner/')
 
         # The error messages will now come from the underlying classes
         # Owner with leading hyphen
-        with pytest.raises(ValueError, match="GitHub owner name cannot start or end with a hyphen: -owner"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, gitHub owner name cannot start or end with a hyphen: -owner"):
             Safe_Str__GitHub__Repo('-owner/repo')
 
         # Owner with trailing hyphen
-        with pytest.raises(ValueError, match="GitHub owner name cannot start or end with a hyphen: owner-"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, gitHub owner name cannot start or end with a hyphen: owner-"):
             Safe_Str__GitHub__Repo('owner-/repo')
 
         # Owner with consecutive hyphens
-        with pytest.raises(ValueError, match="GitHub owner name cannot contain consecutive hyphens"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, gitHub owner name cannot contain consecutive hyphens"):
             Safe_Str__GitHub__Repo('own--er/repo')
 
         # Reserved repo names
-        with pytest.raises(ValueError, match="Invalid repository name"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Name, invalid repository name"):
             Safe_Str__GitHub__Repo('owner/.')
 
-        with pytest.raises(ValueError, match="Invalid repository name"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Name, invalid repository name"):
             Safe_Str__GitHub__Repo('owner/..')
 
         # Empty or None
-        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo, value cannot be None when allow_empty is False"):
-            Safe_Str__GitHub__Repo(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo, value cannot be None when allow_empty is False"):
+        assert Safe_Str__GitHub__Repo(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__GitHub__Repo('')
+        #with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__GitHub__Repo('') == ''
 
         # Exceeds max length
-        with pytest.raises(ValueError, match=f"Value exceeds maximum length of {TYPE_SAFE_STR__GITHUB__REPO__MAX_LENGTH}"):
+        with pytest.raises(ValueError, match=f"in Safe_Str__GitHub__Repo, value exceeds maximum length of {TYPE_SAFE_STR__GITHUB__REPO__MAX_LENGTH}"):
             Safe_Str__GitHub__Repo('a' * 50 + '/' + 'b' * 100)  # Exceeds combined limit
 
     def test_property_methods(self):

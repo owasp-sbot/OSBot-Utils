@@ -1,5 +1,8 @@
 # Type_Safe & Python Formatting Guide for LLMs
 
+- **version**: v2.84.1
+- **updated**: 25th Aug 2025
+
 ## Overview
 
 This guide covers two interconnected systems for writing robust Python code: **OSBot-Utils Type_Safe** and a **specialized Python formatting style**. Type_Safe is a runtime type checking framework that enforces type constraints during execution, catching errors at assignment rather than deep in execution. Unlike Python's type hints (which are ignored at runtime), Type_Safe validates every operation, auto-initializes attributes, and provides domain-specific primitive types for common use cases like IDs, money, URLs, and file paths.

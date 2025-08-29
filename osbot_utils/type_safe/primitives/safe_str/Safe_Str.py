@@ -12,7 +12,7 @@ class Safe_Str(Type_Safe__Primitive, str):
     regex                     : re.Pattern                 = TYPE_SAFE__STR__REGEX__SAFE_STR
     regex_mode                : Enum__Safe_Str__Regex_Mode = Enum__Safe_Str__Regex_Mode.REPLACE
     replacement_char          : str                        = '_'
-    allow_empty               : bool                       = True
+    allow_empty               : bool                       = True                # note: making this False does cause some side effects on .json() on cases like auto serialization in environments like FastAPI (like it requires more explict value setting), so all have now been converted into a value of True
     trim_whitespace           : bool                       = False
     allow_all_replacement_char: bool                       = True
     strict_validation         : bool                       = False               # If True, don't replace invalid chars, raise an error instead
@@ -34,12 +34,12 @@ class Safe_Str(Type_Safe__Primitive, str):
             value = value.strip()
 
         if not cls.allow_empty and (value is None or value == ""):                                                      # Check for empty string if not allowed
-            raise ValueError("Value cannot be empty when allow_empty is False")
+            raise ValueError(f"in {cls.__name__}, value cannot be empty when allow_empty is False")
 
-        if cls.exact_length and len(value) != cls.max_length:
-            raise ValueError(f"Value must be exactly {cls.max_length} characters long (was {len(value)})")
+        if cls.exact_length and len(value) and len(value) != cls.max_length:
+            raise ValueError(f"in {cls.__name__}, value must be exactly {cls.max_length} characters long (was {len(value)})")
         elif not cls.exact_length and len(value) > cls.max_length:                                                      # Check max length
-            raise ValueError(f"Value exceeds maximum length of {cls.max_length} characters (was {len(value)})")
+            raise ValueError(f"in {cls.__name__}, value exceeds maximum length of {cls.max_length} characters (was {len(value)})")
 
         if cls.allow_empty and value =='':
             return str.__new__(cls, '')
@@ -54,22 +54,22 @@ class Safe_Str(Type_Safe__Primitive, str):
         if cls.strict_validation:
             if cls.regex_mode == Enum__Safe_Str__Regex_Mode.MATCH:               # For 'match' mode, regex defines the valid pattern (like version numbers)
                 if not cls.regex.match(value):
-                    raise ValueError(f"Value does not match required pattern: {cls.regex.pattern}")
+                    raise ValueError(f"in {cls.__name__}, value does not match required pattern: {cls.regex.pattern}")
                 return value
             elif cls.regex_mode == Enum__Safe_Str__Regex_Mode.REPLACE:           # For 'replace' mode, regex defines invalid characters to replace
                 if cls.regex.search(value) is not None:
-                    raise ValueError(f"Value contains invalid characters (must not match pattern: {cls.regex.pattern})")
+                    raise ValueError(f"in {cls.__name__}, value contains invalid characters (must not match pattern: {cls.regex.pattern})")
                 return value
             else:
                 raise ValueError(f"in {cls.__name__}, regex_mode value cannot be None when strict_validation is True")
         else:
             if cls.regex_mode == Enum__Safe_Str__Regex_Mode.MATCH:               # Cannot do replacement when regex defines valid pattern
-                raise ValueError(f"Cannot use regex_mode='match' without strict_validation=True")
+                raise ValueError(f"in {cls.__name__}, cannot use regex_mode='match' without strict_validation=True")
             else:                                                                # assume the default Enum__Safe_Str__Regex_Mode.MATCH
                 sanitized_value =  cls.regex.sub(cls.replacement_char, value)
 
                 if not cls.allow_all_replacement_char and set(sanitized_value) == {
                     cls.replacement_char} and sanitized_value:
-                    raise ValueError(f"Sanitized value consists entirely of '{cls.replacement_char}' characters")
+                    raise ValueError(f"in {cls.__name__}, sanitized value consists entirely of '{cls.replacement_char}' characters")
 
                 return sanitized_value

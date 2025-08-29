@@ -1,5 +1,8 @@
 # Type_Safe Testing Guidance for Fast_API Services 
 
+- **version**: v2.84.1
+- **updated**: 25th Aug 2025
+
 ## Overview
 
 This guide provides comprehensive instructions for writing tests for Type_Safe-based services using the OSBot framework. When given a service's source code, follow these patterns to create thorough, maintainable test suites that validate both the type safety guarantees and business logic.

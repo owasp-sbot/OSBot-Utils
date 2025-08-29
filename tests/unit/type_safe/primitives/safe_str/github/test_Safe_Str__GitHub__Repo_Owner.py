@@ -33,29 +33,29 @@ class test_Safe_Str__GitHub__Repo_Owner(TestCase):
         assert str(Safe_Str__GitHub__Repo_Owner('user_name'  )) == 'user_name'  # Underscore becomes underscore
 
         # Edge cases: leading/trailing hyphens
-        with pytest.raises(ValueError, match="GitHub owner name cannot start or end with a hyphen"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, gitHub owner name cannot start or end with a hyphen"):
             Safe_Str__GitHub__Repo_Owner('-username')
 
-        with pytest.raises(ValueError, match="GitHub owner name cannot start or end with a hyphen"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, gitHub owner name cannot start or end with a hyphen"):
             Safe_Str__GitHub__Repo_Owner('username-')
 
         # Consecutive hyphens
-        with pytest.raises(ValueError, match="GitHub owner name cannot contain consecutive hyphens"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, gitHub owner name cannot contain consecutive hyphens"):
             Safe_Str__GitHub__Repo_Owner('user--name')
 
         # Empty or None
-        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, value cannot be None when allow_empty is False"):
-            Safe_Str__GitHub__Repo_Owner(None)
+        #with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, value cannot be None when allow_empty is False"):
+        assert Safe_Str__GitHub__Repo_Owner(None) == ''
 
-        with pytest.raises(ValueError, match="Value cannot be empty when allow_empty is False"):
-            Safe_Str__GitHub__Repo_Owner('')
+        #with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, value cannot be empty when allow_empty is False"):
+        assert Safe_Str__GitHub__Repo_Owner('') == ''
 
         # Exceeds max length
-        with pytest.raises(ValueError, match=f"Value exceeds maximum length of {TYPE_SAFE_STR__GITHUB__REPO_OWNER__MAX_LENGTH}"):
+        with pytest.raises(ValueError, match=f"in Safe_Str__GitHub__Repo_Owner, value exceeds maximum length of {TYPE_SAFE_STR__GITHUB__REPO_OWNER__MAX_LENGTH}"):
             Safe_Str__GitHub__Repo_Owner('a' * 40)
 
         # All invalid characters
-        with pytest.raises(ValueError, match="Sanitized value consists entirely of '_' characters"):
+        with pytest.raises(ValueError, match="in Safe_Str__GitHub__Repo_Owner, sanitized value consists entirely of '_' characters"):
             Safe_Str__GitHub__Repo_Owner('!@#$%')
 
     def test_inheritance(self):
