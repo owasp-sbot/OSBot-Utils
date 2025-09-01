@@ -1,12 +1,9 @@
-from unittest                                           import TestCase
-
-import pytest
-
-from osbot_utils.type_safe.Type_Safe import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Primitive         import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.safe_int import Safe_Int
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
+from unittest                                                           import TestCase
+from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive                         import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.safe_int                          import Safe_Int
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str                 import Safe_Str
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id      import Safe_Id
 from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__IP_Address import Safe_Str__IP_Address
 
 

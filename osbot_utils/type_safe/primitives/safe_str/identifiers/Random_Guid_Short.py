@@ -1,8 +1,8 @@
-# todo add to osbot utils
-from osbot_utils.utils.Misc import random_guid_short
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
+from osbot_utils.utils.Misc                     import random_guid_short
 
 
-class Random_Guid_Short(str):
+class Random_Guid_Short(Type_Safe__Primitive, str):
     def __new__(cls, value=None):
         if value is None:
             value = random_guid_short()

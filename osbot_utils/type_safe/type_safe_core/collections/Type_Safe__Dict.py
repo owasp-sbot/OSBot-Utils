@@ -1,10 +1,9 @@
 from typing                                                           import Type
-
-from osbot_utils.testing.__ import __
+from osbot_utils.testing.__                                           import __
 from osbot_utils.type_safe.Type_Safe__Base                            import Type_Safe__Base
-from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
+from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
-from osbot_utils.utils.Objects import dict_to_obj
+from osbot_utils.utils.Objects                                        import dict_to_obj
 
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
