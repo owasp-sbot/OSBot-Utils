@@ -1,6 +1,6 @@
-import pytest
 import re
-from unittest                              import TestCase
+import pytest
+from unittest                                           import TestCase
 from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
 
 

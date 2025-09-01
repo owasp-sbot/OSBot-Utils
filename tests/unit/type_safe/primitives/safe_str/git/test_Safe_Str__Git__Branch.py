@@ -1,6 +1,5 @@
 import pytest
-from unittest                                                   import TestCase
-
+from unittest                                                            import TestCase
 from osbot_utils.type_safe.primitives.safe_str.git.Safe_Str__Git__Branch import Safe_Str__Git__Branch
 
 

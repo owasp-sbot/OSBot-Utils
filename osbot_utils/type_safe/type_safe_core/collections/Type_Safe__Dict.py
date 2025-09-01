@@ -1,7 +1,9 @@
 from typing                                                           import Type
+from osbot_utils.testing.__                                           import __
 from osbot_utils.type_safe.Type_Safe__Base                            import Type_Safe__Base
-from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
+from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+from osbot_utils.utils.Objects                                        import dict_to_obj
 
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
@@ -28,33 +30,54 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
     def __enter__(self): return self
     def __exit__ (self, type, value, traceback): pass
 
-    def json(self):                                                                         # Convert the dictionary to a JSON-serializable format.
-        from osbot_utils.type_safe.Type_Safe import Type_Safe                               # can only import this here to avoid circular imports
+    def json(self):
+        from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+        def serialize_value(v):
+            """Recursively serialize values, handling nested structures"""
+            if isinstance(v, Type_Safe):
+                return v.json()
+            elif isinstance(v, Type_Safe__Primitive):
+                return v.__to_primitive__()
+            elif isinstance(v, dict):
+                # Recursively handle nested dictionaries
+                return {k2: serialize_value(v2) for k2, v2 in v.items()}
+            elif isinstance(v, (list, tuple, set)):
+                # Recursively handle sequences
+                serialized = [serialize_value(item) for item in v]
+                if isinstance(v, list):
+                    return serialized
+                elif isinstance(v, tuple):
+                    return tuple(serialized)
+                else:  # set
+                    return set(serialized)
+            else:
+                return v
 
         result = {}
         for key, value in self.items():
-
-            if isinstance(key, (type, Type)):                                                     # Handle Type objects as keys
+            # Handle Type objects as keys
+            if isinstance(key, (type, Type)):
                 key = f"{key.__module__}.{key.__name__}"
             elif isinstance(key, Type_Safe__Primitive):
                 key = key.__to_primitive__()
-            if isinstance(value, Type_Safe):                                                # Handle Type_Safe objects in values
-                result[key] = value.json()
-            elif isinstance(value, (list, tuple)):                                          # Handle lists/tuples that might contain Type_Safe objects
-                result[key] = [item.json() if isinstance(item, Type_Safe) else item
-                               for item in value]
-            elif isinstance(value, dict):                                                   # Handle nested dictionaries that might contain Type_Safe objects
-                result[key] = {k: v.json() if isinstance(v, Type_Safe) else v
-                               for k, v in value.items()}
-            else:
-                if isinstance(value, Type_Safe__Primitive):
-                    result[key] = value.__to_primitive__()
-                else:
-                    result[key] = value
+
+            # Use recursive serialization for values
+            result[key] = serialize_value(value)
+
         return result
+
+    def get(self, key, default=None):       # this makes it consistent with the modified behaviour of __get__item
+        try:
+            return self[key]                # Use __getitem__ with conversion
+        except KeyError:
+            return default                  # Return default instead of raising
 
     def keys(self) -> Type_Safe__List:
         return Type_Safe__List(self.expected_key_type, super().keys())
+
+    def obj(self) -> __:
+        return dict_to_obj(self.json())
 
     def values(self) -> Type_Safe__List:
         return Type_Safe__List(self.expected_value_type, super().values())
