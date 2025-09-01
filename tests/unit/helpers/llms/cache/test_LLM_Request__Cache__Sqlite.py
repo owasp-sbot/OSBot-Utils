@@ -53,13 +53,13 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
         cache_id           = self.cache.add                   (request, response)   # Add to cache
 
 
-        hash_request       = self.cache.compute_request_hash           (request          )   # Compute request hash
-        cache_path         = self.cache.path_file__cache_entry         (cache_id         )   # Get cache entry path
-        cached_response    = self.cache.get                            (request          )   # Get from cache
+        hash_request       = self.cache.compute_request_hash           (request          ).__to_primitive__()   # Compute request hash
+        cache_path         = self.cache.path_file__cache_entry         (cache_id         ).__to_primitive__()   # Get cache entry path
+        cached_response    = self.cache.get                            (request          )                      # Get from cache
         cache_entry        = self.cache.get__cache_entry__from__cache_id(cache_id)
-        response_id        = response.response_id
-        response_timestamp = response.timestamp
-        cached_timestamp   = cache_entry.timestamp
+        response_id        = response.response_id .__to_primitive__()                                           # we need to use the primitive value for for the comparison below to work
+        response_timestamp = response.timestamp   .__to_primitive__()
+        cached_timestamp   = cache_entry.timestamp.__to_primitive__()
         db_name            = self.virtual_storage.db.db_name
         cache_entry_data   = { 'cache_id'     : cache_id,
                                'llm__request'  : { 'request_data': { 'function_call': None,

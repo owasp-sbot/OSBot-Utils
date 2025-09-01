@@ -50,6 +50,8 @@ class Type_Safe__List(Type_Safe__Base, list):
         for item in self:
             if isinstance(item, Type_Safe):
                 result.append(item.json())
+            elif isinstance(item, Type_Safe__Primitive):
+                result.append(item.__to_primitive__())
             elif isinstance(item, (list, tuple)):
                 result.append([x.json() if isinstance(x, Type_Safe) else x for x in item])
             elif isinstance(item, dict):

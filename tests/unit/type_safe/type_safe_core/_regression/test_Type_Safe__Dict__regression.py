@@ -136,7 +136,7 @@ class test_Type_Safe__Dict__regression(TestCase):
 
         #assert json_data == { 'values': { test_Type_Safe__Dict__bugs.Bug_Type_Keys: ['test1', 'test2']}}       # BUG should not be using type
         bug_type_keys = json_data.get('values').get('test_Type_Safe__Dict__regression.Bug_Type_Keys')
-        assert type(bug_type_keys) is list
+        assert type(bug_type_keys) is set
         assert 'test1' in bug_type_keys
         assert 'test2' in bug_type_keys
         #assert type(json_data.values['test_Type_Safe__Dict__bugs.Bug_Type_Keys']) is set

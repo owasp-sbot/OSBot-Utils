@@ -13,6 +13,8 @@ class Type_Safe__Step__Set_Attr:
             value = self.resolve_value__dict(_self, name, value)
         elif type(value) is list:
             value = self.resolve_value__list(_self, name, value)
+        elif type(value) is tuple:
+            value = self.resolve_value__tuple(_self, name, value)
         elif isinstance(annotations.get(name), type) and issubclass(annotations.get(name), Type_Safe__Primitive) and type(value) in (int, str, float):
             return annotations.get(name)(value)
         elif type(value) in (int, str):                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
@@ -51,6 +53,20 @@ class Type_Safe__Step__Set_Attr:
                     for item in value:                                                  # Validate and add each element
                         type_safe_list.append(item)                                     # This will validate the type
                     return type_safe_list
+
+        return value
+
+    def resolve_value__tuple(self, _self, name, value):                 # Convert regular tuples to Type_Safe__Tuple instances
+        annotations = type_safe_cache.get_obj_annotations(_self)
+        annotation = annotations.get(name)
+
+        if annotation:
+            origin = type_safe_cache.get_origin(annotation)
+            if origin is tuple:
+                args = get_args(annotation)
+                if args:
+                    from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple import Type_Safe__Tuple
+                    return Type_Safe__Tuple(expected_types=args, items=value)
 
         return value
     def resolve_value__from_origin(self, value):
@@ -106,7 +122,7 @@ class Type_Safe__Step__Set_Attr:
             return _super.__setattr__(name, value)
 
         if value is not None:
-            value = self.resolve_value          (_self, annotations, name, value)
+            value = self.resolve_value   (_self, annotations, name, value)
             value = self.handle_get_class(_self, annotations, name, value)
         else:
             type_safe_validation.validate_if_value_has_been_set(_self, annotations, name, value)

@@ -1,5 +1,7 @@
 from unittest                                           import TestCase
 
+import pytest
+
 from osbot_utils.type_safe.Type_Safe import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive         import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.safe_int import Safe_Int
@@ -47,3 +49,106 @@ class test_Type_Safe__Primitive(TestCase):
         instance2 = Schema(safe_str='override', safe_int=100)
         assert instance2.safe_str == 'override'
         assert instance2.safe_int == 100
+
+    def test__to_primitive_method(self):
+        class An_Safe_Str(Type_Safe__Primitive, str):
+            pass
+
+        class An_Safe_Int(Type_Safe__Primitive, int):
+            pass
+
+        class An_Safe_Float(Type_Safe__Primitive, float):
+            pass
+
+        # Test string primitive
+        safe_str = An_Safe_Str('hello')
+        assert safe_str.__to_primitive__()       == 'hello'
+        assert type(safe_str.__to_primitive__()) is str
+        assert type(safe_str) is An_Safe_Str
+
+        # Test int primitive
+        safe_int = An_Safe_Int(42)
+        assert safe_int.__to_primitive__() == 42
+        assert type(safe_int.__to_primitive__()) is int
+        assert type(safe_int) is An_Safe_Int
+
+        # Test float primitive
+        safe_float = An_Safe_Float(3.14)
+        assert safe_float.__to_primitive__() == 3.14
+        assert type(safe_float.__to_primitive__()) is float
+        assert type(safe_float) is An_Safe_Float
+
+        # Test with Safe_Id
+        safe_id = Safe_Id('test-id')
+        assert safe_id.__to_primitive__() == 'test-id'
+        assert type(safe_id.__to_primitive__()) is str
+
+    def test__primitive_in_collections(self):
+        class An_Safe_Str(Type_Safe__Primitive, str):
+            pass
+
+        class Schema(Type_Safe):
+            str_list: list[An_Safe_Str      ]
+            str_dict: dict[An_Safe_Str, int ]
+            str_set : set[An_Safe_Str       ]
+
+        # Test with collections
+        schema = Schema(str_list= ['a', 'b', 'c' ],
+                        str_dict= {'x': 1, 'y': 2},
+                        str_set = {'p', 'q', 'r' })
+
+        # Verify types are converted
+        assert all(isinstance (item, An_Safe_Str) for item in schema.str_list      )
+        assert all(isinstance (key , An_Safe_Str) for key in schema.str_dict.keys())
+        assert all(isinstance (item, An_Safe_Str) for item in schema.str_set       )
+
+        # Test json serialization uses primitives
+        json_data     = schema.json()
+        expected_data = {'str_list': ['a', 'b', 'c' ],
+                         'str_dict': {'x': 1, 'y': 2},
+                         'str_set' : ['p', 'q', 'r']}
+        json_data['str_set'] = sorted(json_data['str_set'])                 # we need to do this because the sets don't guarantee the same order
+        assert json_data == expected_data # sets serialize as lists
+
+    def test__primitive_edge_cases(self):
+        class An_Safe_Str(Type_Safe__Primitive, str):
+            pass
+
+        # Test empty string
+        empty = An_Safe_Str('')
+        assert empty.__to_primitive__() == ''
+        assert type(empty.__to_primitive__()) is str
+
+        # Test with special characters
+        special = An_Safe_Str('!@#$%^&*()')
+        assert special.__to_primitive__() == '!@#$%^&*()'
+
+        class Broken_Primitive(Type_Safe__Primitive, str):                  # Test primitive without __primitive_base__ set (edge case)
+            __primitive_base__ = None                                       # Explicitly break it
+
+        broken = Broken_Primitive('test')
+
+        assert broken.__to_primitive__()       == 'test'                    # Should fallback to str
+        assert type(broken.__to_primitive__()) is str
+
+    def test__primitive_comparison_with_json(self):
+        class An_Safe_Id(Type_Safe__Primitive, str):
+            pass
+
+        class Schema(Type_Safe):
+            id_map: dict[An_Safe_Id, str]
+
+        schema = Schema(id_map={'id1': 'value1', 'id2': 'value2'})
+
+        # Before fix: keys would remain as An_Safe_Id in json
+        # After fix: keys should be primitive strings
+        json_data = schema.json()
+
+        # Can access with primitive string keys
+        assert json_data['id_map']['id1'] == 'value1'
+        assert json_data['id_map']['id2'] == 'value2'
+
+        # Round trip should work
+        restored = Schema.from_json(json_data)
+        assert isinstance(list(restored.id_map.keys())[0], An_Safe_Id)
+        assert restored.id_map['id1'] == 'value1'

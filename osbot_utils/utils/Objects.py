@@ -265,14 +265,18 @@ def pickle_load_from_bytes(pickled_data: bytes):
             return {}
 
 # todo: see if it is possible to add recursive protection to this logic
+# todo: we should move this method to the type_safe classes and folders
 def serialize_to_dict(obj):
-    from decimal import Decimal
-    from enum    import Enum
-    from typing  import List
+    from decimal                               import Decimal
+    from enum                                  import Enum
+    from typing                                import List
+    from osbot_utils.type_safe.Type_Safe__Base import Type_Safe__Base
 
-    if hasattr(obj, '__primitive_base__') and isinstance(obj, (str, int, float)):
+    if isinstance(obj, Type_Safe__Base) and hasattr(obj, 'json'):                                   # if it is one of these Type_Safe__Base  classes
+        return obj.json()                                                                           #   use the provided .json() method, which handles the type conversions more specifically to those types (dict, list, set and tuple)
+    elif hasattr(obj, '__primitive_base__') and isinstance(obj, (str, int, float)):
         return obj.__primitive_base__(obj)
-    elif isinstance(obj, (str, int, float, bool, bytes, Decimal)) or obj is None:     # todo: add support for objects like datetime
+    elif isinstance(obj, (str, int, float, bool, bytes, Decimal)) or obj is None:                # todo: add support for objects like datetime
         return obj
     elif isinstance(obj, Enum):
         return obj.name

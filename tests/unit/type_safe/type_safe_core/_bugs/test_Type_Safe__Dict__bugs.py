@@ -4,6 +4,7 @@ import pytest
 from typing                                                           import Dict, List, Any
 from unittest                                                         import TestCase
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
 
 
@@ -87,3 +88,16 @@ class test_Type_Safe__Dict__bugs(TestCase):
         assert an_class.an_dict.json() == {'a':'b'}
         with pytest.raises(AttributeError, match= "Type_Safe__Dict' object has no attribute 'obj'"):
             an_class.an_dict.obj()           # BUG
+
+    def test__regression__get__not_working_with_strings(self):
+        class An_Class(Type_Safe):
+            some_ids : dict[Safe_Id,int]
+
+        an_class = An_Class(some_ids={'abc':42})
+        an_class_json = an_class.json()
+        assert an_class_json       != {'some_ids': { Safe_Id('abc'): 42}}           # FIXED: BUG: .json() should be pure primitives
+        assert an_class_json       == {'some_ids': {'abc': 42}}                     # FIXED: BUG: this should be equal
+        assert type(an_class_json.get('some_ids')) is dict
+        assert type(an_class_json.get('some_ids')) is not Type_Safe__Dict
+        assert an_class_json.get('some_ids').get('abc'         ) is not None        # FIXED: BUG this should have worked
+        assert an_class_json.get('some_ids').get(Safe_Id('abc')) != 42              # FIXED: BUG this should not be the only way to make this work

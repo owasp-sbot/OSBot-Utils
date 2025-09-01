@@ -10,6 +10,7 @@ from osbot_utils.type_safe.primitives.safe_str.cryptography.hashes.Safe_Str__Has
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict             import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List             import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set              import Type_Safe__Set
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple            import Type_Safe__Tuple
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations           import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache                 import type_safe_cache
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert               import type_safe_convert
@@ -60,8 +61,11 @@ class Type_Safe__Step__From_Json:
                     elif annotation_origin == type:                                         # Handle type objects inside ForwardRef
                         value = self.deserialize_type__using_value(value)
                     if annotation_origin is tuple and isinstance(value, list):
-                        # item_types = get_args(annotation)   # todo: see if we should do type safety here
-                        value = tuple(value)
+                        item_types = get_args(annotation)
+                        if item_types:
+                            value = Type_Safe__Tuple(expected_types=item_types, items=value)                # Create a Type_Safe__Tuple with proper type conversion
+                        else:
+                            value = tuple(value)
                     elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, dict):                                # handle the case when the value is a dict
                         value = self.deserialize_dict__using_key_value_annotations(_self, key, value)
                     elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, set):                              # handle the case when the value is a list

@@ -6,6 +6,7 @@ from typing                                                           import Dic
 from osbot_utils.helpers.Obj_Id                                       import Obj_Id
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
 
@@ -439,7 +440,99 @@ class test_Type_Safe__Dict(TestCase):
         assert an_class.an_dict[An_Str_1('a')] == An_Str_2('a')     # these should be equal
         assert an_class.an_dict[An_Str_1('a')] != An_Str_1('a')     # these should NOT be equal (since the key 'a' is assigned to An_Str_2('a')
 
+    def test__regression__get__not_working_with_strings(self):
+        class An_Class(Type_Safe):
+            some_ids : dict[Safe_Id,int]
 
+        an_class = An_Class(some_ids={'abc':42})
+        an_class_json = an_class.json()
+
+        # After fix, json() should return pure primitives
+        assert an_class_json                            == {'some_ids': {'abc': 42}}                # FIXED
+        assert type(an_class_json.get('some_ids'))      is dict
+        assert type(an_class_json.get('some_ids'))      is not Type_Safe__Dict
+        assert an_class_json.get('some_ids').get('abc') == 42                                       # FIXED
+
+    def test__dict_with_type_safe_primitive_keys(self):
+        class An_Safe_Str(Type_Safe__Primitive, str):
+            pass
+
+        class An_Safe_Int(Type_Safe__Primitive, int):
+            pass
+
+        class An_Class(Type_Safe):
+            str_keys: Dict[An_Safe_Str, str]
+            int_keys: Dict[An_Safe_Int, str]
+            id_keys : Dict[Safe_Id, int]
+
+        an_class = An_Class()
+
+        # Test assignment with primitive values (should auto-convert)
+        an_class.str_keys['key1'] = 'value1'
+        an_class.int_keys[42] = 'forty-two'
+        an_class.id_keys['some-id'] = 123
+
+        # Verify types are correct
+        assert isinstance(list(an_class.str_keys.keys())[0], An_Safe_Str)
+        assert isinstance(list(an_class.int_keys.keys())[0], An_Safe_Int)
+        assert isinstance(list(an_class.id_keys.keys())[0], Safe_Id)
+
+        # Test json() returns pure primitives
+
+        json_output = an_class.json()
+        assert json_output == { 'str_keys': {'key1': 'value1'},
+                                'int_keys': {42: 'forty-two'},                  # BUG
+                                 'id_keys': {'some-id': 123}}
+
+        # Verify json output is pure dict with primitive keys
+        assert type(json_output['str_keys']) is dict
+        assert type(list(json_output['str_keys'].keys())[0]) is str
+        assert type(list(json_output['int_keys'].keys())[0]) is int
+        assert type(list(json_output['id_keys'].keys())[0]) is str
+
+    def test__dict_round_trip_with_primitive_keys(self):
+        class An_Safe_Str(Type_Safe__Primitive, str):
+            pass
+
+        class An_Class(Type_Safe):
+            data: Dict[An_Safe_Str, int]
+
+        # Create instance with data
+        original = An_Class(data={'key1': 1, 'key2': 2})
+
+        # Serialize to json
+        json_data = original.json()
+        assert json_data == {'data': {'key1': 1, 'key2': 2}}
+        assert json_data != {'data': {An_Safe_Str('key1'): 1, An_Safe_Str('key2'): 2}}
+
+        # Deserialize back
+        restored = An_Class.from_json(json_data)
+
+        # Keys should be An_Safe_Str instances again
+        assert isinstance(list(restored.data.keys())[0], An_Safe_Str)
+        assert restored.data['key1'] == 1
+        assert restored.data['key2'] == 2
+
+        # Should serialize to same json
+        assert restored.json() == json_data
+
+    def test__dict_keys_and_values_methods(self):
+        class An_Class(Type_Safe):
+            str_int_dict: Dict[str, int]
+
+        an_class = An_Class(str_int_dict={'a': 1, 'b': 2, 'c': 3})
+
+        # Test keys() returns Type_Safe__List
+        keys = an_class.str_int_dict.keys()
+        assert type(keys) is Type_Safe__List
+        assert keys.expected_type is str
+        assert list(keys) == ['a', 'b', 'c']
+
+        # Test values() returns Type_Safe__List
+        values = an_class.str_int_dict.values()
+        assert type(values) is Type_Safe__List
+        assert values.expected_type is int
+        assert list(values) == [1, 2, 3]
 
 
 
