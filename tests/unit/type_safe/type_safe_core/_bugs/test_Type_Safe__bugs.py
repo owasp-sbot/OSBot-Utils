@@ -5,66 +5,11 @@ from typing                                                           import Opt
 from unittest                                                         import TestCase
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 from osbot_utils.base_classes.Kwargs_To_Self                          import Kwargs_To_Self
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert   import type_safe_convert
 
 
 class test_Type_Safe__bugs(TestCase):
 
-    def test__bug__roundtrip_tuple_support(self):
-        class Inner_Data(Type_Safe):
-            tuple_1  : tuple[str, str]
-            node_ids: Dict[str, tuple[str, str]]
-            edge_ids: Dict[str, set[str]]
-
-        class An_Class(Type_Safe):
-            data: Inner_Data
-
-        an_class = An_Class()
-        an_class.data = Inner_Data()
-        an_class.data.node_ids = {"a": ("id1", "id2")}
-        an_class.data.edge_ids = {"b": {"id3"}}
-        an_class.data.tuple_1  = ("id1", "id2")
-
-        expected_error = "In tuple at index 0: Expected 'str', but got 'int'"
-        with pytest.raises(TypeError, match=expected_error):
-            an_class.data.node_ids = {"b": (123, '123')}                    # confirm type safety in tuples
-        # with pytest.raises(TypeError, match=expected_error):
-        #     an_class.data.tuple_1 = (123, '123')                          # BUG should have raised
-
-        assert type(an_class.data.tuple_1) is tuple                         # BUG this should be Type_Safe__Tuple
-        an_class.data.tuple_1 = (123, '123')                                     # BUG should have raised
-        assert type(an_class.data.tuple_1) is tuple
-
-        assert type(an_class.data.node_ids) is Type_Safe__Dict              # this should not be a dict
-        assert type(an_class.data.edge_ids) is Type_Safe__Dict              # correct this should be a dict
-
-
-        # expected_error = "Type <class 'tuple'> not serializable"
-        # with pytest.raises(TypeError, match=expected_error):                # BUG, should have worked
-        #     an_class.json()
-        assert an_class.json() == {'data': {'edge_ids': {'b': ['id3']},
-                                            'node_ids': {'a': ['id1', 'id2']},
-                                            'tuple_1': [123, '123']}}       # BUG: this should have not happened
-
-        roundtrip_obj = An_Class.from_json(an_class.json())
-
-        assert roundtrip_obj.json()             == an_class.json()
-        assert roundtrip_obj.data.node_ids      == {"a": ("id1", "id2")}
-        assert roundtrip_obj.data.edge_ids      == {"b": {"id3"}}
-        assert roundtrip_obj.data.tuple_1       == (123, "123")
-        assert type(roundtrip_obj.data.tuple_1) is tuple
-
-
-        # These assertions will help verify the fix once implemented
-        # assert json_data == {'data': {'node_ids': {'a': ['id1', 'id2']},
-        #                              'edge_ids': {'b': ['id3', 'id4']}}}
-        #
-        # an_class_round_trip = An_Class.from_json(json_data)
-        # assert type(an_class_round_trip.data.node_ids['a']) is tuple
-        # assert type(an_class_round_trip.data.edge_ids['b']) is Type_Safe__Set
-        # assert an_class_round_trip.data.node_ids['a'] == ('id1', 'id2')
-        # assert an_class_round_trip.data.edge_ids['b'] == {'id3', 'id4'}
     def test__bug__property_descriptor_handling__doesnt_enforce_type_safety(self):
 
         class Test_Class(Type_Safe):

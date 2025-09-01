@@ -68,3 +68,8 @@ class Type_Safe__Primitive:
             return f"{type(self).__name__}('{value_str}')"
         else:
             return f"{type(self).__name__}({value_str})"
+
+    def __to_primitive__(self):                                     # Convert this Type_Safe__Primitive instance to its base primitive type.
+        if self.__primitive_base__:
+            return self.__primitive_base__(self)
+        return str(self)                                            # fallback

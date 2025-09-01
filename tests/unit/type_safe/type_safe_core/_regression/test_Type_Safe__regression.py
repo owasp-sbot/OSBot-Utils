@@ -18,6 +18,7 @@ from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid          
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict           import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set            import Type_Safe__Set
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple          import Type_Safe__Tuple
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations         import type_safe_annotations
 from osbot_utils.type_safe.validators.Validator__Min                            import Min
 from osbot_utils.utils.Json                                                     import json_to_str, str_to_json
@@ -29,6 +30,50 @@ class Node_Value(Type_Safe):
     value: int
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__roundtrip_tuple_support(self):
+        class Inner_Data(Type_Safe):
+            tuple_1  : tuple[str, str]
+            node_ids: Dict[str, tuple[str, str]]
+            edge_ids: Dict[str, set[str]]
+
+        class An_Class(Type_Safe):
+            data: Inner_Data
+
+        an_class = An_Class()
+        an_class.data = Inner_Data()
+        an_class.data.node_ids = {"a": ("id1", "id2")}
+        an_class.data.edge_ids = {"b": {"id3"}}
+        an_class.data.tuple_1  = ("id1", "id2")
+
+        expected_error = "In tuple at index 0: Expected 'str', but got 'int'"
+        with pytest.raises(TypeError, match=expected_error):
+            an_class.data.node_ids = {"b": (123, '123')}                            # confirm type safety in tuples
+
+        assert type(an_class.data.tuple_1) is Type_Safe__Tuple                      #  FIXED BUG this should be Type_Safe__Tuple
+        expected_error = "In Type_Safe__Tuple: Invalid type for item: Expected 'str', but got 'int'"
+        with pytest.raises(TypeError, match=expected_error):
+            an_class.data.tuple_1 = (123, '123')                                     #  FIXED BUG should have raised
+        assert type(an_class.data.tuple_1) is Type_Safe__Tuple
+
+        assert type(an_class.data.node_ids) is Type_Safe__Dict                      #  FIXED: this should not be a dict
+        assert type(an_class.data.edge_ids) is Type_Safe__Dict                      #  FIXED: correct this should be a dict
+
+
+        assert an_class.json() == {'data': {'edge_ids': {'b': {'id3'}},
+                                            'node_ids': {'a': ['id1', 'id2']},
+                                            'tuple_1': ['id1', 'id2']}}
+
+        # error_message = "In Type_Safe__Tuple: Invalid type for item: Expected 'str', but got 'int'"
+        # with pytest.raises(TypeError, match=error_message):
+        roundtrip_obj = An_Class.from_json(an_class.json())         # FIXED
+
+        assert roundtrip_obj.json()             == an_class.json()
+        assert roundtrip_obj.data.node_ids      == {"a": ("id1", "id2")}
+        assert roundtrip_obj.data.edge_ids      == {"b": {"id3"}}
+        assert an_class.data.tuple_1.json()     == ['id1', 'id2']
+        assert roundtrip_obj.data.tuple_1       == ('id1', 'id2')
+        assert type(roundtrip_obj.data.tuple_1) is Type_Safe__Tuple
 
     def test__regression__fast_api_routes__no_support_for_slashes_in_path(self):
         class An_Class(Type_Safe):
@@ -639,8 +684,8 @@ class test_Type_Safe__regression(TestCase):
                                                     Random_Guid():Random_Guid() ,
                                                     'no-guid-1': 'no-guid-2'    }}}
 
-        json_data_2 = { 'dict_5': {Random_Guid(): { Random_Guid():Random_Guid() ,
-                                                    Random_Guid():Random_Guid() }}}
+        json_data_2 = { 'dict_5': {str(Random_Guid()): { Random_Guid():Random_Guid() ,
+                                                         Random_Guid():Random_Guid() }}}
 
         with pytest.raises(TypeError, match="In dict key 'no-guid-1': Expected 'Random_Guid', but got 'str'"):
             assert An_Class_1().from_json(json_data_1).json() == json_data_1  # BUG: should had raised exception on 'no-guid-1': 'no-guid-2'
@@ -770,7 +815,7 @@ class test_Type_Safe__regression(TestCase):
         with pytest.raises(ValueError, match="in Random_Guid: value provided was not a Guid: not a guid"):
             An_Class_2.from_json(json_data_2)
 
-        json_data_2['dict_3'] = {Random_Guid(): 42}
+        json_data_2['dict_3'] = {str(Random_Guid()): 42}
         with pytest.raises(ValueError, match="in Random_Guid: value provided was not a Guid: also not a guid"):
             An_Class_2.from_json(json_data_2)
 
