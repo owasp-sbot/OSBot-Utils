@@ -71,30 +71,30 @@ class test_Type_Safe__Step__Set_Attr(TestCase):
 
         # Test valid Literal values
         annotations = {'status': Literal[200, 404, 500]}
-        type_safe_step_set_attr.validate_literal_value(annotations, 'status', 200)  # Should pass
-        type_safe_step_set_attr.validate_literal_value(annotations, 'status', 404)  # Should pass
-        type_safe_step_set_attr.validate_literal_value(annotations, 'status', 500)  # Should pass
+        type_safe_step_set_attr.validate_literal_value(object, annotations, 'status', 200)  # Should pass
+        type_safe_step_set_attr.validate_literal_value(object, annotations, 'status', 404)  # Should pass
+        type_safe_step_set_attr.validate_literal_value(object, annotations, 'status', 500)  # Should pass
 
         # Test invalid Literal value
-        with pytest.raises(ValueError, match=re.escape("Invalid value for 'status': must be one of [200, 404, 500], got 201")):
-            type_safe_step_set_attr.validate_literal_value(annotations, 'status', 201)
+        with pytest.raises(ValueError, match=re.escape("On type, invalid value for 'status': must be one of [200, 404, 500], got 201")):
+            type_safe_step_set_attr.validate_literal_value(object, annotations, 'status', 201)
 
         # Test mixed type Literals
         annotations = {'mixed': Literal["text", 42, True, None]}
-        type_safe_step_set_attr.validate_literal_value(annotations, 'mixed', "text")  # Should pass
-        type_safe_step_set_attr.validate_literal_value(annotations, 'mixed', 42)      # Should pass
-        type_safe_step_set_attr.validate_literal_value(annotations, 'mixed', True)    # Should pass
-        type_safe_step_set_attr.validate_literal_value(annotations, 'mixed', None)    # Should pass
+        type_safe_step_set_attr.validate_literal_value(object, annotations, 'mixed', "text")  # Should pass
+        type_safe_step_set_attr.validate_literal_value(object, annotations, 'mixed', 42)      # Should pass
+        type_safe_step_set_attr.validate_literal_value(object, annotations, 'mixed', True)    # Should pass
+        type_safe_step_set_attr.validate_literal_value(object, annotations, 'mixed', None)    # Should pass
 
-        with pytest.raises(ValueError, match=re.escape("Invalid value for 'mixed': must be one of ['text', 42, True, None], got 'other'")):
-            type_safe_step_set_attr.validate_literal_value(annotations, 'mixed', "other")
+        with pytest.raises(ValueError, match=re.escape("On type, invalid value for 'mixed': must be one of ['text', 42, True, None], got 'other'")):
+            type_safe_step_set_attr.validate_literal_value(object, annotations, 'mixed', "other")
 
         # Test non-Literal annotations (should pass silently)
         annotations = {'regular': str}
-        type_safe_step_set_attr.validate_literal_value(annotations, 'regular', "any string")  # Should pass
+        type_safe_step_set_attr.validate_literal_value(object, annotations, 'regular', "any string")  # Should pass
 
         # Test missing annotation (should pass silently)
-        type_safe_step_set_attr.validate_literal_value({}, 'nonexistent', "anything")  # Should pass
+        type_safe_step_set_attr.validate_literal_value(object, {}, 'nonexistent', "anything")  # Should pass
 
     def test_resolve_value_with_literals(self):
 
@@ -115,10 +115,10 @@ class test_Type_Safe__Step__Set_Attr(TestCase):
         assert resolved == 404
 
         # Test invalid Literal assignment (should raise user-friendly error)
-        with pytest.raises(ValueError, match=re.escape("Invalid value for 'format_type': must be one of ['json', 'xml', 'yaml'], got 'pdf'")):
+        with pytest.raises(ValueError, match=re.escape("On Test_Class, invalid value for 'format_type': must be one of ['json', 'xml', 'yaml'], got 'pdf'")):
             type_safe_step_set_attr.resolve_value(test_obj, annotations, 'format_type', 'pdf')
 
-        with pytest.raises(ValueError, match=re.escape("Invalid value for 'status_code': must be one of [200, 404, 500], got 201")):
+        with pytest.raises(ValueError, match=re.escape("On Test_Class, invalid value for 'status_code': must be one of [200, 404, 500], got 201")):
             type_safe_step_set_attr.resolve_value(test_obj, annotations, 'status_code', 201)
 
         # Test regular types still work
@@ -129,10 +129,10 @@ class test_Type_Safe__Step__Set_Attr(TestCase):
         assert resolved == 100
 
         # Test type conversion for int/str types
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'regular_int'. Expected '<class 'int'>' but got '<class 'str'>")):
+        with pytest.raises(ValueError, match=re.escape("On Test_Class, invalid type for attribute 'regular_int'. Expected '<class 'int'>' but got '<class 'str'>")):
             type_safe_step_set_attr.resolve_value(test_obj, annotations, 'regular_int', '99')
 
 
         # Test invalid type for regular field (should raise generic type error)
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'regular_str'. Expected '<class 'str'>' but got '<class 'int'>'")):
+        with pytest.raises(ValueError, match=re.escape("On Test_Class, invalid type for attribute 'regular_str'. Expected '<class 'str'>' but got '<class 'int'>'")):
             type_safe_step_set_attr.resolve_value(test_obj, annotations, 'regular_str', 123)

@@ -105,15 +105,15 @@ class test_Type_Safe__Validation(TestCase):
         assert schema.mode == "write"
 
         # Test invalid assignments
-        error_message_1 = "Invalid value for 'response_type': must be one of ['text', 'json_object'], got 'xml'"
+        error_message_1 = "On Schema__Response_Format, invalid value for 'response_type': must be one of ['text', 'json_object'], got 'xml'"
         with pytest.raises(ValueError, match=re.escape(error_message_1)):
             schema.response_type = "xml"
 
-        error_message_2 = "Invalid value for 'status': must be one of [200, 404, 500], got 201"
+        error_message_2 = "On Schema__Response_Format, invalid value for 'status': must be one of [200, 404, 500], got 201"
         with pytest.raises(ValueError, match=re.escape(error_message_2)):
             schema.status = 201
 
-        error_message_3 = "Invalid value for 'mode': must be one of ['read', 'write', 'execute'], got 'delete'"
+        error_message_3 = "On Schema__Response_Format, invalid value for 'mode': must be one of ['read', 'write', 'execute'], got 'delete'"
         with pytest.raises(ValueError, match=re.escape(error_message_3)):
             schema.mode = "delete"
 
@@ -150,7 +150,7 @@ class test_Type_Safe__Validation(TestCase):
         mixed.mixed = True
         assert mixed.mixed is True
 
-        error_message = "Can't set None, to a variable that is already set. Invalid type for attribute 'mixed'. Expected 'typing.Literal['string', 42, True, None]' but got '<class 'NoneType'>'"
+        error_message = "On Mixed_Literals, can't be set to None, to a variable that is already set. Invalid type for attribute 'mixed'. Expected 'typing.Literal['string', 42, True, None]' but got '<class 'NoneType'>'"
         with pytest.raises(ValueError, match=re.escape(error_message)):
             mixed.mixed = None
         assert mixed.mixed is True                      # value was not changed
@@ -172,7 +172,7 @@ class test_Type_Safe__Validation(TestCase):
 
         opt = Optional_Literal()
         assert opt.maybe_format is None
-        error_message = "Invalid type for attribute 'maybe_format'. Expected 'typing.Optional[typing.Literal['json', 'xml']]' but got '<class 'str'>"
+        error_message = "On Optional_Literal, invalid type for attribute 'maybe_format'. Expected 'typing.Optional[typing.Literal['json', 'xml']]' but got '<class 'str'>"
         with pytest.raises(ValueError, match=re.escape(error_message)):
             opt.maybe_format = "json"
         #assert opt.maybe_format == "json"
@@ -402,7 +402,7 @@ class test_Type_Safe__Validation(TestCase):
         class An_Class_1(Type_Safe):
             an_optional_literal: Optional[Literal["allow", "deny"]] = None  # Data collection preference
 
-        error_messsage__1 = "Invalid type for attribute 'an_optional_literal'. Expected 'typing.Optional[typing.Literal['allow', 'deny']]' but got '<class 'str'>"
+        error_messsage__1 = "On An_Class_1, invalid type for attribute 'an_optional_literal'. Expected 'typing.Optional[typing.Literal['allow', 'deny']]' but got '<class 'str'>"
         with pytest.raises(ValueError, match=re.escape(error_messsage__1)):
             An_Class_1(an_optional_literal='allow')                              # BUG
 

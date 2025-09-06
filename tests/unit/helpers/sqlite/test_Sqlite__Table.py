@@ -51,7 +51,7 @@ class test_Sqlite__Table(TestCase):
 
             with self.assertRaises(Exception) as context:
                 _.add_row(an_bytes=b'a', an_int='an-str')
-            assert context.exception.args[0] == ("Invalid type for attribute 'an_int'. Expected '<class 'int'>' but got "
+            assert context.exception.args[0] == ("On An_Table_Class invalid type for attribute 'an_int'. Expected '<class 'int'>' but got "
                                                  "'<class 'str'>'")
             with self.assertRaises(Exception) as context:
                 _.add_row(an_bytes=b'a', bad_var='an-str')

@@ -88,7 +88,7 @@ class Type_Safe:
             if value is not None:
                 if hasattr(self,'__annotations__'):  # can only do type safety checks if the class does not have annotations
                     if type_safe_validation.check_if__type_matches__obj_annotation__for_attr(self, key, value) is False:
-                        raise ValueError(f"Invalid type for attribute '{key}'. Expected '{self.__annotations__.get(key)}' but got '{type(value)}'")
+                        raise ValueError(f"On {self.__class__.__name__} invalid type for attribute '{key}'. Expected '{self.__annotations__.get(key)}' but got '{type(value)}'")
                 setattr(self, key, value)
         return self
 

@@ -278,7 +278,7 @@ class test_Type_Safe__regression(TestCase):
         with self.assertRaises(ValueError) as context:
             custom_node.node_type = Other_Class
 
-        assert str(context.exception) == "Invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('Base_Node')]' but got '<class 'test_Type_Safe__regression.test_Type_Safe__regression.test__regression__forward_ref_handling_in_type_matches.<locals>.Other_Class'>'"
+        assert str(context.exception) == "On Custom_Node, invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('Base_Node')]' but got '<class 'test_Type_Safe__regression.test_Type_Safe__regression.test__regression__forward_ref_handling_in_type_matches.<locals>.Other_Class'>'"
 
         # Test with more complex case (like Schema__MGraph__Node)
         from typing import Dict, Any
@@ -402,14 +402,14 @@ class test_Type_Safe__regression(TestCase):
 
         an_class.an_type__str = str
         an_class.an_type__str = Random_Guid
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type__str'. Expected 'typing.Type[str]' but got '<class 'int'>'")) :
+        with pytest.raises(ValueError, match=re.escape("On An_Class_1, invalid type for attribute 'an_type__str'. Expected 'typing.Type[str]' but got '<class 'int'>'")) :
             an_class.an_type__str = int
 
         #with pytest.raises(TypeError, match=re.escape("issubclass() arg 2 must be a class, a tuple of classes, or a union")):
         #    an_class.an_type__forward_ref = An_Class_1           # Fixed; BUG: this should have worked
 
         an_class.an_type__forward_ref = An_Class_1
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type__forward_ref'. Expected 'typing.Type[ForwardRef('An_Class_1')]' but got '<class 'str'>'")):
+        with pytest.raises(ValueError, match=re.escape("On An_Class_1, invalid type for attribute 'an_type__forward_ref'. Expected 'typing.Type[ForwardRef('An_Class_1')]' but got '<class 'str'>'")):
             an_class.an_type__forward_ref = str
 
         class An_Class_2(An_Class_1):
@@ -490,9 +490,9 @@ class test_Type_Safe__regression(TestCase):
         assert obj3.obj () == obj4.obj ()
 
         # Can't modify type objects
-        with pytest.raises(ValueError, match=re.escape("Can't set None, to a variable that is already set. Invalid type for attribute 'guid_type'. Expected 'typing.Type[osbot_utils.type_safe.primitives.safe_str.identifiers.Guid.Guid]' but got '<class 'NoneType'>'")):
+        with pytest.raises(ValueError, match=re.escape("On Safe, can't be set to None, to a variable that is already set. Invalid type for attribute 'guid_type'. Expected 'typing.Type[osbot_utils.type_safe.primitives.safe_str.identifiers.Guid.Guid]' but got '<class 'NoneType'>'")):
             obj3.guid_type = None                 # Can't modify type
-        with pytest.raises(ValueError, match=re.escape("Can't set None, to a variable that is already set. Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'NoneType'>'")):
+        with pytest.raises(ValueError, match=re.escape("On Safe, can't be set to None, to a variable that is already set. Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'NoneType'>'")):
             obj4.str_type = None                  # Can't modify type
 
     def test__regression__type__with_type__not_enforced(self):
@@ -506,13 +506,13 @@ class test_Type_Safe__regression(TestCase):
         an_class.an_type_str = str
         an_class.an_type_int = int
 
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'int'>")):
+        with pytest.raises(ValueError, match=re.escape("On An_Class, invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'int'>")):
             an_class.an_type_str = int                                                  # Fixed: BUG: should have raised exception
 
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_int'. Expected 'typing.Type[int]' but got '<class 'str'>")):
+        with pytest.raises(ValueError, match=re.escape("On An_Class, invalid type for attribute 'an_type_int'. Expected 'typing.Type[int]' but got '<class 'str'>")):
             an_class.an_type_int = str                                                  # Fixed: BUG: should have raised exception
 
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'NoneType'>'")):
+        with pytest.raises(ValueError, match=re.escape("On An_Class, invalid type for attribute 'an_type_str'. Expected 'typing.Type[str]' but got '<class 'NoneType'>'")):
             an_class.an_type_str = 'a'
 
 
@@ -553,12 +553,12 @@ class test_Type_Safe__regression(TestCase):
 
         an_class = An_Class()
         assert an_class.json() == {'an_str': '', 'an_int': 0}
-        with pytest.raises(ValueError,match="Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>'"):
+        with pytest.raises(ValueError,match="On An_Class, invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>'"):
             an_class.an_str = 123           # Fixed: BUG
 
         an_class.an_int = 123           # OK
         an_class.an_str = "a"           # OK
-        with pytest.raises(ValueError, match="Invalid type for attribute 'an_int'. Expected '<class 'int'>' but got '<class 'str'>'"):
+        with pytest.raises(ValueError, match="On An_Class, invalid type for attribute 'an_int'. Expected '<class 'int'>' but got '<class 'str'>'"):
             an_class.an_int = "a"           # OK
 
 
@@ -600,13 +600,13 @@ class test_Type_Safe__regression(TestCase):
         assert get_origin(annotations['age'  ]) is Annotated      # Fixed: BUG missing annotation
         assert get_origin(annotations['name' ]) is Annotated      # Fixed: BUG missing annotation
         assert get_origin(annotations['score']) is Annotated
-        expected_exception_str  = "Invalid type for attribute 'age'. Expected 'typing.Annotated.*int,.* but got '<class 'str'>"
+        expected_exception_str  = "On GrandChildClass, invalid type for attribute 'age'. Expected 'typing.Annotated.*int,.* but got '<class 'str'>"
         with pytest.raises(ValueError, match=expected_exception_str):
             test.age = 'aaaa'                                                               # Fixed: BUG: should have raised exception
-        expected_exception_int  = "Invalid type for attribute 'name'. Expected 'typing.Annotated.*str,.* but got '<class 'int'>"
+        expected_exception_int  = "On GrandChildClass, invalid type for attribute 'name'. Expected 'typing.Annotated.*str,.* but got '<class 'int'>"
         with pytest.raises(ValueError, match=expected_exception_int):
             test.name = 123
-        expected_exception_float = "Invalid type for attribute 'score'. Expected 'typing.Annotated.*float,.* but got '<class 'str'>"
+        expected_exception_float = "On GrandChildClass, invalid type for attribute 'score'. Expected 'typing.Annotated.*float,.* but got '<class 'str'>"
         with pytest.raises(ValueError, match=expected_exception_float):
             test.score = "123"
 
@@ -723,7 +723,7 @@ class test_Type_Safe__regression(TestCase):
         an_class.an_class = An_Class()                              # FIXED: this now works
         assert type(an_class.an_class) is An_Class
         assert type(an_class.an_class.an_class) is type(None)
-        error_message_2 = "Invalid type for attribute 'an_class'. Expected 'An_Class' but got '<class 'str'>"
+        error_message_2 = "On An_Class, invalid type for attribute 'an_class'. Expected 'An_Class' but got '<class 'str'>"
         with pytest.raises(ValueError, match=error_message_2):
             an_class.an_class = 'a'                 # BUG: wrong exception
 
@@ -1160,7 +1160,7 @@ class test_Type_Safe__regression(TestCase):
         def asserts_exception(var_name, var_value, expected_type, got_type):
             with self.assertRaises(Exception) as context:
                 an_class.__setattr__(var_name, var_value)
-            expected_message = f"Invalid type for attribute '{var_name}'. Expected '{expected_type}' but got '<class '{got_type}'>'"
+            expected_message = f"On An_Class, invalid type for attribute '{var_name}'. Expected '{expected_type}' but got '<class '{got_type}'>'"
             assert context.exception.args[0] == expected_message
 
         asserts_exception('an_bool'     , an_bytes_value, 'typing.Optional[bool]'            , 'bytes')
@@ -1198,7 +1198,8 @@ class test_Type_Safe__regression(TestCase):
         def asserts_exception(var_name, var_value, expected_type, got_type):
             with self.assertRaises(Exception) as context:
                 an_class.__setattr__(var_name, var_value)
-            expected_message = (f"Invalid type for attribute '{var_name}'. Expected '<class '{expected_type}'>' "
+            print(context.exception.args[0])
+            expected_message = (f"On An_Class, invalid type for attribute '{var_name}'. Expected '<class '{expected_type}'>' "
                                 f"but got '<class '{got_type}'>'")
             assert context.exception.args[0] == expected_message
 
@@ -1237,7 +1238,7 @@ class test_Type_Safe__regression(TestCase):
 
         with self.assertRaises(Exception) as context:       # confirm that type safety checks are still in place
             an_class.an_list = 'a'
-        assert context.exception.args[0] == ("Invalid type for attribute 'an_list'. "
+        assert context.exception.args[0] == ("On An_Class, invalid type for attribute 'an_list'. "
                                              "Expected '<class 'list'>' "
                                              "but got '<class 'str'>'"                )
 
