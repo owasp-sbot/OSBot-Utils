@@ -1,10 +1,10 @@
-from unittest                                                           import TestCase
-from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI    import LLM_Request__Builder__Open_AI
-from osbot_utils.helpers.llms.builders.LLM_Request__Factory             import LLM_Request__Factory
-from osbot_utils.helpers.llms.schemas.Safe_Str__LLM__Model_Name         import Safe_Str__LLM__Model_Name
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data         import Schema__LLM_Request__Data
-from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text      import Safe_Str__Text
-from osbot_utils.utils.Objects                                          import __
+from unittest                                                                import TestCase
+from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI         import LLM_Request__Builder__Open_AI
+from osbot_utils.helpers.llms.builders.LLM_Request__Factory                  import LLM_Request__Factory
+from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Name import Safe_Str__LLM__Model_Name
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data              import Schema__LLM_Request__Data
+from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text           import Safe_Str__Text
+from osbot_utils.utils.Objects                                               import __
 
 
 class test_LLM__Request_Builder(TestCase):                               # Tests for the LLM request building functionality.

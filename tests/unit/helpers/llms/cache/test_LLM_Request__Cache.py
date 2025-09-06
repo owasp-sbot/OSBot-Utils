@@ -1,15 +1,15 @@
 import unittest
 
-from osbot_utils.helpers.llms.schemas.Safe_Str__LLM__Model_Name             import Safe_Str__LLM__Model_Name
-from osbot_utils.helpers.Obj_Id                                             import Obj_Id
+from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Name import Safe_Str__LLM__Model_Name
+from osbot_utils.helpers.Obj_Id                                              import Obj_Id
 from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                 import Timestamp_Now
-from osbot_utils.helpers.llms.cache.LLM_Request__Cache                      import LLM_Request__Cache
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                   import Schema__LLM_Request
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             import Schema__LLM_Request__Data
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                  import Schema__LLM_Response
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content
-from osbot_utils.utils.Objects                                              import __
+from osbot_utils.helpers.llms.cache.LLM_Request__Cache                       import LLM_Request__Cache
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                    import Schema__LLM_Request
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data              import Schema__LLM_Request__Data
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role     import Schema__LLM_Request__Message__Role
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                   import Schema__LLM_Response
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content  import Schema__LLM_Request__Message__Content
+from osbot_utils.utils.Objects                                               import __
 
 
 class test_LLM_Request__Cache(unittest.TestCase):

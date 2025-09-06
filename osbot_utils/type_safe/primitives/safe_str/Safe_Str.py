@@ -8,16 +8,16 @@ TYPE_SAFE__STR__MAX_LENGTH      = 512
 
 
 class Safe_Str(Type_Safe__Primitive, str):
+    allow_all_replacement_char: bool                       = True
+    allow_empty               : bool                       = True                # note: making this False does cause some side effects on .json() on cases like auto serialization in environments like FastAPI (like it requires more explict value setting), so all have now been converted into a value of True
+    exact_length              : bool                       = False               # If True, require exact length match, not just max length
     max_length                : int                        = TYPE_SAFE__STR__MAX_LENGTH
     regex                     : re.Pattern                 = TYPE_SAFE__STR__REGEX__SAFE_STR
     regex_mode                : Enum__Safe_Str__Regex_Mode = Enum__Safe_Str__Regex_Mode.REPLACE
     replacement_char          : str                        = '_'
-    allow_empty               : bool                       = True                # note: making this False does cause some side effects on .json() on cases like auto serialization in environments like FastAPI (like it requires more explict value setting), so all have now been converted into a value of True
-    trim_whitespace           : bool                       = False
-    allow_all_replacement_char: bool                       = True
     strict_validation         : bool                       = False               # If True, don't replace invalid chars, raise an error instead
-    exact_length              : bool                       = False               # If True, require exact length match, not just max length
-
+    to_lower_case             : bool                       = False               # If True, convert string to lowercase
+    trim_whitespace           : bool                       = False
 
     def __new__(cls, value: Optional[str] = None) -> 'Safe_Str':
 
@@ -46,6 +46,8 @@ class Safe_Str(Type_Safe__Primitive, str):
 
         sanitized_value = cls.validate_and_sanitize(value)
 
+        if cls.to_lower_case:
+            sanitized_value = sanitized_value.lower()
 
         return str.__new__(cls, sanitized_value)
 
