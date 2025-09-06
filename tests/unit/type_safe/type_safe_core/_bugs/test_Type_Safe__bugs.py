@@ -49,7 +49,7 @@ class test_Type_Safe__bugs(TestCase):
 
         an_class = An_Class()
         an_class.label = 'str value'                                # works ok
-        with pytest.raises(ValueError, match="Invalid type for attribute 'inner_label'. Expected '<class 'str'>' but got '<class 'int'>'"):
+        with pytest.raises(ValueError, match="On An_Class, invalid type for attribute 'inner_label'. Expected '<class 'str'>' but got '<class 'int'>'"):
             an_class.label = 42                                     # raised expected exception since int is not a str (this is not captured by the label, but by the inner_label)
 
 
@@ -149,7 +149,7 @@ class test_Type_Safe__bugs(TestCase):
         an_class =  An_Class__With_Correct_Values()             # should create ok and values should match the type
         assert an_class.__locals__() == {'an_bool': an_bool_value, 'an_int': an_int_value, 'an_str': an_str_value}
 
-        expected_message = "Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'bool'>'"
+        expected_message = "On An_Class__With_Bad_Values, invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'bool'>'"
         with self.assertRaises(Exception) as context:
             An_Class__With_Bad_Values()
         assert context.exception.args[0] == expected_message
@@ -186,7 +186,7 @@ class test_Type_Safe__bugs(TestCase):
             an_int  : int  = an_bool_value                      # BUG: should have thrown exception here (bool should be allowed on int)
             an_str  : str  = an_bool_value                      # will throw exception here
 
-        expected_message = "Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'bool'>'"
+        expected_message = "On An_Class__With_Bad_Values, invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'bool'>'"
         with self.assertRaises(Exception) as context:
             An_Class__With_Bad_Values()
         assert context.exception.args[0] == expected_message
@@ -211,7 +211,7 @@ class test_Type_Safe__bugs(TestCase):
         def asserts_exception(var_name, var_value, expected_type, got_type):
             with self.assertRaises(Exception) as context:
                 an_class.__setattr__(var_name, var_value)
-            expected_message = f"Invalid type for attribute '{var_name}'. Expected '<class '{expected_type}'>' but got '<class '{got_type}'>'"
+            expected_message = f"On An_Class, invalid type for attribute '{var_name}'. Expected '<class '{expected_type}'>' but got '<class '{got_type}'>'"
             assert context.exception.args[0] == expected_message
 
         asserts_exception('an_bool',an_str_value , 'bool', 'str' )

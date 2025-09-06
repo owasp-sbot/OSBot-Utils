@@ -143,10 +143,10 @@ class test_Generator_Manager(TestCase):
         self.assertFalse(self.manager.remove(Random_Guid()))
 
     def test_invalid_generator_type(self):
-        with pytest.raises(ValueError, match="Invalid type for attribute 'target'. Expected '<class 'generator'>' but got '<class 'int'>'"):
+        with pytest.raises(ValueError, match="On Model__Generator_Target, invalid type for attribute 'target'. Expected '<class 'generator'>' but got '<class 'int'>'"):
             self.manager.add(123)  # Invalid type
 
-        with pytest.raises(ValueError, match="Invalid type for attribute 'target'. Expected '<class 'generator'>' but got '<class 'str'>'"):
+        with pytest.raises(ValueError, match="On Model__Generator_Target, invalid type for attribute 'target'. Expected '<class 'generator'>' but got '<class 'str'>'"):
             self.manager.add("not a generator")  # Invalid type
 
     def test_capture(self):

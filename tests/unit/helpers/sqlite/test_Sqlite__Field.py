@@ -143,10 +143,10 @@ class test_Sqlite__Field(TestCase):
 
         with self.assertRaises(Exception) as context:
             Sqlite__Field.from_json(data__bad__values)           # FIXED: was BUG: should have raised exception
-        assert context.exception.args[0] == ("Invalid type for attribute 'dflt_value'. Expected 'typing.Union[int, str, "
+        assert context.exception.args[0] == ("On Sqlite__Field, invalid type for attribute 'dflt_value'. Expected 'typing.Union[int, str, "
                                               "float, bytes, NoneType]' but got '<class 'bool'>'")
 
         with self.assertRaises(Exception) as context:
             sqlite_field.dflt_value = False                     # FIXED: was BUG: assigment should have not worked
-        assert context.exception.args[0] == ("Invalid type for attribute 'dflt_value'. Expected 'typing.Union[int, str, "
+        assert context.exception.args[0] == ("On Sqlite__Field, invalid type for attribute 'dflt_value'. Expected 'typing.Union[int, str, "
                                               "float, bytes, NoneType]' but got '<class 'bool'>'")

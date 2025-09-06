@@ -143,12 +143,12 @@ class test_Type_Safe(TestCase):
             an_str : str
         an_class = An_Class()
         assert an_class.json() == {'an_str': ''}
-        expected_message = "Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>'"
+        expected_message = "On An_Class, invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'int'>'"
         with self.assertRaises(Exception) as context_1:
             an_class.an_str = 42
         assert context_1.exception.args[0] == expected_message
 
-        expected_message_2 = "Can't set None, to a variable that is already set. Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'NoneType'>'"
+        expected_message_2 = "On An_Class, can't be set to None, to a variable that is already set. Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'NoneType'>'"
         with self.assertRaises(Exception) as context_2:
             an_class.an_str = None
         assert context_2.exception.args[0] == expected_message_2
@@ -562,12 +562,12 @@ class test_Type_Safe(TestCase):
         class An_Bad_Type(Type_Safe):
             not_an_int: int = "an str"
 
-        expected_error= "Invalid type for attribute 'not_an_int'. Expected '<class 'int'>' but got '<class 'str'>'"
+        expected_error= "On An_Bad_Type, invalid type for attribute 'not_an_int'. Expected '<class 'int'>' but got '<class 'str'>'"
         #with Catch(expect_exception=True, expected_error=expected_error):
         with pytest.raises(ValueError, match=expected_error ):
             An_Bad_Type().__default_kwargs__()
 
-        expected_error = "Invalid type for attribute 'not_an_int'. Expected '<class 'int'>' but got '<class 'str'>'"
+        expected_error = "On An_Bad_Type, invalid type for attribute 'not_an_int'. Expected '<class 'int'>' but got '<class 'str'>'"
         with pytest.raises(ValueError, match=expected_error ):
             An_Bad_Type().__default_kwargs__()
 
@@ -704,7 +704,7 @@ class test_Type_Safe(TestCase):
         type_safety = Type_Safety()
         type_safety.str_type = str                          # OK: str matches Type[str]
 
-        with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'int'>'")):    # Should fail: int is not a subclass of str
+        with pytest.raises(ValueError, match=re.escape("On Type_Safety, invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'int'>'")):    # Should fail: int is not a subclass of str
             type_safety.str_type = int
 
 
@@ -991,7 +991,7 @@ class test_Type_Safe(TestCase):
         An_Class(node_type=Child_Type_3)
         An_Class(node_type=Child_Type_4)
 
-        error_message = "Invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('An_Class')]' but got '<class 'test_Type_Safe.test_Type_Safe.test_type_checks_on__forward_ref__works_on_multiple_levels.<locals>.Should_Fail'>'"
+        error_message = "On An_Class, invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('An_Class')]' but got '<class 'test_Type_Safe.test_Type_Safe.test_type_checks_on__forward_ref__works_on_multiple_levels.<locals>.Should_Fail'>'"
         with pytest.raises(ValueError,match=re.escape(error_message)):
             An_Class(node_type=Should_Fail)
 
@@ -1052,7 +1052,7 @@ class test_Type_Safe(TestCase):
 
         assert test_class.obj() == __(data='base_data', _label='another_value')
 
-        with pytest.raises(ValueError, match="Invalid type for attribute 'data'. Expected '<class 'str'>' but got '<class 'int'>'"):
+        with pytest.raises(ValueError, match="On Test_Class, invalid type for attribute 'data'. Expected '<class 'str'>' but got '<class 'int'>'"):
             test_class.data = 123                                                                   # confirm that type safety is still working on the main class
 
     def test_validate_type_immutability(self):                                        # Tests type immutability validation
@@ -1096,7 +1096,7 @@ class test_Type_Safe(TestCase):
         test_obj.enum_var = An_Enum.VALUE_2                                        # check assignment
         assert test_obj.enum_var == An_Enum.VALUE_2
 
-        with pytest.raises(ValueError, match="Invalid type for attribute 'enum_var'. Expected '<enum 'An_Enum'>' but got '<class 'str'>'") as context:                    # validate type safety
+        with pytest.raises(ValueError, match="On With_Enum, invalid type for attribute 'enum_var'. Expected '<enum 'An_Enum'>' but got '<class 'str'>'") as context:                    # validate type safety
             test_obj.enum_var = "VALUE_2"                                          # try to assign string instead of enum
 
         # Test with Optional enum

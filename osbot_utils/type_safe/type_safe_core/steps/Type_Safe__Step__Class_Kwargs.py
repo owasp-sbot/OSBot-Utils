@@ -96,7 +96,7 @@ class Type_Safe__Step__Class_Kwargs:                                            
                 # If conversion fails, let the original validation handle it
                 pass
 
-        type_safe_validation.validate_variable_type(var_name, var_type, var_value)
+        type_safe_validation.validate_variable_type(base_cls, var_name, var_type, var_value)
         type_safe_validation.validate_type_immutability(var_name, var_type)
 
     def process_annotation(self, cls      : Type           ,                            # Process single annotation

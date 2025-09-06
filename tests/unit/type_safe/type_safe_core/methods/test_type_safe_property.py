@@ -77,7 +77,7 @@ class test_Type_Safe__Property(TestCase):
         assert test_obj.tags is None
 
         # Test setting None on required field
-        with pytest.raises(ValueError, match=re.escape("Can't set None, to a variable that is already set. Invalid type for attribute 'name'. Expected '<class 'str'>' but got '<class 'NoneType'>'")):
+        with pytest.raises(ValueError, match=re.escape("On NestedData, can't be set to None, to a variable that is already set. Invalid type for attribute 'name'. Expected '<class 'str'>' but got '<class 'NoneType'>'")):
             test_obj.name = None
 
 

@@ -78,7 +78,7 @@ class test_Type_Safe__callbacks(TestCase):
 
         with self.assertRaises(ValueError) as context:
             exporter.on_node = invalid_callback
-        self.assertIn("Invalid type for attribute", str(context.exception))
+        self.assertIn("invalid type for attribute", str(context.exception))
 
     def test_invalid_edge_callback_signature(self):
         exporter = GraphExporter()
@@ -90,7 +90,7 @@ class test_Type_Safe__callbacks(TestCase):
 
         with self.assertRaises(ValueError) as context:
             exporter.on_edge = invalid_callback
-        self.assertIn("Invalid type for attribute", str(context.exception))
+        self.assertIn("invalid type for attribute", str(context.exception))
 
     def test_none_callbacks(self):
         exporter = GraphExporter()
@@ -148,7 +148,7 @@ class test_Type_Safe__callbacks(TestCase):
         def invalid_return_callback(node: GraphNode, attrs: Dict[str, Any]) -> str:
             return "invalid"
 
-        expected_error = "Invalid type for attribute 'on_node'. Expected 'typing.Callable[[test_Type_Safe__Validation__callbacks.GraphNode, typing.Dict[str, typing.Any]], typing.Dict[str, typing.Any]]' but got '<class 'function'>'"
+        expected_error = "On GraphExporter, invalid type for attribute 'on_node'. Expected 'typing.Callable[[test_Type_Safe__Validation__callbacks.GraphNode, typing.Dict[str, typing.Any]], typing.Dict[str, typing.Any]]' but got '<class 'function'>'"
         with pytest.raises(ValueError, match=re.escape(expected_error)):
             exporter.on_node = invalid_return_callback
 

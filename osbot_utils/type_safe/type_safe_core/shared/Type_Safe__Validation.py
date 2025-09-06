@@ -270,11 +270,11 @@ class Type_Safe__Validation:
     def validate_if_value_has_been_set(self, _self, annotations, name, value):
         if hasattr(_self, name) and annotations.get(name) :     # don't allow previously set variables to be set to None
             if getattr(_self, name) is not None:                         # unless it is already set to None
-                raise ValueError(f"Can't set None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{_self.__annotations__.get(name)}' but got '{type(value)}'")
+                raise ValueError(f"On {_self.__class__.__name__}, can't be set to None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{_self.__annotations__.get(name)}' but got '{type(value)}'")
 
-    def validate_if__types_are_compatible_for_assigment(self, name, current_type, expected_type):
+    def validate_if__types_are_compatible_for_assigment(self, _self, name, current_type, expected_type):
         if not type_safe_validation.are_types_compatible_for_assigment(current_type, expected_type):
-            type_safe_raise_exception.type_mismatch_error(name, expected_type, current_type)
+            type_safe_raise_exception.type_mismatch_error__on_instance(_self, name, expected_type, current_type)
 
     def validate_type_compatibility(self, target      : Any             ,             # Target object to validate
                                           annotations : Dict[str, Any]  ,             # Type annotations
@@ -295,7 +295,7 @@ class Type_Safe__Validation:
                 actual_type = value
             else:
                 actual_type = type(value)
-            raise ValueError(f"Invalid type for attribute '{name}'. Expected '{expected_type}' but got '{actual_type}'") from None
+            raise ValueError(f"On {target.__class__.__name__}, invalid type for attribute '{name}'. Expected '{expected_type}' but got '{actual_type}'") from None
 
     # todo: see if need to add cache support to this method     (it looks like this method is not called very often)
     def validate_type_immutability(self, var_name: str, var_type: Any) -> None:                         # Validates that type is immutable or in supported format
@@ -321,8 +321,8 @@ class Type_Safe__Validation:
     #                     if not (isinstance(var_type, type) and issubclass(var_type, (int,str, float))):
     #                         type_safe_raise_exception.immutable_type_error(var_name, var_type)
 
-    def validate_variable_type(self, var_name, var_type, var_value):                                # Validate type compatibility
+    def validate_variable_type(self, base_cls, var_name, var_type, var_value):                                # Validate type compatibility
         if type(var_type) is type and not isinstance(var_value, var_type):
-            type_safe_raise_exception.type_mismatch_error(var_name, var_type, type(var_value))
+            type_safe_raise_exception.type_mismatch_error__on_type(base_cls, var_name, var_type, type(var_value))
 
 type_safe_validation = Type_Safe__Validation()

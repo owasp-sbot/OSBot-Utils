@@ -22,7 +22,7 @@ class Type_Safe__Step__Set_Attr:
         else:
             value = self.resolve_value__from_origin(value)
 
-        self.validate_literal_value(annotations, name, value)                            # Check Literal value constraints before generic type checking
+        self.validate_literal_value(_self, annotations, name, value)                            # Check Literal value constraints before generic type checking
 
         type_safe_validation.validate_type_compatibility(_self, annotations, name, value)
         return value
@@ -106,7 +106,7 @@ class Type_Safe__Step__Set_Attr:
         if name in immutable_vars:
             expected_type = immutable_vars[name]
             current_type  = type if value is type else type(value)
-            type_safe_validation.validate_if__types_are_compatible_for_assigment(name, current_type, expected_type)
+            type_safe_validation.validate_if__types_are_compatible_for_assigment(_self, name, current_type, expected_type)
             _super.__setattr__(name, value)
             return True
         return False
@@ -129,7 +129,7 @@ class Type_Safe__Step__Set_Attr:
 
         _super.__setattr__(name, value)
 
-    def validate_literal_value(self, annotations, name, value):     # Check if a value is valid for a Literal type annotation
+    def validate_literal_value(self, _self, annotations, name, value):     # Check if a value is valid for a Literal type annotation
 
         annotation = annotations.get(name)
         if not annotation:
@@ -145,7 +145,7 @@ class Type_Safe__Step__Set_Attr:
                         allowed_values = get_args(arg)                          # Found Literal inside Optional
                         if value is not None and value not in allowed_values:
                             allowed_str = ', '.join(repr(v) for v in allowed_values)
-                            raise ValueError(f"Invalid value for '{name}': must be one of [{allowed_str}], got {repr(value)}")
+                            raise ValueError(f"On {_self.__class__.__name__}, invalid value for '{name}': must be one of [{allowed_str}], got {repr(value)}")
                         return
 
 
@@ -153,7 +153,7 @@ class Type_Safe__Step__Set_Attr:
             allowed_values = get_args(annotation)
             if value not in allowed_values:
                 allowed_str = ', '.join(repr(v) for v in allowed_values)
-                raise ValueError(f"Invalid value for '{name}': must be one of [{allowed_str}], got {repr(value)}")
+                raise ValueError(f"On {_self.__class__.__name__}, invalid value for '{name}': must be one of [{allowed_str}], got {repr(value)}")
 
 
 type_safe_step_set_attr = Type_Safe__Step__Set_Attr()

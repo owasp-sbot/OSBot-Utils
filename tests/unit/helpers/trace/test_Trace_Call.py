@@ -294,7 +294,7 @@ class test_Trace_Call(TestCase):
             assert _.trace_capture_start_with == []                 # confirm variable is set
             with self.assertRaises(Exception) as context:           # FIXED: after the fix
                 _.trace_capture_start_with = None                   # FIXED: this now raises an exception
-            assert str(context.exception) == ("Can't set None, to a variable that is already set. Invalid type for "
+            assert str(context.exception) == ("On Trace_Call__Config, can't be set to None, to a variable that is already set. Invalid type for "
                                               "attribute 'trace_capture_start_with'. "
                                               "Expected '<class 'list'>' but got '<class 'NoneType'>'")
             # _.trace_capture_start_with        = None               # BUG: this should not be allowed
@@ -309,8 +309,8 @@ class test_Trace_Call(TestCase):
         assert an_class.an_list      == []                           # confirm that the an_list var exists and it is an empty list
         with self.assertRaises(Exception) as context:                # FIXED: after the fix
             an_class.an_list = None                                  # FIXED: this raises an exception
-        assert str(context.exception) == ("Can't set None, to a variable that is already set. Invalid type for "
-                                           "attribute 'an_list'. Expected '<class 'list'>' but got '<class 'NoneType'>'")
+        assert str(context.exception) == ("On An_Class, can't be set to None, to a variable that is already set. "
+                                          "Invalid type for attribute 'an_list'. Expected '<class 'list'>' but got '<class 'NoneType'>'")
         #an_class.an_list = None                                     # BUG: this should not be allowed (since we know that an_list should be a list)
         #assert an_class.an_list      is None                        # BUG: this var should not have changed
 
