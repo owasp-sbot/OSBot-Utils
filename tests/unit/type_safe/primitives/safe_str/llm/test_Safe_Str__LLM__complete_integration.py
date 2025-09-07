@@ -3,7 +3,7 @@ from unittest                                                                   
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Description   import Safe_Str__LLM__Description
 from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Modality      import Safe_Str__LLM__Modality
-from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_ID      import Safe_Str__LLM__Model_ID
+from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Id      import Safe_Str__LLM__Model_Id
 from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Name    import Safe_Str__LLM__Model_Name
 from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Slug    import Safe_Str__LLM__Model_Slug
 from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Tokenizer     import Safe_Str__LLM__Tokenizer
@@ -14,7 +14,7 @@ class test_Safe_Str__LLM__complete_integration(TestCase):                       
 
     def test_complete_model_schema(self):                                       # Test all types in a schema
         class Schema__LLM__Model(Type_Safe):
-            model_id    : Safe_Str__LLM__Model_ID
+            model_id    : Safe_Str__LLM__Model_Id
             model_name  : Safe_Str__LLM__Model_Name
             model_slug  : Safe_Str__LLM__Model_Slug
             description : Safe_Str__LLM__Description
@@ -31,7 +31,7 @@ class test_Safe_Str__LLM__complete_integration(TestCase):                       
             model.tokenizer   = 'cl100k_base'
 
             # Verify types
-            assert type(model.model_id)    is Safe_Str__LLM__Model_ID
+            assert type(model.model_id) is Safe_Str__LLM__Model_Id
             assert type(model.model_name)  is Safe_Str__LLM__Model_Name
             assert type(model.model_slug)  is Safe_Str__LLM__Model_Slug
             assert type(model.description) is Safe_Str__LLM__Description
@@ -53,7 +53,7 @@ class test_Safe_Str__LLM__complete_integration(TestCase):                       
 
     def test_api_request_schema(self):                                          # Test API parameter usage
         class Schema__LLM__Request(Type_Safe):
-            model       : Safe_Str__LLM__Model_ID
+            model       : Safe_Str__LLM__Model_Id
             parameters  : Dict[Safe_Str__API__Parameter, Any]
 
         with Schema__LLM__Request() as request:
@@ -63,12 +63,12 @@ class test_Safe_Str__LLM__complete_integration(TestCase):                       
                                     Safe_Str__API__Parameter('top_p')          : 0.9    ,
                                     Safe_Str__API__Parameter('stream')         : False  }
 
-            assert type(request.model) is Safe_Str__LLM__Model_ID
+            assert type(request.model) is Safe_Str__LLM__Model_Id
             assert 'temperature' in str(list(request.parameters.keys())[0])
 
     def test_model_catalog_entry(self):                                         # Test complete catalog entry
         class Schema__Model__Catalog__Entry(Type_Safe):
-            id          : Safe_Str__LLM__Model_ID
+            id          : Safe_Str__LLM__Model_Id
             name        : Safe_Str__LLM__Model_Name
             slug        : Safe_Str__LLM__Model_Slug
             description : Safe_Str__LLM__Description
@@ -95,7 +95,7 @@ Superior performance on complex tasks.
             ]
 
             # Verify all fields are correct type
-            assert type(entry.id)          is Safe_Str__LLM__Model_ID
+            assert type(entry.id) is Safe_Str__LLM__Model_Id
             assert type(entry.name)        is Safe_Str__LLM__Model_Name
             assert type(entry.slug)        is Safe_Str__LLM__Model_Slug
             assert type(entry.description) is Safe_Str__LLM__Description
