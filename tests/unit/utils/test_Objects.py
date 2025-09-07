@@ -1,21 +1,29 @@
 import os
 import sys
 import types
+from enum import Enum
+
 import pytest
 import unittest
 from collections.abc                                                    import Mapping
-from typing                                                             import Optional, Union
+from typing import Optional, Union, List, Any, Dict, Set
 from unittest                                                           import TestCase
 from unittest.mock                                                      import patch, call
+
+from osbot_utils.helpers.duration.decorators.capture_duration import capture_duration
+from osbot_utils.helpers.duration.decorators.print_duration import print_duration
 from osbot_utils.testing.Stdout                                         import Stdout
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
+from osbot_utils.type_safe.primitives.safe_str.llm.Enum__LLM__Role import Enum__LLM__Role
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert     import type_safe_convert
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation  import type_safe_validation
 from osbot_utils.utils.Misc                                             import random_int, list_set
-from osbot_utils.utils.Objects                                          import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, obj_dict, default_value, base_classes, \
+from osbot_utils.utils.Objects import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, obj_dict, default_value, base_classes, \
     class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
     print_object_methods, print_obj_data_aligned, obj_data, print_obj_data_as_dict, print_object_members, \
-    obj_base_classes, obj_base_classes_names, type_mro, pickle_save_to_bytes, pickle_load_from_bytes, dict_to_obj, obj_to_dict, __
+    obj_base_classes, obj_base_classes_names, type_mro, pickle_save_to_bytes, pickle_load_from_bytes, dict_to_obj, obj_to_dict, __, serialize_to_dict
 
 
 class test_Objects(TestCase):
@@ -689,3 +697,447 @@ class test_Objects(TestCase):
         assert target.var_3         == 42
         assert target._Target__aa   == '????'               # Name mangling
 
+
+    def test_enum_with_string_values(self):                                # Test enums with string values
+        # Direct serialization of enum
+        assert serialize_to_dict(Enum__LLM__Role.SYSTEM)    == 'system'
+        assert serialize_to_dict(Enum__LLM__Role.USER)      == 'user'
+        assert serialize_to_dict(Enum__LLM__Role.ASSISTANT) == 'assistant'
+        assert serialize_to_dict(Enum__LLM__Role.TOOL)      == 'tool'
+
+        # Should return the value, not the name
+        assert serialize_to_dict(Enum__LLM__Role.SYSTEM) != 'SYSTEM'
+
+    def test_enum_with_numeric_values(self):                              # Test enums with numeric values
+        class NumericEnum(Enum):
+            FIRST  = 1
+            SECOND = 2
+            THIRD  = 3
+
+        assert serialize_to_dict(NumericEnum.FIRST)  == 1
+        assert serialize_to_dict(NumericEnum.SECOND) == 2
+        assert serialize_to_dict(NumericEnum.THIRD)  == 3
+
+        # Verify type is int, not enum
+        result = serialize_to_dict(NumericEnum.FIRST)
+        assert type(result) is int
+
+    def test_enum_with_bool_and_none_values(self):                       # Test edge case enum values
+        class EdgeCaseEnum(Enum):
+            TRUE_VAL  = True
+            FALSE_VAL = False
+            NONE_VAL  = None
+
+        assert serialize_to_dict(EdgeCaseEnum.TRUE_VAL)  is True
+        assert serialize_to_dict(EdgeCaseEnum.FALSE_VAL) is False
+        assert serialize_to_dict(EdgeCaseEnum.NONE_VAL)  is None
+
+    def test_enum_with_complex_values(self):                              # Test enums with list/dict/tuple values
+        class ComplexEnum(Enum):
+            LIST_VAL = [1, 2, 3]
+            DICT_VAL = {'key': 'value', 'count': 42}
+            TUPLE_VAL = ('a', 'b', 'c')
+            SET_VAL   = {'x', 'y', 'z'}
+
+        assert type(ComplexEnum.LIST_VAL.value ) is list
+        assert type(ComplexEnum.DICT_VAL.value ) is dict
+        assert type(ComplexEnum.TUPLE_VAL.value) is tuple
+        assert type(ComplexEnum.SET_VAL.value  ) is set
+
+        # Should recursively serialize complex values
+        assert serialize_to_dict(ComplexEnum.LIST_VAL)        == [1, 2, 3]
+        assert serialize_to_dict(ComplexEnum.DICT_VAL)        == {'key': 'value', 'count': 42}
+        assert serialize_to_dict(ComplexEnum.TUPLE_VAL)       != ('a', 'b', 'c')                  # we can't convert to tuple since json doesn't support it
+        assert serialize_to_dict(ComplexEnum.TUPLE_VAL)       == ['a', 'b', 'c']                  # so the tuple becomes a list
+        assert sorted(serialize_to_dict(ComplexEnum.SET_VAL)) == sorted(['x', 'y', 'z'])          # same for set
+
+        # Verify types
+        assert type(serialize_to_dict(ComplexEnum.LIST_VAL))  is list
+        assert type(serialize_to_dict(ComplexEnum.DICT_VAL))  is dict
+        assert type(serialize_to_dict(ComplexEnum.TUPLE_VAL)) is not tuple                        # we can't convert to tuple since json doesn't support it
+        assert type(serialize_to_dict(ComplexEnum.TUPLE_VAL)) is list                             # so the tuple becomes a list
+        assert type(serialize_to_dict(ComplexEnum.SET_VAL  )) is list                             # same for set
+
+    def test_enum_with_nested_complex_values(self):                       # Test nested serialization
+        class NestedEnum(Enum):
+            NESTED_LIST = [1, [2, 3], {'inner': 'dict'}]
+            NESTED_DICT = {'list': [1, 2], 'dict': {'a': 'b'}}
+
+        result_list = serialize_to_dict(NestedEnum.NESTED_LIST)
+        assert result_list == [1, [2, 3], {'inner': 'dict'}]
+
+        result_dict = serialize_to_dict(NestedEnum.NESTED_DICT)
+        assert result_dict == {'list': [1, 2], 'dict': {'a': 'b'}}
+
+    def test_enum_with_unsupported_value_types(self):                    # Test fallback to .name
+        class CustomClass:
+            def __init__(self):
+                self.value = "custom"
+
+        class UnsupportedEnum(Enum):
+            CUSTOM_OBJ = CustomClass()
+            LAMBDA_VAL = lambda x: x + 1
+
+        # Should fall back to returning the name for non-serializable values
+        assert serialize_to_dict(UnsupportedEnum.CUSTOM_OBJ) == 'CUSTOM_OBJ'
+        assert serialize_to_dict(UnsupportedEnum.LAMBDA_VAL) != 'LAMBDA_VAL'        # due to python limitations serialize_to_dict will get the function directly
+        assert serialize_to_dict(UnsupportedEnum.LAMBDA_VAL) == '<lambda>'          # so the best we can do is to get the value of the callable
+
+
+    def test_enum_in_type_safe_class(self):                              # Test enum in Type_Safe context
+        class Schema__Message(Type_Safe):
+            role    : Enum__LLM__Role
+            content : str
+
+        message = Schema__Message()
+        message.role = Enum__LLM__Role.USER
+        message.content = "Hello"
+
+        # Get the JSON representation
+        json_data = message.json()
+
+        # The enum should be serialized to its string value
+        assert json_data == {'role': 'user', 'content': 'Hello'}
+        assert type(json_data['role']) is str
+        assert json_data['role'] == 'user'
+
+    def test_enum_in_nested_structures(self):                            # Test enum in lists/dicts
+        # Enum in list
+        data_list = [Enum__LLM__Role.SYSTEM, "text", 123]
+        result = serialize_to_dict(data_list)
+        assert result == ['system', 'text', 123]
+        assert type(result[0]) is str
+
+        # Enum in dict
+        data_dict = {
+            'role': Enum__LLM__Role.ASSISTANT,
+            'count': 42,
+            'active': True
+        }
+        result = serialize_to_dict(data_dict)
+        assert result == {'role': 'assistant', 'count': 42, 'active': True}
+        assert type(result['role']) is str
+
+    def test_multiple_enum_types(self):                                  # Test different enum types together
+        class Status(Enum):
+            ACTIVE = 'active'
+            INACTIVE = 'inactive'
+
+        class Priority(Enum):
+            HIGH = 1
+            MEDIUM = 2
+            LOW = 3
+
+        data = {
+            'role': Enum__LLM__Role.SYSTEM,
+            'status': Status.ACTIVE,
+            'priority': Priority.HIGH
+        }
+
+        result = serialize_to_dict(data)
+        assert result == {
+            'role': 'system',
+            'status': 'active',
+            'priority': 1
+        }
+
+        # Verify types
+        assert type(result['role']) is str
+        assert type(result['status']) is str
+        assert type(result['priority']) is int
+
+    def test_enum_round_trip_serialization(self):                       # Test full round-trip
+        class Schema__Config(Type_Safe):
+            role     : Enum__LLM__Role
+            settings : dict
+
+        # Create and populate
+        original = Schema__Config()
+        original.role = Enum__LLM__Role.ASSISTANT
+        original.settings = {'temperature': 0.7}
+
+
+        # Serialize
+        json_data = original.json()
+        assert json_data == {'role': 'assistant', 'settings': {'temperature': 0.7}}
+        assert type(json_data['role']) is str
+
+        restored = Schema__Config.from_json(json_data)
+        assert type(restored.role)  is Enum__LLM__Role
+        assert restored.role        == Enum__LLM__Role.ASSISTANT
+        assert restored.role.value  == 'assistant'
+
+    def test_serialize_callable_types(self):                                    # Test various callable serialization
+        # Regular function
+        def named_function():
+            return "test"
+
+        assert serialize_to_dict(named_function) == 'named_function'
+
+        # Lambda
+        lambda_func = lambda x: x * 2
+        assert serialize_to_dict(lambda_func) == '<lambda>'
+
+        # Built-in function
+        assert serialize_to_dict(len) == 'len'
+        assert serialize_to_dict(print) == 'print'
+
+        # Method
+        class MyClass:
+            def my_method(self):
+                pass
+
+        obj = MyClass()
+        assert serialize_to_dict(obj.my_method) == 'my_method'
+
+        # Static method
+        class WithStatic:
+            @staticmethod
+            def static_method():
+                pass
+
+        assert serialize_to_dict(WithStatic.static_method) == 'static_method'
+
+    def test_serialize_class_vs_instance(self):                                # Test class handling
+        class TestClass:
+            value = "class_value"
+
+            def __init__(self):
+                self.instance_value = "instance"
+
+        # Instance should serialize its __dict__
+        instance = TestClass()
+        assert serialize_to_dict(instance) == {'instance_value': 'instance'}
+
+        # Class itself is callable, should return its name
+        assert serialize_to_dict(TestClass) == 'test_Objects.TestClass'
+
+        # Type objects
+        assert serialize_to_dict(int) == 'builtins.int'
+        assert serialize_to_dict(str) == 'builtins.str'
+        assert serialize_to_dict(list) == 'builtins.list'
+
+    def test_serialize_nested_callables(self):                                 # Test callables in structures
+        def named_func(x):
+            return x
+        def named_validator(value):
+            return True
+
+        # Callable in list
+        data_list = [lambda x: x, named_func, "text"]
+        result = serialize_to_dict(data_list)
+        assert result == ['<lambda>', 'named_func', 'text']
+
+        # Callable in dict
+        data_dict = {
+            'processor': lambda x: x * 2,
+            'validator': named_validator,
+            'name': 'test'
+        }
+        result = serialize_to_dict(data_dict)
+        assert result == {
+            'processor': '<lambda>',
+            'validator': 'named_validator',
+            'name': 'test'
+        }
+
+        # Callable in tuple (becomes list)
+        data_tuple = (lambda: None, print, "value")
+        result = serialize_to_dict(data_tuple)
+        assert result == ['<lambda>', 'print', 'value']
+
+    def test_serialize_callable_edge_cases(self):                              # Test edge cases with callables
+        # Partial function
+        from functools import partial
+
+        def add(a, b):
+            return a + b
+
+        add_five = partial(add, 5)
+        assert serialize_to_dict(add_five) == 'partial'
+
+        # Callable class instance
+        class CallableClass:
+            def __call__(self):
+                return "called"
+
+            def __init__(self):
+                self.data = "test"
+
+        callable_obj = CallableClass()
+        result = serialize_to_dict(callable_obj)
+        assert result == '__call__' or result == 'CallableClass'
+
+    def test_serialize_enum_with_callable_workaround(self):                    # Test workaround for callable enum values
+        class FunctionEnum(Enum):
+            FUNC1 = lambda x: x + 1
+            FUNC2 = lambda x: x * 2
+
+        # Direct access gives us the lambda
+        assert serialize_to_dict(FunctionEnum.FUNC1) == '<lambda>'
+        assert serialize_to_dict(FunctionEnum.FUNC2) == '<lambda>'
+
+    def test_serialize_set_types(self):                                        # Test set serialization
+        # Basic set
+        simple_set = {1, 2, 3}
+        result = serialize_to_dict(simple_set)
+        assert type(result) is list
+        assert sorted(result) == [1, 2, 3]
+
+        # String set
+        string_set = {'apple', 'banana', 'cherry'}
+        result = serialize_to_dict(string_set)
+        assert type(result) is list
+        assert sorted(result) == ['apple', 'banana', 'cherry']
+
+        # Mixed type set
+        mixed_set = {1, 'two', 3.0}
+        result = serialize_to_dict(mixed_set)
+        assert type(result) is list
+        assert len(result) == 3
+        assert 1 in result
+        assert 'two' in result
+        assert 3.0 in result
+
+        # Empty set
+        empty_set = set()
+        result = serialize_to_dict(empty_set)
+        assert result == []
+
+    def test_serialize_nested_sets(self):                                      # Test sets in nested structures
+        # Set in dict
+        data_dict = {
+            'tags': {'python', 'coding', 'test'},
+            'count': 3
+        }
+        result = serialize_to_dict(data_dict)
+        assert type(result['tags']) is list
+        assert sorted(result['tags']) == ['coding', 'python', 'test']
+
+        # Set in list
+        data_list = [{'a', 'b'}, 'text', 123]
+        result = serialize_to_dict(data_list)
+        assert type(result[0]) is list
+        assert sorted(result[0]) == ['a', 'b']
+
+        # Set containing unhashable types gets filtered
+        # (Can't actually create this in Python, but documenting the concept)
+
+    def test_enum_round_trip_with_complex_values(self):                       # Test round-trip isn't preserved for complex types
+        class ComplexEnum(Enum):
+            LIST_VAL  = [1, 2, 3]
+            DICT_VAL  = {'key': 'value', 'count': 42}
+            TUPLE_VAL = ('a', 'b', 'c')
+            SET_VAL   = {'x', 'y', 'z'}
+
+        # Serialize each enum value
+        serialized_list  = serialize_to_dict(ComplexEnum.LIST_VAL)
+        serialized_dict  = serialize_to_dict(ComplexEnum.DICT_VAL)
+        serialized_tuple = serialize_to_dict(ComplexEnum.TUPLE_VAL)
+        serialized_set   = serialize_to_dict(ComplexEnum.SET_VAL)
+
+        # Verify serialization results
+        assert serialized_list  == [1, 2, 3]
+        assert serialized_dict  == {'key': 'value', 'count': 42}
+        assert serialized_tuple == ['a', 'b', 'c']                            # Tuple becomes list
+        assert sorted(serialized_set) == ['x', 'y', 'z']                      # Set becomes list
+
+        # Round-trip test - Type_Safe with enum
+        class Schema__Config(Type_Safe):
+            list_setting  : List[int]
+            dict_setting  : Dict[str, Any]
+            tuple_setting : List[str]                                         # Can't preserve tuple
+            set_setting   : List[str]                                         # Can't preserve set
+
+        config = Schema__Config()
+        config.list_setting  = ComplexEnum.LIST_VAL.value
+        config.dict_setting  = ComplexEnum.DICT_VAL.value
+        config.tuple_setting = list(ComplexEnum.TUPLE_VAL.value)              # Must convert
+        config.set_setting   = list(ComplexEnum.SET_VAL.value)                # Must convert
+
+        # Serialize to JSON
+        json_data = config.json()
+
+        # Verify JSON structure
+        assert type(json_data['set_setting']) is list
+        json_data['set_setting'] = sorted(json_data['set_setting'])
+        assert json_data == {
+            'list_setting': [1, 2, 3],
+            'dict_setting': {'key': 'value', 'count': 42},
+            'tuple_setting': ['a', 'b', 'c'],
+            'set_setting': sorted(list(ComplexEnum.SET_VAL.value))            # Order might vary
+        }
+
+        # Deserialize
+        restored = Schema__Config.from_json(json_data)
+
+        # Lists and dicts preserve type
+        assert type(restored.list_setting) in [list, Type_Safe__List]
+        assert type(restored.dict_setting) in [dict, Type_Safe__Dict]
+
+        # Tuples and sets cannot be restored as original types
+        assert type(restored.tuple_setting) in [list, Type_Safe__List]        # Not tuple
+        assert type(restored.set_setting  ) in [list, Type_Safe__List]          # Not set
+
+    def test_type_safe_with_set_attribute(self):                              # Test Type_Safe classes with set attributes
+        class Schema__Tags(Type_Safe):
+            tags: Set[str]
+            ids : Set[int]
+
+        schema = Schema__Tags()
+        schema.tags = {'python', 'testing', 'code'}
+        schema.ids = {1, 2, 3}
+
+        # Serialize
+        json_data = schema.json()
+
+        # Sets become lists in JSON
+        assert type(json_data['tags']) is list
+        assert type(json_data['ids']) is list
+        assert sorted(json_data['tags']) == ['code', 'python', 'testing']
+        assert sorted(json_data['ids']) == [1, 2, 3]
+
+        # Round-trip
+        restored = Schema__Tags.from_json(json_data)
+
+        # Check if Type_Safe restores them as sets or keeps as lists
+        # (This depends on Type_Safe implementation)
+        assert len(restored.tags) == 3
+        assert len(restored.ids) == 3
+        assert 'python' in restored.tags
+        assert 1 in restored.ids
+
+    def test_complex_enum_in_type_safe(self):                                # Test using complex enums in Type_Safe
+        class DataEnum(Enum):
+            DEFAULT_TAGS = {'tag1', 'tag2', 'tag3'}
+            DEFAULT_MAP  = {'key1': 'val1', 'key2': 'val2'}
+            DEFAULT_LIST = [1, 2, 3]
+            DEFAULT_TUPLE = ('a', 'b', 'c')
+
+        class Schema__Settings(Type_Safe):
+            active_tags : List[str]
+            config_map  : Dict[str, str]
+            values      : List[int]
+            sequence    : List[str]
+
+        settings = Schema__Settings()
+
+        # Assign enum values (sets/tuples must be converted)
+        settings.active_tags = list(DataEnum.DEFAULT_TAGS.value)
+        settings.config_map  = DataEnum.DEFAULT_MAP.value
+        settings.values      = DataEnum.DEFAULT_LIST.value
+        settings.sequence    = list(DataEnum.DEFAULT_TUPLE.value)
+
+        # Serialize
+        json_data = settings.json()
+
+        # Verify all are in JSON-compatible format
+        assert all(isinstance(v, (list, dict, str, int, float, bool, type(None)))
+                   for v in json_data.values())
+
+        # Round-trip
+        restored = Schema__Settings.from_json(json_data)
+        assert sorted(restored.active_tags) == sorted(list(DataEnum.DEFAULT_TAGS.value))
+        assert restored.config_map == DataEnum.DEFAULT_MAP.value
+        assert restored.values == DataEnum.DEFAULT_LIST.value
+        assert restored.sequence == list(DataEnum.DEFAULT_TUPLE.value)

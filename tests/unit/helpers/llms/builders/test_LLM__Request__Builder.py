@@ -87,7 +87,7 @@ class test_LLM__Request_Builder(TestCase):                               # Tests
                                  model         = 'gpt-4' ,
                                  platform      = 'oai'   ,
                                  provider      = 'openai',
-                                 messages      =[ __( role    = 'USER'                                                              ,
+                                 messages      =[ __( role    = 'user'                                                              ,
                                                       content = 'Extract from: John has a score of 0.85 and tags: python, testing.')])
 
 

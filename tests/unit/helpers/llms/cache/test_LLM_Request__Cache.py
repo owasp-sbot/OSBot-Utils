@@ -59,7 +59,7 @@ class test_LLM_Request__Cache(unittest.TestCase):
                                                    model        ='test-model',
                                                    platform     ='test-platform',
                                                    provider     ='test-provider',
-                                                   messages     =[__(role='USER', content='Hello, world!')]))
+                                                   messages     =[__(role='user', content='Hello, world!')]))
 
         assert response.obj() == __(response_id   = response.response_id,
                                     timestamp     = response.timestamp  ,

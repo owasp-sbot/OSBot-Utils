@@ -27,7 +27,7 @@ class test_Schema__LLM_Request(TestCase):
         json_llm_request  = { 'request_data': { 'function_call': None                                                 ,
                                                                 'max_tokens'   : 100                                  ,
                                                                 'messages'     : [ { 'content': 'Test disk retrieval' ,
-                                                                                     'role'   : 'USER'}]              ,
+                                                                                     'role'   : 'user'}]              ,
                                                                 'model'        : 'test-model'                         ,
                                                                 'platform'     : 'test-platform'                      ,
                                                                 'provider'     : 'test-provider'                      ,

@@ -106,6 +106,6 @@ class test_Task__Stats__Collector(TestCase):
                                   'error_message'   : None                      ,
                                   'execution_order' : 1                         ,
                                   'parent_flow_id'  : self.parent_flow_id       ,
-                                  'status'          : 'COMPLETED'               ,
+                                  'status'          : 'completed'               ,
                                   'task_id'         : self.task_id              ,
                                   'task_name'       : self.task_name            }

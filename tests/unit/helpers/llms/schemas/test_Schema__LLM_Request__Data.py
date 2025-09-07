@@ -28,7 +28,7 @@ class test_Schema__LLM_Request__Data(TestCase):
         json_data  =  { 'function_call': None                                 ,
                         'max_tokens'   : 100                                  ,
                         'messages'     : [ { 'content': 'Test disk retrieval' ,
-                                             'role'   : 'USER'}]              ,
+                                             'role'   : 'user'}]              ,
                         'model'        : 'test-model'                         ,
                         'platform'     : 'test-platform'                      ,
                         'provider'     : 'test-provider'                      ,
@@ -43,7 +43,7 @@ class test_Schema__LLM_Request__Data(TestCase):
             messages: List[Schema__LLM_Request__Message__Content]
 
         json_data = {'messages': [ { 'content': 'Test disk retrieval' ,
-                                     'role'   : 'USER'                }]}
+                                     'role'   : 'user'                }]}
 
         # expected_error = "Invalid type for attribute 'role'. Expected '<enum 'Schema__LLM_Request__Message__Role'>' but got '<class 'str'>'"
         # with pytest.raises(ValueError, match=expected_error):
@@ -56,6 +56,6 @@ class test_Schema__LLM_Request__Data(TestCase):
         assert type(an_class.messages[0].role   ) is Schema__LLM_Request__Message__Role
         assert type(an_class.messages[0].content) is str
 
-        json_messages =  [ { 'content': 'Test disk retrieval' ,'role'   : 'USER' }]
+        json_messages =  [ { 'content': 'Test disk retrieval' ,'role'   : 'user' }]
         messages      = Type_Safe__List(Schema__LLM_Request__Message__Content, json_messages)
         assert messages.json() == json_messages

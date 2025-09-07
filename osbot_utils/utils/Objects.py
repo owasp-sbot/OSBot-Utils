@@ -1,5 +1,4 @@
-from types import SimpleNamespace
-
+from types                  import SimpleNamespace
 from osbot_utils.testing.__ import __
 
 def base_classes(cls):
@@ -96,10 +95,13 @@ def str_to_obj(target):
     return dict_to_obj(json.loads(target))
 
 def enum_from_value(enum_type, value):
-    try:
-        return enum_type[value]         # Attempt to convert the value to an Enum member by name
-    except KeyError:
-        raise ValueError(f"Value '{value}' is not a valid member of {enum_type.__name__}.")     # Handle the case where the value does not match any Enum member
+    if value in enum_type.__members__:                                                              # Try to get by name (e.g., 'SYSTEM')
+        return enum_type[value]
+
+    if hasattr(enum_type, '_value2member_map_') and value in enum_type._value2member_map_:          # Try to get by value (e.g., 'system') using the reverse mapping
+        return enum_type._value2member_map_[value]
+
+    raise ValueError(f"Value '{value}' is not a valid member of {enum_type.__name__}.")             # If neither worked, raise an error
 
 
 def get_field(target, field, default=None):
@@ -276,13 +278,18 @@ def serialize_to_dict(obj):
         return obj.json()                                                                           #   use the provided .json() method, which handles the type conversions more specifically to those types (dict, list, set and tuple)
     elif hasattr(obj, '__primitive_base__') and isinstance(obj, (str, int, float)):
         return obj.__primitive_base__(obj)
+    elif isinstance(obj, Enum):
+        if isinstance(obj.value, (str, int, float, bool, type(None))):                          # Check if the enum value is directly serializable
+            return obj.value
+        elif isinstance(obj.value, (list, tuple, dict, set)):                                        # Recursively serialize complex values
+            return serialize_to_dict(obj.value)
+        else:
+            return obj.name                                                                     # Fallback to name for non-serializable values
     elif isinstance(obj, (str, int, float, bool, bytes, Decimal)) or obj is None:                # todo: add support for objects like datetime
         return obj
-    elif isinstance(obj, Enum):
-        return obj.name
     elif isinstance(obj, type):
         return f"{obj.__module__}.{obj.__name__}"                                   # save the full type name
-    elif isinstance(obj, (list, tuple, List)):  # Added tuple here
+    elif isinstance(obj, (list, tuple, List)):                                     # Added tuple here
         return [serialize_to_dict(item) for item in obj]
     elif isinstance(obj, set):
         return [serialize_to_dict(item) for item in obj]
@@ -296,6 +303,12 @@ def serialize_to_dict(obj):
             serialized_dict[serialized_key] = serialize_to_dict(value)         # Recursively serialize the value
         return serialized_dict
         #return {key: serialize_to_dict(value) for key, value in obj.items()}
+    elif callable(obj) and not isinstance(obj, type):                                                         # For functions/lambdas, return a string representation
+        if hasattr(obj, '__name__'):
+            return obj.__name__
+        if hasattr(obj, '__class__'):
+            return obj.__class__.__name__
+        return str(obj)
     elif hasattr(obj, "__dict__"):
         data = {}                                                                   # todo: look at a more advanced version which saved the type of the object, for example with {'__type__': type(obj).__name__}
         for key, value in obj.__dict__.items():

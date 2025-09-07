@@ -1,5 +1,4 @@
 from unittest                                                       import TestCase
-from osbot_utils.helpers.html.transformers.Html__To__Html_Dict      import STRING__SCHEMA_TEXT
 from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data       import Schema__Html_Node__Data
 from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data__Type import Schema__Html_Node__Data__Type
 from osbot_utils.utils.Objects                                      import __
@@ -17,13 +16,13 @@ class test_Schema__Html_Node__Data(TestCase):
             assert _.data        == ""
             assert _.type        == Schema__Html_Node__Data__Type.TEXT
             assert _.position    == 0                                           # Default position
-            expected_json        =  { 'data'     : ''                 ,
-                                     'type'     : STRING__SCHEMA_TEXT ,
-                                     'position' : 0                   }
+            expected_json        =  { 'data'     : ''     ,
+                                      'type'     : 'text' ,
+                                      'position' : 0      }
             assert _.json()      == expected_json
             assert _.obj()       == __(data     = ''                                         ,
-                                      type     = Schema__Html_Node__Data__Type.TEXT.name    ,
-                                      position = 0                                           )
+                                       type     = Schema__Html_Node__Data__Type.TEXT.value    ,
+                                       position = 0                                           )
 
     def test__init__with_params(self):                                          # Test initialization with parameters
         data_content = "Sample text content"

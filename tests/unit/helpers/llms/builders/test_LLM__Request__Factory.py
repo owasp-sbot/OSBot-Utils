@@ -32,8 +32,8 @@ class test_LLM__Request_Builder(TestCase):                               # Tests
                                        model         = model    ,
                                        platform      = platform ,
                                        provider      = provider ,
-                                       messages      =[ __(role='SYSTEM', content=system_prompt),
-                                                        __(role='USER'  , content=user_message )])
+                                       messages      =[ __(role='system', content=system_prompt),
+                                                        __(role='user'  , content=user_message )])
 
     def test_build_openai_payload(self):                                # Test building an OpenAI-specific payload.
         self.factory.request_builder = LLM_Request__Builder__Open_AI()
