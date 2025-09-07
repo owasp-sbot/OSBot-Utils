@@ -1150,6 +1150,187 @@ def test__init__with_raw_values(self):                                  # Test w
         assert _.language == '_'                                        # BUG: incorrect conversion
 ```
 
+#### Testing LLM-Specific Safe Types
+
+The LLM Safe types require specific testing patterns due to their specialized validation rules:
+
+```python
+def test_llm_message_types(self):                                      # Test LLM message type constraints
+    class Schema__Conversation(Type_Safe):
+        system_prompt: Safe_Str__LLM__Message__System
+        user_message: Safe_Str__LLM__Message__User
+        assistant_reply: Safe_Str__LLM__Message__Assistant
+        tool_response: Safe_Str__LLM__Message__Tool
+        
+    with Schema__Conversation() as _:
+        # Test size limits
+        _.system_prompt = "Configure the assistant behavior"
+        assert len(_.system_prompt) <= 4096  # System messages are shorter
+        
+        # Test large user message
+        large_message = "Hello " * 5000  # ~30KB
+        _.user_message = large_message
+        assert len(_.user_message) <= 32768  # Full context window
+        
+        # Test control character filtering
+        _.assistant_reply = "Response\x00with\x01control\x02chars"
+        assert '\x00' not in _.assistant_reply  # Control chars removed
+        assert '\x01' not in _.assistant_reply
+        
+def test_llm_model_identifiers(self):                                 # Test model ID formats
+    class Schema__Model_Config(Type_Safe):
+        model_id: Safe_Str__LLM__Model_ID
+        model_name: Safe_Str__LLM__Model_Name
+        model_slug: Safe_Str__LLM__Model_Slug
+        
+    with Schema__Model_Config() as _:
+        # Test various model ID formats
+        _.model_id = "openai/gpt-4"
+        assert _.model_id == "openai/gpt-4"  # Slash preserved
+        
+        _.model_id = "anthropic/claude-3-opus@20240229"
+        assert "@" in _.model_id  # @ symbol preserved
+        
+        # Test display name with special chars
+        _.model_name = "GPT-4 Turbo (Latest)"
+        assert "(" in _.model_name  # Parentheses allowed
+        
+        # Test URL-safe slug
+        _.model_slug = "gpt-4-turbo"
+        assert _.model_slug == "gpt-4-turbo"
+        
+        # Invalid characters in slug
+        _.model_slug = "gpt 4 turbo!"
+        assert _.model_slug == "gpt_4_turbo_"  # Spaces and ! replaced
+```
+
+#### Testing Git/GitHub Safe Types
+
+```python
+def test_github_types(self):                                          # Test GitHub-specific validation
+    class Schema__Repository(Type_Safe):
+        repo: Safe_Str__GitHub__Repo
+        branch: Safe_Str__Git__Branch
+        tag: Safe_Str__Git__Tag
+        ref: Safe_Str__Git__Ref  # Can be branch, tag, or SHA
+        
+    with Schema__Repository() as _:
+        # Test full repo format
+        _.repo = "octocat/Hello-World"
+        assert _.repo == "octocat/Hello-World"
+        assert _.repo.repo_owner == "octocat"  # Parsed owner
+        assert _.repo.repo_name == "Hello-World"  # Parsed name
+        
+        # Test invalid repo format
+        with pytest.raises(ValueError, match="must be in 'owner/repo' format"):
+            _.repo = "just-a-name"
+            
+        # Test branch validation
+        _.branch = "feature/new-feature"
+        assert _.branch == "feature/new-feature"
+        
+        with pytest.raises(ValueError, match="cannot start with dash"):
+            _.branch = "-invalid-branch"
+            
+        # Test Git ref accepts multiple types
+        _.ref = "main"  # Branch
+        assert _.ref == "main"
+        
+        _.ref = "v1.0.0"  # Tag
+        assert _.ref == "v1.0.0"
+        
+        _.ref = "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"  # SHA
+        assert _.ref == "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+        
+        _.ref = "7fd1a60"  # Short SHA
+        assert _.ref == "7fd1a60"
+
+def test_version_string(self):                                        # Test version format validation
+    class Schema__Release(Type_Safe):
+        version: Safe_Str__Version
+        
+    with Schema__Release() as _:
+        # Valid version formats
+        _.version = "v1.0.0"
+        assert _.version == "v1.0.0"
+        
+        _.version = "v999.999.999"  # Max values
+        assert _.version == "v999.999.999"
+        
+        # Invalid formats
+        with pytest.raises(ValueError):
+            _.version = "1.0.0"  # Missing 'v' prefix
+            
+        with pytest.raises(ValueError):
+            _.version = "v1.0"  # Missing patch version
+```
+
+#### Testing Cryptographic Safe Types
+
+```python
+def test_crypto_types(self):                                          # Test cryptographic type validation
+    class Schema__Crypto_Keys(Type_Safe):
+        sha1_full: Safe_Str__SHA1
+        sha1_short: Safe_Str__SHA1__Short
+        nacl_public: Safe_Str__NaCl__Public_Key
+        nacl_private: Safe_Str__NaCl__Private_Key
+        content_hash: Safe_Str__Hash
+        
+    with Schema__Crypto_Keys() as _:
+        # Test SHA1 validation (40 hex chars)
+        _.sha1_full = "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d"
+        assert len(_.sha1_full) == 40
+        
+        with pytest.raises(ValueError):
+            _.sha1_full = "not-40-chars"  # Wrong length
+            
+        # Test short SHA1 (7 hex chars)
+        _.sha1_short = "7fd1a60"
+        assert len(_.sha1_short) == 7
+        
+        # Test NaCl keys (64 hex chars)
+        valid_key = "a" * 64
+        _.nacl_public = valid_key
+        _.nacl_private = valid_key
+        assert len(_.nacl_public) == 64
+        assert len(_.nacl_private) == 64
+        
+        # Test hash generation
+        from osbot_utils.type_safe.primitives.safe_str.cryptography.hashes.Safe_Str__Hash import safe_str_hash
+        
+        _.content_hash = safe_str_hash("test content")
+        assert len(_.content_hash) == 10  # Truncated MD5
+```
+
+#### Testing HTTP Safe Types
+
+```python
+def test_http_types(self):                                            # Test HTTP-specific types
+    class Schema__HTTP_Response(Type_Safe):
+        content_type: Safe_Str__Http__Content_Type
+        etag: Safe_Str__Http__ETag
+        last_modified: Safe_Str__Http__Last_Modified
+        body: Safe_Str__Http__Text
+        
+    with Schema__HTTP_Response() as _:
+        # Test content type
+        _.content_type = "application/json; charset=utf-8"
+        assert ";" in _.content_type  # Semicolon preserved
+        
+        # Test ETag format
+        _.etag = '"33a64df551425fcc55e4d42a148795d9f25f89d4"'
+        assert '"' in _.etag  # Quotes preserved
+        
+        # Test HTTP date format
+        _.last_modified = "Wed, 21 Oct 2024 07:28:00 GMT"
+        assert "," in _.last_modified  # Comma preserved
+        
+        # Test large text body (1MB limit)
+        large_text = "a" * 1_000_000
+        _.body = large_text
+        assert len(_.body) <= 1_048_576  # 1MB limit
+```
+
 #### Why This Pattern Matters
 
 ##### The Hidden Bug Pattern
@@ -1187,6 +1368,240 @@ def test_safe_type_validation_both_ways(self):                         # Test bo
         actual_obj = _.obj()
         assert actual_obj.api_key == "KEY-123-ABC"                     # Shows real value
 ```
+
+### 7. Testing Safe Float Types
+
+Type_Safe includes advanced Safe_Float types with specific behaviors that need careful testing:
+
+```python
+def test_safe_float_precision(self):                                    # Test precision handling in Safe_Float types
+    # Test Safe_Float__Money with exact decimal arithmetic
+    with Schema__Invoice() as _:
+        _.subtotal = 19.99
+        _.tax = 1.60
+        _.total = _.subtotal + _.tax
+        
+        assert type(_.subtotal) is Safe_Float__Money
+        assert type(_.total) is Safe_Float__Money
+        assert _.total == 21.59                                        # Exact decimal, no float errors
+        
+    # Test Safe_Float__Engineering with epsilon tolerance
+    with Schema__Measurement() as _:
+        _.temperature = 273.15
+        _.pressure = 101.325
+        
+        assert type(_.temperature) is Safe_Float__Engineering
+        # Engineering floats use epsilon for comparison
+        assert abs(_.temperature - 273.15) < 1e-6
+
+def test_safe_float_bounds_and_clamping(self):                        # Test range enforcement and clamping
+    # Test percentage bounds
+    with Schema__Discount() as _:
+        _.percentage = Safe_Float__Percentage_Exact(50.0)
+        assert _.percentage == 50.0
+        
+        # Test max bound enforcement
+        with pytest.raises(ValueError, match="must be <= 100.0"):
+            _.percentage = Safe_Float__Percentage_Exact(150.0)
+            
+    # Test clamping behavior (if enabled)
+    class Safe_Float__Clamped(Safe_Float):
+        min_value = 0.0
+        max_value = 100.0
+        clamp_to_range = True  # Auto-clamp instead of error
+        
+    value = Safe_Float__Clamped(150.0)
+    assert value == 100.0  # Clamped to max
+```
+
+### 8. Testing Enum Support
+
+```python
+def test_enum_handling(self):                                          # Test Enum serialization and validation
+    from enum import Enum
+    
+    class Enum__Status(str, Enum):
+        PENDING = "pending"
+        ACTIVE = "active"
+        COMPLETED = "completed"
+        
+    class Schema__Task(Type_Safe):
+        status: Enum__Status = Enum__Status.PENDING
+        
+    with Schema__Task() as _:
+        # Test enum default
+        assert _.status == Enum__Status.PENDING
+        assert _.status.value == "pending"
+        
+        # Test string auto-conversion to enum
+        _.status = "active"
+        assert _.status == Enum__Status.ACTIVE
+        assert isinstance(_.status, Enum__Status)
+        
+        # Test invalid enum value
+        with pytest.raises(ValueError, match="Invalid value 'invalid'"):
+            _.status = "invalid"
+            
+        # Test JSON serialization preserves enums
+        json_data = _.json()
+        assert json_data['status'] == 'active'  # Serializes to value
+        
+        restored = Schema__Task.from_json(json_data)
+        assert restored.status == Enum__Status.ACTIVE  # Restores as enum
+
+def test_enum_llm_role(self):                                         # Test LLM-specific enum
+    from osbot_utils.type_safe.primitives.safe_str.llm.Enum__LLM__Role import Enum__LLM__Role
+    
+    class Schema__Message(Type_Safe):
+        role: Enum__LLM__Role
+        content: Safe_Str__LLM__Message__User
+        
+    with Schema__Message() as _:
+        _.role = "user"  # String converts to enum
+        assert _.role == Enum__LLM__Role.USER
+        assert str(_.role) == "user"  # __str__ returns value
+```
+
+### 9. Testing Literal Types
+
+```python
+def test_literal_validation(self):                                     # Test Literal type enforcement
+    from typing import Literal
+    
+    class Schema__Config(Type_Safe):
+        environment: Literal["dev", "test", "prod"] = "dev"
+        log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+        
+    with Schema__Config() as _:
+        # Test default literal value
+        assert _.environment == "dev"
+        
+        # Test valid literal assignment
+        _.environment = "prod"
+        assert _.environment == "prod"
+        
+        # Test invalid literal value
+        error_msg = "must be one of ['dev', 'test', 'prod'], got 'staging'"
+        with pytest.raises(ValueError, match=re.escape(error_msg)):
+            _.environment = "staging"
+            
+        # Test with Optional[Literal]
+        from typing import Optional
+        
+        class Schema__Settings(Type_Safe):
+            mode: Optional[Literal["auto", "manual"]] = None
+            
+        with Schema__Settings() as settings:
+            assert settings.mode is None
+            settings.mode = "auto"
+            assert settings.mode == "auto"
+            
+            with pytest.raises(ValueError):
+                settings.mode = "invalid"
+```
+
+### 10. Testing Safe_Str Regex Modes
+
+The Safe_Str types now support two regex modes that fundamentally change validation behavior:
+
+```python
+def test_regex_mode_replace(self):                                    # Test REPLACE mode (default)
+    from osbot_utils.type_safe.primitives.safe_str.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
+    
+    class Safe_Str__Sanitizing(Safe_Str):
+        regex = re.compile(r'[^a-zA-Z0-9]')  # Remove non-alphanumeric
+        regex_mode = Enum__Safe_Str__Regex_Mode.REPLACE
+        replacement_char = '_'
+        
+    # REPLACE mode sanitizes input
+    value = Safe_Str__Sanitizing("hello@world.com")
+    assert value == "hello_world_com"  # Special chars replaced
+    
+    value = Safe_Str__Sanitizing("test-123!")
+    assert value == "test_123_"  # Dash and ! replaced
+
+def test_regex_mode_match(self):                                      # Test MATCH mode for validation
+    from osbot_utils.type_safe.primitives.safe_str.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
+    
+    class Safe_Str__Validating(Safe_Str):
+        regex = re.compile(r'^[A-Z]{3}-[0-9]{4}$')  # Pattern to match
+        regex_mode = Enum__Safe_Str__Regex_Mode.MATCH
+        strict_validation = True  # Required with MATCH mode
+        
+    # MATCH mode validates pattern
+    value = Safe_Str__Validating("ABC-1234")
+    assert value == "ABC-1234"  # Valid pattern preserved
+    
+    # Invalid pattern raises error
+    with pytest.raises(ValueError, match="does not match required pattern"):
+        Safe_Str__Validating("abc-1234")  # Lowercase not allowed
+        
+    with pytest.raises(ValueError, match="does not match required pattern"):
+        Safe_Str__Validating("ABC-12")  # Wrong number count
+
+def test_regex_mode_interactions(self):                               # Test mode-specific behaviors
+    # strict_validation + REPLACE = reject invalid chars
+    class Safe_Str__Strict_Replace(Safe_Str):
+        regex = re.compile(r'[^a-zA-Z]')
+        regex_mode = Enum__Safe_Str__Regex_Mode.REPLACE
+        strict_validation = True
+        
+    with pytest.raises(ValueError, match="contains invalid characters"):
+        Safe_Str__Strict_Replace("hello123")  # Numbers not allowed
+        
+    # strict_validation + MATCH = pattern matching
+    class Safe_Str__Pattern(Safe_Str):
+        regex = re.compile(r'^v\d+\.\d+\.\d+$')  # Version pattern
+        regex_mode = Enum__Safe_Str__Regex_Mode.MATCH
+        strict_validation = True
+        
+    value = Safe_Str__Pattern("v1.2.3")
+    assert value == "v1.2.3"
+    
+    # Non-strict MATCH mode not allowed
+    with pytest.raises(ValueError, match="cannot use regex_mode='match' without strict_validation"):
+        class Safe_Str__Invalid(Safe_Str):
+            regex = re.compile(r'^test$')
+            regex_mode = Enum__Safe_Str__Regex_Mode.MATCH
+            strict_validation = False
+        
+        Safe_Str__Invalid("test")
+```
+
+### 11. Testing Safe_Str Attributes
+
+```python
+def test_safe_str_new_attributes(self):                              # Test Safe_Str configuration options
+    # Test exact_length enforcement
+    class Safe_Str__Fixed_Length(Safe_Str):
+        max_length = 10
+        exact_length = True  # NEW: Require exactly max_length chars
+        
+    value = Safe_Str__Fixed_Length("1234567890")
+    assert len(value) == 10
+    
+    with pytest.raises(ValueError, match="must be exactly 10 characters"):
+        Safe_Str__Fixed_Length("123")  # Too short
+        
+    with pytest.raises(ValueError, match="must be exactly 10 characters"):
+        Safe_Str__Fixed_Length("12345678901")  # Too long
+        
+    # Test to_lower_case transformation
+    class Safe_Str__Lowercase(Safe_Str):
+        to_lower_case = True  # NEW: Force lowercase
+        
+    value = Safe_Str__Lowercase("Hello WORLD")
+    assert value == "hello world"  # Converted to lowercase
+    
+    # Test allow_all_replacement_char
+    class Safe_Str__No_All_Underscores(Safe_Str):
+        regex = re.compile(r'[^a-zA-Z]')
+        allow_all_replacement_char = False  # Reject if all chars replaced
+        
+    with pytest.raises(ValueError, match="consists entirely of '_' characters"):
+        Safe_Str__No_All_Underscores("123456")  # All become underscores
+```
+
 
 ---
 
@@ -1250,6 +1665,7 @@ def test_complete_safe_type_validation(self):                          # Compreh
                     expected = input_value[:50] if len(str(input_value)) > 50 else input_value
                     assert _.id == expected
 ```
+
 
 ---
 
@@ -1785,9 +2201,17 @@ When testing schemas with custom Safe types:
 - [ ] Test edge cases: special characters, max length, empty values
 - [ ] Test invalid inputs to ensure proper rejection
 - [ ] Document any conversion behavior as intentional or bug
+- [ ] **NEW: Test Safe_Float precision and rounding behaviors**
+- [ ] **NEW: Test Safe_Float bounds enforcement and clamping**
+- [ ] **NEW: Test Enum auto-conversion from strings**
+- [ ] **NEW: Test Literal value constraints**
+- [ ] **NEW: Test regex_mode behavior (REPLACE vs MATCH)**
+- [ ] **NEW: Test exact_length, to_lower_case attributes**
+- [ ] **NEW: Test LLM message size limits**
+- [ ] **NEW: Test Git/GitHub format validation**
+- [ ] **NEW: Test cryptographic key length validation**
 
 ---
-
 
 ### For a Type_Safe service:
 
@@ -1802,8 +2226,11 @@ When testing schemas with custom Safe types:
 - [ ] `test__init__` verifies Type_Safe inheritance and attributes
 - [ ] Test type enforcement for all Safe types
 - [ ] Test serialization round-trips preserve types
+- [ ] **NEW: Test Enum serialization/deserialization in JSON**
+- [ ] **NEW: Test Literal types in JSON round-trips**
 - [ ] Test auto-initialization creates isolated instances
 - [ ] Test error conditions and edge cases
+- [ ] **NEW: Test full error messages with re.escape()**
 - [ ] Use `setup__service_fast_api_test_objs()` for LocalStack
 - [ ] Skip tests requiring API keys when not available
 - [ ] Test FastAPI routes with TestClient
@@ -1812,6 +2239,9 @@ When testing schemas with custom Safe types:
 - [ ] Use descriptive test method names
 - [ ] Define reusable test data in `setUpClass`
 - [ ] Verify service atomicity (can be reused across tests)
+- [ ] **NEW: Test LLM-specific Safe types for model IDs**
+- [ ] **NEW: Test HTTP Safe types for headers and content**
+- [ ] **NEW: Test version string validation patterns**
 
 ## Wrapping up
 
