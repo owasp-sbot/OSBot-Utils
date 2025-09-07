@@ -50,5 +50,5 @@ class test_Flow_Run__Event(TestCase):
                                                        'task_name'      : None  ,
                                                        'task_run_id'    : None  },
                                        'event_id'  : event_id                    ,
-                                       'event_type': 'FLOW_START'                ,
+                                       'event_type': 'flow_start'                ,
                                        'timestamp' : timestamp                   }

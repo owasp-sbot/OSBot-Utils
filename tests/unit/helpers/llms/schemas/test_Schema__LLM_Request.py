@@ -1,6 +1,6 @@
 from unittest                                                               import TestCase
 from osbot_utils.helpers.Obj_Id                                             import Obj_Id
-from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                 import Timestamp_Now
+from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                import Timestamp_Now
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                   import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data             import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content import Schema__LLM_Request__Message__Content
@@ -27,7 +27,7 @@ class test_Schema__LLM_Request(TestCase):
         json_llm_request  = { 'request_data': { 'function_call': None                                                 ,
                                                                 'max_tokens'   : 100                                  ,
                                                                 'messages'     : [ { 'content': 'Test disk retrieval' ,
-                                                                                     'role'   : 'USER'}]              ,
+                                                                                     'role'   : 'user'}]              ,
                                                                 'model'        : 'test-model'                         ,
                                                                 'platform'     : 'test-platform'                      ,
                                                                 'provider'     : 'test-provider'                      ,

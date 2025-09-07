@@ -314,3 +314,152 @@ class test_Safe_Str(TestCase):
 
         # But our concatenation returns Safe_Str
         assert type(text + "!") is Safe_Str
+
+    def test_to_lower_case_feature(self):                                           # Test the new to_lower_case functionality
+        # Create a subclass with lowercase enabled
+        class Safe_Str__Lowercase(Safe_Str):
+            to_lower_case = True
+
+        # Basic lowercase conversion
+        assert Safe_Str__Lowercase('HELLO')              == 'hello'
+        assert Safe_Str__Lowercase('Hello World')        == 'hello_world'
+        assert Safe_Str__Lowercase('MiXeD CaSe')         == 'mixed_case'
+        assert Safe_Str__Lowercase('ABC123XYZ')          == 'abc123xyz'
+
+        # Already lowercase stays lowercase
+        assert Safe_Str__Lowercase('already lowercase')  == 'already_lowercase'
+        assert Safe_Str__Lowercase('test123')            == 'test123'
+
+        # Numbers and special chars (after sanitization)
+        assert Safe_Str__Lowercase('Test-123')           == 'test_123'
+        assert Safe_Str__Lowercase('USER@EMAIL')         == 'user_email'
+        assert Safe_Str__Lowercase('File.Name.TXT')      == 'file_name_txt'
+
+        # Empty and None handling
+        assert Safe_Str__Lowercase('')                   == ''
+        assert Safe_Str__Lowercase(None)                 == ''
+
+    def test_to_lower_case_with_sanitization_order(self):                          # Test order of operations
+        class Safe_Str__Email_Style(Safe_Str):
+            to_lower_case = True
+            regex         = re.compile(r'[^a-zA-Z0-9._]')
+
+        # Sanitization happens before lowercase
+        assert Safe_Str__Email_Style('John.DOE@test')    == 'john.doe_test'
+        assert Safe_Str__Email_Style('User+Tag')         == 'user_tag'
+        assert Safe_Str__Email_Style('ADMIN.USER')       == 'admin.user'
+
+        # Complex cases
+        assert Safe_Str__Email_Style('First.LAST+tag')   == 'first.last_tag'
+        assert Safe_Str__Email_Style('USER_NAME.123')    == 'user_name.123'
+
+    def test_to_lower_case_with_other_features(self):                             # Test interaction with other Safe_Str features
+        class Safe_Str__Complex(Safe_Str):
+            to_lower_case  = True
+            trim_whitespace = True
+            max_length     = 10
+
+        # Trim + lowercase
+        assert Safe_Str__Complex('  HELLO  ')            == 'hello'
+
+
+        # Max length applied after lowercase
+        error_message = "in Safe_Str__Complex, value exceeds maximum length of 10 characters (was 12)"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            assert Safe_Str__Complex('   SPACES HERE.   ')        # Also hits max_length
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            Safe_Str__Complex('VERYLONGTEXT')
+
+        # Combined transformations
+        assert Safe_Str__Complex('       TEST 123       ')        == 'test_123'
+
+    def test_to_lower_case_disabled_by_default(self):                             # Verify backward compatibility
+        # Default Safe_Str should NOT lowercase
+        assert Safe_Str('HELLO')                         == 'HELLO'
+        assert Safe_Str('Mixed Case')                    == 'Mixed_Case'
+
+        # Existing subclasses should not be affected
+        class Safe_Str__NoLowercase(Safe_Str):
+            max_length = 20
+            # to_lower_case not set, should default to False
+
+        assert Safe_Str__NoLowercase('UPPERCASE')       == 'UPPERCASE'
+        assert Safe_Str__NoLowercase('MiXeD')           == 'MiXeD'
+
+    def test_to_lower_case_with_strict_validation(self):                          # Test with strict validation mode
+        class Safe_Str__Strict_Lower(Safe_Str):
+            to_lower_case     = True
+            strict_validation = True
+            regex            = re.compile(r'[^a-z0-9]')  # Only lowercase allowed
+
+        # Should lowercase first, then validate
+        with pytest.raises(ValueError, match="value contains invalid characters"):
+            Safe_Str__Strict_Lower('HELLO')  # After lowercasing becomes 'hello', but if strict checks original...
+
+
+    def test_to_lower_case_unicode_handling(self):                                # Test unicode lowercase
+        class Safe_Str__International(Safe_Str):
+            to_lower_case = True
+            regex        = re.compile(r'[^a-zA-ZÀ-ÿ0-9]')  # Allow accented chars
+
+        # Unicode lowercase (if supported by regex)
+        assert Safe_Str__International('CAFÉ')           == 'café'
+        assert Safe_Str__International('MÜNCHEN')        == 'münchen'
+
+        # Note: Actual behavior depends on regex pattern
+
+    def test_to_lower_case_in_type_safe(self):                                   # Test usage in Type_Safe classes
+        class Safe_Str__Username(Safe_Str):
+            to_lower_case = True
+            max_length   = 32
+            regex        = re.compile(r'[^a-z0-9_]')
+
+        class Schema__User(Type_Safe):
+            username : Safe_Str__Username
+            email    : Safe_Str__Username  # Reusing for email local part
+
+        with Schema__User() as user:
+            user.username = 'John_DOE'
+            user.email    = 'ADMIn@TEST'
+
+            assert user.username == '_ohn____'
+            assert user.email    == '____n_____'
+
+            json_data = user.json()
+            assert json_data['username'] == '_ohn____'
+            assert json_data['email']    == '____n_____'
+
+    def test_to_lower_case_with_exact_length(self):                              # Test with exact_length requirement
+        class Safe_Str__Fixed_Lower(Safe_Str):
+            to_lower_case = True
+            exact_length  = True
+            max_length    = 5
+
+        # Exact length after transformations
+        assert Safe_Str__Fixed_Lower('HELLO')            == 'hello'
+        assert Safe_Str__Fixed_Lower('AB123')            == 'ab123'
+
+        # Wrong length should fail
+        with pytest.raises(ValueError, match="must be exactly 5 characters long"):
+            Safe_Str__Fixed_Lower('HI')  # Too short
+
+        with pytest.raises(ValueError, match="must be exactly 5 characters long"):
+            Safe_Str__Fixed_Lower('TOOLONG')  # Too long
+
+    def test_to_lower_case_string_operations(self):                              # Test string operations preserve lowercase
+        class Safe_Str__Lower(Safe_Str):
+            to_lower_case = True
+
+        text = Safe_Str__Lower('HELLO')
+        assert text == 'hello'
+
+        # Concatenation should preserve the class and apply lowercase
+        result = text + 'WORLD'
+        assert type(result) is Safe_Str__Lower
+        assert result == 'helloworld'  # WORLD gets lowercased
+
+        # F-string formatting
+        assert f"{text}" == 'hello'
+
+        # Repr shows the lowercased value
+        assert repr(text) == "Safe_Str__Lower('hello')"

@@ -5,13 +5,13 @@ from osbot_utils.helpers.llms.actions.LLM_Request__Execute                      
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI            import LLM_Request__Builder__Open_AI
 from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder              import Virtual_Storage__Local__Folder
 from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI               import API__LLM__Open_AI, ENV_NAME_OPEN_AI__API_KEY
-from osbot_utils.helpers.llms.schemas.Safe_Str__LLM__Model_Name                 import Safe_Str__LLM__Model_Name
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                       import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data                 import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content     import Schema__LLM_Request__Message__Content
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role        import Schema__LLM_Request__Message__Role
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                      import Schema__LLM_Response
 from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Name    import Safe_Str__LLM__Model_Name
 from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text              import Safe_Str__Text
 from osbot_utils.utils.Env                                                      import get_env, load_dotenv
 from osbot_utils.utils.Files                                                    import folder_create

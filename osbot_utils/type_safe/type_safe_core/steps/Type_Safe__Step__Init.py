@@ -33,13 +33,16 @@ class Type_Safe__Step__Init:
                 raise ValueError(f"{__self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
                                  f"Use {__self.__class__.__name__}.__default_kwargs__() see what attributes are available") from None
 
-    def convert_value_to_type_safe_objects(self, __self, key, value):                                # todo: see if we should use _self here (like in Type_Safe__Step__From_Json, or vice versa)
+    def convert_value_to_type_safe_objects(self, __self, key, value):
         annotation = type_safe_annotations.obj_attribute_annotation(__self, key)
         if annotation:
             if isinstance(annotation, EnumMeta) and type(value) is str:
-                if value not in annotation.__members__:
+                if value in annotation.__members__:                                                             # First check if it's a valid name (e.g., 'SYSTEM')
+                    value = annotation[value]
+                elif hasattr(annotation, '_value2member_map_') and value in annotation._value2member_map_:      # Then check if it's a valid value (e.g., 'system')
+                    value = annotation._value2member_map_[value]
+                else:
                     raise ValueError(f"Invalid value '{value}' for enum {annotation.__name__}")
-                value = annotation[value]
             else:
 
                 origin = type_safe_annotations.get_origin(annotation)

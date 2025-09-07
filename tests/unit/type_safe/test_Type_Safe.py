@@ -191,7 +191,7 @@ class test_Type_Safe(TestCase):
             an_dict : dict
             an_enum : An_Enum_A = An_Enum_A.an_value
 
-        an_class_dict = {'an_dict': {}, 'an_enum': 'an_value', 'an_int': 42, 'an_list': [], 'an_str': '42'}
+        an_class_dict = {'an_dict': {}, 'an_enum': 1, 'an_int': 42, 'an_list': [], 'an_str': '42'}
         an_class_a      = An_Class_A()
         assert an_class_a.serialize_to_dict() == an_class_dict
 
@@ -221,7 +221,7 @@ class test_Type_Safe(TestCase):
         an_class.an_enum = an_enum_value
         an_class_dict    = an_class.serialize_to_dict()
         assert an_enum_value.name == 'value_1'
-        assert an_class_dict      == {'an_enum': an_enum_value.name, 'an_str': an_str_value}
+        assert an_class_dict      == {'an_enum': an_enum_value.value, 'an_str': an_str_value}
         assert an_class.json()    == an_class.serialize_to_dict()
 
         an_class_2 = An_Class()
@@ -241,12 +241,11 @@ class test_Type_Safe(TestCase):
             an_str  : str
             an_enum : An_Enum
 
-        an_class_dict = {'an_enum': 'value_2', 'an_str': ''}
+        an_class_dict = {'an_enum': 2, 'an_str': ''}
         an_class      = An_Class()
 
         type_safe_step_from_json.deserialize_from_dict(an_class, an_class_dict)
         assert an_class.json() == an_class_dict
-
 
         #check handing of base classes
         class An_Base_Class(Type_Safe):

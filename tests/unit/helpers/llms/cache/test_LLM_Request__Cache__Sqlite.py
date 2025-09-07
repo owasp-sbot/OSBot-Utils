@@ -65,7 +65,7 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
                                'llm__request'  : { 'request_data': { 'function_call': None,
                                                                     'max_tokens'   : 100,
                                                                     'messages'     : [ { 'content': request_text,
-                                                                                         'role'   : 'USER'      }],
+                                                                                         'role'   : 'user'      }],
                                                                     'model'        : 'test-model'     ,
                                                                     'platform'     : 'test-platform'  ,
                                                                     'provider'     : 'test-provider'  ,
@@ -82,7 +82,7 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
                               'cache_id__to__file_path'       : { cache_id    : cache_path     }}
 
         assert cache_id                                             is not None         # Verify it worked
-        assert hash_request                                         == "c1a0028346"     # Given the same import this value should always be the same
+        assert hash_request                                         == "acfed094a5"     # Given the same import this value should always be the same
         assert self.cache.storage().exists__cache_entry(cache_path) is True             # Verify through storage API
         assert cached_response                                      is not None
         assert cached_response.response_id                          == response.response_id

@@ -43,12 +43,12 @@ class test_Html_Document__To__Html_Dict(TestCase):                              
                                                                  'tag'        : 'p',
                                                                  'text_nodes': [{'data'    : 'Hello World',
                                                                                  'position': 0,
-                                                                                 'type'    : 'TEXT'}]}],
+                                                                                 'type'    : 'text'}]}],
                                                'position'   : -1,
                                                'tag'        : 'div',
                                                'text_nodes' : [{'data'    : 'some_data',
                                                                 'position': 1          ,
-                                                                'type'    : 'TEXT'     }]},
+                                                                'type'    : 'text'     }]},
                               'timestamp': document.timestamp }
 
     def test_mixed_content_with_positions(self):                                        # Test mixed text and element content maintains order
@@ -66,10 +66,10 @@ class test_Html_Document__To__Html_Dict(TestCase):                              
                                            child_nodes = [ __(position    = 1,
                                                               attrs       = __(),
                                                               child_nodes = [],
-                                                              text_nodes  = [__(type='TEXT', data='Paragraph', position=0)],
+                                                              text_nodes  = [__(type='text', data='Paragraph', position=0)],
                                                               tag         = 'p')],
-                                           text_nodes  = [ __(type='TEXT', data='Text before', position=0),
-                                                           __(type='TEXT', data='Text after' , position=2)],
+                                           text_nodes  = [ __(type='text', data='Text before', position=0),
+                                                           __(type='text', data='Text after' , position=2)],
                                            tag         = 'div')
 
         text_before = next(t for t in root.text_nodes  if t.position == 0)              # Verify positions
@@ -118,31 +118,31 @@ class test_Html_Document__To__Html_Dict(TestCase):                              
                                                  child_nodes = [__(position     = 1,
                                                                    attrs        = __(),
                                                                    child_nodes  = [],
-                                                                   text_nodes   = [__(type='TEXT', data='First para', position=0)],
+                                                                   text_nodes   = [__(type='text', data='First para', position=0)],
                                                                    tag          = 'p' ),
                                                                 __(position     = 3,
                                                                    attrs        =__(),
                                                                    child_nodes  = [__(position    = 1,
                                                                                       attrs       = __(),
                                                                                       child_nodes = [],
-                                                                                      text_nodes  = [__(type='TEXT',data='Span content', position=0)],
+                                                                                      text_nodes  = [__(type='text',data='Span content', position=0)],
                                                                                    tag='span')],
-                                                                   text_nodes   = [__(type     = 'TEXT',
+                                                                   text_nodes   = [__(type     = 'text',
                                                                                       data     = '\n'
                                                                                                  '                Nested '
                                                                                                  'start\n'
                                                                                                  '                ',
                                                                                       position = 0),
-                                                                                   __(type     = 'TEXT',
+                                                                                   __(type     = 'text',
                                                                                       data     = '\n'
                                                                                                  '                Nested '
                                                                                                  'end\n'
                                                                                                  '            ',
                                                                                       position  = 2)],
                                                                    tag          = 'div')],
-                                                 text_nodes = [__(type='TEXT', data='\n            Start text\n            ' , position=0 ),
-                                                               __(type='TEXT', data='\n            Middle text\n            ', position=2 ),
-                                                               __(type='TEXT', data='\n            End text\n        '       , position=4 )],
+                                                 text_nodes = [__(type='text', data='\n            Start text\n            ' , position=0 ),
+                                                               __(type='text', data='\n            Middle text\n            ', position=2 ),
+                                                               __(type='text', data='\n            End text\n        '       , position=4 )],
                                                  tag        = 'div'),
                                    timestamp=document.timestamp)
 
