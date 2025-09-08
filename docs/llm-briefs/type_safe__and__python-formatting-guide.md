@@ -1,6 +1,6 @@
 # Type_Safe & Python Formatting Guide for LLMs
 
-- **version**: v3.0.0
+- **version**: v2.90.1
 - **updated**: 7th September 2025
 
 ## Overview
