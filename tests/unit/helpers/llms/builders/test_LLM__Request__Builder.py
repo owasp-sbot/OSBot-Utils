@@ -1,8 +1,8 @@
 from typing                                                                  import List
 from unittest                                                                import TestCase
+from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Id   import Safe_Str__LLM__Model_Id
 from osbot_utils.helpers.llms.builders.LLM_Request__Factory                  import LLM_Request__Factory
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder                  import LLM_Request__Builder
-from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Name import Safe_Str__LLM__Model_Name
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data              import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content  import Schema__LLM_Request__Message__Content
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role     import Schema__LLM_Request__Message__Role
@@ -59,7 +59,7 @@ class test_LLM__Request_Builder(TestCase):                               # Tests
             score: Annotated[float, Min(0), Max(1)]
             tags : List[str]
 
-        model         = Safe_Str__LLM__Model_Name("gpt-4" )
+        model         = Safe_Str__LLM__Model_Id("gpt-4" )
         provider      = Safe_Str__Text("openai")
         platform      = Safe_Str__Text("oai"   )
         parameters    = TestEntity
