@@ -1,11 +1,11 @@
 import pytest
 from unittest                                                                   import TestCase
+from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Id      import Safe_Str__LLM__Model_Id
 from osbot_utils.helpers.llms.actions.LLM_Request__Execute                      import LLM_Request__Execute
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI            import LLM_Request__Builder__Open_AI
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache__File_System             import LLM_Request__Cache__File_System
 from osbot_utils.helpers.llms.cache.Virtual_Storage__Sqlite                     import Virtual_Storage__Sqlite
 from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI               import ENV_NAME_OPEN_AI__API_KEY, API__LLM__Open_AI
-from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Name    import Safe_Str__LLM__Model_Name
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                       import Schema__LLM_Request
 from osbot_utils.utils.Env                                                      import get_env, load_dotenv
 
@@ -29,7 +29,7 @@ class test_LLM_Request__Execute__Sqlite(TestCase):
 
     def test_execute(self):
         with self.request_builder as _:
-            _.llm_request_data.model = Safe_Str__LLM__Model_Name('gpt-4o-mini')
+            _.llm_request_data.model = Safe_Str__LLM__Model_Id('gpt-4o-mini')
             _.add_message__user("What is 1+1")
             llm_request  = Schema__LLM_Request(request_data=_.llm_request_data)
             llm_response = self.llm_execute.execute(llm_request)

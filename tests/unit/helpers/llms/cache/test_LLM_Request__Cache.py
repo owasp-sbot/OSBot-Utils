@@ -1,6 +1,7 @@
 import unittest
 
-from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Name import Safe_Str__LLM__Model_Name
+from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Id import Safe_Str__LLM__Model_Id
+
 from osbot_utils.helpers.Obj_Id                                              import Obj_Id
 from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                 import Timestamp_Now
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache                       import LLM_Request__Cache
@@ -149,9 +150,9 @@ class test_LLM_Request__Cache(unittest.TestCase):
         stats = self.cache.stats()
 
         assert stats["total_entries"] == 3
-        assert Safe_Str__LLM__Model_Name("model-A")                  in stats["models"]
-        assert stats["models"][Safe_Str__LLM__Model_Name("model-A")] == 2
-        assert Safe_Str__LLM__Model_Name("model-B")                  in stats["models"]
-        assert stats["models"][Safe_Str__LLM__Model_Name("model-B")] == 1
+        assert Safe_Str__LLM__Model_Id("model-A")                  in stats["models"]
+        assert stats["models"][Safe_Str__LLM__Model_Id("model-A")] == 2
+        assert Safe_Str__LLM__Model_Id("model-B")                  in stats["models"]
+        assert stats["models"][Safe_Str__LLM__Model_Id("model-B")] == 1
         assert stats["oldest_entry"]                                 is not None
         assert stats["newest_entry"]                                 is not None
