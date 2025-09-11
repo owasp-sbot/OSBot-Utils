@@ -16,6 +16,8 @@ class Type_Safe__Primitive:
             return type(self)(result)                                           # Return instance of the safe type
         else:                                                                   # For numeric types (int, float)
             result = super().__add__(other)
+            if result is NotImplemented:
+                return result                                                   # Let Python try the reverse operation
             try:
                 return type(self)(result)                                       # Try to create safe type
             except (ValueError, TypeError):

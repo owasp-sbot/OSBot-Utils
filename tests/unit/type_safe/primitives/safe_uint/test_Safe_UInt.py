@@ -58,10 +58,9 @@ class test_Safe_UInt(TestCase):
         assert type(result) is Safe_UInt
         assert int(result) == 15
 
-        # Subtraction that results in negative returns plain int
-        result = b - a
-        assert type(result) is int  # Not Safe_UInt because it's negative
-        assert result == -5
+        # Subtraction that results in negative keeps type safety
+        with pytest.raises(ValueError, match="Safe_UInt must be >= 0, got -5"):
+            result = b - a
 
         # Subtraction that stays positive maintains type
         result = a - b
@@ -120,7 +119,5 @@ class test_Safe_UInt(TestCase):
         result = zero - zero
         assert type(result) is Safe_UInt
         assert int(result) == 0
-
-        result = zero - one  # Goes negative
-        assert type(result) is int  # Falls back to regular int
-        assert result == -1
+        with pytest.raises(ValueError, match="Safe_UInt must be >= 0, got -1"):
+            result = zero - one  # Goes negative

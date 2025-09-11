@@ -129,9 +129,8 @@ class test_Safe_UInt__Percentage(TestCase):
         # Addition that exceeds 100
         pct3 = Safe_UInt__Percentage(60)
         pct4 = Safe_UInt__Percentage(50)
-        result = pct3 + pct4  # 110 > 100
-        assert type(result) is int  # Falls back to regular int
-        assert result == 110
+        with pytest.raises(ValueError, match="Safe_UInt__Percentage must be <= 100, got 110"):
+            result = pct3 + pct4  # 110 > 100
 
         # Subtraction
         result = pct4 - pct1
@@ -139,9 +138,8 @@ class test_Safe_UInt__Percentage(TestCase):
         assert int(result) == 25
 
         # Subtraction that goes negative
-        result = pct1 - pct4
-        assert type(result) is int  # Falls back to regular int
-        assert result == -25
+        with pytest.raises(ValueError, match="Safe_UInt__Percentage must be >= 0, got -25"):
+            result = pct1 - pct4
 
     def test_boundary_values(self):
         # Minimum boundary

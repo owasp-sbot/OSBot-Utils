@@ -157,46 +157,48 @@ class test_Type_Safe__Primitive(TestCase):
         assert restored.id_map['id1'] == 'value1'
 
     def test_obj(self):
-        assert Safe_Int().obj() == __(min_value   = None ,
-                                 max_value   = None ,
-                                 allow_none  = True ,
-                                 allow_bool  = False,
-                                 allow_str   = True ,
-                                 strict_type = False)
-        assert Safe_Float().obj() == __(min_value=None,
-                                   max_value=None,
-                                   allow_none=True,
-                                   allow_bool=False,
-                                   allow_inf=False,
-                                   allow_str=True,
-                                   allow_int=True,
-                                   strict_type=False,
-                                   decimal_places=None,
-                                   use_decimal=True,
-                                   epsilon=1e-09,
-                                   round_output=True,
-                                   clamp_to_range=False)
+        assert Safe_Int().obj() == __(min_value        = None               ,
+                                      max_value        = None               ,
+                                      allow_none       = True               ,
+                                      allow_bool       = False              ,
+                                      allow_str        = True               ,
+                                      strict_type      = False              ,
+                                      clamp_to_range   = False              )
 
-        assert Safe_Str().obj() == __(allow_all_replacement_char=True,
-   allow_empty=True,
-   exact_length=False,
-   max_length=512,
-   regex=re.compile('[^a-zA-Z0-9]'),
-   regex_mode=Enum__Safe_Str__Regex_Mode.REPLACE,
-   replacement_char='_',
-   strict_validation=False,
-   to_lower_case=False,
-   trim_whitespace=False)
+        assert Safe_Float().obj() == __(min_value       = None             ,
+                                        max_value       = None             ,
+                                        allow_none      = True             ,
+                                        allow_bool      = False            ,
+                                        allow_inf       = False            ,
+                                        allow_str       = True             ,
+                                        allow_int       = True             ,
+                                        strict_type     = False            ,
+                                        decimal_places  = None             ,
+                                        use_decimal     = True             ,
+                                        epsilon         = 1e-09            ,
+                                        round_output    = True             ,
+                                        clamp_to_range  = False            )
 
-        assert Safe_Str__Username().obj() == __(allow_all_replacement_char=True,
-   allow_empty=True,
-   exact_length=False,
-   max_length=512,
-   regex=re.compile('[^a-zA-Z0-9]'),
-   regex_mode=Enum__Safe_Str__Regex_Mode.REPLACE,
-   replacement_char='_',
-   strict_validation=False,
-   to_lower_case=False,
-   trim_whitespace=False)
+        assert Safe_Str().obj() == __(allow_all_replacement_char  =  True                                             ,
+                                      allow_empty                 = True                                             ,
+                                      exact_length                = False                                            ,
+                                      max_length                  = 512                                              ,
+                                      regex                       = re.compile('[^a-zA-Z0-9]')                       ,
+                                      regex_mode                  = Enum__Safe_Str__Regex_Mode.REPLACE              ,
+                                      replacement_char            = '_'                                              ,
+                                      strict_validation           = False                                            ,
+                                      to_lower_case               = False                                            ,
+                                      trim_whitespace             = False                                            )
 
-        assert Safe_Str__IP_Address().obj() == __() # is this a bug?
+        assert Safe_Str__Username().obj() == __(allow_all_replacement_char  = True                                   ,
+                                                allow_empty                 = True                                   ,
+                                                exact_length                = False                                  ,
+                                                max_length                  = 512                                    ,
+                                                regex                       = re.compile('[^a-zA-Z0-9]')             ,
+                                                regex_mode                  = Enum__Safe_Str__Regex_Mode.REPLACE    ,
+                                                replacement_char            = '_'                                    ,
+                                                strict_validation           = False                                  ,
+                                                to_lower_case               = False                                  ,
+                                                trim_whitespace             = False                                  )
+
+        assert Safe_Str__IP_Address().obj() == __()
