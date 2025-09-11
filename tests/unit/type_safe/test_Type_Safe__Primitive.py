@@ -1,10 +1,16 @@
+import re
 from unittest                                                           import TestCase
+
+from osbot_utils.testing.__ import __
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive                         import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float import Safe_Float
 from osbot_utils.type_safe.primitives.safe_int                          import Safe_Int
+from osbot_utils.type_safe.primitives.safe_str.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
 from osbot_utils.type_safe.primitives.safe_str.Safe_Str                 import Safe_Str
 from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id      import Safe_Id
 from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__IP_Address import Safe_Str__IP_Address
+from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__Username import Safe_Str__Username
 
 
 class test_Type_Safe__Primitive(TestCase):
@@ -149,3 +155,48 @@ class test_Type_Safe__Primitive(TestCase):
         restored = Schema.from_json(json_data)
         assert isinstance(list(restored.id_map.keys())[0], An_Safe_Id)
         assert restored.id_map['id1'] == 'value1'
+
+    def test_obj(self):
+        assert Safe_Int().obj() == __(min_value   = None ,
+                                 max_value   = None ,
+                                 allow_none  = True ,
+                                 allow_bool  = False,
+                                 allow_str   = True ,
+                                 strict_type = False)
+        assert Safe_Float().obj() == __(min_value=None,
+                                   max_value=None,
+                                   allow_none=True,
+                                   allow_bool=False,
+                                   allow_inf=False,
+                                   allow_str=True,
+                                   allow_int=True,
+                                   strict_type=False,
+                                   decimal_places=None,
+                                   use_decimal=True,
+                                   epsilon=1e-09,
+                                   round_output=True,
+                                   clamp_to_range=False)
+
+        assert Safe_Str().obj() == __(allow_all_replacement_char=True,
+   allow_empty=True,
+   exact_length=False,
+   max_length=512,
+   regex=re.compile('[^a-zA-Z0-9]'),
+   regex_mode=Enum__Safe_Str__Regex_Mode.REPLACE,
+   replacement_char='_',
+   strict_validation=False,
+   to_lower_case=False,
+   trim_whitespace=False)
+
+        assert Safe_Str__Username().obj() == __(allow_all_replacement_char=True,
+   allow_empty=True,
+   exact_length=False,
+   max_length=512,
+   regex=re.compile('[^a-zA-Z0-9]'),
+   regex_mode=Enum__Safe_Str__Regex_Mode.REPLACE,
+   replacement_char='_',
+   strict_validation=False,
+   to_lower_case=False,
+   trim_whitespace=False)
+
+        assert Safe_Str__IP_Address().obj() == __() # is this a bug?

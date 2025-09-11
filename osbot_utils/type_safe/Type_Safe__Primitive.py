@@ -73,3 +73,24 @@ class Type_Safe__Primitive:
         if self.__primitive_base__:
             return self.__primitive_base__(self)
         return str(self)                                            # fallback
+
+    def obj(self):                                                                  # Get configuration as namespace object
+        from osbot_utils.utils.Objects import dict_to_obj
+        return dict_to_obj(self.__cls_kwargs__())
+
+    def __cls_kwargs__(self):                                                      # Get class-level kwargs (configuration)
+        """Return dictionary of class-level configuration parameters"""
+        kwargs = {}
+
+        # Walk MRO but stop before primitive base classes
+        for cls in reversed(self.__class__.__mro__):
+            if cls in (float, int, str, object, Type_Safe__Primitive):
+                continue
+
+            # Get class attributes that are configuration parameters
+            if hasattr(cls, '__annotations__'):
+                for attr_name in cls.__annotations__:
+                    if hasattr(cls, attr_name):
+                        kwargs[attr_name] = getattr(cls, attr_name)
+
+        return kwargs

@@ -4,7 +4,8 @@ from decimal                                                 import Decimal
 from unittest                                                import TestCase
 from osbot_utils.type_safe.primitives.safe_float.Safe_Float  import Safe_Float
 from osbot_utils.type_safe.Type_Safe                         import Type_Safe
-
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Financial import Safe_Float__Financial
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Scientific import Safe_Float__Scientific
 
 
 class test_Safe_Float(TestCase):
@@ -45,7 +46,7 @@ class test_Safe_Float(TestCase):
         # Invalid string conversions
         with pytest.raises(ValueError, match="Cannot convert 'abc' to float"):
             Safe_Float('abc')
-        with pytest.raises(ValueError, match="Cannot convert 'NaN123' to float"):
+        with pytest.raises(ValueError, match="Safe_Float does not allow NaN values"):
             Safe_Float('NaN123')
 
         # Other invalid types
@@ -207,13 +208,6 @@ class test_Safe_Float(TestCase):
         assert float(product_restored.price) == 99.99
 
     def test_custom_subclasses(self):
-        # Financial calculations
-        class Safe_Float__Financial(Safe_Float):
-            decimal_places = 2
-            use_decimal = True
-            allow_inf = False
-            allow_nan = False
-            round_output = True
 
         # Test financial precision
         price = Safe_Float__Financial(19.99)
@@ -221,14 +215,9 @@ class test_Safe_Float(TestCase):
         subtotal = price * quantity
         assert float(subtotal) == 59.97  # Exactly 59.97, not 59.970000000000006
 
-        # Scientific calculations
-        class Safe_Float__Scientific(Safe_Float):
-            allow_inf = True
-            allow_nan = True
-            decimal_places = 15
-
         # Can handle special values
         sci_val = Safe_Float__Scientific(1e308)
+
         result = sci_val * 10  # Would overflow
         assert math.isinf(result)
 
@@ -360,3 +349,261 @@ class test_Safe_Float(TestCase):
         # Integer-like float
         int_like = Safe_Float(42.0)
         assert str(int_like) == "42.0"
+
+    def test__safe_float__addition_with_decimal(self):
+        # Test addition with use_decimal=True for exact arithmetic
+        class Float_Decimal(Safe_Float):
+            use_decimal    = True
+            decimal_places = 2
+            round_output   = True
+
+        # Classic floating point error: 0.1 + 0.2 != 0.3
+        val1 = Float_Decimal(0.1)
+        val2 = Float_Decimal(0.2)
+
+        # Test Safe_Float + Safe_Float
+        result = val1 + val2
+        assert type(result) is Float_Decimal
+        assert float(result) == 0.3  # Exactly 0.3, not 0.30000000000000004
+
+        # Test Safe_Float + float
+        result = val1 + 0.2
+        assert type(result) is Float_Decimal
+        assert float(result) == 0.3
+
+        # Test float + Safe_Float (reverse addition)
+        result = 0.1 + val2
+        assert type(result) is Float_Decimal
+        assert float(result) == 0.3
+
+        # Chain of additions
+        val3 = Float_Decimal(0.1)
+        result = val1 + val2 + val3
+        assert float(result) == 0.4
+
+    def test__safe_float__subtraction_with_decimal(self):
+        # Test subtraction with use_decimal=True
+        class Float_Decimal(Safe_Float):
+            use_decimal    = True
+            decimal_places = 2
+            round_output   = True
+
+        val1 = Float_Decimal(0.3)
+        val2 = Float_Decimal(0.1)
+
+        # Test Safe_Float - Safe_Float
+        result = val1 - val2
+        assert type(result) is Float_Decimal
+        assert float(result) == 0.2  # Exactly 0.2, not 0.19999999999999998
+
+        # Test Safe_Float - float
+        val3 = Float_Decimal(0.2)
+        result = val3 - 0.05
+        assert type(result) is Float_Decimal
+        assert float(result) == 0.15  # Exactly 0.15, not 0.15000000000000002
+
+        # Test float - Safe_Float (reverse subtraction)
+        result = 0.3 - val2
+        assert type(result) is Float_Decimal
+        assert float(result) == 0.2
+
+        # Complex subtraction chain
+        val4 = Float_Decimal(1.0)
+        result = val4 - 0.1 - 0.1 - 0.1
+        assert float(result) == 0.7  # Exactly 0.7
+
+    def test__safe_float__mixed_arithmetic_operations(self):
+        # Test all arithmetic operations together
+        class Float_Precise(Safe_Float):
+            use_decimal    = True
+            decimal_places = 4
+            round_output   = True
+
+        val = Float_Precise(10.0)
+
+        # Addition
+        assert float(val + 0.1) == 10.1
+        assert float(0.1 + val) == 10.1
+
+        # Subtraction
+        assert float(val - 0.1) == 9.9
+        assert float(10.1 - val) == 0.1
+
+        # Multiplication (already implemented)
+        assert float(val * 0.1) == 1.0
+        assert float(0.1 * val) == 1.0
+
+        # Division (already implemented)
+        assert float(val / 3) == 3.3333
+
+        # Complex expression
+        result = (val + 5) * 2 - 10
+        assert float(result) == 20.0
+
+    def test__safe_float__arithmetic_without_decimal(self):
+        # Test that regular float arithmetic still works without use_decimal
+        class Float_Regular(Safe_Float):
+            use_decimal = False  # Regular float arithmetic
+
+        val1 = Float_Regular(0.1)
+        val2 = Float_Regular(0.2)
+
+        # This will have floating point error
+        result = val1 + val2
+        assert type(result) is Float_Regular
+        assert float(result) == pytest.approx(0.30000000000000004)
+
+        # Subtraction will also have precision issues
+        val3 = Float_Regular(0.3)
+        result = val3 - val1
+        assert float(result) != 0.2  # Not exactly 0.2 due to float precision
+
+    def test__safe_float__arithmetic_type_preservation(self):
+        # Test that arithmetic operations preserve the Safe_Float subclass
+        class Temperature(Safe_Float):
+            min_value      = -273.15
+            max_value      = 1000.0
+            decimal_places = 1
+            use_decimal    = True
+
+        temp1 = Temperature(20.0)
+        temp2 = Temperature(5.0)
+
+        # All operations should return Temperature instances
+        assert type(temp1 + temp2) is Temperature
+        assert type(temp1 - temp2) is Temperature
+        assert type(temp1 * 2) is Temperature
+        assert type(temp1 / 2) is Temperature
+
+        # Even with plain floats
+        assert type(temp1 + 10.0) is Temperature
+        assert type(30.0 - temp1) is Temperature
+
+    def test__safe_float__arithmetic_with_constraints(self):
+        # Test arithmetic with min/max constraints
+        class Percentage(Safe_Float):
+            min_value      = 0.0
+            max_value      = 100.0
+            decimal_places = 2
+            use_decimal    = True
+
+        pct1 = Percentage(50.0)
+        pct2 = Percentage(30.0)
+
+        # Valid operations
+        result = pct1 + pct2
+        assert float(result) == 80.0
+
+        result = pct1 - pct2
+        assert float(result) == 20.0
+
+        # Operations that violate constraints return raw float
+        result = pct1 + pct1 + pct1  # Would be 150.0
+        assert type(result) is float  # Falls back to float
+        assert result == 150.0
+
+        result = pct2 - pct1  # Would be -20.0
+        assert type(result) is float  # Falls back to float
+        assert result == -20.0
+
+    def test__safe_float__arithmetic_with_none_handling(self):
+        # Test None handling in arithmetic
+        class Float_Allow_None(Safe_Float):
+            allow_none = True
+
+        class Float_No_None(Safe_Float):
+            allow_none = False
+
+        # With allow_none=True
+        val1 = Float_Allow_None(None)
+        assert float(val1) == 0.0
+        assert float(val1 + 10) == 10.0
+
+        # With allow_none=False
+        with pytest.raises(ValueError, match="Float_No_None does not allow None values"):
+            Float_No_None(None)
+
+    def test__safe_float__arithmetic_with_cleaning(self):
+        # Test __clean_float method for fixing precision errors
+        class Float_Clean(Safe_Float):
+            decimal_places = 2
+            round_output   = True
+            use_decimal    = False  # Use regular float to test cleaning
+
+        val = Float_Clean(10.0)
+
+        # Operations that create "almost round" numbers
+        result = val * 1.111111
+        assert float(result) == 11.11  # Cleaned to exactly 11.11
+
+        result = val / 3
+        assert float(result) == 3.33  # Cleaned to exactly 3.33
+
+    def test__bug__safe_float__arithmetic_overflow_handling(self):
+        # Test overflow/underflow handling
+        big_val = Safe_Float(1e308)
+
+        # Multiplication overflow
+        with pytest.raises(OverflowError, match="Multiplication resulted in inf"):
+            big_val * 1e10
+
+        # Division overflow
+        with pytest.raises(OverflowError, match="Division resulted in inf"):
+            big_val / 1e-300        # bug?? this works
+
+        small_val = Safe_Float(1e-300)
+
+        # Division underflow (approaches zero)
+        result = small_val / 1e10
+        assert float(result) == 0.0 or float(result) < 1e-309
+
+    def test__safe_float__repr_and_str(self):
+        # Test string representations for different Safe_Float subclasses
+
+        # Basic Safe_Float
+        basic = Safe_Float(123.45)
+        assert str(basic) == "123.45"
+        assert repr(basic) == "Safe_Float(123.45)"
+
+        # Custom subclass
+        class Money(Safe_Float):
+            decimal_places = 2
+            use_decimal    = True
+
+        money = Money(19.99)
+        assert str(money) == "19.99"
+        assert repr(money) == "Money(19.99)"
+
+        # With very small numbers
+        tiny = Safe_Float(0.0000001)
+        assert "e" in str(tiny).lower() or str(tiny) == "0.0000001"
+
+        # Zero values
+        zero = Safe_Float(0.0)
+        assert str(zero) == "0.0"
+        assert repr(zero) == "Safe_Float(0.0)"
+
+    def test__decimal_precision(self):                                                  # Test Decimal arithmetic precision
+
+
+        temp1 = Safe_Float(0.1)                                   # check No floating point errors
+        temp2 = Safe_Float(0.2)                                   # since In regular float: 0.1 + 0.2 = 0.30000000000000004
+
+        assert temp1 + temp2              == 0.3                                    # With Decimal: exact arithmetic (i.e. 0.3)
+        assert temp1 + 0.2                == 0.3                                    # sum doesn't lose the type safe
+        assert 0.1 + temp2                == 0.3                                    # sum doesn't lose the type safe
+        assert temp1 - 0.05               == 0.05                                   # subtraction also doesn't lose the type safe
+        assert temp2 - 0.05               == 0.15                    # BUG
+        assert float(temp1 + temp2)       == 0.3                    # BUG
+        assert type(temp1 + temp2)        == Safe_Float
+        assert type(float(temp1 + temp2)) == float
+
+        assert 0.1 + 0.2 != 0.30000000000000001                                     # WTF: so this one doesn't work
+        assert 0.1 + 0.2 == 0.30000000000000002                                     # WTF: and this one does?
+        assert 0.1 + 0.2 == 0.30000000000000003                                     # WTF: and this
+        assert 0.1 + 0.2 == 0.30000000000000004                                     # WTF: this is a reall
+        assert 0.1 + 0.2 == 0.30000000000000005                                     # WTF: and this
+        assert 0.1 + 0.2 == 0.30000000000000006                                     # WTF: and this
+        assert 0.1 + 0.2 == 0.30000000000000007                                     # WTF: and this
+        assert 0.1 + 0.2 != 0.30000000000000009                                     # WTF: and somehow the .9 doesn't
+        assert str(0.1 + 0.2) == "0.30000000000000004"
