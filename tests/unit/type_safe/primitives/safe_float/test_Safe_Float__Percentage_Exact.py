@@ -193,11 +193,11 @@ class test_Safe_Float__Percentage_Exact(TestCase):
     def test__safe_float_percentage__string_representation(self):
         # Percentage values
         percent = Safe_Float__Percentage_Exact(75.50)
-        assert str(percent) == "75.5"
-        assert f"{percent}%" == "75.5%"
-        assert repr(percent) == "Safe_Float__Percentage_Exact(75.5)"
+        assert str(percent) == "75.50"
+        assert f"{percent}%" == "75.50%"
+        assert repr(percent) == "Safe_Float__Percentage_Exact(75.50)"
 
         # Whole number percentage
         whole = Safe_Float__Percentage_Exact(100.0)
-        assert str(whole) == "100.0"
-        assert f"Complete: {whole}%" == "Complete: 100.0%"
+        assert str(whole) == "100.00"
+        assert f"Complete: {whole}%" == "Complete: 100.00%"

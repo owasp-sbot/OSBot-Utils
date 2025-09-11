@@ -214,12 +214,12 @@ class test_Safe_Float__Money(TestCase):
 
         # Money with rounding
         price_rounded = Safe_Float__Money(19.999)  # Should round to 19.99
-        assert str(price_rounded) == "20.0"
-        assert f"Total: ${price_rounded}" == "Total: $20.0"
+        assert str(price_rounded) == "20.00"
+        assert f"Total: ${price_rounded}" == "Total: $20.00"
 
         # Zero money
         zero = Safe_Float__Money(0.00)
-        assert str(zero) == "0.0"
+        assert str(zero) == "0.00"
         assert f"${zero:.2f}" == "$0.00"
 
 

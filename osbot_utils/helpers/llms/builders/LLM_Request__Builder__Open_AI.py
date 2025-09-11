@@ -18,8 +18,8 @@ class LLM_Request__Builder__Open_AI(LLM_Request__Builder):
                                                                  'strict': True                                        }}
 
         if self.llm_request_data.temperature is not None: payload["temperature"] = self.llm_request_data.temperature
-        if self.llm_request_data.top_p       is not None: payload["top_p"] = self.llm_request_data.top_p
-        if self.llm_request_data.max_tokens  is not None: payload["max_tokens"] = self.llm_request_data.max_tokens
+        if self.llm_request_data.top_p       is not None: payload["top_p"      ] = self.llm_request_data.top_p
+        if self.llm_request_data.max_tokens  is not None: payload["max_tokens" ] = self.llm_request_data.max_tokens
 
         return payload
 

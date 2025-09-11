@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from unittest                                   import TestCase
 from osbot_utils.type_safe.primitives.safe_str.Safe_Str      import Safe_Str
@@ -33,9 +35,11 @@ class test_Safe_Str___mix_edge_cases(TestCase):
 
         # Number + string should still raise TypeError
         int_val = Safe_Int(123)
-        with pytest.raises(TypeError):
+        error_message_1 = "unsupported operand type(s) for +: 'Safe_Int' and 'str'"
+        with pytest.raises(TypeError, match=re.escape(error_message_1)):
             int_val + 'hello'
 
         float_val = Safe_Float(12.3)
-        with pytest.raises(TypeError):
+        error_message_2 = "could not convert string to float: 'hello'"
+        with pytest.raises(ValueError, match=re.escape(error_message_2)):
             float_val + 'hello'
