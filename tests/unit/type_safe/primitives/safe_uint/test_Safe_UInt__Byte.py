@@ -1,3 +1,4 @@
+import pytest
 from unittest                                                   import TestCase
 from osbot_utils.type_safe.primitives.safe_uint.Safe_UInt__Byte import Safe_UInt__Byte
 
@@ -12,9 +13,9 @@ class test_Safe_Int__Byte(TestCase):
         assert result == 255
 
         # Should fall back when exceeding byte range
-        result = byte + 10  # Would be 260
-        assert type(result) is int
-        assert result == 260
+        with pytest.raises(ValueError, match="Safe_UInt__Byte must be <= 255, got 260"):
+            result = byte + 10                  # Would be 260
+
 
 
     def test__safe_int_byte__string_representation(self):

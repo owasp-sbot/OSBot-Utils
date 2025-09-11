@@ -127,9 +127,8 @@ class test_Safe_UInt__Port(TestCase):
         # Addition that exceeds range
         port3 = Safe_UInt__Port(65000)
         port4 = Safe_UInt__Port(1000)
-        result = port3 + port4  # 66000 > 65535
-        assert type(result) is int  # Falls back to regular int
-        assert result == 66000
+        with pytest.raises(ValueError, match="Safe_UInt__Port must be <= 65535, got 66000"):
+            result = port3 + port4  # 66000 > 65535
 
         # Subtraction
         result = port1 - port2
@@ -157,10 +156,8 @@ class test_Safe_UInt__Port(TestCase):
         assert type(result) is Safe_UInt__Port
         assert result == 8180
 
-        # Should fall back to regular int when exceeding constraints
-        result = port + 60000  # Would exceed 65535
-        assert type(result) is int  # Falls back to int
-        assert result == 68080
+        with pytest.raises(ValueError,match="Safe_UInt__Port must be <= 65535, got 68080"):
+            result = port + 60000  # Would exceed 65535
 
     def test__safe_int_port__string_representation(self):
         # Port number
