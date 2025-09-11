@@ -1,6 +1,6 @@
 from typing                                                                  import Dict, Any, Type
+from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Id   import Safe_Str__LLM__Model_Id
 from osbot_utils.helpers.llms.actions.Type_Safe__Schema_For__LLMs            import Type_Safe__Schema_For__LLMs
-from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Name import Safe_Str__LLM__Model_Name
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                    import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data              import Schema__LLM_Request__Data
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Function_Call     import Schema__LLM_Request__Function_Call
@@ -42,7 +42,7 @@ class LLM_Request__Builder(Type_Safe):
         self.llm_request_data.function_call = function_call
         return self
 
-    def set__model              (self, model   : Safe_Str__LLM__Model_Name): self.llm_request_data.model    = model   ; return self
+    def set__model              (self, model   : Safe_Str__LLM__Model_Id  ): self.llm_request_data.model    = model   ; return self
     def set__platform           (self, platform: Safe_Str__Text           ): self.llm_request_data.platform = platform; return self
     def set__provider           (self, provider: Safe_Str__Text           ): self.llm_request_data.provider = provider; return self
     def set__model__gpt_4o      (self                                     ): return self.set__model('gpt-4o'      )

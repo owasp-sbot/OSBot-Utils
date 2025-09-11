@@ -22,7 +22,7 @@ class test_Safe_Float__LLM__Temperature(TestCase):
                                          allow_bool     = False ,
                                          allow_int      = True  ,
                                          allow_inf      = False ,
-                                         allow_none     = True ,
+                                         allow_none     = True  ,
                                          allow_str      = True  ,
                                          strict_type    = False ,
                                          decimal_places = 2     ,

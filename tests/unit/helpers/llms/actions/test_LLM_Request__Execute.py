@@ -1,4 +1,5 @@
 from unittest                                                                   import TestCase
+from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Id      import Safe_Str__LLM__Model_Id
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache                          import LLM_Request__Cache
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache__File_System             import LLM_Request__Cache__File_System
 from osbot_utils.helpers.llms.actions.LLM_Request__Execute                      import LLM_Request__Execute
@@ -11,7 +12,6 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content     
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role        import Schema__LLM_Request__Message__Role
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                      import Schema__LLM_Response
 from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Name    import Safe_Str__LLM__Model_Name
 from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text              import Safe_Str__Text
 from osbot_utils.utils.Env                                                      import get_env, load_dotenv
 from osbot_utils.utils.Files                                                    import folder_create
@@ -41,9 +41,9 @@ class test_LLM_Request__Execute(TestCase):
         message = Schema__LLM_Request__Message__Content(role    = Schema__LLM_Request__Message__Role.USER,
                                                         content = message_text                           )
 
-        request_data = Schema__LLM_Request__Data(model       = Safe_Str__LLM__Model_Name("gpt-4o-mini"),
-                                                 platform    = Safe_Str__Text           ("OpenAI"     ),
-                                                 provider    = Safe_Str__Text           ("OpenAI-API" ),
+        request_data = Schema__LLM_Request__Data(model       = Safe_Str__LLM__Model_Id("gpt-4o-mini"),
+                                                 platform    = Safe_Str__Text         ("OpenAI"     ),
+                                                 provider    = Safe_Str__Text         ("OpenAI-API" ),
                                                  temperature = 0.7          ,
                                                  max_tokens  = 50           )      # Limit tokens to reduce costs
 
