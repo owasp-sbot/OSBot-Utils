@@ -583,27 +583,33 @@ class test_Safe_Float(TestCase):
         assert str(zero) == "0.0"
         assert repr(zero) == "Safe_Float(0.0)"
 
-    def test__decimal_precision(self):                                                  # Test Decimal arithmetic precision
-
-
-        temp1 = Safe_Float(0.1)                                   # check No floating point errors
-        temp2 = Safe_Float(0.2)                                   # since In regular float: 0.1 + 0.2 = 0.30000000000000004
+    def test__decimal_precision(self):                                              # Test Decimal arithmetic precision
+        temp1 = Safe_Float(0.1)                                                     # check No floating point errors
+        temp2 = Safe_Float(0.2)                                                     # since In regular float: 0.1 + 0.2 = 0.30000000000000004
 
         assert temp1 + temp2              == 0.3                                    # With Decimal: exact arithmetic (i.e. 0.3)
         assert temp1 + 0.2                == 0.3                                    # sum doesn't lose the type safe
         assert 0.1 + temp2                == 0.3                                    # sum doesn't lose the type safe
         assert temp1 - 0.05               == 0.05                                   # subtraction also doesn't lose the type safe
-        assert temp2 - 0.05               == 0.15                    # BUG
-        assert float(temp1 + temp2)       == 0.3                    # BUG
-        assert type(temp1 + temp2)        == Safe_Float
-        assert type(float(temp1 + temp2)) == float
+        assert temp2 - 0.05               == 0.15
+        assert str(temp2 - 0.05)          == "0.15"                                 # confirm str value keeps the correct values
+        assert float(temp1 + temp2)       == 0.3                                    # making it a float here still is ok
+        assert type(temp1 + temp2)        == Safe_Float                             # confirm that add and subtract doesn't lose the Safe_Float
+        assert type(temp2 - 0.05)         == Safe_Float                             # i.e. we are still protected
+        assert type(float(temp1 + temp2)) == float                                  # confirm the conversion to float
+        assert float(0.1 + 0.2)           == 0.30000000000000004                    # WTF! but direct floats are the issue
 
-        assert 0.1 + 0.2 != 0.30000000000000001                                     # WTF: so this one doesn't work
-        assert 0.1 + 0.2 == 0.30000000000000002                                     # WTF: and this one does?
+        assert 0.1 + 0.2 != 0.30000000000000001                                     # so these two are not equal
+        assert 0.1 + 0.2 != 0.30000000000000009                                     # which make sense
+
+        assert 0.1 + 0.2 == 0.30000000000000002                                     # WTF: but this one does (due to 'precision' rounding)
         assert 0.1 + 0.2 == 0.30000000000000003                                     # WTF: and this
-        assert 0.1 + 0.2 == 0.30000000000000004                                     # WTF: this is a reall
+        assert 0.1 + 0.2 == 0.30000000000000004                                     # WTF: this the real one
         assert 0.1 + 0.2 == 0.30000000000000005                                     # WTF: and this
         assert 0.1 + 0.2 == 0.30000000000000006                                     # WTF: and this
-        assert 0.1 + 0.2 == 0.30000000000000007                                     # WTF: and this
-        assert 0.1 + 0.2 != 0.30000000000000009                                     # WTF: and somehow the .9 doesn't
-        assert str(0.1 + 0.2) == "0.30000000000000004"
+        assert 0.1 + 0.2 == 0.30000000000000007                                     # WTF: and this one
+
+        assert str(0.2 - 0.05) == "0.15000000000000002"                             # WTF: this is bound to cause some bugs
+        assert str(0.1 + 0.2 ) == "0.30000000000000004"                             # WTF: and this
+        assert f'{0.1 + 0.2}'  == '0.30000000000000004'                             # WTF: this
+        assert f'{0.2 - 0.05}' == '0.15000000000000002'                             # WTF: and this
