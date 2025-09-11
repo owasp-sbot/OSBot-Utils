@@ -1,7 +1,5 @@
-from unittest                                                   import TestCase
-
 import pytest
-
+from unittest                                                   import TestCase
 from osbot_utils.type_safe.primitives.safe_uint.Safe_UInt__Byte import Safe_UInt__Byte
 
 

@@ -1,14 +1,12 @@
 import re
-
 import pytest
-from unittest                                                                             import TestCase
-
-from osbot_utils.testing.__ import __
-from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Primitive                                           import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.safe_float.Safe_Float                               import Safe_Float
-from osbot_utils.type_safe.primitives.safe_float.llm.Safe_Float__LLM__Temperature import Safe_Float__LLM__Temperature
-from osbot_utils.utils.Objects                                                            import base_classes
+from unittest                                                                      import TestCase
+from osbot_utils.testing.__                                                        import __
+from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive                                    import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float                        import Safe_Float
+from osbot_utils.type_safe.primitives.safe_float.llm.Safe_Float__LLM__Temperature  import Safe_Float__LLM__Temperature
+from osbot_utils.utils.Objects                                                     import base_classes
 
 
 class test_Safe_Float__LLM__Temperature(TestCase):
