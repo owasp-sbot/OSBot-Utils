@@ -4,7 +4,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.Type_Safe__Primitive                                 import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.safe_int                                  import Safe_Int
 from osbot_utils.type_safe.primitives.safe_uint.Safe_UInt                       import Safe_UInt
-from osbot_utils.type_safe.primitives.safe_uint.llm.Safe_UInt__LLM__Max_Tokens  import Safe_UInt__LLM__Max_Tokens
+from osbot_utils.type_safe.primitives.safe_uint.llm.Safe_UInt__LLM__Max_Tokens import Safe_UInt__LLM__Max_Tokens, DEFAULT__VALUE_UINT__LLM__MAX_TOKENS
 from osbot_utils.utils.Objects                                                  import __, base_classes
 
 
@@ -15,7 +15,7 @@ class test_Safe_UInt__LLM__Max_Tokens(TestCase):
         with Safe_UInt__LLM__Max_Tokens() as _:
             assert type(_)         is Safe_UInt__LLM__Max_Tokens
             assert base_classes(_) == [Safe_UInt, Safe_Int, Type_Safe__Primitive, int, object, object]
-            assert _               == 1                                             # Default to 1 (since that is min_value)
+            assert _               == DEFAULT__VALUE_UINT__LLM__MAX_TOKENS           # Default to DEFAULT__VALUE_UINT__LLM__MAX_TOKENS
             assert _.min_value     == 1                                             # Minimum 1 token
             assert _.max_value     == 200000                                        # Maximum 200k tokens
             assert _.allow_none    is True                                          # None allowed for model defaults
@@ -68,15 +68,15 @@ class test_Safe_UInt__LLM__Max_Tokens(TestCase):
 
     def test_sub_handling(self):                                                  # Test None value support
         token_limit = Safe_UInt__LLM__Max_Tokens(None)                              # None is allowed (means use model default)
-        assert token_limit == 1
+        assert token_limit == DEFAULT__VALUE_UINT__LLM__MAX_TOKENS
         assert type(token_limit) == Safe_UInt__LLM__Max_Tokens
         with pytest.raises(ValueError, match="Safe_UInt__LLM__Max_Tokens must be >= 1, got 0"):
-            abc = token_limit - 1
+            abc = token_limit - DEFAULT__VALUE_UINT__LLM__MAX_TOKENS
         assert type(token_limit+1  ) is Safe_UInt__LLM__Max_Tokens
         assert type(token_limit+1-1) is Safe_UInt__LLM__Max_Tokens
 
         with pytest.raises(ValueError, match="Safe_UInt__LLM__Max_Tokens must be >= 1, got 0"):
-            token_limit -= 1                                                        # at this stage we can still pickup this
+            token_limit -= DEFAULT__VALUE_UINT__LLM__MAX_TOKENS                     # at this stage we can still pickup this
 
         token_limit = 0                                                             # But since this completely replaces the object
         assert type(token_limit) is not Safe_UInt__LLM__Max_Tokens                  # we lose type safety
@@ -161,8 +161,8 @@ class test_Safe_UInt__LLM__Max_Tokens(TestCase):
 
         # Comparisons with None
         tokens_none = Safe_UInt__LLM__Max_Tokens(None)
-        assert tokens_none == Safe_UInt__LLM__Max_Tokens(1)
-        assert tokens_none == 1
+        assert tokens_none == Safe_UInt__LLM__Max_Tokens(DEFAULT__VALUE_UINT__LLM__MAX_TOKENS)
+        assert tokens_none == DEFAULT__VALUE_UINT__LLM__MAX_TOKENS
         assert tokens_none != tokens1
 
     def test_arithmetic_operations(self):                                          # Test arithmetic with token counts
@@ -190,7 +190,7 @@ class test_Safe_UInt__LLM__Max_Tokens(TestCase):
 
         with Schema__LLM__Request() as _:
             assert type(_.max_tokens) is Safe_UInt__LLM__Max_Tokens
-            assert _.max_tokens == 1                                              # Default initialization
+            assert _.max_tokens == DEFAULT__VALUE_UINT__LLM__MAX_TOKENS           # Default initialization
 
             # Assignment with auto-conversion
             _.model = 'gpt-4'
