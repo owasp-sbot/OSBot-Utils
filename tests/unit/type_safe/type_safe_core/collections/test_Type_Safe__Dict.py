@@ -3,10 +3,10 @@ import sys
 import pytest
 from unittest                                                         import TestCase
 from typing                                                           import Dict, Union, Optional, Any, Callable, List, Tuple
-from osbot_utils.helpers.Obj_Id                                       import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id      import Obj_Id
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id    import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id     import Safe_Id
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
 

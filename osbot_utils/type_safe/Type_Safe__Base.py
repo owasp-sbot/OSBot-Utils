@@ -1,6 +1,6 @@
 import types
 from typing                                                       import get_args, Union, Optional, Any, ForwardRef, Literal
-from osbot_utils.helpers.Obj_Id                                   import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id  import Obj_Id
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
 
 EXACT_TYPE_MATCH = (int, float, str, bytes, bool, complex)

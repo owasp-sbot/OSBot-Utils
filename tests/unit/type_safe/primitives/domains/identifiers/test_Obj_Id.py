@@ -1,7 +1,6 @@
-from unittest import TestCase
-
-from osbot_utils.helpers.Obj_Id                                   import new_obj_id, is_obj_id, Obj_Id
+from unittest                                                     import TestCase
 from osbot_utils.testing.performance.Performance_Measure__Session import Performance_Measure__Session
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id  import Obj_Id, is_obj_id, new_obj_id
 
 
 class test_Obj_Id(TestCase):

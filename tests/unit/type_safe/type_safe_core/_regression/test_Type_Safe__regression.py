@@ -5,7 +5,7 @@ from decimal                                                                    
 from typing                                                                             import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set
 from unittest                                                                           import TestCase
 from unittest.mock                                                                      import patch
-from osbot_utils.helpers.Obj_Id                                                         import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                          import Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                 import Timestamp_Now
 from osbot_utils.type_safe.primitives.core.Safe_Str                                     import Safe_Str

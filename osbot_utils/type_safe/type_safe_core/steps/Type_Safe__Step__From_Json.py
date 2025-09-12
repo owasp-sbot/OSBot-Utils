@@ -2,7 +2,7 @@ import sys
 import types
 from decimal                                                                        import Decimal
 from enum                                                                           import EnumMeta
-from osbot_utils.helpers.Obj_Id                                                     import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash  import Safe_Str__Hash
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid

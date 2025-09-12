@@ -4,7 +4,7 @@ import pytest
 from unittest                                                                           import TestCase
 from typing                                                                             import Union, Optional, List, Type, Callable, Any
 from dataclasses                                                                        import dataclass
-from osbot_utils.helpers.Obj_Id                                                         import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash      import Safe_Str__Hash
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Name       import Safe_Str__File__Name
 from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                 import Timestamp_Now
