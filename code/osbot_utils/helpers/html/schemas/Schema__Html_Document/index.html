@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/schemas/Schema__Html_Document/" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>Schema__Html_Document - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Schema__Html_Document";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/schemas/Schema__Html_Document.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/schemas/Schema__Html_Document/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Schema__Html_Document</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="schema__html_document">Schema__Html_Document<a class="headerlink" href="#schema__html_document" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Schema__Html_Document</code> is the root schema class that represents a complete HTML document. It provides type-safe serialization and includes a timestamp for tracking document creation or modification time.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Schema__Html_Document(Type_Safe):
+    root_node : Schema__Html_Node
+    timestamp : Timestamp_Now
+</code></pre>
+<h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
+<p>Inherits from <code>Type_Safe</code>, which provides:
+- Type validation
+- JSON serialization/deserialization
+- Object introspection methods</p>
+<h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
+<h3 id="root_node"><code>root_node</code><a class="headerlink" href="#root_node" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>Schema__Html_Node</code></li>
+<li><strong>Description</strong>: The root element of the HTML document (typically the <code>&lt;html&gt;</code> tag)</li>
+<li><strong>Required</strong>: Yes</li>
+</ul>
+<h3 id="timestamp"><code>timestamp</code><a class="headerlink" href="#timestamp" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>Timestamp_Now</code></li>
+<li><strong>Description</strong>: Automatically generated timestamp when the document is created</li>
+<li><strong>Default</strong>: Current timestamp</li>
+</ul>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="inherited-from-type_safe">Inherited from Type_Safe<a class="headerlink" href="#inherited-from-type_safe" title="Permanent link">&para;</a></h3>
+<h4 id="json-dict"><code>json() -&gt; dict</code><a class="headerlink" href="#json-dict" title="Permanent link">&para;</a></h4>
+<p>Serializes the document to a JSON-compatible dictionary.</p>
+<pre><code class="language-python">document = Schema__Html_Document(root_node=html_node)
+json_data = document.json()
+</code></pre>
+<h4 id="from_jsonjson_data-dict-schema__html_document"><code>from_json(json_data: dict) -&gt; Schema__Html_Document</code><a class="headerlink" href="#from_jsonjson_data-dict-schema__html_document" title="Permanent link">&para;</a></h4>
+<p>Deserializes a document from JSON data.</p>
+<pre><code class="language-python">json_data = {'root_node': {...}, 'timestamp': '2024-01-01T00:00:00Z'}
+document = Schema__Html_Document.from_json(json_data)
+</code></pre>
+<h4 id="obj-object"><code>obj() -&gt; object</code><a class="headerlink" href="#obj-object" title="Permanent link">&para;</a></h4>
+<p>Returns a simplified object representation.</p>
+<pre><code class="language-python">doc_obj = document.obj()
+</code></pre>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="creating-a-document">Creating a Document<a class="headerlink" href="#creating-a-document" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.schemas.Schema__Html_Document import Schema__Html_Document
+from osbot_utils.helpers.html.schemas.Schema__Html_Node import Schema__Html_Node
+
+# Create root HTML node
+root_node = Schema__Html_Node(
+    tag='html',
+    attrs={'lang': 'en'},
+    child_nodes=[],
+    text_nodes=[],
+    position=-1
+)
+
+# Create document
+document = Schema__Html_Document(root_node=root_node)
+</code></pre>
+<h3 id="serialization-and-persistence">Serialization and Persistence<a class="headerlink" href="#serialization-and-persistence" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Serialize to JSON
+json_data = document.json()
+
+# Save to file (hypothetical)
+with open('document.json', 'w') as f:
+    json.dump(json_data, f)
+
+# Load and deserialize
+with open('document.json', 'r') as f:
+    loaded_data = json.load(f)
+
+restored_document = Schema__Html_Document.from_json(loaded_data)
+</code></pre>
+<h3 id="complete-roundtrip-example">Complete Roundtrip Example<a class="headerlink" href="#complete-roundtrip-example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
+
+# Parse HTML to document
+html = &quot;&lt;html&gt;&lt;body&gt;&lt;p&gt;Hello World&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;&quot;
+html_dict = Html__To__Html_Dict(html).convert()
+document = Html_Dict__To__Html_Document(html__dict=html_dict).convert()
+
+# Serialize and restore
+json_data = document.json()
+restored = Schema__Html_Document.from_json(json_data)
+
+# Verify
+assert restored.json() == json_data
+</code></pre>
+<h2 id="json-structure">JSON Structure<a class="headerlink" href="#json-structure" title="Permanent link">&para;</a></h2>
+<p>A serialized document has this structure:</p>
+<pre><code class="language-json">{
+    &quot;root_node&quot;: {
+        &quot;tag&quot;: &quot;html&quot;,
+        &quot;attrs&quot;: {&quot;lang&quot;: &quot;en&quot;},
+        &quot;child_nodes&quot;: [...],
+        &quot;text_nodes&quot;: [...],
+        &quot;position&quot;: -1
+    },
+    &quot;timestamp&quot;: &quot;2024-01-01T12:00:00.000000&quot;
+}
+</code></pre>
+<h2 id="integration-points">Integration Points<a class="headerlink" href="#integration-points" title="Permanent link">&para;</a></h2>
+<h3 id="with-converters">With Converters<a class="headerlink" href="#with-converters" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Created by</strong>: <code>Html_Dict__To__Html_Document</code></li>
+<li><strong>Consumed by</strong>: <code>Html_Document__To__Html_Dict</code></li>
+</ol>
+<h3 id="with-parser-pipeline">With Parser Pipeline<a class="headerlink" href="#with-parser-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code>HTML String 
+    → Html__To__Html_Dict 
+    → Html_Dict__To__Html_Document 
+    → Schema__Html_Document
+</code></pre>
+<h2 id="design-considerations">Design Considerations<a class="headerlink" href="#design-considerations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Timestamp</strong>: Automatically captured for audit trails and caching</li>
+<li><strong>Single Root</strong>: Enforces valid HTML structure with one root element</li>
+<li><strong>Type Safety</strong>: Full type checking through Type_Safe base class</li>
+<li><strong>Serialization</strong>: Clean JSON format for storage and transmission</li>
+</ol>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Root Node Position</strong>: Always set root node position to -1</li>
+<li><strong>Validation</strong>: Ensure root node is properly structured before creating document</li>
+<li><strong>Timestamp Usage</strong>: Use timestamp for cache invalidation or versioning</li>
+<li><strong>Error Handling</strong>: Wrap deserialization in try-except for invalid JSON</li>
+</ol>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="document-creation-from-html">Document Creation from HTML<a class="headerlink" href="#document-creation-from-html" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def create_document_from_html(html_string):
+    html_dict = Html__To__Html_Dict(html_string).convert()
+    return Html_Dict__To__Html_Document(html__dict=html_dict).convert()
+</code></pre>
+<h3 id="document-validation">Document Validation<a class="headerlink" href="#document-validation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def is_valid_document(document):
+    return (
+        document.root_node is not None and
+        document.root_node.tag == 'html' and
+        document.timestamp is not None
+    )
+</code></pre>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>No built-in HTML validation beyond structure</li>
+<li>Timestamp is not timezone-aware by default</li>
+<li>No versioning support built-in</li>
+<li>No compression for large documents</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
