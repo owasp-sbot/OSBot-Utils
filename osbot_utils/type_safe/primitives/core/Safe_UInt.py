@@ -1,4 +1,4 @@
-from osbot_utils.type_safe.primitives.safe_int.Safe_Int import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Int import Safe_Int
 
 
 class Safe_UInt(Safe_Int):             # Unsigned Integer - only accepts non-negative integer values

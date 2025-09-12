@@ -1,7 +1,7 @@
 import pytest
 from unittest                           import TestCase
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid    import Random_Guid
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id        import Safe_Id, SAFE_ID__MAX_LENGTH
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid    import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id        import Safe_Id, SAFE_ID__MAX_LENGTH
 
 
 class test_Safe_Id(TestCase):

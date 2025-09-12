@@ -1,6 +1,6 @@
 from typing                                         import Dict, List, Any
 from osbot_utils.type_safe.Type_Safe             import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Guid                       import Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Guid                       import Guid
 from osbot_utils.helpers.xml.rss.RSS__Enclosure     import RSS__Enclosure
 
 class RSS__Item(Type_Safe):

@@ -1,6 +1,6 @@
 from typing                                                                     import Dict, Any, Type
 from osbot_utils.helpers.Obj_Id                                                 import Obj_Id
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid          import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache               import type_safe_cache, Type_Safe__Cache
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables   import IMMUTABLE_TYPES
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation          import type_safe_validation

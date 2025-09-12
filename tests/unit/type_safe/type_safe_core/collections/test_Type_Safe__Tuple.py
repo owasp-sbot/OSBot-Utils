@@ -140,7 +140,7 @@ class test_Type_Safe__Tuple(TestCase):
         assert 'tuple[An_Safe_Str, int, str] with 3 elements' in repr(tuple_instance)
 
     def test__tuple_with_safe_id(self):
-        from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
+        from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
 
         class Schema(Type_Safe):
             id_tuple: tuple[Safe_Id, Safe_Id]

@@ -1,14 +1,17 @@
 import re
 import sys
 import pytest
-from typing                                                             import List, Dict, Union, Optional, Any
-from unittest                                                           import TestCase
-from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid  import Random_Guid
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id      import Safe_Id
-from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__IP_Address import Safe_Str__IP_Address
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
-from osbot_utils.utils.Objects                                          import __
+from typing                                                                              import List, Dict, Union, Optional, Any
+from unittest                                                                            import TestCase
+from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Int                                      import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Str                                      import Safe_Str
+from osbot_utils.type_safe.primitives.domains.git.github.safe_str.Safe_Str__GitHub__Repo import Safe_Str__GitHub__Repo
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                    import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                        import Safe_Id
+from osbot_utils.type_safe.primitives.domains.network.safe_str.Safe_Str__IP_Address      import Safe_Str__IP_Address
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                    import Type_Safe__List
+from osbot_utils.utils.Objects                                                           import __
 
 
 class test_Type_Safe__List(TestCase):
@@ -534,17 +537,12 @@ class test_Type_Safe__List(TestCase):
 
     def test__type_safe_list__primitive_conversions_with_detailed_errors(self): # Test that Type_Safe__List handles various primitive conversions and provides detailed error messages
 
-        from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__IP_Address      import Safe_Str__IP_Address
-        from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id           import Safe_Id
-        from osbot_utils.type_safe.primitives.safe_str.Safe_Str                      import Safe_Str
-        from osbot_utils.type_safe.primitives.safe_int.Safe_Int                      import Safe_Int
-        from osbot_utils.type_safe.primitives.safe_str.github.Safe_Str__GitHub__Repo import Safe_Str__GitHub__Repo
-
+        
         # Test with different Safe_Str variants
         class Schema(Type_Safe):
-            ips: List[Safe_Str__IP_Address]
-            ids: List[Safe_Id]
-            repos: List[Safe_Str__GitHub__Repo]
+            ips    : List[Safe_Str__IP_Address]
+            ids    : List[Safe_Id]
+            repos  : List[Safe_Str__GitHub__Repo]
             numbers: List[Safe_Int]
 
         # Should work - valid conversions

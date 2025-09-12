@@ -2,7 +2,7 @@ from typing                                                                     
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder                       import LLM_Request__Builder
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Data                   import Schema__LLM_Request__Data
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
-from osbot_utils.type_safe.primitives.safe_float.llm.Safe_Float__LLM__Temperature import Safe_Float__LLM__Temperature
+from osbot_utils.type_safe.primitives.domains.llm.safe_float.Safe_Float__LLM__Temperature import Safe_Float__LLM__Temperature
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                    import type_safe
 
 
