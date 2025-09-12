@@ -30,6 +30,9 @@ class Safe_Str(Type_Safe__Primitive, str):
         if not isinstance(value, str):                                                                                  # Convert to string if not already
             value = str(value)
 
+        if cls.to_lower_case:
+            value = value.lower()                                                                                       # to make this more useful do the lowercase action as soon as possible
+
         if cls.trim_whitespace:                                                                                         # Trim whitespace if requested
             value = value.strip()
 
@@ -46,8 +49,6 @@ class Safe_Str(Type_Safe__Primitive, str):
 
         sanitized_value = cls.validate_and_sanitize(value)
 
-        if cls.to_lower_case:
-            sanitized_value = sanitized_value.lower()
 
         return str.__new__(cls, sanitized_value)
 
