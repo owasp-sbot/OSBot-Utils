@@ -395,7 +395,7 @@ class test_Safe_Str(TestCase):
 
         # Should lowercase first, then validate
         with pytest.raises(ValueError, match="value contains invalid characters"):
-            Safe_Str__Strict_Lower('HELLO')  # After lowercasing becomes 'hello', but if strict checks original...
+            Safe_Str__Strict_Lower('HELLO!')  # After lowercasing becomes 'hello!', but when strict checks the ! will trigger the exception
 
 
     def test_to_lower_case_unicode_handling(self):                                # Test unicode lowercase
@@ -423,12 +423,12 @@ class test_Safe_Str(TestCase):
             user.username = 'John_DOE'
             user.email    = 'ADMIn@TEST'
 
-            assert user.username == '_ohn____'
-            assert user.email    == '____n_____'
+            assert user.username == 'john_doe'
+            assert user.email    == 'admin_test'
 
             json_data = user.json()
-            assert json_data['username'] == '_ohn____'
-            assert json_data['email']    == '____n_____'
+            assert json_data['username'] == 'john_doe'
+            assert json_data['email']    == 'admin_test'
 
     def test_to_lower_case_with_exact_length(self):                              # Test with exact_length requirement
         class Safe_Str__Fixed_Lower(Safe_Str):
