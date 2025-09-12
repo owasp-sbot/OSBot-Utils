@@ -1,22 +1,22 @@
 import sys
 import types
-from decimal                                                                      import Decimal
-from enum                                                                         import EnumMeta
-from osbot_utils.helpers.Obj_Id                                                   import Obj_Id
-from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid            import Random_Guid
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid_Short      import Random_Guid_Short
-from osbot_utils.type_safe.primitives.safe_str.cryptography.hashes.Safe_Str__Hash import Safe_Str__Hash
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict             import Type_Safe__Dict
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List             import Type_Safe__List
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set              import Type_Safe__Set
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple            import Type_Safe__Tuple
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations           import type_safe_annotations
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache                 import type_safe_cache
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert               import type_safe_convert
-from osbot_utils.utils.Objects                                                    import enum_from_value
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                import Safe_Id
-from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                      import Timestamp_Now
+from decimal                                                                        import Decimal
+from enum                                                                           import EnumMeta
+from osbot_utils.helpers.Obj_Id                                                     import Obj_Id
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash  import Safe_Str__Hash
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid_Short         import Random_Guid_Short
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now             import Timestamp_Now
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                import Type_Safe__Set
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple              import Type_Safe__Tuple
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations             import type_safe_annotations
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache                   import type_safe_cache
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert                 import type_safe_convert
+from osbot_utils.utils.Objects                                                      import enum_from_value
 
 # todo; refactor all this python compatibility into the python_3_8 class
 if sys.version_info < (3, 8):                                           # pragma: no cover

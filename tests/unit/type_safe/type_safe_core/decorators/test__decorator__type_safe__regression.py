@@ -1,14 +1,13 @@
 import re
 import pytest
-from typing                                                                     import Any, Dict, Optional, Type, List
-from unittest                                                                   import TestCase
-from osbot_utils.type_safe.primitives.safe_int                                  import Safe_Int
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id              import Safe_Id
-from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now                    import Timestamp_Now
-from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
-
+from typing                                                                             import Any, Dict, Optional, Type, List
+from unittest                                                                           import TestCase
+from osbot_utils.type_safe.primitives.core.Safe_Int                                     import Safe_Int
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                 import Timestamp_Now
+from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                          import type_safe
 
 class test_decorator__type_safe__regression(TestCase):
 
@@ -31,14 +30,14 @@ class test_decorator__type_safe__regression(TestCase):
         @type_safe
         def an_method(an_path: Safe_Str__File__Path):
             return an_path
-        # error_message = "Parameter 'an_path' expected type <class 'osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path.Safe_Str__File__Path'>, but got <class 'str'>"
+        # error_message = "Parameter 'an_path' expected type <class 'osbot_utils.type_safe.primitives.domains.filesystem.safe_str.Safe_Str__File__Path.Safe_Str__File__Path'>, but got <class 'str'>"
         # with pytest.raises(ValueError, match=error_message):
         #     an_method('abc')                                      # BUG: should not rasie
 
         assert an_method('abc')       == 'abc'                      # FIXED :)
         assert type(an_method('abc')) == Safe_Str__File__Path
         assert type(an_method('abc')) is not str
-        error_message = "Parameter 'an_path' expected type <class 'osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path.Safe_Str__File__Path'>, but got <class 'int'>"
+        error_message = "Parameter 'an_path' expected type <class 'osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path.Safe_Str__File__Path'>, but got <class 'int'>"
         with pytest.raises(ValueError, match=error_message):
             an_method(123)
 
@@ -207,12 +206,12 @@ class test_decorator__type_safe__regression(TestCase):
             an_function(an_str="answer", an_int=42, optional_type="aaa"   )     # BUG:should have raised exception
 
         an_function(an_str="answer", an_int=42, optional_type_str=Safe_Id       )  # OK because Safe_Id(str)
-        expected_error_4 = "Parameter 'optional_type_str' expected type type[str], but got osbot_utils.type_safe.primitives.safe_int.Timestamp_Now.Timestamp_Now which is not a subclass of <class 'str'>"
+        expected_error_4 = "Parameter 'optional_type_str' expected type type[str], but got osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now.Timestamp_Now which is not a subclass of <class 'str'>"
         with pytest.raises(ValueError, match=re.escape(expected_error_4)):
             an_function(an_str="answer", an_int=42, optional_type_str=Timestamp_Now )  # BUG:should have raised exception, because Timestamp_Now(int)
 
         an_function(an_str="answer", an_int=42, optional_type_int=Timestamp_Now)  # OK because Timestamp_Now(int)
-        expected_error_5 = "Parameter 'optional_type_int' expected type typing.Type[int], but got osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id.Safe_Id which is not a subclass of <class 'int'>"
+        expected_error_5 = "Parameter 'optional_type_int' expected type typing.Type[int], but got osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id.Safe_Id which is not a subclass of <class 'int'>"
         with pytest.raises(ValueError, match=re.escape(expected_error_5)):
             an_function(an_str="answer", an_int=42, optional_type_int=Safe_Id      )  # BUG:should have raised exception, because Safe_Id(str)
 

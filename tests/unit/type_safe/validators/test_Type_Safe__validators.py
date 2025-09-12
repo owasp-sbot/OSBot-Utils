@@ -1,15 +1,15 @@
 import sys
 import pytest
-from unittest                                                       import TestCase
+from unittest                                                   import TestCase
 
 if sys.version_info > (3, 8):
-    from osbot_utils.helpers.python_compatibility.python_3_8        import Annotated
-    from osbot_utils.type_safe.Type_Safe                         import Type_Safe
-    from osbot_utils.type_safe.validators.Type_Safe__Validator         import Validate
-    from osbot_utils.type_safe.validators.Validator__Max    import Max
-    from osbot_utils.type_safe.validators.Validator__Min    import Min
-    from osbot_utils.type_safe.validators.Validator__One_Of import One_Of
-    from osbot_utils.type_safe.validators.Validator__Regex  import Regex
+    from osbot_utils.helpers.python_compatibility.python_3_8    import Annotated
+    from osbot_utils.type_safe.Type_Safe                        import Type_Safe
+    from osbot_utils.type_safe.validators.Type_Safe__Validator  import Validate
+    from osbot_utils.type_safe.validators.Validator__Max        import Max
+    from osbot_utils.type_safe.validators.Validator__Min        import Min
+    from osbot_utils.type_safe.validators.Validator__One_Of     import One_Of
+    from osbot_utils.type_safe.validators.Validator__Regex      import Regex
 
 
 class test_Type_Safe__validators(TestCase):

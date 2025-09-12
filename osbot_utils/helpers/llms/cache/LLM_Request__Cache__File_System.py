@@ -1,19 +1,18 @@
-from datetime                                                                   import datetime, UTC
-from typing                                                                     import Optional, List
-from osbot_utils.decorators.methods.cache_on_self                               import cache_on_self
-from osbot_utils.helpers.Obj_Id                                                 import Obj_Id
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id              import Safe_Id
-from osbot_utils.helpers.llms.cache.LLM_Cache__Path_Generator                   import LLM_Cache__Path_Generator
-from osbot_utils.helpers.llms.cache.LLM_Request__Cache                          import LLM_Request__Cache
-from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Storage                 import LLM_Request__Cache__Storage
-from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder              import Virtual_Storage__Local__Folder
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index                  import Schema__LLM_Cache__Index
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                       import Schema__LLM_Request
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                      import Schema__LLM_Response
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache               import Schema__LLM_Response__Cache
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path  import Safe_Str__File__Path
-
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  import type_safe
+from datetime                                                                       import datetime, UTC
+from typing                                                                         import Optional, List
+from osbot_utils.decorators.methods.cache_on_self                                   import cache_on_self
+from osbot_utils.helpers.Obj_Id                                                     import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
+from osbot_utils.helpers.llms.cache.LLM_Cache__Path_Generator                       import LLM_Cache__Path_Generator
+from osbot_utils.helpers.llms.cache.LLM_Request__Cache                              import LLM_Request__Cache
+from osbot_utils.helpers.llms.cache.LLM_Request__Cache__Storage                     import LLM_Request__Cache__Storage
+from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder                  import Virtual_Storage__Local__Folder
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index                      import Schema__LLM_Cache__Index
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                           import Schema__LLM_Request
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                          import Schema__LLM_Response
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache                   import Schema__LLM_Response__Cache
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                      import type_safe
 
 
 class LLM_Request__Cache__File_System(LLM_Request__Cache):

@@ -1,12 +1,12 @@
 from typing                                                                  import List
 from unittest                                                                import TestCase
 
-from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Id import Safe_Str__LLM__Model_Id
+from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Model_Id import Safe_Str__LLM__Model_Id
 
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI         import LLM_Request__Builder__Open_AI
 from osbot_utils.helpers.llms.builders.LLM_Request__Factory                  import LLM_Request__Factory
 from osbot_utils.type_safe.Type_Safe                                         import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.text.Safe_Str__Text           import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text           import Safe_Str__Text
 
 
 class test_LLM_Request__Builder__Open_AI(TestCase):

@@ -2,7 +2,7 @@ import pytest
 from unittest                                                       import TestCase
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache   import type_safe_cache
 from osbot_utils.utils.Env                                          import in_github_action
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                                import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                                import Random_Guid
 from osbot_utils.testing.performance.Performance_Measure__Session   import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                import Type_Safe
 

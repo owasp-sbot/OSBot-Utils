@@ -3,10 +3,10 @@ import pytest
 from unittest                                                               import TestCase
 from typing                                                                 import Literal
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid       import Random_Guid
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations     import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Set_Attr   import Type_Safe__Step__Set_Attr, type_safe_step_set_attr
 from osbot_utils.utils.Misc                                                 import random_guid
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid      import Random_Guid
 
 
 class test_Type_Safe__Step__Set_Attr(TestCase):

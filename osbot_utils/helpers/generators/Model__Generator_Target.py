@@ -1,6 +1,6 @@
 from types                                                  import GeneratorType
 from osbot_utils.type_safe.Type_Safe                     import Type_Safe
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                        import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                        import Random_Guid
 from osbot_utils.helpers.generators.Model__Generator_State  import Model__Generator_State
 
 

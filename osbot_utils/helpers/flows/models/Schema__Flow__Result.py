@@ -1,5 +1,5 @@
 from osbot_utils.type_safe.Type_Safe                        import Type_Safe
-from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now import Timestamp_Now
 
 class Schema__Flow__Result(Type_Safe):                      # Represents a result produced by the flow
     key         : str

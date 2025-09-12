@@ -1,8 +1,8 @@
 import unittest
-from datetime                                                                  import datetime
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id             import Safe_Id
-from osbot_utils.helpers.llms.cache.LLM_Cache__Path_Generator                  import LLM_Cache__Path_Generator
-from osbot_utils.type_safe.primitives.safe_str.filesystem.Safe_Str__File__Path import Safe_Str__File__Path
+from datetime                                                                     import datetime
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                 import Safe_Id
+from osbot_utils.helpers.llms.cache.LLM_Cache__Path_Generator                     import LLM_Cache__Path_Generator
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
 
 
 class test_LLM_Cache__Path_Generator(unittest.TestCase):

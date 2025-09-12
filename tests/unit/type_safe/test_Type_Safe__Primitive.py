@@ -1,15 +1,15 @@
 import re
-from unittest                                                               import TestCase
-from osbot_utils.testing.__                                                 import __
-from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Primitive                             import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.safe_float.Safe_Float                 import Safe_Float
-from osbot_utils.type_safe.primitives.safe_int                              import Safe_Int
-from osbot_utils.type_safe.primitives.safe_str.Enum__Safe_Str__Regex_Mode   import Enum__Safe_Str__Regex_Mode
-from osbot_utils.type_safe.primitives.safe_str.Safe_Str                     import Safe_Str
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id          import Safe_Id
-from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__IP_Address     import Safe_Str__IP_Address
-from osbot_utils.type_safe.primitives.safe_str.web.Safe_Str__Username       import Safe_Str__Username
+from unittest                                                                       import TestCase
+from osbot_utils.testing.__                                                         import __
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive                                     import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.core.Safe_Float                               import Safe_Float
+from osbot_utils.type_safe.primitives.core.Safe_Int                                 import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Str                                 import Safe_Str
+from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode         import Enum__Safe_Str__Regex_Mode
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
+from osbot_utils.type_safe.primitives.domains.network.safe_str.Safe_Str__IP_Address import Safe_Str__IP_Address
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Username       import Safe_Str__Username
 
 
 class test_Type_Safe__Primitive(TestCase):

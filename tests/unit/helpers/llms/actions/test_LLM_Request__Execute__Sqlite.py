@@ -1,6 +1,6 @@
 import pytest
 from unittest                                                                   import TestCase
-from osbot_utils.type_safe.primitives.safe_str.llm.Safe_Str__LLM__Model_Id      import Safe_Str__LLM__Model_Id
+from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Model_Id      import Safe_Str__LLM__Model_Id
 from osbot_utils.helpers.llms.actions.LLM_Request__Execute                      import LLM_Request__Execute
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI            import LLM_Request__Builder__Open_AI
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache__File_System             import LLM_Request__Cache__File_System

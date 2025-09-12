@@ -1,7 +1,9 @@
 import pytest
-from unittest                        import TestCase
-from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
-from osbot_utils.utils.Str           import trim, safe_id
+from unittest                                                           import TestCase
+from osbot_utils.utils.Str                                              import trim
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid   import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id       import safe_id
+
 
 
 class test_Str(TestCase):
