@@ -1,12 +1,10 @@
-from enum                                                       import EnumMeta
-from typing                                                     import ForwardRef
-
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set import Type_Safe__Set
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple import Type_Safe__Tuple
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations import type_safe_annotations
-from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Default_Value import type_safe_step_default_value, get_args
+from typing                                                                     import ForwardRef
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict           import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set            import Type_Safe__Set
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple          import Type_Safe__Tuple
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations         import type_safe_annotations
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Default_Value  import type_safe_step_default_value, get_args
 
 
 class Type_Safe__Step__Init:
@@ -55,23 +53,27 @@ class Type_Safe__Step__Init:
                     value = type_safe_step_default_value.default_value(__self.__class__, annotation)        # Use default_value to create the proper type-safe container
                             # Handle non-empty list
                 elif origin is list and isinstance(value, list):
-                    item_type = get_args(annotation)[0]
-                    if isinstance(item_type, ForwardRef):
-                        forward_name = item_type.__forward_arg__
-                        if forward_name == __self.__class__.__name__:
-                            item_type = __self.__class__
-                    type_safe_list = Type_Safe__List(expected_type=item_type)
-                    for item in value:
-                        type_safe_list.append(item)
-                    return type_safe_list
+                    args = get_args(annotation)
+                    if args:                                                        # Only create Type_Safe__List if we have type info
+                        item_type = args[0]
+                        if isinstance(item_type, ForwardRef):
+                            forward_name = item_type.__forward_arg__
+                            if forward_name == __self.__class__.__name__:
+                                item_type = __self.__class__
+                        type_safe_list = Type_Safe__List(expected_type=item_type)
+                        for item in value:
+                            type_safe_list.append(item)
+                        return type_safe_list
 
                 # Handle non-empty set
                 elif origin is set and isinstance(value, set):
-                    item_type = get_args(annotation)[0]
-                    type_safe_set = Type_Safe__Set(expected_type=item_type)
-                    for item in value:
-                        type_safe_set.add(item)
-                    return type_safe_set
+                    args = get_args(annotation)
+                    if args:  # Only create Type_Safe__Set if we have type info
+                        item_type = args[0]
+                        type_safe_set = Type_Safe__Set(expected_type=item_type)
+                        for item in value:
+                            type_safe_set.add(item)
+                        return type_safe_set
 
                 # Handle non-empty tuple
                 elif origin is tuple and isinstance(value, tuple):
@@ -80,11 +82,13 @@ class Type_Safe__Step__Init:
 
                 # Handle non-empty dict
                 elif origin is dict and isinstance(value, dict):
-                    key_type, value_type = get_args(annotation)
-                    type_safe_dict       = Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
-                    for k, v in value.items():
-                        type_safe_dict[k] = v
-                    return type_safe_dict
+                    args = get_args(annotation)
+                    if args and len(args) == 2:  # Only create Type_Safe__Dict if we have both key and value types
+                        key_type, value_type = args
+                        type_safe_dict       = Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
+                        for k, v in value.items():
+                            type_safe_dict[k] = v
+                        return type_safe_dict
 
 
         return value

@@ -1,4 +1,4 @@
-from enum import EnumMeta
+from enum   import EnumMeta
 from typing import Union, get_args
 
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
