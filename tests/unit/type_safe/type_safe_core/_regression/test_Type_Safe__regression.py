@@ -1,11 +1,12 @@
 import re
-import pytest
 import sys
+import pytest
+from enum                                                                               import Enum
 from decimal                                                                            import Decimal
 from typing                                                                             import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set
 from unittest                                                                           import TestCase
 from unittest.mock                                                                      import patch
-from osbot_utils.helpers.Obj_Id                                                         import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                          import Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                 import Timestamp_Now
 from osbot_utils.type_safe.primitives.core.Safe_Str                                     import Safe_Str
@@ -20,6 +21,7 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                    import Type_Safe__Set
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple                  import Type_Safe__Tuple
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations                 import type_safe_annotations
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert                     import type_safe_convert
 from osbot_utils.type_safe.validators.Validator__Min                                    import Min
 from osbot_utils.utils.Json                                                             import json_to_str, str_to_json
 from osbot_utils.utils.Misc                                                             import list_set, is_guid
@@ -30,6 +32,75 @@ class Node_Value(Type_Safe):
     value: int
 
 class test_Type_Safe__regression(TestCase):
+
+    def test__regression__type_safe_step_init__issue_with_Dict_with_not_types(self):
+        class An_Class(Type_Safe):
+            an_dict: Dict
+
+        An_Class()
+        An_Class(an_dict=None)
+        An_Class(an_dict={})
+        bug_error_1 = "not enough values to unpack (expected 2, got 0)"
+        # with pytest.raises(ValueError, match=re.escape(bug_error_1)):
+        #     An_Class(an_dict={'a': 42})                                   # BUG: should have worked
+        assert An_Class(an_dict={'a': 42}).json() == {'an_dict': {'a': 42}} # FIXED
+
+    def test__regression__from_json_with_optional(self):
+        class An_Enum(Enum):
+            value_1  = "abc"
+            value_2  = "xyz"
+
+        class An_class(Type_Safe):
+            with_optional   : Optional[An_Enum]       = None
+            no_optional     : An_Enum                 = None
+
+        An_class(no_optional='abc')                                 # directly works
+        An_class(**dict(no_optional='abc'))                         # **kwargs directly work
+        An_class.from_json(dict(no_optional  ='abc'))               # and so does from_json
+        expected_error_1 = "Value 'ddd' is not a valid member of An_Enum."
+        with pytest.raises(ValueError, match=expected_error_1):
+            An_class.from_json(dict(no_optional  ='ddd'))           # type validation works here too
+
+        expected_error_2 = "Value '123' is not a valid member of An_Enum."
+        with pytest.raises(ValueError, match=expected_error_2):
+            An_class.from_json(dict(no_optional  = 123))           # type validation works here too
+
+        bug_error_1 = "On An_class, invalid type for attribute 'with_optional'. Expected 'typing.Optional[test_Type_Safe__bugs.test_Type_Safe__bugs.test__bug__from_json_with_optional.<locals>.An_Enum]' but got '<class 'str'>'"
+        # with pytest.raises(ValueError, match=re.escape(bug_error_1)):
+        #     An_class.from_json(dict(with_optional='abc'))               # BUG: but with optional the auto conversion of str (which is valid value to convert) didn't work
+        An_class.from_json(dict(with_optional='abc'))                     # FIXED
+
+        # with pytest.raises(ValueError, match=re.escape(bug_error_1)):
+        #     An_class(with_optional='abc')                               # BUG: but with optional the auto conversion of str (which is valid value to convert) didn't work
+        An_class(with_optional='abc')                                     # FIXED
+
+        # with pytest.raises(ValueError, match=re.escape(bug_error_1)):
+        #     An_class(**dict(with_optional='abc'))                       # BUG: but with optional the auto conversion of str (which is valid value to convert) didn't work
+        An_class(**dict(with_optional='abc'))                             # FIXED
+
+
+    def test__regression__type_annotation_json_serialization__roundtrip(self):
+        from typing import Type
+
+        class Parent_Class(Type_Safe):
+            class_type: Type[int]
+
+        class Child_Class(Parent_Class):
+            an_type: Type[int]
+
+        Parent_Class.from_json(Parent_Class().json())
+
+        # current working workflows
+        assert Parent_Class().json() == {'class_type': 'builtins.int'                           }  # Create instance and serialize to JSON
+        assert Child_Class ().json() == {'an_type': 'builtins.int', 'class_type': 'builtins.int'}  # Create instance and serialize to JSON
+        assert Parent_Class().json() == Parent_Class.from_json(Parent_Class().json()).json()       # Round trip of Parent_Class works
+
+        # current buggy workflow
+        # with pytest.raises(ValueError, match=re.escape("Invalid type for attribute 'class_type'. Expected 'typing.Type[int]' but got '<class 'str'>'")):
+        #     assert Child_Class .from_json(Child_Class().json())                                 # BUG should not have raised an exception
+
+        assert Child_Class.from_json(Child_Class().json()).json() == Child_Class().json()        # Fixed : works now :BUG this should work
+
 
     def test__regression__roundtrip_tuple_support(self):
         class Inner_Data(Type_Safe):
@@ -1368,3 +1439,108 @@ class test_Type_Safe__regression(TestCase):
         an_class.cached_value()
         assert an_class.json() == {#'__cache_on_self___cached_value__': 42,  # BUG: FIXED: was this should have not been cached
                                    'an_str': '42'}
+
+    def test__regression__in__convert_dict_to_value_from_obj_annotation(self):
+        class An_Class_2_B(Type_Safe):
+            an_str: str
+
+        class An_Class_2_A(Type_Safe):
+            an_dict      : Dict[str,An_Class_2_B]
+
+        an_class = An_Class_2_A()
+
+        target    = an_class
+        attr_name = 'an_dict'
+        value    = {'key_1': {'an_str': 'value_1'}}
+        converted_value = type_safe_convert.convert_dict_to_value_from_obj_annotation(target, attr_name, value)
+
+        assert converted_value == value
+        assert type(converted_value['key_1']) is dict                           # FIXED (not an issue anymore, see comments below) BUG: this should be An_Class_2_B
+
+        an_class_json      = {'an_dict': {'key_1': {'an_str': 'value_1'}}}      # although the above has that behaviour
+        an_class_from_json = An_Class_2_A.from_json(an_class_json)              # this sequence shows that the from_json is working ok
+        assert an_class_from_json.json()                  == an_class_json
+        assert type(an_class_from_json.an_dict['key_1'])  is An_Class_2_B
+        assert an_class_from_json.an_dict['key_1'].an_str == 'value_1'
+
+        expected_error_1 = "Expected 'An_Class_2_B', but got 'dict'"
+        with pytest.raises(TypeError, match=re.escape(expected_error_1)):                           # this doesn't work
+            An_Class_2_A(**an_class_json)                                                           # but that is expected behavior
+        #an_class_2b = An_Class_2_B()
+        an_class_data   = {'an_dict': {'key_1': An_Class_2_B(**{'an_str': 'value_1'})}}             # since this is how it needs to be done, which works
+        an_class_from_kwargs = An_Class_2_A(**an_class_data)                                        #   the idea is if a pure json import is needed,
+        assert an_class_from_kwargs.json() == an_class_json                                         #   then .from_json(..) is what should be used
+
+
+    def test__regression__check_type_safety_assignments__on_ctor__on_bool_to_int_conversion(self):
+        an_bool_value = True
+        an_int_value  = 42
+        an_str_value  = 'an_str_value'
+
+        class An_Class__With_Correct_Values(Kwargs_To_Self):
+            an_bool : bool = an_bool_value
+            an_int  : int = an_int_value
+            an_str  : str = an_str_value
+
+        class An_Class__With_Bad_Values(Kwargs_To_Self):
+            an_bool : bool = an_bool_value
+            an_int  : int  = an_bool_value                      # FIXED: (exception will now be raised here) BUG: should have thrown exception here
+            an_str  : str  = an_bool_value                      # will throw exception here
+
+
+        an_class =  An_Class__With_Correct_Values()             # should create ok and values should match the type
+        assert an_class.__locals__() == {'an_bool': an_bool_value, 'an_int': an_int_value, 'an_str': an_str_value}
+
+        #expected_message = "On An_Class__With_Bad_Values, invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'bool'>'"
+        expected_message = "On An_Class__With_Bad_Values, invalid type for attribute 'an_int'. Expected '<class 'int'>' but got '<class 'bool'>'"
+        with self.assertRaises(Exception) as context:
+            An_Class__With_Bad_Values()
+        assert context.exception.args[0] == expected_message
+
+    def test__regression__check_type_safety_assignments__allows_bool_to_int(self):
+        an_bool_value = True                                        # this is a bool
+
+        class Should_Raise_Exception(Type_Safe):                     # a class that uses Kwargs_To_Self as a base class
+            an_int: int = an_bool_value                             # BUG : the an_int variable is defined as an int, but it is assigned a bool
+
+        # should_raise_exception = Should_Raise_Exception()                                   # FIXED: BUG an exception should have been raised
+        # assert should_raise_exception.__locals__()    == {'an_int': an_bool_value}          # FIXED: BUG confirming that an_int is a bool
+        # assert should_raise_exception.an_int          is True                               # FIXED: BUG in this case the value True
+        # assert type(an_bool_value                )    is bool                               # FIXED: confirm an_bool_value is a bool
+        # assert type(should_raise_exception.an_int)    is bool                               # FIXED: BUG:  confirming that an_int is a bool
+        # assert should_raise_exception.__annotations__ == {'an_int': int }                   # FIXED: confirm that the an_int annotation is int
+
+        expected_error_1 = "On Should_Raise_Exception, invalid type for attribute 'an_int'. Expected '<class 'int'>' but got '<class 'bool'>'"
+        with pytest.raises(ValueError, match=expected_error_1):
+             Should_Raise_Exception()
+
+    def test__regression__type_safety_assignments__on_obj__bool_assigned_to_int(self):
+        an_bool_value = True
+        an_int_value  = 42
+        an_str_value  = 'an_str_value'
+
+        class An_Class(Kwargs_To_Self):
+            an_bool : bool
+            an_int  : int
+            an_str  : str
+
+        an_class = An_Class()
+        assert an_class.__locals__() == {'an_bool': False, 'an_int': 0, 'an_str': ''}       # confirm default values assignment
+
+        an_class.an_bool = an_bool_value                                                    # these should all work
+        an_class.an_int  = an_int_value                                                     # since we are doing the correct type assigment
+        an_class.an_str  = an_str_value
+
+        def asserts_exception(var_name, var_value, expected_type, got_type):
+            with self.assertRaises(Exception) as context:
+                an_class.__setattr__(var_name, var_value)
+            expected_message = f"On An_Class, invalid type for attribute '{var_name}'. Expected '<class '{expected_type}'>' but got '<class '{got_type}'>'"
+            assert context.exception.args[0] == expected_message
+
+        asserts_exception('an_bool',an_str_value , 'bool', 'str' )
+        asserts_exception('an_bool',an_int_value , 'bool', 'int' )
+        asserts_exception('an_str' ,an_bool_value, 'str' , 'bool')
+        asserts_exception('an_str' ,an_int_value , 'str' , 'int' )
+        asserts_exception('an_int' ,an_str_value , 'int' , 'str' )
+        asserts_exception('an_int' ,an_bool_value , 'int' , 'bool' )                     # BUG: should have raised exception
+        #an_class.an_int = an_bool_value                                                   # BUG  should have raised exception

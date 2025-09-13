@@ -1,7 +1,7 @@
 from datetime                                                                       import datetime, UTC
 from typing                                                                         import Optional, List
 from osbot_utils.decorators.methods.cache_on_self                                   import cache_on_self
-from osbot_utils.helpers.Obj_Id                                                     import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
 from osbot_utils.helpers.llms.cache.LLM_Cache__Path_Generator                       import LLM_Cache__Path_Generator
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache                              import LLM_Request__Cache

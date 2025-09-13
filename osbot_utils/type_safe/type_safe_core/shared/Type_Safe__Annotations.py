@@ -1,3 +1,6 @@
+from enum   import EnumMeta
+from typing import Union, get_args
+
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
 
 
@@ -8,6 +11,19 @@ class Type_Safe__Annotations:
 
     def all_annotations__in_class(self, cls):
         return type_safe_cache.get_class_annotations(cls)
+
+    def extract_enum_from_annotation(self, annotation):                             # Extract EnumMeta type from annotation, handling Optional and Union.
+
+        if isinstance(annotation, EnumMeta):
+            return annotation
+
+        origin = type_safe_cache.get_origin(annotation)
+        if origin is Union:
+            args = get_args(annotation)
+            for arg in args:
+                if arg is not type(None) and isinstance(arg, EnumMeta):
+                    return arg
+        return None
 
     def obj_attribute_annotation(self, target, attr_name):
         return self.all_annotations(target).get(attr_name)                          # use cache

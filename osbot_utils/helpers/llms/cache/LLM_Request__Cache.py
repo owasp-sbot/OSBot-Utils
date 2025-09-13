@@ -1,13 +1,13 @@
-from typing                                                                       import Dict, Optional, List
-from osbot_utils.helpers.Obj_Id                                                   import Obj_Id
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index                    import Schema__LLM_Cache__Index
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                         import Schema__LLM_Request
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                        import Schema__LLM_Response
-from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache                 import Schema__LLM_Response__Cache
-from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
+from typing                                                                        import Dict, Optional, List
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                   import Obj_Id
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index                     import Schema__LLM_Cache__Index
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                          import Schema__LLM_Request
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Response                         import Schema__LLM_Response
+from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache                  import Schema__LLM_Response__Cache
+from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash import Safe_Str__Hash
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                    import type_safe
-from osbot_utils.utils.Json                                                       import json_md5
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                     import type_safe
+from osbot_utils.utils.Json                                                        import json_md5
 
 SIZE__VALUE_HASH = 10
 

@@ -4,6 +4,7 @@ import types
 import typing
 from enum                                                                     import EnumMeta
 from typing                                                                   import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias # noqa (_GenericAlias does exist)
+from osbot_utils.type_safe.Type_Safe__Base                                    import EXACT_TYPE_MATCH
 from osbot_utils.type_safe.Type_Safe__Primitive                               import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations       import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache             import type_safe_cache
@@ -22,8 +23,10 @@ class Type_Safe__Validation:
                 return True
         if source_type is target_type:
             return True
-        if source_type is int and target_type is float:
+        if source_type is int and target_type is float:                     # allow int to float conversion
             return True
+        if target_type in EXACT_TYPE_MATCH and source_type in EXACT_TYPE_MATCH:
+            return source_type is target_type                               # Exact match only
         if target_type in source_type.__mro__:                              # this means that the source_type has the target_type has of its base types
             return True
         if target_type is callable:                                         # handle case where callable was used as the target type
@@ -321,8 +324,16 @@ class Type_Safe__Validation:
     #                     if not (isinstance(var_type, type) and issubclass(var_type, (int,str, float))):
     #                         type_safe_raise_exception.immutable_type_error(var_name, var_type)
 
-    def validate_variable_type(self, base_cls, var_name, var_type, var_value):                                # Validate type compatibility
-        if type(var_type) is type and not isinstance(var_value, var_type):
-            type_safe_raise_exception.type_mismatch_error__on_type(base_cls, var_name, var_type, type(var_value))
+    #def validate_variable_type(self, base_cls, var_name, var_type, var_value):                                # Validate type compatibility
+        # if type(var_type) is type and not isinstance(var_value, var_type):
+        #     type_safe_raise_exception.type_mismatch_error__on_type(base_cls, var_name, var_type, type(var_value))
+    def validate_variable_type(self, base_cls, var_name, var_type, var_value):
+        if type(var_type) is type:
+            if var_type in EXACT_TYPE_MATCH:                                                                                    # Use exact type matching for primitives
+                if type(var_value) is not var_type:
+                    type_safe_raise_exception.type_mismatch_error__on_type(base_cls, var_name, var_type, type(var_value))
+            else:
+                if not isinstance(var_value, var_type):
+                    type_safe_raise_exception.type_mismatch_error__on_type(base_cls, var_name, var_type, type(var_value))       # Use isinstance for other types
 
 type_safe_validation = Type_Safe__Validation()
