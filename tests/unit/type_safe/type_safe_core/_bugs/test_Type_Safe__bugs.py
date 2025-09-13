@@ -1,4 +1,7 @@
+import re
 import sys
+from enum import Enum
+
 import pytest
 from typing                                                           import Optional, Union, Dict
 from unittest                                                         import TestCase
@@ -8,6 +11,40 @@ from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert   import typ
 
 
 class test_Type_Safe__bugs(TestCase):
+
+
+    def test__bug__from_json_with_optional(self):
+        class An_Enum(Enum):
+            value_1  = "abc"
+            value_2  = "xyz"
+
+        class An_class(Type_Safe):
+            with_optional   : Optional[An_Enum]       = None
+            no_optional     : An_Enum                 = None
+
+        An_class(no_optional='abc')                                 # directly works
+        An_class(**dict(no_optional='abc'))                         # **kwargs directly work
+        An_class.from_json(dict(no_optional  ='abc'))               # and so does from_json
+        expected_error_1 = "Value 'ddd' is not a valid member of An_Enum."
+        with pytest.raises(ValueError, match=expected_error_1):
+            An_class.from_json(dict(no_optional  ='ddd'))           # type validation works here too
+
+        expected_error_2 = "Value '123' is not a valid member of An_Enum."
+        with pytest.raises(ValueError, match=expected_error_2):
+            An_class.from_json(dict(no_optional  = 123))           # type validation works here too
+
+        bug_error_1 = "On An_class, invalid type for attribute 'with_optional'. Expected 'typing.Optional[test_Type_Safe__bugs.test_Type_Safe__bugs.test__bug__from_json_with_optional.<locals>.An_Enum]' but got '<class 'str'>'"
+        # with pytest.raises(ValueError, match=re.escape(bug_error_1)):
+        #     An_class.from_json(dict(with_optional='abc'))               # BUG: but with optional the auto conversion of str (which is valid value to convert) didn't work
+        An_class.from_json(dict(with_optional='abc'))                     # FIXED
+
+        # with pytest.raises(ValueError, match=re.escape(bug_error_1)):
+        #     An_class(with_optional='abc')                               # BUG: but with optional the auto conversion of str (which is valid value to convert) didn't work
+        An_class(with_optional='abc')                                     # FIXED
+
+        # with pytest.raises(ValueError, match=re.escape(bug_error_1)):
+        #     An_class(**dict(with_optional='abc'))                       # BUG: but with optional the auto conversion of str (which is valid value to convert) didn't work
+        An_class(**dict(with_optional='abc'))                             # FIXED
 
     def test__bug__property_descriptor_handling__doesnt_enforce_type_safety(self):
 

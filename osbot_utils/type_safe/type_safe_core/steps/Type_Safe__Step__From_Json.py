@@ -101,10 +101,10 @@ class Type_Safe__Step__From_Json:
                             value = type_safe_list                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
                     else:
                         if value is not None:
-                            if type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, EnumMeta):            # Handle the case when the value is an Enum
-                                enum_type = getattr(_self, '__annotations__').get(key)
-                                if type(value) is not enum_type:                                    # If the value is not already of the target type
-                                    value = enum_from_value(enum_type, value)                       # Try to resolve the value into the enum
+                            enum_type = type_safe_annotations.extract_enum_from_annotation(annotation)                         # Handle the case when the value is an Enum
+                            if enum_type:
+                                if type(value) is not enum_type:
+                                    value = enum_from_value(enum_type, value)
 
                             # todo: refactor these special cases into a separate method to class
                             #       in fact find a better way to handle these classes that need to be converted

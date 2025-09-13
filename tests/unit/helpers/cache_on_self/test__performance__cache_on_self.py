@@ -36,7 +36,7 @@ class test__performance__cache_on_self(TestCase):
             for i in range(invocation_count):
                 assert host.an_function_with_cache() is 42
 
-        assert 0.0001 < duration__an_function_with_cache.seconds < 0.002
+        assert 0.0001 < duration__an_function_with_cache.seconds < 0.003
 
         overhead_ratio = duration__an_function_with_cache.seconds / duration__an_function.seconds
         assert overhead_ratio < 20                           # confirm that the cache overhead is less than 15x

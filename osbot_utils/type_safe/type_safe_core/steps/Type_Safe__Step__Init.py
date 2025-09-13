@@ -36,13 +36,14 @@ class Type_Safe__Step__Init:
     def convert_value_to_type_safe_objects(self, __self, key, value):
         annotation = type_safe_annotations.obj_attribute_annotation(__self, key)
         if annotation:
-            if isinstance(annotation, EnumMeta) and type(value) is str:
-                if value in annotation.__members__:                                                             # First check if it's a valid name (e.g., 'SYSTEM')
-                    value = annotation[value]
-                elif hasattr(annotation, '_value2member_map_') and value in annotation._value2member_map_:      # Then check if it's a valid value (e.g., 'system')
-                    value = annotation._value2member_map_[value]
+            enum_type = type_safe_annotations.extract_enum_from_annotation(annotation)
+            if enum_type and type(value) is str:                                                                # Apply enum conversion logic
+                if value in enum_type.__members__:                                                              # First check if it's a valid name (e.g., 'SYSTEM')
+                    value = enum_type[value]
+                elif hasattr(enum_type, '_value2member_map_') and value in enum_type._value2member_map_:        # Then check if it's a valid value (e.g., 'system')
+                    value = enum_type._value2member_map_[value]
                 else:
-                    raise ValueError(f"Invalid value '{value}' for enum {annotation.__name__}")
+                    raise ValueError(f"Invalid value '{value}' for enum {enum_type.__name__}")
             else:
 
                 origin = type_safe_annotations.get_origin(annotation)
