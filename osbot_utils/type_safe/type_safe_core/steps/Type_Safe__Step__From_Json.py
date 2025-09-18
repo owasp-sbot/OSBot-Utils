@@ -1,14 +1,6 @@
-import types
 from decimal                                                                        import Decimal
-
-from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
+from osbot_utils.type_safe.Type_Safe__Primitive                                     import Type_Safe__Primitive
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash  import Safe_Str__Hash
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid_Short         import Random_Guid_Short
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now             import Timestamp_Now
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                import Type_Safe__Set
@@ -16,6 +8,7 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple          
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations             import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache                   import type_safe_cache
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert                 import type_safe_convert
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Deserialize_Type   import type_safe_step_deserialize_type
 from osbot_utils.utils.Objects                                                      import enum_from_value
 from typing                                                                         import get_args, Any, ForwardRef
 
@@ -168,36 +161,31 @@ class Type_Safe__Step__From_Json:
 
         return value
 
-    def deserialize_type__using_value(self, value):         # TODO: Check the security implications of this deserialisation
-        if value:
-            try:
-                module_name, type_name = value.rsplit('.', 1)
-                if module_name == 'builtins' and type_name == 'NoneType':                       # Special case for NoneType (which serialises as builtins.* , but it actually in types.* )
-                    value = types.NoneType
-                else:
-                    module = __import__(module_name, fromlist=[type_name])
-                    value = getattr(module, type_name)
-                    if isinstance(value, type) is False:
-                        raise ValueError(f"Security alert, in deserialize_type__using_value only classes are allowed")
-
-            except (ValueError, ImportError, AttributeError) as e:
-                raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")
-        return value
-
     def deserialize_dict__using_key_value_annotations(self, _self, key, value):
         annotations            = type_safe_cache.get_obj_annotations(_self)
         dict_annotations_tuple = get_args(annotations.get(key))
-        if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
+        if not dict_annotations_tuple:
             return value
         if not type(value) is dict:
             return value
 
         key_class   = dict_annotations_tuple[0]
         value_class = dict_annotations_tuple[1]
-        new_value   = Type_Safe__Dict(expected_key_type=key_class, expected_value_type=value_class)
+
+        if isinstance(value_class, ForwardRef):                                 # Resolve forward references in value_class
+            forward_name = value_class.__forward_arg__
+            if forward_name == _self.__class__.__name__:
+                value_class = _self.__class__
+            else:
+                pass                                                            # Can't resolve other forward refs easily (Would need to search in the module's namespace)
+        elif isinstance(value_class, str):
+            if value_class == _self.__class__.__name__:
+                value_class = _self.__class__
+
+        new_value = Type_Safe__Dict(expected_key_type=key_class, expected_value_type=value_class)
 
         for dict_key, dict_value in value.items():
-            new__dict_key   = self.deserialize_dict_key  (key_class  , dict_key  )
+            new__dict_key   = self.deserialize_dict_key(key_class, dict_key)
             new__dict_value = self.deserialize_dict_value(value_class, dict_value)
             new_value[new__dict_key] = new__dict_value
 
@@ -281,5 +269,9 @@ class Type_Safe__Step__From_Json:
         if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
             return self.deserialize_from_dict(_cls(), json_data, raise_on_not_found=raise_on_not_found)
         return _cls()
+
+    def deserialize_type__using_value(self, value):
+        return type_safe_step_deserialize_type.using_value(value)
+
 
 type_safe_step_from_json = Type_Safe__Step__From_Json()

@@ -168,3 +168,27 @@ class test_Type_Safe__Step__From_Json__bugs(TestCase):          # Document bugs 
         # with pytest.raises(ValueError, match=re.escape(error_message)):
         #     restored = Complex_Class.from_json(json_data)
         assert Complex_Class.from_json(json_data).json() == json_data
+
+    def test__regression__dict_with_forward_ref_values(self):                              # Dict values with forward refs
+        """Bug: Dict values that are forward refs also fail"""
+
+        class Registry(Type_Safe):
+            name  : str
+            items : Dict[str, 'Registry']
+
+        reg = Registry(name='root')
+        reg.items['child'] = Registry(name='child')
+
+        json_data = reg.json()
+
+        # Dict values with forward refs also have issues
+        #error_message_1 = "'ForwardRef' object is not callable"
+        # error_message_2 = "isinstance() arg 2 must be a type, a tuple of types, or a union"
+        # with pytest.raises(TypeError, match=re.escape(error_message_2)):
+        #     restored = Registry.from_json(json_data)                          # BUG
+        restored = Registry.from_json(json_data)                                # FIXED
+        # Check if Dict properly handles the forward ref in values
+        if type(restored.items['child']) is not Registry:
+            assert False, "Dict didn't properly deserialize forward ref values"
+        assert type(restored.items['child']) is Registry
+        assert restored.json() == json_data
