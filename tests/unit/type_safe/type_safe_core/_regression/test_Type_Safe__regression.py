@@ -8,7 +8,7 @@ from unittest                                                                   
 from unittest.mock                                                                      import patch
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                          import Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Hash import Random_Hash
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Hash                   import Random_Hash
 from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                 import Timestamp_Now
 from osbot_utils.type_safe.primitives.core.Safe_Str                                     import Safe_Str
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
