@@ -759,8 +759,12 @@ class test_Type_Safe__regression(TestCase):
         json_data_2 = { 'dict_5': {str(Random_Guid()): { Random_Guid():Random_Guid() ,
                                                          Random_Guid():Random_Guid() }}}
 
-        with pytest.raises(TypeError, match="In dict key 'no-guid-1': Expected 'Random_Guid', but got 'str'"):
-            assert An_Class_1().from_json(json_data_1).json() == json_data_1  # BUG: should had raised exception on 'no-guid-1': 'no-guid-2'
+        #with pytest.raises(TypeError, match="In dict key 'no-guid-1': Expected 'Random_Guid', but got 'str'"):
+        #    assert An_Class_1().from_json(json_data_1).json() == json_data_1  # BUG: should had raised exception on 'no-guid-1': 'no-guid-2'
+
+        with pytest.raises(ValueError, match=re.escape("in Random_Guid: value provided was not a Guid: no-guid-1")):
+           assert An_Class_1().from_json(json_data_1).json() == json_data_1  # FIXED: BUG: should had raised exception on 'no-guid-1': 'no-guid-2'
+
 
         assert An_Class_1().from_json(json_data_2).json() == json_data_2
 
