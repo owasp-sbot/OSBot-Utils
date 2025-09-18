@@ -8,6 +8,7 @@ from unittest                                                                   
 from unittest.mock                                                                      import patch
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                          import Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Hash import Random_Hash
 from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                 import Timestamp_Now
 from osbot_utils.type_safe.primitives.core.Safe_Str                                     import Safe_Str
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
@@ -1544,3 +1545,62 @@ class test_Type_Safe__regression(TestCase):
         asserts_exception('an_int' ,an_str_value , 'int' , 'str' )
         asserts_exception('an_int' ,an_bool_value , 'int' , 'bool' )                     # BUG: should have raised exception
         #an_class.an_int = an_bool_value                                                   # BUG  should have raised exception
+
+    def test_regression__is_kwargs_cacheable__was_caching_random_hash_values(self):
+        # note: the reason for the weird behaviour spotted below was that the previous version of
+        #       Type_Safe__Step__Class_Kwargs.is_kwargs_cacheable was only checking if there was an instance of
+        #       Random_Guid in the kwargs, and if there wasn't, it wouldn't cache the values
+        #       The fix, now makes it so that of any the values is Type_Save_Primitive, we also dont' cache
+
+        class Cache_Entry_A(Type_Safe):
+            entry_id    : Random_Hash                                           # when we only have this fields
+
+        assert Cache_Entry_A().entry_id != Cache_Entry_A().entry_id             # FIXED: BUG: the values are the same!! (and should be different)
+        assert Cache_Entry_A().entry_id != 'b006648417679b59'                   # this confirms we are getting new hash everytime
+
+        class Cache_Entry_B(Type_Safe):
+            entry_id    : Random_Hash
+            random_guid : Random_Guid                                           # but when we add this class
+
+        assert Cache_Entry_B().entry_id    != Cache_Entry_B().entry_id          # now it works
+        assert Cache_Entry_B().random_guid != Cache_Entry_B().random_guid       # these are also difference
+
+        class Cache_Entry_C(Type_Safe):
+            random_guid : Random_Guid                                           # changing the order
+            entry_id    : Random_Hash                                           # where Random_Hash is here
+
+        assert Cache_Entry_C().entry_id    != Cache_Entry_C().entry_id          # still works as expected
+        assert Cache_Entry_C().random_guid != Cache_Entry_C().random_guid       #
+
+        class Cache_Entry_D(Type_Safe):
+            random_guid : Random_Guid                                           # just random class
+
+        assert Cache_Entry_D().random_guid != Cache_Entry_D().random_guid       # is all good
+
+        class Cache_Entry_E(Type_Safe):
+            entry_id    : Random_Hash
+            an_str      : str                                                   # with another Type_Safe class
+
+        assert Cache_Entry_E().entry_id != Cache_Entry_E().entry_id             # FIXED: BUG: we have the same problem
+
+        class Cache_Entry_F(Type_Safe):
+            entry_id    : Random_Hash
+            an_safe_str : Safe_Str                                              # with another Type_Safe class
+
+        assert Cache_Entry_F().entry_id != Cache_Entry_F().entry_id             # FIXED: BUG: we have the same problem
+
+        class Cache_Entry_G(Type_Safe):
+            entry_id    : Random_Hash
+            entry_id_2  : Random_Hash                                           # with two entries
+
+        assert Cache_Entry_G().entry_id   != Cache_Entry_G().entry_id           # FIXED: BUG: we have the same problem
+        assert Cache_Entry_G().entry_id_2 != Cache_Entry_G().entry_id_2         # FIXED: BUG: we have the same problem
+        assert Cache_Entry_G().entry_id   != Cache_Entry_G().entry_id_2         # but we do get two different hashes
+
+        class Cache_Entry_H(Type_Safe):
+            entry_id    : Random_Hash
+            entry_id_2  : Random_Hash                                           # with two entries
+            an_guid     : Random_Guid                                           # as soon as we add the Random_Guid
+
+        assert Cache_Entry_H().entry_id   != Cache_Entry_H().entry_id           # it works again
+
