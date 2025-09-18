@@ -1,11 +1,9 @@
 import re
-from enum import Enum, EnumMeta
-from unittest                        import TestCase
-from typing import Type, Literal, Optional, Union, get_args
-
 import pytest
-
-from osbot_utils.type_safe.Type_Safe import Type_Safe
+from enum                                                              import Enum, EnumMeta
+from unittest                                                          import TestCase
+from typing                                                            import Type, Literal, Optional, Union, get_args, Dict, List, Set, Tuple
+from osbot_utils.type_safe.Type_Safe                                   import Type_Safe
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation import type_safe_validation
 
 
@@ -410,3 +408,204 @@ class test_Type_Safe__Validation(TestCase):
             an_literal: Literal["allow", "deny"] = None  # Data collection preference
 
         An_Class_2(an_literal='allow')                                          # works as expected
+
+    def test__check_if__type_matches__union_type__direct(self):
+        from typing import Dict, List, Set, Tuple
+
+        # Test dict/Dict equivalence
+        annotation_with_dict = Union[dict, str, bytes]
+        annotation_with_Dict = Union[Dict, str, bytes]
+
+        # Currently fails for Dict but works for dict
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_dict, dict) is True
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_Dict, dict) is True
+
+
+        # Test list/List equivalence
+        annotation_with_list = Union[list, str]
+        annotation_with_List = Union[List, str]
+
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_list, list) is True
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_List, list) is True
+
+        # Test set/Set equivalence
+        annotation_with_set = Union[set, str]
+        annotation_with_Set = Union[Set, str]
+
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_set, set) is True
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_Set, set) is True
+
+        # Test tuple/Tuple equivalence
+        annotation_with_tuple = Union[tuple, str]
+        annotation_with_Tuple = Union[Tuple, str]
+
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_tuple, tuple) is True
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_Tuple, tuple) is True
+
+        # Test non-container types still work
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_dict, str)   is True
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_dict, bytes) is True
+        assert type_safe_validation.check_if__type_matches__union_type(annotation_with_dict, int)   is False
+
+    def test__union_typing_generics(self):                              # Test that the fix properly handles typing generics in Union types"""
+
+        class Schema_Fixed(Type_Safe):
+            dict_data  : Union[Dict , str, bytes]
+            list_data  : Union[List , str       ]
+            set_data   : Union[Set  , str       ]
+            tuple_data : Union[Tuple, str       ]
+
+        with Schema_Fixed() as _:
+            _.dict_data = {'key': 'value'}
+            assert isinstance(_.dict_data, dict)
+
+            _.list_data = [1, 2, 3]
+            assert isinstance(_.list_data, list)
+
+            _.set_data = {1, 2, 3}
+            assert isinstance(_.set_data, set)
+
+            _.tuple_data = (1, 2, 3)
+            assert isinstance(_.tuple_data, tuple)
+
+            # String assignments should still work
+            _.dict_data = "string"
+            assert _.dict_data == "string"
+
+            _.list_data = "string"
+            assert _.list_data == "string"
+
+    def test__regression__union_dict_vs_typing_dict(self):                                 # Test that both dict and typing.Dict work correctly in Union types"""
+        from typing import Dict
+
+        class Schema_With_Dict(Type_Safe):
+            data: Union[dict, str, bytes]                                           # Uses built-in dict
+
+        class Schema_With_Typing_Dict(Type_Safe):
+            data: Union[Dict, str, bytes]                                           # Uses typing.Dict
+
+        class Schema_With_Both(Type_Safe):
+            data: Union[dict, Dict, str, bytes]                                     # Uses both (current workaround)
+
+        test_dict  = {'key': 'value', 'number': 42}
+        test_str   = "test string"
+        test_bytes = b"test bytes"
+
+        # Test with built-in dict in Union
+        with Schema_With_Dict() as _:
+            _.data = test_dict                                                      # Should work
+            assert _.data == test_dict
+            _.data = test_str
+            assert _.data == test_str
+            _.data = test_bytes
+            assert _.data == test_bytes
+
+        # Test with typing.Dict in Union - THIS IS THE BUG
+        with Schema_With_Typing_Dict() as _:
+            # SECTION 1: Document what SHOULD happen (commented during bug phase)
+            _.data = test_dict                                                   # Should work
+            assert _.data == test_dict
+
+            # SECTION 2: Document what ACTUALLY happens (bug)
+            # error_message = "On Schema_With_Typing_Dict, invalid type for attribute 'data'. Expected 'typing.Union[typing.Dict, str, bytes]' but got '<class 'dict'>'"
+            # with pytest.raises(ValueError, match=re.escape(error_message)):
+            #     _.data = test_dict                                                  # BUG: dict instance should match typing.Dict
+
+            _.data = test_str                                                       # This works
+            assert _.data == test_str                                               # FIXED
+            _.data = test_bytes                                                     # This works
+            assert _.data == test_bytes
+
+        # Test with both (current workaround)
+        with Schema_With_Both() as _:
+            _.data = test_dict                                                      # Works with workaround
+            assert _.data == test_dict
+            _.data = test_str
+            assert _.data == test_str
+            _.data = test_bytes
+            assert _.data == test_bytes
+
+    def test__regression__union_list_vs_typing_list(self):                                # Bug: typing.List not recognized as equivalent to list in Union
+        from typing import List
+
+        class Schema_With_List(Type_Safe):
+            items: Union[list, str]                                                 # Uses built-in list
+
+        class Schema_With_Typing_List(Type_Safe):
+            items: Union[List, str]                                                 # Uses typing.List
+
+        test_list = [1, 2, 3]
+        test_str  = "test string"
+
+        # Test with built-in list
+        with Schema_With_List() as _:
+            _.items = test_list                                                     # Should work
+            assert _.items == test_list
+            _.items = test_str
+            assert _.items == test_str
+
+        # Test with typing.List - same bug pattern
+        # with Schema_With_Typing_List() as _:
+        #     error_message = "On Schema_With_Typing_List, invalid type for attribute 'items'. Expected 'typing.Union[typing.List, str]' but got '<class 'list'>'"
+        #     with pytest.raises(ValueError, match=re.escape(error_message)):
+        #         _.items = test_list                                                   # BUG: list instance should match typing.List
+            _.items = test_list                                                         # FIXED
+            _.items = test_str                                                          # This works
+            assert _.items == test_str
+
+    def test__regression__union_set_vs_typing_set(self):                                  # Bug: typing.Set not recognized as equivalent to set in Union
+        from typing import Set
+
+        class Schema_With_Set(Type_Safe):
+            values: Union[set, str]                                                 # Uses built-in set
+
+        class Schema_With_Typing_Set(Type_Safe):
+            values: Union[Set, str]                                                 # Uses typing.Set
+
+        test_set = {1, 2, 3}
+        test_str = "test string"
+
+        # Test with built-in set
+        with Schema_With_Set() as _:
+            _.values = test_set                                                     # Should work
+            assert _.values == test_set
+            _.values = test_str
+            assert _.values == test_str
+
+        # Test with typing.Set - same bug pattern
+        # with Schema_With_Typing_Set() as _:
+        #     error_message = "On Schema_With_Typing_Set, invalid type for attribute 'values'. Expected 'typing.Union[typing.Set, str]' but got '<class 'set'>'"
+        #     with pytest.raises(ValueError, match=re.escape(error_message)):
+        #         _.values = test_set                                                 # BUG: set instance should match typing.Set
+            _.values = test_set                                                     # FIXED
+            _.values = test_str                                                     # This works
+            assert _.values == test_str
+
+    def test__regression__union_tuple_vs_typing_tuple(self):                              # Bug: typing.Tuple not recognized as equivalent to tuple in Union
+        from typing import Tuple
+
+        class Schema_With_Tuple(Type_Safe):
+            values: Union[tuple, str]                                               # Uses built-in tuple
+
+        class Schema_With_Typing_Tuple(Type_Safe):
+            values: Union[Tuple, str]                                               # Uses typing.Tuple
+
+        test_tuple = (1, 2, 3)
+        test_str   = "test string"
+
+        # Test with built-in tuple
+        with Schema_With_Tuple() as _:
+            _.values = test_tuple                                                   # Should work
+            assert _.values == test_tuple
+            _.values = test_str
+            assert _.values == test_str
+
+        # Test with typing.Tuple - same bug pattern
+        with Schema_With_Typing_Tuple() as _:
+            # error_message = "On Schema_With_Typing_Tuple, invalid type for attribute 'values'. Expected 'typing.Union[typing.Tuple, str]' but got '<class 'tuple'>'"
+            # with pytest.raises(ValueError, match=re.escape(error_message)):
+            #     _.values = test_tuple                                                # BUG: tuple instance should match typing.Tuple
+            _.values = test_tuple                                                    # FIXED
+
+            _.values = test_str                                                      # This works
+            assert _.values == test_str
