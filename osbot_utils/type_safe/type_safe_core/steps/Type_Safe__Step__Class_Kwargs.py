@@ -1,4 +1,6 @@
 from typing                                                                     import Dict, Any, Type
+
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache               import type_safe_cache, Type_Safe__Cache
@@ -38,16 +40,15 @@ class Type_Safe__Step__Class_Kwargs:                                            
         #     pass                                                  # todo:: see how we can cache more the cases when the data is clean (i.e. default values)
         return kwargs
 
-    def is_kwargs_cacheable(self, cls, kwargs: Dict[str, Any]) -> bool:
+    def is_kwargs_cacheable(self, cls, kwargs: Dict[str, Any]) -> bool:                                         # check if we can cache the kwargs
         annotations = type_safe_cache.get_class_annotations(cls)
-        match      = all(isinstance(value, IMMUTABLE_TYPES) for value in kwargs.values())
+        match       = all(isinstance(value, IMMUTABLE_TYPES) for value in kwargs.values())
 
-        if match:                                                                       # check for special cases that we can't cache (like Random_Guid)
+        if match:
             annotations_types = list(dict(annotations).values())
-            if Random_Guid in annotations_types:                         # todo: need to add the other special cases (like Timestamp_Now)
-                return False
-            if Obj_Id in annotations_types:                             # we can't cache Obj_id, since this would give us the same ID everutime
-                return False
+            for annotation_type in annotations_types:
+                if isinstance(annotation_type, type) and issubclass(annotation_type, Type_Safe__Primitive):     # Don't cache if any field is a Type_Safe__Primitive
+                    return False
         return match
 
 

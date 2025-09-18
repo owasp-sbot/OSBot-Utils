@@ -3,7 +3,7 @@ import inspect
 import types
 import typing
 from enum                                                                     import EnumMeta
-from typing                                                                   import Any, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias # noqa (_GenericAlias does exist)
+from typing                                                                   import Any, List, Set, Tuple, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias  # noqa (_GenericAlias does exist)
 from osbot_utils.type_safe.Type_Safe__Base                                    import EXACT_TYPE_MATCH
 from osbot_utils.type_safe.Type_Safe__Primitive                               import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations       import type_safe_annotations
@@ -11,6 +11,10 @@ from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache             im
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Raise_Exception   import type_safe_raise_exception
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables import IMMUTABLE_TYPES
 
+TYPE_MAPPINGS = { dict  : Dict  ,
+                  list  : List  ,
+                  set   : Set   ,
+                  tuple : Tuple }
 
 class Type_Safe__Validation:
 
@@ -89,7 +93,7 @@ class Type_Safe__Validation:
                                                                      -> Optional[bool]:          # Returns None if no match
 
         from osbot_utils.helpers.python_compatibility.python_3_8 import Annotated
-        from typing                                              import Union, get_origin, get_args
+        from typing                                              import Union, get_origin
 
         value_type           = type(value)
         attribute_annotation = type_safe_annotations.obj_attribute_annotation(target, attr_name)
@@ -107,12 +111,23 @@ class Type_Safe__Validation:
         from typing import _SpecialGenericAlias                                     # noqa todo see if there is a better way to do this since typing is showing as not having _SpecialGenericAlias (this is to handle case like List, Dict, etc...)
         return value is not None and type(value) is not _SpecialGenericAlias
 
-    def check_if__type_matches__union_type(self, annotation : Any,                                      # Union type annotation
+    def check_if__type_matches__union_type(self, annotation : Any,
                                                  value_type : Type
-                                           )               -> bool:                                     # True if type matches
-        from typing import get_args
+                                           )               -> bool:
         args = get_args(annotation)
-        return value_type in args
+
+        if value_type in args:                                              # Direct match
+            return True
+
+        if value_type in TYPE_MAPPINGS:                                     # Check for typing generics equivalence
+            if TYPE_MAPPINGS[value_type] in args:                           # If value_type is a built-in, check if its typing equivalent is in args
+                return True
+
+        for builtin_type, typing_type in TYPE_MAPPINGS.items():             # If value_type is a typing generic, check if its built-in is in args
+            if value_type is typing_type and builtin_type in args:
+                return True
+
+        return False
 
     def check_if__type_matches__annotated_type(self, annotation : Any,                                  # Annotated type annotation
                                                      value      : Any                                   # Value to check

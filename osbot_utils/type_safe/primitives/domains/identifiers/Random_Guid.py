@@ -9,6 +9,3 @@ class Random_Guid(Type_Safe__Primitive, str):
         if is_guid(value):
             return str.__new__(cls, value)
         raise ValueError(f'in Random_Guid: value provided was not a Guid: {value}')
-
-    # def __str__(self):
-    #     return self
