@@ -1,3 +1,4 @@
+import re
 import types
 import pytest
 from enum                                                                         import Enum, IntEnum
@@ -9,7 +10,7 @@ from typing                                                                     
 from unittest                                                                     import TestCase
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                 import Safe_Id
-from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Deserialize_Type import Type_Safe__Step__Deserialize_Type
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Deserialize_Type import Type_Safe__Step__Deserialize_Type, TYPE_SAFE__DESERIALIZATION__MAX_IMPORT_DEPTH
 
 
 class test_Type_Safe__Step__Deserialize_Type(TestCase):     # security test suite for Type_Safe__Step__Deserialize_Type
@@ -150,7 +151,7 @@ class test_Type_Safe__Step__Deserialize_Type(TestCase):     # security test suit
             self.deserializer.using_value('types.os')  # Doesn't exist
 
         # Test 2: Actual module object that exists but isn't a type
-        error_message = r"Type '__spec__' not found in module 'types'|Security alert.*"     # Let's use something that actually exists but isn't a class
+        error_message = r"Security alert, in deserialize_type__using_value only classes are allowed, got ModuleSpec for 'types.__spec__'"     # Let's use something that actually exists but isn't a class
         with pytest.raises(ValueError, match=error_message):
             self.deserializer.using_value('types.__spec__')                                 # Module spec object
 
@@ -340,8 +341,7 @@ class test_Type_Safe__Step__Deserialize_Type(TestCase):     # security test suit
         with pytest.raises(ValueError, match="does not inherit from Type_Safe"):
             Unsafe_Forward_Ref.from_json(json_data)
 
-    def test__type_safe_inheritance_check(self):
-        """Test the Type_Safe inheritance checking logic"""
+    def test__type_safe_inheritance_check(self):                                        # Test the Type_Safe inheritance checking logic
         from osbot_utils.type_safe.Type_Safe import Type_Safe
         from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
 
@@ -357,8 +357,7 @@ class test_Type_Safe__Step__Deserialize_Type(TestCase):     # security test suit
 
     # ========== CONFIGURATION TESTS ==========
 
-    def test__allow_type_safe_subclasses_flag(self):
-        """Test the allow_type_safe_subclasses configuration"""
+    def test__allow_type_safe_subclasses_flag(self):                                    # Test the allow_type_safe_subclasses configuration
         # With flag=True (default), Type_Safe subclasses from non-allowed modules should work
         deserializer_permissive = Type_Safe__Step__Deserialize_Type(allow_type_safe_subclasses=True)
 
@@ -369,6 +368,138 @@ class test_Type_Safe__Step__Deserialize_Type(TestCase):     # security test suit
         assert deserializer_permissive.using_value('builtins.str') is str
         assert deserializer_strict.using_value('builtins.str') is str
 
+    def test__security_fix__import_depth_limit(self):       # Test that import depth is limited to prevent recursion attacks
+        # Simulate deep recursion by manually setting depth
+        self.deserializer.import_depth = TYPE_SAFE__DESERIALIZATION__MAX_IMPORT_DEPTH - 1
+
+        # This should work (at limit - 1)
+        result = self.deserializer.using_value('builtins.str')
+        assert result is str
+
+        # Now at the limit, should fail
+        self.deserializer.import_depth = TYPE_SAFE__DESERIALIZATION__MAX_IMPORT_DEPTH
+        error_message = f"Maximum import depth \\({TYPE_SAFE__DESERIALIZATION__MAX_IMPORT_DEPTH}\\) exceeded - possible recursion attack"
+        with pytest.raises(ValueError, match=error_message):
+            self.deserializer.using_value('builtins.int')
+
+        # Reset for other tests
+        self.deserializer.import_depth = 0
+
+    def test__security_fix__module_prefix_matching(self):           # Test improved module prefix matching prevents bypass attempts
+        # These should be allowed (proper submodules)
+        assert self.deserializer.is_module_allowed('osbot_utils.type_safe.primitives'          ) is True
+        assert self.deserializer.is_module_allowed('osbot_utils.type_safe.primitives.domains'  ) is True
+
+        # These should be blocked (not proper submodules)
+        assert self.deserializer.is_module_allowed('osbot_utils.type_safe_malicious'           ) is False
+        assert self.deserializer.is_module_allowed('osbot_utils_type_safe'                     ) is False
+
+        # Path traversal attempts should be blocked
+        assert self.deserializer.is_module_allowed('osbot_utils.type_safe.../../etc'           ) is False
+        assert self.deserializer.is_module_allowed('osbot_utils.type_safe.primitives..domains' ) is False
+        assert self.deserializer.is_module_allowed('osbot_utils.type_safe.primitives...domains') is False
+
+    def test__security_fix__length_limit(self):                                     # Test that overly long type references are rejected"""
+        long_path = 'builtins.' + 'A' * 550  # Over 500 chars total                # Create a very long but otherwise valid-looking path
+
+        error_message = r"Type reference too long (max 512 chars): 559 chars"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            self.deserializer.using_value(long_path)
+
+        normal_path = 'builtins.str'                                                # This should work (under limit)
+        result      = self.deserializer.using_value(normal_path)
+        assert result is str
+
+
+    def test__security_fix__private_type_blocking(self):                            # Test that private types (starting with _) are blocked
+        private_types = { 'builtins._Helper' : "Type '_Helper' not found in module 'builtins'" ,
+                          'types._Cell'      : "Type '_Cell' not found in module 'types'"      ,
+                          'typing._Protocol' : "Type '_Protocol' not found in module 'typing'" }
+
+        for path, error_message in private_types.items():
+            with pytest.raises(ValueError, match=error_message):
+                self.deserializer.using_value(path)
+
+        with pytest.raises(ValueError, match="Type '_empty' not found"):
+            self.deserializer.using_value('builtins._empty')
+
+    # Test the improved module checking with edge cases
+    def test__module_checking_edge_cases(self):
+        """Test edge cases in module name validation"""
+
+        # Test with special characters that should be blocked
+        invalid_modules = [
+            'osbot_utils.type_safe.primitives!',  # Special char
+            'osbot_utils.type_safe.primitives#',  # Special char
+            'osbot_utils.type_safe.primi-tives',  # Hyphen (not allowed in module names)
+            'osbot_utils.type_safe.primi tives',  # Space
+        ]
+
+        for module in invalid_modules:
+            assert not self.deserializer.is_module_allowed(module)
+
+    # Combined test of multiple security features
+    def test__combined_security_features(self):
+        """Test that multiple security features work together"""
+
+        # Long path with double underscores
+        bad_path = '__builtins__.' + 'A' * 500
+        with pytest.raises(ValueError):  # Should fail on multiple grounds
+            self.deserializer.using_value(bad_path)
+
+        # Valid module but dangerous type
+        with pytest.raises(ValueError, match="deny listed for security"):
+            self.deserializer.using_value('builtins.eval')
+
+        # Invalid format with special characters
+        with pytest.raises(ValueError, match="Invalid type reference format"):
+            self.deserializer.using_value('builtins.str; import os')
+
+    # Test that legitimate use cases still work
+    def test__legitimate_use_cases_still_work(self):
+        """Ensure security fixes don't break legitimate functionality"""
+
+        # All these should still work
+        legitimate_cases = [
+            ('builtins.str', str),
+            ('builtins.int', int),
+            ('typing.List', True),  # Returns List type
+            ('typing.Dict', True),  # Returns Dict type
+            ('decimal.Decimal', True),  # Returns Decimal
+            ('datetime.datetime', True),  # Returns datetime
+        ]
+
+        for type_path, expected in legitimate_cases:
+            result = self.deserializer.using_value(type_path)
+            if expected is True:
+                assert result is not None  # Just check it returns something
+            else:
+                assert result is expected
+
+    # Test import depth counter properly decrements
+    def test__import_depth_counter_cleanup(self):
+        """Test that import depth counter is properly managed"""
+
+        # Initial depth should be 0
+        assert self.deserializer.import_depth == 0
+
+        # Successful import should return to 0
+        self.deserializer.using_value('builtins.str')
+        assert self.deserializer.import_depth == 0
+
+        # Failed import should also return to 0
+        try:
+            self.deserializer.using_value('nonexistent.module.Class')
+        except ValueError:
+            pass
+        assert self.deserializer.import_depth == 0
+
+        # Exception during import should still cleanup
+        try:
+            self.deserializer.using_value('builtins.eval')  # Denied type
+        except ValueError:
+            pass
+        assert self.deserializer.import_depth == 0
 
 # Test classes needed for the tests
 

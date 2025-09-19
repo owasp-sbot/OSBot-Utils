@@ -22,6 +22,8 @@ TYPE_SAFE__DESERIALIZATION__DANGEROUS_TYPES           = { 'eval', 'exec', 'compi
 
 TYPE_SAFE__DESERIALIZATION__VALID_NAME_PATTERN = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$')
 
+TYPE_SAFE__DESERIALIZATION__MAX_IMPORT_DEPTH = 10           # 10 depth: Prevents recursion while allowing legitimate nesting
+TYPE_SAFE__DESERIALIZATION__MAX_VALUE_SIZE   = 512          # 512 chars: Reasonable max for module.class.nested.path names
 class Type_Safe__Step__Deserialize_Type:
 
     def __init__(self, allow_type_safe_subclasses=True):    # Initialize deserializer with security settings.
@@ -29,14 +31,21 @@ class Type_Safe__Step__Deserialize_Type:
         self.allowed_modules = (TYPE_SAFE__DESERIALIZATION__ALLOWED_MODULES          |
                                 TYPE_SAFE__DESERIALIZATION__ALLOWED_TYPE_SAFE_MODULES)
         self.allow_type_safe_subclasses = allow_type_safe_subclasses                        # If True, allow any class that inherits from Type_Safe
+        self.import_depth = 0
 
-    def is_module_allowed(self, module_name: str) -> bool:                                  # Check if a module is in the allow listed.
-        if module_name in self.allowed_modules:
+    def is_module_allowed(self, module_name: str) -> bool:
+        if '..' in module_name:                                                             # Check for path traversal attempts first
+            return False
+        if module_name in self.allowed_modules:                                             # Check if a module is in the allow listed.
             return True
 
-        for allowed in self.allowed_modules:
-            if module_name.startswith(allowed + '.'):
+        for allowed in self.allowed_modules:                                                            # Check for exact match first
+            if module_name == allowed:
                 return True
+            if module_name.startswith(allowed + '.'):                                                   # Then check for proper submodule (must have dot separator). This prevents "osmalicious" from matching if "os" were allowed
+                remainder = module_name[len(allowed) + 1:]                                              # Additional check: ensure the part after the dot is valid
+                if '..' not in remainder and remainder.replace('.', '').replace('_', '').isalnum():     # Make sure remainder doesn't try path traversal or other tricks
+                    return True
 
         return False
 
@@ -48,10 +57,8 @@ class Type_Safe__Step__Deserialize_Type:
             pass
         return False
 
-    def is_typing_generic(self, obj) -> bool:           # Check if an object is a valid typing generic type construct.
-        # Check for typing module special forms and generic aliases
-        if hasattr(obj, '__module__') and obj.__module__ == 'typing':
-            #obj_name = getattr(obj, '__name__', str(obj))                               # These are the typing constructs that are valid for type annotations but aren't regular classes
+    def is_typing_generic(self, obj) -> bool:                                           # Check if an object is a valid typing generic type construct.
+        if hasattr(obj, '__module__') and obj.__module__ == 'typing':                   # Check for typing module special forms and generic aliases
 
             if type(obj).__name__ == '_SpecialGenericAlias':                            # Check for _SpecialGenericAlias types (List, Dict, Set, Tuple, etc.)
                 return True
@@ -65,13 +72,21 @@ class Type_Safe__Step__Deserialize_Type:
         return False
 
     def using_value(self, value):
+        if self.import_depth >= TYPE_SAFE__DESERIALIZATION__MAX_IMPORT_DEPTH:
+            raise ValueError(f"Maximum import depth ({TYPE_SAFE__DESERIALIZATION__MAX_IMPORT_DEPTH}) exceeded - possible recursion attack")
+
         if not value:
             return None
 
         if not isinstance(value, str):
             raise ValueError("Type reference must be a string")
 
-        try:            
+        if len(value) > TYPE_SAFE__DESERIALIZATION__MAX_VALUE_SIZE:                                                                    # Reasonable max length for a type path
+            raise ValueError(f"Type reference too long (max {TYPE_SAFE__DESERIALIZATION__MAX_VALUE_SIZE} chars): {len(value)} chars")
+
+        try:
+            self.import_depth += 1  # Increment depth counter
+
             if '.' not in value:                                                        # Check format
                 raise ValueError(f"Type reference must include module: '{value}'")
 
@@ -79,13 +94,13 @@ class Type_Safe__Step__Deserialize_Type:
                 raise ValueError(f"Invalid type reference format: '{value}'")
 
             module_name, type_name = value.rsplit('.', 1)
-            
+
             if module_name == 'builtins' and type_name == 'NoneType':                   # Special case for NoneType
                 return types.NoneType
-            
+
             if type_name in TYPE_SAFE__DESERIALIZATION__DANGEROUS_TYPES:                # Check deny list
                 raise ValueError(f"Type '{type_name}' is deny listed for security")
-            
+
             module_allowed = self.is_module_allowed(module_name)                        # Check module allow listed
             if not module_allowed and not self.allow_type_safe_subclasses:
                 allowed_sorted = sorted(self.allowed_modules)
@@ -120,6 +135,8 @@ class Type_Safe__Step__Deserialize_Type:
         except ValueError:
             raise
         except Exception as e:
-            raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")        # This should rarely be reached now
+            raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")
+        finally:
+            self.import_depth -= 1  # Always decrement depth counter
 
 type_safe_step_deserialize_type = Type_Safe__Step__Deserialize_Type()
