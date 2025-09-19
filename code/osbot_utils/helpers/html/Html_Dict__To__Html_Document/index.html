@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/Html_Dict__To__Html_Document/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Html_Dict__To__Html_Document - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Html_Dict__To__Html_Document";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/Html_Dict__To__Html_Document.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/Html_Dict__To__Html_Document/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Html_Dict__To__Html_Document</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="html_dict__to__html_document">Html_Dict__To__Html_Document<a class="headerlink" href="#html_dict__to__html_document" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Html_Dict__To__Html_Document</code> converts dictionary representations of HTML (from <code>Html__To__Html_Dict</code>) into type-safe schema objects. This converter bridges the gap between the raw parsed format and the structured schema system, enabling type-safe serialization and manipulation.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Html_Dict__To__Html_Document(Type_Safe):
+    html__dict    : dict                  = None
+    html__document: Schema__Html_Document = None
+</code></pre>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>This converter serves several critical functions:
+1. <strong>Type Safety</strong>: Transforms untyped dictionaries into strongly-typed schema objects
+2. <strong>Position Assignment</strong>: Adds position tracking to maintain element order
+3. <strong>Node Separation</strong>: Splits mixed <code>nodes</code> arrays into separate <code>child_nodes</code> and <code>text_nodes</code>
+4. <strong>Validation</strong>: Ensures proper structure during conversion</p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="convert-schema__html_document"><code>convert() -&gt; Schema__Html_Document</code><a class="headerlink" href="#convert-schema__html_document" title="Permanent link">&para;</a></h3>
+<p>Main conversion method that processes the dictionary and returns a document schema.</p>
+<pre><code class="language-python">converter = Html_Dict__To__Html_Document(html__dict=html_dict)
+document = converter.convert()
+</code></pre>
+<h3 id="parse_html_dicttarget-dictstr-any-schema__html_document"><code>parse_html_dict(target: Dict[str, Any]) -&gt; Schema__Html_Document</code><a class="headerlink" href="#parse_html_dicttarget-dictstr-any-schema__html_document" title="Permanent link">&para;</a></h3>
+<p>Creates the document wrapper with timestamp and root node.</p>
+<h3 id="parse_nodetarget-dictstr-any-position-int-schema__html_node"><code>parse_node(target: Dict[str, Any], position: int) -&gt; Schema__Html_Node</code><a class="headerlink" href="#parse_nodetarget-dictstr-any-position-int-schema__html_node" title="Permanent link">&para;</a></h3>
+<p>Recursively converts dictionary nodes to schema nodes, handling:
+- Attribute preservation
+- Child node separation
+- Position assignment
+- Type determination</p>
+<h2 id="conversion-process">Conversion Process<a class="headerlink" href="#conversion-process" title="Permanent link">&para;</a></h2>
+<h3 id="1-input-dictionary-format">1. Input Dictionary Format<a class="headerlink" href="#1-input-dictionary-format" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">{
+    'tag': 'div',
+    'attrs': {'class': 'container'},
+    'nodes': [
+        {'type': 'TEXT', 'data': 'Hello'},
+        {'tag': 'p', 'attrs': {}, 'nodes': [...]},
+        {'type': 'TEXT', 'data': 'World'}
+    ]
+}
+</code></pre>
+<h3 id="2-output-schema-format">2. Output Schema Format<a class="headerlink" href="#2-output-schema-format" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">Schema__Html_Node(
+    tag='div',
+    attrs={'class': 'container'},
+    child_nodes=[
+        Schema__Html_Node(tag='p', position=1, ...)
+    ],
+    text_nodes=[
+        Schema__Html_Node__Data(data='Hello', position=0),
+        Schema__Html_Node__Data(data='World', position=2)
+    ],
+    position=-1  # Root node
+)
+</code></pre>
+<h2 id="position-assignment">Position Assignment<a class="headerlink" href="#position-assignment" title="Permanent link">&para;</a></h2>
+<p>Positions are assigned to maintain the original order of mixed content:</p>
+<pre><code class="language-python"># Original: &lt;div&gt;Text1&lt;p&gt;Para&lt;/p&gt;Text2&lt;/div&gt;
+# Positions: Text1(0), p(1), Text2(2)
+</code></pre>
+<ul>
+<li>Root nodes get position <code>-1</code></li>
+<li>Child positions start at <code>0</code> and increment</li>
+<li>Positions are relative to the parent node</li>
+</ul>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-conversion">Basic Conversion<a class="headerlink" href="#basic-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
+
+# Parse HTML
+html = &quot;&lt;div&gt;&lt;p&gt;Hello&lt;/p&gt;&lt;/div&gt;&quot;
+html_dict = Html__To__Html_Dict(html).convert()
+
+# Convert to document
+converter = Html_Dict__To__Html_Document(html__dict=html_dict)
+document = converter.convert()
+
+# Access the structure
+assert document.root_node.tag == 'div'
+assert len(document.root_node.child_nodes) == 1
+assert document.root_node.child_nodes[0].tag == 'p'
+</code></pre>
+<h3 id="mixed-content-handling">Mixed Content Handling<a class="headerlink" href="#mixed-content-handling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">html = &quot;&lt;p&gt;Start &lt;strong&gt;middle&lt;/strong&gt; end&lt;/p&gt;&quot;
+html_dict = Html__To__Html_Dict(html).convert()
+document = Html_Dict__To__Html_Document(html__dict=html_dict).convert()
+
+root = document.root_node
+# Text nodes: &quot;Start &quot; (position 0), &quot; end&quot; (position 2)
+# Child nodes: &lt;strong&gt; (position 1)
+assert len(root.text_nodes) == 2
+assert len(root.child_nodes) == 1
+</code></pre>
+<h3 id="with-serialization">With Serialization<a class="headerlink" href="#with-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Convert and serialize
+document = Html_Dict__To__Html_Document(html__dict=html_dict).convert()
+json_data = document.json()
+
+# Can now be saved/transmitted
+with open('document.json', 'w') as f:
+    json.dump(json_data, f)
+</code></pre>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">try:
+    converter = Html_Dict__To__Html_Document(html__dict=invalid_dict)
+    document = converter.convert()
+except ValueError as e:
+    print(f&quot;Invalid HTML structure: {e}&quot;)
+</code></pre>
+<h2 id="integration-with-pipeline">Integration with Pipeline<a class="headerlink" href="#integration-with-pipeline" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Complete pipeline example
+def html_to_document(html_string):
+    # Step 1: Parse HTML to dict
+    html_dict = Html__To__Html_Dict(html_string).convert()
+
+    # Step 2: Convert to document
+    document = Html_Dict__To__Html_Document(html__dict=html_dict).convert()
+
+    return document
+</code></pre>
+<h2 id="type-safety-benefits">Type Safety Benefits<a class="headerlink" href="#type-safety-benefits" title="Permanent link">&para;</a></h2>
+<p>The conversion provides several type safety advantages:</p>
+<ol>
+<li><strong>Validated Structure</strong>: All nodes have required fields</li>
+<li><strong>Type Checking</strong>: Can use type checkers like mypy</li>
+<li><strong>Serialization</strong>: Clean JSON serialization/deserialization</li>
+<li><strong>IDE Support</strong>: Better autocomplete and type hints</li>
+</ol>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Validate Input</strong>: Ensure the dictionary is from a valid HTML parse</li>
+<li><strong>Handle Errors</strong>: Wrap conversion in try-except for robustness</li>
+<li><strong>Check Positions</strong>: Verify position assignments for debugging</li>
+<li><strong>Use Type Hints</strong>: Leverage the type safety in your code</li>
+</ol>
+<pre><code class="language-python">def process_document(html_dict: dict) -&gt; Schema__Html_Document:
+    &quot;&quot;&quot;Convert HTML dictionary to document with error handling.&quot;&quot;&quot;
+    if not html_dict:
+        raise ValueError(&quot;Empty HTML dictionary&quot;)
+
+    converter = Html_Dict__To__Html_Document(html__dict=html_dict)
+    return converter.convert()
+</code></pre>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="extracting-all-text">Extracting All Text<a class="headerlink" href="#extracting-all-text" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def get_all_text(node: Schema__Html_Node) -&gt; List[str]:
+    texts = []
+
+    # Get text from text nodes
+    for text_node in node.text_nodes:
+        texts.append((text_node.position, text_node.data))
+
+    # Recursively get text from child nodes
+    for child in node.child_nodes:
+        texts.extend(get_all_text(child))
+
+    # Sort by position and extract text
+    texts.sort(key=lambda x: x[0])
+    return [text for _, text in texts]
+</code></pre>
+<h3 id="finding-elements-by-tag">Finding Elements by Tag<a class="headerlink" href="#finding-elements-by-tag" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def find_by_tag(node: Schema__Html_Node, tag_name: str) -&gt; List[Schema__Html_Node]:
+    results = []
+
+    if node.tag == tag_name:
+        results.append(node)
+
+    for child in node.child_nodes:
+        results.extend(find_by_tag(child, tag_name))
+
+    return results
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Memory Usage</strong>: Schema objects use more memory than raw dicts</li>
+<li><strong>Conversion Time</strong>: Linear with document size</li>
+<li><strong>Deep Nesting</strong>: Very deep documents may hit recursion limits</li>
+</ul>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>No HTML Validation</strong>: Doesn't validate HTML semantics</li>
+<li><strong>Memory Overhead</strong>: Schema objects are larger than dicts</li>
+<li><strong>Position Conflicts</strong>: Manual position changes can break order</li>
+<li><strong>No Streaming</strong>: Requires full document in memory</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
