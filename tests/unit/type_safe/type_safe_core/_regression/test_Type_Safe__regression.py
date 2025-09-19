@@ -1,32 +1,32 @@
 import re
 import sys
 import pytest
-from enum                                                                               import Enum
-from decimal                                                                            import Decimal
-from typing                                                                             import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set
-from unittest                                                                           import TestCase
-from unittest.mock                                                                      import patch
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Guid                          import Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Hash                   import Random_Hash
-from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                 import Timestamp_Now
-from osbot_utils.type_safe.primitives.core.Safe_Str                                     import Safe_Str
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
-from osbot_utils.helpers.python_compatibility.python_3_8                                import Annotated
-from osbot_utils.base_classes.Kwargs_To_Self                                            import Kwargs_To_Self
-from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
-from osbot_utils.decorators.methods.cache_on_self                                       import cache_on_self
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                   import Random_Guid
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict                   import Type_Safe__Dict
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                   import Type_Safe__List
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                    import Type_Safe__Set
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple                  import Type_Safe__Tuple
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations                 import type_safe_annotations
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert                     import type_safe_convert
-from osbot_utils.type_safe.validators.Validator__Min                                    import Min
-from osbot_utils.utils.Json                                                             import json_to_str, str_to_json
-from osbot_utils.utils.Misc                                                             import list_set, is_guid
-from osbot_utils.utils.Objects                                                          import default_value, __, type_full_name
+from enum                                                                          import Enum
+from decimal                                                                       import Decimal
+from typing                                                                        import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set
+from unittest                                                                      import TestCase
+from unittest.mock                                                                 import patch
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                   import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Guid                     import Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Hash              import Random_Hash
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now   import Timestamp_Now
+from osbot_utils.type_safe.primitives.core.Safe_Str                                import Safe_Str
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path  import Safe_Str__File__Path
+from osbot_utils.helpers.python_compatibility.python_3_8                           import Annotated
+from osbot_utils.base_classes.Kwargs_To_Self                                       import Kwargs_To_Self
+from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
+from osbot_utils.decorators.methods.cache_on_self                                  import cache_on_self
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid              import Random_Guid
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict              import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List              import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set               import Type_Safe__Set
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple             import Type_Safe__Tuple
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations            import type_safe_annotations
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert                import type_safe_convert
+from osbot_utils.type_safe.validators.Validator__Min                               import Min
+from osbot_utils.utils.Json                                                        import json_to_str, str_to_json
+from osbot_utils.utils.Misc                                                        import list_set, is_guid
+from osbot_utils.utils.Objects                                                     import default_value, __, type_full_name
 
 
 class Node_Value(Type_Safe):
@@ -494,7 +494,7 @@ class test_Type_Safe__regression(TestCase):
         #     An_Class()                                #  FXIED BUG
 
         assert An_Class().obj() == __(an_guid       = 'osbot_utils.type_safe.primitives.domains.identifiers.Guid.Guid'                   ,
-                                      an_time_stamp = 'osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now.Timestamp_Now' )
+                                      an_time_stamp = 'osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now.Timestamp_Now' )
 
     def test__regression__type_from_json(self):
         class An_Class(Type_Safe):

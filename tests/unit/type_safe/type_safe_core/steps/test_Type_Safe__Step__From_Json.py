@@ -12,7 +12,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid_Short          import Random_Guid_Short
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                    import Safe_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now              import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now     import Timestamp_Now
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict                import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                 import Type_Safe__Set

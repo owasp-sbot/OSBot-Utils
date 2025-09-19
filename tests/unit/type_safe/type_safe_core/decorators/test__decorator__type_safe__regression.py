@@ -5,7 +5,7 @@ from unittest                                                                   
 from osbot_utils.type_safe.primitives.core.Safe_Int                                     import Safe_Int
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                 import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now        import Timestamp_Now
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                          import type_safe
 
@@ -206,7 +206,7 @@ class test_decorator__type_safe__regression(TestCase):
             an_function(an_str="answer", an_int=42, optional_type="aaa"   )     # BUG:should have raised exception
 
         an_function(an_str="answer", an_int=42, optional_type_str=Safe_Id       )  # OK because Safe_Id(str)
-        expected_error_4 = "Parameter 'optional_type_str' expected type type[str], but got osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now.Timestamp_Now which is not a subclass of <class 'str'>"
+        expected_error_4 = "Parameter 'optional_type_str' expected type type[str], but got osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now.Timestamp_Now which is not a subclass of <class 'str'>"
         with pytest.raises(ValueError, match=re.escape(expected_error_4)):
             an_function(an_str="answer", an_int=42, optional_type_str=Timestamp_Now )  # BUG:should have raised exception, because Timestamp_Now(int)
 

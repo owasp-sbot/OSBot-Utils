@@ -3,7 +3,7 @@ import tempfile
 import shutil
 import os
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id, is_obj_id
-from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now             import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now    import Timestamp_Now
 from osbot_utils.helpers.llms.cache.LLM_Request__Cache__File_System                 import LLM_Request__Cache__File_System
 from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder                  import Virtual_Storage__Local__Folder
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request                           import Schema__LLM_Request
