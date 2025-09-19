@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from unittest                                                                       import TestCase
 from typing                                                                         import Dict, Type, Set, Any, List
@@ -273,6 +275,28 @@ class test_Type_Safe__Dict__regression(TestCase):
         with pytest.raises(TypeError, match="Expected 'An_Class', but got 'str'"):
             an_class.an_dict['bad_child'] = "some string"                               # Fixed: BUG didn't raise an exception
 
+    def test__regression__type_safe_assigment__not_handling_dict_with_List__on_ctor(self):
+        class An_Class_1(Type_Safe):
+            all_paths      : Dict[Safe_Str__Id, List[Safe_Str__File__Path]]
+
+        data = { 'by_hash': [ 'refs/by-hash/e1/5b/e15b31f87df1896e.json',
+                               'refs/by-hash/e1/5b/e15b31f87df1896e.json.config',
+                               'refs/by-hash/e1/5b/e15b31f87df1896e.json.metadata'],
+                  'by_id': [ 'refs/by-id/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json',
+                             'refs/by-id/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.config',
+                             'refs/by-id/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.metadata'],
+                  'data': [ 'data/direct/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json',
+                            'data/direct/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.config',
+                            'data/direct/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.metadata']}
+
+        # error_message_1 = "In list at index 0: Expected 'Safe_Str__File__Path', but got 'str'"
+        # with pytest.raises(TypeError, match=re.escape(error_message_1)):
+        #     An_Class_1(all_paths=data)                                                                    # BUG
+        An_Class_1(all_paths=data)
+
+        an_class_1 = An_Class_1(all_paths=data)
+        assert an_class_1.json()    == {"all_paths": data }                                             # confirm roundtrip with .json()
+        assert an_class_1.obj()     == __(all_paths = obj(data))                                        # confirm roundtrip with obj().
 
     def test__regression__type_safe_assigment__not_handling_dict_with_List(self):
         class An_Class_1(Type_Safe):
