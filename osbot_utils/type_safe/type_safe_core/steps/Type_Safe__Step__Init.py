@@ -41,7 +41,7 @@ class Type_Safe__Step__Init:
         key_type, value_type = args
         value_origin = type_safe_annotations.get_origin(value_type)
 
-        if value_origin not in (list, set, tuple):                          # Only handle Dict with nested collections
+        if value_origin not in (list, set, tuple, dict):                          # Only handle Dict with nested collections
             return None
 
         # Reuse the deserialization logic from Type_Safe__Step__From_Json (need to import this here due to circular dependencies)
@@ -54,11 +54,34 @@ class Type_Safe__Step__Init:
                 k = key_type(k)
 
             if value_origin is list:                                                            # Use the from_json deserializer for the nested value
-                converted_value = type_safe_step_from_json.deserialize_list_in_dict_value(__self, value_type, v) # Reuse the deserialization logic from Type_Safe__Step__From_Json
+                converted_value = type_safe_step_from_json.deserialize_list_in_dict_value(__self, value_type, v)
             elif value_origin is set:
-                converted_value = v                                                             # todo: should we add set handling here?
-            elif value_origin is tuple:
-                converted_value = v                                                            # todo: should we add tuple handling here?
+                set_args = get_args(value_type)                                                 # Handle Set[T] conversion
+                if set_args:
+                    item_type = set_args[0]
+                    type_safe_set = Type_Safe__Set(expected_type=item_type)
+                    for item in v:
+                        type_safe_set.add(item)
+                    converted_value = type_safe_set
+                else:
+                    converted_value = Type_Safe__Set(expected_type=object)  # Create empty set with object type
+                    for item in v:
+                        converted_value.add(item)
+            elif value_origin is tuple:                                                         # Handle Tuple[T, ...] conversion
+                tuple_args = get_args(value_type)
+                if tuple_args:
+                    converted_value = Type_Safe__Tuple(expected_types=tuple_args, items=v)
+                else:
+                    converted_value = Type_Safe__Tuple(expected_types=(), items=v)              # Fallback to untyped tuple
+            elif value_origin is dict:                                                          # Handle Dict[K2, V] conversion
+                dict_args = get_args(value_type)
+                if dict_args and len(dict_args) == 2:
+                    nested_key_type, nested_value_type = dict_args
+                    converted_value = Type_Safe__Dict(expected_key_type=nested_key_type, expected_value_type=nested_value_type)
+                    for nested_k, nested_v in v.items():
+                        converted_value[nested_k] = nested_v
+                else:
+                    converted_value = v  # Fallback to regular dict if no type info
             else:
                 converted_value = v
 
