@@ -186,7 +186,7 @@ class Type_Safe__Step__From_Json:
 
         for dict_key, dict_value in value.items():
             new__dict_key   = self.deserialize_dict_key(key_class, dict_key)
-            new__dict_value = self.deserialize_dict_value(value_class, dict_value)
+            new__dict_value = self.deserialize_dict_value(_self, value_class, dict_value)
             new_value[new__dict_key] = new__dict_value
 
         return new_value
@@ -216,11 +216,11 @@ class Type_Safe__Step__From_Json:
 
         return dict_key
 
-    def deserialize_dict_value(self, value_class, dict_value):                      # Deserialize a dictionary value based on its expected type.
+    def deserialize_dict_value(self, _self, value_class, dict_value):                      # Deserialize a dictionary value based on its expected type.
         value_origin = type_safe_cache.get_origin(value_class)
 
         if value_origin is list:                                                    # This handles both typing.List and list
-            return self.deserialize_list_in_dict_value(value_class, dict_value)
+            return self.deserialize_list_in_dict_value(_self, value_class, dict_value)
 
         if value_origin is dict:                                                    # Handle Dict[K, V] type annotations
             return self.deserialize_nested_dict(value_class, dict_value)
@@ -243,7 +243,7 @@ class Type_Safe__Step__From_Json:
         else:                                                                       # Default: try to instantiate with the value
             return value_class(dict_value)
 
-    def deserialize_list_in_dict_value(self, value_class, dict_value):              # Handle List[T] or list[T] types when they appear as dictionary values.
+    def deserialize_list_in_dict_value(self, _self, value_class, dict_value):              # Handle List[T] or list[T] types when they appear as dictionary values.
         if not isinstance(dict_value, list):
             return dict_value
 
@@ -252,6 +252,13 @@ class Type_Safe__Step__From_Json:
             return dict_value                                                                       # No type info, return as-is
 
         item_type = args[0]
+
+        if isinstance(item_type, ForwardRef):                                                       # Handle forward references with _self context
+            if _self:
+                forward_name = item_type.__forward_arg__
+                if forward_name == _self.__class__.__name__:
+                    item_type = _self.__class__
+
         type_safe_list = Type_Safe__List(item_type)
 
         for item in dict_value:                                                                     # Handle Type_Safe subclasses

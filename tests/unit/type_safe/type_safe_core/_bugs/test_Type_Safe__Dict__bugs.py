@@ -2,13 +2,7 @@ import re
 import pytest
 from typing                                                                       import Dict, List, Any
 from unittest                                                                     import TestCase
-
-from osbot_utils.testing.__ import __
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id   import Safe_Str__Id
-from osbot_utils.utils.Objects import obj
-
 
 class test_Type_Safe__Dict__bugs(TestCase):
 
