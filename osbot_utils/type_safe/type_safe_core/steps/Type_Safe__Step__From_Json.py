@@ -1,13 +1,6 @@
-import sys
-import types
 from decimal                                                                        import Decimal
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
+from osbot_utils.type_safe.Type_Safe__Primitive                                     import Type_Safe__Primitive
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash  import Safe_Str__Hash
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid_Short         import Random_Guid_Short
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now             import Timestamp_Now
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                import Type_Safe__Set
@@ -15,186 +8,258 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple          
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations             import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache                   import type_safe_cache
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert                 import type_safe_convert
+from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Deserialize_Type   import type_safe_step_deserialize_type
 from osbot_utils.utils.Objects                                                      import enum_from_value
-
-# todo; refactor all this python compatibility into the python_3_8 class
-if sys.version_info < (3, 8):                                           # pragma: no cover
-
-    def get_args(tp):
-        import typing
-        if isinstance(tp, typing._GenericAlias):
-            return tp.__args__
-        else:
-            return ()
-else:
-    from typing import get_args, Any, ForwardRef
+from typing                                                                         import get_args, Any, ForwardRef
 
 
 class Type_Safe__Step__From_Json:
 
-    # todo: this needs refactoring, since the logic and code is getting quite complex (to be inside methods like this)
     def deserialize_from_dict(self, _self, data, raise_on_not_found=False):
         if data is None:
-            return
+            return None
         if hasattr(data, 'items') is False:
             raise ValueError(f"Expected a dictionary, but got '{type(data)}'")
 
         for key, value in data.items():
             if hasattr(_self, key) and isinstance(getattr(_self, key), Type_Safe):
-                self.deserialize_from_dict(getattr(_self, key), value)                                             # if the attribute is a Type_Safe object, then also deserialize it
+                self.deserialize_from_dict(getattr(_self, key), value)
             else:
-                if hasattr(_self, '__annotations__'):                                                        # can only do type safety checks if the class does not have annotations
-                    if hasattr(_self, key) is False:                                                         # make sure we are now adding new attributes to the class
+                if hasattr(_self, '__annotations__'):
+                    if hasattr(_self, key) is False:
                         if raise_on_not_found:
                             raise ValueError(f"Attribute '{key}' not found in '{_self.__class__.__name__}'")
                         else:
                             continue
-                    annotation        = type_safe_annotations.obj_attribute_annotation(_self, key)
-                    annotation_origin = type_safe_cache.get_origin(annotation)
 
-                    if type(annotation) is type and issubclass(annotation, Type_Safe) and type(value) is dict:          # if the annotation is a Type_Safe class and the value is a dict
-                        value = annotation.from_json(value)                                                             # we can use the Type_Safe.from_json to create the deserialized value object
-
-                    elif annotation == type:                                                  # Handle type objects
-                        value = self.deserialize_type__using_value(value)
-                    elif annotation_origin == type:                                         # Handle type objects inside ForwardRef
-                        value = self.deserialize_type__using_value(value)
-                    if annotation_origin is tuple and isinstance(value, list):
-                        item_types = get_args(annotation)
-                        if item_types:
-                            value = Type_Safe__Tuple(expected_types=item_types, items=value)                # Create a Type_Safe__Tuple with proper type conversion
-                        else:
-                            value = tuple(value)
-                    elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, dict):                                # handle the case when the value is a dict
-                        value = self.deserialize_dict__using_key_value_annotations(_self, key, value)
-                    elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, set):                              # handle the case when the value is a list
-                        attribute_annotation = type_safe_annotations.obj_attribute_annotation(_self, key)                          # get the annotation for this variable
-                        attribute_annotation_args = get_args(attribute_annotation)
-                        if attribute_annotation_args:
-                            expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
-                            type_safe_set        = Type_Safe__Set(expected_type)                               # create a new instance of Type_Safe__List
-                            for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
-                                if type(item) is dict:
-                                    new_item = expected_type(**item)                                                # create new object
-                                else:
-                                    new_item = expected_type(item)
-                                type_safe_set.add(new_item)                                                 # and add it to the new type_safe_list obejct
-                            value = type_safe_set                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
-                    elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, list):                              # handle the case when the value is a list
-                        attribute_annotation = type_safe_annotations.obj_attribute_annotation(_self, key)                          # get the annotation for this variable
-                        attribute_annotation_args = get_args(attribute_annotation)
-                        if attribute_annotation_args:
-                            expected_type        = get_args(attribute_annotation)[0]                            # get the first arg (which is the type)
-                            type_safe_list       = Type_Safe__List(expected_type)                               # create a new instance of Type_Safe__List
-                            if value:
-                                if isinstance(expected_type, ForwardRef):                                       # Check if it's a self-reference
-                                    forward_name = expected_type.__forward_arg__
-                                    if forward_name == _self.__class__.__name__:
-                                        expected_type = _self.__class__
-                                for item in value:                                                                  # next we need to convert all items (to make sure they all match the type)
-                                    if type(item) is dict:
-                                        new_item = expected_type(**item)                                                # create new object
-                                    else:
-                                        new_item = expected_type(item)
-                                    type_safe_list.append(new_item)                                                 # and add it to the new type_safe_list obejct
-                            value = type_safe_list                                                              # todo: refactor out this create list code, maybe to an deserialize_from_list method
-                    else:
-                        if value is not None:
-                            enum_type = type_safe_annotations.extract_enum_from_annotation(annotation)                         # Handle the case when the value is an Enum
-                            if enum_type:
-                                if type(value) is not enum_type:
-                                    value = enum_from_value(enum_type, value)
-
-                            # todo: refactor these special cases into a separate method to class
-                            #       in fact find a better way to handle these classes that need to be converted
-                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Decimal):           # handle Decimals
-                                value = Decimal(value)
-                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Safe_Id):           # handle Safe_Id
-                                value = Safe_Id(value)
-                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Random_Guid):       # handle Random_Guid
-                                value = Random_Guid(value)
-                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Random_Guid_Short): # handle Random_Guid_Short
-                                value = Random_Guid_Short(value)
-                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Timestamp_Now    ): # handle Timestamp_Now
-                                value = Timestamp_Now(value)
-                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Obj_Id           ): # handle Obj_Id
-                                value = Obj_Id(value)
-                            elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Safe_Str__Hash   ): # handle Obj_Id
-                                value = Safe_Str__Hash(value)
-                            # else:
-                            #     from osbot_utils.utils.Dev import pprint
-                            #     pprint(value)
-
-
-                    setattr(_self, key, value)                                                   # Direct assignment for primitive types and other structures
+                    value = self.deserialize_attribute(_self, key, value)
+                    setattr(_self, key, value)
 
         return _self
 
-    def deserialize_type__using_value(self, value):         # TODO: Check the security implications of this deserialisation
-        if value:
-            try:
-                module_name, type_name = value.rsplit('.', 1)
-                if module_name == 'builtins' and type_name == 'NoneType':                       # Special case for NoneType (which serialises as builtins.* , but it actually in types.* )
-                    value = types.NoneType
-                else:
-                    module = __import__(module_name, fromlist=[type_name])
-                    value = getattr(module, type_name)
-                    if isinstance(value, type) is False:
-                        raise ValueError(f"Security alert, in deserialize_type__using_value only classes are allowed")
+    def deserialize_attribute(self, _self, key, value):                                     # Deserialize a single attribute based on its annotation.
+        annotation        = type_safe_annotations.obj_attribute_annotation(_self, key)
+        annotation_origin = type_safe_cache.get_origin(annotation)
 
-                    # todo: figure out a way to do this
-                    # supported_types = (Type_Safe, str, int, type, dict)
-                    # if issubclass(value, supported_types)  is False:
-                    #     raise ValueError(f"Security alert, in deserialize_type__using_value only class of {supported_types} are allowed and it was {value}")
+        if value is not None and type(value) is dict:                                       # Handle forward references first
+            forward_ref_result = self.handle_forward_references(_self, annotation, value)
+            if forward_ref_result is not None:
+                return forward_ref_result
 
-            except (ValueError, ImportError, AttributeError) as e:
-                raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")
+        if annotation == type:                                                              # Handle type objects
+            return self.deserialize_type__using_value(value)
+        elif annotation_origin == type:
+            return self.deserialize_type__using_value(value)
+
+        # Handle collections
+        if annotation_origin is tuple and isinstance(value, list):                          return self.handle_tuple_annotation                      (annotation, value)
+        elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, dict):   return self.deserialize_dict__using_key_value_annotations(_self, key, value)
+        elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, set):    return self.handle_set_annotation                        (_self, key, value)
+        elif type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, list):   return self.handle_list_annotation                       (_self, key, value)
+
+        # Handle special types and enums
+        if value is not None:
+            return self.handle_special_types(_self, key, annotation, value)
+
+        return value
+
+    def handle_forward_references(self, _self, annotation, value):                          # Handle forward references to Type_Safe classes.
+        if isinstance(annotation, str):                                                     # String forward references
+            if annotation == _self.__class__.__name__:
+                return _self.__class__.from_json(value)
+            return None                                                                     # todo: should we add logic here to resolve other forward refs if needed
+
+        if isinstance(annotation, ForwardRef):                                              # ForwardRef objects from typing
+            forward_name = annotation.__forward_arg__
+            if forward_name == _self.__class__.__name__:
+                return _self.__class__.from_json(value)
+            return None
+
+        if type(annotation) is type and issubclass(annotation, Type_Safe):                  # Type_Safe subclasses
+            return annotation.from_json(value)
+
+        return None
+
+    def handle_tuple_annotation(self, annotation, value):                                   # Handle tuple type annotations.
+        item_types = get_args(annotation)
+        if item_types:
+            return Type_Safe__Tuple(expected_types=item_types, items=value)
+        else:
+            return tuple(value)
+
+    def handle_set_annotation(self, _self, key, value):                                     # Handle set type annotations.
+        attribute_annotation      = type_safe_annotations.obj_attribute_annotation(_self, key)
+        attribute_annotation_args = get_args(attribute_annotation)
+
+        if attribute_annotation_args:
+            expected_type = attribute_annotation_args[0]
+            type_safe_set = Type_Safe__Set(expected_type)
+
+            for item in value:
+                new_item = self.convert_item_to_type(expected_type, item)
+                type_safe_set.add(new_item)
+
+            return type_safe_set
+
+        return set(value)
+
+    def handle_list_annotation(self, _self, key, value):                                    # Handle list type annotations.
+        attribute_annotation      = type_safe_annotations.obj_attribute_annotation(_self, key)
+        attribute_annotation_args = get_args(attribute_annotation)
+
+        if attribute_annotation_args:
+            expected_type = attribute_annotation_args[0]
+
+            if type_safe_cache.get_origin(expected_type) is dict:                           # Special handling for Dict from typing
+                type_safe_list = Type_Safe__List(dict)
+                if value:
+                    for item in value:
+                        type_safe_list.append(item)
+                return type_safe_list
+
+            type_safe_list = Type_Safe__List(expected_type)                                 # Regular list handling
+
+            if value:                                                                       # Handle forward refs in lists
+                if isinstance(expected_type, ForwardRef):
+                    forward_name = expected_type.__forward_arg__
+                    if forward_name == _self.__class__.__name__:
+                        expected_type = _self.__class__
+
+                for item in value:
+                    new_item = self.convert_item_to_type(expected_type, item)
+                    type_safe_list.append(new_item)
+
+            return type_safe_list
+
+        return list(value) if value else []
+
+    def convert_item_to_type(self, expected_type, item):                                    # Convert a single item to the expected type.
+        if type(item) is dict:
+            if hasattr(expected_type, 'from_json'):                                         # Check if it's a Type_Safe class that can be instantiated from dict
+                return expected_type.from_json(item)
+            else:
+                return expected_type(**item)
+        else:
+            return expected_type(item)
+
+    def handle_special_types(self, _self, key, annotation, value):                          # Handle special types like enums and Type_Safe__Primitive subclasses."""
+        enum_type = type_safe_annotations.extract_enum_from_annotation(annotation)          # Handle enums
+        if enum_type:
+            if type(value) is not enum_type:
+                return enum_from_value(enum_type, value)
+            return value
+
+
+
+        if type(annotation) is type:                                                                # Check if the annotation is a Type_Safe__Primitive subclass
+
+            if issubclass(annotation, Type_Safe__Primitive):                                        # Handle Type_Safe__Primitive subclasses generically
+                return annotation(value)                                                            # Type_Safe__Primitive classes can be instantiated with their value
+
+        if type_safe_annotations.obj_is_attribute_annotation_of_type(_self, key, Decimal):          # Handle Decimal as a special case (not a Type_Safe__Primitive)
+            return Decimal(value)
+
         return value
 
     def deserialize_dict__using_key_value_annotations(self, _self, key, value):
         annotations            = type_safe_cache.get_obj_annotations(_self)
         dict_annotations_tuple = get_args(annotations.get(key))
-        if not dict_annotations_tuple:                                      # happens when the value is a dict/Dict with no annotations
+        if not dict_annotations_tuple:
             return value
         if not type(value) is dict:
             return value
+
         key_class   = dict_annotations_tuple[0]
         value_class = dict_annotations_tuple[1]
-        new_value   = Type_Safe__Dict(expected_key_type=key_class, expected_value_type=value_class)
+
+        if isinstance(value_class, ForwardRef):                                 # Resolve forward references in value_class
+            forward_name = value_class.__forward_arg__
+            if forward_name == _self.__class__.__name__:
+                value_class = _self.__class__
+            else:
+                pass                                                            # Can't resolve other forward refs easily (Would need to search in the module's namespace)
+        elif isinstance(value_class, str):
+            if value_class == _self.__class__.__name__:
+                value_class = _self.__class__
+
+        new_value = Type_Safe__Dict(expected_key_type=key_class, expected_value_type=value_class)
 
         for dict_key, dict_value in value.items():
-            key_origin = type_safe_cache.get_origin(key_class)
-            if key_origin is type:
-                if type(dict_key) is str:
-                    dict_key = self.deserialize_type__using_value(dict_key)
-                key_class_args = get_args(key_class)
-                if key_class_args:
-                    expected_dict_type = key_class_args[0]
-                    if dict_key != expected_dict_type and not issubclass(dict_key,expected_dict_type):
-                        raise TypeError(f"Expected {expected_dict_type} class for key but got instance: {dict_key}")
-                else:
-                    if not isinstance(dict_key, key_class):
-                        raise TypeError(f"Expected {key_class} class for key but got instance: {dict_key}")
-                new__dict_key = dict_key
-            elif issubclass(key_class, Type_Safe):
-                new__dict_key = self.deserialize_from_dict(key_class(), dict_key)
-            else:
-                new__dict_key = key_class(dict_key)
-
-            if type(dict_value) == value_class:                                        # if the value is already the target, then just use it
-                new__dict_value = dict_value
-            elif isinstance(value_class, type) and issubclass(value_class, Type_Safe):
-                if 'node_type' in dict_value:
-                    value_class = type_safe_convert.get_class_from_class_name(dict_value['node_type'])
-
-                new__dict_value = self.deserialize_from_dict(value_class(), dict_value)
-            elif value_class is Any:
-                new__dict_value = dict_value
-            else:
-                new__dict_value = value_class(dict_value)
+            new__dict_key   = self.deserialize_dict_key(key_class, dict_key)
+            new__dict_value = self.deserialize_dict_value(value_class, dict_value)
             new_value[new__dict_key] = new__dict_value
 
         return new_value
+
+    def deserialize_dict_key(self, key_class, dict_key):                # Deserialize a dictionary key based on its expected type.
+        key_origin = type_safe_cache.get_origin(key_class)
+
+        if key_origin is type:
+            return self.deserialize_type_key(key_class, dict_key)
+        elif issubclass(key_class, Type_Safe):
+            return self.deserialize_from_dict(key_class(), dict_key)
+        else:
+            return key_class(dict_key)
+
+    def deserialize_type_key(self, key_class, dict_key):                # Handle deserialization of Type[T] keys.
+        if type(dict_key) is str:
+            dict_key = self.deserialize_type__using_value(dict_key)
+
+        key_class_args = get_args(key_class)
+        if key_class_args:
+            expected_dict_type = key_class_args[0]
+            if dict_key != expected_dict_type and not issubclass(dict_key, expected_dict_type):
+                raise TypeError(f"Expected {expected_dict_type} class for key but got instance: {dict_key}")
+        else:
+            if not isinstance(dict_key, key_class):
+                raise TypeError(f"Expected {key_class} class for key but got instance: {dict_key}")
+
+        return dict_key
+
+    def deserialize_dict_value(self, value_class, dict_value):                      # Deserialize a dictionary value based on its expected type.
+        value_origin = type_safe_cache.get_origin(value_class)
+
+        if value_origin is dict:                                                    # Handle Dict[K, V] type annotations
+            return self.deserialize_nested_dict(value_class, dict_value)
+
+        elif type(dict_value) == value_class:                                       # Value is already the correct type
+            return dict_value
+
+        elif isinstance(value_class, type) and issubclass(value_class, Type_Safe):  # Handle Type_Safe subclasses
+            return self.deserialize_type_safe_value(value_class, dict_value)
+
+        elif value_class is Any:                                                    # Handle Any type
+            return dict_value
+
+        if isinstance(value_class, ForwardRef):                                     # Handle ForwardRef in dict values
+            return dict_value                                                       # For now, we can't easily resolve forward refs without context (This would need the class context to resolve properly)
+
+        if value_origin is dict:                                                    # Handle Dict[K, V] type annotations (use lowercase dict, not Dict)
+            return self.deserialize_nested_dict(value_class, dict_value)
+
+        else:                                                                       # Default: try to instantiate with the value
+            return value_class(dict_value)
+
+    def deserialize_nested_dict(self, value_class, dict_value):                     # Handle deserialization of nested Dict[K, V] types.
+        if not isinstance(dict_value, dict):
+            return dict_value
+
+        nested_args = get_args(value_class)
+        if nested_args and len(nested_args) == 2:
+            nested_key_type, nested_value_type = nested_args
+            nested_dict = Type_Safe__Dict(expected_key_type=nested_key_type,
+                                         expected_value_type=nested_value_type)
+            for nk, nv in dict_value.items():
+                nested_dict[nk] = nv
+            return nested_dict
+        else:
+            return dict_value  # No type info, use raw dict
+
+    def deserialize_type_safe_value(self, value_class, dict_value):                         # Handle deserialization of Type_Safe subclass values.
+        if 'node_type' in dict_value:
+            value_class = type_safe_convert.get_class_from_class_name(dict_value['node_type'])
+
+        return self.deserialize_from_dict(value_class(), dict_value)
 
     def from_json(self, _cls, json_data, raise_on_not_found=False):
         from osbot_utils.utils.Json import json_parse
@@ -204,5 +269,9 @@ class Type_Safe__Step__From_Json:
         if json_data:                                           # if there is no data or is {} then don't create an object (since this could be caused by bad data being provided)
             return self.deserialize_from_dict(_cls(), json_data, raise_on_not_found=raise_on_not_found)
         return _cls()
+
+    def deserialize_type__using_value(self, value):
+        return type_safe_step_deserialize_type.using_value(value)
+
 
 type_safe_step_from_json = Type_Safe__Step__From_Json()

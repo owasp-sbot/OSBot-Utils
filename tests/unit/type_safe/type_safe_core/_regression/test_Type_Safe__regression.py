@@ -234,12 +234,6 @@ class test_Type_Safe__regression(TestCase):
 
 
     def test__regression__forward_ref_type(self):
-        class Base__Type(Type_Safe):
-            ref_type: Type['Base__Type']
-
-
-        class Type__With__Forward__Ref(Base__Type):
-            pass
 
         target = Type__With__Forward__Ref()
 
@@ -249,8 +243,10 @@ class test_Type_Safe__regression(TestCase):
         #
         assert json_data == {'ref_type': 'test_Type_Safe__regression.Type__With__Forward__Ref'}
 
-        with pytest.raises(ValueError, match=re.escape(error_message)):
-            Type__With__Forward__Ref.from_json(json_data)                           # Fixed we are now raising the correct exception BUG: exception should have not been raised
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     Type__With__Forward__Ref.from_json(json_data)                           # Fixed we are now raising the correct exception
+        assert Type__With__Forward__Ref.from_json(json_data).json()  == json_data     # now this works
+        assert json_data  == {'ref_type': 'test_Type_Safe__regression.Type__With__Forward__Ref'}
 
 
     def test__regression__property_descriptor_handling(self):
@@ -759,8 +755,12 @@ class test_Type_Safe__regression(TestCase):
         json_data_2 = { 'dict_5': {str(Random_Guid()): { Random_Guid():Random_Guid() ,
                                                          Random_Guid():Random_Guid() }}}
 
-        with pytest.raises(TypeError, match="In dict key 'no-guid-1': Expected 'Random_Guid', but got 'str'"):
-            assert An_Class_1().from_json(json_data_1).json() == json_data_1  # BUG: should had raised exception on 'no-guid-1': 'no-guid-2'
+        #with pytest.raises(TypeError, match="In dict key 'no-guid-1': Expected 'Random_Guid', but got 'str'"):
+        #    assert An_Class_1().from_json(json_data_1).json() == json_data_1  # BUG: should had raised exception on 'no-guid-1': 'no-guid-2'
+
+        with pytest.raises(ValueError, match=re.escape("in Random_Guid: value provided was not a Guid: no-guid-1")):
+           assert An_Class_1().from_json(json_data_1).json() == json_data_1  # FIXED: BUG: should had raised exception on 'no-guid-1': 'no-guid-2'
+
 
         assert An_Class_1().from_json(json_data_2).json() == json_data_2
 
@@ -1604,3 +1604,8 @@ class test_Type_Safe__regression(TestCase):
 
         assert Cache_Entry_H().entry_id   != Cache_Entry_H().entry_id           # it works again
 
+class Base__Type(Type_Safe):
+    ref_type: Type['Base__Type']
+
+class Type__With__Forward__Ref(Base__Type):
+    pass

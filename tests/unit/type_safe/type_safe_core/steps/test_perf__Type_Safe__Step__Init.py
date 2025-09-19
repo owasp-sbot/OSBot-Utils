@@ -65,12 +65,10 @@ class test_perf__Type_Safe__Step__Init(TestCase):                               
             optional_val : Optional[float] = None
 
         obj = ComplexClass()
-        class_kwargs = {
-            "list_val": [],
-            "dict_val": {},
-            "union_val": "test",
-            "optional_val": None
-        }
+        class_kwargs = { "list_val": [],
+                         "dict_val": {},
+                         "union_val": "test",
+                         "optional_val": None}
 
         def init_complex_default():                                                 # Test init with defaults
             type_safe_step_init.init(obj, class_kwargs)

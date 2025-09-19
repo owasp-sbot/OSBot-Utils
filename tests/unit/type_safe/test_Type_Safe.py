@@ -5,9 +5,9 @@ import pytest
 from enum                                                                   import Enum, auto
 from typing                                                                 import Union, Optional, Type, Set
 from unittest                                                               import TestCase
-from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                import Timestamp_Now
-from osbot_utils.type_safe.primitives.domains.identifiers.Guid             import Guid
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid      import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now     import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.Guid              import Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid       import Random_Guid
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List       import Type_Safe__List
 from osbot_utils.testing.Catch                                              import Catch
@@ -770,14 +770,25 @@ class test_Type_Safe(TestCase):
             restored = Type_Test_Class.from_json(json_data)
             assert restored.builtin_type == type_to_test
 
-        # Test custom class types
+        # Test custom class types (that don't inherit from Type_Safe)
 
         test_obj.custom_type = Custom_Class
         json_data = test_obj.json()
 
         assert json_data['custom_type'] == f'{Custom_Class.__module__}.Custom_Class'
+        error_message = "Module 'test_Type_Safe' is not in allowed modules and 'Custom_Class' does not inherit from Type_Safe. Allowed modules: ['builtins', 'collections', 'collections.abc', 'datetime', 'decimal', 'enum', 'osbot_utils.type_safe', 'osbot_utils.type_safe.primitives', 'types', 'typing']"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+             Type_Test_Class.from_json(json_data)             # before security fix, this worked
+
+        # Test custom class types (that inherit from Type_Safe)
+
+        test_obj.custom_type = Custom_Class__Type_Safe
+        json_data = test_obj.json()
+
+        assert json_data['custom_type'] == f'{Custom_Class__Type_Safe.__module__}.Custom_Class__Type_Safe'
+
         restored = Type_Test_Class.from_json(json_data)
-        assert restored.custom_type == Custom_Class
+        assert restored.custom_type == Custom_Class__Type_Safe
 
     def test_type_serialization__lists(self):
         class Type_Test_Class(Type_Safe):
@@ -883,25 +894,32 @@ class test_Type_Safe(TestCase):
         class Error_Test(Type_Safe):
             type_field: type
 
-        test_obj = Error_Test()
+        Error_Test()
 
-        # Test invalid module
-        invalid_json = {'type_field': 'nonexistent_module.SomeType'}
-        with self.assertRaises(ValueError) as context:
+        invalid_json = {'type_field': 'nonexistent_module.SomeType'}                            # Test 1: Module not in allow listed (security check)
+        error_message = "Could not import module 'nonexistent_module': No module named 'nonexistent_module'"
+        with pytest.raises(ValueError, match=error_message):
             Error_Test.from_json(invalid_json)
-        assert "Could not reconstruct type" in str(context.exception)
 
-        # Test invalid type in valid module
-        invalid_json = {'type_field': 'builtins.NonexistentType'}
-        with self.assertRaises(ValueError) as context:
+        invalid_json = {'type_field': 'builtins.NonexistentType'}                               # Test 2: Invalid type in valid module (type doesn't exist)
+        error_message = "Type 'NonexistentType' not found in module 'builtins'"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
             Error_Test.from_json(invalid_json)
-        assert "Could not reconstruct type" in str(context.exception)
 
-        # Test malformed type string
-        invalid_json = {'type_field': 'not_a_valid_type_string'}
-        with self.assertRaises(ValueError) as context:
+        invalid_json = {'type_field': 'not_a_valid_type_string'}                                # Test 3: Malformed type string (missing module)
+        error_message = "Type reference must include module"
+        with pytest.raises(ValueError, match=error_message):
             Error_Test.from_json(invalid_json)
-        assert "Could not reconstruct type" in str(context.exception)
+
+        invalid_json = {'type_field': 'module..DoubleDotsType'}                                 # Test 4: Invalid format with special characters
+        error_message = "Invalid type reference format"
+        with pytest.raises(ValueError, match=error_message):
+            Error_Test.from_json(invalid_json)
+
+        invalid_json = {'type_field': 'builtins.eval'}                                          # Test 5: Dangerous/deny listed type
+        error_message = "Type 'eval' is deny listed"
+        with pytest.raises(ValueError, match=error_message):
+            Error_Test.from_json(invalid_json)
 
     def test__type_serialization__typing_objects(self):
         class An_Class(Type_Safe):
@@ -1108,5 +1126,8 @@ class test_Type_Safe(TestCase):
         assert optional_test.optional_enum == An_Enum.VALUE_1
 
 
-class Custom_Class:         # used in test_type_serialization
+class Custom_Class():         # used in test_type_serialization
+    pass
+
+class Custom_Class__Type_Safe(Type_Safe):         # used in test_type_serialization
     pass
