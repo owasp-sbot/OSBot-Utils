@@ -1,22 +1,107 @@
+import re
 import types
+from osbot_utils.type_safe.Type_Safe            import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
+TYPE_SAFE__DESERIALIZATION__ALLOWED_MODULES           = { 'builtins'       ,                                # Core allowed modules (always safe)
+                                                          'types'          ,
+                                                          'typing'         ,
+                                                          'enum'           ,
+                                                          'decimal'        ,
+                                                          'datetime'       ,
+                                                          'collections'    ,
+                                                          'collections.abc'}
+
+
+TYPE_SAFE__DESERIALIZATION__ALLOWED_TYPE_SAFE_MODULES = { 'osbot_utils.type_safe'            ,              # Type_Safe framework modules
+                                                          'osbot_utils.type_safe.primitives' }
+
+TYPE_SAFE__DESERIALIZATION__DANGEROUS_TYPES           = { 'eval', 'exec', 'compile', '__import__' ,         # Dangerous built-in types to block
+                                                          'open', 'input', 'breakpoint', 'help'   ,
+                                                          'globals', 'locals', 'vars', 'dir'      }
+
+TYPE_SAFE__DESERIALIZATION__VALID_NAME_PATTERN = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$')
 
 class Type_Safe__Step__Deserialize_Type:
 
-    def using_value(self, value):         # TODO: Check the security implications of this deserialisation
-        if value:
-            try:
-                module_name, type_name = value.rsplit('.', 1)
-                if module_name == 'builtins' and type_name == 'NoneType':                       # Special case for NoneType (which serialises as builtins.* , but it actually in types.* )
-                    value = types.NoneType
-                else:
-                    module = __import__(module_name, fromlist=[type_name])
-                    value = getattr(module, type_name)
-                    if isinstance(value, type) is False:
-                        raise ValueError(f"Security alert, in deserialize_type__using_value only classes are allowed")
+    def __init__(self, allow_type_safe_subclasses=True):    # Initialize deserializer with security settings.
 
-            except (ValueError, ImportError, AttributeError) as e:
-                raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")
-        return value
+        self.allowed_modules = (TYPE_SAFE__DESERIALIZATION__ALLOWED_MODULES          |
+                                TYPE_SAFE__DESERIALIZATION__ALLOWED_TYPE_SAFE_MODULES)
+        self.allow_type_safe_subclasses = allow_type_safe_subclasses                        # If True, allow any class that inherits from Type_Safe
+
+    def is_module_allowed(self, module_name: str) -> bool:                                  # Check if a module is in the allow listed.
+        if module_name in self.allowed_modules:
+            return True
+
+        for allowed in self.allowed_modules:
+            if module_name.startswith(allowed + '.'):
+                return True
+
+        return False
+
+    def is_type_safe_class(self, cls) -> bool:                          # Check if a class inherits from Type_Safe or Type_Safe__Primitive.
+        try:
+            if issubclass(cls, (Type_Safe, Type_Safe__Primitive)):
+                return True
+        except (ImportError, TypeError):
+            pass
+        return False
+
+    def using_value(self, value):
+        if not value:
+            return None
+
+        if not isinstance(value, str):
+            raise ValueError("Type reference must be a string")
+
+        try:            
+            if '.' not in value:                                                        # Check format
+                raise ValueError(f"Type reference must include module: '{value}'")
+
+            if not TYPE_SAFE__DESERIALIZATION__VALID_NAME_PATTERN.match(value):
+                raise ValueError(f"Invalid type reference format: '{value}'")
+
+            module_name, type_name = value.rsplit('.', 1)
+            
+            if module_name == 'builtins' and type_name == 'NoneType':                   # Special case for NoneType
+                return types.NoneType
+            
+            if type_name in TYPE_SAFE__DESERIALIZATION__DANGEROUS_TYPES:                # Check deny list
+                raise ValueError(f"Type '{type_name}' is deny listed for security")
+            
+            module_allowed = self.is_module_allowed(module_name)                        # Check module allow listed
+            if not module_allowed and not self.allow_type_safe_subclasses:
+                allowed_sorted = sorted(self.allowed_modules)
+                raise ValueError(f"Module '{module_name}' is not in allowed modules. "
+                                 f"Allowed: {allowed_sorted}"                         )
+
+            try:                                                                        # Try import
+                module = __import__(module_name, fromlist=[type_name])
+            except ImportError as e:
+                raise ValueError(f"Could not import module '{module_name}': {str(e)}")
+
+            if not hasattr(module, type_name):                                          # Check type exists
+                raise ValueError(f"Type '{type_name}' not found in module '{module_name}'")
+
+            cls = getattr(module, type_name)
+
+            if not isinstance(cls, type):                                               # Verify it's a class
+                raise ValueError(f"Security alert, in deserialize_type__using_value only classes are allowed, "
+                                 f"got {type(cls).__name__} for '{module_name}.{type_name}'")
+
+            if not module_allowed:                                                      # If module wasn't allowed, check Type_Safe
+                if not self.is_type_safe_class(cls):
+                    allowed_sorted = sorted(self.allowed_modules)
+                    raise ValueError(f"Module '{module_name}' is not in allowed modules and "
+                                     f"'{type_name}' does not inherit from Type_Safe. "
+                                     f"Allowed modules: {allowed_sorted}")
+
+            return cls
+
+        except ValueError:
+            raise
+        except Exception as e:
+            raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")        # This should rarely be reached now
 
 type_safe_step_deserialize_type = Type_Safe__Step__Deserialize_Type()

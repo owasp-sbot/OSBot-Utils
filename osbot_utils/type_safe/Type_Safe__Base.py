@@ -146,7 +146,6 @@ def type_str(tp):
 
 # todo: this is duplicated from Type_Safe__Step__From_Json (review and figure out how to do this more centrally)
 def deserialize_type__using_value(value):         # TODO: Check the security implications of this deserialisation
-    from osbot_utils.type_safe.Type_Safe import Type_Safe
     if value:
         try:
             module_name, type_name = value.rsplit('.', 1)
@@ -157,9 +156,6 @@ def deserialize_type__using_value(value):         # TODO: Check the security imp
                 value = getattr(module, type_name)
                 if isinstance(value, type) is False:
                     raise ValueError(f"Security alert, in deserialize_type__using_value only classes are allowed")
-                # todo: figure out a way to do this
-                # if issubclass(value, (Type_Safe, str, int))  is False:
-                #     raise ValueError(f"Security alert, in deserialize_type__using_value only class of type Type_Safe, str, int are allowed")
         except (ValueError, ImportError, AttributeError) as e:
             raise ValueError(f"Could not reconstruct type from '{value}': {str(e)}")
     return value

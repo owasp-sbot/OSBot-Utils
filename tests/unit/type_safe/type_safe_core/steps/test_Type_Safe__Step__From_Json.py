@@ -123,15 +123,31 @@ class test_Type_Safe__Step__From_Json(TestCase):
         type_string = 'osbot_utils.type_safe.Type_Safe.Type_Safe'
         assert self.step_from_json.deserialize_type__using_value(type_string) is Type_Safe
 
-    def test_deserialize_type__using_value__errors(self):                            # Test error handling
-        error_message = "Could not reconstruct type from 'invalid.module.Class': No module named 'invalid'"
+    def test_deserialize_type__using_value__errors(self):
+        # Test 1: Invalid module that doesn't exist
+        error_message = "Could not import module 'invalid.module': No module named 'invalid'"
         with pytest.raises(ValueError, match=re.escape(error_message)):
             self.step_from_json.deserialize_type__using_value('invalid.module.Class')
 
-        error_message = "Security alert, in deserialize_type__using_value only classes are allowed"
+        # Test 2: Valid module but trying to deserialize a function (not a class)
+        error_message = "Security alert, in deserialize_type__using_value only classes are allowed, got builtin_function_or_method for 'builtins.print'"
         with pytest.raises(ValueError, match=re.escape(error_message)):
-            # Try to deserialize a function instead of a class
             self.step_from_json.deserialize_type__using_value('builtins.print')
+
+        # Test 3: Valid module but type doesn't exist
+        error_message = "Type 'NonExistentClass' not found in module 'builtins'"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            self.step_from_json.deserialize_type__using_value('builtins.NonExistentClass')
+
+        # Test 4: Blacklisted dangerous type
+        error_message = "Type 'eval' is deny listed for security"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            self.step_from_json.deserialize_type__using_value('builtins.eval')
+
+        # Test 5: Module not in allow listed and not Type_Safe
+        error_message = "Security alert, in deserialize_type__using_value only classes are allowed, got module for 'os.path'"
+        with pytest.raises(ValueError, match=error_message):
+            self.step_from_json.deserialize_type__using_value('os.path')
 
     # Dict annotation handling
 
