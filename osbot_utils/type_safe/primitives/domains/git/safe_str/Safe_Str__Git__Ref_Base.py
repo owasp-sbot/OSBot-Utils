@@ -2,7 +2,8 @@ import re
 from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
 
 
-TYPE_SAFE_STR__GIT_REF__REGEX      = re.compile(r'[\x00-\x1f\x7f ~^:?*\[\]\\]')
+TYPE_SAFE_STR__GIT_REF__REGEX      = re.compile(r'[\x00-\x1f\x7f ~^:?*\\[\]]')
+
 TYPE_SAFE_STR__GIT_REF__MAX_LENGTH = 255
 
 class Safe_Str__Git__Ref_Base(Safe_Str):
