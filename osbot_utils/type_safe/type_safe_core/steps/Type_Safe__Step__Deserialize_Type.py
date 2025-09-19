@@ -48,6 +48,22 @@ class Type_Safe__Step__Deserialize_Type:
             pass
         return False
 
+    def is_typing_generic(self, obj) -> bool:           # Check if an object is a valid typing generic type construct.
+        # Check for typing module special forms and generic aliases
+        if hasattr(obj, '__module__') and obj.__module__ == 'typing':
+            #obj_name = getattr(obj, '__name__', str(obj))                               # These are the typing constructs that are valid for type annotations but aren't regular classes
+
+            if type(obj).__name__ == '_SpecialGenericAlias':                            # Check for _SpecialGenericAlias types (List, Dict, Set, Tuple, etc.)
+                return True
+
+            if type(obj).__name__ == '_SpecialForm':                                    # Check for _SpecialForm types (Optional, Union, Any, etc.)
+                return True
+
+            if type(obj).__name__ in ('_GenericAlias', '_UnionGenericAlias',            # Check for other typing constructs
+                                      '_TupleType', '_CallableType'):
+                return True
+        return False
+
     def using_value(self, value):
         if not value:
             return None
@@ -85,8 +101,10 @@ class Type_Safe__Step__Deserialize_Type:
                 raise ValueError(f"Type '{type_name}' not found in module '{module_name}'")
 
             cls = getattr(module, type_name)
+            if self.is_typing_generic(cls):
+                return cls                                                              # These are valid for type annotations
 
-            if not isinstance(cls, type):                                               # Verify it's a class
+            if not isinstance(cls, type):                                               # Verify it's a class (for non-typing objects)
                 raise ValueError(f"Security alert, in deserialize_type__using_value only classes are allowed, "
                                  f"got {type(cls).__name__} for '{module_name}.{type_name}'")
 
