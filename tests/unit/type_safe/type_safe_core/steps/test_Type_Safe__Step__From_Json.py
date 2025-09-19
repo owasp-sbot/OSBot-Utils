@@ -7,6 +7,7 @@ from typing                                                                     
 from unittest                                                                        import TestCase
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash   import Safe_Str__Hash
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path    import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                     import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid_Short          import Random_Guid_Short
@@ -199,7 +200,8 @@ class test_Type_Safe__Step__From_Json(TestCase):
         # Dict[K, V] values
         from typing import Dict
         nested_dict = {'key': 'value'}
-        result      = self.step_from_json.deserialize_dict_value(Dict[str, str], nested_dict)
+        _self       = None
+        result      = self.step_from_json.deserialize_dict_value(_self, Dict[str, str], nested_dict)
         assert type(result)   is Type_Safe__Dict
         assert result['key']  == 'value'
 
@@ -208,12 +210,12 @@ class test_Type_Safe__Step__From_Json(TestCase):
             data: str
 
         value_dict = {'data': 'test'}
-        result     = self.step_from_json.deserialize_dict_value(Value_Class, value_dict)
+        result     = self.step_from_json.deserialize_dict_value(_self, Value_Class, value_dict)
         assert type(result) is Value_Class
         assert result.data  == 'test'
 
         # Any type
-        assert self.step_from_json.deserialize_dict_value(Any, 'anything') == 'anything'
+        assert self.step_from_json.deserialize_dict_value(_self, Any, 'anything') == 'anything'
 
     # Special identifier types
 
@@ -540,3 +542,266 @@ class test_Type_Safe__Step__From_Json(TestCase):
 
         assert restored.json() == json_data
         assert restored.obj()  == restored.obj()
+
+    def test__regression__dict_with_list_values(self):                                  # Test Dict[K, List[V]] handling
+
+        class An_Class(Type_Safe):
+            all_paths: Dict[Safe_Id, List[Safe_Str__File__Path]]
+
+        data = { 'by_hash': [ 'refs/by-hash/e1/5b/e15b31f87df1896e.json'        ,
+                              'refs/by-hash/e1/5b/e15b31f87df1896e.json.config' ,
+                              'refs/by-hash/e1/5b/e15b31f87df1896e.json.metadata'],
+                 'by_id'  : [ 'refs/by-id/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json'        ,
+                              'refs/by-id/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.config' ,
+                              'refs/by-id/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.metadata'],
+                 'data'   : [ 'data/direct/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json'        ,
+                              'data/direct/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.config' ,
+                              'data/direct/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.metadata']}
+
+        # Test assignment (runtime type conversion)
+        an_class = An_Class()
+        an_class.all_paths = data                                                       # Should handle conversion
+
+        assert type(an_class.all_paths)           is Type_Safe__Dict
+        assert type(an_class.all_paths['by_hash']) is Type_Safe__List
+        assert len(an_class.all_paths['by_hash']) == 3
+
+        # Verify Safe type conversion happened
+        for path in an_class.all_paths['by_hash']:
+            assert type(path) is Safe_Str__File__Path
+
+        # Test JSON round-trip
+        json_data = an_class.json()
+        restored  = An_Class.from_json(json_data)
+
+        assert restored.json() == json_data
+        assert type(restored.all_paths)               is Type_Safe__Dict
+        assert type(restored.all_paths['by_hash'])    is Type_Safe__List
+        assert type(restored.all_paths['by_hash'][0]) is Safe_Str__File__Path
+
+    def test_deserialize_list_in_dict_value__with_type_safe_objects(self):             # Test List[Type_Safe] in dict values
+        class Item_Class(Type_Safe):
+            name : str
+            value: int
+
+        class Container(Type_Safe):
+            categories: Dict[str, List[Item_Class]]
+
+        data = {
+            'categories': {
+                'group1': [{'name': 'item1', 'value': 10},
+                          {'name': 'item2', 'value': 20}],
+                'group2': [{'name': 'item3', 'value': 30}]
+            }
+        }
+
+        result = Container.from_json(data)
+
+        assert type(result.categories)           is Type_Safe__Dict
+        assert type(result.categories['group1']) is Type_Safe__List
+        assert len(result.categories['group1'])  == 2
+        assert type(result.categories['group1'][0]) is Item_Class
+        assert result.categories['group1'][0].name  == 'item1'
+        assert result.categories['group1'][0].value == 10
+
+    def test_deserialize_list_in_dict_value__empty_lists(self):                       # Test empty List[T] in dict values
+        from typing import Dict, List
+
+        class An_Class(Type_Safe):
+            mapping: Dict[str, List[str]]
+
+        data = {'mapping': {'key1': [], 'key2': ['item1'], 'key3': []}}
+
+        result = An_Class.from_json(data)
+
+        assert result.mapping['key1'] == []
+        assert result.mapping['key2'] == ['item1']
+        assert result.mapping['key3'] == []
+        assert type(result.mapping['key1']) is Type_Safe__List
+        assert type(result.mapping['key2']) is Type_Safe__List
+
+    def test_deserialize_list_in_dict_value__primitive_types(self):                   # Test List[primitive] in dict values
+        from typing import Dict, List
+
+        class An_Class(Type_Safe):
+            int_lists   : Dict[str, List[int]]
+            float_lists : Dict[str, List[float]]
+            bool_lists  : Dict[str, List[bool]]
+
+        data = {
+            'int_lists'   : {'odds': [1, 3, 5], 'evens': [2, 4, 6]},
+            'float_lists' : {'decimals': [1.1, 2.2, 3.3]},
+            'bool_lists'  : {'flags': [True, False, True]}
+        }
+
+        result = An_Class.from_json(data)
+
+        assert result.int_lists['odds']       == [1, 3, 5]
+        assert result.float_lists['decimals'] == [1.1, 2.2, 3.3]
+        assert result.bool_lists['flags']     == [True, False, True]
+
+        # All should be Type_Safe__List
+        assert type(result.int_lists['odds'])       is Type_Safe__List
+        assert type(result.float_lists['decimals']) is Type_Safe__List
+        assert type(result.bool_lists['flags'])     is Type_Safe__List
+
+    def test_deserialize_list_in_dict_value__nested_complexity(self):                 # Test Dict[str, List[Dict[str, Any]]]
+        from typing import Dict, List, Any
+
+        class An_Class(Type_Safe):
+            complex: Dict[str, List[Dict[str, Any]]]
+
+        data = {
+            'complex': {
+                'section1': [
+                    {'id': 1, 'name': 'first' , 'active': True },
+                    {'id': 2, 'name': 'second', 'active': False}
+                ],
+                'section2': [
+                    {'type': 'A', 'count': 100}
+                ]
+            }
+        }
+
+        result = An_Class.from_json(data)
+
+        assert type(result.complex)             is Type_Safe__Dict
+        assert type(result.complex['section1']) is Type_Safe__List
+        assert len(result.complex['section1'])  == 2
+        assert result.complex['section1'][0]['id'] == 1
+        assert result.complex['section2'][0]['type'] == 'A'
+
+    def test_deserialize_list_in_dict_value__with_forward_refs(self):                # Test List[ForwardRef] in dict values
+        if sys.version_info < (3, 9):
+            pytest.skip("Forward refs need Python 3.9+")
+
+        class Node(Type_Safe):
+            name     : str
+            children : Dict[str, List['Node']]
+
+        data = {
+            'name': 'root',
+            'children': {
+                'left' : [{'name': 'left1' , 'children': {}},
+                         {'name': 'left2' , 'children': {}}],
+                'right': [{'name': 'right1', 'children': {}}]
+            }
+        }
+
+        result = Node.from_json(data)
+
+        assert result.name                         == 'root'
+        assert len(result.children['left'])        == 2
+        assert type(result.children['left'][0])    is Node
+        assert result.children['left'][0].name     == 'left1'             # ['left'][0] is not Node
+        assert result.children['right'][0].name    == 'right1'            # so we can't access it directly
+
+
+    def test_deserialize_list_in_dict_value__with_safe_primitives(self):             # Test multiple Safe primitive types
+        from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url import Safe_Str__Url
+        from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Email import Safe_Str__Email
+        from typing import Dict, List
+
+        class An_Class(Type_Safe):
+            urls_by_category : Dict[str, List[Safe_Str__Url]]
+            emails_by_domain : Dict[str, List[Safe_Str__Email]]
+
+        data = {
+            'urls_by_category': {
+                'docs'  : ['https://docs.example.com', 'https://api.example.com/docs'],
+                'apis'  : ['https://api.example.com/v1', 'https://api.example.com/v2']
+            },
+            'emails_by_domain': {
+                'work'     : ['alice@company.com', 'bob@company.com'],
+                'personal' : ['alice@gmail.com']
+            }
+        }
+
+        result = An_Class.from_json(data)
+
+        # Check URL conversion
+        assert type(result.urls_by_category['docs'][0]) is Safe_Str__Url
+        assert result.urls_by_category['docs'][0] == 'https://docs.example.com'
+
+        # Check Email conversion
+        assert type(result.emails_by_domain['work'][0]) is Safe_Str__Email
+        assert result.emails_by_domain['work'][0] == 'alice@company.com'
+
+    def test_deserialize_list_in_dict_value__validation_errors(self):                # Test validation failures
+        from osbot_utils.type_safe.primitives.domains.network.safe_uint.Safe_UInt__Port import Safe_UInt__Port
+        from typing import Dict, List
+
+        class An_Class(Type_Safe):
+            ports_by_service: Dict[str, List[Safe_UInt__Port]]
+
+        # Invalid port number (>65535)
+        data = {'ports_by_service': {'web': [80, 443, 99999]}}  # 99999 is invalid
+
+        error_message = "Safe_UInt__Port must be <= 65535, got 99999"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            An_Class.from_json(data)
+
+    def test_deserialize_list_in_dict_value__mixed_types_in_union(self):            # Test Union types in lists
+        from typing import Dict, List, Union
+
+        class An_Class(Type_Safe):
+            mixed: Dict[str, List[Union[str, int]]]
+
+        data = {'mixed': {'values': ['text', 42, 'more text', 100]}}
+
+        result = An_Class.from_json(data)
+
+        assert result.mixed['values'] == ['text', 42, 'more text', 100]
+        assert type(result.mixed['values']) is Type_Safe__List
+
+    def test_deserialize_list_in_dict_value__performance(self):                     # Test performance with large datasets
+        from typing import Dict, List
+        import time
+
+        class An_Class(Type_Safe):
+            large_data: Dict[str, List[str]]
+
+        # Create large dataset
+        data = {
+            'large_data': {
+                f'key_{i}': [f'item_{j}' for j in range(100)]
+                for i in range(10)
+            }
+        }
+
+        start = time.time()
+        result = An_Class.from_json(data)
+        elapsed = time.time() - start
+
+        assert len(result.large_data) == 10
+        assert len(result.large_data['key_0']) == 100
+        assert elapsed < 0.2                                                        # Should be fast even with 1000 items
+
+    def test__regression__documented__dict_with_typing_List(self):                         # Document that typing.List now works
+        from typing import Dict, List as TypingList                                # Explicit import name
+
+        class An_Class(Type_Safe):
+            paths: Dict[str, TypingList[str]]                                      # Using typing.List
+
+        data = {'paths': {'root': ['/home', '/usr', '/var']}}
+
+        result = An_Class.from_json(data)                                           # This used to fail with "Type List cannot be instantiated"
+
+        assert result.paths['root'] == ['/home', '/usr', '/var']
+        assert type(result.paths['root']) is Type_Safe__List
+
+    def test__regression__documented__dict_with_lowercase_list(self):                      # Document that list[T] now works
+        if sys.version_info < (3, 9):
+            pytest.skip("list[T] syntax needs Python 3.9+")
+
+        from osbot_utils.type_safe.primitives.core.Safe_Int import Safe_Int
+
+        class An_Class(Type_Safe):
+            counts: Dict[str, list[Safe_Int]]                                      # Using lowercase list
+
+        data = {'counts': {'items': [1, 2, 3], 'totals': [10, 20]}}
+
+        result = An_Class.from_json(data)                                           # This used to fail with type mismatch errors
+
+        assert type(result.counts['items'][0]) is Safe_Int
+        assert result.counts['items'] == [1, 2, 3]

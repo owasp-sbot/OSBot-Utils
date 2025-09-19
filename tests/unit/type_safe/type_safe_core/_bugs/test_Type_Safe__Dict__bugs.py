@@ -1,11 +1,10 @@
 import re
 import pytest
-from typing                                                           import Dict, List, Any
-from unittest                                                         import TestCase
-from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+from typing                                                                       import Dict, List, Any
+from unittest                                                                     import TestCase
+from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
 
 class test_Type_Safe__Dict__bugs(TestCase):
-
 
     def test__bug__type_safe_list_with_dict_any_type__and__error_message_is_confusing(self):   # Document bug where Dict[str, any] fails in List ,and the error message doesn't mention that Any works
 

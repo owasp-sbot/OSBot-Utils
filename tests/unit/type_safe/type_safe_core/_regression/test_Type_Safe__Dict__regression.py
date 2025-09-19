@@ -1,13 +1,15 @@
 import pytest
-from unittest                                                           import TestCase
-from typing                                                             import Dict, Type, Set, Any
-from osbot_utils.testing.__                                             import __
-from osbot_utils.type_safe.Type_Safe__Primitive                         import Type_Safe__Primitive
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
-from osbot_utils.utils.Objects                                          import base_classes
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id      import Safe_Id
-from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
+from unittest                                                                       import TestCase
+from typing                                                                         import Dict, Type, Set, Any, List
+from osbot_utils.testing.__                                                         import __
+from osbot_utils.type_safe.Type_Safe__Primitive                                     import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
+from osbot_utils.utils.Objects                                                      import base_classes, obj
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 
 
 class test_Type_Safe__Dict__regression(TestCase):
@@ -270,3 +272,40 @@ class test_Type_Safe__Dict__regression(TestCase):
         # Invalid usage
         with pytest.raises(TypeError, match="Expected 'An_Class', but got 'str'"):
             an_class.an_dict['bad_child'] = "some string"                               # Fixed: BUG didn't raise an exception
+
+
+    def test__regression__type_safe_assigment__not_handling_dict_with_List(self):
+        class An_Class_1(Type_Safe):
+            all_paths      : Dict[Safe_Str__Id, List[Safe_Str__File__Path]]
+
+        data = { 'by_hash': [ 'refs/by-hash/e1/5b/e15b31f87df1896e.json',
+                               'refs/by-hash/e1/5b/e15b31f87df1896e.json.config',
+                               'refs/by-hash/e1/5b/e15b31f87df1896e.json.metadata'],
+                  'by_id': [ 'refs/by-id/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json',
+                             'refs/by-id/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.config',
+                             'refs/by-id/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.metadata'],
+                  'data': [ 'data/direct/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json',
+                            'data/direct/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.config',
+                            'data/direct/be/40/be40eef6-9785-4be1-a6b1-b8da6cee51a4.json.metadata']}
+
+        # error_message_1 = "Type List cannot be instantiated; use list() instead"                      # BUG 1 with List
+        # with pytest.raises(TypeError, match=re.escape(error_message_1)):
+        #     An_Class_1().all_paths = data
+        An_Class_1().all_paths = data                                                                   # FIXED
+        an_class_1 = An_Class_1()
+        an_class_1.all_paths = data                                                                     # FIXED:
+        assert an_class_1.json()    == {"all_paths": data }                                             # confirm roundtrip with .json()
+        assert an_class_1.obj()     == __(all_paths = obj(data))                                        # confirm roundtrip with obj().
+
+
+        class An_Class_2(Type_Safe):
+            all_paths      : Dict[Safe_Str__Id, list[Safe_Str__File__Path]]
+
+        # error_message_2 = "In list at index 0: Expected 'Safe_Str__File__Path', but got 'str'"        # BUG 2 with list
+        # with pytest.raises(TypeError, match=re.escape(error_message_2)):
+        #     An_Class_2().all_paths = data
+        An_Class_2().all_paths = data                                                                   # FIXED
+        an_class_2 = An_Class_2()
+        an_class_2.all_paths = data                                                                     # FIXED:
+        assert an_class_2.json()    == {"all_paths": data }                                             # confirm roundtrip with .json()
+        assert an_class_2.obj()     == __(all_paths = obj(data))                                        # confirm roundtrip with obj().
