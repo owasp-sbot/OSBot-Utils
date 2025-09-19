@@ -1,4 +1,5 @@
 from typing                                                                     import ForwardRef
+from osbot_utils.type_safe.Type_Safe__Primitive                                 import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict           import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set            import Type_Safe__Set
@@ -30,6 +31,40 @@ class Type_Safe__Step__Init:
             else:
                 raise ValueError(f"{__self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
                                  f"Use {__self.__class__.__name__}.__default_kwargs__() see what attributes are available") from None
+
+
+    def convert_dict_with_nested_collections(self, __self, annotation, value):  # Handle Dict types with nested collection values (List, Set, etc.)
+        args = get_args(annotation)
+        if not args or len(args) != 2:
+            return None
+
+        key_type, value_type = args
+        value_origin = type_safe_annotations.get_origin(value_type)
+
+        if value_origin not in (list, set, tuple):                          # Only handle Dict with nested collections
+            return None
+
+        # Reuse the deserialization logic from Type_Safe__Step__From_Json (need to import this here due to circular dependencies)
+        from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__From_Json import type_safe_step_from_json
+
+        type_safe_dict = Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
+
+        for k, v in value.items():
+            if isinstance(key_type, type) and issubclass(key_type, Type_Safe__Primitive):       # Convert key if needed (reuse existing logic)
+                k = key_type(k)
+
+            if value_origin is list:                                                            # Use the from_json deserializer for the nested value
+                converted_value = type_safe_step_from_json.deserialize_list_in_dict_value(__self, value_type, v) # Reuse the deserialization logic from Type_Safe__Step__From_Json
+            elif value_origin is set:
+                converted_value = v                                                             # todo: should we add set handling here?
+            elif value_origin is tuple:
+                converted_value = v                                                            # todo: should we add tuple handling here?
+            else:
+                converted_value = v
+
+            type_safe_dict[k] = converted_value
+
+        return type_safe_dict
 
     def convert_value_to_type_safe_objects(self, __self, key, value):
         annotation = type_safe_annotations.obj_attribute_annotation(__self, key)
@@ -81,14 +116,19 @@ class Type_Safe__Step__Init:
                     return Type_Safe__Tuple(expected_types=item_types, items=value)
 
                 # Handle non-empty dict
-                elif origin is dict and isinstance(value, dict):
-                    args = get_args(annotation)
-                    if args and len(args) == 2:  # Only create Type_Safe__Dict if we have both key and value types
+                elif origin is dict and isinstance(value, dict) and value:  # only for non-empty dicts
+                    result = self.convert_dict_with_nested_collections(__self, annotation, value)
+                    if result is not None:
+                        return result
+
+                    args = get_args(annotation)                                         # Fall back to existing dict handling
+                    if args and len(args) == 2:                                         # Only create Type_Safe__Dict if we have both key and value types
                         key_type, value_type = args
-                        type_safe_dict       = Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
+                        type_safe_dict = Type_Safe__Dict(expected_key_type=key_type, expected_value_type=value_type)
                         for k, v in value.items():
                             type_safe_dict[k] = v
                         return type_safe_dict
+
 
 
         return value

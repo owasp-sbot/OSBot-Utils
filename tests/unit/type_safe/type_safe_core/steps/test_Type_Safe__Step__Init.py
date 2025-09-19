@@ -4,7 +4,7 @@ from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Class_Kwargs im
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Init         import Type_Safe__Step__Init
 
 
-class test_Type_Safe__Step__Class_Kwargs(TestCase):
+class test_Type_Safe__Step__Init(TestCase):
 
     @classmethod
     def setUpClass(cls):
