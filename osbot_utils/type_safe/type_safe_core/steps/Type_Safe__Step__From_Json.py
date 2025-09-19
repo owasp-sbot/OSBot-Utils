@@ -219,6 +219,9 @@ class Type_Safe__Step__From_Json:
     def deserialize_dict_value(self, value_class, dict_value):                      # Deserialize a dictionary value based on its expected type.
         value_origin = type_safe_cache.get_origin(value_class)
 
+        if value_origin is list:                                                    # This handles both typing.List and list
+            return self.deserialize_list_in_dict_value(value_class, dict_value)
+
         if value_origin is dict:                                                    # Handle Dict[K, V] type annotations
             return self.deserialize_nested_dict(value_class, dict_value)
 
@@ -239,6 +242,30 @@ class Type_Safe__Step__From_Json:
 
         else:                                                                       # Default: try to instantiate with the value
             return value_class(dict_value)
+
+    def deserialize_list_in_dict_value(self, value_class, dict_value):              # Handle List[T] or list[T] types when they appear as dictionary values.
+        if not isinstance(dict_value, list):
+            return dict_value
+
+        args = get_args(value_class)
+        if not args:
+            return dict_value                                                                       # No type info, return as-is
+
+        item_type = args[0]
+        type_safe_list = Type_Safe__List(item_type)
+
+        for item in dict_value:                                                                     # Handle Type_Safe subclasses
+            if isinstance(item_type, type) and issubclass(item_type, Type_Safe):
+                if isinstance(item, dict):
+                    type_safe_list.append(item_type.from_json(item))
+                else:
+                    type_safe_list.append(item)
+            elif isinstance(item_type, type) and issubclass(item_type, Type_Safe__Primitive):       # Handle Type_Safe__Primitive subclasses (like Safe_Str__File__Path)
+                type_safe_list.append(item_type(item))
+            else:
+                type_safe_list.append(item)
+
+        return type_safe_list
 
     def deserialize_nested_dict(self, value_class, dict_value):                     # Handle deserialization of nested Dict[K, V] types.
         if not isinstance(dict_value, dict):
