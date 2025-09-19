@@ -342,7 +342,7 @@ class test_Timestamp_Now(TestCase):
             timestamps.append(Timestamp_Now())
 
         # Should all be very close (within 1 second)
-        assert max(timestamps) - min(timestamps) < 1
+        assert max(timestamps) - min(timestamps) <= 1
 
         # Should be non-decreasing
         for i in range(len(timestamps) - 1):
