@@ -32,6 +32,12 @@ from osbot_utils.utils.Objects                                                  
 class Node_Value(Type_Safe):
     value: int
 
+class Base__Type(Type_Safe):
+    ref_type: Type['Base__Type']
+
+class Type__With__Forward__Ref(Base__Type):
+    pass
+
 class test_Type_Safe__regression(TestCase):
 
     def test__regression__type_safe_step_init__issue_with_Dict_with_not_types(self):
@@ -1603,9 +1609,37 @@ class test_Type_Safe__regression(TestCase):
             an_guid     : Random_Guid                                           # as soon as we add the Random_Guid
 
         assert Cache_Entry_H().entry_id   != Cache_Entry_H().entry_id           # it works again
+    def test__regression__empty_dict__assigns_to_none(self):
+        class Schema__Cache__Data__Store__Request(Type_Safe):
+            data        : Union[str, dict, bytes]   = None
 
-class Base__Type(Type_Safe):
-    ref_type: Type['Base__Type']
+        request_1 = Schema__Cache__Data__Store__Request()
+        assert request_1.data is None
 
-class Type__With__Forward__Ref(Base__Type):
-    pass
+        request_2 = Schema__Cache__Data__Store__Request(data=None)
+        assert request_2.data is None
+
+        request_3 = Schema__Cache__Data__Store__Request(data={})
+        #assert request_3.data is None                                       # BUG
+        assert request_3.data == {}
+
+        request_3 = Schema__Cache__Data__Store__Request(data={'a':42})
+        assert request_3.data == {'a':42 }
+
+        class An_Class_1(Type_Safe):
+            data        : dict  = None
+
+        class An_Class_2(Type_Safe):
+            data        : Union[str, dict, bytes]   = None
+
+        class An_Class_3(Type_Safe):
+            data        : Union[str, Dict, bytes]   = None
+
+        assert An_Class_1(       ).data is None
+        assert An_Class_2(       ).data is None
+
+        assert An_Class_1(data={}).data == {}
+        #assert An_Class_2(data={}).data is None                             # BUG
+        #assert An_Class_3(data={}).data is None                             # BUG
+        assert An_Class_2(data={}).data == {}
+        assert An_Class_3(data={}).data == {}

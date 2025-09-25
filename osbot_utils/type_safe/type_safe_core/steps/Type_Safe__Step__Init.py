@@ -1,4 +1,4 @@
-from typing                                                                     import ForwardRef
+from typing                                                                     import ForwardRef, Union
 from osbot_utils.type_safe.Type_Safe__Primitive                                 import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict           import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           import Type_Safe__List
@@ -103,13 +103,16 @@ class Type_Safe__Step__Init:
             else:
 
                 origin = type_safe_annotations.get_origin(annotation)
+                if origin is Union:
+                    return value
+
                 # If the value is an empty container, create proper type-safe container
                 if ((isinstance(value, list ) and len(value) == 0) or
                     (isinstance(value, dict ) and len(value) == 0) or
                     (isinstance(value, set  ) and len(value) == 0) or
                     (isinstance(value, tuple) and len(value) == 0)):
                     value = type_safe_step_default_value.default_value(__self.__class__, annotation)        # Use default_value to create the proper type-safe container
-                            # Handle non-empty list
+
                 elif origin is list and isinstance(value, list):
                     args = get_args(annotation)
                     if args:                                                        # Only create Type_Safe__List if we have type info
