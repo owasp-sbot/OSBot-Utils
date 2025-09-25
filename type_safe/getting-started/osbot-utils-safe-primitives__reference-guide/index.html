@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/getting-started/osbot-utils-safe-primitives__reference-guide/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>OSBot-Utils Safe_* Primitives Complete Reference - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "OSBot-Utils Safe_* Primitives Complete Reference";
+        var mkdocs_page_input_path = "type_safe/getting-started/osbot-utils-safe-primitives__reference-guide.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/getting-started/osbot-utils-safe-primitives__reference-guide/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">OSBot-Utils Safe_* Primitives Complete Reference</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="osbot-utils-safe_-primitives-complete-reference">OSBot-Utils Safe_* Primitives Complete Reference<a class="headerlink" href="#osbot-utils-safe_-primitives-complete-reference" title="Permanent link">&para;</a></h1>
+<h2 id="quick-overview">Quick Overview<a class="headerlink" href="#quick-overview" title="Permanent link">&para;</a></h2>
+<p>The Safe_* primitives in OSBot-Utils provide type-safe, validated, and domain-specific wrappers around Python's built-in types (str, int, float). They enforce constraints at creation time and maintain type safety throughout their lifecycle.</p>
+<h2 id="file-organization">File Organization<a class="headerlink" href="#file-organization" title="Permanent link">&para;</a></h2>
+<pre><code>osbot_utils/type_safe/primitives/
+├── safe_float
+│   ├── Safe_Float.py
+│   ├── Safe_Float__Engineering.py
+│   ├── Safe_Float__Money.py
+│   └── Safe_Float__Percentage_Exact.py
+├── safe_int
+│   ├── Safe_Int.py
+│   └── Timestamp_Now.py
+├── safe_str
+│   ├── Enum__Safe_Str__Regex_Mode.py
+│   ├── Safe_Str.py
+│   ├── cryptography
+│   │   ├── hashes
+│   │   │   ├── Safe_Str__Hash.py
+│   │   │   ├── Safe_Str__SHA1.py
+│   │   │   └── Safe_Str__SHA1__Short.py
+│   │   └── nacl
+│   │       ├── Safe_Str__NaCl__Private_Key.py
+│   │       ├── Safe_Str__NaCl__Public_Key.py
+│   │       └── Schema__NaCl__Keys.py
+│   ├── filesystem
+│   │   ├── Safe_Str__File__Name.py
+│   │   └── Safe_Str__File__Path.py
+│   ├── git
+│   │   ├── Safe_Str__Git__Branch.py
+│   │   ├── Safe_Str__Git__Ref.py
+│   │   ├── Safe_Str__Git__Ref_Base.py
+│   │   ├── Safe_Str__Git__Tag.py
+│   │   └── Safe_Str__Version.py
+│   ├── github
+│   │   ├── Safe_Str__GitHub__Repo.py
+│   │   ├── Safe_Str__GitHub__Repo_Name.py
+│   │   └── Safe_Str__GitHub__Repo_Owner.py
+│   ├── http
+│   │   ├── Safe_Str__Http__Content_Type.py
+│   │   ├── Safe_Str__Http__ETag.py
+│   │   ├── Safe_Str__Http__Last_Modified.py
+│   │   └── Safe_Str__Http__Text.py
+│   ├── identifiers
+│   │   ├── Guid.py
+│   │   ├── Random_Guid.py
+│   │   ├── Random_Guid_Short.py
+│   │   └── Safe_Id.py
+│   ├── text
+│   │   ├── Safe_Str__Text.py
+│   │   └── Safe_Str__Text__Dangerous.py
+│   └── web
+│       ├── Safe_Str__Html.py
+│       ├── Safe_Str__IP_Address.py
+│       └── Safe_Str__Url.py
+└── safe_uint
+    ├── Safe_UInt.py
+    ├── Safe_UInt__Byte.py
+    ├── Safe_UInt__FileSize.py
+    ├── Safe_UInt__Percentage.py
+    └── Safe_UInt__Port.py
+</code></pre>
+<h2 id="complete-list-of-safe_-primitives">Complete List of Safe_* Primitives<a class="headerlink" href="#complete-list-of-safe_-primitives" title="Permanent link">&para;</a></h2>
+<h3 id="categories">Categories:<a class="headerlink" href="#categories" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Safe_Str</strong> - String primitives with validation and sanitization</li>
+<li><strong>Safe_Int</strong> - Integer primitives with range validation  </li>
+<li><strong>Safe_Float</strong> - Floating-point primitives with precision control</li>
+<li><strong>Identifiers</strong> - Identity primitives for domain-specific IDs and GUIDs</li>
+<li><strong>Timestamps</strong> - Time-based integer primitives</li>
+</ol>
+<h2 id="summary-table">Summary Table<a class="headerlink" href="#summary-table" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Class Name</th>
+<th>Purpose</th>
+<th>Key Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>String Types</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Core</td>
+<td><code>Safe_Str</code></td>
+<td>Base string validation</td>
+<td>Regex validation, length limits, sanitization</td>
+</tr>
+<tr>
+<td>File System</td>
+<td><code>Safe_Str__File__Name</code></td>
+<td>Safe filenames</td>
+<td>Prevents path traversal, removes dangerous chars</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_Str__File__Path</code></td>
+<td>Safe file paths</td>
+<td>Allows directory separators, validates paths</td>
+</tr>
+<tr>
+<td>Web/Network</td>
+<td><code>Safe_Str__Url</code></td>
+<td>URL validation</td>
+<td>Sanitizes URLs, prevents XSS</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_Str__IP_Address</code></td>
+<td>IP address validation</td>
+<td>IPv4/IPv6 validation</td>
+</tr>
+<tr>
+<td>HTTP</td>
+<td><code>Safe_Str__Http__Content_Type</code></td>
+<td>HTTP Content-Type headers</td>
+<td>Prevents header injection</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_Str__Http__ETag</code></td>
+<td>HTTP ETag headers</td>
+<td>Validates ETag format</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_Str__Http__Last_Modified</code></td>
+<td>HTTP Last-Modified headers</td>
+<td>Date format validation</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_Str__Http__Text</code></td>
+<td>HTTP text content</td>
+<td>Removes control characters</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_Str__Html</code></td>
+<td>HTML content</td>
+<td>Minimal filtering for HTML</td>
+</tr>
+<tr>
+<td>Text</td>
+<td><code>Safe_Str__Text</code></td>
+<td>General text</td>
+<td>Moderate restrictions</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_Str__Text__Dangerous</code></td>
+<td>Text with special chars</td>
+<td>More permissive (use with caution)</td>
+</tr>
+<tr>
+<td>Crypto</td>
+<td><code>Safe_Str__Hash</code></td>
+<td>Hash values</td>
+<td>Fixed-length hex validation</td>
+</tr>
+<tr>
+<td>Version</td>
+<td><code>Safe_Str__Version</code></td>
+<td>Semantic versions</td>
+<td>Pattern: vX.Y.Z</td>
+</tr>
+<tr>
+<td><strong>Integer Types</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Core</td>
+<td><code>Safe_Int</code></td>
+<td>Base integer validation</td>
+<td>Range validation, type conversion</td>
+</tr>
+<tr>
+<td>Unsigned</td>
+<td><code>Safe_UInt</code></td>
+<td>Unsigned integers</td>
+<td>min_value=0, no bool</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_UInt__Byte</code></td>
+<td>Single byte</td>
+<td>0-255 range</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_UInt__Port</code></td>
+<td>Network ports</td>
+<td>0-65535 range</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_UInt__FileSize</code></td>
+<td>File sizes</td>
+<td>With KB/MB/GB conversions</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_UInt__Percentage</code></td>
+<td>Percentage values</td>
+<td>0-100 range</td>
+</tr>
+<tr>
+<td><strong>Float Types</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Core</td>
+<td><code>Safe_Float</code></td>
+<td>Base float validation</td>
+<td>Precision control, range validation</td>
+</tr>
+<tr>
+<td>Financial</td>
+<td><code>Safe_Float__Money</code></td>
+<td>Currency calculations</td>
+<td>Decimal arithmetic, 2 decimal places</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Safe_Float__Percentage_Exact</code></td>
+<td>Precise percentages</td>
+<td>0-100, decimal arithmetic</td>
+</tr>
+<tr>
+<td>Engineering</td>
+<td><code>Safe_Float__Engineering</code></td>
+<td>Engineering calculations</td>
+<td>Epsilon tolerance, rounding</td>
+</tr>
+<tr>
+<td><strong>Identity Types</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Core</td>
+<td><code>Safe_Id</code></td>
+<td>Base identity type</td>
+<td>Type-safe IDs, prevents mixing</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Guid</code></td>
+<td>Deterministic GUID generation</td>
+<td>UUID5 from string values</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Random_Guid</code></td>
+<td>UUID/GUID generation</td>
+<td>Auto-generates unique IDs</td>
+</tr>
+<tr>
+<td></td>
+<td><code>Random_Guid_Short</code></td>
+<td>Short GUID variant</td>
+<td>Shorter unique identifiers</td>
+</tr>
+<tr>
+<td><strong>Integer Timestamps</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>Timestamp_Now</code></td>
+<td>Unix timestamp</td>
+<td>Auto-generates current timestamp</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="detailed-reference">Detailed Reference<a class="headerlink" href="#detailed-reference" title="Permanent link">&para;</a></h2>
+<h2 id="safe_str-types">Safe_Str Types<a class="headerlink" href="#safe_str-types" title="Permanent link">&para;</a></h2>
+<h3 id="core-string-type">Core String Type<a class="headerlink" href="#core-string-type" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str"><code>Safe_Str</code><a class="headerlink" href="#safe_str" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str</code></p>
+<p><strong>Purpose:</strong> Base class for all type-safe string primitives with validation and sanitization.</p>
+<p><strong>Configuration:</strong></p>
+<pre><code class="language-python">class Safe_Str(Type_Safe__Primitive, str):
+    max_length = 512                    # Maximum string length
+    regex = re.compile(r'[^a-zA-Z0-9]') # Pattern for validation/replacement
+    regex_mode = REPLACE                 # REPLACE or MATCH mode
+    replacement_char = '_'               # Character for replacements
+    allow_empty = True                   # Whether empty strings allowed
+    trim_whitespace = False              # Auto-trim whitespace
+    strict_validation = False            # Reject vs sanitize
+    exact_length = False                 # Require exact length
+</code></pre>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">safe_text = Safe_Str(&quot;Hello@World!&quot;)  # Returns: &quot;Hello_World_&quot;
+</code></pre>
+<hr />
+<h3 id="file-system-types">File System Types<a class="headerlink" href="#file-system-types" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__file__name"><code>Safe_Str__File__Name</code><a class="headerlink" href="#safe_str__file__name" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_str.Safe_Str__File__Name import Safe_Str__File__Name</code></p>
+<p><strong>Purpose:</strong> Prevents directory traversal and invalid filename characters.</p>
+<p><strong>Key Features:</strong>
+- Removes <code>.</code> and <code>/</code> characters
+- Prevents empty filenames
+- Auto-trims whitespace
+- Sanitizes dangerous characters</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">filename = Safe_Str__File__Name(&quot;../../etc/passwd&quot;)  # Returns: &quot;___etc_passwd&quot;
+filename = Safe_Str__File__Name(&quot;my-file.txt&quot;)       # Returns: &quot;my-file.txt&quot;
+</code></pre>
+<h4 id="safe_str__file__path"><code>Safe_Str__File__Path</code><a class="headerlink" href="#safe_str__file__path" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_str.Safe_Str__File__Path import Safe_Str__File__Path</code></p>
+<p><strong>Purpose:</strong> Safe file paths with directory separators allowed.</p>
+<p><strong>Key Features:</strong>
+- Allows <code>/</code> and <code>\</code> for paths
+- Max length: 1024 characters
+- Preserves directory structure</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">path = Safe_Str__File__Path(&quot;/home/user/docs/file.txt&quot;)  # Valid
+path = Safe_Str__File__Path(&quot;C:\\Users\\Docs\\file.txt&quot;)  # Valid
+</code></pre>
+<hr />
+<h3 id="webnetwork-types">Web/Network Types<a class="headerlink" href="#webnetwork-types" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__url"><code>Safe_Str__Url</code><a class="headerlink" href="#safe_str__url" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Url import Safe_Str__Url</code></p>
+<p><strong>Purpose:</strong> URL validation and sanitization, prevents XSS and injection.</p>
+<p><strong>Key Features:</strong>
+- Max length: 2048 characters
+- Removes invalid URL characters
+- Sanitizes dangerous patterns
+- Validates URL structure</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">url = Safe_Str__Url(&quot;https://example.com/page?q=test&quot;)  # Valid
+url = Safe_Str__Url(&quot;javascript:alert('xss')&quot;)          # Sanitized
+</code></pre>
+<h4 id="safe_str__ip_address"><code>Safe_Str__IP_Address</code><a class="headerlink" href="#safe_str__ip_address" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_str.Safe_Str__IP_Address import Safe_Str__IP_Address</code></p>
+<p><strong>Purpose:</strong> Validates IPv4 and IPv6 addresses using Python's ipaddress module.</p>
+<p><strong>Key Features:</strong>
+- Validates both IPv4 and IPv6
+- Returns canonical representation
+- Auto-trims whitespace
+- Rejects invalid IPs</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">ip = Safe_Str__IP_Address(&quot;192.168.1.1&quot;)       # Valid IPv4
+ip = Safe_Str__IP_Address(&quot;::1&quot;)               # Valid IPv6
+ip = Safe_Str__IP_Address(&quot;999.999.999.999&quot;)   # Raises ValueError
+</code></pre>
+<hr />
+<h3 id="http-header-types">HTTP Header Types<a class="headerlink" href="#http-header-types" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__http__content_type"><code>Safe_Str__Http__Content_Type</code><a class="headerlink" href="#safe_str__http__content_type" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.helpers.safe_str.http.Safe_Str__Http__Content_Type import Safe_Str__Http__Content_Type</code></p>
+<p><strong>Purpose:</strong> HTTP Content-Type header validation, prevents header injection.</p>
+<p><strong>Key Features:</strong>
+- Max length: 256 characters
+- Removes CRLF characters
+- Validates MIME type format</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">ct = Safe_Str__Http__Content_Type(&quot;application/json&quot;)
+ct = Safe_Str__Http__Content_Type(&quot;text/html; charset=utf-8&quot;)
+</code></pre>
+<h4 id="safe_str__http__etag"><code>Safe_Str__Http__ETag</code><a class="headerlink" href="#safe_str__http__etag" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.helpers.safe_str.http.Safe_Str__Http__ETag import Safe_Str__Http__ETag</code></p>
+<p><strong>Purpose:</strong> HTTP ETag header validation.</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">etag = Safe_Str__Http__ETag('&quot;33a64df551&quot;')      # Strong ETag
+etag = Safe_Str__Http__ETag('W/&quot;weak-etag-123&quot;')  # Weak ETag
+</code></pre>
+<h4 id="safe_str__html"><code>Safe_Str__Html</code><a class="headerlink" href="#safe_str__html" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.helpers.safe_str.http.Safe_Str__Html import Safe_Str__Html</code></p>
+<p><strong>Purpose:</strong> HTML content with minimal filtering (allows HTML tags).</p>
+<p><strong>Key Features:</strong>
+- Max length: 1MB
+- Removes null bytes and control characters
+- Allows HTML structure</p>
+<hr />
+<h3 id="cryptographic-types">Cryptographic Types<a class="headerlink" href="#cryptographic-types" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__hash"><code>Safe_Str__Hash</code><a class="headerlink" href="#safe_str__hash" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Hash import Safe_Str__Hash</code></p>
+<p><strong>Purpose:</strong> Fixed-length hexadecimal hash values.</p>
+<p><strong>Key Features:</strong>
+- Exactly 10 characters (by default)
+- Hexadecimal only (0-9, a-f, A-F)
+- Strict validation</p>
+<p><strong>Helper Function:</strong></p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Hash import safe_str_hash
+
+hash_value = safe_str_hash(&quot;my data&quot;)  # Creates 10-char MD5 hash
+</code></pre>
+<hr />
+<h2 id="safe_int-types">Safe_Int Types<a class="headerlink" href="#safe_int-types" title="Permanent link">&para;</a></h2>
+<h3 id="core-integer-type">Core Integer Type<a class="headerlink" href="#core-integer-type" title="Permanent link">&para;</a></h3>
+<h4 id="safe_int"><code>Safe_Int</code><a class="headerlink" href="#safe_int" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_int.Safe_Int import Safe_Int</code></p>
+<p><strong>Purpose:</strong> Base integer type with range validation and type conversion.</p>
+<p><strong>Configuration:</strong></p>
+<pre><code class="language-python">class Safe_Int(Type_Safe__Primitive, int):
+    min_value = None        # Minimum allowed value
+    max_value = None        # Maximum allowed value
+    allow_none = True       # Convert None to 0
+    allow_bool = False      # Accept boolean values
+    allow_str = True        # Convert strings to int
+    strict_type = False     # Only accept int type
+</code></pre>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">value = Safe_Int(&quot;42&quot;)        # Converts string to 42
+value = Safe_Int(None)        # Returns 0 (if allow_none=True)
+value = Safe_Int(True)        # Raises TypeError (if allow_bool=False)
+</code></pre>
+<hr />
+<h3 id="unsigned-integer-types">Unsigned Integer Types<a class="headerlink" href="#unsigned-integer-types" title="Permanent link">&para;</a></h3>
+<h4 id="safe_uint"><code>Safe_UInt</code><a class="headerlink" href="#safe_uint" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.helpers.safe_int.Safe_UInt import Safe_UInt</code></p>
+<p><strong>Purpose:</strong> Base unsigned integer (non-negative).</p>
+<p><strong>Configuration:</strong>
+- <code>min_value = 0</code>
+- <code>allow_bool = False</code></p>
+<h4 id="safe_uint__byte"><code>Safe_UInt__Byte</code><a class="headerlink" href="#safe_uint__byte" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.helpers.safe_int.Safe_UInt__Byte import Safe_UInt__Byte</code></p>
+<p><strong>Purpose:</strong> Single byte value (0-255).</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">byte = Safe_UInt__Byte(128)   # Valid
+byte = Safe_UInt__Byte(256)   # ValueError: must be &lt;= 255
+</code></pre>
+<h4 id="safe_uint__port"><code>Safe_UInt__Port</code><a class="headerlink" href="#safe_uint__port" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.helpers.safe_int.Safe_UInt__Port import Safe_UInt__Port</code></p>
+<p><strong>Purpose:</strong> Network port numbers (0-65535).</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">port = Safe_UInt__Port(8080)   # Valid HTTP port
+port = Safe_UInt__Port(443)    # Valid HTTPS port
+port = Safe_UInt__Port(70000)  # ValueError: must be &lt;= 65535
+</code></pre>
+<h4 id="safe_uint__filesize"><code>Safe_UInt__FileSize</code><a class="headerlink" href="#safe_uint__filesize" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.helpers.safe_int.Safe_UInt__FileSize import Safe_UInt__FileSize</code></p>
+<p><strong>Purpose:</strong> File sizes with conversion methods.</p>
+<p><strong>Features:</strong>
+- Max value: 2^63-1
+- Conversion methods: <code>to_kb()</code>, <code>to_mb()</code>, <code>to_gb()</code></p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">size = Safe_UInt__FileSize(1048576)  # 1 MB in bytes
+print(f&quot;{size.to_mb():.2f} MB&quot;)      # 1.00 MB
+print(f&quot;{size.to_gb():.4f} GB&quot;)      # 0.0010 GB
+</code></pre>
+<h4 id="safe_uint__percentage"><code>Safe_UInt__Percentage</code><a class="headerlink" href="#safe_uint__percentage" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.helpers.safe_int.Safe_UInt__Percentage import Safe_UInt__Percentage</code></p>
+<p><strong>Purpose:</strong> Percentage values (0-100).</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">progress = Safe_UInt__Percentage(75)   # 75%
+progress = Safe_UInt__Percentage(101)  # ValueError: must be &lt;= 100
+</code></pre>
+<hr />
+<h2 id="safe_float-types">Safe_Float Types<a class="headerlink" href="#safe_float-types" title="Permanent link">&para;</a></h2>
+<h3 id="core-float-type">Core Float Type<a class="headerlink" href="#core-float-type" title="Permanent link">&para;</a></h3>
+<h4 id="safe_float"><code>Safe_Float</code><a class="headerlink" href="#safe_float" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_float.Safe_Float import Safe_Float</code></p>
+<p><strong>Purpose:</strong> Base float type with precision control and range validation.</p>
+<p><strong>Configuration:</strong></p>
+<pre><code class="language-python">class Safe_Float(Type_Safe__Primitive, float):
+    min_value = None          # Minimum value
+    max_value = None          # Maximum value
+    decimal_places = None     # Decimal precision
+    use_decimal = False       # Use Python's Decimal
+    epsilon = 1e-9           # Equality tolerance
+    round_output = True      # Round to decimal_places
+    clamp_to_range = False   # Clamp vs error
+    allow_none = True        # Convert None to 0.0
+    allow_str = True         # Convert strings
+    allow_int = True         # Convert integers
+</code></pre>
+<hr />
+<h3 id="financial-types">Financial Types<a class="headerlink" href="#financial-types" title="Permanent link">&para;</a></h3>
+<h4 id="safe_float__money"><code>Safe_Float__Money</code><a class="headerlink" href="#safe_float__money" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money import Safe_Float__Money</code></p>
+<p><strong>Purpose:</strong> Financial calculations with exact decimal arithmetic.</p>
+<p><strong>Configuration:</strong>
+- <code>decimal_places = 2</code> (cents precision)
+- <code>use_decimal = True</code> (exact arithmetic)
+- <code>min_value = 0.0</code> (no negative amounts)</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">price = Safe_Float__Money(19.99)
+tax = Safe_Float__Money(1.65)
+total = price + tax  # Exactly 21.64 (no float errors)
+
+# Division with rounding
+split = Safe_Float__Money(100.00)
+three_way = split / 3  # 33.33 (not 33.333333...)
+</code></pre>
+<h4 id="safe_float__percentage_exact"><code>Safe_Float__Percentage_Exact</code><a class="headerlink" href="#safe_float__percentage_exact" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Percentage_Exact import Safe_Float__Percentage_Exact</code></p>
+<p><strong>Purpose:</strong> Precise percentage calculations (0-100).</p>
+<p><strong>Configuration:</strong>
+- <code>min_value = 0.0</code>, <code>max_value = 100.0</code>
+- <code>decimal_places = 2</code>
+- <code>use_decimal = True</code></p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">completion = Safe_Float__Percentage_Exact(75.5)
+remaining = Safe_Float__Percentage_Exact(100.0) - completion  # Exactly 24.50
+</code></pre>
+<hr />
+<h3 id="engineering-types">Engineering Types<a class="headerlink" href="#engineering-types" title="Permanent link">&para;</a></h3>
+<h4 id="safe_float__engineering"><code>Safe_Float__Engineering</code><a class="headerlink" href="#safe_float__engineering" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Engineering import Safe_Float__Engineering</code></p>
+<p><strong>Purpose:</strong> Engineering calculations with tolerance-based comparisons.</p>
+<p><strong>Configuration:</strong>
+- <code>epsilon = 1e-6</code> (engineering tolerance)
+- <code>round_output = True</code>
+- <code>use_decimal = False</code> (performance over exactness)</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python">voltage = Safe_Float__Engineering(3.3)
+current = Safe_Float__Engineering(0.025)
+power = voltage * current  # Clean result without excessive decimals
+</code></pre>
+<hr />
+<h2 id="identity-types-identifiers">Identity Types (identifiers/)<a class="headerlink" href="#identity-types-identifiers" title="Permanent link">&para;</a></h2>
+<h3 id="core-identity-type">Core Identity Type<a class="headerlink" href="#core-identity-type" title="Permanent link">&para;</a></h3>
+<h4 id="safe_id"><code>Safe_Id</code><a class="headerlink" href="#safe_id" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.identifiers.Safe_Id import Safe_Id</code></p>
+<p><strong>Purpose:</strong> Base class for creating domain-specific type-safe identifiers.</p>
+<p><strong>Key Features:</strong>
+- Type identity preservation (UserId ≠ ProductId)
+- Prevents mixing different ID types
+- String-based with type checking
+- Auto-generates safe ID if none provided
+- Applies safe_id sanitization (regex: <code>[^a-zA-Z0-9_-]</code>)
+- Max length: 512 characters (configurable)</p>
+<p><strong>Creating Domain IDs:</strong></p>
+<pre><code class="language-python">class UserId(Safe_Id): pass
+class ProductId(Safe_Id): pass
+class OrderId(Safe_Id): pass
+
+# Usage
+user_id = UserId(&quot;USR-123&quot;)
+product_id = ProductId(&quot;PRD-456&quot;)
+
+# Type safety
+assert user_id != product_id  # Different types, even with same value!
+
+# But convenient string comparison
+assert user_id == &quot;USR-123&quot;  # Works for convenience
+</code></pre>
+<h4 id="guid"><code>Guid</code><a class="headerlink" href="#guid" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.identifiers.Guid import Guid</code></p>
+<p><strong>Purpose:</strong> Deterministic GUID generation from string values using UUID5.</p>
+<p><strong>Key Features:</strong>
+- Generates deterministic UUIDs (same input = same output)
+- Uses UUID5 with a fixed namespace (<code>2cfec064-537a-4ff7-8fdc-2fc9e2606f3d</code>)
+- If input is already a valid GUID, returns it unchanged
+- If input is any other string, generates UUID5 from it
+- Type-safe GUID handling
+- Raises ValueError if input is not a string</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python"># Generate deterministic GUID from string
+guid1 = Guid(&quot;user@example.com&quot;)  # Always same GUID for this email
+guid2 = Guid(&quot;user@example.com&quot;)  # Same as guid1
+assert guid1 == guid2
+
+# Pass through existing valid GUIDs
+existing = Guid(&quot;550e8400-e29b-41d4-a716-446655440000&quot;)  # Returns unchanged
+
+# Different inputs = different GUIDs
+user_guid = Guid(&quot;user123&quot;)
+prod_guid = Guid(&quot;product456&quot;)
+assert user_guid != prod_guid
+
+# Non-string input raises error
+guid = Guid(123)  # Raises ValueError: value provided was not a string
+</code></pre>
+<h4 id="random_guid"><code>Random_Guid</code><a class="headerlink" href="#random_guid" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.identifiers.Random_Guid import Random_Guid</code></p>
+<p><strong>Purpose:</strong> UUID/GUID generation and validation.</p>
+<p><strong>Features:</strong>
+- Auto-generates UUID if none provided
+- Validates UUID format using <code>is_guid()</code>
+- Type-safe GUID handling
+- Raises ValueError if invalid GUID provided</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python"># Auto-generate
+guid = Random_Guid()  # Creates new UUID
+
+# From existing
+guid = Random_Guid(&quot;550e8400-e29b-41d4-a716-446655440000&quot;)
+
+# Invalid GUID
+guid = Random_Guid(&quot;not-a-guid&quot;)  # Raises ValueError
+</code></pre>
+<h4 id="random_guid_short"><code>Random_Guid_Short</code><a class="headerlink" href="#random_guid_short" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.identifiers.Random_Guid_Short import Random_Guid_Short</code></p>
+<p><strong>Purpose:</strong> Shorter unique identifier generation.</p>
+<p><strong>Features:</strong>
+- Auto-generates short GUID if none provided
+- More compact than full UUID
+- Useful for readable identifiers</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python"># Auto-generate
+short_id = Random_Guid_Short()  # Creates short GUID
+
+# From existing
+short_id = Random_Guid_Short(&quot;abc123&quot;)
+</code></pre>
+<hr />
+<h2 id="integer-timestamp-types">Integer Timestamp Types<a class="headerlink" href="#integer-timestamp-types" title="Permanent link">&para;</a></h2>
+<h3 id="timestamp-type">Timestamp Type<a class="headerlink" href="#timestamp-type" title="Permanent link">&para;</a></h3>
+<h4 id="timestamp_now"><code>Timestamp_Now</code><a class="headerlink" href="#timestamp_now" title="Permanent link">&para;</a></h4>
+<p><strong>Import:</strong> <code>from osbot_utils.type_safe.primitives.safe_int.Timestamp_Now import Timestamp_Now</code></p>
+<p><strong>Purpose:</strong> Unix timestamp generation and handling.</p>
+<p><strong>Features:</strong>
+- Auto-generates current timestamp if none provided
+- Integer-based (Unix timestamp)
+- Inherits from Type_Safe__Primitive and int</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-python"># Auto-generate current timestamp
+timestamp = Timestamp_Now()  # Current Unix timestamp
+
+# From existing timestamp
+timestamp = Timestamp_Now(1234567890)
+
+# Convert to string
+print(str(timestamp))  # &quot;1234567890&quot;
+</code></pre>
+<hr />
+<h2 id="usage-in-type_safe-classes">Usage in Type_Safe Classes<a class="headerlink" href="#usage-in-type_safe-classes" title="Permanent link">&para;</a></h2>
+<h3 id="example-complete-domain-model">Example: Complete Domain Model<a class="headerlink" href="#example-complete-domain-model" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+from typing import List, Dict
+
+# Define domain-specific IDs
+class UserId(Safe_Id): pass
+class OrderId(Safe_Id): pass
+class ProductId(Safe_Id): pass
+
+class Order(Type_Safe):
+    # Identity
+    id: OrderId
+    user_id: UserId
+
+    # Financial
+    subtotal: Safe_Float__Money
+    tax: Safe_Float__Money
+    shipping: Safe_Float__Money
+    discount_percentage: Safe_Float__Percentage_Exact
+
+    # Items
+    product_ids: List[ProductId]
+    quantities: List[Safe_UInt]
+
+    # Metadata
+    status: Safe_Str
+    tracking_url: Safe_Str__Url
+    customer_ip: Safe_Str__IP_Address
+
+    def total(self) -&gt; Safe_Float__Money:
+        discount = self.subtotal * (self.discount_percentage / 100)
+        return self.subtotal - discount + self.tax + self.shipping
+
+# Usage
+order = Order(
+    id=OrderId(&quot;ORD-12345&quot;),
+    user_id=UserId(&quot;USR-67890&quot;),
+    subtotal=99.99,
+    tax=8.25,
+    shipping=5.00,
+    discount_percentage=10.0,
+    product_ids=[ProductId(&quot;PRD-001&quot;), ProductId(&quot;PRD-002&quot;)],
+    quantities=[1, 2],
+    status=&quot;pending&quot;,
+    tracking_url=&quot;https://tracking.example.com/12345&quot;,
+    customer_ip=&quot;192.168.1.100&quot;
+)
+
+# All operations are type-safe!
+print(f&quot;Order Total: ${order.total()}&quot;)  # Exact calculation
+</code></pre>
+<hr />
+<h2 id="key-benefits">Key Benefits<a class="headerlink" href="#key-benefits" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Type Safety</strong>: Prevents mixing incompatible types (UserId ≠ ProductId)</li>
+<li><strong>Validation</strong>: Enforces domain constraints at creation</li>
+<li><strong>Security</strong>: Automatic sanitization prevents injection attacks</li>
+<li><strong>Precision</strong>: Exact arithmetic for financial calculations</li>
+<li><strong>Self-Documenting</strong>: Type names express intent and constraints</li>
+<li><strong>Error Prevention</strong>: Catches issues at assignment, not deep in execution</li>
+</ol>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Create Domain-Specific Types</strong>: Don't use generic Safe_Str, create <code>Safe_Str__Email</code>, <code>Safe_Str__Username</code>, etc.</li>
+<li><strong>Use at Boundaries</strong>: Apply Safe_* types at system entry points</li>
+<li><strong>Cache Instances</strong>: Safe_* objects have validation overhead - cache when possible</li>
+<li><strong>Choose Appropriate Types</strong>: Use Safe_Float__Money for currency, Safe_UInt__Port for ports, etc.</li>
+<li><strong>Layer Security</strong>: Safe_* types are one layer - combine with other security measures</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

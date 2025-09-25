@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/testing/performance/type-safe-performance/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Type_Safe (Test-Driven) Performance Review - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe (Test-Driven) Performance Review";
+        var mkdocs_page_input_path = "code/osbot_utils/testing/performance/type-safe-performance.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/testing/performance/type-safe-performance/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe (Test-Driven) Performance Review</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-test-driven-performance-review">Type_Safe (Test-Driven) Performance Review<a class="headerlink" href="#type_safe-test-driven-performance-review" title="Permanent link">&para;</a></h1>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>This document presents a comprehensive performance analysis of the Type_Safe system, a runtime type checking implementation for Python. Through extensive benchmarking and performance testing, we've measured the performance characteristics of various Type_Safe operations, from basic instantiation to complex object manipulations. The measurements are presented in nanoseconds (ns) and were collected using the OSBot_Utils performance testing framework, which provides high-precision timing and statistical analysis.</p>
+<p>The data presented here serves multiple purposes:
+- Establishing performance baselines for Type_Safe operations
+- Identifying performance patterns and bottlenecks
+- Providing guidance for system design decisions
+- Supporting performance regression testing</p>
+<p>For a detailed explanation of the testing methodology, framework capabilities, and example test cases, please refer to the "Type_Safe Performance Testing Methodology and Framework" in the appendix section of this document. This supplementary material provides in-depth coverage of how these measurements were obtained, including statistical processing methods and test case implementations.</p>
+<h2 id="core-operations-performance-map">Core Operations Performance Map<a class="headerlink" href="#core-operations-performance-map" title="Permanent link">&para;</a></h2>
+<h3 id="basic-instantiation">Basic Instantiation<a class="headerlink" href="#basic-instantiation" title="Permanent link">&para;</a></h3>
+<p>Basic instantiation measurements reveal the fundamental overhead of Type_Safe compared to pure Python classes. These measurements form the baseline for understanding Type_Safe's performance characteristics in its simplest use cases. The 60x difference between Type_Safe and pure Python (6,000ns vs 100ns) represents the cost of the type checking infrastructure.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Empty Type_Safe class</td>
+<td>6,000</td>
+<td>Baseline overhead for Type_Safe inheritance</td>
+</tr>
+<tr>
+<td>Single typed attribute (str/int)</td>
+<td>20,000</td>
+<td>Basic type annotation handling</td>
+</tr>
+<tr>
+<td>Single attribute with default</td>
+<td>20,000</td>
+<td>Default value initialization</td>
+</tr>
+<tr>
+<td>Pure Python class (comparison)</td>
+<td>100</td>
+<td>Baseline for standard Python</td>
+</tr>
+</tbody>
+</table>
+<h3 id="type-system-features">Type System Features<a class="headerlink" href="#type-system-features" title="Permanent link">&para;</a></h3>
+<p>The type system features table demonstrates the performance impact of various type annotations and type checking mechanisms. This data shows how different type complexities affect instantiation time, with a clear progression from simple types to more complex type constructs like forward references.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Optional types</td>
+<td>40,000</td>
+<td>Part of complex types handling</td>
+</tr>
+<tr>
+<td>List[str]</td>
+<td>30,000</td>
+<td>Collection type initialization</td>
+</tr>
+<tr>
+<td>Dict[str, int]</td>
+<td>30,000</td>
+<td>Dictionary type initialization</td>
+</tr>
+<tr>
+<td>Union types</td>
+<td>30,000</td>
+<td>Union type validation and handling</td>
+</tr>
+<tr>
+<td>Forward references</td>
+<td>80,000</td>
+<td>Basic forward reference resolution</td>
+</tr>
+<tr>
+<td>Nested forward refs</td>
+<td>200,000</td>
+<td>Complex tree structures with forward refs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inheritance-overhead">Inheritance Overhead<a class="headerlink" href="#inheritance-overhead" title="Permanent link">&para;</a></h3>
+<p>The inheritance measurements show a linear increase in overhead as inheritance depth grows. Each level of inheritance adds approximately 10,000ns to the instantiation time, demonstrating the cumulative cost of type checking across the inheritance chain.</p>
+<table>
+<thead>
+<tr>
+<th>Inheritance Level</th>
+<th>Time (ns)</th>
+<th>Additional Overhead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base class</td>
+<td>20,000</td>
+<td>Baseline</td>
+</tr>
+<tr>
+<td>Level 1</td>
+<td>30,000</td>
+<td>+10,000</td>
+</tr>
+<tr>
+<td>Level 2</td>
+<td>40,000</td>
+<td>+10,000</td>
+</tr>
+<tr>
+<td>Level 3</td>
+<td>50,000</td>
+<td>+10,000</td>
+</tr>
+</tbody>
+</table>
+<h3 id="method-operation-times">Method Operation Times<a class="headerlink" href="#method-operation-times" title="Permanent link">&para;</a></h3>
+<p>Method operations show the performance characteristics of Type_Safe's core mechanisms. These measurements reveal the overhead of type-safe attribute access and manipulation compared to standard Python operations, with type checking adding measurable but manageable overhead to each operation.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>setattr</strong> (Type_Safe)</td>
+<td>2,000</td>
+<td>Basic attribute assignment</td>
+</tr>
+<tr>
+<td><strong>setattr</strong> (Pure Python)</td>
+<td>100</td>
+<td>Comparison baseline</td>
+</tr>
+<tr>
+<td><strong>cls_kwargs</strong></td>
+<td>8,000</td>
+<td>Class-level attribute retrieval</td>
+</tr>
+<tr>
+<td><strong>default_kwargs</strong></td>
+<td>5,000</td>
+<td>Default value retrieval</td>
+</tr>
+<tr>
+<td><strong>kwargs</strong></td>
+<td>5,000</td>
+<td>Instance attribute retrieval</td>
+</tr>
+<tr>
+<td><strong>locals</strong></td>
+<td>7,000</td>
+<td>Local variable retrieval</td>
+</tr>
+</tbody>
+</table>
+<h3 id="serialization-operations">Serialization Operations<a class="headerlink" href="#serialization-operations" title="Permanent link">&para;</a></h3>
+<p>Serialization measurements demonstrate the cost of converting Type_Safe objects to various formats. The data shows significant differences between small and large object serialization, with size having a substantial impact on performance.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>to_json (small object)</td>
+<td>8,000</td>
+<td>Basic JSON serialization</td>
+</tr>
+<tr>
+<td>from_json (small object)</td>
+<td>100,000</td>
+<td>JSON deserialization</td>
+</tr>
+<tr>
+<td>to_bytes</td>
+<td>8,000</td>
+<td>Bytes serialization</td>
+</tr>
+<tr>
+<td>to_bytes_gz</td>
+<td>20,000</td>
+<td>Compressed bytes serialization</td>
+</tr>
+<tr>
+<td>Large object serialization</td>
+<td>200,000</td>
+<td>JSON for 50+ items</td>
+</tr>
+<tr>
+<td>Large object to bytes</td>
+<td>300,000</td>
+<td>Bytes for 50+ items</td>
+</tr>
+</tbody>
+</table>
+<h3 id="special-features">Special Features<a class="headerlink" href="#special-features" title="Permanent link">&para;</a></h3>
+<p>Special features measurements cover various utility operations provided by Type_Safe. These operations show varying performance characteristics, from relatively fast property access to more expensive reset operations.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Context manager overhead</td>
+<td>20,000</td>
+<td>Using with statement</td>
+</tr>
+<tr>
+<td>Property access</td>
+<td>4,000</td>
+<td>@property decorator access</td>
+</tr>
+<tr>
+<td>Direct attribute access</td>
+<td>6,000</td>
+<td>Regular attribute access</td>
+</tr>
+<tr>
+<td>Object merging</td>
+<td>6,000</td>
+<td>merge_with operation</td>
+</tr>
+<tr>
+<td>Reset operation</td>
+<td>30,000</td>
+<td>Resetting to defaults</td>
+</tr>
+</tbody>
+</table>
+<h3 id="complex-operations">Complex Operations<a class="headerlink" href="#complex-operations" title="Permanent link">&para;</a></h3>
+<p>Complex operations measurements reveal how Type_Safe performs with more sophisticated data structures and operations. These measurements show the substantial overhead that can accumulate with complex object graphs and deep nesting.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ns)</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deep nesting instantiation</td>
+<td>200,000</td>
+<td>Multiple levels of nested objects</td>
+</tr>
+<tr>
+<td>Circular reference handling</td>
+<td>70,000</td>
+<td>Self-referential structures</td>
+</tr>
+<tr>
+<td>Medium object creation (10 items)</td>
+<td>400,000</td>
+<td>Complex object graphs</td>
+</tr>
+<tr>
+<td>Large object creation (20 items)</td>
+<td>800,000</td>
+<td>Larger object graphs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="performance-patterns-and-observations">Performance Patterns and Observations<a class="headerlink" href="#performance-patterns-and-observations" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Baseline Overhead</li>
+<li>Empty Type_Safe class has 6,000ns overhead compared to 100ns for pure Python</li>
+<li>
+<p>Each type annotation adds approximately 10,000ns to initialization time</p>
+</li>
+<li>
+<p>Scaling Characteristics</p>
+</li>
+<li>Inheritance depth: Linear increase of 10,000ns per level</li>
+<li>Collection size: Linear scaling with collection size</li>
+<li>
+<p>Nesting depth: Exponential increase with deep nesting</p>
+</li>
+<li>
+<p>Operation Costs</p>
+</li>
+<li>Type validation: 2,000ns overhead per operation</li>
+<li>Serialization: Base cost of 8,000ns plus linear scaling with size</li>
+<li>
+<p>Property access: 4,000ns vs 6,000ns for direct access</p>
+</li>
+<li>
+<p>Environmental Impact</p>
+</li>
+<li>CI/CD environments show 2-3x higher times than local execution</li>
+<li>Compression operations (bytes_gz) add consistent 12,000ns overhead</li>
+</ol>
+<h2 id="time-threshold-categories">Time Threshold Categories<a class="headerlink" href="#time-threshold-categories" title="Permanent link">&para;</a></h2>
+<p>The following categories help classify operations based on their performance characteristics, providing a framework for performance expectations and optimization priorities.</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Time Range (ns)</th>
+<th>Typical Operations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ultra-fast</td>
+<td>100-1,000</td>
+<td>Pure Python operations</td>
+</tr>
+<tr>
+<td>Fast</td>
+<td>1,000-10,000</td>
+<td>Basic Type_Safe operations</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>10,000-50,000</td>
+<td>Complex type operations</td>
+</tr>
+<tr>
+<td>Slow</td>
+<td>50,000-200,000</td>
+<td>Nested/complex operations</td>
+</tr>
+<tr>
+<td>Very Slow</td>
+<td>&gt;200,000</td>
+<td>Large-scale operations</td>
+</tr>
+</tbody>
+</table>
+<h1 id="appendix-type_safe-performance-testing-methodology">Appendix: Type_Safe Performance Testing Methodology<a class="headerlink" href="#appendix-type_safe-performance-testing-methodology" title="Permanent link">&para;</a></h1>
+<h2 id="testing-framework-overview">Testing Framework Overview<a class="headerlink" href="#testing-framework-overview" title="Permanent link">&para;</a></h2>
+<h3 id="osbot_utils-performance-testing-framework">OSBot_Utils Performance Testing Framework<a class="headerlink" href="#osbot_utils-performance-testing-framework" title="Permanent link">&para;</a></h3>
+<p>The performance testing utilizes the OSBot_Utils performance testing framework, specifically the <code>Performance_Measure__Session</code> class. This framework provides:</p>
+<ol>
+<li>High-precision timing using <code>time.perf_counter_ns()</code></li>
+<li>Statistical analysis of measurements</li>
+<li>Fibonacci-based measurement loops for reliable sampling</li>
+<li>Automated outlier detection and handling</li>
+<li>Stable score normalization for consistent results</li>
+</ol>
+<h3 id="key-framework-components">Key Framework Components<a class="headerlink" href="#key-framework-components" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Model__Performance_Measure__Measurement(Type_Safe):
+    avg_time    : int                # Average time in nanoseconds
+    min_time    : int                # Minimum time observed
+    max_time    : int                # Maximum time observed
+    median_time : int                # Median time
+    stddev_time : float              # Standard deviation
+    raw_times   : List[int]          # Raw measurements for analysis
+    sample_size : int                # Number of measurements taken
+    score       : float              # Normalized score
+    raw_score   : float              # Raw performance score
+
+class Model__Performance_Measure__Result(Type_Safe):
+    measurements : Dict[int, Model__Performance_Measure__Measurement]  # Results per loop size
+    name        : str                # Name of measured target
+    raw_score   : float              # Raw performance score
+    final_score : float              # Normalized final score
+</code></pre>
+<h2 id="testing-methodology">Testing Methodology<a class="headerlink" href="#testing-methodology" title="Permanent link">&para;</a></h2>
+<h3 id="measurement-strategy">Measurement Strategy<a class="headerlink" href="#measurement-strategy" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Loop Sequence</strong>: Uses Fibonacci sequence for iteration counts:
+   <code>python
+   MEASURE__INVOCATION__LOOPS = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]</code></p>
+</li>
+<li>
+<p><strong>Statistical Processing</strong>:
+   ```python
+   def calculate_raw_score(self, times: List[int]) -&gt; int:
+       if len(times) &lt; 3:
+           return mean(times)</p>
+<p>sorted_times = sorted(times)              <br />
+   trim_size    = max(1, len(times) // 10)    # Remove ~10% from each end
+   trimmed      = sorted_times[trim_size:-trim_size]
+   med          = median(trimmed)
+   trimmed_mean = mean(trimmed)</p>
+<p>return int(med * 0.6 + trimmed_mean * 0.4)  # Weighted combination
+   ```</p>
+</li>
+<li>
+<p><strong>Score Normalization</strong>:
+   <code>python
+   def calculate_stable_score(self, raw_score: float) -&gt; int:
+       if raw_score &lt; 1_000:
+           return int(round(raw_score / 100) * 100)     # Under 1µs: nearest 100ns
+       elif raw_score &lt; 10_000:
+           return int(round(raw_score / 1000) * 1000)   # Under 10µs: nearest 500ns
+       elif raw_score &lt; 100_000:
+           return int(round(raw_score / 10000) * 10000) # Under 100µs: nearest 1000ns
+       else:
+           return int(round(raw_score / 50000) * 50000) # Above 100µs: nearest 5000ns</code></p>
+</li>
+</ol>
+<h2 id="standard-time-thresholds">Standard Time Thresholds<a class="headerlink" href="#standard-time-thresholds" title="Permanent link">&para;</a></h2>
+<p>The framework uses consistent time thresholds across all tests:</p>
+<pre><code class="language-python">@classmethod
+def setUpClass(cls):
+    cls.time_100_ns  =     100  # Pure Python baseline
+    cls.time_300_ns  =     300  # Ultra-fast operations
+    cls.time_2_kns   =   2_000  # Basic Type_Safe operations
+    cls.time_4_kns   =   4_000  # Simple method calls
+    cls.time_6_kns   =   6_000  # Basic instantiation
+    cls.time_8_kns   =   8_000  # Basic serialization
+    cls.time_10_kns  =  10_000  # Complex method calls
+    cls.time_20_kns  =  20_000  # Type annotation handling
+    cls.time_30_kns  =  30_000  # Collection operations
+    cls.time_40_kns  =  40_000  # Complex types
+    cls.time_50_kns  =  50_000  # Deep inheritance
+    cls.time_70_kns  =  70_000  # Circular references
+    cls.time_200_kns = 200_000  # Large object operations
+    cls.time_400_kns = 400_000  # Complex graphs
+    cls.time_800_kns = 800_000  # Very large operations
+</code></pre>
+<h2 id="example-test-cases">Example Test Cases<a class="headerlink" href="#example-test-cases" title="Permanent link">&para;</a></h2>
+<h3 id="1-basic-class-instantiation-testing">1. Basic Class Instantiation Testing<a class="headerlink" href="#1-basic-class-instantiation-testing" title="Permanent link">&para;</a></h3>
+<p>This test measures the baseline performance of Type_Safe class creation and simple attribute handling:</p>
+<pre><code class="language-python">def test_basic_class_instantiation(self):
+    class EmptyClass(Type_Safe): pass       # Baseline empty class
+
+    class SingleStr(Type_Safe):             # Test with string attribute
+        value: str
+
+    class SingleInt(Type_Safe):             # Test with integer attribute
+        value: int
+
+    class SingleDefault(Type_Safe):         # Test with default value
+        value: str = &quot;default&quot;
+
+    with Performance_Measure__Session() as session:
+        session.measure(EmptyClass    ).assert_time(self.time_6_kns)
+        session.measure(SingleStr     ).assert_time(self.time_20_kns)
+        session.measure(SingleInt     ).assert_time(self.time_20_kns)
+        session.measure(SingleDefault ).assert_time(self.time_20_kns)
+</code></pre>
+<h3 id="2-complex-types-testing">2. Complex Types Testing<a class="headerlink" href="#2-complex-types-testing" title="Permanent link">&para;</a></h3>
+<p>This test evaluates performance with various complex type annotations:</p>
+<pre><code class="language-python">def test_complex_types(self):
+    class ComplexTypes(Type_Safe):
+        optional_str : Optional[str]
+        str_list    : List[str]
+        int_dict    : Dict[str, int]
+        union_field : Union[str, int]
+
+    class NestedType(Type_Safe):
+        value: str
+
+    class WithNested(Type_Safe):
+        nested : NestedType
+        items  : List[NestedType]
+
+    with Performance_Measure__Session() as session:
+        session.measure(ComplexTypes ).assert_time(self.time_40_kns)
+        session.measure(NestedType   ).assert_time(self.time_20_kns)
+        session.measure(WithNested   ).assert_time(self.time_40_kns)
+</code></pre>
+<h3 id="3-method-performance-testing">3. Method Performance Testing<a class="headerlink" href="#3-method-performance-testing" title="Permanent link">&para;</a></h3>
+<p>This test measures method invocation overhead:</p>
+<pre><code class="language-python">def test_method_override_performance(self):
+    class BaseWithMethods(Type_Safe):
+        value: int = 0
+
+        def increment(self, amount: int) -&gt; int:
+            self.value += amount
+            return self.value
+
+        def reset(self) -&gt; None:
+            self.value = 0
+
+    class DerivedWithOverrides(BaseWithMethods):
+        def increment(self, amount: int) -&gt; int:
+            self.value += amount * 2
+            return self.value
+
+    base    = BaseWithMethods()
+    derived = DerivedWithOverrides()
+
+    def call_base_method():
+        base.increment(1)
+        base.reset()
+
+    def call_derived_method():
+        derived.increment(1)
+        derived.reset()
+
+    with Performance_Measure__Session() as session:
+        session.measure(call_base_method   ).assert_time(self.time_10_kns)
+        session.measure(call_derived_method).assert_time(self.time_10_kns)
+</code></pre>
+<h3 id="4-large-scale-operations-testing">4. Large-Scale Operations Testing<a class="headerlink" href="#4-large-scale-operations-testing" title="Permanent link">&para;</a></h3>
+<p>This test evaluates performance with large object graphs:</p>
+<pre><code class="language-python">def test_large_object_instantiation(self):
+    class Item(Type_Safe):
+        id: str
+        value: int
+
+    class Container(Type_Safe):
+        items: List[Item]
+
+    def create_medium_object():
+        return Container(items=[Item(id=str(i), value=i) for i in range(10)])
+
+    def create_larger_object():
+        return Container(items=[Item(id=str(i), value=i) for i in range(20)])
+
+    with Performance_Measure__Session() as session:
+        session.measure(create_medium_object).assert_time(self.time_400_kns)
+        session.measure(create_larger_object).assert_time(self.time_800_kns)
+</code></pre>
+<h2 id="testing-considerations">Testing Considerations<a class="headerlink" href="#testing-considerations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Environmental Factors</strong></li>
+<li>Tests account for CI/CD vs local execution differences</li>
+<li>Measurements include cleanup to prevent cross-test interference</li>
+<li>
+<p>Time thresholds are set conservatively to handle environment variations</p>
+</li>
+<li>
+<p><strong>Statistical Reliability</strong></p>
+</li>
+<li>Multiple measurements per operation using Fibonacci sequence</li>
+<li>Outlier removal through trimmed means</li>
+<li>
+<p>Weighted scoring to balance average and median values</p>
+</li>
+<li>
+<p><strong>Comprehensive Coverage</strong></p>
+</li>
+<li>Tests cover both simple and complex scenarios</li>
+<li>Edge cases and error paths are included</li>
+<li>
+<p>Real-world usage patterns are simulated</p>
+</li>
+<li>
+<p><strong>Result Stability</strong></p>
+</li>
+<li>Normalized scores for consistent results</li>
+<li>Dynamic threshold adjustment based on measurement scale</li>
+<li>Regular baseline verification</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
