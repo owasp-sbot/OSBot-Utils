@@ -28,7 +28,7 @@ class test_Json(TestCase):
         osbot_status.clear_root_logger_handlers()
 
     def test_test_json_dumps(self):
-        assert json_dumps({}       ) is None
+        assert json_dumps({}       ) == '{}'
         assert json_dumps({'a': 42}) == '{\n    "a": 42\n}'
 
     def test_json_dumps__bad_object(self):

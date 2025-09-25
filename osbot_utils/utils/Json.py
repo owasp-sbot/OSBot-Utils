@@ -8,16 +8,17 @@ def bytes_to_json_loads(data):
 def json_dumps(python_object, indent=4, pretty=True, sort_keys=False, default=str, raise_exception=False):
     import json
 
-    if python_object:
-        try:
-            if pretty:
-                return json.dumps(python_object, indent=indent, sort_keys=sort_keys, default=default)
-            return json.dumps(python_object, default=default)
-        except Exception as error:
-            error_message = f'Error in load_json: {error}'
-            #log_exception(message=error_message, error=error)              # todo: find a better way to do this , since this never worked well
-            if raise_exception:
-                raise error
+    if python_object is None:
+        return None
+    try:
+        if pretty:
+            return json.dumps(python_object, indent=indent, sort_keys=sort_keys, default=default)
+        return json.dumps(python_object, default=default)
+    except Exception as error:
+        error_message = f'Error in load_json: {error}'
+        #log_exception(message=error_message, error=error)              # todo: find a better way to do this , since this never worked well
+        if raise_exception:
+            raise error
 
 
 def json_dumps_to_bytes(*args, **kwargs):
