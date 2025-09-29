@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from typing                                                           import List
 from unittest                                                         import TestCase
@@ -6,6 +8,7 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Typ
 
 
 class test_Type_Safe__List__bugs(TestCase):
+
 
     def test__bug__type_safe_list_with_callable(self):
         from typing import Callable

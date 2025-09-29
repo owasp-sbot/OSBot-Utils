@@ -1,3 +1,4 @@
+from enum                                       import Enum
 from typing                                     import Type
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 from osbot_utils.type_safe.Type_Safe__Base      import Type_Safe__Base, type_str
@@ -19,13 +20,11 @@ class Type_Safe__List(Type_Safe__Base, list):
     def __exit__ (self, type, value, traceback): pass
 
     def append(self, item):
-        from osbot_utils.type_safe.Type_Safe        import Type_Safe                                                    # to prevent circular imports
+        from osbot_utils.type_safe.Type_Safe        import Type_Safe                                                                    # to prevent circular imports
 
-        # Handle Type_Safe objects from dicts
-        if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe) and type(item) is dict:
+        if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe) and type(item) is dict:                       # Handle Type_Safe objects from dicts
             item = self.expected_type.from_json(item)
-        # Handle Type_Safe__Primitive conversions (str -> Safe_Str, etc.)
-        elif type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe__Primitive):
+        elif type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe__Primitive):                                 # Handle Type_Safe__Primitive conversions (str -> Safe_Str, etc.)
             if not isinstance(item, self.expected_type):
                 try:
                     item = self.expected_type(item)
@@ -33,9 +32,16 @@ class Type_Safe__List(Type_Safe__Base, list):
                     # Re-raise with more context about what failed
                     raise TypeError(f"In Type_Safe__List: Could not convert {type(item).__name__} to {self.expected_type.__name__}: {e}") from None
 
+        elif hasattr(self.expected_type, '__bases__') and any(base.__name__ == 'Enum' for base in self.expected_type.__bases__):        # Handle Enums
 
-        # Now validate the (possibly converted) item
-        try:
+            if isinstance(self.expected_type, type) and issubclass(self.expected_type, Enum):
+                if isinstance(item, str):
+                    if item in self.expected_type.__members__:                                                                          # Try to convert string to enum
+                        item = self.expected_type[item]
+                    elif hasattr(self.expected_type, '_value2member_map_') and item in self.expected_type._value2member_map_:
+                        item = self.expected_type._value2member_map_[item]
+
+        try:                                                                                                                            # Now validate the (possibly converted) item
             self.is_instance_of_type(item, self.expected_type)
         except TypeError as e:
             raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}") from None

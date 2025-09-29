@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from typing                                                             import List, Dict, Set, Tuple
 from unittest                                                           import TestCase
@@ -11,6 +13,44 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple  import T
 
 
 class test_Type_Safe__List__regression(TestCase):
+
+    def test__regression__list_enums_assigment(self):
+
+        from enum import Enum
+
+        class Enum__Method(str, Enum):
+            GET    = "GET"
+            POST   = "POST"
+        class An_Class(Type_Safe):
+            http_method  : Enum__Method
+            http_methods : List[Enum__Method]
+
+
+        An_Class(http_method   = "GET"                 )        # this works
+        An_Class(http_method   = Enum__Method.GET)              # this works
+        An_Class().http_method = "GET"
+        An_Class().http_method = Enum__Method.GET               # FIXED
+        An_Class(http_methods = ["GET"])                        # FIXED
+        An_Class(http_methods = [Enum__Method.GET])             # FIXED
+        An_Class(http_methods = ["GET", "POST"])                # FIXED
+        An_Class(http_methods = ["GET", Enum__Method.POST])     # FIXED
+
+        error_message_1 = "In Type_Safe__List: Invalid type for item: Expected 'Enum__Method', but got 'str'"
+        # with pytest.raises(TypeError, match=re.escape(error_message_1)):
+        #     An_Class(http_methods = ["GET"])
+
+        # with pytest.raises(TypeError, match=re.escape(error_message_1)):
+        #     An_Class().http_methods = ["GET"]                 # BUG: but this doesn't
+
+        with pytest.raises(TypeError, match=re.escape(error_message_1)):
+            An_Class(http_methods = ["get"])                  # ok since 'get' is not a valid value in Enum__Method
+
+        with pytest.raises(TypeError, match=re.escape(error_message_1)):
+            An_Class().http_methods = ["get"]                # ok since 'get' is not a valid value in Enum__Method
+
+        with pytest.raises(TypeError, match=re.escape(error_message_1)):
+            An_Class().http_methods = ["HEAD"]                # ok since 'HEAD' is not a valid value in Enum__Method
+
 
     def test__bug__in_type_safe__list__nested_conversion(self):
         class Schema__Model(Type_Safe):
