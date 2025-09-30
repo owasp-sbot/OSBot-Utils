@@ -13,6 +13,16 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         self.expected_key_type   = expected_key_type
         self.expected_value_type = expected_value_type
 
+    def __contains__(self, key):
+        if super().__contains__(key):                                       # First try direct lookup
+            return True
+
+        try:                                                                # Then try with type conversion
+            converted_key = self.try_convert(key, self.expected_key_type)
+            return super().__contains__(converted_key)
+        except (ValueError, TypeError):
+            return False
+
     def __getitem__(self, key):
         try:
             return super().__getitem__(key)                                     # First try direct lookup

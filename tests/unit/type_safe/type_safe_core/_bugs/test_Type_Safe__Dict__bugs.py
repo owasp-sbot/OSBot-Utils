@@ -1,8 +1,8 @@
 import re
 import pytest
-from typing import Dict, List, Any, Set
-from unittest                                                                     import TestCase
-from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
+from typing                             import Dict, List, Any
+from unittest                           import TestCase
+from osbot_utils.type_safe.Type_Safe    import Type_Safe
 
 class test_Type_Safe__Dict__bugs(TestCase):
 

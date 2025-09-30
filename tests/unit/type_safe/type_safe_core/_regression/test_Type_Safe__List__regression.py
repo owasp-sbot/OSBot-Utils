@@ -1,10 +1,10 @@
 import re
-
 import pytest
 from typing                                                             import List, Dict, Set, Tuple
 from unittest                                                           import TestCase
+from osbot_utils.type_safe.primitives.core.Safe_UInt                    import Safe_UInt
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_Str                import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Str                     import Safe_Str
 from osbot_utils.utils.Objects                                          import __
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
@@ -14,6 +14,32 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple  import T
 
 class test_Type_Safe__List__regression(TestCase):
 
+    def test__regression__obj__not_supported(self):
+        class An_Class(Type_Safe):
+            an_list__obj: List[object]
+
+        an_class = An_Class()
+        an_class.an_list__obj.append('a')
+        assert an_class.an_list__obj.json() == ['a']
+        # with pytest.raises(AttributeError, match= "Type_Safe__List' object has no attribute 'obj'"):
+        #     an_class.an_list__obj.obj()               # FIXED: BUG
+        assert an_class.an_list__obj.obj()   == ['a']   # FIXED:
+
+        # now that it is fixed, testing some more use cases
+        class An_Class_B(Type_Safe):
+            an_list    : List[An_Class]
+            some_ints  : List[int]
+            some_uints : List[Safe_UInt]
+
+        an_class_b = An_Class_B(an_list=[An_Class(an_list__obj=['a','b','c'])])
+        an_class_b.an_list.append(An_Class(an_list__obj=['d']))
+        an_class_b.some_ints.append(-42)
+        an_class_b.some_ints.extend([0, 42])
+        an_class_b.some_uints.append(42)
+        assert an_class_b.obj() == __(an_list   = [__(an_list__obj=['a', 'b', 'c']),
+                                                   __(an_list__obj=['d'          ])],
+                                      some_ints = [-42, 0, 42],
+                                      some_uints =[42])
     def test__regression__list_enums_assigment(self):
 
         from enum import Enum

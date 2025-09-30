@@ -1,5 +1,7 @@
 import types
 from typing                                                       import get_args, Union, Optional, Any, ForwardRef, Literal
+from osbot_utils.utils.Dev                                        import pprint
+from osbot_utils.utils.Objects                                    import obj
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id  import Obj_Id
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
 
@@ -130,6 +132,18 @@ class Type_Safe__Base:
 
         # Return original if no conversion possible
         return value
+
+    def json(self):
+        raise NotImplementedError                                                       # this needs to be implemented since this is specific to each Type_Safe__Base type of class (dict, set, list or tuple)
+
+    def print(self):
+        pprint(self.json())
+
+    def print_obj(self):
+        pprint(self.obj())
+
+    def obj(self):
+        return obj(self.json())
 
 # todo: see if we should/can move this to the Objects.py file
 def type_str(tp):

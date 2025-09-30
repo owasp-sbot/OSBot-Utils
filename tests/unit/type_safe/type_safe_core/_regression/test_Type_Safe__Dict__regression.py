@@ -1,8 +1,8 @@
-import re
-
 import pytest
 from unittest                                                                       import TestCase
 from typing                                                                         import Dict, Type, Set, Any, List
+from osbot_utils.type_safe.primitives.core.Safe_Int                                 import Safe_Int
+from osbot_fast_api.schemas.Safe_Str__Fast_API__Route__Tag                          import Safe_Str__Fast_API__Route__Tag
 from osbot_utils.testing.__                                                         import __
 from osbot_utils.type_safe.Type_Safe__Primitive                                     import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
@@ -15,6 +15,31 @@ from osbot_utils.type_safe.Type_Safe                                            
 
 
 class test_Type_Safe__Dict__regression(TestCase):
+
+    def test__regression__dict__in__doesnt_find_element(self):
+        class An_Class(Type_Safe):
+            an_dict : Dict[Safe_Str__Fast_API__Route__Tag, Safe_Int]
+
+        an_class_1 = An_Class(an_dict={Safe_Str__Fast_API__Route__Tag('an_tag'): 42})
+        assert an_class_1.obj ()                        == __(an_dict=__(an_tag=42))
+        assert an_class_1.json()                        != {'an_dict': {Safe_Str__Fast_API__Route__Tag('an_tag'): 42}}
+        assert an_class_1.json()                        == {'an_dict': {'an_tag': 42}}
+        assert Safe_Str__Fast_API__Route__Tag('an_tag') in an_class_1.an_dict
+
+
+        #error_message_2 = "assert 'an_tag' in {Safe_Str__Fast_API__Route__Tag('an_tag'): Safe_Int(42)}\n +  where {Safe_Str__Fast_API__Route__Tag('an_tag'): Safe_Int(42)}"
+        # with pytest.raises(AssertionError, match=re.escape(error_message_2)):
+        #     assert 'an_tag' in an_class_1.an_dict                                                        # FIXED BUG 1 - an_tag should have been converted to Safe_Str__Fast_API__Route__Tag and the 'in' check should had worked
+        assert 'an_tag' in an_class_1.an_dict                                                              # FIXED
+
+        assert Safe_Str__Fast_API__Route__Tag('an_tag') in an_class_1.an_dict
+
+        an_class_2 = An_Class(an_dict={'an_tag': 42})
+        assert an_class_2.obj ()                        == __(an_dict=__(an_tag=42))
+        assert an_class_2.json()                        == {'an_dict': {'an_tag': 42}}
+        #assert 'an_tag'                            not in an_class_2.an_dict                              # FIXED: BUG 2 - not working
+        assert 'an_tag'                                 in an_class_2.an_dict                              # FIXED
+        assert Safe_Str__Fast_API__Route__Tag('an_tag') in an_class_2.an_dict
 
     def test__regression__obj__not_supported(self):
         class An_Class(Type_Safe):
