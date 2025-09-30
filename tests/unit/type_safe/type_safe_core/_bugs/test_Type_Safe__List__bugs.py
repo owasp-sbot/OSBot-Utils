@@ -1,6 +1,3 @@
-import re
-
-import pytest
 from typing                                                           import List
 from unittest                                                         import TestCase
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
@@ -47,14 +44,3 @@ class test_Type_Safe__List__bugs(TestCase):
             }
         ]
         assert dict_list.json() != expected
-
-    def test__bug__obj__not_supported(self):
-        class An_Class(Type_Safe):
-            an_list__obj: List[object]
-
-        an_class = An_Class()
-        an_class.an_list__obj.append('a')
-        assert an_class.an_list__obj.json() == ['a']
-        with pytest.raises(AttributeError, match= "Type_Safe__List' object has no attribute 'obj'"):
-            an_class.an_list__obj.obj()           # BUG
-
