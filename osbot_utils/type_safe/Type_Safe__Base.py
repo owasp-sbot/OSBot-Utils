@@ -8,6 +8,7 @@ from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_sa
 EXACT_TYPE_MATCH = (int, float, str, bytes, bool, complex)
 
 class Type_Safe__Base:
+
     def is_instance_of_type(self, item, expected_type):
         if expected_type is Any:
             return True

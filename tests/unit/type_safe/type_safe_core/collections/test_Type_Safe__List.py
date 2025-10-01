@@ -642,3 +642,139 @@ class test_Type_Safe__List(TestCase):
         error_msg = r"In Type_Safe__List: Invalid type for item: Expected 'str', but got 'dict'"
         with pytest.raises(TypeError, match=error_msg):
             StrictSchema(strings=[{'not': 'a string'}])
+
+
+    def test__contains__with_type_safe_primitive(self):
+        # Test with Safe_Str type
+        safe_str_list = Type_Safe__List(Safe_Str)
+        safe_str_list.append(Safe_Str('hello'))
+        safe_str_list.append(Safe_Str('world'))
+
+        # Direct Safe_Str instance lookup
+        assert Safe_Str('hello') in safe_str_list
+        assert Safe_Str('world') in safe_str_list
+        assert Safe_Str('foo')   not in safe_str_list
+
+        # String primitive lookup (should be converted)
+        assert 'hello' in safe_str_list
+        assert 'world' in safe_str_list
+        assert 'foo'   not in safe_str_list
+
+    def test__contains__with_safe_int(self):
+        # Test with Safe_Int type
+        safe_int_list = Type_Safe__List(Safe_Int)
+        safe_int_list.append(Safe_Int(42))
+        safe_int_list.append(Safe_Int(100))
+
+        # Direct Safe_Int instance lookup
+        assert Safe_Int(42)  in safe_int_list
+        assert Safe_Int(100) in safe_int_list
+        assert Safe_Int(999) not in safe_int_list
+
+        # Integer primitive lookup (should be converted)
+        assert 42  in safe_int_list
+        assert 100 in safe_int_list
+        assert 999 not in safe_int_list
+
+        # String that can be converted to int
+        assert '42'  in safe_int_list
+        assert '100' in safe_int_list
+        assert '999' not in safe_int_list
+
+    def test__contains__with_regular_types(self):
+        # Test that regular types still work normally
+        string_list = Type_Safe__List(str)
+        string_list.append('hello')
+        string_list.append('world')
+
+        assert 'hello' in string_list
+        assert 'world' in string_list
+        assert 'foo'   not in string_list
+
+        # These should not be found (no conversion for regular types)
+        assert 123 not in string_list
+
+    def test__contains__with_enum(self):
+        from enum import Enum
+
+        class Color(Enum):
+            RED = 'red'
+            GREEN = 'green'
+            BLUE = 'blue'
+
+        color_list = Type_Safe__List(Color)
+        color_list.append(Color.RED)
+        color_list.append(Color.GREEN)
+
+        # Direct enum instance lookup
+        assert Color.RED   in color_list
+        assert Color.GREEN in color_list
+        assert Color.BLUE  not in color_list
+
+        # Lookup by enum name (string)
+        assert 'RED'   in color_list
+        assert 'GREEN' in color_list
+        assert 'BLUE'  not in color_list
+
+        # Lookup by enum value (string)
+        assert 'red'   in color_list
+        assert 'green' in color_list
+        assert 'blue'  not in color_list
+
+    def test__contains__with_int_enum(self):
+        from enum import Enum
+
+        class Status(Enum):
+            PENDING  = 1
+            APPROVED = 2
+            REJECTED = 3
+
+        status_list = Type_Safe__List(Status)
+        status_list.append(Status.PENDING)
+        status_list.append(Status.APPROVED)
+
+        # Direct enum instance lookup
+        assert Status.PENDING  in status_list
+        assert Status.APPROVED in status_list
+        assert Status.REJECTED not in status_list
+
+        # Lookup by enum name (string)
+        assert 'PENDING'  in status_list
+        assert 'APPROVED' in status_list
+        assert 'REJECTED' not in status_list
+
+        # Note: Integer values won't work with current implementation
+        # since we only handle string conversions for enums
+        assert 1 not in status_list  # This won't find Status.PENDING
+        assert 2 not in status_list  # This won't find Status.APPROVED
+
+    def test__contains__with_mixed_enum_values(self):
+        from enum import Enum
+
+        class MixedEnum(Enum):
+            ALPHA = 'a'
+            BETA = 'b'
+            ONE = 1
+            TWO = 2
+
+        mixed_list = Type_Safe__List(MixedEnum)
+        mixed_list.append(MixedEnum.ALPHA)
+        mixed_list.append(MixedEnum.ONE)
+
+        # Direct enum instance lookup
+        assert MixedEnum.ALPHA in mixed_list
+        assert MixedEnum.ONE   in mixed_list
+        assert MixedEnum.BETA  not in mixed_list
+        assert MixedEnum.TWO   not in mixed_list
+
+        # Lookup by enum name (string)
+        assert 'ALPHA' in mixed_list
+        assert 'ONE'   in mixed_list
+        assert 'BETA'  not in mixed_list
+
+        # Lookup by string value (only works for string-valued enums)
+        assert 'a' in mixed_list
+        assert 'b' not in mixed_list
+
+        # Integer values won't work with string conversion
+        assert 1 not in mixed_list  # Won't find MixedEnum.ONE

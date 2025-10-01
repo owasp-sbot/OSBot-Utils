@@ -12,6 +12,29 @@ class Type_Safe__List(Type_Safe__Base, list):
         super().__init__(*args)
         self.expected_type = expected_type
 
+    def __contains__(self, item):
+        if super().__contains__(item):                                                                                          # First try direct lookup
+            return True
+
+        if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe__Primitive):                           # Handle Type_Safe__Primitive conversions
+            try:
+                converted_item = self.expected_type(item)
+                return super().__contains__(converted_item)
+            except (ValueError, TypeError):
+                return False
+
+
+        if hasattr(self.expected_type, '__bases__') and any(base.__name__ == 'Enum' for base in self.expected_type.__bases__):  # Handle Enums (reusing logic from append)
+            if isinstance(item, str):
+                if item in self.expected_type.__members__:
+                    converted_item = self.expected_type[item]
+                    return super().__contains__(converted_item)
+                elif hasattr(self.expected_type, '_value2member_map_') and item in self.expected_type._value2member_map_:
+                    converted_item = self.expected_type._value2member_map_[item]
+                    return super().__contains__(converted_item)
+
+        return False
+
     def __repr__(self):
         expected_type_name = type_str(self.expected_type)
         return f"list[{expected_type_name}] with {len(self)} elements"
