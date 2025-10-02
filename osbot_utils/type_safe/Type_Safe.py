@@ -102,8 +102,11 @@ class Type_Safe:
 
     def print(self):
         from osbot_utils.utils.Dev import pprint
-
         pprint(serialize_to_dict(self))
+
+    def print_obj(self):
+        from osbot_utils.utils.Dev import pprint
+        pprint(self.obj())
 
     @classmethod
     def from_json(cls, json_data, raise_on_not_found=False):
