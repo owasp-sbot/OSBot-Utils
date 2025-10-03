@@ -7,6 +7,19 @@ class Type_Safe__Set(Type_Safe__Base, set):
         super().__init__(*args)
         self.expected_type = expected_type
 
+    def __contains__(self, item):
+        if super().__contains__(item):                                                                  # First try direct lookup
+            return True
+
+        if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe__Primitive):   # Handle Type_Safe__Primitive conversions
+            try:
+                converted_item = self.expected_type(item)
+                return super().__contains__(converted_item)
+            except (ValueError, TypeError):
+                return False
+
+        return False
+
     def __repr__(self):
         expected_type_name = type_str(self.expected_type)
         return f"set[{expected_type_name}] with {len(self)} elements"

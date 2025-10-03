@@ -88,6 +88,8 @@ class Type_Safe__Step__From_Json:
             return tuple(value)
 
     def handle_set_annotation(self, _self, key, value):                                     # Handle set type annotations.
+        if value is None:
+            return None
         attribute_annotation      = type_safe_annotations.obj_attribute_annotation(_self, key)
         attribute_annotation_args = get_args(attribute_annotation)
 
@@ -104,6 +106,8 @@ class Type_Safe__Step__From_Json:
         return set(value)
 
     def handle_list_annotation(self, _self, key, value):                                    # Handle list type annotations.
+        if value is None:  # <-- Add this check
+            return None
         attribute_annotation      = type_safe_annotations.obj_attribute_annotation(_self, key)
         attribute_annotation_args = get_args(attribute_annotation)
 

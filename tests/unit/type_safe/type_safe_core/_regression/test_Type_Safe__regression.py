@@ -3,9 +3,10 @@ import sys
 import pytest
 from enum                                                                          import Enum
 from decimal                                                                       import Decimal
-from typing                                                                        import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set
+from typing                                                                        import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set, Tuple
 from unittest                                                                      import TestCase
 from unittest.mock                                                                 import patch
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id    import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                   import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                     import Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Hash              import Random_Hash
@@ -39,6 +40,43 @@ class Type__With__Forward__Ref(Base__Type):
     pass
 
 class test_Type_Safe__regression(TestCase):
+
+
+    def test__regression__round_trip_of_none__in_list(self):
+        class An_Class(Type_Safe):
+            an_list: List[Safe_Str__Id] = None
+
+        assert An_Class().an_list is None
+        assert An_Class().json()                             == {'an_list': None}
+        assert An_Class().obj ()                             == __(an_list=None)
+        # assert An_Class.from_json(An_Class().json()).an_list is not None              # BUG
+        # assert An_Class.from_json({'an_list': None}).an_list is not None              # BUG
+        # assert An_Class.from_json({'an_list': None}).an_list == []                    # BUG
+        # assert An_Class.from_json({'an_list': None}).json()  == {'an_list': [] }      # BUG
+        # assert An_Class.from_json({'an_list': None}).obj()   == __(an_list=[]  )      # BUG
+        assert An_Class.from_json(An_Class().json()).an_list is None                    # FIXED: BUG
+        assert An_Class.from_json({'an_list': None}).an_list is None                    # FIXED: BUG
+        assert An_Class.from_json({'an_list': None}).an_list is None                    # FIXED: BUG
+        assert An_Class.from_json({'an_list': None}).json()  == {'an_list': None }      # FIXED: BUG
+        assert An_Class.from_json({'an_list': None}).obj()   == __(an_list=None  )      # FIXED: BUG
+
+        # checking the other types
+        class An_Class(Type_Safe):
+            an_dict : Dict [Safe_Str__Id, Safe_Str__Id] = None
+            an_list : List [Safe_Str__Id              ] = None
+            an_set  : Set  [Safe_Str__Id              ] = None
+            an_tuple: Tuple[Safe_Str__Id              ] = None
+
+        an_class_json = An_Class().json()
+        An_Class.from_json(an_class_json)
+        assert An_Class.from_json(an_class_json).json() == an_class_json
+
+        result = An_Class.from_json(an_class_json)
+        assert result.an_dict  is None
+        assert result.an_list  is None
+        assert result.an_set   is None
+        assert result.an_tuple is None
+        assert result.json() == an_class_json
 
     def test__regression__type_safe_step_init__issue_with_Dict_with_not_types(self):
         class An_Class(Type_Safe):
