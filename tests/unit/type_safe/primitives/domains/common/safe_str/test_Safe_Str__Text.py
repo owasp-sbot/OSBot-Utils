@@ -34,8 +34,8 @@ class test_Safe_Str__Text(TestCase):
         assert str(Safe_Str__Text('Price: $10 - $5 = $5')) == 'Price: _10 - _5 = _5'
 
         # Quotes and apostrophes
-        assert str(Safe_Str__Text("Don't forget"      )) == "Don_t forget"
-        assert str(Safe_Str__Text('"Hello," she said.')) == '_Hello,_ she said.'
+        assert str(Safe_Str__Text("Don't forget"      )) == "Don't forget"
+        assert str(Safe_Str__Text('"Hello," she said.')) == '"Hello," she said.'
 
         # Unicode characters (should be replaced)
         assert str(Safe_Str__Text('café')) == 'caf_'
@@ -43,7 +43,7 @@ class test_Safe_Str__Text(TestCase):
         assert str(Safe_Str__Text('naïve')) == 'na_ve'
 
         # HTML/Script tags (should be replaced)
-        assert str(Safe_Str__Text('<script>alert("XSS")</script>')) == '_script_alert(_XSS_)__script_'
+        assert str(Safe_Str__Text('<script>alert("XSS")</script>')) == '_script_alert("XSS")__script_'
         assert str(Safe_Str__Text('<b>Bold</b>'                   )) == '_b_Bold__b_'
 
         # Mixed valid/invalid content
@@ -58,7 +58,7 @@ class test_Safe_Str__Text(TestCase):
         # Security patterns
         assert str(Safe_Str__Text('../etc/passwd'                       )) == '.._etc_passwd'
         assert str(Safe_Str__Text('SELECT * FROM users | drop table'    )) == 'SELECT * FROM users _ drop table'
-        assert str(Safe_Str__Text("/bin/bash -c 'rm -rf /'"             )) == "_bin_bash -c _rm -rf __"
+        assert str(Safe_Str__Text("/bin/bash -c 'rm -rf /'"             )) == "_bin_bash -c 'rm -rf _'"
 
         # Edge cases: exceptions with specific error message checks
         Safe_Str__Text(None)
