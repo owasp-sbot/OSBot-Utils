@@ -17,8 +17,7 @@ class LLM_Request__Builder(Type_Safe):
 
     @type_safe
     def add_message(self, role    : Schema__LLM_Request__Message__Role,
-                          content : str = None
-                     ) -> Schema__LLM_Request__Message__Content:
+                          content : str = None                        ):
         if content:
             message = Schema__LLM_Request__Message__Content(role=role, content=content)
             self.llm_request_data.messages.append(message)
@@ -33,9 +32,8 @@ class LLM_Request__Builder(Type_Safe):
 
     @type_safe
     def set__function_call(self, parameters    : Type[Type_Safe],
-                                 function_name : str,
-                                 description   : str   = ''
-                            ) -> Schema__LLM_Request__Function_Call:
+                                 function_name : str            ,
+                                 description   : str   = ''     ):
         function_call = Schema__LLM_Request__Function_Call(parameters   = parameters,
                                                           function_name = function_name,
                                                           description   = description)

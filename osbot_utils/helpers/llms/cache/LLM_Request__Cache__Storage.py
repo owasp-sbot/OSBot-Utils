@@ -1,5 +1,5 @@
 import os
-from typing                                                                       import List, Optional
+from typing                                                                       import List, Optional, Union
 from osbot_utils.decorators.methods.cache_on_self                                 import cache_on_self
 from osbot_utils.helpers.llms.cache.Virtual_Storage__Local__Folder                import Virtual_Storage__Local__Folder
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Cache__Index                    import Schema__LLM_Cache__Index
@@ -16,8 +16,9 @@ class LLM_Request__Cache__Storage(Type_Safe):
     virtual_storage         : Virtual_Storage__Local__Folder
     index_file_name : str                                        = FILE_NAME__CACHE_INDEX
 
-    @type_safe
-    def delete__cache_entry(self, file_path : Safe_Str__File__Path) -> bool: # Delete cache entry from storage
+    @type_safe                                                                               # todo: bug: there should only be one return type
+    def delete__cache_entry(self, file_path : Safe_Str__File__Path
+                             ) -> Union[bool, dict]:                            # Delete cache entry from storage
         return self.virtual_storage.file__delete(self.path_file__cache_entry(file_path))
 
     def delete__cache_index(self):
@@ -69,15 +70,16 @@ class LLM_Request__Cache__Storage(Type_Safe):
                 cache_id__to__file_path[cache_id] = file_path
         return cache_id__to__file_path
 
-    @type_safe
-    def save__cache_index(self, cache_index : Schema__LLM_Cache__Index) -> bool:                           # Save cache index data
+    @type_safe                                                                               # todo: bug: there should only be one return type
+    def save__cache_index(self, cache_index : Schema__LLM_Cache__Index
+                           ) -> Union[bool, Safe_Str__File__Path]:                           # Save cache index data
         json_data =  cache_index.json()
         return self.virtual_storage.json__save(data=json_data, path=self.path_file__cache_index())
 
-    @type_safe
+    @type_safe                                                                               # todo: bug: there should only be one return type
     def save__cache_entry(self,file_path   : Safe_Str__File__Path,
                                cache_entry : Schema__LLM_Response__Cache
-                          ) -> bool:                                                        # Save cache entry to storage
+                          ) -> Union[bool, Safe_Str__File__Path]:                                                        # Save cache entry to storage
         full_file_path        = Safe_Str__File__Path(path_combine_safe(self.virtual_storage.path_folder__root_cache(), file_path))
         folder_full_file_path = parent_folder(full_file_path)
         json_data             = cache_entry.json()

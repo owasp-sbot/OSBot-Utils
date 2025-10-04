@@ -11,6 +11,49 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 
 class test_decorator__type_safe__regression(TestCase):
 
+    def test__regression__type_safe__doesnt_check_return_value(self):
+        @type_safe
+        def return_int__1() -> int:    return 42
+
+        @type_safe
+        def return_int__2() -> int:    return "42"
+
+        @type_safe
+        def return_int__3() -> int:    return ['42']
+
+        @type_safe
+        def return_str__1() -> str:     return 42
+
+        @type_safe
+        def return_str__2() -> str:     return "42"
+
+        @type_safe
+        def return_str__3() -> str:     return ["42"]
+
+        assert return_int__1() == 42                        # OK
+        #assert return_int__2() == "42"                      # BUG
+        #assert return_int__3() == ["42"]                    # BUG
+        #assert return_str__1() == 42                        # BUG
+        assert return_str__2() == "42"                      # OK
+        #assert return_str__3() == ["42"]                    # BUG
+
+        type_path = 'test_decorator__type_safe__regression.test__regression__type_safe__doesnt_check_return_value.<locals>'
+        error_message_1 = f"Function '{type_path}.return_int__2' return type validation failed: Expected 'int', but got 'str'"
+        with pytest.raises(TypeError, match=re.escape(error_message_1)):
+            return_int__2()                                     # FIXED
+
+        error_message_2 = f"Function '{type_path}.return_int__3' return type validation failed: Expected 'int', but got 'list'"
+        with pytest.raises(TypeError, match=error_message_2):
+            return_int__3()                                     # FIXED
+
+        error_message_3 = f"Function '{type_path}.return_str__1' return type validation failed: Expected 'str', but got 'int'"
+        with pytest.raises(TypeError, match=error_message_3):
+            return_str__1()                                     # FIXED
+
+        error_message_4 = f"Function '{type_path}.return_str__3' return type validation failed: Expected 'str', but got 'list'"
+        with pytest.raises(TypeError, match=error_message_4):
+            return_str__3()                                     # FIXED
+
     def test__regression__decorator__type_safe__casts_into_str_instead_if_safe_int(self):
         from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
         @type_safe

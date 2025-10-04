@@ -16,7 +16,7 @@ class LLM_Request__Factory(Type_Safe):                              # Factory cl
                                          user_message : str                                 ,   # User message content
                                          system_prompt: str                          = None ,   # Optional system prompt
                                          temperature  : Safe_Float__LLM__Temperature = None     # Temperature
-                                   )  -> Schema__LLM_Request__Data:                             # Create a simple chat request with optional system prompt.
+                                   ):                                                           # Create a simple chat request with optional system prompt.
 
         with self.request_builder as _:
             _.llm_request_data.model       = model
@@ -38,7 +38,7 @@ class LLM_Request__Factory(Type_Safe):                              # Factory cl
                                               user_message   : str                  ,                # User message
                                               system_prompt  : str                          = None , # Optional system prompt
                                               temperature    : Safe_Float__LLM__Temperature = None   # Temperature
-                                         ) -> Schema__LLM_Request__Data:                             # Create a request that uses function calling with the specified schema.
+                                         ):                                                          # Create a request that uses function calling with the specified schema.
 
         with self.request_builder as _:
             _.set__function_call(parameters    = parameters,  # Create the function call

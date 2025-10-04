@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from typing                                                                    import List, Dict, Callable
 from unittest                                                                  import TestCase
@@ -6,6 +8,15 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                 i
 
 
 class test__decorator__type_safe__bugs(TestCase):
+
+    def test__bug__type_safe__return_value__not_works__with_forward_refs(self):
+        class An_Class(Type_Safe):
+            @type_safe
+            def return_self(self) ->'An_Class':
+                return self
+        error_message = "Function 'test__decorator__type_safe__bugs.test__bug__type_safe__return_value__not_works__with_forward_refs.<locals>.An_Class.return_self' return type validation failed: isinstance() arg 2 must be a type, a tuple of types, or a union"
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            An_Class().return_self()
 
     def test__bug__type_safe__list_callable_with_signatures(self):
 

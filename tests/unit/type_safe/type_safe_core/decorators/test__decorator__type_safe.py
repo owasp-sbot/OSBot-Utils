@@ -348,6 +348,195 @@ class test__decorator__type_safe(TestCase):
         with pytest.raises(ValueError, match="List item at index 0 expected callable but got <class '.*NonCallableClass'>"):
             process_with_transforms(transformations=[non_callable_instance])         # Non-callable class instance fails
 
+    def test_return_type_validation__basic_types(self):
+        """Test that return type annotations are validated"""
+
+        @type_safe
+        def return_int() -> int:
+            return 42
+
+        @type_safe
+        def return_str() -> str:
+            return "hello"
+
+        @type_safe
+        def return_wrong_type() -> int:
+            return "not an int"
+
+        # Valid cases
+        assert return_int() == 42
+        assert return_str() == "hello"
+
+        # Invalid case
+        with pytest.raises(TypeError, match="return type validation failed"):
+            return_wrong_type()
+
+    def test_return_type_validation__type_safe_primitives(self):
+        """Test return type validation with Type_Safe primitives"""
+
+        @type_safe
+        def return_safe_id() -> Safe_Id:
+            return Safe_Id("test")
+
+        @type_safe
+        def return_wrong_primitive() -> Safe_Id:
+            return "not a safe_id"
+
+        assert type(return_safe_id()) is Safe_Id
+
+        with pytest.raises(TypeError, match="return type validation failed"):
+            return_wrong_primitive()
+
+    def test_return_type_validation__optional(self):
+        """Test return type validation with Optional types"""
+
+        @type_safe
+        def return_optional_int(value: bool) -> Optional[int]:
+            return 42 if value else None
+
+        @type_safe
+        def return_optional_wrong(value: bool) -> Optional[int]:
+            return "string" if value else None
+
+        assert return_optional_int(True) == 42
+        assert return_optional_int(False) is None
+
+        with pytest.raises(TypeError, match="return type validation failed"):
+            return_optional_wrong(True)
+
+    def test_return_type_validation__union(self):
+        """Test return type validation with Union types"""
+
+        @type_safe
+        def return_union(which: str) -> Union[int, str]:
+            return 42 if which == "int" else "hello"
+
+        @type_safe
+        def return_union_wrong() -> Union[int, str]:
+            return []
+
+        assert return_union("int") == 42
+        assert return_union("str") == "hello"
+
+        with pytest.raises(TypeError, match="return type validation failed"):
+            return_union_wrong()
+
+    def test_return_type_validation__list(self):
+        """Test return type validation with List types"""
+
+        @type_safe
+        def return_list_int() -> List[int]:
+            return [1, 2, 3]
+
+        @type_safe
+        def return_list_wrong() -> List[int]:
+            return [1, "two", 3]
+
+        assert return_list_int() == [1, 2, 3]
+
+        with pytest.raises(TypeError, match="return type validation failed"):
+            return_list_wrong()
+
+
+    def test_return_type_validation__inheritance(self):
+        """Test that return type validation supports inheritance"""
+
+        class Base(Type_Safe):
+            name: str
+
+        class Derived(Base):
+            value: int
+
+        @type_safe
+        def return_base() -> Base:
+            return Derived()  # Should be valid due to inheritance
+
+        result = return_base()
+        assert isinstance(result, Base)
+        assert isinstance(result, Derived)
+
+    def test_return_type_validation__complex_generics(self):
+        """Test return type validation with Dict and other complex generics"""
+        from typing import Dict
+
+        @type_safe
+        def return_dict() -> Dict[str, int]:
+            return {"a": 1, "b": 2}
+
+        @type_safe
+        def return_dict_wrong_key() -> Dict[str, int]:
+            return {1: 1, 2: 2}
+
+        @type_safe
+        def return_dict_wrong_value() -> Dict[str, int]:
+            return {"a": "one", "b": "two"}
+
+        assert return_dict() == {"a": 1, "b": 2}
+
+        with pytest.raises(TypeError, match="return type validation failed"):
+            return_dict_wrong_key()
+
+        with pytest.raises(TypeError, match="return type validation failed"):
+            return_dict_wrong_value()
+
+
+    def test_return_type_validation__type_safe_objects(self):
+        """Test return type validation with Type_Safe class instances"""
+
+        class MyClass(Type_Safe):
+            value: str
+
+        @type_safe
+        def return_type_safe() -> MyClass:
+            return MyClass(value="test")
+
+        @type_safe
+        def return_wrong_type_safe() -> MyClass:
+            return ComplexType(id="test", value=42)
+
+        result = return_type_safe()
+        assert type(result) is MyClass
+        assert result.value == "test"
+
+        with pytest.raises(TypeError, match="return type validation failed"):
+            return_wrong_type_safe()
+
+    def test_return_type_no_annotation(self):
+        """Test that functions without return type annotations work normally"""
+
+        @type_safe
+        def no_return_annotation(x: int):
+            return "anything"
+
+        # Should not raise - no return type to validate
+        assert no_return_annotation(42) == "anything"
+        assert no_return_annotation(1) == "anything"
+
+    def test_return_type_validation__with_parameters(self):
+        """Test return type validation works correctly with parameter validation"""
+
+        @type_safe
+        def process(value: int) -> str:
+            return str(value)
+
+        @type_safe
+        def process_wrong(value: int) -> str:
+            return value  # Returns int instead of str
+
+        assert process(42) == "42"
+
+        # Should fail on return type
+        with pytest.raises(TypeError, match="return type validation failed"):
+            process_wrong(42)
+
+        # Should fail on parameter type
+        with pytest.raises(ValueError, match="Parameter 'value' expected type"):
+            process("not an int")
+
+
+
+
+
 
 # Test Support Classes
 @dataclass
