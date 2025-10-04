@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/getting-started/safe-primitives-configuration-reference/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Safe Primitives Configuration Reference - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Safe Primitives Configuration Reference";
+        var mkdocs_page_input_path = "type_safe/getting-started/safe-primitives-configuration-reference.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/getting-started/safe-primitives-configuration-reference/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Safe Primitives Configuration Reference</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="safe-primitives-configuration-reference">Safe Primitives Configuration Reference<a class="headerlink" href="#safe-primitives-configuration-reference" title="Permanent link">&para;</a></h1>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>The OSBot-Utils Safe Primitives library provides a comprehensive set of type-safe wrappers around Python's built-in types (<code>str</code>, <code>int</code>, <code>float</code>). Each primitive class is designed with specific validation rules, sanitization patterns, and domain constraints that make them suitable for particular use cases in production applications.</p>
+<p>This reference guide provides a complete overview of all configuration options and validation rules for each Safe Primitive class, extracted directly from the source code. Understanding these properties is essential for:</p>
+<ul>
+<li><strong>Choosing the right primitive</strong> for your specific use case</li>
+<li><strong>Understanding validation behavior</strong> and what values will be accepted or rejected  </li>
+<li><strong>Debugging issues</strong> when values are transformed or validation fails</li>
+<li><strong>Extending the library</strong> with your own domain-specific primitives</li>
+</ul>
+<h3 id="how-to-read-these-tables">How to Read These Tables<a class="headerlink" href="#how-to-read-these-tables" title="Permanent link">&para;</a></h3>
+<p>Each primitive type has specific configuration properties that control its behavior:</p>
+<ul>
+<li><strong>Max Length</strong>: Maximum allowed length for string values (where applicable)</li>
+<li><strong>Regex</strong>: Regular expression pattern used for validation or sanitization</li>
+<li><strong>Regex Mode</strong>: How the regex is applied - <code>REPLACE</code> (sanitize) or <code>MATCH</code> (validate)</li>
+<li><strong>Allow Empty/None</strong>: Whether empty strings or None values are permitted</li>
+<li><strong>Strict Validation</strong>: Whether invalid input raises an error (strict) or gets sanitized (non-strict)</li>
+<li><strong>Min/Max Value</strong>: Numeric range constraints for integer and float types</li>
+<li><strong>Decimal Places</strong>: Precision control for floating-point operations</li>
+<li><strong>Use Decimal</strong>: Whether to use Python's <code>Decimal</code> class for exact arithmetic (vs binary float)</li>
+</ul>
+<h3 id="key-patterns-to-note">Key Patterns to Note<a class="headerlink" href="#key-patterns-to-note" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Sanitization vs Validation</strong>: Most string primitives use <code>REPLACE</code> mode to sanitize input, while cryptographic types use <code>MATCH</code> mode with strict validation</li>
+<li><strong>Domain-Specific Constraints</strong>: Each primitive encodes domain knowledge (e.g., <code>Safe_UInt__Port</code> enforces 0-65535 range)</li>
+<li><strong>Security by Default</strong>: Dangerous characters are automatically removed or rejected based on the context</li>
+<li><strong>Performance vs Precision Trade-offs</strong>: Financial types use <code>Decimal</code> for exactness, while engineering types use binary floats for performance</li>
+</ol>
+<p>The tables below provide the complete configuration for every Safe Primitive class in the library, organized by category.</p>
+<h3 id="1-safe_str-based-primitives">1) Safe_Str-based primitives<a class="headerlink" href="#1-safe_str-based-primitives" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th style="text-align: right;">Max Length</th>
+<th>Regex</th>
+<th>Regex Mode</th>
+<th style="text-align: center;">Allow Empty</th>
+<th style="text-align: center;">Strict Validation</th>
+<th>Notes</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Safe_Str</td>
+<td style="text-align: right;">512</td>
+<td>[^a-zA-Z0-9]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td>Base defaults</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__File__Name</td>
+<td style="text-align: right;">512</td>
+<td>[^a-zA-Z0-9_-. ]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td>Filename-safe chars</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__File__Path</td>
+<td style="text-align: right;">1024</td>
+<td>[^a-zA-Z0-9_-./\ ]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td>Allows / and \</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Url</td>
+<td style="text-align: right;">2048</td>
+<td>\^(?!https?://).*</td>
+<td>[^a-zA-Z0-9:/-._\~&amp;=?#+%@]\</td>
+<td style="text-align: center;">REPLACE</td>
+<td style="text-align: center;">✅</td>
+<td>❌</td>
+<td>Pattern blocks raw text starting without http(s):// segment and filters invalid chars</td>
+</tr>
+<tr>
+<td>Safe_Str__IP_Address</td>
+<td style="text-align: right;">—</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">—</td>
+<td>Validated via ipaddress.ip_address() (IPv4/IPv6)</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Http__Content_Type</td>
+<td style="text-align: right;">256</td>
+<td>[^a-zA-Z0-9/-+.;= ]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td>MIME-like tokens</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Http__ETag</td>
+<td style="text-align: right;">128</td>
+<td>[^a-zA-Z0-9"\/-_.:]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td>Allows quoted, weak ETags</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Http__Last_Modified</td>
+<td style="text-align: right;">64</td>
+<td>[^a-zA-Z0-9:, -]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td>Date-ish header text</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Http__Text</td>
+<td style="text-align: right;">1048576</td>
+<td>[\x00\x01-\x08\x0B\x0C\x0E-\x1F\x7F]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td>Removes control chars; normalizes newlines</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Html</td>
+<td style="text-align: right;">1048576</td>
+<td>[\x00\x01-\x08\x0B\x0C\x0E-\x1F]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td>Minimal filtering for HTML</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Hash</td>
+<td style="text-align: right;">10</td>
+<td>[^a-fA-F0-9]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>Exactly 10 hex chars (via exact_length=True)</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__SHA1</td>
+<td style="text-align: right;">40</td>
+<td>^[a-fA-F0-9]{40}$</td>
+<td>MATCH</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>Full SHA-1</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__SHA1__Short</td>
+<td style="text-align: right;">7</td>
+<td>^[a-fA-F0-9]{7}$</td>
+<td>MATCH</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>Short SHA</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__NaCl__Private_Key</td>
+<td style="text-align: right;">64</td>
+<td>^[a-fA-F0-9]{64}$</td>
+<td>MATCH</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>32-byte key as 64 hex</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__NaCl__Public_Key</td>
+<td style="text-align: right;">64</td>
+<td>^[a-fA-F0-9]{64}$</td>
+<td>MATCH</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>32-byte key as 64 hex</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Git__Ref_Base</td>
+<td style="text-align: right;">255</td>
+<td>[\x00-\x1f\x7f ~^:?*[]\]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td>Also enforces git ref rules (no .., @{}, etc.)</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Git__Branch</td>
+<td style="text-align: right;">255</td>
+<td>[\x00-\x1f\x7f ~^:?*[]\]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td>Plus: cannot start with -</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Git__Tag</td>
+<td style="text-align: right;">255</td>
+<td>[\x00-\x1f\x7f ~^:?*[]\]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td>Tag = same ref rules</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Git__Ref</td>
+<td style="text-align: right;">255</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">—</td>
+<td>Accepts if any of: SHA1, short SHA, valid branch, or tag</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__Version</td>
+<td style="text-align: right;">12</td>
+<td>^v(\d{1,3}).(\d{1,3}).(\d{1,3})$</td>
+<td>MATCH</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>Versions like v1.2.3</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__GitHub__Repo</td>
+<td style="text-align: right;">140</td>
+<td>[^a-zA-Z0-9-_./]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td>Must be owner/repo; each part further validated</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__GitHub__Repo_Name</td>
+<td style="text-align: right;">100</td>
+<td>[^a-zA-Z0-9-_.]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td>Extra guards against ./.. names</td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Str__GitHub__Repo_Owner</td>
+<td style="text-align: right;">39</td>
+<td>[^a-zA-Z0-9-]</td>
+<td>REPLACE</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td>No leading/trailing or double hyphens</td>
+<td></td>
+</tr>
+<tr>
+<td>---</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>### 2) Safe_Int / Safe_UInt primitives</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Class</td>
+<td style="text-align: right;">Min Value</td>
+<td>Max Value</td>
+<td>Allow None</td>
+<td style="text-align: center;">Allow Bool</td>
+<td style="text-align: center;">Allow Str</td>
+<td>Strict Type</td>
+<td>Notes</td>
+</tr>
+<tr>
+<td>-----------------------</td>
+<td style="text-align: right;">--------:</td>
+<td>--------:</td>
+<td>:--------:</td>
+<td style="text-align: center;">:--------:</td>
+<td style="text-align: center;">:-------:</td>
+<td>:---------:</td>
+<td>---------------------------------------</td>
+</tr>
+<tr>
+<td>Safe_Int</td>
+<td style="text-align: right;">—</td>
+<td>—</td>
+<td>✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>❌</td>
+<td>Converts str → int; range checks if set</td>
+</tr>
+<tr>
+<td>Safe_UInt</td>
+<td style="text-align: right;">0</td>
+<td>—</td>
+<td>✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>❌</td>
+<td>Unsigned base</td>
+</tr>
+<tr>
+<td>Safe_UInt__Byte</td>
+<td style="text-align: right;">0</td>
+<td>255</td>
+<td>✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>❌</td>
+<td>1-byte range</td>
+</tr>
+<tr>
+<td>Safe_UInt__Port</td>
+<td style="text-align: right;">0</td>
+<td>65535</td>
+<td>❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>❌</td>
+<td>Disallows None; standard port range</td>
+</tr>
+<tr>
+<td>Safe_UInt__FileSize</td>
+<td style="text-align: right;">0</td>
+<td>2^63−1</td>
+<td>✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>❌</td>
+<td>Has .to_kb()/.to_mb()/.to_gb()</td>
+</tr>
+<tr>
+<td>Safe_UInt__Percentage</td>
+<td style="text-align: right;">0</td>
+<td>100</td>
+<td>✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td>❌</td>
+<td>Percent 0–100</td>
+</tr>
+<tr>
+<td>---</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>### 3) Safe_Float primitives</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Class</td>
+<td style="text-align: right;">Min Value</td>
+<td>Max Value</td>
+<td>Decimal Places</td>
+<td style="text-align: center;">Use Decimal</td>
+<td style="text-align: center;">Epsilon</td>
+<td>Round Output</td>
+<td>Clamp To Range</td>
+</tr>
+<tr>
+<td>------------------------------</td>
+<td style="text-align: right;">--------:</td>
+<td>--------:</td>
+<td>-------------:</td>
+<td style="text-align: center;">:---------:</td>
+<td style="text-align: center;">------:</td>
+<td>:----------:</td>
+<td>:------------:</td>
+</tr>
+<tr>
+<td>Safe_Float</td>
+<td style="text-align: right;">—</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">1e-9</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Safe_Float__Money</td>
+<td style="text-align: right;">0.0</td>
+<td>—</td>
+<td>2</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">1e-9</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Safe_Float__Percentage_Exact</td>
+<td style="text-align: right;">0.0</td>
+<td>100.0</td>
+<td>2</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">1e-9</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Safe_Float__Engineering</td>
+<td style="text-align: right;">—</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">1e-6</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>---</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>### 4) Identifiers / Misc</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Class</td>
+<td style="text-align: right;">Max Length</td>
+<td>Validation / Behavior</td>
+<td>Notes</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>-------------------</td>
+<td style="text-align: right;">---------:</td>
+<td>-------------------------------------------------</td>
+<td>---------------------------------------</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Safe_Id</td>
+<td style="text-align: right;">512</td>
+<td>Sanitized via safe_id() ([^a-zA-Z0-9_-])</td>
+<td>Auto-generates safe ID if none provided</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Guid</td>
+<td style="text-align: right;">—</td>
+<td>If string is GUID → keep; else UUID5 in namespace</td>
+<td>Deterministic for same input</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Random_Guid</td>
+<td style="text-align: right;">—</td>
+<td>Requires valid GUID; generates if none</td>
+<td>Uses random_guid()</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Random_Guid_Short</td>
+<td style="text-align: right;">—</td>
+<td>Short ID generator</td>
+<td>Uses random_guid_short()</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Timestamp_Now</td>
+<td style="text-align: right;">—</td>
+<td>Current Unix timestamp if none</td>
+<td>Inherits int</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>---</td>
+<td style="text-align: right;"></td>
+<td></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

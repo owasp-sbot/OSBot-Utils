@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/schemas/Schema__Html_Node/" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>Schema__Html_Node - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Schema__Html_Node";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/schemas/Schema__Html_Node.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/schemas/Schema__Html_Node/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Schema__Html_Node</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="schema__html_node">Schema__Html_Node<a class="headerlink" href="#schema__html_node" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Schema__Html_Node</code> represents an HTML element in the type-safe schema system. It separates child elements and text content into distinct lists with position tracking, solving the Union type serialization challenge while maintaining document structure.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Schema__Html_Node(Type_Safe):
+    attrs       : Dict[str, Optional[str]]     # HTML attributes
+    child_nodes : List['Schema__Html_Node']    # Element nodes only
+    text_nodes  : List['Schema__Html_Node__Data']  # Text nodes only  
+    tag         : str                          # HTML tag name
+    position    : int = -1                     # Position in parent (-1 for root)
+</code></pre>
+<h2 id="design-rationale">Design Rationale<a class="headerlink" href="#design-rationale" title="Permanent link">&para;</a></h2>
+<p>The separation of <code>child_nodes</code> and <code>text_nodes</code> addresses several challenges:</p>
+<ol>
+<li><strong>Type Safety</strong>: Eliminates <code>Union</code> types that cause serialization issues</li>
+<li><strong>Clear Semantics</strong>: Explicitly distinguishes elements from text</li>
+<li><strong>Position Tracking</strong>: Maintains original order through position fields</li>
+<li><strong>Clean Serialization</strong>: Each list has a single, known type</li>
+</ol>
+<h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
+<h3 id="attrs"><code>attrs</code><a class="headerlink" href="#attrs" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>Dict[str, Optional[str]]</code></li>
+<li><strong>Purpose</strong>: Stores HTML attributes</li>
+<li><strong>Examples</strong>: <code>{'class': 'container', 'id': 'main'}</code></li>
+<li><strong>Note</strong>: <code>None</code> values represent boolean attributes</li>
+</ul>
+<h3 id="child_nodes"><code>child_nodes</code><a class="headerlink" href="#child_nodes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>List[Schema__Html_Node]</code></li>
+<li><strong>Purpose</strong>: Contains only element children</li>
+<li><strong>Ordering</strong>: Use position field to maintain order with text nodes</li>
+</ul>
+<h3 id="text_nodes"><code>text_nodes</code><a class="headerlink" href="#text_nodes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>List[Schema__Html_Node__Data]</code></li>
+<li><strong>Purpose</strong>: Contains only text content</li>
+<li><strong>Ordering</strong>: Use position field for placement among elements</li>
+</ul>
+<h3 id="tag"><code>tag</code><a class="headerlink" href="#tag" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Purpose</strong>: HTML element name</li>
+<li><strong>Examples</strong>: <code>'div'</code>, <code>'p'</code>, <code>'span'</code></li>
+</ul>
+<h3 id="position"><code>position</code><a class="headerlink" href="#position" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Default</strong>: <code>-1</code> (for root nodes)</li>
+<li><strong>Purpose</strong>: Maintains node order within parent</li>
+<li><strong>Range</strong>: 0 to n-1 for n children</li>
+</ul>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="creating-element-nodes">Creating Element Nodes<a class="headerlink" href="#creating-element-nodes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.schemas.Schema__Html_Node import Schema__Html_Node
+from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data import Schema__Html_Node__Data
+
+# Simple element
+div_node = Schema__Html_Node(
+    tag='div',
+    attrs={'class': 'container'},
+    child_nodes=[],
+    text_nodes=[],
+    position=0
+)
+
+# Element with text
+p_node = Schema__Html_Node(
+    tag='p',
+    attrs={},
+    text_nodes=[
+        Schema__Html_Node__Data(data='Hello World', position=0)
+    ],
+    child_nodes=[],
+    position=0
+)
+</code></pre>
+<h3 id="mixed-content-example">Mixed Content Example<a class="headerlink" href="#mixed-content-example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># HTML: &lt;p&gt;Hello &lt;strong&gt;World&lt;/strong&gt;!&lt;/p&gt;
+
+# Create text nodes
+text1 = Schema__Html_Node__Data(data='Hello ', position=0)
+text2 = Schema__Html_Node__Data(data='!', position=2)
+
+# Create strong element
+strong_text = Schema__Html_Node__Data(data='World', position=0)
+strong_node = Schema__Html_Node(
+    tag='strong',
+    text_nodes=[strong_text],
+    child_nodes=[],
+    position=1
+)
+
+# Create paragraph with mixed content
+p_node = Schema__Html_Node(
+    tag='p',
+    text_nodes=[text1, text2],
+    child_nodes=[strong_node],
+    position=0
+)
+</code></pre>
+<h3 id="nested-structure">Nested Structure<a class="headerlink" href="#nested-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Create nested structure: &lt;div&gt;&lt;ul&gt;&lt;li&gt;Item&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
+
+# List item
+li_text = Schema__Html_Node__Data(data='Item', position=0)
+li_node = Schema__Html_Node(
+    tag='li',
+    text_nodes=[li_text],
+    child_nodes=[],
+    position=0
+)
+
+# Unordered list
+ul_node = Schema__Html_Node(
+    tag='ul',
+    child_nodes=[li_node],
+    text_nodes=[],
+    position=0
+)
+
+# Container div
+div_node = Schema__Html_Node(
+    tag='div',
+    child_nodes=[ul_node],
+    text_nodes=[],
+    position=-1  # Root node
+)
+</code></pre>
+<h2 id="position-management">Position Management<a class="headerlink" href="#position-management" title="Permanent link">&para;</a></h2>
+<h3 id="understanding-positions">Understanding Positions<a class="headerlink" href="#understanding-positions" title="Permanent link">&para;</a></h3>
+<p>Positions are relative to the parent node and include both text and element children:</p>
+<pre><code class="language-python"># HTML: &lt;div&gt;A&lt;p&gt;B&lt;/p&gt;C&lt;span&gt;D&lt;/span&gt;E&lt;/div&gt;
+# Positions: A=0, p=1, C=2, span=3, E=4
+
+div_node = Schema__Html_Node(
+    tag='div',
+    text_nodes=[
+        Schema__Html_Node__Data(data='A', position=0),
+        Schema__Html_Node__Data(data='C', position=2),
+        Schema__Html_Node__Data(data='E', position=4)
+    ],
+    child_nodes=[
+        Schema__Html_Node(tag='p', position=1, ...),
+        Schema__Html_Node(tag='span', position=3, ...)
+    ]
+)
+</code></pre>
+<h3 id="reconstructing-order">Reconstructing Order<a class="headerlink" href="#reconstructing-order" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def get_ordered_content(node):
+    &quot;&quot;&quot;Get all children in position order.&quot;&quot;&quot;
+    all_content = []
+
+    # Add text nodes
+    for text in node.text_nodes:
+        all_content.append((text.position, 'text', text))
+
+    # Add child nodes
+    for child in node.child_nodes:
+        all_content.append((child.position, 'child', child))
+
+    # Sort by position
+    all_content.sort(key=lambda x: x[0])
+
+    return all_content
+</code></pre>
+<h2 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">&para;</a></h2>
+<h3 id="json-representation">JSON Representation<a class="headerlink" href="#json-representation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">node = Schema__Html_Node(
+    tag='div',
+    attrs={'id': 'main'},
+    position=0
+)
+
+json_data = node.json()
+# {
+#     &quot;tag&quot;: &quot;div&quot;,
+#     &quot;attrs&quot;: {&quot;id&quot;: &quot;main&quot;},
+#     &quot;child_nodes&quot;: [],
+#     &quot;text_nodes&quot;: [],
+#     &quot;position&quot;: 0
+# }
+
+# Deserialize
+restored = Schema__Html_Node.from_json(json_data)
+</code></pre>
+<h3 id="deep-serialization">Deep Serialization<a class="headerlink" href="#deep-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Complex structure serialization
+root = create_complex_structure()
+json_data = root.json()
+
+# Save to file
+with open('structure.json', 'w') as f:
+    json.dump(json_data, f, indent=2)
+
+# Load and restore
+with open('structure.json', 'r') as f:
+    data = json.load(f)
+    restored = Schema__Html_Node.from_json(data)
+</code></pre>
+<h2 id="common-operations">Common Operations<a class="headerlink" href="#common-operations" title="Permanent link">&para;</a></h2>
+<h3 id="finding-nodes">Finding Nodes<a class="headerlink" href="#finding-nodes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def find_by_tag(node, tag_name):
+    &quot;&quot;&quot;Find all nodes with specific tag.&quot;&quot;&quot;
+    results = []
+
+    if node.tag == tag_name:
+        results.append(node)
+
+    for child in node.child_nodes:
+        results.extend(find_by_tag(child, tag_name))
+
+    return results
+</code></pre>
+<h3 id="modifying-attributes">Modifying Attributes<a class="headerlink" href="#modifying-attributes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def add_class(node, class_name):
+    &quot;&quot;&quot;Add a CSS class to the node.&quot;&quot;&quot;
+    current_class = node.attrs.get('class', '')
+    if current_class:
+        node.attrs['class'] = f&quot;{current_class} {class_name}&quot;
+    else:
+        node.attrs['class'] = class_name
+</code></pre>
+<h3 id="extracting-text">Extracting Text<a class="headerlink" href="#extracting-text" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def get_text_content(node):
+    &quot;&quot;&quot;Extract all text content from node and children.&quot;&quot;&quot;
+    texts = []
+
+    # Get direct text nodes in order
+    ordered = get_ordered_content(node)
+
+    for pos, type_, content in ordered:
+        if type_ == 'text':
+            texts.append(content.data)
+        else:  # child node
+            texts.append(get_text_content(content))
+
+    return ''.join(texts)
+</code></pre>
+<h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
+<h3 id="structure-validation">Structure Validation<a class="headerlink" href="#structure-validation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def validate_node(node):
+    &quot;&quot;&quot;Validate node structure.&quot;&quot;&quot;
+    errors = []
+
+    # Check required fields
+    if not node.tag:
+        errors.append(&quot;Missing tag name&quot;)
+
+    # Check position conflicts
+    positions = []
+    for child in node.child_nodes:
+        positions.append(('child', child.position))
+    for text in node.text_nodes:
+        positions.append(('text', text.position))
+
+    # Check for duplicates
+    position_values = [p[1] for p in positions]
+    if len(position_values) != len(set(position_values)):
+        errors.append(&quot;Duplicate positions found&quot;)
+
+    # Validate children recursively
+    for child in node.child_nodes:
+        errors.extend(validate_node(child))
+
+    return errors
+</code></pre>
+<h3 id="position-normalization">Position Normalization<a class="headerlink" href="#position-normalization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def normalize_positions(node):
+    &quot;&quot;&quot;Ensure positions are sequential from 0.&quot;&quot;&quot;
+    # Collect all children with positions
+    all_children = []
+    for child in node.child_nodes:
+        all_children.append(('child', child.position, child))
+    for text in node.text_nodes:
+        all_children.append(('text', text.position, text))
+
+    # Sort by current position
+    all_children.sort(key=lambda x: x[1])
+
+    # Reassign sequential positions
+    for i, (type_, _, child) in enumerate(all_children):
+        child.position = i
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Memory Usage</strong>: Each node stores references to children</li>
+<li><strong>Deep Nesting</strong>: Very deep structures may hit recursion limits</li>
+<li><strong>Large Documents</strong>: Consider streaming for very large HTML</li>
+<li><strong>Position Lookups</strong>: O(n) to find nodes by position</li>
+</ol>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Always Set Positions</strong>: Ensure all nodes have valid positions</li>
+<li><strong>Validate Structure</strong>: Check for position conflicts</li>
+<li><strong>Use Type Hints</strong>: Leverage type safety in your code</li>
+<li><strong>Handle Deep Recursion</strong>: Add depth limits for safety</li>
+<li><strong>Cache Computed Values</strong>: Cache expensive operations like text extraction</li>
+</ol>
+<h2 id="common-pitfalls">Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Position Conflicts</strong>: Multiple nodes with same position</li>
+<li><strong>Missing Positions</strong>: Forgetting to set positions</li>
+<li><strong>Circular References</strong>: Nodes referencing ancestors</li>
+<li><strong>Type Mismatches</strong>: Mixing node types incorrectly</li>
+<li><strong>Mutation Issues</strong>: Modifying shared node instances</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
