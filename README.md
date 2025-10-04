@@ -1,6 +1,6 @@
 # OSBot-Utils
 
-![Current Release](https://img.shields.io/badge/release-v3.12.1-blue)
+![Current Release](https://img.shields.io/badge/release-v3.13.0-blue)
 ![Python](https://img.shields.io/badge/python-3.8+-green)
 ![Type-Safe](https://img.shields.io/badge/Type--Safe-✓-brightgreen)
 ![Caching](https://img.shields.io/badge/Caching-Built--In-orange)
