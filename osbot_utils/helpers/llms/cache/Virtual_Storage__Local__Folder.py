@@ -1,4 +1,4 @@
-from typing                                                                       import List, Optional, Dict, Any
+from typing                                                                       import List, Optional, Dict, Any, Union
 from osbot_utils.decorators.methods.cache_on_self                                 import cache_on_self
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
@@ -20,10 +20,10 @@ class Virtual_Storage__Local__Folder(Type_Safe):
             return json_load_file(path=full_path)
         return None
 
-    @type_safe
+    @type_safe                                                                               # todo: bug: there should only be one return type
     def json__save(self, path: Safe_Str__File__Path,
                          data: dict
-                    ) -> bool:                                           # Write JSON to file
+                    ) -> Union[bool, Safe_Str__File__Path]:                                           # Write JSON to file
         full_path = self.get_full_path(path)
         folder = parent_folder(full_path)
         create_folder(folder)                                         # Ensure parent folder exists
@@ -55,7 +55,7 @@ class Virtual_Storage__Local__Folder(Type_Safe):
         return file_exists(full_path)
 
     @type_safe
-    def files__all(self) -> List[str]:                            # List all files recursively
+    def files__all(self) -> List[Safe_Str__File__Path]:               # List all files recursively
         base_path = self.path_folder__root_cache()
         return files_recursive(base_path)
 

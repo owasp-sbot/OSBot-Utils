@@ -139,7 +139,7 @@ class LLM_Request__Cache__File_System(LLM_Request__Cache):
     #         return full_file_path
 
     @type_safe
-    def cache_id__to__file_path(self, cache_id: Obj_Id) -> str:
+    def cache_id__to__file_path(self, cache_id: Obj_Id) -> Safe_Str__File__Path:
         return self.cache_index.cache_id__to__file_path.get(cache_id)
 
     @type_safe
