@@ -243,7 +243,8 @@ class Type_Safe__Step__From_Json:
 
         if value_origin is dict:                                                    # Handle Dict[K, V] type annotations (use lowercase dict, not Dict)
             return self.deserialize_nested_dict(value_class, dict_value)
-
+        if value_origin is tuple:
+             return tuple(dict_value)                                               # typing.Tuple cannot be invoked, so we need to use the tuple
         else:                                                                       # Default: try to instantiate with the value
             return value_class(dict_value)
 

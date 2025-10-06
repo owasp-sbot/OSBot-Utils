@@ -27,6 +27,7 @@ def class_functions(target):
 def class_name(target):
     if target:
         return type(target).__name__
+    return None
 
 def class_full_name(target):
     if target:
@@ -38,6 +39,7 @@ def class_full_name(target):
             type_module = type_target.__module__
             type_name   = type_target.__name__
         return f'{type_module}.{type_name}'
+    return None
 
 
 def default_value(target : type):

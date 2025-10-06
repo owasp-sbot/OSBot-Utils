@@ -1,3 +1,4 @@
+from osbot_utils.utils.Objects                  import class_full_name
 from osbot_utils.type_safe.Type_Safe__Base      import Type_Safe__Base, type_str
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
@@ -55,6 +56,8 @@ class Type_Safe__Set(Type_Safe__Base, set):
                 result.append([x.json() if isinstance(x, Type_Safe) else x for x in item])
             elif isinstance(item, dict):
                 result.append({k: v.json() if isinstance(v, Type_Safe) else v for k, v in item.items()})
+            elif isinstance(item, type):
+                result.append(class_full_name(item))
             else:
                 result.append(item)
         return result
