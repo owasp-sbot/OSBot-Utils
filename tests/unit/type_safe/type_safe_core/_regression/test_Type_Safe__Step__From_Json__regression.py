@@ -1,17 +1,59 @@
 import re
 import pytest
-from typing                                                                 import List, Dict, Any
 from unittest                                                               import TestCase
+from typing                                                                 import List, Dict, Any, Type, Optional
+from osbot_utils.testing.__                                                 import __
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id           import Safe_Id
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__From_Json  import Type_Safe__Step__From_Json
 
 
-class test_Type_Safe__Step__From_Json__bugs(TestCase):          # Document bugs with Type_Safe__Step__From_Json
+class test_Type_Safe__Step__From_Json__regression(TestCase):          # Document bugs with Type_Safe__Step__From_Json
 
     @classmethod
     def setUpClass(cls):
         cls.step_from_json = Type_Safe__Step__From_Json()
+
+    def test__regression__optional__type__with__optional__roundtrip(self):
+        class An_Class(Type_Safe):
+            an_type_1 : Type
+            an_type_2 : Type                    = None
+            an_type_3 : Optional[Type]
+            an_type_4 : Optional[Type]          = None
+
+        assert An_Class().obj() == __()
+        assert An_Class().json() == {'an_type_1': None,
+                                     'an_type_2': None,
+                                     'an_type_3': None,
+                                     'an_type_4': None}
+        assert An_Class(an_type_1=str).obj() == __(an_type_2=None          , an_type_4=None          , an_type_1='builtins.str', an_type_3=None          )
+        assert An_Class(an_type_2=str).obj() == __(an_type_2='builtins.str', an_type_4=None          , an_type_1=None          , an_type_3=None          )
+        assert An_Class(an_type_3=str).obj() == __(an_type_2=None          , an_type_4=None          , an_type_1=None          , an_type_3='builtins.str')
+        assert An_Class(an_type_4=str).obj() == __(an_type_2=None          , an_type_4='builtins.str', an_type_1=None          , an_type_3=None          )
+
+        assert An_Class.from_json(An_Class(             ).json()).json() == {'an_type_1': None          , 'an_type_2': None          , 'an_type_3': None, 'an_type_4': None}
+        assert An_Class.from_json(An_Class(an_type_1=str).json()).json() == {'an_type_1': 'builtins.str', 'an_type_2': None          , 'an_type_3': None, 'an_type_4': None}
+        assert An_Class.from_json(An_Class(an_type_2=str).json()).json() == {'an_type_1': None          , 'an_type_2': 'builtins.str', 'an_type_3': None, 'an_type_4': None}
+
+        #error_message_1 = "On An_Class, invalid type for attribute 'an_type_3'. Expected 'typing.Optional[typing.Type]' but got '<class 'str'>'"
+        # with pytest.raises(ValueError, match=re.escape(error_message_1)):
+        #      An_Class.from_json(An_Class(an_type_3=str).json())                     # BUG
+        #An_Class.from_json(An_Class(an_type_3=str).json())
+        assert An_Class.from_json(An_Class(an_type_3=str).json()).json() == {'an_type_1': None          , 'an_type_2': None          , 'an_type_3': 'builtins.str', 'an_type_4': None}
+        # error_message_2 = "On An_Class, invalid type for attribute 'an_type_4'. Expected 'typing.Optional[typing.Type]' but got '<class 'str'>'"
+        # with pytest.raises(ValueError, match=re.escape(error_message_2)):
+        #      An_Class.from_json(An_Class(an_type_4=str).json())                     # BUG
+        assert An_Class.from_json(An_Class(an_type_4=str).json()).json() == {'an_type_1': None          , 'an_type_2': None, 'an_type_3': None, 'an_type_4': 'builtins.str'}
+
+        assert An_Class.from_json({'an_type_3': None}).json() == {'an_type_1': None, 'an_type_2': None, 'an_type_3': None, 'an_type_4': None}
+        assert An_Class.from_json({'an_type_4': None}).json() == {'an_type_1': None, 'an_type_2': None, 'an_type_3': None, 'an_type_4': None}
+
+        # Test mixing Optional[Type] with plain Type in same instance
+        mixed = An_Class(an_type_1=str, an_type_3=int)
+        assert An_Class.from_json(mixed.json()).json() == { 'an_type_1': 'builtins.str' ,
+                                                            'an_type_2': None           ,
+                                                            'an_type_3': 'builtins.int' ,
+                                                            'an_type_4': None           }
 
     def test__regression__forward_ref_to_same_class(self):                                  # Basic self-reference bug
         """Bug: Forward reference to same class doesn't deserialize from dict"""
