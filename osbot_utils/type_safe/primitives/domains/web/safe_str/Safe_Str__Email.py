@@ -7,6 +7,6 @@ class Safe_Str__Email(Safe_Str):    # Special class for emails with simple custo
 
     def __new__(cls, value=None):
         result = super().__new__(cls, value)
-        if '@' not in result:                                                               # Additional validation for email format
+        if value and '@' not in result:                                                               # Additional validation for email format
             raise ValueError(f"in {cls.__name__}, email must contain an @ symbol")
         return result
