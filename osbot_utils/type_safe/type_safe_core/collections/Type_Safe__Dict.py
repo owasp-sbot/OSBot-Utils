@@ -3,7 +3,7 @@ from osbot_utils.testing.__                                           import __
 from osbot_utils.type_safe.Type_Safe__Base                            import Type_Safe__Base
 from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
-from osbot_utils.utils.Objects                                        import dict_to_obj
+from osbot_utils.utils.Objects                                        import dict_to_obj, class_full_name
 
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
@@ -49,6 +49,8 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
                 return v.json()
             elif isinstance(v, Type_Safe__Primitive):
                 return v.__to_primitive__()
+            elif isinstance(v, type):
+                return class_full_name(v)
             elif isinstance(v, dict):
                 # Recursively handle nested dictionaries
                 return {k2: serialize_value(v2) for k2, v2 in v.items()}
