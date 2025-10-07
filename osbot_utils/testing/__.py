@@ -1,7 +1,11 @@
-from types import SimpleNamespace
+from types                  import SimpleNamespace
+from osbot_utils.utils.Dev  import pprint
 
 __SKIP__    = object()
 __MISSING__ = object()
+
+
+
 
 class __(SimpleNamespace):
     def __enter__(self)                          : return self
@@ -74,3 +78,6 @@ class __(SimpleNamespace):
             else:
                 setattr(result, key, value)
         return result
+
+    def print(self):
+        pprint(self)

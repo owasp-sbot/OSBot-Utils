@@ -1647,6 +1647,7 @@ class test_Type_Safe__regression(TestCase):
             an_guid     : Random_Guid                                           # as soon as we add the Random_Guid
 
         assert Cache_Entry_H().entry_id   != Cache_Entry_H().entry_id           # it works again
+
     def test__regression__empty_dict__assigns_to_none(self):
         class Schema__Cache__Data__Store__Request(Type_Safe):
             data        : Union[str, dict, bytes]   = None

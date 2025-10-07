@@ -10,7 +10,7 @@ from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache               
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert                 import type_safe_convert
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Deserialize_Type   import type_safe_step_deserialize_type
 from osbot_utils.utils.Objects                                                      import enum_from_value
-from typing                                                                         import get_args, Any, ForwardRef
+from typing                                                                         import get_args, Any, ForwardRef, Union, Type
 
 
 class Type_Safe__Step__From_Json:
@@ -40,6 +40,13 @@ class Type_Safe__Step__From_Json:
     def deserialize_attribute(self, _self, key, value):                                     # Deserialize a single attribute based on its annotation.
         annotation        = type_safe_annotations.obj_attribute_annotation(_self, key)
         annotation_origin = type_safe_cache.get_origin(annotation)
+
+        if annotation_origin is Union and isinstance(value, str):
+            args = get_args(annotation)
+            if len(args) == 2 and type(None) in args:                               # It's Optional
+                non_none_type = next(arg for arg in args if arg is not type(None))
+                if non_none_type is Type:                                           # Optional[Type]
+                    return self.deserialize_type__using_value(value)
 
         if value is not None and type(value) is dict:                                       # Handle forward references first
             forward_ref_result = self.handle_forward_references(_self, annotation, value)
