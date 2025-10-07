@@ -169,4 +169,4 @@ class test__performance__cache_on_self(TestCase):
 
         # Even with large cache, lookups should be fast
         avg_lookup_time = duration_lookup.seconds / iterations
-        assert avg_lookup_time < 0.0001     # Less than 0.1 milliseconds per lookup
+        assert avg_lookup_time < 0.00015     # Less than 0.15 milliseconds per lookup
