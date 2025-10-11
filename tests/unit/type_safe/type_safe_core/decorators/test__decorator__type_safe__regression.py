@@ -1,5 +1,6 @@
 import re
 import pytest
+from enum                                                                               import Enum
 from typing                                                                             import Any, Dict, Optional, Type, List
 from unittest                                                                           import TestCase
 from osbot_utils.type_safe.primitives.core.Safe_Int                                     import Safe_Int
@@ -10,6 +11,29 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                          import type_safe
 
 class test_decorator__type_safe__regression(TestCase):
+
+    def test__regression__enum_doesnt_convert_str(self):
+        class An_Enum(str, Enum):
+            VALUE_A = 'value_a'
+            VALUE_B = 'value_b'
+
+            def __str__(self):
+                return self.value
+
+        @type_safe
+        def an_method(an_enum: An_Enum):
+            return f'{an_enum}'
+
+        assert an_method(An_Enum.VALUE_A) == 'value_a'
+        assert an_method(An_Enum.VALUE_B) == 'value_b'
+
+        # error_message = "Parameter 'an_enum' expected type <enum 'An_Enum'>, but got <class 'str'>"
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     an_method('value_a')                                                  # BUG
+
+        assert an_method('value_a') == 'value_a'                                    # FIXED
+        assert an_method('value_b') == 'value_b'
+
 
     def test__regression__type_safe__doesnt_check_return_value(self):
         @type_safe

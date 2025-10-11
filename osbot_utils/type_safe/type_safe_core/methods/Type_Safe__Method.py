@@ -3,6 +3,7 @@ import inspect                                                                  
 from enum                                                                     import Enum
 from typing                                                                   import get_args, get_origin, Union, List, Any, Dict    # For type hinting utilities
 from osbot_utils.type_safe.Type_Safe__Primitive                               import Type_Safe__Primitive
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations       import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables import IMMUTABLE_TYPES
 
 
@@ -26,6 +27,15 @@ class Type_Safe__Method:                                                        
                 continue
 
             expected_type = self.annotations[param_name]
+
+            enum_type = type_safe_annotations.extract_enum_from_annotation(expected_type)
+            if enum_type and isinstance(param_value, str):
+                if param_value in enum_type.__members__:                                                        # Reuse the exact conversion logic from Type_Safe__Step__Init
+                    bound_args.arguments[param_name] = enum_type[param_value]
+                    continue
+                elif hasattr(enum_type, '_value2member_map_') and param_value in enum_type._value2member_map_:
+                    bound_args.arguments[param_name] = enum_type._value2member_map_[param_value]
+                    continue
 
             if not (isinstance(expected_type, type) and issubclass(expected_type, Type_Safe__Primitive)):           # Check if expected type is a Type_Safe__Primitive subclass
                 continue

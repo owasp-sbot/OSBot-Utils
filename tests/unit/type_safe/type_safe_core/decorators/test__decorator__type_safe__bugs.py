@@ -1,5 +1,4 @@
 import re
-
 import pytest
 from typing                                                                    import List, Dict, Callable
 from unittest                                                                  import TestCase
