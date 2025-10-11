@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/testing/performance/cls-kwargs-performance-mistery/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>The cls_kwargs Performance Mystery: A Technical Analysis - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "The cls_kwargs Performance Mystery: A Technical Analysis";
+        var mkdocs_page_input_path = "code/osbot_utils/testing/performance/cls-kwargs-performance-mistery.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/testing/performance/cls-kwargs-performance-mistery/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">The cls_kwargs Performance Mystery: A Technical Analysis</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="the-cls_kwargs-performance-mystery-a-technical-analysis">The cls_kwargs Performance Mystery: A Technical Analysis<a class="headerlink" href="#the-cls_kwargs-performance-mystery-a-technical-analysis" title="Permanent link">&para;</a></h1>
+<ul>
+<li>Part 1 is Claude 3.5's analysis of the mystery</li>
+<li>Part 2 is ChatGPT o1's analysis of Part 1</li>
+<li>Part 3 is ChatGPT o1's analysis of the dis (disassembly) diff</li>
+</ul>
+<hr />
+<h1 id="part-1-claude-35s-analysis-of-the-mystery">Part 1 - Claude 3.5's analysis of the mystery<a class="headerlink" href="#part-1-claude-35s-analysis-of-the-mystery" title="Permanent link">&para;</a></h1>
+<h2 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
+<p>During a refactoring exercise of the Type_Safe class, we encountered an unexpected performance improvement when moving the <code>__cls_kwargs__</code> method into a separate cache class. What makes this particularly interesting is that the improvement occurred without adding any actual caching logic - we simply moved the exact same code into a different location.</p>
+<h2 id="performance-testing-framework">Performance Testing Framework<a class="headerlink" href="#performance-testing-framework" title="Permanent link">&para;</a></h2>
+<p>This mystery was discovered thanks to the <code>Performance_Measure__Session</code> testing framework, which provides nanosecond-precision timing measurements and statistical analysis. Here's the key test that revealed the difference:</p>
+<pre><code class="language-python">def test_measure(self):
+    class An_Class_1():
+        pass
+
+    class An_Class_2(Type_Safe):
+        pass
+
+    class An_Class_3(Type_Safe):
+        an_int : int
+
+    class An_Class_4(Type_Safe):
+        an_int : int = 42
+
+    class An_Class_5(Type_Safe):
+        an_str: str
+
+    class An_Class_6(Type_Safe):
+        an_str: str = '42'
+
+    Performance_Measure__Session().measure(str        ).assert_time(time_100_ns)
+    Performance_Measure__Session().measure(Random_Guid).assert_time(time_6_kns)
+    Performance_Measure__Session().measure(An_Class_1 ).assert_time(time_100_ns)
+    Performance_Measure__Session().measure(An_Class_2 ).assert_time(time_5_kns, time_6_kns)
+    Performance_Measure__Session().measure(An_Class_3 ).assert_time(time_20_kns)
+    Performance_Measure__Session().measure(An_Class_4 ).assert_time(time_10_kns, time_20_kns)
+    Performance_Measure__Session().measure(An_Class_5 ).assert_time(time_20_kns)
+    Performance_Measure__Session().measure(An_Class_6 ).assert_time(time_10_kns, time_20_kns)
+</code></pre>
+<p>This test is particularly effective because it:
+1. Tests a range of scenarios from simple to complex
+2. Uses consistent baseline measurements (str, Random_Guid)
+3. Provides nanosecond-level precision
+4. Includes multiple runs to ensure statistical significance
+5. Tests both with and without type annotations
+6. Tests both with and without default values</p>
+<h2 id="performance-results">Performance Results<a class="headerlink" href="#performance-results" title="Permanent link">&para;</a></h2>
+<h3 id="original-implementation-in-type_safe-class">Original Implementation (in Type_Safe class):<a class="headerlink" href="#original-implementation-in-type_safe-class" title="Permanent link">&para;</a></h3>
+<pre><code>str          | score:     100 ns  | raw:      79 ns
+Random_Guid  | score:   6,000 ns  | raw:   5,552 ns
+An_Class_1   | score:     100 ns  | raw:     128 ns
+An_Class_2   | score:   6,000 ns  | raw:   5,581 ns
+An_Class_3   | score:  20,000 ns  | raw:  16,267 ns
+An_Class_4   | score:  20,000 ns  | raw:  15,422 ns
+An_Class_5   | score:  20,000 ns  | raw:  16,294 ns
+An_Class_6   | score:  20,000 ns  | raw:  15,466 ns
+</code></pre>
+<h3 id="refactored-implementation-with-cache__class_kwargs">Refactored Implementation (with Cache__Class_Kwargs):<a class="headerlink" href="#refactored-implementation-with-cache__class_kwargs" title="Permanent link">&para;</a></h3>
+<pre><code>str          | score:     100 ns  | raw:      79 ns
+Random_Guid  | score:   6,000 ns  | raw:   5,594 ns
+An_Class_1   | score:     100 ns  | raw:     131 ns
+An_Class_2   | score:   5,000 ns  | raw:   5,168 ns
+An_Class_3   | score:  20,000 ns  | raw:  15,914 ns
+An_Class_4   | score:  10,000 ns  | raw:  14,885 ns
+An_Class_5   | score:  20,000 ns  | raw:  15,955 ns
+An_Class_6   | score:  10,000 ns  | raw:  14,997 ns
+</code></pre>
+<p>Key differences:
+- An_Class_2: Improved from 6,000ns to 5,000ns
+- An_Class_4: Improved from 20,000ns to 10,000ns
+- An_Class_6: Improved from 20,000ns to 10,000ns</p>
+<h2 id="code-comparison">Code Comparison<a class="headerlink" href="#code-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="original-version-inside-type_safe">Original Version (Inside Type_Safe)<a class="headerlink" href="#original-version-inside-type_safe" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe:
+    # [468 lines of other code...]
+
+    @classmethod
+    def __cls_kwargs__(cls, include_base_classes=True):
+        kwargs = {}
+        for base_cls in inspect.getmro(cls):
+            if base_cls is object:
+                continue
+            for k, v in vars(base_cls).items():
+                if not k.startswith('__') and not isinstance(v, types.FunctionType):
+                    if isinstance(v, classmethod):
+                        continue
+                    if type(v) is functools._lru_cache_wrapper:
+                        continue
+                    if isinstance(v, property):
+                        continue
+                    if (k in kwargs) is False:
+                        kwargs[k] = v
+
+            if hasattr(base_cls,'__annotations__'):
+                for var_name, var_type in base_cls.__annotations__.items():
+                    # [type checking and validation logic...]
+
+            if include_base_classes is False:
+                break
+        return kwargs
+</code></pre>
+<h3 id="refactored-version">Refactored Version<a class="headerlink" href="#refactored-version" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># In Cache__Class_Kwargs.py
+class Cache__Class_Kwargs:
+    def get_cls_kwargs(self, cls: Type, include_base_classes: bool = True) -&gt; Dict[str, Any]:
+        # [Exact same code as above]
+        return kwargs
+
+cache__class_kwargs = Cache__Class_Kwargs()
+
+# In Type_Safe.py
+class Type_Safe:
+    @classmethod
+    def __cls_kwargs__(cls, include_base_classes=True):
+        return cache__class_kwargs.get_cls_kwargs(cls, include_base_classes)
+</code></pre>
+<h2 id="hypotheses">Hypotheses<a class="headerlink" href="#hypotheses" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Scope and Variable Resolution</strong></li>
+<li>The original version needs to resolve variables in the context of a large class</li>
+<li>In the refactored version, all variables are in a tighter, more focused scope</li>
+<li>
+<p>Could lead to faster variable lookups and resolution</p>
+</li>
+<li>
+<p><strong>Method Dispatch Overhead</strong></p>
+</li>
+<li>The original @classmethod needs to go through Python's method resolution order</li>
+<li>The standalone cache class has a simpler method dispatch path</li>
+<li>
+<p>Might reduce lookup time for method calls</p>
+</li>
+<li>
+<p><strong>Memory Locality</strong></p>
+</li>
+<li>The original version is part of a large class (478 lines)</li>
+<li>The refactored version is in its own small module</li>
+<li>
+<p>Could lead to better memory locality and cache performance</p>
+</li>
+<li>
+<p><strong>Context Switching</strong></p>
+</li>
+<li>The original version switches context between class and instance methods</li>
+<li>The refactored version maintains a consistent execution context</li>
+<li>
+<p>Might reduce context switching overhead</p>
+</li>
+<li>
+<p><strong>Class Dictionary Access</strong></p>
+</li>
+<li>The original version interacts with a larger class dictionary</li>
+<li>The refactored version has a smaller, more focused scope</li>
+<li>Could improve dictionary lookup times</li>
+</ol>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>To validate these hypotheses, we could:
+1. Add fine-grained timing around variable lookups
+2. Profile memory access patterns
+3. Measure method dispatch times
+4. Test with different class sizes
+5. Analyze Python bytecode differences</p>
+<h2 id="the-power-of-performance-testing">The Power of Performance Testing<a class="headerlink" href="#the-power-of-performance-testing" title="Permanent link">&para;</a></h2>
+<p>This case study demonstrates why having comprehensive performance tests is crucial:</p>
+<ol>
+<li><strong>Detection</strong>: The performance difference was only noticed because we had precise timing tests</li>
+<li><strong>Validation</strong>: The tests provided confidence that the refactoring was beneficial</li>
+<li><strong>Regression Prevention</strong>: The tests will catch any future performance degradation</li>
+<li><strong>Measurement</strong>: The nanosecond-level precision helped identify subtle improvements</li>
+<li><strong>Comparison</strong>: The consistent baseline measurements (str, Random_Guid) provided context</li>
+</ol>
+<p>The <code>Performance_Measure__Session</code> class played a key role by:
+- Providing statistical analysis of measurements
+- Using Fibonacci sequences for measurement loops (1,2,3,5,8,13,21...)
+- Handling outlier detection
+- Normalizing scores for consistent results
+- Supporting both raw and normalized timing comparisons</p>
+<p>This level of testing precision was essential for spotting this unexpected performance improvement, which might have gone unnoticed with less rigorous testing.</p>
+<hr />
+<h1 id="part-2-chatgpt-o1s-analysis-of-part-1">Part 2: ChatGPT o1's analysis of Part 1<a class="headerlink" href="#part-2-chatgpt-o1s-analysis-of-part-1" title="Permanent link">&para;</a></h1>
+<p>It's one of those pleasant mysteries in dynamic languages where “the same code” can run faster (or slower) just by living in a different location. Since the Python runtime is always juggling multiple layers of lookups (class dicts, instance dicts, method resolution order, etc.), even minor changes to scoping or where the code physically resides can shift performance in small but measurable ways. Below are likely contributors:</p>
+<hr />
+<h2 id="1-pythons-method-lookup-class-scope">1. Python’s Method Lookup &amp; Class Scope<a class="headerlink" href="#1-pythons-method-lookup-class-scope" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Method Resolution Overhead</strong><br />
+  A <code>@classmethod</code> inside a class must pass through Python’s method resolution pipeline, which checks each class in <code>mro()</code>, ensures the method is indeed a classmethod, then finally calls it.  </li>
+<li>
+<p>In the refactored version, <code>get_cls_kwargs</code> is just a plain old instance method on a separate helper object. That means you sidestep some of the overhead that Python’s built-in descriptor protocol can add, especially once you combine <code>@classmethod</code> with a large base class.</p>
+</li>
+<li>
+<p><strong>Class Dictionary Size</strong><br />
+  When a method lives in a massive class like <code>Type_Safe</code> (hundreds of lines, plus inheritance from who-knows-what), Python’s internal dictionary of attributes is larger. That dictionary is consulted to find attributes, which can be microscopically slower than a smaller dictionary. Moving the same logic to <code>Cache__Class_Kwargs</code> means a new, smaller dictionary for attribute lookups.</p>
+</li>
+</ul>
+<hr />
+<h2 id="2-code-object-memory-locality">2. Code Object &amp; Memory Locality<a class="headerlink" href="#2-code-object-memory-locality" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>Code Object Split</strong><br />
+  Each function or method in Python is compiled into a <code>code</code> object with certain metadata. A huge class can accumulate multiple <code>code</code> objects, docstrings, decorators, etc.  Tools like CPython’s instruction cache or the CPU’s L1/L2 caches might better handle the smaller code object in a dedicated file (<code>Cache__Class_Kwargs.py</code>) than that same code nested deep within <code>Type_Safe</code>.</p>
+</li>
+<li>
+<p><strong>Better Instruction / Data Caching</strong><br />
+  Modern CPU caches can sometimes see a difference between code that’s near other “hot” or frequently-used code vs. code that’s in a large class with many definitions. Although Python isn’t generally JIT-compiled in CPython, there’s still some interplay with how the CPU fetches and caches instructions. If your refactored code is in a smaller module, there’s a chance the CPU or Python’s memory layout hits some sweet spot.</p>
+</li>
+</ul>
+<hr />
+<h2 id="3-variable-lookups-and-closure-context">3. Variable Lookups and Closure Context<a class="headerlink" href="#3-variable-lookups-and-closure-context" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Simpler Variable Resolution</strong><br />
+  Inside a huge class, references like <code>vars(base_cls)</code> or <code>base_cls.__annotations__</code> may be resolved through slightly more complicated scoping rules. A dedicated helper class may have fewer local variables, fewer closures, or fewer references in scope.  </li>
+<li>
+<p>Even something as small as an additional local variable name in the <code>Type_Safe</code> scope can add overhead. Python’s symbol table, closure references, and the internal <code>_PyEval_EvalFrame</code> function all have incremental overhead as they handle more named references.</p>
+</li>
+<li>
+<p><strong>Class vs. Instance Execution Context</strong><br />
+  When <code>__cls_kwargs__</code> is called as <code>Type_Safe.__cls_kwargs__</code>, Python sets up the call in a way that includes the class as the first argument (<code>cls</code>). With the separate helper, it’s a normal method call on the <code>cache__class_kwargs</code> object. The difference is small, but everything from the descriptor call to how the “self” or “cls” is bound can show up in nanosecond-level tests.</p>
+</li>
+</ul>
+<hr />
+<h2 id="4-subtle-artifacts-in-your-testing-framework">4. Subtle Artifacts in Your Testing Framework<a class="headerlink" href="#4-subtle-artifacts-in-your-testing-framework" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Performance Measurement Structure</strong><br />
+  Sometimes, test harness structure alone can create slight differences in how Python executes or JIT-optimizes built-ins (in PyPy, for instance). Although you mention the code and logic is identical, the function references, import lines, or the order of how the classes are loaded may cause the runtime to warm up differently.  </li>
+<li>If the <code>Cache__Class_Kwargs</code> file is imported earlier (or differently) in your tests, it might get better CPU cache locality or skip some overhead. If it’s imported lazily, the overhead might appear in a different place, ironically making the measured part look faster.</li>
+</ul>
+<hr />
+<h2 id="5-confirmation-via-bytecode-inspection">5. Confirmation via Bytecode Inspection<a class="headerlink" href="#5-confirmation-via-bytecode-inspection" title="Permanent link">&para;</a></h2>
+<p>If you’re curious, you can do:</p>
+<pre><code class="language-python">import dis
+dis.dis(Type_Safe.__cls_kwargs__)
+dis.dis(cache__class_kwargs.get_cls_kwargs)
+</code></pre>
+<p>While they might look extremely similar, you could see differences in:
+- <strong>LOAD_GLOBAL vs. LOAD_FAST</strong><br />
+- Extra steps in <code>classmethod</code> dispatch<br />
+- Additional name lookups (like <code>inspect.getmro</code>)<br />
+- How references to <code>cls</code> or <code>self</code> are loaded</p>
+<p>Even small differences in the order or frequency of LOAD/STORE opcodes can alter performance at the nanosecond scale.</p>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>At the end of the day, you’re seeing a classic Python micro-optimization scenario: code that is “logically the same” but runs faster simply due to changes in how Python looks up and executes that code. The big takeaways:</p>
+<ol>
+<li><strong>Method resolution &amp; scope</strong> matter a lot in Python.  </li>
+<li><strong>Moving code to a dedicated helper</strong> can reduce overhead in surprising ways.  </li>
+<li><strong>Performance tests at the nanosecond level</strong> will reveal these subtle differences.  </li>
+</ol>
+<p>It’s great you have a test harness like <code>Performance_Measure__Session()</code> to catch these anomalies—this is exactly how unexpected performance gains (or losses) are often discovered in dynamic environments like Python.</p>
+<hr />
+<h1 id="part-3-chatgpt-o1s-analysis-of-the-dis-disassembly-diff">Part 3 - ChatGPT o1's analysis of the dis (disassembly) diff<a class="headerlink" href="#part-3-chatgpt-o1s-analysis-of-the-dis-disassembly-diff" title="Permanent link">&para;</a></h1>
+<p>A close look at the disassembly shows that in <strong>Type_Safe.<strong>cls_kwargs</strong></strong> you are effectively doing extra work at function‐call time (building tuples, importing modules into local scope, etc.) whereas in <strong>cache__class_kwargs.get_cls_kwargs</strong> those same references are loaded from the global/module scope rather than being reconstructed on every call.</p>
+<hr />
+<h2 id="1-building-immutable_types-each-time">1. Building <code>IMMUTABLE_TYPES</code> Each Time<a class="headerlink" href="#1-building-immutable_types-each-time" title="Permanent link">&para;</a></h2>
+<p>In <code>Type_Safe.__cls_kwargs__</code>, you see instructions like:</p>
+<pre><code class="language-none">130          42 LOAD_GLOBAL             12 (bool)
+             ...
+             144 BUILD_TUPLE             11
+             146 STORE_FAST               6 (IMMUTABLE_TYPES)
+</code></pre>
+<p>That means every time <code>__cls_kwargs__</code> is called, it’s building an 11‐element tuple in the function itself and storing it in a local variable. By contrast, the second disassembly (from <code>cache__class_kwargs.get_cls_kwargs</code>) just does:</p>
+<pre><code class="language-none">...
+60     &gt;&gt;  926 LOAD_FAST  8 (var_type)
+            LOAD_GLOBAL 46 (IMMUTABLE_TYPES)
+            CONTAINS_OP 1
+...
+</code></pre>
+<p>There is <strong>no BUILD_TUPLE</strong> in the second version. <code>IMMUTABLE_TYPES</code> is presumably defined once at the module or class level and referenced as a global rather than reconstructed every time the method runs.</p>
+<p>Even though building a small tuple is “fast” in Python, it can still cost a few hundred nanoseconds or more in a tight loop. In a microbenchmark, that’s enough overhead to register as a difference.</p>
+<hr />
+<h2 id="2-re-importing-and-storing-modules-in-locals">2. Re-importing and Storing Modules in Locals<a class="headerlink" href="#2-re-importing-and-storing-modules-in-locals" title="Permanent link">&para;</a></h2>
+<p>You’ll see lines like:</p>
+<pre><code class="language-none">125           2 LOAD_CONST 1 (0)
+              4 LOAD_CONST 0 (None)
+              6 IMPORT_NAME 0 (functools)
+              8 STORE_FAST 2 (functools)
+...
+</code></pre>
+<p>This appears in the <strong>Type_Safe.<strong>cls_kwargs</strong></strong> disassembly but not in <code>cache__class_kwargs</code>. It indicates that your “original” method code is using local imports or assigning modules to local variables inside the function. That is overhead each time the function is invoked (or each time the code object is executed). In the refactored version, you simply do:</p>
+<pre><code class="language-none">LOAD_GLOBAL X (functools)
+</code></pre>
+<p>at call time, which is typically faster than the pattern “import the module + store it in a local variable” on each invocation.</p>
+<hr />
+<h2 id="3-net-effect-fewer-instructions-fewer-name-lookups">3. Net Effect: Fewer Instructions &amp; Fewer Name Lookups<a class="headerlink" href="#3-net-effect-fewer-instructions-fewer-name-lookups" title="Permanent link">&para;</a></h2>
+<p>If you skim the second disassembly, you’ll notice:</p>
+<ol>
+<li>Fewer <code>BUILD_TUPLE</code> or <code>IMPORT_NAME</code> instructions  </li>
+<li>More direct <code>LOAD_GLOBAL</code> references to already imported objects  </li>
+<li>A shorter sequence of opcodes overall  </li>
+</ol>
+<p>All of that can easily trim a few microseconds or nanoseconds from your function. It’s a classic Python micro-optimization scenario: the same high-level “logic” is present, but small differences in how modules/constants are declared or accessed translate into measureable changes in raw speed.</p>
+<hr />
+<h2 id="bottom-line">Bottom Line<a class="headerlink" href="#bottom-line" title="Permanent link">&para;</a></h2>
+<p>Even though the <strong>logic</strong> is the same, the <strong>implementation details</strong> in the original <code>Type_Safe</code> method cause it to do extra work during each call—building tuples, local imports, etc. The refactored “cache” version avoids that and just does <strong>fewer opcodes</strong> on each invocation. That’s almost certainly the main source of your unexpected but welcome performance boost.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
