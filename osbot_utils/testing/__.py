@@ -5,8 +5,6 @@ __SKIP__    = object()
 __MISSING__ = object()
 
 
-
-
 class __(SimpleNamespace):
     def __enter__(self)                          : return self
     def __exit__(self, exc_type, exc_val, exc_tb): return False
@@ -19,7 +17,7 @@ class __(SimpleNamespace):
             return super().__eq__(other)
 
         for key in set(self.__dict__.keys()) | set(other.__dict__.keys()):
-            self_val = getattr(self, key, None)
+            self_val  = getattr(self, key, None)
             other_val = getattr(other, key, None)
 
             if self_val is __SKIP__ or other_val is __SKIP__:                              # Skip comparison if either value is a skip marker

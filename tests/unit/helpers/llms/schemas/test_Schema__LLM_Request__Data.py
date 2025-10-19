@@ -5,7 +5,7 @@ from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Content impo
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request__Message__Role    import Schema__LLM_Request__Message__Role
 from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                                  import Type_Safe__List
-from osbot_utils.utils.Objects                                              import __
+from osbot_utils.testing.__                                                 import __
 
 
 class test_Schema__LLM_Request__Data(TestCase):

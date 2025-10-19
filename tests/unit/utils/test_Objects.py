@@ -9,6 +9,8 @@ from typing                                                             import O
 from unittest                                                           import TestCase
 from unittest.mock                                                      import patch, call
 from osbot_utils.testing.Stdout                                         import Stdout
+from osbot_utils.testing.__                                             import __
+from osbot_utils.testing.__helpers                                      import dict_to_obj, obj_to_dict
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
 from osbot_utils.type_safe.primitives.domains.llm.enums.Enum__LLM__Role import Enum__LLM__Role
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
@@ -19,7 +21,7 @@ from osbot_utils.utils.Misc                                             import r
 from osbot_utils.utils.Objects                                          import class_name, get_field, get_value, obj_get_value, obj_values, obj_keys, obj_items, obj_dict, default_value, base_classes, \
                                                                                class_functions_names, class_functions, dict_remove, class_full_name, get_missing_fields, \
                                                                                print_object_methods, print_obj_data_aligned, obj_data, print_obj_data_as_dict, print_object_members, \
-                                                                               obj_base_classes, obj_base_classes_names, type_mro, pickle_save_to_bytes, pickle_load_from_bytes, dict_to_obj, obj_to_dict, __, serialize_to_dict
+                                                                               obj_base_classes, obj_base_classes_names, type_mro, pickle_save_to_bytes, pickle_load_from_bytes, serialize_to_dict
 
 
 class test_Objects(TestCase):
@@ -299,10 +301,17 @@ class test_Objects(TestCase):
         assert obj.a_normal_key                          == 'value'         # this one we can get directly
         assert getattr(obj, 'a_normal_key')              == 'value'         # or like this
 
-        assert getattr(obj, 'key_with space')            == 123             # but these can only be resolved using getattr
-        assert getattr(obj, 'key-with-dash' )            == [1, 2, 3]
-        assert getattr(obj, 'key.with.dot'  ).nested_key == 'nested_value'
-        assert obj_to_dict(obj) == dict_7
+        #assert getattr(obj, 'key_with space')            == 123                                        # but these can only be resolved using getattr
+        #assert getattr(obj, 'key-with-dash' )            == [1, 2, 3]
+        #assert getattr(obj, 'key.with.dot'  ).nested_key == 'nested_value'
+        assert getattr(obj, 'key_with_space')            == 123                                         # after fix, we now get a valid key names
+        assert getattr(obj, 'key_with_dash' )            == [1, 2, 3]
+        assert getattr(obj, 'key_with_dot'  ).nested_key == 'nested_value'
+        assert obj_to_dict(obj)                         != dict_7                                       # these are now different
+        assert obj                                       == __(a_normal_key='value',
+                                                         key_with_space=123,
+                                                         key_with_dash=[1, 2, 3],
+                                                         key_with_dot=__(nested_key='nested_value'))    # but this now works :)
 
     def test_dict_to_obj__using_Type_Safe_classes(self):
         class An_Class_A(Type_Safe):

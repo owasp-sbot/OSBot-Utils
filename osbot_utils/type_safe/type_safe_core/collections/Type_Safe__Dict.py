@@ -3,7 +3,7 @@ from osbot_utils.testing.__                                           import __
 from osbot_utils.type_safe.Type_Safe__Base                            import Type_Safe__Base
 from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
-from osbot_utils.utils.Objects                                        import dict_to_obj, class_full_name
+from osbot_utils.utils.Objects                                        import class_full_name
 
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
@@ -89,6 +89,7 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         return Type_Safe__List(self.expected_key_type, super().keys())
 
     def obj(self) -> __:
+        from osbot_utils.testing.__helpers import dict_to_obj
         return dict_to_obj(self.json())
 
     def values(self) -> Type_Safe__List:

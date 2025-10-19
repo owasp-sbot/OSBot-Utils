@@ -4,7 +4,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.Type_Safe__Primitive                                    import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.core.Safe_Str                                import Safe_Str
 from osbot_utils.type_safe.primitives.domains.git.safe_str.Safe_Str__Git__Ref_Base import Safe_Str__Git__Ref_Base, TYPE_SAFE_STR__GIT_REF__MAX_LENGTH
-from osbot_utils.utils.Objects                                                     import __, base_types
+from osbot_utils.utils.Objects                                                     import base_types
 
 
 class test_Safe_Str__Git__Ref_Base(TestCase):

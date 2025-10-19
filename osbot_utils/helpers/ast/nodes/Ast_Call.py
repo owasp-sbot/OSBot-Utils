@@ -1,4 +1,3 @@
-from osbot_utils.utils.Objects import obj_info
 from osbot_utils.helpers.ast.Ast_Node import Ast_Node
 
 class Ast_Call(Ast_Node):

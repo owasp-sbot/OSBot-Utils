@@ -27,7 +27,8 @@ from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert             
 from osbot_utils.type_safe.validators.Validator__Min                               import Min
 from osbot_utils.utils.Json                                                        import json_to_str, str_to_json
 from osbot_utils.utils.Misc                                                        import list_set, is_guid
-from osbot_utils.utils.Objects                                                     import default_value, __, type_full_name
+from osbot_utils.utils.Objects                                                     import default_value, type_full_name
+from osbot_utils.testing.__                                                        import __
 
 
 class Node_Value(Type_Safe):

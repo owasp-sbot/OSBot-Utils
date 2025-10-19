@@ -1,7 +1,7 @@
 import logging
 from unittest                                               import TestCase
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Data  import Flow_Run__Event_Data
-from osbot_utils.utils.Objects                              import __
+from osbot_utils.testing.__                                 import __
 
 
 class test_Flow_Run__Event_Data(TestCase):

@@ -1,6 +1,6 @@
 from typing                                         import Optional, List, Dict, Union
 from unittest                                       import TestCase
-from osbot_utils.utils.Objects                      import __
+from osbot_utils.testing.__                         import __
 from osbot_utils.type_safe.Type_Safe                import Type_Safe
 
 

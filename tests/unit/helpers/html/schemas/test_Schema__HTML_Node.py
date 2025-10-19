@@ -4,7 +4,7 @@ from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data           import S
 from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data__Type     import Schema__Html_Node__Data__Type
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
-from osbot_utils.utils.Objects                                          import __
+from osbot_utils.testing.__                                             import __
 
 class test_Schema__Html_Node(TestCase):
 

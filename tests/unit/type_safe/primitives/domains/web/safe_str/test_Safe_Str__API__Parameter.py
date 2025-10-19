@@ -1,7 +1,7 @@
 import re
 import pytest
 from unittest                                                                        import TestCase
-from osbot_utils.utils.Objects                                                       import __, base_classes
+from osbot_utils.utils.Objects                                                       import base_classes
 from osbot_utils.type_safe.Type_Safe__Primitive                                      import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.core.Safe_Str                                  import Safe_Str
 from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__API__Parameter  import Safe_Str__API__Parameter

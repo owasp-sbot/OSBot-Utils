@@ -6,7 +6,8 @@ from osbot_utils.type_safe.Type_Safe__Primitive                                 
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Name   import Safe_Str__File__Name
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text        import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.network.safe_str.Safe_Str__IP_Address import Safe_Str__IP_Address
-from osbot_utils.utils.Objects                                                      import __, base_types
+from osbot_utils.utils.Objects                                                      import base_types
+from osbot_utils.testing.__                                                         import __
 
 
 class test_Safe_Str__IP_Address(TestCase):

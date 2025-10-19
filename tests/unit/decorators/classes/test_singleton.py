@@ -1,9 +1,8 @@
 import types
-from unittest import TestCase
-
-from osbot_utils.decorators.classes.singleton import singleton
-from osbot_utils.utils.Misc import random_string
-from osbot_utils.utils.Objects import type_full_name
+from unittest                                   import TestCase
+from osbot_utils.decorators.classes.singleton   import singleton
+from osbot_utils.utils.Misc                     import random_string
+from osbot_utils.utils.Objects                  import type_full_name
 
 
 class test_singleton(TestCase):

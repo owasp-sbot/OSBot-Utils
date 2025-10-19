@@ -1,11 +1,12 @@
 import pytest
 from unittest                                                                           import TestCase
+from osbot_utils.testing.__                                                             import __
 from osbot_utils.type_safe.primitives.core.Safe_Float                                   import Safe_Float
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive                                         import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.core.Safe_Int                                     import Safe_Int
 from osbot_utils.type_safe.primitives.domains.llm.safe_uint.Safe_UInt__LLM__Max_Tokens  import Safe_UInt__LLM__Max_Tokens, DEFAULT__VALUE_UINT__LLM__MAX_TOKENS
-from osbot_utils.utils.Objects                                                          import __, base_types
+from osbot_utils.utils.Objects                                                          import base_types
 
 
 class test_Safe_Int(TestCase):

@@ -1,5 +1,5 @@
 from unittest                                                            import TestCase
-from osbot_utils.utils.Objects                                           import __
+from osbot_utils.testing.__                                              import __
 from osbot_utils.helpers.html.transformers.Html__To__Html_Dict           import Html__To__Html_Dict
 from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Document  import Html_Dict__To__Html_Document
 from osbot_utils.helpers.html.transformers.Html_Document__To__Html_Dict  import Html_Document__To__Html_Dict

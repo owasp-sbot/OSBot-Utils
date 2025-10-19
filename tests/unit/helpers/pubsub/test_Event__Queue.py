@@ -1,11 +1,9 @@
+import pytest
 import sys
 from threading                                          import Event
 from unittest                                           import TestCase
-
-import pytest
-
 from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
-from osbot_utils.helpers.pubsub.Event__Queue import Event__Queue, TIMEOUT__QUEUE_GET
+from osbot_utils.helpers.pubsub.Event__Queue            import Event__Queue, TIMEOUT__QUEUE_GET
 from osbot_utils.helpers.pubsub.schemas.Schema__Event   import Schema__Event
 from osbot_utils.utils.Objects                          import base_types
 

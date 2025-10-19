@@ -1,7 +1,8 @@
 import sys
 from osbot_utils.helpers.transformers.Dict__To__Toml import Dict__To__Toml
+from osbot_utils.testing.__helpers                   import dict_to_obj
 from osbot_utils.utils.Files                         import file_create, file_contents
-from osbot_utils.utils.Objects                       import dict_to_obj
+
 
 
 def dict_to_toml(data):

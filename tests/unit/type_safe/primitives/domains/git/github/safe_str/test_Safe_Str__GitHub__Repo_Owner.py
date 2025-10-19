@@ -3,7 +3,7 @@ from unittest                                                                   
 from osbot_utils.type_safe.Type_Safe__Primitive                                                 import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.core.Safe_Str                                             import Safe_Str
 from osbot_utils.type_safe.primitives.domains.git.github.safe_str.Safe_Str__GitHub__Repo_Owner  import Safe_Str__GitHub__Repo_Owner, TYPE_SAFE_STR__GITHUB__REPO_OWNER__MAX_LENGTH
-from osbot_utils.utils.Objects                                                                  import __, base_types
+from osbot_utils.utils.Objects                                                                  import base_types
 
 
 class test_Safe_Str__GitHub__Repo_Owner(TestCase):

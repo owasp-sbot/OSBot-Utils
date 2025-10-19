@@ -11,7 +11,7 @@ from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text    
 from osbot_utils.type_safe.validators.Validator__Min                         import Min
 from osbot_utils.type_safe.validators.Validator__Max                         import Max
 from osbot_utils.helpers.python_compatibility.python_3_8                     import Annotated
-from osbot_utils.utils.Objects                                               import __
+from osbot_utils.testing.__                                                  import __
 
 
 class test_LLM__Request_Builder(TestCase):                               # Tests for the LLM request building functionality.
