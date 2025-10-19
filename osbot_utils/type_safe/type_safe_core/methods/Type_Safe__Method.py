@@ -235,7 +235,13 @@ class Type_Safe__Method:                                                        
             if origin in (dict, Dict):                                                                      # Special handling for Dict
                 if not isinstance(param_value, dict):
                     raise ValueError(f"Parameter '{param_name}' expected dict but got {type(param_value)}")
-                key_type, value_type = get_args(expected_type)
+
+                type_args = get_args(expected_type)
+                if not type_args:                                                                           # Dict without parameters (e.g., Dict instead of Dict[str, int])
+                    return True                                                                             # Accept any dict without validating keys/values
+
+                key_type, value_type = type_args
+
                 if value_type is Any:                                                                       # if value type is Any, we don't need to do any checks since they will all match
                     return True
                 for k, v in param_value.items():

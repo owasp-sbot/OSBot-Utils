@@ -12,6 +12,48 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 
 class test_decorator__type_safe__regression(TestCase):
 
+    def test__regression__type_safe__method__failed_with_dict(self):
+        @type_safe
+        def an_method_1(html_dict: Dict): pass
+
+        @type_safe
+        def an_method_2(self, html_dict: Dict): pass
+
+        @type_safe
+        def an_method_3(html_dict: dict): pass
+
+        @type_safe
+        def an_method_4(self, html_dict: dict): pass
+
+        an_dict_1     = {}
+        an_dict_2     = dict()
+
+        # BUG: with Dict fails
+        # error_message = "not enough values to unpack (expected 2, got 0)"
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     an_method_1({})                                                     # BUG
+        #
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     an_method_2(None, {})                                 # BUG
+        #
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     an_method_2(None, an_dict_1)                                   # BUG
+
+
+        an_method_1({})                                                     # FIXED: BUG
+        an_method_2(None, {})                                               # FIXED: BUG
+        an_method_2(None, an_dict_1)                                        # FIXED: BUG
+
+        # with dict it works
+        an_method_3({})                                  # works with an_method_3(html_dict: dict)
+        an_method_3(an_dict_1)                           # works with an_method_3(html_dict: dict)
+        an_method_3(an_dict_2)                           # works with an_method_3(html_dict: dict)
+        an_method_4(None, {})              # works with an_method_4(self, html_dict: dict)
+        an_method_4(None, an_dict_1)                # works with an_method_4(self, html_dict: dict)
+        an_method_4(None, an_dict_2)                # works with an_method_4(self, html_dict: dict)
+
+
+
     def test__regression__enum_doesnt_convert_str(self):
         class An_Enum(str, Enum):
             VALUE_A = 'value_a'

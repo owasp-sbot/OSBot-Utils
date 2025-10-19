@@ -1,5 +1,6 @@
-from unittest                import TestCase
-from osbot_utils.testing.__  import __, __SKIP__, __MISSING__
+from unittest                       import TestCase
+from osbot_utils.testing.__         import __, __SKIP__, __MISSING__
+from osbot_utils.testing.__helpers  import obj
 
 
 class test__(TestCase):
@@ -291,3 +292,10 @@ class test__(TestCase):
 
         assert api_response == expected_structure                                       # Structure valid
         assert api_response.json.contains(__(meta=__(total=2)))                        # Specific check
+
+
+    def test__regression__osbot_utils__obj__doesnt_handle_reserved_keywords(self):
+        an_json = {"tag"   : "p",
+                   "class" : "title"}
+
+        assert obj(an_json) == __(tag='p', _class='title')  # FIXED : BUG :this doesn't compile
