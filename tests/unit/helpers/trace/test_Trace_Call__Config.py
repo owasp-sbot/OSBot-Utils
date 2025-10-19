@@ -1,6 +1,5 @@
-from unittest import TestCase
-from unittest.mock import patch, call
-
+from unittest                                     import TestCase
+from unittest.mock                                import patch, call
 from osbot_utils.utils.Objects                    import default_value
 from osbot_utils.helpers.trace.Trace_Call__Config import Trace_Call__Config, PRINT_PADDING__DURATION
 

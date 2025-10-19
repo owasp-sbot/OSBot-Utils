@@ -1,9 +1,10 @@
 from unittest                                                        import TestCase
 from osbot_utils.helpers.llms.builders.LLM_Request__Builder__Open_AI import LLM_Request__Builder__Open_AI
 from osbot_utils.helpers.llms.platforms.open_ai.API__LLM__Open_AI    import API__LLM__Open_AI, ENV_NAME_OPEN_AI__API_KEY
+from osbot_utils.testing.__helpers                                   import obj
 from osbot_utils.type_safe.Type_Safe                                 import Type_Safe
 from osbot_utils.utils.Env                                           import load_dotenv, get_env
-from osbot_utils.utils.Objects                                       import obj, __
+from osbot_utils.testing.__                                          import __
 
 
 class test_API__LLM__Open_AI(TestCase):

@@ -5,7 +5,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.Type_Safe__Primitive                                              import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.core.Safe_Str                                          import Safe_Str
 from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Message__Assistant import Safe_Str__LLM__Message__Assistant
-from osbot_utils.utils.Objects                                                               import __, base_classes
+from osbot_utils.utils.Objects                                                               import base_classes
 
 
 

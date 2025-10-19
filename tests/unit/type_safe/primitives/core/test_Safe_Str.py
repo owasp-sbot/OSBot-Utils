@@ -1,7 +1,9 @@
 import re
 import json
 import pytest
-from osbot_utils.utils.Objects                              import __, base_types
+
+from osbot_utils.testing.__                                 import __
+from osbot_utils.utils.Objects                              import base_types
 from unittest                                               import TestCase
 from osbot_utils.type_safe.primitives.core.Safe_Str         import Safe_Str, TYPE_SAFE__STR__MAX_LENGTH
 from osbot_utils.type_safe.Type_Safe                        import Type_Safe

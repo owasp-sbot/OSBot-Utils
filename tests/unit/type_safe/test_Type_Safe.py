@@ -15,7 +15,8 @@ from osbot_utils.testing.Stdout                                                 
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__From_Json          import type_safe_step_from_json
 from osbot_utils.utils.Json                                                         import json_dumps
 from osbot_utils.utils.Misc                                                         import random_string, list_set
-from osbot_utils.utils.Objects                                                      import obj_data, __, default_value, serialize_to_dict
+from osbot_utils.utils.Objects                                                      import obj_data, default_value, serialize_to_dict
+from osbot_utils.testing.__                                                         import __
 
 
 class test_Type_Safe(TestCase):

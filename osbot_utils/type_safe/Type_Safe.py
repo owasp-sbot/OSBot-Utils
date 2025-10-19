@@ -93,8 +93,7 @@ class Type_Safe:
         return self
 
     def obj(self):
-        from osbot_utils.utils.Objects import dict_to_obj
-
+        from osbot_utils.testing.__helpers import dict_to_obj
         return dict_to_obj(self.json())
 
     def serialize_to_dict(self):                                        # todo: see if we need this method or if the .json() is enough

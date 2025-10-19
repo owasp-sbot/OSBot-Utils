@@ -5,7 +5,7 @@ from unittest                                                           import T
 from osbot_utils.type_safe.primitives.core.Safe_UInt                    import Safe_UInt
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_Str                     import Safe_Str
-from osbot_utils.utils.Objects                                          import __
+from osbot_utils.testing.__                                             import __
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set    import Type_Safe__Set

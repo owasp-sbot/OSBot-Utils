@@ -77,7 +77,7 @@ class Type_Safe__Primitive:
         return str(self)                                            # fallback
 
     def obj(self):                                                                  # Get configuration as namespace object
-        from osbot_utils.utils.Objects import dict_to_obj
+        from osbot_utils.testing.__helpers import dict_to_obj
         return dict_to_obj(self.__cls_kwargs__())
 
     def __cls_kwargs__(self):                                                      # Get class-level kwargs (configuration)

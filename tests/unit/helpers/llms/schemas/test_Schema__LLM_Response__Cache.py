@@ -2,7 +2,7 @@ from unittest                                                     import TestCas
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Request         import Schema__LLM_Request
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response        import Schema__LLM_Response
 from osbot_utils.helpers.llms.schemas.Schema__LLM_Response__Cache import Schema__LLM_Response__Cache
-from osbot_utils.utils.Objects                                    import __
+from osbot_utils.testing.__                                       import __
 
 class test_Schema__LLM_Response__Cache(TestCase):
 

@@ -1,7 +1,7 @@
 from unittest                                                       import TestCase
 from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data       import Schema__Html_Node__Data
 from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data__Type import Schema__Html_Node__Data__Type
-from osbot_utils.utils.Objects                                      import __
+from osbot_utils.testing.__                                         import __
 
 class test_Schema__Html_Node__Data(TestCase):
 

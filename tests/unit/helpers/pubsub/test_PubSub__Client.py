@@ -1,5 +1,4 @@
-from unittest import TestCase
-
+from unittest                                  import TestCase
 from osbot_utils.helpers.pubsub.PubSub__Client import PubSub__Client
 
 

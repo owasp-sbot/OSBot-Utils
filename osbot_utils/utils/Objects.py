@@ -1,5 +1,3 @@
-from types                  import SimpleNamespace
-from osbot_utils.testing.__ import __
 
 def base_classes(cls):
     if type(cls) is type:
@@ -61,40 +59,34 @@ def dict_remove(data, target):
 
 
 
-def dict_to_obj(target):
-    from collections.abc import Mapping
+# def dict_to_obj(target):
+#     from collections.abc import Mapping
+#
+#     if isinstance(target, Mapping):
+#         new_dict = {}
+#         for key, value in target.items():
+#             new_dict[key] = dict_to_obj(value)                                  # Recursively convert elements in the dict
+#         return __(**new_dict)
+#     elif isinstance(target, list):                                              # Recursively convert elements in the list
+#         return [dict_to_obj(item) for item in target]
+#     elif isinstance(target, tuple):                                             # Recursively convert elements in the tuple
+#         return tuple(dict_to_obj(item) for item in target)
+#     # elif hasattr(target, 'json'):                                             # todo: see if we need this. I don't like the idea of adding this extra hidden behaviour to this class
+#     #     return dict_to_obj(target.json())
+#
+#     return target
 
-    if isinstance(target, Mapping):
-        new_dict = {}
-        for key, value in target.items():
-            new_dict[key] = dict_to_obj(value)                                  # Recursively convert elements in the dict
-        return __(**new_dict)
-    elif isinstance(target, list):                                              # Recursively convert elements in the list
-        return [dict_to_obj(item) for item in target]
-    elif isinstance(target, tuple):                                             # Recursively convert elements in the tuple
-        return tuple(dict_to_obj(item) for item in target)
-    # elif hasattr(target, 'json'):                                             # todo: see if we need this. I don't like the idea of adding this extra hidden behaviour to this class
-    #     return dict_to_obj(target.json())
+# def obj_to_dict(target):                                                            # Recursively converts an object (SimpleNamespace) back into a dictionary."""
+#     if isinstance(target, SimpleNamespace):                                         # Convert SimpleNamespace attributes to a dictionary
+#         return {key: obj_to_dict(value) for key, value in target.__dict__.items()}
+#     elif isinstance(target, list):                                                  # Handle lists: convert each item in the list
+#         return [obj_to_dict(item) for item in target]
+#     elif isinstance(target, tuple):                                                 # Handle tuples: convert each item and return as a tuple
+#         return tuple(obj_to_dict(item) for item in target)
+#     elif isinstance(target, set):                                                   # Handle sets: convert each item and return as a set
+#         return {obj_to_dict(item) for item in target}
+#     return target                                                                   # Return non-object types as is
 
-    return target
-
-def obj_to_dict(target):                                                            # Recursively converts an object (SimpleNamespace) back into a dictionary."""
-    if isinstance(target, SimpleNamespace):                                         # Convert SimpleNamespace attributes to a dictionary
-        return {key: obj_to_dict(value) for key, value in target.__dict__.items()}
-    elif isinstance(target, list):                                                  # Handle lists: convert each item in the list
-        return [obj_to_dict(item) for item in target]
-    elif isinstance(target, tuple):                                                 # Handle tuples: convert each item and return as a tuple
-        return tuple(obj_to_dict(item) for item in target)
-    elif isinstance(target, set):                                                   # Handle sets: convert each item and return as a set
-        return {obj_to_dict(item) for item in target}
-    return target                                                                   # Return non-object types as is
-
-def str_to_obj(target):
-    import json
-
-    if hasattr(target, 'json'):
-        return dict_to_obj(target.json())
-    return dict_to_obj(json.loads(target))
 
 def enum_from_value(enum_type, value):
     if value in enum_type.__members__:                                                              # Try to get by name (e.g., 'SYSTEM')
@@ -330,11 +322,9 @@ def serialize_to_dict(obj):
 base_types          = base_classes
 bytes_to_obj        = pickle_load_from_bytes
 
-json_to_obj         = str_to_obj
 
 full_type_name      = class_full_name
 
-obj                 = dict_to_obj
 obj_list_set        = obj_keys
 obj_info            = print_object_members
 obj_methods         = print_object_methods

@@ -8,7 +8,7 @@ from osbot_utils.helpers.flows.actions.Flow__Stats__Collector import Flow__Stats
 from osbot_utils.helpers.flows.schemas.Schema__Flow__Status                 import Schema__Flow__Status
 from osbot_utils.helpers.flows.schemas.Schema__Task__Stats                  import Schema__Task__Stats
 from osbot_utils.utils.Misc                                                 import list_set
-from osbot_utils.utils.Objects                                              import __
+from osbot_utils.testing.__                                                 import __
 from osbot_utils.context_managers.disable_root_loggers                      import disable_root_loggers
 
 class test_Flow__Stats__Collector(TestCase):

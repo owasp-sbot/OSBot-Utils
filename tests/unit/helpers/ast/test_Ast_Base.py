@@ -1,11 +1,9 @@
 import ast
 import sys
 import types
+import pytest
 from unittest                           import TestCase
 from unittest.mock                      import patch, call
-
-import pytest
-
 from osbot_utils.testing.Catch          import Catch
 from osbot_utils.utils.Misc             import list_set, random_string
 from osbot_utils.utils.Objects          import obj_data

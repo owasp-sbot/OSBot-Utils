@@ -1,5 +1,4 @@
-from functools import wraps
-
+from functools                 import wraps
 from osbot_utils.utils.Objects import get_missing_fields
 
 
