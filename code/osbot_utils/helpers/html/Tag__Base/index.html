@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/Tag__Base/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Tag__Base - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Tag__Base";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/Tag__Base.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/Tag__Base/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Tag__Base</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="tag__base">Tag__Base<a class="headerlink" href="#tag__base" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Tag__Base</code> is the foundational class for all HTML tag representations in the object-oriented tag system. It provides core functionality for rendering, attribute management, and element hierarchy, serving as the base class for specific tag implementations.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Tag__Base(Type_Safe):
+    attributes               : dict
+    elements                 : list
+    end_tag                  : bool = True
+    indent                   : int
+    tag_name                 : str
+    tag_classes              : list
+    inner_html               : str
+    new_line_before_elements : bool = True
+</code></pre>
+<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Attribute Management</strong>: Flexible attribute handling with special class support</li>
+<li><strong>Element Hierarchy</strong>: Parent-child relationships with proper nesting</li>
+<li><strong>Rendering Engine</strong>: Converts tag objects to HTML with formatting</li>
+<li><strong>Type Safety</strong>: Inherits from Type_Safe for validation</li>
+<li><strong>Indentation Control</strong>: Configurable indentation for readable output</li>
+</ul>
+<h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
+<h3 id="attributes"><code>attributes</code><a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>dict</code></li>
+<li><strong>Purpose</strong>: HTML attributes (id, style, data-*, etc.)</li>
+<li><strong>Example</strong>: <code>{'id': 'main', 'data-value': '123'}</code></li>
+</ul>
+<h3 id="elements"><code>elements</code><a class="headerlink" href="#elements" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>list</code></li>
+<li><strong>Purpose</strong>: Child elements (Tag__Base instances or Tag__Text)</li>
+<li><strong>Default</strong>: <code>[]</code></li>
+</ul>
+<h3 id="end_tag"><code>end_tag</code><a class="headerlink" href="#end_tag" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Purpose</strong>: Whether to render closing tag</li>
+<li><strong>Default</strong>: <code>True</code> (False for void elements)</li>
+</ul>
+<h3 id="indent"><code>indent</code><a class="headerlink" href="#indent" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Purpose</strong>: Indentation level for rendering</li>
+<li><strong>Default</strong>: <code>0</code></li>
+</ul>
+<h3 id="tag_name"><code>tag_name</code><a class="headerlink" href="#tag_name" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Purpose</strong>: HTML element name</li>
+<li><strong>Example</strong>: <code>'div'</code>, <code>'p'</code>, <code>'span'</code></li>
+</ul>
+<h3 id="tag_classes"><code>tag_classes</code><a class="headerlink" href="#tag_classes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>list</code></li>
+<li><strong>Purpose</strong>: CSS classes (merged into class attribute)</li>
+<li><strong>Example</strong>: <code>['container', 'active']</code></li>
+</ul>
+<h3 id="inner_html"><code>inner_html</code><a class="headerlink" href="#inner_html" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Purpose</strong>: Direct HTML content (before child elements)</li>
+<li><strong>Default</strong>: <code>''</code></li>
+</ul>
+<h3 id="new_line_before_elements"><code>new_line_before_elements</code><a class="headerlink" href="#new_line_before_elements" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>bool</code></li>
+<li><strong>Purpose</strong>: Add newline before child elements</li>
+<li><strong>Default</strong>: <code>True</code></li>
+</ul>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="appendelements"><code>append(*elements)</code><a class="headerlink" href="#appendelements" title="Permanent link">&para;</a></h3>
+<p>Adds elements to the children list.</p>
+<pre><code class="language-python">div = Tag__Base(tag_name='div')
+p1 = Tag__Base(tag_name='p', inner_html='First')
+p2 = Tag__Base(tag_name='p', inner_html='Second')
+div.append(p1, p2)
+</code></pre>
+<h3 id="render-str"><code>render() -&gt; str</code><a class="headerlink" href="#render-str" title="Permanent link">&para;</a></h3>
+<p>Renders the tag and all children to HTML.</p>
+<pre><code class="language-python">div = Tag__Base(
+    tag_name='div',
+    attributes={'id': 'container'},
+    tag_classes=['main', 'wide']
+)
+html = div.render()
+# &lt;div id=&quot;container&quot; class=&quot;main wide&quot;&gt;&lt;/div&gt;
+</code></pre>
+<h3 id="render_attributes-str"><code>render_attributes() -&gt; str</code><a class="headerlink" href="#render_attributes-str" title="Permanent link">&para;</a></h3>
+<p>Renders attributes including merged classes.</p>
+<pre><code class="language-python">tag = Tag__Base(
+    attributes={'id': 'test'},
+    tag_classes=['active', 'highlight']
+)
+attrs = tag.render_attributes()
+# 'id=&quot;test&quot; class=&quot;active highlight&quot;'
+</code></pre>
+<h3 id="render_element-str"><code>render_element() -&gt; str</code><a class="headerlink" href="#render_element-str" title="Permanent link">&para;</a></h3>
+<p>Core rendering logic with indentation and formatting.</p>
+<h3 id="render_elements-str"><code>render_elements() -&gt; str</code><a class="headerlink" href="#render_elements-str" title="Permanent link">&para;</a></h3>
+<p>Renders all child elements.</p>
+<h3 id="attributes_valuesattributes_names-dict"><code>attributes_values(*attributes_names) -&gt; dict</code><a class="headerlink" href="#attributes_valuesattributes_names-dict" title="Permanent link">&para;</a></h3>
+<p>Extracts specific attributes by name.</p>
+<pre><code class="language-python">link = Tag__Link(href='https://example.com', rel='stylesheet')
+attrs = link.attributes_values('href', 'rel')
+# {'href': 'https://example.com', 'rel': 'stylesheet'}
+</code></pre>
+<h3 id="elements__by_tag_name-dict"><code>elements__by_tag_name() -&gt; dict</code><a class="headerlink" href="#elements__by_tag_name-dict" title="Permanent link">&para;</a></h3>
+<p>Groups child elements by tag name.</p>
+<pre><code class="language-python">div = Tag__Base(tag_name='div')
+div.append(
+    Tag__Base(tag_name='p'),
+    Tag__Base(tag_name='p'),
+    Tag__Base(tag_name='span')
+)
+grouped = div.elements__by_tag_name()
+# {'p': [&lt;p&gt;, &lt;p&gt;], 'span': [&lt;span&gt;]}
+</code></pre>
+<h3 id="elements__with_tag_nametag_name-list"><code>elements__with_tag_name(tag_name) -&gt; list</code><a class="headerlink" href="#elements__with_tag_nametag_name-list" title="Permanent link">&para;</a></h3>
+<p>Gets all child elements with specific tag.</p>
+<pre><code class="language-python">paragraphs = div.elements__with_tag_name('p')
+# [&lt;p&gt;, &lt;p&gt;]
+</code></pre>
+<h3 id="savefile_path-str"><code>save(file_path) -&gt; str</code><a class="headerlink" href="#savefile_path-str" title="Permanent link">&para;</a></h3>
+<p>Renders and saves to file.</p>
+<pre><code class="language-python">html = Tag__Html()
+html.save('output.html')
+</code></pre>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="creating-basic-elements">Creating Basic Elements<a class="headerlink" href="#creating-basic-elements" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Simple div
+div = Tag__Base(
+    tag_name='div',
+    attributes={'id': 'content'},
+    inner_html='Hello World'
+)
+
+# Paragraph with classes
+p = Tag__Base(
+    tag_name='p',
+    tag_classes=['text-large', 'intro'],
+    inner_html='Welcome to our site'
+)
+</code></pre>
+<h3 id="building-hierarchies">Building Hierarchies<a class="headerlink" href="#building-hierarchies" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Create structure
+container = Tag__Base(tag_name='div', attributes={'class': 'container'})
+header = Tag__Base(tag_name='header')
+nav = Tag__Base(tag_name='nav')
+ul = Tag__Base(tag_name='ul')
+
+# Build hierarchy
+container.append(header)
+header.append(nav)
+nav.append(ul)
+
+# Add list items
+for item in ['Home', 'About', 'Contact']:
+    li = Tag__Base(tag_name='li')
+    a = Tag__Base(
+        tag_name='a',
+        attributes={'href': f'#{item.lower()}'},
+        inner_html=item
+    )
+    li.append(a)
+    ul.append(li)
+</code></pre>
+<h3 id="custom-tag-classes">Custom Tag Classes<a class="headerlink" href="#custom-tag-classes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Tag__Card(Tag__Base):
+    def __init__(self, title='', content='', **kwargs):
+        super().__init__(**kwargs)
+        self.tag_name = 'div'
+        self.tag_classes = ['card']
+
+        # Add title
+        if title:
+            title_elem = Tag__Base(
+                tag_name='h3',
+                tag_classes=['card-title'],
+                inner_html=title
+            )
+            self.append(title_elem)
+
+        # Add content
+        if content:
+            content_elem = Tag__Base(
+                tag_name='div',
+                tag_classes=['card-content'],
+                inner_html=content
+            )
+            self.append(content_elem)
+
+# Use custom tag
+card = Tag__Card(
+    title='Welcome',
+    content='This is a card component',
+    attributes={'id': 'welcome-card'}
+)
+</code></pre>
+<h3 id="mixed-content-handling">Mixed Content Handling<a class="headerlink" href="#mixed-content-handling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Paragraph with mixed content
+p = Tag__Base(tag_name='p')
+p.inner_html = 'This is '
+
+# Add strong element
+strong = Tag__Base(
+    tag_name='strong',
+    inner_html='important'
+)
+p.append(strong)
+
+# Add text node
+text = Tag__Text(' information')
+p.append(text)
+
+# Renders: &lt;p&gt;This is &lt;strong&gt;important&lt;/strong&gt; information&lt;/p&gt;
+</code></pre>
+<h2 id="rendering-details">Rendering Details<a class="headerlink" href="#rendering-details" title="Permanent link">&para;</a></h2>
+<h3 id="indentation-rules">Indentation Rules<a class="headerlink" href="#indentation-rules" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Set indent level
+outer = Tag__Base(tag_name='div', indent=0)
+inner = Tag__Base(tag_name='p', indent=1)
+outer.append(inner)
+
+# Renders with 4-space indentation:
+# &lt;div&gt;
+#     &lt;p&gt;&lt;/p&gt;
+# &lt;/div&gt;
+</code></pre>
+<h3 id="formatting-control">Formatting Control<a class="headerlink" href="#formatting-control" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Control newlines
+div = Tag__Base(
+    tag_name='div',
+    new_line_before_elements=False
+)
+# Children render on same line as opening tag
+
+# Self-closing tags
+img = Tag__Base(
+    tag_name='img',
+    end_tag=False,
+    attributes={'src': 'image.jpg'}
+)
+# Renders: &lt;img src=&quot;image.jpg&quot;/&gt;
+</code></pre>
+<h2 id="advanced-patterns">Advanced Patterns<a class="headerlink" href="#advanced-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="dynamic-attribute-building">Dynamic Attribute Building<a class="headerlink" href="#dynamic-attribute-building" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def build_data_attributes(data_dict):
+    &quot;&quot;&quot;Convert dict to data-* attributes.&quot;&quot;&quot;
+    attrs = {}
+    for key, value in data_dict.items():
+        attrs[f'data-{key}'] = str(value)
+    return attrs
+
+tag = Tag__Base(
+    tag_name='div',
+    attributes=build_data_attributes({
+        'id': 123,
+        'category': 'products',
+        'active': True
+    })
+)
+# &lt;div data-id=&quot;123&quot; data-category=&quot;products&quot; data-active=&quot;True&quot;&gt;&lt;/div&gt;
+</code></pre>
+<h3 id="conditional-rendering">Conditional Rendering<a class="headerlink" href="#conditional-rendering" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class ConditionalTag(Tag__Base):
+    def __init__(self, condition=True, **kwargs):
+        super().__init__(**kwargs)
+        self.condition = condition
+
+    def render(self):
+        if self.condition:
+            return super().render()
+        return ''  # Don't render if condition is false
+
+# Usage
+tag = ConditionalTag(
+    condition=user_is_admin,
+    tag_name='div',
+    inner_html='Admin panel'
+)
+</code></pre>
+<h3 id="template-integration">Template Integration<a class="headerlink" href="#template-integration" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class TemplateTag(Tag__Base):
+    def __init__(self, template_vars=None, **kwargs):
+        super().__init__(**kwargs)
+        self.template_vars = template_vars or {}
+
+    def render(self):
+        # Replace template variables
+        if self.inner_html and self.template_vars:
+            for key, value in self.template_vars.items():
+                self.inner_html = self.inner_html.replace(
+                    f'{{{key}}}', str(value)
+                )
+        return super().render()
+
+# Usage
+welcome = TemplateTag(
+    tag_name='h1',
+    inner_html='Welcome, {username}!',
+    template_vars={'username': 'John'}
+)
+# Renders: &lt;h1&gt;Welcome, John!&lt;/h1&gt;
+</code></pre>
+<h2 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h2>
+<h3 id="element-caching">Element Caching<a class="headerlink" href="#element-caching" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class CachedTag(Tag__Base):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._render_cache = None
+        self._cache_valid = True
+
+    def append(self, *elements):
+        self._cache_valid = False
+        return super().append(*elements)
+
+    def render(self):
+        if self._cache_valid and self._render_cache:
+            return self._render_cache
+
+        self._render_cache = super().render()
+        self._cache_valid = True
+        return self._render_cache
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Use Specific Tag Classes</strong>: Prefer Tag__Div over Tag__Base</li>
+<li><strong>Set Meaningful IDs</strong>: Use attributes for identification</li>
+<li><strong>Manage Classes Properly</strong>: Use tag_classes for CSS</li>
+<li><strong>Control Indentation</strong>: Set indent for readable output</li>
+<li><strong>Handle Mixed Content</strong>: Use inner_html for text before elements</li>
+</ol>
+<h2 id="common-pitfalls">Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Circular References</strong>: Don't create parent-child loops</li>
+<li><strong>Attribute Conflicts</strong>: tag_classes vs attributes['class']</li>
+<li><strong>Memory Leaks</strong>: Large element trees consume memory</li>
+<li><strong>Rendering Order</strong>: inner_html renders before elements</li>
+<li><strong>Indentation Accumulation</strong>: Reset indent when needed</li>
+</ol>
+<h2 id="integration-with-schema-system">Integration with Schema System<a class="headerlink" href="#integration-with-schema-system" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Convert from schema to tags
+def schema_to_tag(schema_node):
+    tag = Tag__Base(
+        tag_name=schema_node.tag,
+        attributes=schema_node.attrs
+    )
+
+    # Add text content
+    for text_node in sorted(schema_node.text_nodes, key=lambda x: x.position):
+        if text_node.position == 0:
+            tag.inner_html = text_node.data
+        else:
+            tag.append(Tag__Text(text_node.data))
+
+    # Add child elements
+    for child in schema_node.child_nodes:
+        tag.append(schema_to_tag(child))
+
+    return tag
+</code></pre>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

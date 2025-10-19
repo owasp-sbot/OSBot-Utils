@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/getting-started/type-safe-technical-documentation/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Type_Safe Technical Documentation - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Technical Documentation";
+        var mkdocs_page_input_path = "type_safe/getting-started/type-safe-technical-documentation.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/getting-started/type-safe-technical-documentation/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Technical Documentation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-technical-documentation">Type_Safe Technical Documentation<a class="headerlink" href="#type_safe-technical-documentation" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Type_Safe is a Python class that implements runtime type checking and validation for class attributes. It provides a robust type safety system that enforces type constraints during attribute assignment, serialization, and deserialization. The class is particularly useful for creating data models that require strict type enforcement and validation.</p>
+<h2 id="problems-type_safe-solves">Problems Type_Safe Solves<a class="headerlink" href="#problems-type_safe-solves" title="Permanent link">&para;</a></h2>
+<h3 id="1-runtime-type-safety">1. Runtime Type Safety<a class="headerlink" href="#1-runtime-type-safety" title="Permanent link">&para;</a></h3>
+<p>Unlike Python's type hints which are only used for static analysis, Type_Safe enforces type checking at runtime:
+- Prevents type-related bugs during program execution
+- Catches type mismatches immediately when they occur
+- Provides clear error messages identifying the exact location and nature of type violations
+- Supports complex type validation including nested objects and collections</p>
+<h3 id="2-automatic-variable-creation-and-initialization">2. Automatic Variable Creation and Initialization<a class="headerlink" href="#2-automatic-variable-creation-and-initialization" title="Permanent link">&para;</a></h3>
+<p>Type_Safe automatically handles:
+- Creation of class attributes based on type annotations
+- Initialization of attributes with appropriate default values
+- Proper instantiation of nested Type_Safe objects
+- Management of collection types (lists, dictionaries)</p>
+<p>For example, instead of writing:</p>
+<pre><code class="language-python">def __init__(self):
+    self.items         = []
+    self.metadata      = {}
+    self.config        = Config()
+    self.settings      = Settings()
+    self.max_retries   = 3
+</code></pre>
+<p>You can simply declare:</p>
+<pre><code class="language-python">class MyClass(Type_Safe):
+    items       : List[str]
+    metadata    : Dict[str, Any]
+    config      : Config
+    settings    : Settings
+    max_retries : int = 3
+</code></pre>
+<h2 id="real-world-example-mgraph-schema-system">Real-World Example: MGraph Schema System<a class="headerlink" href="#real-world-example-mgraph-schema-system" title="Permanent link">&para;</a></h2>
+<p>The MGraph schema system demonstrates how Type_Safe can be used to create complex, interconnected data structures with strict type safety:</p>
+<pre><code class="language-python">class Schema__MGraph__Graph(Type_Safe):
+    edges        : Dict[Random_Guid, Schema__MGraph__Edge]
+    graph_data   : Schema__MGraph__Graph__Data
+    graph_id     : Random_Guid
+    graph_type   : Type['Schema__MGraph__Graph']
+    nodes        : Dict[Random_Guid, Schema__MGraph__Node]
+    schema_types : Schema__MGraph__Types
+
+class Schema__MGraph__Node(Type_Safe):
+    node_data   : Schema__MGraph__Node__Data
+    node_id     : Random_Guid
+    node_type   : Type['Schema__MGraph__Node']
+
+class Schema__MGraph__Edge(Type_Safe):
+    edge_config  : Schema__MGraph__Edge__Config
+    edge_data    : Schema__MGraph__Edge__Data
+    edge_type    : Type['Schema__MGraph__Edge']
+    from_node_id : Random_Guid
+    to_node_id   : Random_Guid
+</code></pre>
+<p>This schema system showcases several Type_Safe features:
+- Nested type-safe objects
+- Type-safe collections with complex key/value types
+- Forward references for self-referential types
+- Automatic initialization of complex object hierarchies</p>
+<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
+<h3 id="1-runtime-type-checking">1. Runtime Type Checking<a class="headerlink" href="#1-runtime-type-checking" title="Permanent link">&para;</a></h3>
+<p>Type_Safe enforces type annotations during program execution:</p>
+<pre><code class="language-python">class Person(Type_Safe):
+    name    : str
+    age     : int
+    active  : bool = True
+
+person = Person()
+person.name   = &quot;John&quot;     # Valid
+person.age    = &quot;25&quot;       # Raises TypeError at runtime - expected int, got str
+person.active = None       # Raises TypeError - expected bool, got NoneType
+</code></pre>
+<p>Runtime checking includes:
+- Type validation during attribute assignment
+- Collection element type checking
+- Nested object type validation
+- Complex type support (Union, Optional, etc.)</p>
+<h3 id="2-the-type_safe-decorator">2. The @type_safe Decorator<a class="headerlink" href="#2-the-type_safe-decorator" title="Permanent link">&para;</a></h3>
+<p>The @type_safe decorator provides method-level type checking:</p>
+<pre><code class="language-python">class Calculator(Type_Safe):
+    @type_safe
+    def add(self, a: int, b: int, multiply: bool = False) -&gt; int:           # Validates params
+        result = a + b
+        return result * 2 if multiply else result
+
+    @type_safe
+    def process_items(self, items     : List[int],
+                           threshold  : Optional[float] = None,
+                           callbacks  : Dict[str, Callable] = None) -&gt; List[int]:
+        return [x for x in items if x &gt; (threshold or 0)]
+
+calc = Calculator()
+calc.add(1, 2)                   # Returns 3
+calc.add(&quot;1&quot;, 2)                 # Raises TypeError at runtime
+calc.process_items([1,2,3], 1.5) # Valid
+</code></pre>
+<p>Key features of @type_safe:
+- Validates all method parameters against their type annotations
+- Supports default values and optional parameters
+- Handles complex type hints including Union and Optional
+- Provides clear error messages for type violations</p>
+<h3 id="automatic-default-value-initialization">Automatic Default Value Initialization<a class="headerlink" href="#automatic-default-value-initialization" title="Permanent link">&para;</a></h3>
+<p>Type_Safe automatically initializes attributes based on their type annotations, eliminating the need for explicit default values in most cases:</p>
+<pre><code class="language-python">class AutoInit(Type_Safe):
+    # Type_Safe automatically initializes based on type annotations
+    name        : str             # Initialized to ''
+    count       : int             # Initialized to 0
+    active      : bool            # Initialized to False
+    items       : List[str]       # Initialized to []
+    mapping     : Dict[str, int]  # Initialized to {}
+
+    # Only use explicit defaults for non-default values
+    status      : str             = &quot;active&quot;
+    priority    : int             = 1
+
+auto = AutoInit()
+assert auto.name    == ''         # String default
+assert auto.count   == 0          # Integer default
+assert auto.active  is False      # Boolean default
+assert auto.items   == []         # List default
+assert auto.mapping == {}         # Dict default
+assert auto.status  == &quot;active&quot;   # Explicit default
+</code></pre>
+<p>Default values are determined by type:
+1. Basic Types:
+   - str → ''
+   - int → 0
+   - float → 0.0
+   - bool → False
+   - bytes → b''</p>
+<ol>
+<li>Collections:</li>
+<li>List[T] → []</li>
+<li>Dict[K,V] → {}</li>
+<li>Set[T] → set()</li>
+<li>
+<p>Tuple[...] → (0,...,0)</p>
+</li>
+<li>
+<p>Optional/Custom:</p>
+</li>
+<li>Optional[T] → None</li>
+<li>Custom Classes → None (if no default constructor)</li>
+<li>Union[T1,T2] → Default of first type</li>
+</ol>
+<p>Note: Type_Safe only performs automatic initialization if the type has a default constructor available. This prevents issues with classes that require specific initialization parameters.</p>
+<h3 id="let-type_safe-handle-defaults-through-type-annotations">Let Type_Safe handle defaults through type annotations<a class="headerlink" href="#let-type_safe-handle-defaults-through-type-annotations" title="Permanent link">&para;</a></h3>
+<pre><code>class ComplexTypes(Type_Safe):
+    # Basic types (Type_Safe will initialize to: '', 0, False)
+    name        : str                                         # → ''
+    age         : int                                         # → 0
+    active      : bool                                        # → False
+
+    # Collections (Type_Safe will initialize to: [], {}, (0,0))
+    tags        : List[str]                                   # → []
+    scores      : Dict[str, float]                            # → {}
+    coordinates : Tuple[int, int]                             # → (0,0)
+
+    # Optional and Union types
+    nickname    : Optional[str]                               # → None
+    id_value    : Union[int, str]                             # → 0 (default of first type)
+
+    # Custom types and forward refs
+    config      : 'Config'                                    # → None
+    parent      : Optional['ComplexTypes']                    # → None
+
+    # Nested collections
+    matrix      : List[List[int]]                             # → []
+    tree        : Dict[str, Dict[str, Any]]                   # → {}
+
+    # Only immutable defaults are allowed and needed
+    version     : int              = 1                        # Explicit immutable default
+    status      : str              = &quot;draft&quot;                  # Explicit immutable default
+    created_at  : Optional[str]    = None                     # Explicit None is immutable
+</code></pre>
+<h3 id="4-serialization-support">4. Serialization Support<a class="headerlink" href="#4-serialization-support" title="Permanent link">&para;</a></h3>
+<p>Type_Safe provides built-in JSON serialization:</p>
+<pre><code class="language-python">class UserProfile(Type_Safe):
+    user_id   : int
+    username  : str
+    settings  : Dict[str, Any]
+    tags      : List[str]        = []
+    active    : bool             = True
+
+# Create and populate object
+profile = UserProfile(user_id   = 1,
+                     username  = &quot;john_doe&quot;,
+                     settings  = {&quot;theme&quot;: &quot;dark&quot;},
+                     tags      = [&quot;admin&quot;, &quot;staff&quot;])
+
+# Serialize to JSON
+json_data = profile.json()
+
+# Deserialize from JSON
+new_profile = UserProfile.from_json(json_data)
+
+# Verify equality
+assert new_profile.json() == profile.json()
+</code></pre>
+<h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
+<h3 id="type-safe-collections">Type-Safe Collections<a class="headerlink" href="#type-safe-collections" title="Permanent link">&para;</a></h3>
+<p>Type_Safe provides automatic type safety for collection types:</p>
+<pre><code class="language-python">class UserSystem(Type_Safe):
+    # Type-safe list - ensures all elements are strings
+    usernames     : List[str]                         
+
+    # Type-safe dict - ensures keys are strings and values are integers
+    user_scores   : Dict[str, int]                    
+
+    # Nested collections maintain type safety at all levels
+    user_metadata : Dict[str, List[str]]              
+
+system = UserSystem()
+
+# List type safety
+system.usernames.append(&quot;alice&quot;)                      # Valid
+system.usernames.append(123    )                      # ERROR: Expected str, got int
+
+# Dict type safety - both keys and values are checked
+system.user_scores[&quot;alice&quot;] = 100                     # Valid
+system.user_scores[&quot;bob&quot;  ] = &quot;high&quot;                  # ERROR: Expected int, got str
+system.user_scores[42     ] = 100                     # ERROR: Expected str key, got int
+
+# Nested collection type safety
+system.user_metadata[&quot;alice&quot;] = [&quot;admin&quot;, &quot;user&quot;]     # Valid
+system.user_metadata[&quot;bob&quot;  ] = [1, 2, 3]             # ERROR: Expected List[str]
+</code></pre>
+<p>Key features of Type_Safe collections:
+- Automatic type checking of all elements
+- Runtime validation of collection operations
+- Support for nested collections
+- Clear error messages for type violations</p>
+<p>All collection operations maintain type safety:</p>
+<pre><code class="language-python"># Lists
+users : List[str] = []                               # Type_Safe initializes empty list
+users.append(&quot;alice&quot;           )                     # Type checked
+users.extend([&quot;bob&quot;, &quot;charlie&quot;])                     # Each element type checked
+users.insert(0, 123            )                     # ERROR: Wrong type
+
+# Dictionaries
+scores : Dict[str, float] = {}                       # Type_Safe initializes empty dict
+scores[&quot;alice&quot;]           = 95.5                     # Types checked
+scores.update({&quot;bob&quot;: 87.5})                         # Each element checked
+scores.update({42: 90.0}   )                          # ERROR: Wrong key type
+</code></pre>
+<h3 id="type-resolution-and-validation">Type Resolution and Validation<a class="headerlink" href="#type-resolution-and-validation" title="Permanent link">&para;</a></h3>
+<p>Type_Safe handles various typing scenarios:</p>
+<pre><code class="language-python">class TypeValidation(Type_Safe):
+    # Forward references - only works with current class name
+    self_ref     : 'TypeValidation'            # Correct: Matches class name
+    children     : List['TypeValidation']      # Correct: Matches class name
+
+    # These would raise exceptions
+    # other_type   : 'OtherClass'              # ERROR: Can't reference other classes
+    # items        : List['Item']              # ERROR: Can't reference other classes
+    # wrong_name   : 'TypeVal'                 # ERROR: Must match class name exactly
+
+    # Union types are validated against all possible types
+    id_field     : Union[int, str, UUID]
+
+    # Optional is treated as Union[T, None]
+    maybe_int    : Optional[int]
+
+    # Collections are checked both at container and element level
+    matrix       : List[List[int]]
+    tree         : Dict[str, Dict[str, Any]]
+</code></pre>
+<h3 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h3>
+<p>Type_Safe provides detailed error messages:</p>
+<pre><code class="language-python">try:
+    profile = UserProfile(user_id=&quot;invalid&quot;)  # Should be int
+except ValueError as e:
+    # Error: Invalid type for attribute 'user_id'. 
+    # Expected '&lt;class 'int'&gt;' but got '&lt;class 'str'&gt;'
+    print(f&quot;Error: {e}&quot;)
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-immutable-default-values">1. Immutable Default Values<a class="headerlink" href="#1-immutable-default-values" title="Permanent link">&para;</a></h3>
+<p>Type_Safe enforces immutability for default values to prevent the classic Python mutable default argument problem. The system only allows immutable types as default values:</p>
+<pre><code class="language-python"># These are safe - using immutable types
+class SafeDefaults(Type_Safe):
+    count       : int               = 0
+    name        : str               = &quot;&quot;
+    enabled     : bool             = False
+    precision   : float            = 0.0
+    bytes_data  : bytes            = b&quot;&quot;
+    fixed_tuple : tuple            = ()
+    frozen      : frozenset        = frozenset()
+
+# These will raise exceptions - mutable defaults not allowed
+class UnsafeDefaults(Type_Safe):
+    settings    : dict             = {}    # ERROR: Mutable default
+    items       : list             = []    # ERROR: Mutable default
+    cache       : set              = set() # ERROR: Mutable default
+</code></pre>
+<p>The allowed immutable types are:
+- int
+- float
+- str
+- bool
+- bytes
+- tuple
+- frozenset
+- None</p>
+<p>For collections, instead of using mutable defaults, you should either:
+1. Leave without a default (Type_Safe will initialize appropriately)
+2. Use None as the default value
+3. Initialize in <strong>init</strong> if you need a specific starting state</p>
+<h3 id="2-define-clear-type-annotations">2. Define Clear Type Annotations<a class="headerlink" href="#2-define-clear-type-annotations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Good
+class Config(Type_Safe):
+    port        : int              = 0     # Immutable default
+    host        : str              = &quot;&quot;    # Immutable default
+    retries     : Optional[int]    = None  # None is immutable
+    credentials : Dict[str, str]           # Type_Safe handles initialization
+
+# These will raise exceptions
+class InvalidConfig(Type_Safe):
+    port      : Any                        # Too permissive
+    host                                   # Missing type annotation
+    settings  : Dict = {'a':'b'}           # ERROR: Type_Safe prevents Dict with values
+    users     : List = ['a']               # ERROR: Type_Safe prevents List with values
+    items     : dict = {}                  # ERROR: Use Dict[K,V] instead of dict
+    data      : list = []                  # ERROR: Use List[T] instead of list
+
+InvalidConfig()  # Will raise this exception:  
+                 #  ValueError: variable 'settings' is defined as type 'typing.Dict' which is not 
+                 #  supported by Type_Safe, with only the following immutable types being supported: 
+                 #  '(&lt;class 'bool'&gt;, &lt;class 'int'&gt;, &lt;class 'float'&gt;, &lt;class 'complex'&gt;, 
+                 #  &lt;class 'str'&gt;, &lt;class 'tuple'&gt;, &lt;class 'frozenset'&gt;, &lt;class 'bytes'&gt;, 
+                 #  &lt;class 'NoneType'&gt;, &lt;class 'enum.EnumType'&gt;, &lt;class 'type'&gt;)'
+</code></pre>
+<ol>
+<li>Use Specific Types</li>
+</ol>
+<pre><code class="language-python"># Good
+class Order(Type_Safe):
+    items      : List[OrderItem]
+    total      : Decimal
+    status     : OrderStatus
+
+# Avoid
+class Order(Type_Safe):
+    items      : list        # Not type-safe
+    total      : float       # Less precise
+    status     : str         # Not type-safe
+</code></pre>
+<ol>
+<li>Leverage Forward References</li>
+</ol>
+<p>Important: Forward references in Type_Safe only work when referencing the current class name as a string. 
+This means you can only use the exact class name as the forward reference:</p>
+<pre><code class="language-python"># Good - using current class name
+class Node(Type_Safe):
+    value    : int
+    children : List['Node']         # Correct: References current class
+    parent   : Optional['Node']     # Correct: References current class
+
+# ERROR - trying to reference other classes
+class Tree(Type_Safe):
+    root     : 'Node'              # ERROR: Can't forward reference other classes
+    nodes    : List['OtherNode']   # ERROR: Can't forward reference other classes
+
+# ERROR - using wrong class name
+class DataNode(Type_Safe):
+    next     : 'Node'              # ERROR: Must use 'DataNode' not 'Node'
+    items    : List['DataNodes']   # ERROR: Must match class name exactly
+</code></pre>
+<p>The correct way to reference other classes is to import them:</p>
+<pre><code class="language-python">from my_module import Node, OtherNode
+
+class Tree(Type_Safe):
+    root     : Node                # Correct: Direct reference
+    nodes    : List[OtherNode]     # Correct: Direct reference
+</code></pre>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="1-configuration-objects">1. Configuration Objects<a class="headerlink" href="#1-configuration-objects" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class DatabaseConfig(Type_Safe):
+    host            : str
+    port            : int               = 5432            # Immutable default
+    username        : str
+    password        : str
+    max_connections : Optional[int]     = None           # None is immutable
+    ssl_enabled     : bool             = False          # Immutable default
+    retry_config    : Dict[str, Union[int, float]]      # Complex defaults need __init__
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)                      # Always call super().__init__ first
+
+        # Complex initialization after super().__init__
+        if not self.retry_config:                       # Check if not set via kwargs
+            self.retry_config = {                       # Set complex defaults
+                &quot;max_retries&quot;: 3,
+                &quot;timeout&quot;: 30.0
+            }
+</code></pre>
+<h3 id="2-api-models">2. API Models<a class="headerlink" href="#2-api-models" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class UserResponse(Type_Safe):
+    id          : int
+    username    : str
+    email       : str
+    roles       : List[str]         = []
+    settings    : Dict[str, Any]    = {}
+    created_at  : datetime
+    updated_at  : Optional[datetime] = None
+</code></pre>
+<h3 id="3-data-transfer-objects">3. Data Transfer Objects<a class="headerlink" href="#3-data-transfer-objects" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class OrderDTO(Type_Safe):
+    order_id    : str
+    items       : List[Dict[str, Union[str, int]]]
+    total       : Decimal
+    status      : str
+    customer_id : Optional[int] = None
+</code></pre>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>Type_Safe provides a robust, feature-rich system for implementing runtime type safety in Python applications. It combines the flexibility of Python with the safety of static typing, making it particularly valuable for large-scale applications where type safety is crucial.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

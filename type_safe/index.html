@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Type_Safe - Comprehensive Runtime Type Safety for Python - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe - Comprehensive Runtime Type Safety for Python";
+        var mkdocs_page_input_path = "type_safe/README.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe - Comprehensive Runtime Type Safety for Python</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-comprehensive-runtime-type-safety-for-python">Type_Safe - Comprehensive Runtime Type Safety for Python<a class="headerlink" href="#type_safe-comprehensive-runtime-type-safety-for-python" title="Permanent link">&para;</a></h1>
+<h2 id="quick-start">🚀 Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<p>Type_Safe provides <strong>continuous runtime type checking</strong> that validates every operation, not just at boundaries. It's part of the OSBot-Utils package and offers unique features not found in other Python type safety libraries.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+from typing import List, Dict, Optional
+
+class UserProfile(Type_Safe):
+    username: str
+    age: int
+    tags: List[str]
+    settings: Dict[str, bool]
+    bio: Optional[str] = None
+
+# Type checking happens automatically
+user = UserProfile()
+user.username = &quot;alice&quot;        # ✓ Valid
+user.age = &quot;25&quot;                # ✗ Raises TypeError immediately!
+user.tags.append(&quot;admin&quot;)      # ✓ Valid  
+user.tags.append(123)          # ✗ Raises TypeError immediately!
+</code></pre>
+<h2 id="why-type_safe">🎯 Why Type_Safe?<a class="headerlink" href="#why-type_safe" title="Permanent link">&para;</a></h2>
+<h3 id="continuous-protection-vs-boundary-checking">Continuous Protection vs. Boundary Checking<a class="headerlink" href="#continuous-protection-vs-boundary-checking" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Type_Safe</th>
+<th>Pydantic</th>
+<th>attrs</th>
+<th>dataclasses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Assignment checking</td>
+<td>✓ Every time</td>
+<td>✓ Optional</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Collection operations</td>
+<td>✓ Every operation</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Nested validation</td>
+<td>✓ Automatic</td>
+<td>✓ Manual</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Type-safe primitives</td>
+<td>✓ Built-in</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Auto-initialization</td>
+<td>✓</td>
+<td>✓</td>
+<td>Partial</td>
+<td>✗</td>
+</tr>
+</tbody>
+</table>
+<h2 id="core-concepts">📚 Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="1-automatic-initialization">1. Automatic Initialization<a class="headerlink" href="#1-automatic-initialization" title="Permanent link">&para;</a></h3>
+<p>No more boilerplate - Type_Safe automatically initializes based on annotations:</p>
+<pre><code class="language-python">class Config(Type_Safe):
+    host: str                    # Auto-initialized to ''
+    port: int                    # Auto-initialized to 0
+    ssl: bool                    # Auto-initialized to False
+    endpoints: List[str]         # Auto-initialized to []
+    headers: Dict[str, str]      # Auto-initialized to {}
+
+    # Only specify non-default values
+    timeout: int = 30
+    retries: int = 3
+</code></pre>
+<h3 id="2-type-safe-collections">2. Type-Safe Collections<a class="headerlink" href="#2-type-safe-collections" title="Permanent link">&para;</a></h3>
+<p>Every collection operation is validated:</p>
+<pre><code class="language-python">class DataStore(Type_Safe):
+    items: List[int]
+    index: Dict[str, int]
+
+store = DataStore()
+
+# List operations - all type-checked
+store.items.append(42)           # ✓
+store.items.extend([1, 2, 3])    # ✓
+store.items.append(&quot;text&quot;)       # ✗ TypeError!
+
+# Dict operations - keys AND values checked  
+store.index[&quot;key&quot;] = 100         # ✓
+store.index[42] = 100            # ✗ TypeError on key!
+store.index[&quot;key&quot;] = &quot;value&quot;     # ✗ TypeError on value!
+</code></pre>
+<h3 id="3-type-safe-primitives">3. Type-Safe Primitives<a class="headerlink" href="#3-type-safe-primitives" title="Permanent link">&para;</a></h3>
+<p>Domain-specific types with built-in validation:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.decorators import type_safe
+
+class UserId(Safe_Id): pass
+class ProductId(Safe_Id): pass
+
+class Order(Type_Safe):
+    user_id: UserId
+    product_id: ProductId
+    quantity: int
+
+# Type safety prevents ID mix-ups
+order = Order()
+order.user_id = UserId(&quot;user_123&quot;)      # ✓
+order.user_id = ProductId(&quot;prod_456&quot;)   # ✗ TypeError!
+order.user_id = &quot;user_123&quot;              # Auto-converts to UserId
+</code></pre>
+<h3 id="4-method-validation-with-type_safe">4. Method Validation with @type_safe<a class="headerlink" href="#4-method-validation-with-type_safe" title="Permanent link">&para;</a></h3>
+<p>Validate method parameters and return values:</p>
+<pre><code class="language-python">class Calculator(Type_Safe):
+    @type_safe
+    def divide(self, a: float, b: float) -&gt; float:
+        if b == 0:
+            raise ValueError(&quot;Division by zero&quot;)
+        return a / b
+
+    @type_safe
+    def process_batch(self, 
+                     numbers: List[float],
+                     operation: str = &quot;sum&quot;) -&gt; float:
+        if operation == &quot;sum&quot;:
+            return sum(numbers)
+        return 0.0
+
+calc = Calculator()
+calc.divide(10, 2)              # ✓ Returns 5.0
+calc.divide(&quot;10&quot;, 2)            # ✗ TypeError!
+calc.process_batch([1.0, 2.0]) # ✓
+calc.process_batch([1, &quot;2&quot;])   # ✗ TypeError!
+</code></pre>
+<h2 id="advanced-features">🔧 Advanced Features<a class="headerlink" href="#advanced-features" title="Permanent link">&para;</a></h2>
+<h3 id="nested-type-safe-objects">Nested Type-Safe Objects<a class="headerlink" href="#nested-type-safe-objects" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Address(Type_Safe):
+    street: str
+    city: str
+    country: str = &quot;USA&quot;
+
+class Person(Type_Safe):
+    name: str
+    address: Address              # Nested Type_Safe object
+    contacts: List[Address]       # List of Type_Safe objects
+
+# Deep initialization from dict
+person = Person.from_json({
+    &quot;name&quot;: &quot;Alice&quot;,
+    &quot;address&quot;: {
+        &quot;street&quot;: &quot;123 Main St&quot;,
+        &quot;city&quot;: &quot;Boston&quot;
+    },
+    &quot;contacts&quot;: [
+        {&quot;street&quot;: &quot;456 Oak Ave&quot;, &quot;city&quot;: &quot;NYC&quot;}
+    ]
+})
+</code></pre>
+<h3 id="custom-validators">Custom Validators<a class="headerlink" href="#custom-validators" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.validators import Min, Max, Regex, Validate
+
+class User(Type_Safe):
+    username: Validate[str, Regex(r'^[a-z0-9_]+$')]
+    age: Validate[int, Min(0), Max(150)]
+    score: Validate[float, Min(0.0), Max(100.0)]
+</code></pre>
+<h3 id="forward-references">Forward References<a class="headerlink" href="#forward-references" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Node(Type_Safe):
+    value: int
+    parent: Optional['Node'] = None
+    children: List['Node'] = []
+
+# Create tree structure
+root = Node(value=1)
+child = Node(value=2)
+child.parent = root
+root.children.append(child)
+</code></pre>
+<h2 id="when-to-use-type_safe">🎯 When to Use Type_Safe<a class="headerlink" href="#when-to-use-type_safe" title="Permanent link">&para;</a></h2>
+<h3 id="perfect-for">Perfect For:<a class="headerlink" href="#perfect-for" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Security-critical applications</strong> - Input validation, API boundaries</li>
+<li><strong>Financial systems</strong> - Type-safe money handling with Safe_Float</li>
+<li><strong>Configuration management</strong> - Validated settings with clear contracts</li>
+<li><strong>Domain modeling</strong> - Rich types like UserId, EmailAddress, etc.</li>
+<li><strong>Data pipelines</strong> - Ensure data integrity throughout processing</li>
+</ul>
+<h3 id="consider-alternatives-when">Consider Alternatives When:<a class="headerlink" href="#consider-alternatives-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Performance is absolutely critical (tight loops, numerical computing)</li>
+<li>You only need validation at boundaries (Pydantic might suffice)</li>
+<li>Working with existing codebases that can't be easily migrated</li>
+</ul>
+<h2 id="performance-considerations">📊 Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<p>Type_Safe adds overhead for safety. Here's what to expect:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Overhead</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Object creation</td>
+<td>~5-10x</td>
+<td>Use at boundaries, cache instances</td>
+</tr>
+<tr>
+<td>Attribute assignment</td>
+<td>~3-5x</td>
+<td>Acceptable for most uses</td>
+</tr>
+<tr>
+<td>Collection operations</td>
+<td>~2-3x</td>
+<td>Consider bulk operations</td>
+</tr>
+<tr>
+<td>Method calls (@type_safe)</td>
+<td>~2x</td>
+<td>Use selectively on public APIs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="performance-tips">Performance Tips:<a class="headerlink" href="#performance-tips" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Use Type_Safe at system boundaries</li>
+<li>Convert to primitives for heavy computation</li>
+<li>Cache Type_Safe objects when possible</li>
+<li>Use <code>@type_safe</code> decorator only where needed</li>
+</ol>
+<h2 id="migration-guide">🔄 Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="from-pydantic">From Pydantic<a class="headerlink" href="#from-pydantic" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Pydantic
+from pydantic import BaseModel, validator
+
+class UserPydantic(BaseModel):
+    name: str
+    age: int
+
+    @validator('age')
+    def validate_age(cls, v):
+        if v &lt; 0:
+            raise ValueError('Age must be positive')
+        return v
+
+# Type_Safe equivalent
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.type_safe.validators import Min
+
+class UserTypeSafe(Type_Safe):
+    name: str
+    age: Validate[int, Min(0)]
+</code></pre>
+<h3 id="from-dataclasses">From dataclasses<a class="headerlink" href="#from-dataclasses" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># dataclasses
+from dataclasses import dataclass, field
+
+@dataclass
+class ConfigDataclass:
+    host: str = &quot;localhost&quot;
+    port: int = 8080
+    ssl: bool = False
+    endpoints: list = field(default_factory=list)
+
+# Type_Safe equivalent  
+class ConfigTypeSafe(Type_Safe):
+    host: str = &quot;localhost&quot;
+    port: int = 8080
+    ssl: bool = False
+    endpoints: List[str]  # Auto-initialized, type-safe
+</code></pre>
+<h2 id="documentation">📖 Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="./docs/api/">Complete API Reference</a></li>
+<li><a href="./docs/type_safe_primitives.md">Type-Safe Primitives Guide</a></li>
+<li><a href="./docs/performance.md">Performance Tuning</a></li>
+<li><a href="./docs/security.md">Security Best Practices</a></li>
+<li><a href="./docs/troubleshooting.md">Troubleshooting Guide</a></li>
+</ul>
+<h2 id="contributing">🤝 Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
+<p>Type_Safe is part of <a href="https://github.com/owasp-sbot/OSBot-Utils">OSBot-Utils</a>. Contributions welcome!</p>
+<h2 id="license">📄 License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>Apache 2.0 - See LICENSE file for details</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
