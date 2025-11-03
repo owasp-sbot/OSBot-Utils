@@ -348,7 +348,8 @@ class test_decorator__type_safe__regression(TestCase):
         # with pytest.raises(TypeError, match="Subscripted generics cannot be used with class and instance checks"):
         #     an_method__static({'aaa': 'abc'       })                                      # Fixed: BUG: should have failed with type safe check
 
-        with pytest.raises(ValueError, match=re.escape("Dict value for key 'aaa' expected type <class 'test__decorator__type_safe__regression.test_decorator__type_safe__regression.test__regression__dict_attribute_fail.<locals>.An_Attribute'>, but got <class 'str'>")):
+        error_message = "Dict value for key 'aaa' in parameter 'attributes': Expected 'An_Attribute', but got 'str'"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
             an_method__static({'aaa': 'abc'       })                                        # Fixed: BUG: should have failed with type safe check
         #
         # with pytest.raises(TypeError, match="Subscripted generics cannot be used with class and instance checks"):

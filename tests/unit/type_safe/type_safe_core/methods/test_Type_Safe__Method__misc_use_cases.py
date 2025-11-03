@@ -1,9 +1,10 @@
 import pytest
 import re
 import unittest
-from typing                                                         import List, Dict, Optional, Union, Any, Type, Callable, TypeVar, Generic
+from typing                                                         import List, Dict, Optional, Union, Any, Type, Callable, TypeVar, Generic, Tuple, Set
 from dataclasses                                                    import dataclass
 from enum                                                           import Enum
+from osbot_utils.type_safe.Type_Safe                                import Type_Safe
 from osbot_utils.type_safe.type_safe_core.methods.Type_Safe__Method import Type_Safe__Method
 
 
@@ -194,7 +195,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         assert bound_args.arguments["url"]     == "https://api.example.com"
         assert bound_args.arguments["timeout"] == 10.0
 
-    def test_complex_nested_validation__raises__not_implemented_error(self):                                            # Test deeply nested type validation
+    def test__bug__complex_nested_validation__raises__not_implemented_error(self):                                            # Test deeply nested type validation
         def process_nested_data(data            : Dict[str, List[Dict[str, Union[int, str, List[float]]]]],
                                transformations : Optional[Dict[str, Callable]]                       = None
                               ) -> Dict[str, Any]:                                       # Process deeply nested data structures
@@ -207,17 +208,295 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                                    {"id": 2, "name": "test2", "values": [4.0, 5.0]}     ],
                      "section2": [ {"id": 3, "name": "test3", "values": []}             ]}
 
-        expected_error = "Validation for subscripted value type 'typing.List[typing.Dict[str, typing.Union[int, str, typing.List[float]]]]' not yet supported in parameter 'data'"
-        with pytest.raises(NotImplementedError, match=re.escape(expected_error)):
-            bound_args = checker.handle_type_safety((test_data,), {})
-            # result     = process_nested_data(**bound_args.arguments)
-            # assert result["processed"] == True
+        # expected_error = "Validation for subscripted value type 'typing.List[typing.Dict[str, typing.Union[int, str, typing.List[float]]]]' not yet supported in parameter 'data'"
+        # with pytest.raises(NotImplementedError, match=re.escape(expected_error)):
+        #     bound_args = checker.handle_type_safety((test_data,), {})         # BUG
+        bound_args = checker.handle_type_safety((test_data,), {})               # FIXED
+        result     = process_nested_data(**bound_args.arguments)
+        assert result["processed"] == True
 
-            # # Invalid nested structure
-            # invalid_data = { "section1": [ {"id": "not_an_int", "name": "test", "values": [1.0]}]}
-            #
-            # with self.assertRaises(ValueError):
-            #     checker.handle_type_safety((invalid_data,), {})
+    def test_nested_dict_validation__simple(self):
+        """Test validation of Dict[str, List[int]]"""
+        def process_data(data: Dict[str, List[int]]) -> int:
+            return sum(sum(v) for v in data.values())
+
+        checker = Type_Safe__Method(process_data)
+
+        # Valid nested structure
+        test_data = {"a": [1, 2, 3], "b": [4, 5]}
+        bound_args = checker.handle_type_safety((test_data,), {})
+        result = process_data(**bound_args.arguments)
+        assert result == 15
+
+        # Invalid: string instead of list
+        with pytest.raises(ValueError, match=re.escape("Dict value for key 'a' in parameter 'data': Expected 'list[int]', but got 'str'")):
+            checker.handle_type_safety(({"a": "not a list"},), {})
+
+        # Invalid: list contains wrong type
+        with pytest.raises(ValueError, match=re.escape(
+            "In list at index 1: Expected 'int', but got 'str'"
+        )):
+            checker.handle_type_safety(({"a": [1, "two", 3]},), {})
+
+
+    def test_nested_dict_validation__with_type_safe_classes(self):
+        """Test validation of Dict[str, CustomClass]"""
+        from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+        class Person(Type_Safe):
+            name: str
+            age: int
+
+        def process_people(people: Dict[str, Person]) -> List[str]:
+            return [p.name for p in people.values()]
+
+        checker = Type_Safe__Method(process_people)
+
+        # Valid: Type_Safe instances
+        john = Person(name="John", age=30)
+        jane = Person(name="Jane", age=25)
+        bound_args = checker.handle_type_safety(({"john": john, "jane": jane},), {})
+        result = process_people(**bound_args.arguments)
+        assert result == ["John", "Jane"]
+
+        # Invalid: string instead of Person
+        with pytest.raises(ValueError, match=re.escape(
+            "Dict value for key 'john' in parameter 'people': Expected 'Person', but got 'str'"
+        )):
+            checker.handle_type_safety(({"john": "not a person"},), {})
+
+
+    def test_nested_dict_validation__three_levels_deep(self):
+        """Test validation of Dict[str, Dict[str, List[int]]]"""
+        def process_nested(data: Dict[str, Dict[str, List[int]]]) -> int:
+            total = 0
+            for outer_dict in data.values():
+                for inner_list in outer_dict.values():
+                    total += sum(inner_list)
+            return total
+
+        checker = Type_Safe__Method(process_nested)
+
+        # Valid three-level structure
+        test_data = {
+            "section1": {"a": [1, 2], "b": [3, 4]},
+            "section2": {"c": [5, 6], "d": [7, 8]}
+        }
+        bound_args = checker.handle_type_safety((test_data,), {})
+        result = process_nested(**bound_args.arguments)
+        assert result == 36
+
+        # Invalid at level 2: list instead of dict
+        with pytest.raises(ValueError, match=re.escape("Dict value for key 'section1' in parameter 'data': Expected 'dict[str, list[int]]', but got 'list'")):
+            checker.handle_type_safety(({"section1": [1, 2, 3]},), {})
+
+        # Invalid at level 3: string in list
+        with pytest.raises(ValueError, match=re.escape(
+            "In list at index 0: Expected 'int', but got 'str'"
+        )):
+            checker.handle_type_safety(({
+                "section1": {"a": ["wrong", 2]}
+            },), {})
+
+
+    def test_nested_dict_validation__with_unions(self):
+        """Test validation of Dict[str, Union[int, str, List[float]]]"""
+        def process_mixed(data: Dict[str, Union[int, str, List[float]]]) -> Dict[str, str]:
+            result = {}
+            for k, v in data.items():
+                if isinstance(v, list):
+                    result[k] = f"list of {len(v)} items"
+                else:
+                    result[k] = str(v)
+            return result
+
+        checker = Type_Safe__Method(process_mixed)
+
+        # Valid mixed types
+        test_data = {
+            "count": 42,
+            "name": "test",
+            "values": [1.0, 2.0, 3.0]
+        }
+        bound_args = checker.handle_type_safety((test_data,), {})
+        result = process_mixed(**bound_args.arguments)
+        assert result == {
+            "count": "42",
+            "name": "test",
+            "values": "list of 3 items"
+        }
+
+        # Invalid: dict not in union
+        with pytest.raises(ValueError, match=re.escape(
+            "Dict value for key 'invalid' in parameter 'data': Expected 'Union[int, str, list[float]]', but got 'dict'"
+        )):
+            checker.handle_type_safety(({"invalid": {"nested": "dict"}},), {})
+
+
+    def test_nested_dict_validation__with_optional(self):
+        """Test validation of Dict[str, Optional[List[int]]]"""
+        def process_optional(data: Dict[str, Optional[List[int]]]) -> int:
+            return sum(sum(v) for v in data.values() if v is not None)
+
+        checker = Type_Safe__Method(process_optional)
+
+        # Valid with None values
+        test_data = {"a": [1, 2, 3], "b": None, "c": [4, 5]}
+        bound_args = checker.handle_type_safety((test_data,), {})
+        result = process_optional(**bound_args.arguments)
+        assert result == 15
+
+        # Invalid: string instead of list or None
+        with pytest.raises(ValueError, match=re.escape(
+            "Dict value for key 'a' in parameter 'data': Expected 'Union[list[int], NoneType]', but got 'str'"
+        )):
+            checker.handle_type_safety(({"a": "not valid"},), {})
+
+
+    def test_nested_dict_validation__error_shows_full_path(self):
+        """Test that error messages show the complete path to the invalid value"""
+        def process_data(data: Dict[str, List[Dict[str, int]]]) -> None:
+            pass
+
+        checker = Type_Safe__Method(process_data)
+
+        # Create deeply nested invalid data
+        test_data = {
+            "users": [
+                {"id": 1, "count": 10},
+                {"id": 2, "count": "invalid"}  # Wrong type here
+            ]
+        }
+
+        # Error should show the path: dict key 'users' -> list index 1 -> dict key 'count'
+        with pytest.raises(ValueError) as exc_info:
+            checker.handle_type_safety((test_data,), {})
+
+        error_msg = str(exc_info.value)
+        # Should mention the parameter name
+        assert "parameter 'data'" in error_msg
+        # Should mention it's in a dict value
+        assert "Dict value" in error_msg or "dict" in error_msg.lower()
+        # Should mention the list index
+        assert "index 1" in error_msg or "index" in error_msg
+
+
+    def test_nested_dict_validation__with_tuples(self):
+        """Test validation of Dict[str, Tuple[int, str, float]]"""
+        def process_tuples(data: Dict[str, Tuple[int, str, float]]) -> List[str]:
+            return [f"{v[1]}: {v[0]} ({v[2]})" for v in data.values()]
+
+        checker = Type_Safe__Method(process_tuples)
+
+        # Valid tuples
+        test_data = {
+            "item1": (1, "first", 1.5),
+            "item2": (2, "second", 2.5)
+        }
+        bound_args = checker.handle_type_safety((test_data,), {})
+        result = process_tuples(**bound_args.arguments)
+        assert result == ["first: 1 (1.5)", "second: 2 (2.5)"]
+
+        # Invalid: wrong tuple length
+        with pytest.raises(ValueError, match=re.escape(
+            "Expected tuple of length 3, but got 2"
+        )):
+            checker.handle_type_safety(({"item1": (1, "missing_float")},), {})
+
+        # Invalid: wrong type in tuple
+        with pytest.raises(ValueError, match=re.escape(
+            "In tuple at index 0: Expected 'int', but got 'str'"
+        )):
+            checker.handle_type_safety(({"item1": ("wrong", "second", 1.5)},), {})
+
+
+    def test_nested_dict_validation__empty_collections(self):
+        """Test that empty nested collections are valid"""
+        def process_data(data: Dict[str, List[int]]) -> int:
+            return len(data)
+
+        checker = Type_Safe__Method(process_data)
+
+        # Empty dict is valid
+        bound_args = checker.handle_type_safety(({},), {})
+        assert process_data(**bound_args.arguments) == 0
+
+        # Empty lists in dict are valid
+        test_data = {"a": [], "b": [], "c": []}
+        bound_args = checker.handle_type_safety((test_data,), {})
+        assert process_data(**bound_args.arguments) == 3
+
+
+    def test_nested_dict_validation__with_sets(self):
+        """Test validation of Dict[str, Set[int]]"""
+        def process_sets(data: Dict[str, Set[int]]) -> int:
+            return sum(len(s) for s in data.values())
+
+        checker = Type_Safe__Method(process_sets)
+
+        # Valid sets
+        test_data = {"a": {1, 2, 3}, "b": {4, 5}}
+        bound_args = checker.handle_type_safety((test_data,), {})
+        result = process_sets(**bound_args.arguments)
+        assert result == 5
+
+        # Invalid: set contains wrong type
+        with pytest.raises(ValueError) as exc_info:
+            checker.handle_type_safety(({"a": {1, "two", 3}},), {})
+
+        error_msg = str(exc_info.value)
+        assert "parameter 'data'" in error_msg
+
+
+    def test_nested_dict_validation__module_qualname_noy_in_errors(self):
+
+        class OuterClass:
+            class InnerClass(Type_Safe):
+                value: int
+
+        def process_nested_class(data: Dict[str, OuterClass.InnerClass]) -> None:
+            pass
+
+        checker = Type_Safe__Method(process_nested_class)
+
+        # Invalid: wrong type
+        with pytest.raises(ValueError) as exc_info:
+            checker.handle_type_safety(({"key": "not_inner_class"},), {})
+
+        error_msg = str(exc_info.value)
+        # Should show nested class structure
+        assert "InnerClass" in error_msg
+        assert error_msg == "Dict value for key 'key' in parameter 'data': Expected 'InnerClass', but got 'str'"
+
+
+    def test_nested_dict_validation__performance_with_large_data(self):
+        """Test that validation doesn't have exponential complexity"""
+        import time
+
+        def process_large(data: Dict[str, List[int]]) -> int:
+            return sum(sum(v) for v in data.values())
+
+        checker = Type_Safe__Method(process_large)
+
+        # Create progressively larger datasets
+        sizes = [1, 10, 50]                         # this also works for 1000, but no need to run it :)
+        times = []
+
+        for size in sizes:
+            test_data = {f"key{i}": list(range(100)) for i in range(size)}
+
+            start = time.time()
+            bound_args = checker.handle_type_safety((test_data,), {})
+            elapsed = time.time() - start
+            times.append(elapsed)
+
+        # Validation time should scale roughly linearly, not exponentially
+        # If it's exponential, time[2]/time[1] >> time[1]/time[0]
+        if len(times) >= 2:
+            ratio1 = times[1] / times[0] if times[0] > 0 else 0
+            ratio2 = times[2] / times[1] if times[1] > 0 else 0
+            # Allow for some variance, but not exponential growth
+            assert ratio2 < ratio1 * 5, f"Validation appears to have exponential complexity: {times}"
 
     def test_multiple_inheritance_validation(self):                                      # Test validation with multiple inheritance
         class Serializable:
@@ -244,10 +523,10 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
 
     def test_error_aggregation(self):                                                    # Test collecting multiple validation errors
         def complex_validation(numbers : List[int]      ,
-                              names   : List[str]      ,
-                              mapping : Dict[str, float],
-                              config  : Dict[str, Any]
-                         ) -> None:                                                   # Function with multiple parameters to validate
+                               names   : List[str]      ,
+                               mapping : Dict[str, float],
+                               config  : Dict[str, Any]
+                          ) -> None:                                                   # Function with multiple parameters to validate
             pass
 
         checker = Type_Safe__Method(complex_validation)
@@ -268,7 +547,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         assert len(errors)    == 3
         assert errors == [ "List item at index 0 expected type <class 'int'>, but got <class 'str'>",
                            "List item at index 0 expected type <class 'str'>, but got <class 'int'>",
-                           "Dict value for key 'k' expected type <class 'float'>, but got <class 'str'>"]
+                            "Dict value for key 'k' in parameter 'mapping': Expected 'float', but got 'str'"]
 
 
     def test_runtime_type_modification(self):                                            # Test behavior when types are modified at runtime
