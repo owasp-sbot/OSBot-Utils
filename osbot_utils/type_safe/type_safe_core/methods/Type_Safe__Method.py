@@ -2,6 +2,7 @@ import collections
 import inspect                                                                                                                       # For function introspection
 from enum                                                                     import Enum
 from typing                                                                   import get_args, get_origin, Union, List, Any, Dict    # For type hinting utilities
+from osbot_utils.type_safe.Type_Safe__Base                                    import Type_Safe__Base
 from osbot_utils.type_safe.Type_Safe__Primitive                               import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations       import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables import IMMUTABLE_TYPES
@@ -244,18 +245,24 @@ class Type_Safe__Method:                                                        
 
                 if value_type is Any:                                                                       # if value type is Any, we don't need to do any checks since they will all match
                     return True
+
+                validator = Type_Safe__Base()
                 for k, v in param_value.items():
-                    if get_origin(key_type) is None:
+                    if get_origin(key_type) is None:                                                        # Validate key (existing logic)
                         if not isinstance(k, key_type):
                             raise ValueError(f"Dict key '{k}' expected type {key_type}, but got {type(k)}")
                     else:
-                        raise NotImplementedError(f"Validation for subscripted key type '{key_type}' not yet supported in parameter '{param_name}'")
+                        try:
+                            validator.is_instance_of_type(k, key_type)
+                        except TypeError as e:
+                            raise ValueError(f"Dict key '{k}' in parameter '{param_name}': {e}") from None
 
-                    if get_origin(value_type) is None:
-                        if not isinstance(v, value_type):
-                            raise ValueError(f"Dict value for key '{k}' expected type {value_type}, but got {type(v)}")
-                    elif value_type is not Any:
-                        raise NotImplementedError(f"Validation for subscripted value type '{value_type}' not yet supported in parameter '{param_name}'")
+                    if value_type is not Any:                                                               # Validate value
+                        try:
+                            validator.is_instance_of_type(v, value_type)
+                        except TypeError as e:
+                            raise ValueError(f"Dict value for key '{k}' in parameter '{param_name}': {e}") from None
+
                 return True
             base_type = origin
         else:

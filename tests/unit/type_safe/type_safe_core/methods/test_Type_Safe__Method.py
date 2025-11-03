@@ -160,7 +160,8 @@ class test_Type_Safe__Method(TestCase):
         # Invalid: wrong value type
         with self.assertRaises(ValueError) as context:
             checker.validate_direct_type('data', {"key": "value"}, Dict[str, int])
-        assert "Dict value for key 'key' expected type" in str(context.exception)
+        #assert "Dict value for key 'key' expected type" in str(context.exception)
+        assert str(context.exception) == "Dict value for key 'key' in parameter 'data': Expected 'int', but got 'str'"
 
     # Test Any type handling
     def test_validate_direct_type__any_type(self):                                      # Test that Any type accepts anything
