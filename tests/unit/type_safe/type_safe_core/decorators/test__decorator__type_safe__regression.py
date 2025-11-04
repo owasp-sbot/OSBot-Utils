@@ -4,7 +4,7 @@ from enum                                                                       
 from typing                                                                             import Any, Dict, Optional, Type, List
 from unittest                                                                           import TestCase
 from osbot_utils.type_safe.primitives.core.Safe_Int                                     import Safe_Int
-from osbot_utils.type_safe.primitives.core.Safe_UInt import Safe_UInt
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                    import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now        import Timestamp_Now
