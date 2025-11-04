@@ -1,5 +1,6 @@
 import functools                                                                           # For wrapping functions
 from osbot_utils.type_safe.Type_Safe__Base                          import Type_Safe__Base
+from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.methods.Type_Safe__Method import Type_Safe__Method
 
 
@@ -21,6 +22,8 @@ def type_safe(func):                                                            
             result     =  func(**bound_args.arguments)                                              # Call original function
 
         if return_type is not None and result is not None:                                          # Validate return type using existing type checking infrastructure
+            if isinstance(return_type, type) and issubclass(return_type, Type_Safe__Primitive):     # Try to convert Type_Safe__Primitive types
+                result = return_type(result)                                                        # Since we are using a Type_Safe__Primitive, if there is bad data (like a negative number in Safe_UInt, this will trigger an exception)
             try:
                 validator.is_instance_of_type(result, return_type)
             except TypeError as e:

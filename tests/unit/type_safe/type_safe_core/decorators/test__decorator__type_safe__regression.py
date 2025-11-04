@@ -4,6 +4,7 @@ from enum                                                                       
 from typing                                                                             import Any, Dict, Optional, Type, List
 from unittest                                                                           import TestCase
 from osbot_utils.type_safe.primitives.core.Safe_Int                                     import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_UInt import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now        import Timestamp_Now
@@ -376,3 +377,14 @@ class test_decorator__type_safe__regression(TestCase):
             assert An_Class().method_1('a', int) # Fixed was:  == {'value': True, 'node_type': int}  # BUG, value should be 'a'
 
         assert An_Class().method_2('a', int) == {'node_type': int, 'value': 'a'}            # Fixed
+
+    def test__regression__type_save_method__return_value_cast_to_safe_uint(self):
+        @type_safe
+        def an_method() -> Safe_UInt:
+            return 42
+
+        #error_message = "Function 'test__decorator__type_safe__bugs.test__bug__type_save_method__return_value_cast_to_safe_uint.<locals>.an_method' return type validation failed: Expected 'Safe_UInt', but got 'int'"
+        # with pytest.raises(TypeError, match=re.escape(error_message)):
+        #     an_method()             # BUG: we should handle transparently the conversion into Safe_UInt (and only raise an exeception if the data is bad)
+        assert an_method()       == 42
+        assert type(an_method()) is Safe_UInt

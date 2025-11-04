@@ -4,6 +4,8 @@ import pytest
 from unittest                                                                           import TestCase
 from typing                                                                             import Union, Optional, List, Type, Callable, Any
 from dataclasses                                                                        import dataclass
+
+from osbot_utils.type_safe.primitives.core.Safe_UInt import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash      import Safe_Str__Hash
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Name       import Safe_Str__File__Name
@@ -371,8 +373,7 @@ class test__decorator__type_safe(TestCase):
         with pytest.raises(TypeError, match="return type validation failed"):
             return_wrong_type()
 
-    def test_return_type_validation__type_safe_primitives(self):
-        """Test return type validation with Type_Safe primitives"""
+    def test_return_type_validation__type_safe_primitives(self):    # Test return type validation with Type_Safe primitives
 
         @type_safe
         def return_safe_id() -> Safe_Id:
@@ -380,11 +381,12 @@ class test__decorator__type_safe(TestCase):
 
         @type_safe
         def return_wrong_primitive() -> Safe_Id:
-            return "not a safe_id"
+            return "not a safe_id" * 50                    #  breaks Safe max size of 512
 
         assert type(return_safe_id()) is Safe_Id
 
-        with pytest.raises(TypeError, match="return type validation failed"):
+        error_message = "Invalid ID: The ID must not exceed 512 characters (was 650)."
+        with pytest.raises(ValueError, match=re.escape(error_message)):
             return_wrong_primitive()
 
     def test_return_type_validation__optional(self):
@@ -533,6 +535,44 @@ class test__decorator__type_safe(TestCase):
         with pytest.raises(ValueError, match="Parameter 'value' expected type"):
             process("not an int")
 
+    def test__type_safe_decorator__converts_return_primitives(self):        # Test that return values are converted to Type_Safe__Primitive types
+
+        @type_safe
+        def returns_safe_uint() -> Safe_UInt:
+            return 42  # int should convert to Safe_UInt
+
+        result = returns_safe_uint()
+        assert isinstance(result, Safe_UInt)
+        assert result == 42
+
+        @type_safe
+        def returns_safe_str() -> Safe_Str:
+            return "hello"  # str should convert to Safe_Str
+
+        result = returns_safe_str()
+        assert isinstance(result, Safe_Str)
+        assert result == "hello"
+
+
+    def test__type_safe_decorator__validates_converted_return_values(self):     # Test that converted values are still validated against constraints
+
+        @type_safe
+        def returns_constrained_uint() -> Safe_UInt:
+            return -1  # Should fail Safe_UInt's min_value=0 constraint
+
+        error_message = 'Safe_UInt must be >= 0, got -1'
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            returns_constrained_uint()
+
+
+    def test__type_safe_decorator__return_none_with_optional(self): # Test that None is valid for Optional return types
+
+        @type_safe
+        def maybe_returns_uint() -> Optional[Safe_UInt]:
+            return None
+
+        result = maybe_returns_uint()
+        assert result is None
 
 
 
