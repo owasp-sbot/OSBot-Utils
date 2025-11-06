@@ -1,8 +1,11 @@
 import re
+import socket
 import sys
+import threading
 import pytest
 from unittest                                                         import TestCase
 from typing                                                           import Dict, Union, Optional, Any, Callable, List, Tuple
+from osbot_utils.testing.__                                           import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id      import Obj_Id
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
@@ -536,3 +539,92 @@ class test_Type_Safe__Dict(TestCase):
 
 
 
+    def test_json__with_unserializable_values(self):                                            # Test that Type_Safe__Dict.json() handles unserializable values gracefully
+        config            = Type_Safe__Dict(expected_key_type=str, expected_value_type=object)  # Create dict with mixed serializable and unserializable values
+        config['host'    ] = 'localhost'
+        config['port'    ] = 8080
+        config['active'  ] = True
+        config['_lock'   ] = threading.RLock()  # Unserializable
+        config['_complex'] = 3 + 4j  # Unserializable
+        config['_socket' ] = socket.socket()  # Unserializable
+
+        result = config.json()
+
+        # Serializable values preserved
+        assert result['host'] == 'localhost'
+        assert result['port'] == 8080
+        assert result['active'] is True
+
+        # Unserializable values become None
+        assert result['_lock'] is None
+        assert result['_complex'] is None
+        assert result['_socket'] is None
+
+        config['_socket'].close()  # Clean up
+
+    def test_json__with_nested_unserializable_in_dict_values(self):             # Test Type_Safe__Dict with nested structures containing unserializable objects"""
+
+        settings = Type_Safe__Dict(expected_key_type=str, expected_value_type=object)
+        settings['database'] = {
+            'host': 'db.example.com',
+            'port': 5432,
+            '_lock': threading.RLock()  # Nested unserializable
+        }
+        settings['cache'] = {
+            'enabled': True,
+            'ttl': 300,
+            '_connection': 3 + 4j  # Nested unserializable
+        }
+
+        result = settings.json()
+
+        # Check nested structure is preserved with None for unserializable
+        assert result['database']['host'] == 'db.example.com'
+        assert result['database']['port'] == 5432
+        assert result['database']['_lock'] is None
+
+        assert result['cache']['enabled'] is True
+        assert result['cache']['ttl'] == 300
+        assert result['cache']['_connection'] is None
+
+    def test_json__with_unserializable_in_list_values(self):                    # Test Type_Safe__Dict with list values containing unserializable objects
+
+        data = Type_Safe__Dict(expected_key_type=str, expected_value_type=object)
+        data['items'] = [
+            'valid_string',
+            123,
+            threading.RLock(),  # Unserializable in list
+            {'key': 'value'},
+            3 + 4j  # Another unserializable
+        ]
+
+        result = data.json()
+
+        assert result['items'][0] == 'valid_string'
+        assert result['items'][1] == 123
+        assert result['items'][2] is None  # RLock becomes None
+        assert result['items'][3] == {'key': 'value'}
+        assert result['items'][4] is None  # Complex number becomes None
+
+    def test_obj__with_unserializable_values(self):                             # Test that Type_Safe__Dict.obj() works with unserializable values
+
+        config = Type_Safe__Dict(expected_key_type=str, expected_value_type=object)
+        config['url'] = 'http://api.example.com'
+        config['timeout'] = 30
+        config['_lock'] = threading.RLock()
+
+        result = config.obj()
+
+        assert result == __( url     = 'http://api.example.com',
+                            timeout  = 30,
+                            _lock    = None)  # Unserializable becomes None
+
+    def test_json__with_nested_frozenset_in_dict(self):                                 # Test frozenset as dict value
+
+        data = Type_Safe__Dict(expected_key_type=str, expected_value_type=object)
+        data['tags'] = frozenset(['python', 'testing', 'type-safe'])
+
+        result = data.json()
+
+        # Should serialize frozenset to list
+        assert set(result['tags']) == {'python', 'testing', 'type-safe'}

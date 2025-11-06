@@ -275,7 +275,7 @@ def serialize_to_dict(obj):
     elif isinstance(obj, Enum):
         if isinstance(obj.value, (str, int, float, bool, type(None))):                          # Check if the enum value is directly serializable
             return obj.value
-        elif isinstance(obj.value, (list, tuple, dict, set)):                                        # Recursively serialize complex values
+        elif isinstance(obj.value, (list, tuple, dict, set, frozenset)):                                        # Recursively serialize complex values
             return serialize_to_dict(obj.value)
         else:
             return obj.name                                                                     # Fallback to name for non-serializable values
@@ -285,7 +285,7 @@ def serialize_to_dict(obj):
         return f"{obj.__module__}.{obj.__name__}"                                   # save the full type name
     elif isinstance(obj, (list, tuple, List)):                                     # Added tuple here
         return [serialize_to_dict(item) for item in obj]
-    elif isinstance(obj, set):
+    elif isinstance(obj, (set, frozenset)):
         return [serialize_to_dict(item) for item in obj]
     elif isinstance(obj, dict):
         serialized_dict = {}                                                        # todo: refactor to separate method
@@ -310,7 +310,8 @@ def serialize_to_dict(obj):
                 data[key] = serialize_to_dict(value)                                # Recursive call for complex types
         return data
     else:
-        raise TypeError(f"Type {type(obj)} not serializable")
+        #raise TypeError(f"Type {type(obj)} not serializable")                      # Breaking change (we don't raise exception any more)
+        return None                                                                 # just return None
 
 
 
