@@ -310,7 +310,8 @@ def serialize_to_dict(obj):
                 data[key] = serialize_to_dict(value)                                # Recursive call for complex types
         return data
     else:
-        raise TypeError(f"Type {type(obj)} not serializable")
+        #raise TypeError(f"Type {type(obj)} not serializable")                      # Breaking change (we don't raise exception any more)
+        return None                                                                 # just return None
 
 
 

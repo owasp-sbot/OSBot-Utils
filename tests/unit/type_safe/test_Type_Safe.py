@@ -1,14 +1,19 @@
 import re
+import socket
 import sys
-import types
 import pytest
+import types
+import threading
+from _thread                                                                        import RLock
 from enum                                                                           import Enum, auto
 from typing                                                                         import Union, Optional, Type, Set
 from unittest                                                                       import TestCase
+from osbot_utils.testing.__helpers                                                  import obj
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now    import Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                      import Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
 from osbot_utils.testing.Catch                                                      import Catch
 from osbot_utils.testing.Stdout                                                     import Stdout
@@ -16,7 +21,7 @@ from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__From_Json      
 from osbot_utils.utils.Json                                                         import json_dumps
 from osbot_utils.utils.Misc                                                         import random_string, list_set
 from osbot_utils.utils.Objects                                                      import obj_data, default_value, serialize_to_dict
-from osbot_utils.testing.__                                                         import __
+from osbot_utils.testing.__ import __, __SKIP__
 
 
 class test_Type_Safe(TestCase):
@@ -197,9 +202,14 @@ class test_Type_Safe(TestCase):
         assert an_class_a.serialize_to_dict() == an_class_dict
 
         obj_to_serialize = 3 + 4j                                   # A complex number which will not serialise
-        with self.assertRaises(TypeError) as context:
-            serialize_to_dict(obj_to_serialize)
-        assert context.exception.args[0]  == "Type <class 'complex'> not serializable"
+        # with self.assertRaises(TypeError) as context:
+        #     serialize_to_dict(obj_to_serialize)
+        # assert context.exception.args[0]  == "Type <class 'complex'> not serializable"            # Breaking change, we don't raise an exception any more in serialize_to_dict
+
+        # NEW TEST: Complex numbers (unserializable) now return None instead of raising
+        obj_to_serialize = 3 + 4j
+        assert serialize_to_dict(obj_to_serialize) is None  # Graceful handling                     # now we just return None
+
 
         assert serialize_to_dict(TestCase) == 'unittest.case.TestCase'                  # types are supported
 
@@ -1123,9 +1133,273 @@ class test_Type_Safe(TestCase):
 
         optional_test = With_Optional_Enum()
         assert optional_test.optional_enum is None
-        optional_test.optional_enum = An_Enum.VALUE_1                              # can assign enum value
+        optional_test.optional_enum = An_Enum.VALUE_1                               # can assign enum value
         assert optional_test.optional_enum == An_Enum.VALUE_1
 
+    def test_serialize_to_dict__unserializable_types_return_none(self):             #  Test that unserializable types return None instead of raising exceptions
+
+
+        # Complex numbers - not serializable
+        assert serialize_to_dict(3 + 4j) is None
+
+        # Threading primitives - not serializable
+        lock = threading.RLock()
+        assert serialize_to_dict(lock) is None
+
+
+        # File handles - also serializable :)
+        import io
+        file_obj = io.StringIO()
+        assert serialize_to_dict(file_obj) == {}
+
+        # Thread are also serializable now :)
+        thread = threading.Thread(target=lambda: None)
+        assert obj(serialize_to_dict(thread)) == __( _target = '<lambda>',
+                                                     _name   = __SKIP__  ,          # this has a different value when running with all tests
+                                                     _args=[],
+                                                     _kwargs=__(),
+                                                     _daemonic=False,
+                                                     _ident=None,
+                                                     _native_id=None,
+                                                     _tstate_lock=None,
+                                                     _started=__(_cond=__(_lock=None,
+                                                                          acquire='acquire',
+                                                                          release='release',
+                                                                          _waiters=None),
+                                                                 _flag=False),
+                                                     _is_stopped=False,
+                                                     _initialized=True,
+                                                     _stderr=__(),
+                                                     _invoke_excepthook='invoke_excepthook')
+
+
+    def test_serialize_to_dict__mixed_serializable_and_unserializable(self):        # Test objects with both serializable and unserializable attributes
+        import threading
+
+        class MixedObject:
+            def __init__(self):
+                self.name = "test"
+                self.count = 42
+                self._lock = threading.RLock()  # Unserializable
+                self.active = True
+
+        mixed_obj = MixedObject()
+        result = serialize_to_dict(mixed_obj)
+
+        # Should contain serializable fields
+        assert result['name'] == "test"
+        assert result['count'] == 42
+        assert result['active'] is True
+
+        # Unserializable field should be None
+        assert result['_lock'] is None
+
+        assert obj(result) == __(name   = 'test',
+                                 count  = 42    ,
+                                 _lock  = None  ,  # None, because threading.RLock() is not serializable
+                                 active = True  )
+
+        # check with Type_Safe objects
+        class Mixed_Object_2(Type_Safe):
+            name  : str             = "test"
+            count : int             = 42
+            _lock : RLock           = None                          # threading.RLock() will return an _thread._lock object
+            active: bool            = True
+
+        assert Mixed_Object_2().obj()                                  == __(name='test', count=42, _lock=None, active=True)
+        assert Mixed_Object_2(_lock= threading.RLock()).obj()          == __(name='test', count=42, _lock=None, active=True)
+        assert Mixed_Object_2.from_json(Mixed_Object_2().json()).obj() == __(name='test', count=42, _lock=None, active=True)
+
+
+
+    def test_serialize_to_dict__nested_unserializable(self):        # Test nested structures containing unserializable objects
+
+        mixed_list = [1, "two", threading.RLock(), 3.14]            # List with mixed content
+        result     = serialize_to_dict(mixed_list)
+
+        assert result == [1, "two", None, 3.14]
+
+        # Dict with unserializable values
+        mixed_dict = { 'good': 123                  ,
+                        'bad': threading.RLock()    ,
+                        'ugly': 3 + 4j              }
+
+        result = serialize_to_dict(mixed_dict)
+        assert result['good'] == 123
+        assert result['bad' ] is None
+        assert result['ugly'] is None
+
+    def test_type_safe_roundtrip_with_unserializable_infrastructure(self):      # Test that Type_Safe objects round-trip correctly even with unserializable __dict__ entries
+        class ServiceClient(Type_Safe):
+            base_url: str = "http://localhost"
+            timeout: int = 30
+            retries: int = 3
+
+        # Create instance and add unserializable infrastructure
+        client       = ServiceClient(base_url="http://api.example.com", timeout=60)
+        client._lock = threading.RLock()  # Simulate infrastructure added by library
+        client._pool = threading.Semaphore(5)  # More infrastructure
+
+        # Serialize (should handle unserializable gracefully)
+        json_data = client.json()
+
+        assert json_data == {'_lock': None,
+                             '_pool': {'_cond': {'_lock': None,
+                                                 '_waiters': None,
+                                                 'acquire': 'acquire',
+                                                 'release': 'release'},
+                                       '_value': 5},
+                             'base_url': 'http://api.example.com',
+                             'retries': 3,
+                             'timeout': 60}
+
+        # Round-trip should work perfectly
+        client2 = ServiceClient.from_json(json_data)
+        assert client2.base_url == "http://api.example.com"
+        assert client2.timeout == 60
+        assert client2.retries == 3
+
+        assert ServiceClient.from_json(json_data).json() == {'base_url': 'http://api.example.com',      # round trip doesn't add _.pool or _lock because they are not in the ServiceClient class definition
+                                                             'retries': 3,
+                                                             'timeout': 60}
+
+    def test_serialize_to_dict__deeply_nested_unserializable(self):                          # Test deeply nested structures with unserializable objects at various levels
+        nested = {
+            'level1': {
+                'level2': {
+                    'good_data': [1, 2, 3],
+                    'bad_data': threading.RLock(),
+                    'level3': {
+                        'more_good': "hello",
+                        'more_bad': 3 + 4j
+                    }
+                }
+            }
+        }
+
+        result = serialize_to_dict(nested)
+
+        # Verify structure is preserved
+        assert result['level1']['level2']['good_data'] == [1, 2, 3]
+        assert result['level1']['level2']['bad_data'] is None
+        assert result['level1']['level2']['level3']['more_good'] == "hello"
+        assert result['level1']['level2']['level3']['more_bad'] is None
+
+    def test_type_safe_with_unserializable_in_list(self):                   # Test Type_Safe objects with lists containing unserializable items
+        class TaskQueue(Type_Safe):
+            name : str  = "default"
+            tasks: list
+
+        queue = TaskQueue(name="worker_queue")
+        # Simulate adding tasks with some unserializable items
+        queue.tasks = [ {'id': 1, 'data': 'task1'          },
+                        {'id': 2, 'lock': threading.RLock()},  # Has unserializable field
+                        {'id': 3, 'data': 'task3'          }]
+
+        json_data = queue.json()
+
+        # Should serialize with None for unserializable field
+        assert json_data['name'] == 'worker_queue'
+        assert json_data['tasks'][0] == {'id': 1, 'data': 'task1'}
+        assert json_data['tasks'][1] == {'id': 2, 'lock': None}
+        assert json_data['tasks'][2] == {'id': 3, 'data': 'task3'}
+
+    def test_serialize_to_dict__unserializable_in_type_safe_dict(self):     # Test Type_Safe__Dict with unserializable values"""
+
+        # Create a Type_Safe__Dict
+        config_dict = Type_Safe__Dict(expected_key_type=str, expected_value_type=object)
+        config_dict['host'] = 'localhost'
+        config_dict['port'] = 8080
+        config_dict['_internal_lock'] = threading.RLock()
+
+        result = config_dict.json()
+
+        # Serializable values should be present
+        assert result['host'] == 'localhost'
+        assert result['port'] == 8080
+        # Unserializable value should be None
+        # assert result['_internal_lock']       is not None                               # BUG this should be either be None of a valid json value (i.e. string, int, etc..)
+        # assert type(result['_internal_lock']) is RLock                                  # BUG since .json() should not return an invalid json file
+        # assert result['_internal_lock']       == config_dict['_internal_lock']          # BUG:
+        # assert result == { '_internal_lock':config_dict['_internal_lock'],              # BUG
+        #                    'host'          : 'localhost'                 ,
+        #                    'port'          : 8080                        }
+        assert result['_internal_lock']       is None                                     # FIXED: BUG this should be either be None of a valid json value (i.e. string, int, etc..)
+        assert type(result['_internal_lock']) is types.NoneType                           # FIXED: BUG since .json() should not return an invalid json file
+        assert result == { '_internal_lock': None                        ,                # FIXED: BUG
+                           'host'          : 'localhost'                 ,
+                           'port'          : 8080                        }
+
+
+    def test_print_obj_with_unserializable_fields(self):                    # Test that print_obj() works even with unserializable fields
+        class ClientWithInfrastructure(Type_Safe):
+            url   : str = "http://localhost"
+            active: bool = True
+
+        client            = ClientWithInfrastructure()
+        client._lock      = threading.RLock()
+        client._semaphore = threading.Semaphore(3)
+
+        # These should not raise exceptions
+
+        with Stdout() as stdout:
+            client.print_obj()
+        assert stdout.value() == ('\n'
+                                  "__(url='http://localhost',\n"
+                                  '   active=True,\n'
+                                  '   _lock=None,\n'
+                                  '   _semaphore=__(_cond=__(_lock=None,\n'
+                                  "                          acquire='acquire',\n"
+                                  "                          release='release',\n"
+                                  '                          _waiters=None),\n'
+                                  '                 _value=3))\n')
+        client.json()           # Should work
+        client_obj = client.obj()  # Should work
+
+        assert client_obj.url == "http://localhost"
+        assert client_obj.active is True
+        assert client_obj == __(url='http://localhost',
+                                active=True,
+                                _lock=None,                                             # _.lock doesn't serialise
+                                _semaphore=__(_cond=__(_lock=None,
+                                                       acquire='acquire',
+                                                       release='release',
+                                                       _waiters=None),
+                                              _value=3))
+
+    def test_serialize_to_dict__custom_objects_without_dict(self):                                      # Test objects that aren't serializable and don't have __dict__
+        sock = socket.socket()                                                                          # Socket objects don't have __dict__ and aren't serializable
+        assert serialize_to_dict(sock) is None
+        sock.close()
+
+    def test_type_safe_nested_with_unserializable(self):                                                # Test nested Type_Safe objects where some have unserializable infrastructure
+
+        class Connection(Type_Safe):
+            host: str = "localhost"
+            port: int = 5432
+
+        class Database(Type_Safe):
+            name: str = "testdb"
+            connection: Connection = None
+
+        # Create instances with infrastructure
+        conn = Connection(host="db.example.com", port=5432)
+        conn._socket_lock = threading.RLock()
+
+        db = Database(name="production", connection=conn)
+        db._pool_lock = threading.RLock()
+
+        # Should serialize and round-trip correctly
+        json_data = db.json()
+        assert json_data == { '_pool_lock': None,
+                              'connection': {'_socket_lock': None, 'host': 'db.example.com', 'port': 5432},
+                              'name'      : 'production'}
+
+        # Round-trip
+        db2 = Database.from_json(json_data)
+        assert db2.name == "production"
+        assert db2.connection.host == "db.example.com"
+        assert db2.connection.port == 5432
 
 class Custom_Class():         # used in test_type_serialization
     pass
