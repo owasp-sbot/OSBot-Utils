@@ -232,3 +232,29 @@ class test_Type_Safe__List__regression(TestCase):
         #     assert an_class.an_list.json()
 
         assert an_class.an_list.json() == [{'an_list': [], 'an_str': ''}]
+
+    def test__regression__json_with_nested_dicts(self):
+        class TestType(Type_Safe):
+            value: str
+
+            def __init__(self, value):
+                self.value = value
+
+        dict_list = Type_Safe__List(dict)
+        dict_list.append({"simple": "value"})
+        dict_list.append({
+            "normal": 42,
+            "safe": TestType("test"),
+            "nested": {"deep": TestType("deep")}
+        })
+
+        expected = [
+            {"simple": "value"},
+            {
+                "normal": 42,
+                "safe": {"value": "test"},
+                "nested": {"deep": {"value": "deep"}}
+            }
+        ]
+        #assert dict_list.json() != expected         # BUG
+        assert dict_list.json() == expected         # FIXED

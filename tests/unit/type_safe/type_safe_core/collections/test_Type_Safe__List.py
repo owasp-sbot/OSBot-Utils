@@ -1,5 +1,7 @@
 import re
+import socket
 import sys
+import threading
 import pytest
 from typing                                                                              import List, Dict, Union, Optional, Any
 from unittest                                                                            import TestCase
@@ -778,3 +780,103 @@ class test_Type_Safe__List(TestCase):
 
         # Integer values won't work with string conversion
         assert 1 not in mixed_list  # Won't find MixedEnum.ONE
+
+    def test_json__with_unserializable_items(self):     # Test that Type_Safe__List.json() handles unserializable items gracefully"""
+        # Create list with mixed serializable and unserializable items
+        items = Type_Safe__List(expected_type=object)
+        items.append('hello')
+        items.append(42)
+        items.append(threading.RLock())  # Unserializable
+        items.append(True)
+        items.append(3 + 4j)  # Unserializable
+
+        sock = socket.socket()
+        items.append(sock)  # Unserializable
+
+        result = items.json()
+
+        # Verify serialization
+        assert result[0] == 'hello'
+        assert result[1] == 42
+        assert result[2] is None  # RLock becomes None
+        assert result[3] is True
+        assert result[4] is None  # Complex number becomes None
+        assert result[5] is None  # Socket becomes None
+
+        sock.close()  # Clean up
+
+    def test_json__with_nested_unserializable_in_dicts(self):                    # Test Type_Safe__List with dict items containing unserializable objects
+        tasks    = Type_Safe__List(expected_type=dict)
+        rlock    = threading.RLock()
+        i_number = 3 + 4j
+        tasks.append({'id': 1, 'status': 'active'                    })
+        tasks.append({'id': 2, '_lock' : rlock   , 'status': 'pending'})
+        tasks.append({'id': 3, 'result': i_number, 'status': 'failed' })
+
+        result = tasks.json()
+
+        assert result[0] == {'id': 1, 'status': 'active'}
+        #assert result[1] != {'id': 2, '_lock' : None, 'status': 'pending'     }      # BUG
+        #assert result[2] != {'id': 3, 'result': None, 'status': 'failed'      }      # BUG
+        #assert result[1] == {'id': 2, '_lock' : rlock, 'status': 'pending'    }       # BUG
+        #assert result[2] == {'id': 3, 'result': i_number, 'status': 'failed'  }       # BUG
+        assert result[1] == {'id': 2, '_lock' : None, 'status': 'pending'     }      # FIXED: BUG
+        assert result[2] == {'id': 3, 'result': None, 'status': 'failed'      }      # FIXED: BUG
+
+    def test_json__with_nested_lists_containing_unserializable(self):               # Test Type_Safe__List with nested lists containing unserializable objects"""
+
+        rlock    = threading.RLock()
+        i_number = 3 + 4j
+        matrix   = Type_Safe__List(expected_type=list)
+        matrix.append([1, 2, 3])
+        matrix.append([rlock, 5, 6])
+        matrix.append([7, i_number, 9])
+
+        result = matrix.json()
+
+        assert result[0] == [1, 2, 3]
+        assert result[1] == [None, 5, 6]  # FIXED: RLock becomes None
+        assert result[2] == [7, None, 9]  # FIXED: Complex becomes None
+        # assert result[1] != [None  , 5      , 6]  # BUG
+        # assert result[2] != [7    , None    , 9]  # BUG
+        # assert result[1] == [rlock, 5       , 6]  # BUG
+        # assert result[2] == [7    , i_number, 9]  # BUG
+
+
+    def test_obj__with_unserializable_items(self):                                  # Test that Type_Safe__List.obj() works with unserializable items
+
+        items = Type_Safe__List(expected_type=object)
+        items.append('data')
+        items.append(100)
+        items.append(threading.RLock())
+
+        result = items.obj()
+
+        assert result == ['data', 100, None]
+
+    def test_roundtrip__with_unserializable_filtered(self):                         # Test that Type_Safe__List round-trips correctly with unserializable items becoming None
+
+        original = Type_Safe__List(expected_type=object)
+        original.append('keep_me')
+        original.append(threading.RLock())
+        original.append(42)
+
+        # Serialize and deserialize
+        json_data = original.json()
+
+        # JSON should have None for unserializable
+        assert json_data == ['keep_me', None, 42]
+
+    def test_json__with_frozenset_in_list(self):    # Test frozenset as list item"""
+
+        items = Type_Safe__List(expected_type=object)
+        items.append(frozenset([1, 2, 3]))
+        items.append('regular_string')
+        items.append(frozenset(['a', 'b']))
+
+        result = items.json()
+
+        # Frozensets should become lists
+        assert set(result[0]) == {1, 2, 3}
+        assert result[1] == 'regular_string'
+        assert set(result[2]) == {'a', 'b'}

@@ -13,7 +13,7 @@ from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                      import Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid               import Random_Guid
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
 from osbot_utils.testing.Catch                                                      import Catch
 from osbot_utils.testing.Stdout                                                     import Stdout

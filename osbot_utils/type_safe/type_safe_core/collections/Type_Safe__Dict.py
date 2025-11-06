@@ -3,7 +3,7 @@ from osbot_utils.testing.__                                           import __
 from osbot_utils.type_safe.Type_Safe__Base                            import Type_Safe__Base
 from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
-from osbot_utils.utils.Objects                                        import class_full_name
+from osbot_utils.utils.Objects import class_full_name, serialize_to_dict
 
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
@@ -54,7 +54,7 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
             elif isinstance(v, dict):
                 # Recursively handle nested dictionaries
                 return {k2: serialize_value(v2) for k2, v2 in v.items()}
-            elif isinstance(v, (list, tuple, set)):
+            elif isinstance(v, (list, tuple, set, frozenset)):
                 # Recursively handle sequences
                 serialized = [serialize_value(item) for item in v]
                 if isinstance(v, list):
@@ -64,7 +64,8 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
                 else:  # set
                     return set(serialized)
             else:
-                return v
+                return serialize_to_dict(v)             # Use serialize_to_dict for unknown types (so that we don't return a non json object)
+
 
         result = {}
         for key, value in self.items():

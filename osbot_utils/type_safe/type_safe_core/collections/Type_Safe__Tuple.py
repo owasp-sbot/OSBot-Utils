@@ -1,4 +1,4 @@
-from osbot_utils.utils.Objects              import class_full_name
+from osbot_utils.utils.Objects import class_full_name, serialize_to_dict
 from osbot_utils.type_safe.Type_Safe__Base  import Type_Safe__Base, type_str
 
 class Type_Safe__Tuple(Type_Safe__Base, tuple):
@@ -66,12 +66,12 @@ class Type_Safe__Tuple(Type_Safe__Base, tuple):
                 result.append(item.json())
             elif isinstance(item, Type_Safe__Primitive):
                 result.append(item.__to_primitive__())  # Convert primitives to base types
-            elif isinstance(item, (list, tuple)):
-                result.append([x.json() if isinstance(x, Type_Safe) else x for x in item])
+            elif isinstance(item, (list, tuple, frozenset)):
+                result.append([x.json() if isinstance(x, Type_Safe) else serialize_to_dict(x) for x in item])
             elif isinstance(item, dict):
-                result.append({k: v.json() if isinstance(v, Type_Safe) else v for k, v in item.items()})
+                result.append(serialize_to_dict(item))
             elif isinstance(item, type):
                 result.append(class_full_name(item))
             else:
-                result.append(item)
+                result.append(serialize_to_dict(item))          # Use serialize_to_dict for unknown types (so that we don't return a non json object)
         return result

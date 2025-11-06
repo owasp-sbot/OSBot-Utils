@@ -1,6 +1,6 @@
 from enum                                       import Enum
 from typing                                     import Type
-from osbot_utils.utils.Objects                  import class_full_name
+from osbot_utils.utils.Objects import class_full_name, serialize_to_dict
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 from osbot_utils.type_safe.Type_Safe__Base      import Type_Safe__Base, type_str
 
@@ -82,12 +82,14 @@ class Type_Safe__List(Type_Safe__Base, list):
                 result.append(item.json())
             elif isinstance(item, Type_Safe__Primitive):
                 result.append(item.__to_primitive__())
-            elif isinstance(item, (list, tuple)):
-                result.append([x.json() if isinstance(x, Type_Safe) else x for x in item])
+            elif isinstance(item, (list, tuple, frozenset)):
+                result.append([x.json() if isinstance(x, Type_Safe) else serialize_to_dict(x) for x in item])
+                #result.append([x.json() if isinstance(x, Type_Safe) else x for x in item])      # BUG here
             elif isinstance(item, dict):
-                result.append({k: v.json() if isinstance(v, Type_Safe) else v for k, v in item.items()})
+                result.append(serialize_to_dict(item))          # leverage serialize_to_dict since that method already knows how to handle
+                #result.append({k: v.json() if isinstance(v, Type_Safe) else v for k, v in item.items()})
             elif isinstance(item, type):
                 result.append(class_full_name(item))
             else:
-                result.append(item)
+                result.append(serialize_to_dict(item))          # also Use serialize_to_dict for unknown types (so that we don't return a non json object)
         return result
