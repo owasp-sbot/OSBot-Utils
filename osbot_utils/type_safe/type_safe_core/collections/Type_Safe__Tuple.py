@@ -1,4 +1,4 @@
-from osbot_utils.utils.Objects import class_full_name, serialize_to_dict
+from osbot_utils.utils.Objects              import class_full_name, serialize_to_dict
 from osbot_utils.type_safe.Type_Safe__Base  import Type_Safe__Base, type_str
 
 class Type_Safe__Tuple(Type_Safe__Base, tuple):

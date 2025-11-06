@@ -1,6 +1,6 @@
 from enum                                       import Enum
 from typing                                     import Type
-from osbot_utils.utils.Objects import class_full_name, serialize_to_dict
+from osbot_utils.utils.Objects                  import class_full_name, serialize_to_dict
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 from osbot_utils.type_safe.Type_Safe__Base      import Type_Safe__Base, type_str
 

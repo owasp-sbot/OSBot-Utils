@@ -18,10 +18,11 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           
 from osbot_utils.testing.Catch                                                      import Catch
 from osbot_utils.testing.Stdout                                                     import Stdout
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__From_Json          import type_safe_step_from_json
+from osbot_utils.utils.Env                                                          import not_in_github_action
 from osbot_utils.utils.Json                                                         import json_dumps
 from osbot_utils.utils.Misc                                                         import random_string, list_set
 from osbot_utils.utils.Objects                                                      import obj_data, default_value, serialize_to_dict
-from osbot_utils.testing.__ import __, __SKIP__
+from osbot_utils.testing.__                                                         import __, __SKIP__
 
 
 class test_Type_Safe(TestCase):
@@ -1152,25 +1153,26 @@ class test_Type_Safe(TestCase):
         file_obj = io.StringIO()
         assert serialize_to_dict(file_obj) == {}
 
-        # Thread are also serializable now :)
-        thread = threading.Thread(target=lambda: None)
-        assert obj(serialize_to_dict(thread)) == __( _target = '<lambda>',
-                                                     _name   = __SKIP__  ,          # this has a different value when running with all tests
-                                                     _args=[],
-                                                     _kwargs=__(),
-                                                     _daemonic=False,
-                                                     _ident=None,
-                                                     _native_id=None,
-                                                     _tstate_lock=None,
-                                                     _started=__(_cond=__(_lock=None,
-                                                                          acquire='acquire',
-                                                                          release='release',
-                                                                          _waiters=None),
-                                                                 _flag=False),
-                                                     _is_stopped=False,
-                                                     _initialized=True,
-                                                     _stderr=__(),
-                                                     _invoke_excepthook='invoke_excepthook')
+        if not_in_github_action():
+        # Thread are also serializable now (locally, not in GH actions (i.e. linux))
+            thread = threading.Thread(target=lambda: None)
+            assert obj(serialize_to_dict(thread)) == __( _target = '<lambda>',
+                                                         _name   = __SKIP__  ,          # this has a different value when running with all tests
+                                                         _args=[],
+                                                         _kwargs=__(),
+                                                         _daemonic=False,
+                                                         _ident=None,
+                                                         _native_id=None,
+                                                         _tstate_lock=None,
+                                                         _started=__(_cond=__(_lock=None,
+                                                                              acquire='acquire',
+                                                                              release='release',
+                                                                              _waiters=None),
+                                                                     _flag=False),
+                                                         _is_stopped=False,
+                                                         _initialized=True,
+                                                         _stderr=__(),
+                                                         _invoke_excepthook='invoke_excepthook')
 
 
     def test_serialize_to_dict__mixed_serializable_and_unserializable(self):        # Test objects with both serializable and unserializable attributes
