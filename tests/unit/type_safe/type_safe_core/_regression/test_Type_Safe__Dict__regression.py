@@ -12,7 +12,7 @@ from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Pat
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
-from osbot_utils.utils.Env import not_in_github_action
+from osbot_utils.utils.Env                                                          import not_in_github_action
 from osbot_utils.utils.Objects                                                      import base_classes
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe

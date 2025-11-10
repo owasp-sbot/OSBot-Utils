@@ -388,3 +388,53 @@ class test_decorator__type_safe__regression(TestCase):
         #     an_method()             # BUG: we should handle transparently the conversion into Safe_UInt (and only raise an exeception if the data is bad)
         assert an_method()       == 42
         assert type(an_method()) is Safe_UInt
+
+    def test_regression__type_safe_method__safe_float_conversion(self):
+
+        from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+        from osbot_utils.type_safe.primitives.core.Safe_Float          import Safe_Float
+
+        class Safe_Float__Classification(Safe_Float):
+            min_value = 0
+            max_value = 1
+
+        assert Safe_Float__Classification(0                     ) == 0.0
+        assert Safe_Float__Classification(0.0                   ) == 0.0
+        assert Safe_Float__Classification(0.5                   ) == 0.5
+        assert Safe_Float__Classification(float(0.5)            ) == 0.5
+        assert Safe_Float__Classification(Safe_Float(0.5)       ) == 0.5
+        assert type( Safe_Float__Classification(0)              ) is Safe_Float__Classification
+        assert type( Safe_Float__Classification(0.5)            ) is Safe_Float__Classification
+        assert type( Safe_Float__Classification(Safe_Float(0.5))) is Safe_Float__Classification
+        # Safe_Float__Classification(Safe_Int(0.5))                 # this fails, which makes sense
+
+        @type_safe
+        def an_method_2(an_float: Safe_Float__Classification):
+            return an_float
+
+        # return
+        # error_message_1 = "Parameter 'an_float' expected type <class 'test__decorator__type_safe__bugs.test__decorator__type_safe__bugs.test_bug__type_safe_method__safe_float_conversion.<locals>.Safe_Float__Classification'>, but got <class 'int'>"
+        # with pytest.raises(ValueError, match=re.escape(error_message_1)):
+        #     an_method_2(0)                                                  # BUG should have worked
+        assert an_method_2(0) == 0                                            # FIXED expected behaviour
+
+        assert an_method_2(0.0) == 0
+        assert an_method_2(0.0) == 0.0
+        # error_message_2 = "Parameter 'an_float' expected type <class 'test__decorator__type_safe__bugs.test__decorator__type_safe__bugs.test_bug__type_safe_method__safe_float_conversion.<locals>.Safe_Float__Classification'>, but got <class 'float'>"
+        # with pytest.raises(ValueError, match=re.escape(error_message_2)):
+        #     an_method_2(0.2)                                                # BUG should have worked
+        #     #assert an_method_2(0.2) == 0.2                                 # expected behaviour
+        assert an_method_2(0.2) == 0.2                                        # FIXED
+
+        # error_message_3 = "Parameter 'an_float' expected type <class 'test__decorator__type_safe__bugs.test__decorator__type_safe__bugs.test_bug__type_safe_method__safe_float_conversion.<locals>.Safe_Float__Classification'>, but got <class 'osbot_utils.type_safe.primitives.core.Safe_Float.Safe_Float'>"
+        # with pytest.raises(ValueError, match=re.escape(error_message_3)):
+        #     an_method_2(Safe_Float(4.2))                                    # BUG should have worked
+        #     #assert an_method_2(Safe_Float(4.2)) == 4.2                      # expected behaviour
+
+        assert an_method_2(Safe_Float(0.2)) == 0.2                              # FIXED
+
+        error_message_4 = "Safe_Float__Classification must be <= 1, got 4.2"
+        with pytest.raises(ValueError, match=re.escape(error_message_4)):
+            assert an_method_2(Safe_Float__Classification(4.2)) == 4.2          # expected error message
+
+        assert an_method_2(Safe_Float__Classification(0.2)) == 0.2              # expect behaviour
