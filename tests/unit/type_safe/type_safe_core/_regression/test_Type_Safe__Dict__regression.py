@@ -1,4 +1,5 @@
 import pytest
+from enum                                                                           import Enum
 from unittest                                                                       import TestCase
 from typing                                                                         import Dict, Type, Set, Any, List
 from osbot_utils.testing.__helpers                                                  import obj
@@ -358,3 +359,25 @@ class test_Type_Safe__Dict__regression(TestCase):
         an_class_2.all_paths = data                                                                     # FIXED:
         assert an_class_2.json()    == {"all_paths": data }                                             # confirm roundtrip with .json()
         assert an_class_2.obj()     == __(all_paths = obj(data))                                        # confirm roundtrip with obj().
+
+    def test__regression__dict__json__enum__conversion(self):
+        class An_Enum(str, Enum):
+            A = 'A'
+            B = 'B'
+            C = 'C'
+
+        class An_Class(Type_Safe):
+            an_dict : Dict[An_Enum, int]
+
+        # assert An_Class()                .obj ()  == __(  an_dict = __())
+        # assert An_Class()                .json()  ==   { 'an_dict': {}  }
+        # assert An_Class(an_dict={'A': 42}).obj()  == __(  an_dict = __(An_Enum_A= 42))
+        # assert An_Class(an_dict={'A': 42}).json() ==   { 'an_dict': {  An_Enum.A: 42}}  # BUG: "An_Enum.A" is an Enum, and it should be a String (namely 'A')
+        # assert An_Class.from_json(An_Class(an_dict={'A': 42}).json()).obj() == __(an_dict=__(An_Enum_A=42))  # these 3 work
+        # assert An_Class.from_json({ 'an_dict': {  An_Enum.A: 42}}   ).obj() == __(an_dict=__(An_Enum_A=42))  # but .json() should NOT be this
+        # assert An_Class.from_json({ 'an_dict': {  'A'      : 42}}   ).obj() == __(an_dict=__(An_Enum_A=42))  # it should be this
+        assert An_Class(an_dict={'A': 42}).obj()  == __(  an_dict = __(A = 42))          # FIXED: An_Enum_A is now just A (which is a better result
+        assert An_Class(an_dict={'A': 42}).json() ==   { 'an_dict': {  'A': 42}}        # FIXED
+        assert An_Class.from_json(An_Class(an_dict={'A': 42}).json()).obj() == __(an_dict=__(A=42))            # FIXED
+        assert An_Class.from_json({ 'an_dict': {  An_Enum.A: 42}}   ).obj() == __(an_dict=__(A=42))            #
+        assert An_Class.from_json({ 'an_dict': {  'A'      : 42}}   ).obj() == __(an_dict=__(A=42))            #
