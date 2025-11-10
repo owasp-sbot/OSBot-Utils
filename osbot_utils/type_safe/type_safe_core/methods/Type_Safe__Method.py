@@ -43,7 +43,7 @@ class Type_Safe__Method:                                                        
 
             primitive_base = expected_type.__primitive_base__                                                       # Try direct conversion for common cases
 
-            if primitive_base in (int, float) and isinstance(param_value, str):                                     # Handle string to int/float conversion
+            if primitive_base in (int, float) and isinstance(param_value, (int, float,str)):                        # Handle string to int/float/str conversions
                 try:
                     bound_args.arguments[param_name] = expected_type(param_value)
                     continue
