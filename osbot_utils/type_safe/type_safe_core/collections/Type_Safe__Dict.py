@@ -41,11 +41,18 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
     def __enter__(self): return self
     def __exit__ (self, type, value, traceback): pass
 
-    def json(self):
-        from osbot_utils.type_safe.Type_Safe import Type_Safe
+    # todo: this method needs to be refactored into smaller parts, it is getting to complex:
+    #         the use of the inner method serialize_value
+    #         the circular dependency on Type_Safe
+    #         the inner for loops to handle nested dictionaries
+    #         the enum edges cases (like the nested dictionaries case)
+    #         .
+    #         good news is that we have tons of tests and edge cases detection (so we should be able to do this
+    #         refactoring with no side effects
+    def json(self):                                                                     # Recursively serialize values, handling nested structures
+        from osbot_utils.type_safe.Type_Safe import Type_Safe                           # needed here due to circular dependencies
 
         def serialize_value(v):
-            """Recursively serialize values, handling nested structures"""
             if isinstance(v, Type_Safe):
                 return v.json()
             elif isinstance(v, Type_Safe__Primitive):
@@ -53,11 +60,13 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
             elif isinstance(v, type):
                 return class_full_name(v)
             elif isinstance(v, dict):
-                # Recursively handle nested dictionaries
-                return {k2: serialize_value(v2) for k2, v2 in v.items()}
+                return {                                                                            # Recursively handle nested dictionaries (with enum support)
+                            (k2.value if isinstance(k2, Enum) else k2): serialize_value(v2)
+                            for k2, v2 in v.items()
+                        }
+                #return {k2: serialize_value(v2) for k2, v2 in v.items()}                            # Recursively handle nested dictionaries
             elif isinstance(v, (list, tuple, set, frozenset)):
-                # Recursively handle sequences
-                serialized = [serialize_value(item) for item in v]
+                serialized = [serialize_value(item) for item in v]                                  # Recursively handle sequences
                 if isinstance(v, list):
                     return serialized
                 elif isinstance(v, tuple):

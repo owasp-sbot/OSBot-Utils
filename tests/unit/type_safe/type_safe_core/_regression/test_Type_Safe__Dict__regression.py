@@ -1,3 +1,5 @@
+import json
+import re
 import pytest
 from enum                                                                           import Enum
 from unittest                                                                       import TestCase
@@ -381,3 +383,78 @@ class test_Type_Safe__Dict__regression(TestCase):
         assert An_Class.from_json(An_Class(an_dict={'A': 42}).json()).obj() == __(an_dict=__(A=42))            # FIXED
         assert An_Class.from_json({ 'an_dict': {  An_Enum.A: 42}}   ).obj() == __(an_dict=__(A=42))            #
         assert An_Class.from_json({ 'an_dict': {  'A'      : 42}}   ).obj() == __(an_dict=__(A=42))            #
+
+    def test__regression__nested_dict_enum_keys__obj_vs_json_inconsistency(self):
+        """
+        BUG: .obj() and .json() are inconsistent for nested Dict with Enum keys.
+        .json() uses enum.value, .obj() uses transformed enum.name
+        """
+        class Status(str, Enum):
+            ACTIVE   = 'active'
+            INACTIVE = 'inactive'
+
+        class Container(Type_Safe):
+            nested: Dict[str, Dict[Status, int]]
+
+        container = Container(nested={'key': {Status.ACTIVE: 100}})
+
+        # .json() uses enum VALUE
+        assert container.json() == {'nested': {'key': {'active': 100}}}
+
+        # BUG: .obj() should also use 'active' but uses 'Status_ACTIVE'
+        #assert container.obj() == __(nested=__(key=__(Status_ACTIVE=100)))  # BUG Current behavior
+        #assert container.obj() != __(nested=__(key=__(active=100)))         # BUG Expected behavior
+        assert container.obj() == __(nested=__(key=__(active=100)))          # FIXED
+
+        # assert container.json() == {'nested': {'key': {Status.ACTIVE: 100}}}                                  # BUG
+        # error_message = ("assert {'nested': {'key': {<Status.ACTIVE: 'active'>: 100}}} == {}\n  \n  "
+        #                  "Left contains 1 more item:\n  "
+        #                  "{'nested': {'key': {<Status.ACTIVE: 'active'>: 100}}}\n  \n  "
+        #                  "Full diff:\n  - {}\n  + {\n  +     'nested': {\n  +         'key': "
+        #                  "{\n  +             <Status.ACTIVE: 'active'>: 100,\n  +         },\n  +     "
+        #                  "},\n  + }")                                                                          # BUG
+        assert container.json() == {'nested': {'key': {Status.ACTIVE: 100}}}                # this works due to auto conversion of enum into it's string value
+        assert container.json() == {'nested': {'key': {'active': 100}}}                     # FIXED: this is what we wanted to happen
+        error_message = ("assert {'nested': {'key': {'active': 100}}} == {}\n  \n  "
+                         "Left contains 1 more item:\n  "
+                         "{'nested': {'key': {'active': 100}}}\n  \n  "                     # FIXED: now we get the 'active' string (instead of the Enum representation)
+                         "Full diff:\n  - {}\n  + {\n  +     'nested': "
+                         "{\n  +         'key': {\n  +             "
+                         "'active': 100,\n  +         },\n  +     },\n  + }")
+        with pytest.raises(AssertionError, match=re.escape(error_message)):
+            assert container.json() == {}                                                   # FIXED this is the error message we should get
+
+        error_message_2 = 'assert __(nested=__(key=__(active=100))) == __()\n '
+        with pytest.raises(AssertionError, match=re.escape(error_message_2)):
+            assert container.obj() == __()
+
+        # couple more edge cases tests
+        json_str = json.dumps(container.json())
+        assert json_str == '{"nested": {"key": {"active": 100}}}'
+        assert json.loads(json_str) == {'nested': {'key': {'active': 100}}}
+
+        container2 = Container(nested={'key': {Status.ACTIVE: 100, Status.INACTIVE: 50}})
+        assert container2.json() == {'nested': {'key': {'active': 100, 'inactive': 50}}}
+        assert container2.obj() == __(nested=__(key=__(active=100, inactive=50)))
+
+        # Test round-trip consistency
+        container3 = Container.from_json(container.json())
+        assert container3.json() == container.json()
+        assert container3.obj()  == container.obj()
+
+    def test__regression__simple_dict_enum_keys__now__works_correctly(self):
+
+        class Status(str, Enum):
+            ACTIVE   = 'active'
+            INACTIVE = 'inactive'
+
+        class SimpleContainer(Type_Safe):
+            data: Dict[Status, int]
+
+        simple = SimpleContainer(data={Status.ACTIVE: 100})
+
+        # Single-level Dict works correctly - uses enum value
+        assert simple.json() == {'data': {'active': 100}}  # ✓ Correct
+
+        # And it's JSON-serializable
+        assert json.dumps(simple.json()) == '{"data": {"active": 100}}'  # ✓ Works
