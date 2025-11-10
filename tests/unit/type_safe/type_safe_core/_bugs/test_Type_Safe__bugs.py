@@ -5,6 +5,7 @@ from osbot_utils.type_safe.Type_Safe                                  import Typ
 
 class test_Type_Safe__bugs(TestCase):
 
+
     def test__bug__property_descriptor_handling__doesnt_enforce_type_safety(self):
 
         class Test_Class(Type_Safe):

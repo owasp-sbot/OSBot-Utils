@@ -1,3 +1,4 @@
+from enum import Enum
 from typing                                                           import Type
 from osbot_utils.testing.__                                           import __
 from osbot_utils.type_safe.Type_Safe__Base                            import Type_Safe__Base
@@ -64,19 +65,19 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
                 else:  # set
                     return set(serialized)
             else:
-                return serialize_to_dict(v)             # Use serialize_to_dict for unknown types (so that we don't return a non json object)
+                return serialize_to_dict(v)                             # Use serialize_to_dict for unknown types (so that we don't return a non json object)
 
 
         result = {}
         for key, value in self.items():
-            # Handle Type objects as keys
-            if isinstance(key, (type, Type)):
+            if isinstance(key, (type, Type)):                           # Handle Type objects as keys
                 key = f"{key.__module__}.{key.__name__}"
+            elif isinstance(key, Enum):                                 #  Handle Enum keys
+                key = key.value
             elif isinstance(key, Type_Safe__Primitive):
                 key = key.__to_primitive__()
 
-            # Use recursive serialization for values
-            result[key] = serialize_value(value)
+            result[key] = serialize_value(value)                        # Use recursive serialization for values
 
         return result
 
