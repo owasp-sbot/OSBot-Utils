@@ -12,6 +12,7 @@ from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Pat
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
+from osbot_utils.utils.Env import not_in_github_action
 from osbot_utils.utils.Objects                                                      import base_classes
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
@@ -415,18 +416,20 @@ class test_Type_Safe__Dict__regression(TestCase):
         #                  "},\n  + }")                                                                          # BUG
         assert container.json() == {'nested': {'key': {Status.ACTIVE: 100}}}                # this works due to auto conversion of enum into it's string value
         assert container.json() == {'nested': {'key': {'active': 100}}}                     # FIXED: this is what we wanted to happen
-        error_message = ("assert {'nested': {'key': {'active': 100}}} == {}\n  \n  "
-                         "Left contains 1 more item:\n  "
-                         "{'nested': {'key': {'active': 100}}}\n  \n  "                     # FIXED: now we get the 'active' string (instead of the Enum representation)
-                         "Full diff:\n  - {}\n  + {\n  +     'nested': "
-                         "{\n  +         'key': {\n  +             "
-                         "'active': 100,\n  +         },\n  +     },\n  + }")
-        with pytest.raises(AssertionError, match=re.escape(error_message)):
-            assert container.json() == {}                                                   # FIXED this is the error message we should get
 
-        error_message_2 = 'assert __(nested=__(key=__(active=100))) == __()\n '
-        with pytest.raises(AssertionError, match=re.escape(error_message_2)):
-            assert container.obj() == __()
+        if not_in_github_action():                                                              # GH actions has different spacing
+            error_message = ("assert {'nested': {'key': {'active': 100}}} == {}\n  \n  "
+                             "Left contains 1 more item:\n  "
+                             "{'nested': {'key': {'active': 100}}}\n  \n  "                     # FIXED: now we get the 'active' string (instead of the Enum representation)
+                             "Full diff:\n  - {}\n  + {\n  +     'nested': "
+                             "{\n  +         'key': {\n  +             "
+                             "'active': 100,\n  +         },\n  +     },\n  + }")
+            with pytest.raises(AssertionError, match=re.escape(error_message)):
+                assert container.json() == {}                                                   # FIXED this is the error message we should get
+
+            error_message_2 = 'assert __(nested=__(key=__(active=100))) == __()\n '
+            with pytest.raises(AssertionError, match=re.escape(error_message_2)):
+                assert container.obj() == __()
 
         # couple more edge cases tests
         json_str = json.dumps(container.json())
