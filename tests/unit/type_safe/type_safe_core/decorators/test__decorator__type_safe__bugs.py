@@ -3,30 +3,10 @@ import pytest
 from typing                                                                    import List, Dict, Callable
 from unittest                                                                  import TestCase
 from osbot_utils.type_safe.Type_Safe                                           import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_Float                          import Safe_Float
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                 import type_safe
 
 
 class test__decorator__type_safe__bugs(TestCase):
-
-    def test__bug__type_safe__init__safe_float__convert_into_compatible_type(self):
-
-        class Custom_Safe_Float(Safe_Float):
-            pass
-
-        class An_Class(Type_Safe):
-            an_custom_safe_float : Custom_Safe_Float
-
-
-        # error_message = ("On An_Class, invalid type for attribute 'an_custom_safe_float'. "
-        #                  "Expected '<class 'test__decorator__type_safe__bugs.test__decorator__type_safe__bugs."
-        #                  "test__bug__type_safe__init__safe_float__convert_into_compatible_type.<locals>.Custom_Safe_Float'>' "
-        #                  "but got '<class 'osbot_utils.type_safe.primitives.core.Safe_Float.Safe_Float'>'")
-        # with pytest.raises(ValueError, match = re.escape(error_message)):
-        #     An_Class(an_custom_safe_float = Safe_Float(0.5))
-
-        assert type(An_Class(an_custom_safe_float = Safe_Float(0.5)).an_custom_safe_float) is Custom_Safe_Float
-
 
     def test__bug__type_safe__return_value__not_works__with_forward_refs(self):
         class An_Class(Type_Safe):
