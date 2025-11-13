@@ -15,8 +15,9 @@ class Type_Safe__Step__Set_Attr:
             value = self.resolve_value__list(_self, name, value)
         elif type(value) is tuple:
             value = self.resolve_value__tuple(_self, name, value)
-        elif isinstance(annotations.get(name), type) and issubclass(annotations.get(name), Type_Safe__Primitive) and type(value) in (int, str, float):
-            return annotations.get(name)(value)
+        elif isinstance(annotations.get(name), type) and issubclass(annotations.get(name), Type_Safe__Primitive):
+            expected_type = annotations.get(name)
+            return expected_type(value)
         elif type(value) in (int, str):                                                   # for now only a small number of str and int classes are supported (until we understand the full implications of this)
             value = self.resolve_value__int_str(_self, name, value)
         else:

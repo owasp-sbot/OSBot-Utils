@@ -6,6 +6,7 @@ from decimal                                                                    
 from typing                                                                        import Optional, Union, List, Dict, get_origin, Type, ForwardRef, Any, Set, Tuple
 from unittest                                                                      import TestCase
 from unittest.mock                                                                 import patch
+from osbot_utils.type_safe.primitives.core.Safe_Float                              import Safe_Float
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id    import Safe_Str__Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                   import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Guid                     import Guid
@@ -1683,3 +1684,22 @@ class test_Type_Safe__regression(TestCase):
         #assert An_Class_3(data={}).data is None                             # BUG
         assert An_Class_2(data={}).data == {}
         assert An_Class_3(data={}).data == {}
+
+
+    def test__regression__type_safe__init__safe_float__convert_into_compatible_type(self):
+
+        class Custom_Safe_Float(Safe_Float):
+            pass
+
+        class An_Class(Type_Safe):
+            an_custom_safe_float : Custom_Safe_Float
+
+
+        # error_message = ("On An_Class, invalid type for attribute 'an_custom_safe_float'. "
+        #                  "Expected '<class 'test__decorator__type_safe__bugs.test__decorator__type_safe__bugs."
+        #                  "test__bug__type_safe__init__safe_float__convert_into_compatible_type.<locals>.Custom_Safe_Float'>' "
+        #                  "but got '<class 'osbot_utils.type_safe.primitives.core.Safe_Float.Safe_Float'>'")
+        # with pytest.raises(ValueError, match = re.escape(error_message)):
+        #     An_Class(an_custom_safe_float = Safe_Float(0.5))
+
+        assert type(An_Class(an_custom_safe_float = Safe_Float(0.5)).an_custom_safe_float) is Custom_Safe_Float
