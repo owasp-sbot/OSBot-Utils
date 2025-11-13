@@ -438,3 +438,18 @@ class test_decorator__type_safe__regression(TestCase):
             assert an_method_2(Safe_Float__Classification(4.2)) == 4.2          # expected error message
 
         assert an_method_2(Safe_Float__Classification(0.2)) == 0.2              # expect behaviour
+
+
+    def test_regression__type_safe_method__list_type_with_no_attribute(self):
+        @type_safe
+        def classify_topics(self, topics : List):
+            return topics
+
+        # error_message = "tuple index out of range"
+        # with pytest.raises(IndexError, match=error_message):
+        #     classify_topics(None, [])               # BUG
+
+        classify_topics(None, [])       # FIXED
+
+        assert classify_topics(None, [   ]) == [   ]
+        assert classify_topics(None, ['a']) == ['a']

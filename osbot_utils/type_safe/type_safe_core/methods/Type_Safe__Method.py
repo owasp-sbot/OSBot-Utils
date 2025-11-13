@@ -147,7 +147,11 @@ class Type_Safe__Method:                                                        
         if not isinstance(param_value, list):                                                                                       # Check if value is a list
             raise ValueError(f"Parameter '{param_name}' expected a list but got {type(param_value)}")                               # Raise error if not list
 
-        item_type = get_args(expected_type)[0]                                                                                      # Get list item type
+        args = get_args(expected_type)                                                                                              # Get type arguments
+        if not args:                                                                                                                # If no type arguments (just List)
+            return                                                                                                                  # Skip item validation - no type info available
+
+        item_type = args[0]                                                                                                         # Get list item type
         item_origin = get_origin(item_type)                                                                                         # Get origin of item type
 
         if item_origin is dict or item_origin is Dict:                                                                              # Handle Dict[K, V] items
