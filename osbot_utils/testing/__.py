@@ -5,9 +5,8 @@ __SKIP__         = object()
 __MISSING__      = object()
 __GREATER_THAN__ = lambda x: ('gt', x)
 __LESS_THAN__    = lambda x: ('lt', x)
-__BETWEEN__      = lambda min, max: ('between', min, max)
+__BETWEEN__      = lambda min_val, max_val: ('between', min_val, max_val)
 __CLOSE_TO__     = lambda value, tolerance=0.01: ('close_to', value, tolerance)
-
 
 
 class __(SimpleNamespace):
@@ -17,7 +16,7 @@ class __(SimpleNamespace):
     def __contains__(self, item):                                                           # Allow 'subset in superset' syntax
         return self.contains(item)
 
-    def __eq__(self, other):
+    def __eq__(self, other):                                                                # Enhanced equality that handles SKIP markers for dynamic values
         if not isinstance(other, __):
             return super().__eq__(other)
 
@@ -25,28 +24,31 @@ class __(SimpleNamespace):
             self_val  = getattr(self, key, None)
             other_val = getattr(other, key, None)
 
-            if self_val is __SKIP__ or other_val is __SKIP__:
+            if self_val is __SKIP__ or other_val is __SKIP__:                              # Skip comparison if either value is a skip marker
                 continue
 
             # Handle comparison operators
             if isinstance(other_val, tuple) and len(other_val) >= 2:
                 op = other_val[0]
-                if op == 'gt' and not (self_val > other_val[1]):
-                    return False
-                elif op == 'lt' and not (self_val < other_val[1]):
-                    return False
-                elif op == 'gte' and not (self_val >= other_val[1]):
-                    return False
-                elif op == 'lte' and not (self_val <= other_val[1]):
-                    return False
-                elif op == 'between' and not (other_val[1] <= self_val <= other_val[2]):
-                    return False
-                elif op == 'approx' and not (abs(self_val - other_val[1]) <= other_val[2]):
-                    return False
+                try:
+                    if op == 'gt' and not (self_val > other_val[1]):
+                        return False
+                    elif op == 'lt' and not (self_val < other_val[1]):
+                        return False
+                    elif op == 'gte' and not (self_val >= other_val[1]):
+                        return False
+                    elif op == 'lte' and not (self_val <= other_val[1]):
+                        return False
+                    elif op == 'between' and not (other_val[1] <= self_val <= other_val[2]):
+                        return False
+                    elif op == 'close_to' and not (abs(self_val - other_val[1]) <= other_val[2]):
+                        return False
+                except TypeError:
+                    return False                                                        # Comparison not supported (e.g. None > 0)
                 continue
 
-            if isinstance(self_val, __) and isinstance(other_val, __):
-                if self_val.__eq__(other_val) is False:
+            if isinstance(self_val, __) and isinstance(other_val, __):                      # Handle nested __ objects recursively
+                if self_val.__eq__(other_val) is False:                                     # Explicit recursive comparison
                     return False
             elif self_val != other_val:
                 return False
@@ -63,6 +65,26 @@ class __(SimpleNamespace):
             if not hasattr(self, key):
                 return False
             actual_value = getattr(self, key)
+
+            # Handle comparison operators
+            if isinstance(expected_value, tuple) and len(expected_value) >= 2:
+                op = expected_value[0]
+                try:
+                    if op == 'gt' and not (actual_value > expected_value[1]):
+                        return False
+                    elif op == 'lt' and not (actual_value < expected_value[1]):
+                        return False
+                    elif op == 'gte' and not (actual_value >= expected_value[1]):
+                        return False
+                    elif op == 'lte' and not (actual_value <= expected_value[1]):
+                        return False
+                    elif op == 'between' and not (expected_value[1] <= actual_value <= expected_value[2]):
+                        return False
+                    elif op == 'close_to' and not (abs(actual_value - expected_value[1]) <= expected_value[2]):
+                        return False
+                except TypeError:
+                    return False                                                        # Comparison not supported (e.g. None > 0)
+                continue
 
             if isinstance(expected_value, __) and isinstance(actual_value, __):
                 if not actual_value.contains(expected_value):
