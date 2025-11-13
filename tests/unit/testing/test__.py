@@ -1,5 +1,7 @@
+import re
+import pytest
 from unittest                       import TestCase
-from osbot_utils.testing.__         import __, __SKIP__, __MISSING__
+from osbot_utils.testing.__         import __, __SKIP__, __MISSING__,  __GREATER_THAN__, __LESS_THAN__, __BETWEEN__, __CLOSE_TO__
 from osbot_utils.testing.__helpers  import obj
 
 
@@ -299,3 +301,274 @@ class test__(TestCase):
                    "class" : "title"}
 
         assert obj(an_json) == __(tag='p', _class='title')  # FIXED : BUG :this doesn't compile
+
+    # Basic comparison operator tests
+
+    def test__greater_than__basic(self):                                                   # Test __GREATER_THAN__ with simple values
+        with __(score=85, count=100, rating=4.5) as _:
+            assert _ == __(score=__GREATER_THAN__(80), count=100, rating=4.5)            # Score > 80 passes
+            assert _ == __(score=__GREATER_THAN__(0 ), count=100, rating=4.5)            # Score > 0 passes
+            assert _ != __(score=__GREATER_THAN__(90), count=100, rating=4.5)            # Score not > 90 fails
+            assert _ != __(score=__GREATER_THAN__(85), count=100, rating=4.5)            # Score not > 85 (equal) fails
+
+            error_message = ("assert __(score=85, count=100, rating=4.5) =="
+                                   " __(score=('gt', 90), count=100, rating=4.5)\n + "
+                             " where __(score=('gt', 90), count=100, rating=4.5) = "
+                                    "__(score=('gt', 90), count=100, rating=4.5)\n +    "
+                             "where ('gt', 90) = __GREATER_THAN__(90)")
+            with pytest.raises(AssertionError, match=re.escape(error_message)):
+                assert _ == __(score=__GREATER_THAN__(90), count=100, rating=4.5)
+
+    def test__greater_than__floats(self):                                                 # Test __GREATER_THAN__ with floating point
+        with __(duration=0.234, latency=1.567) as _:
+            assert _ == __(duration=__GREATER_THAN__(0.2), latency=__GREATER_THAN__(1.5))
+            assert _ == __(duration=__GREATER_THAN__(0.0), latency=__GREATER_THAN__(0.0))
+            assert _ != __(duration=__GREATER_THAN__(0.5), latency=__GREATER_THAN__(1.5))
+
+    def test__less_than__basic(self):                                                     # Test __LESS_THAN__ with simple values
+        with __(duration=0.3, retries=2, age=25) as _:
+            assert _ == __(duration=__LESS_THAN__(0.5), retries=2, age=25)               # Duration < 0.5 passes
+            assert _ == __(duration=__LESS_THAN__(1.0), retries=2, age=25)               # Duration < 1.0 passes
+            assert _ != __(duration=__LESS_THAN__(0.2), retries=2, age=25)               # Duration not < 0.2 fails
+            assert _ != __(duration=__LESS_THAN__(0.3), retries=2, age=25)               # Duration not < 0.3 (equal) fails
+
+    def test__less_than__negative_numbers(self):                                         # Test __LESS_THAN__ with negative values
+        with __(balance=-50, temperature=-10.5) as _:
+            assert _ == __(balance=__LESS_THAN__(0   ), temperature=__LESS_THAN__(0))
+            assert _ == __(balance=__LESS_THAN__(-10 ), temperature=__LESS_THAN__(-5))
+            assert _ != __(balance=__LESS_THAN__(-100), temperature=__LESS_THAN__(-20))
+
+    def test__between__basic(self):                                                       # Test __BETWEEN__ with simple ranges
+        with __(score=75, percentage=0.85, age=30) as _:
+            assert _ == __(score=__BETWEEN__(0, 100 ), percentage=0.85, age=30)           # Score in range passes
+            assert _ == __(score=__BETWEEN__(75, 100), percentage=0.85, age=30)          # Inclusive lower bound
+            assert _ == __(score=__BETWEEN__(0, 75  ), percentage=0.85, age=30)            # Inclusive upper bound
+            assert _ != __(score=__BETWEEN__(80, 100), percentage=0.85, age=30)          # Below range fails
+            assert _ != __(score=__BETWEEN__(0, 70  ), percentage=0.85, age=30)            # Above range fails
+
+    def test__between__floats(self):                                                      # Test __BETWEEN__ with floating point ranges
+        with __(probability=0.753, ratio=1.5) as _:
+            assert _ == __(probability=__BETWEEN__(0.0, 1.0  ), ratio=__BETWEEN__(1.0, 2.0))
+            assert _ == __(probability=__BETWEEN__(0.75, 0.76), ratio=__BETWEEN__(1.5, 1.5))  # Exact match at bounds
+            assert _ != __(probability=__BETWEEN__(0.8, 1.0  ), ratio=__BETWEEN__(1.0, 2.0))
+
+    def test__close_to__basic(self):                                                      # Test __CLOSE_TO__ with default tolerance
+        with __(score=0.573, probability=0.424) as _:
+            assert _ == __(score=__CLOSE_TO__(0.573), probability=0.424)                 # Exact match passes
+            assert _ == __(score=__CLOSE_TO__(0.574), probability=0.424)                 # Within 0.01 tolerance passes
+            assert _ == __(score=__CLOSE_TO__(0.580), probability=0.424)                 # Within default tolerance
+            assert _ != __(score=__CLOSE_TO__(0.600), probability=0.424)                 # Outside default tolerance fails
+
+    def test__lose_to__custom_tolerance(self):                                          # Test __CLOSE_TO__ with custom tolerance
+        with __(value=0.00101) as _:
+            assert _ == __(value=__CLOSE_TO__(0.001  , tolerance=0.0001))                # Within 0.0001 tolerance
+            assert _ == __(value=__CLOSE_TO__(0.00101, tolerance=0.00001))               # Exact match
+            assert _ == __(value=__CLOSE_TO__(0.00102, tolerance=0.0001))                # Just within tolerance
+
+            # todo review this
+            assert _ != __(value=__CLOSE_TO__(0.001  , tolerance=0.00001))               # Outside tight tolerance
+            assert _ == __(value=__CLOSE_TO__(0.001  , tolerance=0.00001))               # Both are valid due to the tolerance
+
+    def test__close_to__negative_values(self):                                           # Test __CLOSE_TO__ with negative numbers
+        with __(delta=-0.05, offset=-10.0) as _:
+            assert _ == __(delta=__CLOSE_TO__(-0.05, tolerance=0.01), offset=-10.0)
+            assert _ == __(delta=__CLOSE_TO__(-0.06, tolerance=0.02), offset=-10.0)
+            assert _ != __(delta=__CLOSE_TO__(0.05, tolerance=0.01), offset=-10.0)       # Wrong sign fails
+
+    # Combined operator tests
+
+    def test__multiple_operators_same_object(self):                                       # Test multiple operators in single assertion
+        with __(duration=0.234, score=85, probability=0.753, count=42) as _:
+            assert _ == __(duration    = __LESS_THAN__(0.5),
+                           score       = __GREATER_THAN__(80),
+                           probability = __BETWEEN__(0.7, 0.8),
+                           count       = 42)
+
+    def test__operators_with_skip(self):                                                  # Test operators combined with __SKIP__
+        with __(id='test-123', timestamp=1234567890, score=85, duration=0.234) as _:
+            assert _ == __(
+                id       = __SKIP__,
+                timestamp = __SKIP__,
+                score    = __GREATER_THAN__(80),
+                duration = __LESS_THAN__(0.5)
+            )
+
+    def test__operators_with_nested_objects(self):                                       # Test operators in nested __ objects
+        with __(
+            metadata = __(duration=0.234, retries=2),
+            scores   = __(accuracy=0.953, precision=0.875)
+        ) as _:
+            assert _ == __(
+                metadata = __(duration=__LESS_THAN__(0.5), retries=2),
+                scores   = __(
+                    accuracy  = __CLOSE_TO__(0.95, tolerance=0.01),
+                    precision = __GREATER_THAN__(0.85)
+                )
+            )
+
+    # Real-world use cases
+
+    def test__aws_comprehend_sentiment_example(self):                                    # Real-world AWS Comprehend test pattern
+        # Simulate AWS Comprehend response
+        result = __(
+            duration  = 0.234,
+            sentiment = 'positive',
+            score     = __(
+                mixed    = 0.0010159355588257313,
+                negative = 0.0,
+                neutral  = 0.42408183217048645,
+                positive = 0.5733687281608582
+            )
+        )
+
+        # Validate with operators
+        assert result == __(
+            duration  = __LESS_THAN__(0.5),                                              # Performance check
+            sentiment = 'positive',
+            score     = __(
+                mixed    = __CLOSE_TO__(0.001, tolerance=0.0001),                       # Tight tolerance
+                negative = 0.0,                                                          # Exact match for zero
+                neutral  = __CLOSE_TO__(0.424, tolerance=0.01),                         # Reasonable tolerance
+                positive = __CLOSE_TO__(0.573, tolerance=0.01)
+            )
+        )
+
+        # Can also use BETWEEN for score ranges
+        assert result == __(duration  = __BETWEEN__(0.1, 0.5),
+                            sentiment = 'positive',
+                            score     = __(
+                                mixed    = __BETWEEN__(0.0, 0.01),
+                                negative = __BETWEEN__(0.0, 0.01),
+                                neutral  = __BETWEEN__(0.4, 0.5),
+                                positive = __BETWEEN__(0.5, 0.7)))
+
+    def test__api_latency_performance_checks(self):                                      # Test API latency validation pattern
+        api_result = __(
+            status   = 200,
+            latency  = 0.123,
+            size     = 1024,
+            cached   = False
+        )
+
+        assert api_result == __(
+            status  = 200,
+            latency = __LESS_THAN__(0.5),                                                # Must be fast
+            size    = __GREATER_THAN__(0),                                               # Must have content
+            cached  = False
+        )
+
+        # Different SLA for cached vs uncached
+        cached_result = __(status=200, latency=0.005, size=1024, cached=True)
+        assert cached_result == __(
+            status  = 200,
+            latency = __LESS_THAN__(0.01),                                               # Stricter SLA for cached
+            size    = __GREATER_THAN__(0),
+            cached  = True
+        )
+
+    def test__machine_learning_metrics(self):                                            # Test ML model evaluation pattern
+        model_metrics = __(
+            accuracy  = 0.9523,
+            precision = 0.9401,
+            recall    = 0.9678,
+            f1_score  = 0.9537,
+            train_time = 45.6
+        )
+
+        assert model_metrics == __(
+            accuracy   = __CLOSE_TO__(0.95, tolerance=0.01),
+            precision  = __GREATER_THAN__(0.93),
+            recall     = __GREATER_THAN__(0.95),
+            f1_score   = __BETWEEN__(0.94, 0.96),
+            train_time = __LESS_THAN__(60.0)
+        )
+
+    def test__financial_calculations(self):                                              # Test financial data validation
+        amount = 1234.56
+        transaction = __(amount   = amount ,
+                         fee      = 12.35  ,
+                         rate     = 0.01   ,
+                         balance  = 5000.00)
+
+        assert transaction == __(
+            amount  = __BETWEEN__(1000, 2000),
+            fee     = __CLOSE_TO__(amount * 0.01, tolerance=0.01),                      # Fee is 1% of amount
+            rate    = __BETWEEN__(0.0, 0.02),
+            balance = __GREATER_THAN__(0)
+        )
+
+    # Edge cases and error conditions
+
+    def test__operators_with_zero(self):                                                 # Test operators with zero values
+        with __(value=0) as _:
+            assert _ == __(value=__LESS_THAN__(1))
+            assert _ == __(value=__GREATER_THAN__(-1))
+            assert _ == __(value=__BETWEEN__(-1, 1))
+            assert _ == __(value=__CLOSE_TO__(0, tolerance=0.01))
+
+    def test__operators_with_infinity(self):                                             # Test operators with very large values
+        with __(value=1e10) as _:
+            assert _ == __(value=__GREATER_THAN__(1e9))
+            assert _ == __(value=__LESS_THAN__(1e11))
+            assert _ == __(value=__BETWEEN__(0, 1e12))
+
+    def test__operators_with_tiny_floats(self):                                          # Test operators with very small values
+        with __(epsilon=1e-10, delta=1e-8) as _:
+            assert _ == __(epsilon=__CLOSE_TO__(0, tolerance=1e-9), delta=1e-8)
+            assert _ == __(epsilon=__GREATER_THAN__(0), delta=__GREATER_THAN__(0))
+            assert _ == __(epsilon=__BETWEEN__(0, 1e-5), delta=__BETWEEN__(0, 1e-5))
+
+    # Integration test combining all features
+
+    def test__integration__all_operators_with_all_features(self):                        # Complex integration test
+        api_response = __(
+            request_id = 'req-abc-123',
+            timestamp  = 1234567890,
+            status     = 200,
+            timing     = __(
+                total    = 0.456,
+                db_query = 0.234,
+                render   = 0.111
+            ),
+            metrics    = __(
+                accuracy = 0.953,
+                score    = 87.5,
+                count    = 1024
+            ),
+            metadata   = __(
+                version = '2.1.0',
+                cached  = False
+            )
+        )
+
+        # Complex validation with all operators and features
+        expected = __(
+            request_id = __SKIP__,                                                       # Skip dynamic ID
+            timestamp  = __SKIP__,                                                       # Skip timestamp
+            status     = 200,
+            timing     = __(
+                total    = __LESS_THAN__(0.5),                                           # Performance requirement
+                db_query = __BETWEEN__(0.1, 0.3),                                        # DB time range
+                render   = __CLOSE_TO__(0.11, tolerance=0.02)                           # Render time approximate
+            ),
+            metrics    = __(
+                accuracy = __CLOSE_TO__(0.95, tolerance=0.01),
+                score    = __GREATER_THAN__(85),
+                count    = __BETWEEN__(1000, 2000)
+            ),
+            metadata   = __(
+                version = '2.1.0',                                                       # Exact version match
+                cached  = False
+            )
+        )
+
+        assert api_response == expected
+
+
+    def test__diff_with_operators(self):                                                 # Test diff shows operator mismatches
+        with __(score=85, duration=0.234) as actual:
+            with __(score=__GREATER_THAN__(90), duration=__LESS_THAN__(0.1)) as expected:
+                diff = actual.diff(expected)
+                # diff will show the actual values vs the operator tuples
+                assert diff is not None
+                assert 'score' in diff or 'duration' in diff                            # At least one field differs

@@ -1,8 +1,13 @@
 from types                  import SimpleNamespace
 from osbot_utils.utils.Dev  import pprint
 
-__SKIP__    = object()
-__MISSING__ = object()
+__SKIP__         = object()
+__MISSING__      = object()
+__GREATER_THAN__ = lambda x: ('gt', x)
+__LESS_THAN__    = lambda x: ('lt', x)
+__BETWEEN__      = lambda min, max: ('between', min, max)
+__CLOSE_TO__     = lambda value, tolerance=0.01: ('close_to', value, tolerance)
+
 
 
 class __(SimpleNamespace):
@@ -12,7 +17,7 @@ class __(SimpleNamespace):
     def __contains__(self, item):                                                           # Allow 'subset in superset' syntax
         return self.contains(item)
 
-    def __eq__(self, other):                                                                # Enhanced equality that handles SKIP markers for dynamic values
+    def __eq__(self, other):
         if not isinstance(other, __):
             return super().__eq__(other)
 
@@ -20,11 +25,28 @@ class __(SimpleNamespace):
             self_val  = getattr(self, key, None)
             other_val = getattr(other, key, None)
 
-            if self_val is __SKIP__ or other_val is __SKIP__:                              # Skip comparison if either value is a skip marker
+            if self_val is __SKIP__ or other_val is __SKIP__:
                 continue
 
-            if isinstance(self_val, __) and isinstance(other_val, __):                      # Handle nested __ objects recursively
-                if self_val.__eq__(other_val) is False:                                     # Explicit recursive comparison
+            # Handle comparison operators
+            if isinstance(other_val, tuple) and len(other_val) >= 2:
+                op = other_val[0]
+                if op == 'gt' and not (self_val > other_val[1]):
+                    return False
+                elif op == 'lt' and not (self_val < other_val[1]):
+                    return False
+                elif op == 'gte' and not (self_val >= other_val[1]):
+                    return False
+                elif op == 'lte' and not (self_val <= other_val[1]):
+                    return False
+                elif op == 'between' and not (other_val[1] <= self_val <= other_val[2]):
+                    return False
+                elif op == 'approx' and not (abs(self_val - other_val[1]) <= other_val[2]):
+                    return False
+                continue
+
+            if isinstance(self_val, __) and isinstance(other_val, __):
+                if self_val.__eq__(other_val) is False:
                     return False
             elif self_val != other_val:
                 return False
