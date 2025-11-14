@@ -228,6 +228,8 @@ class Type_Safe__Method:                                                        
         return False                                                                                                    # Return failure
                                                             # Return failure
 
+    # todo: refactor the method below in separate methods (or classes) since this is getting too complex)
+    #       also see if there is opportunity to reuse other parts of the code base
     def validate_direct_type(self, param_name: str, param_value: Any, expected_type: Any):
         if expected_type is Any:                            # Handle typing.Any which accepts everything
             return True
@@ -258,8 +260,17 @@ class Type_Safe__Method:                                                        
                     return True
 
                 validator = Type_Safe__Base()
+                converted_dict = {}
+
                 for k, v in param_value.items():
-                    if get_origin(key_type) is None:                                                        # Validate key (existing logic)
+                    # Handle key conversion for Type_Safe__Primitive
+                    if isinstance(key_type, type) and issubclass(key_type, Type_Safe__Primitive):
+                        if not isinstance(k, key_type):
+                            try:
+                                k = key_type(k)
+                            except (ValueError, TypeError) as e:
+                                raise ValueError(f"Dict key '{k}' could not be converted to {key_type}: {e}") from None
+                    elif get_origin(key_type) is None:                                                        # Validate key (existing logic)
                         if not isinstance(k, key_type):
                             raise ValueError(f"Dict key '{k}' expected type {key_type}, but got {type(k)}")
                     else:
@@ -268,11 +279,25 @@ class Type_Safe__Method:                                                        
                         except TypeError as e:
                             raise ValueError(f"Dict key '{k}' in parameter '{param_name}': {e}") from None
 
-                    if value_type is not Any:                                                               # Validate value
-                        try:
-                            validator.is_instance_of_type(v, value_type)
-                        except TypeError as e:
-                            raise ValueError(f"Dict value for key '{k}' in parameter '{param_name}': {e}") from None
+                    # Handle value conversion for Type_Safe__Primitive
+                    if value_type is not Any:
+                        if isinstance(value_type, type) and issubclass(value_type, Type_Safe__Primitive):
+                            if not isinstance(v, value_type):
+                                try:
+                                    v = value_type(v)
+                                except (ValueError, TypeError) as e:
+                                    raise ValueError(f"Dict value for key '{k}' could not be converted to {value_type}: {e}") from None
+                        else:
+                            try:
+                                validator.is_instance_of_type(v, value_type)
+                            except TypeError as e:
+                                raise ValueError(f"Dict value for key '{k}' in parameter '{param_name}': {e}") from None
+
+                    converted_dict[k] = v
+
+                # Replace the original dict with converted dict
+                param_value.clear()
+                param_value.update(converted_dict)
 
                 return True
             base_type = origin
