@@ -4,6 +4,7 @@ from enum                                                                       
 from typing                                                                             import Any, Dict, Optional, Type, List
 from unittest                                                                           import TestCase
 from osbot_utils.type_safe.primitives.core.Safe_Int                                     import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_Str                                     import Safe_Str
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                    import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path       import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
@@ -453,3 +454,37 @@ class test_decorator__type_safe__regression(TestCase):
 
         assert classify_topics(None, [   ]) == [   ]
         assert classify_topics(None, ['a']) == ['a']
+
+    def test__regression__type_safe__decorator__str_auto_conversion_on_dicts(self):
+
+        @type_safe
+        def an_method(texts : Dict[Safe_Str, Safe_UInt]):
+            return texts
+
+        texts_1 = { Safe_Str("aaa1234567"): Safe_UInt("42")}                # works
+        texts_2 = {          "aaa1234567" : Safe_UInt("42")}                # FIXED: BUG , should also work
+        texts_3 = { Safe_Str("aaa1234567"): "42"           }                # FIXED: BUG , should also work
+        texts_4 = {          "aaa1234567" : "42"           }                # FIXED: BUG , should also work
+
+        an_method(texts=texts_1)
+
+        error_message_1 = "Dict key 'aaa1234567' expected type <class 'osbot_utils.type_safe.primitives.core.Safe_Str.Safe_Str'>, but got <class 'str'>"
+        error_message_2 = "Dict value for key 'aaa1234567' in parameter 'texts': Expected 'Safe_UInt', but got 'str'"
+
+        # with pytest.raises(ValueError, match=re.escape(error_message_1)):
+        #     an_method(texts=texts_2)                                            # BUG , should also work
+        #
+        # with pytest.raises(ValueError, match=re.escape(error_message_2)):
+        #     an_method(texts=texts_3)                                            # BUG , should also work
+        #
+        # with pytest.raises(ValueError, match=re.escape(error_message_1)):
+        #     an_method(texts=texts_4)                                            # BUG , should also work
+
+        assert an_method(texts=texts_2) == texts_2                                # FIXED
+        assert an_method(texts=texts_3) == texts_3                                # FIXED
+        assert an_method(texts=texts_4) == texts_4                                # FIXED
+
+        assert an_method(texts=texts_1) == texts_1                                # these assert should also work
+        assert an_method(texts=texts_1) == texts_2
+        assert an_method(texts=texts_1) == texts_3
+        assert an_method(texts=texts_1) == texts_4
