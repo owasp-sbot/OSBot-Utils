@@ -102,10 +102,8 @@ class test__decorator__type_safe(TestCase):
         assert len(result) == 2
         assert all(isinstance(x, Safe_Id) for x in result)
 
-        # Test with invalid list contents
-        with self.assertRaises(ValueError) as context:
-            self.test_instance.list_method([Safe_Id("test"), "not_safe_id"])
-        assert "expected type" in str(context.exception).lower()
+        assert self.test_instance.list_method([Safe_Id("test"), "not_safe_id!!!***"]) == [Safe_Id('test'),                  # values auto converted to Safe_* primitive
+                                                                                          Safe_Id('not_safe_id______')]
 
     # Default Value Tests
     def test_default_values(self):

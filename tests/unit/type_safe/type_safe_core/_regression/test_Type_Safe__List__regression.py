@@ -10,6 +10,7 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import T
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set    import Type_Safe__Set
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple  import Type_Safe__Tuple
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe          import type_safe
 
 
 class test_Type_Safe__List__regression(TestCase):
@@ -258,3 +259,15 @@ class test_Type_Safe__List__regression(TestCase):
         ]
         #assert dict_list.json() != expected         # BUG
         assert dict_list.json() == expected         # FIXED
+
+    def test__regression__type_safe__list_doesnt_auto_covert_str(self):
+
+        @type_safe
+        def an_method(values: List[Safe_Str]):
+            return values
+
+        an_list = ['a', 'b', 'c']
+        #error_message = "List item at index 0 expected type <class 'osbot_utils.type_safe.primitives.core.Safe_Str.Safe_Str'>, but got <class 'str'>"
+        # with pytest.raises(ValueError, match=re.escape(error_message)):       # BUG
+        #     an_method(an_list)
+        assert an_method(an_list) == an_list                                    # FIXED
