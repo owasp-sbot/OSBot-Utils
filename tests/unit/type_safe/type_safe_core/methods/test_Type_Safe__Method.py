@@ -5,6 +5,7 @@ from unittest                                                                   
 from typing                                                                            import Optional, Union, List, Dict, Any, Type, Callable
 from osbot_utils.type_safe.primitives.core.Safe_Int                                    import Safe_Int
 from osbot_utils.type_safe.primitives.core.Safe_Str                                    import Safe_Str
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash     import Safe_Str__Hash
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path      import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                      import Safe_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                  import Random_Guid
@@ -291,10 +292,10 @@ class test_Type_Safe__Method(TestCase):
         mixed_list = [Safe_Id('valid'), 'invalid', Safe_Id('valid2')]
 
         with self.assertRaises(ValueError) as context:
-            self.type_checker.validate_list_type('param_d', mixed_list, List[Safe_Id])
+            self.type_checker.validate_list_type('param_d', mixed_list, List[Safe_Str__Hash])
 
         # Should indicate which index failed
-        assert "List item at index 1" in str(context.exception)
+        assert "List item at index 0" in str(context.exception)
 
     # Test parameter validation without annotation
     def test_validate_parameter__no_annotation(self):                                   # Test parameter validation when no annotation exists

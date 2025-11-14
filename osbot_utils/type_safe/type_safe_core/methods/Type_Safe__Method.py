@@ -143,7 +143,7 @@ class Type_Safe__Method:                                                        
         return origin_type is list or origin_type is List                             # Check against list types
 
     def validate_list_type(self, param_name: str,                                                                                   # Validate list type and contents
-                         param_value: Any, expected_type: Any):                                                                     # List parameters
+                                 param_value: Any, expected_type: Any):                                                                     # List parameters
         if not isinstance(param_value, list):                                                                                       # Check if value is a list
             raise ValueError(f"Parameter '{param_name}' expected a list but got {type(param_value)}")                               # Raise error if not list
 
@@ -176,9 +176,16 @@ class Type_Safe__Method:                                                        
                                       f" '{item_type}' is not yet supported "
                                       f"in parameter '{param_name}'.")                                                              # todo: add support for checking for subscripted types
         else:                                                                                                                       # Handle non-subscripted types
-            for i, item in enumerate(param_value):                                                                                  # Check each list item
-                if not isinstance(item, item_type):                                                                                 # Validate item type
-                    raise ValueError(f"List item at index {i} expected type {item_type}, but got {type(item)}")                     # Raise error for invalid item
+            for i, item in enumerate(param_value):                                                                                  # Handle Type_Safe__Primitive conversion and validation
+                if isinstance(item_type, type) and issubclass(item_type, Type_Safe__Primitive):                                     # Try to convert Type_Safe__Primitive types
+                    if not isinstance(item, item_type):                                                                             # Only convert if not already correct type
+                        try:
+                            param_value[i] = item_type(item)                                                                        # Convert in place - will raise if invalid
+                        except (ValueError, TypeError) as e:
+                            raise ValueError(f"List item at index {i} could not be converted to {item_type}: {e}")
+                elif not isinstance(item, item_type):
+                    raise ValueError(f"List item at index {i} expected type {item_type}, but got {type(item)}")
+
 
     def validate_type_parameter(self, param_name: str, param_value: Any, expected_type: Any):                                       # Validate a Type[T] parameter
         if not isinstance(param_value, type):
