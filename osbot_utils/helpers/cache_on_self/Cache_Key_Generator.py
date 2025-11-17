@@ -1,5 +1,6 @@
 import json
-from typing import Callable, Dict, List, Tuple, Any, Set, FrozenSet
+from enum                   import Enum
+from typing                 import Callable, Dict, List, Tuple, Any
 from osbot_utils.utils.Misc import str_md5
 
 
@@ -90,6 +91,12 @@ class Cache_Key_Generator:                                                      
 
             elif isinstance(value, frozenset):
                 return f"<frozenset>:{json.dumps(sorted(list(value)), separators=(',', ':'))}"
+
+            elif isinstance(value, Enum):                                   # Handle Enum types - include both class name and member name for uniqueness
+                enum_class = type(value).__name__
+                enum_member = value.name
+                return f"<enum:{enum_class}>:{enum_member}"
+
 
             else:
                 # For other types, try to use repr if it's likely to be stable

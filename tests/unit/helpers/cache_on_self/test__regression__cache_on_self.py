@@ -5,6 +5,39 @@ from osbot_utils.helpers.cache_on_self.Cache_On_Self import Cache_On_Self
 
 class test__regression__cache_on_self(TestCase):
 
+    def test__regression__cache_on_self__enum_caching(self):
+
+        from enum import Enum
+
+        @cache_on_self
+        def an_method(self, an_str:str):
+            return an_str
+
+        assert an_method(self, an_str='A') == 'A'
+        assert an_method(self, an_str='B') == 'B'
+        assert an_method(self, an_str='C') == 'C'
+
+        class An_Enum(str, Enum):
+            A = 'A'
+            B = 'B'
+            C = 'C'
+
+        @cache_on_self
+        def an_method_with_enum(self, an_enum:An_Enum):
+            return an_enum
+
+        assert an_method_with_enum(self, an_enum='A') == 'A'
+        assert an_method_with_enum(self, an_enum='B') == 'B'
+        assert an_method_with_enum(self, an_enum='C') == 'C'
+
+        assert an_method_with_enum(self, an_enum=An_Enum.A) == 'A'
+        assert an_method_with_enum(self, an_enum=An_Enum.A) == An_Enum.A
+        #assert an_method_with_enum(self, an_enum=An_Enum.B) != 'B'                     # BUG
+        #assert an_method_with_enum(self, an_enum=An_Enum.B) == An_Enum.A               # BUG
+        #assert an_method_with_enum(self, an_enum=An_Enum.C) == An_Enum.A               # BUG
+        assert an_method_with_enum(self, an_enum=An_Enum.B) == An_Enum.B                # FIXED
+        assert an_method_with_enum(self, an_enum=An_Enum.B) == 'B'                      # FIXED
+        assert an_method_with_enum(self, an_enum=An_Enum.C) == An_Enum.C                # FIXED
     def test__regression__cache_on_self__none_values_ignored(self):
         """Test that None values are completely ignored in cache key generation"""
         class None_Values_Class:
