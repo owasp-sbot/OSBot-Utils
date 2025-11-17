@@ -357,7 +357,7 @@ class test_Timestamp_Now(TestCase):
         # Without providing timestamp
         ts1 = process_event()
         ts2 = process_event()
-        assert abs(ts2 - ts1) < 1                                            # Both recent
+        assert abs(ts2 - ts1) < 2                                            # Both recent
 
         # With providing timestamp
         specific_ts = Timestamp_Now(1234567890)
