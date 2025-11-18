@@ -28,7 +28,10 @@ class __(SimpleNamespace):
                 continue
 
             # Handle comparison operators
-            if isinstance(other_val, tuple) and len(other_val) >= 2:
+            # if isinstance(other_val, tuple) and len(other_val) >= 2:
+            #     op = other_val[0]
+            if (isinstance(other_val, tuple) and len(other_val) >= 2 and
+                not isinstance(self_val, tuple)):  # ← ADD THIS CHECK
                 op = other_val[0]
                 try:
                     if op == 'gt' and not (self_val > other_val[1]):
@@ -69,6 +72,12 @@ class __(SimpleNamespace):
         for key, expected_value in other_dict.items():
             if expected_value is __SKIP__:                                                  # Skip this field
                 continue
+
+            if expected_value is __MISSING__:
+                if hasattr(self, key):
+                    return False        # Field exists but expected missing
+                continue                # Field missing as expected
+
             if not hasattr(self, key):
                 return False
             actual_value = getattr(self, key)
@@ -108,10 +117,16 @@ class __(SimpleNamespace):
             self_val = getattr(self, key, __MISSING__)
             other_val = getattr(other, key, __MISSING__) if hasattr(other, '__dict__') else other.get(key, __MISSING__) if isinstance(other, dict) else __MISSING__
 
+            if self_val is __SKIP__ or other_val is __SKIP__:
+                continue
+
             if self_val != other_val:
                 differences[key] = {'actual': self_val, 'expected': other_val}
 
-        return differences if differences else None
+        #return differences if differences else None
+        from osbot_utils.testing.__helpers import dict_to_obj
+        return dict_to_obj(differences)
+
 
     def excluding(self, *fields):           # Return copy without specified fields for comparison"
         result = __(**self.__dict__)
