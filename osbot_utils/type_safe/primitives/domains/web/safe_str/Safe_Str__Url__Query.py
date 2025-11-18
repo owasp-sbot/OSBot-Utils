@@ -4,7 +4,8 @@ from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode     
 
 
 TYPE_SAFE_STR__URL__QUERY__MAX_LENGTH = 8192        # (see note in Safe_Str__Url why this is so high)
-TYPE_SAFE_STR__URL__QUERY__REGEX      = re.compile(r'^[a-zA-Z0-9=&\-._~%+]*$')
+TYPE_SAFE_STR__URL__QUERY__CHARS      = r'[a-zA-Z0-9=&\-._~%+,;!\'()*$]'
+TYPE_SAFE_STR__URL__QUERY__REGEX      = re.compile(rf'^{TYPE_SAFE_STR__URL__QUERY__CHARS}*$')
 
 
 class Safe_Str__Url__Query(Safe_Str):

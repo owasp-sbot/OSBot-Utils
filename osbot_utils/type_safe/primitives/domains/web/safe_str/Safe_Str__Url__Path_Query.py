@@ -1,9 +1,15 @@
 import re
-from osbot_utils.type_safe.primitives.core.Safe_Str                         import Safe_Str
-from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
+from osbot_utils.type_safe.primitives.core.Safe_Str                             import Safe_Str
+from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode     import Enum__Safe_Str__Regex_Mode
+from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url__Query import TYPE_SAFE_STR__URL__QUERY__CHARS
 
 TYPE_SAFE_STR__URL__PATH_QUERY__MAX_LENGTH = 8192                           # Combined length (see note in Safe_Str__Url why this is so high)
-TYPE_SAFE_STR__URL__PATH_QUERY__REGEX      = re.compile(r'^/?[a-zA-Z0-9/\-._~%]*(\?[a-zA-Z0-9=&\-._~%+,]*)?$')
+
+TYPE_SAFE_STR__URL__PATH_QUERY__REGEX = re.compile(
+    rf'^/?[a-zA-Z0-9/\-._~%]*'                    # Path part
+    rf'(\?{TYPE_SAFE_STR__URL__QUERY__CHARS}*)?$' # Query part
+)
+
 
 class Safe_Str__Url__Path_Query(Safe_Str):
     """
