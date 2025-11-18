@@ -49,6 +49,12 @@ class Type_Safe__Step__From_Json:
                     return self.deserialize_type__using_value(value)
 
         if value is not None and type(value) is dict:                                       # Handle forward references first
+
+            if isinstance(annotation, type) and issubclass(annotation, Type_Safe__Dict):                            # Handle Type_Safe__Dict subclasses BEFORE forward references
+                if hasattr(annotation, 'expected_key_type') and hasattr(annotation, 'expected_value_type'):         # Get the expected types from the subclass
+                    if annotation.expected_key_type and annotation.expected_value_type:
+                        dict_instance = annotation(value)                                                           # Create instance and populate it
+                        return dict_instance
             forward_ref_result = self.handle_forward_references(_self, annotation, value)
             if forward_ref_result is not None:
                 return forward_ref_result

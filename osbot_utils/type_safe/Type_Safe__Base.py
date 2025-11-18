@@ -122,6 +122,9 @@ class Type_Safe__Base:
 
     def try_convert(self, value, expected_type):    # Try to convert value to expected type using Type_Safe conversion logic.
 
+        from osbot_utils.type_safe.Type_Safe            import Type_Safe
+        from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
+
         if expected_type is Any:                                    # Handle Any type
             return value
 
@@ -131,6 +134,17 @@ class Type_Safe__Base:
 
         if isinstance(value, expected_type):        # If already correct type, return as-is
             return value
+
+
+        if (isinstance(expected_type, type) and             # Handle dict → Type_Safe conversion
+            issubclass(expected_type, Type_Safe) and
+            isinstance(value, dict)):
+            return expected_type.from_json(value)
+
+        if (isinstance(expected_type, type) and                 # Handle dict → Type_Safe__Primitive conversion
+            issubclass(expected_type, Type_Safe__Primitive) and
+            type(value) in [str, int, float]):
+            return expected_type(value)
 
         if isinstance(expected_type, type) and type(value) in [str, int, float]:        # For types that are subclasses of built-ins (like Safe_Id extends str)
             if issubclass(expected_type, type(value)):                                  # Only convert if the value's type is a base class of expected_type. e.g., str → Safe_Id (ok), but not int → str (not ok)

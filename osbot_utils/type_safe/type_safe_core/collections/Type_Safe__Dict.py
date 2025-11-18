@@ -1,4 +1,4 @@
-from enum import Enum
+from enum                                                             import Enum
 from typing                                                           import Type
 from osbot_utils.testing.__                                           import __
 from osbot_utils.type_safe.Type_Safe__Base                            import Type_Safe__Base
@@ -8,11 +8,31 @@ from osbot_utils.utils.Objects                                        import cla
 
 
 class Type_Safe__Dict(Type_Safe__Base, dict):
-    def __init__(self, expected_key_type, expected_value_type, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    expected_key_type   : Type = None                                                                          # Class-level defaults
+    expected_value_type : Type = None
 
-        self.expected_key_type   = expected_key_type
-        self.expected_value_type = expected_value_type
+    def __init__(self, expected_key_type=None, expected_value_type=None, initial_data=None, **kwargs):
+        super().__init__()                                                                              # Initialize empty dict first
+
+
+        if isinstance(expected_key_type, dict) and expected_value_type is None:                                 # Smart detection: if expected_key_type is a dict and expected_value_type is None, then the user is trying to pass initial data in the old style
+            initial_data      = expected_key_type                                                               # They're using the pattern: Hash_Mapping({'key': 'value'})
+            expected_key_type = None                                                                            # Move the dict to initial_data
+
+        self.expected_key_type   = expected_key_type   or self.__class__.expected_key_type                      # Use provided types, or fall back to class-level attributes
+        self.expected_value_type = expected_value_type or self.__class__.expected_value_type
+
+        if self.expected_key_type is None or self.expected_value_type is None:                                  # Validate that we have types set (either from args or class)
+            raise ValueError(f"{self.__class__.__name__} requires expected_key_type and expected_value_type")
+
+        if initial_data is not None:                                                                            # Process initial data through our type-safe __setitem__
+            if not isinstance(initial_data, dict):
+                raise TypeError(f"Initial data must be a dict, got {type(initial_data).__name__}")
+            for key, value in initial_data.items():
+                self[key] = value                                                                               # Goes through __setitem__ with validation
+
+        for key, value in kwargs.items():                                                                       # Also handle keyword arguments (e.g., Hash_Mapping(key1='val1', key2='val2'))
+            self[key] = value
 
     def __contains__(self, key):
         if super().__contains__(key):                                       # First try direct lookup
@@ -105,3 +125,20 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
 
     def values(self) -> Type_Safe__List:
         return Type_Safe__List(self.expected_value_type, super().values())
+
+    def update(self, other=None, **kwargs):
+        """Override update to ensure type safety through __setitem__"""
+        # Handle dict-like object or iterable of key-value pairs
+        if other is not None:
+            if hasattr(other, 'items'):
+                # Dict-like object
+                for key, value in other.items():
+                    self[key] = value  # Goes through __setitem__
+            else:
+                # Iterable of (key, value) pairs
+                for key, value in other:
+                    self[key] = value
+
+        # Handle keyword arguments
+        for key, value in kwargs.items():
+            self[key] = value

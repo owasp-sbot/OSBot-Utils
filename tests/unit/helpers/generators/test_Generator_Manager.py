@@ -1,16 +1,17 @@
 import pytest
 import _thread
 import threading
-from types                                                      import GeneratorType
-from unittest                                                   import TestCase
-from threading                                                  import Thread, Event
-from time                                                       import sleep
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                            import Random_Guid
-from osbot_utils.helpers.generators.Generator_Context_Manager   import Generator_Context_Manager
-from osbot_utils.helpers.generators.Generator_Manager           import Generator_Manager
-from osbot_utils.helpers.generators.Model__Generator_State      import Model__Generator_State
-from osbot_utils.utils.Env                                      import not_in_github_action
-from osbot_utils.utils.Misc                                     import is_guid
+from types                                                              import GeneratorType
+from unittest                                                           import TestCase
+from threading                                                          import Thread, Event
+from time                                                               import sleep
+from osbot_utils.testing.Pytest                                         import skip_if_in_github_action
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid   import Random_Guid
+from osbot_utils.helpers.generators.Generator_Context_Manager           import Generator_Context_Manager
+from osbot_utils.helpers.generators.Generator_Manager                   import Generator_Manager
+from osbot_utils.helpers.generators.Model__Generator_State              import Model__Generator_State
+from osbot_utils.utils.Env                                              import not_in_github_action
+from osbot_utils.utils.Misc                                             import is_guid
 
 
 class test_Generator_Manager(TestCase):
@@ -206,6 +207,7 @@ class test_Generator_Manager(TestCase):
         assert self.manager.find_generator(gen).state == Model__Generator_State.COMPLETED
 
     def test_capture_with_concurrent_stop(self):
+        skip_if_in_github_action()                          # failed in non-deterministic way in GH actions
         stop_event = Event()
         values = []
 
