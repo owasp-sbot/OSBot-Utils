@@ -11,8 +11,15 @@ class Type_Safe__Base:
     def is_instance_of_type(self, item, expected_type):
         if expected_type is Any:
             return True
-        if isinstance(expected_type, ForwardRef):               # todo: add support for ForwardRef
+        if isinstance(expected_type, str):
+            if type(item).__name__ == expected_type:                                                                # happens in ForwardRefs
+                return True
+            else:
+                raise TypeError(f"Expected type '{expected_type}' but got instance of '{type(item).__name__}'.")    # Doesn't match - unresolvable forward reference
+
+        if isinstance(expected_type, ForwardRef):                    # todo: add support for ForwardRef | todo: see the side effects of this 'return true'
             return True
+
         origin = type_safe_cache.get_origin(expected_type)
         args   = get_args(expected_type)
 

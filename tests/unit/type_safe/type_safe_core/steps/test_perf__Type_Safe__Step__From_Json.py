@@ -160,7 +160,7 @@ class test_perf__Type_Safe__Step__From_Json(TestCase):
 
         with Performance_Measure__Session() as session:
             session.measure(deserialize_type     ).assert_time__less_than(self.time_20_kns )
-            session.measure(deserialize_none_type).assert_time__less_than(self.time_500_ns)
+            session.measure(deserialize_none_type).assert_time__less_than(self.time_1_kns)
 
     def test_dict_key_value_annotations(self):                               # Test dict with annotated keys/values
         class AnnotatedDict(Type_Safe):

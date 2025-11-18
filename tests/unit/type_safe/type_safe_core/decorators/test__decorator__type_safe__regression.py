@@ -488,3 +488,38 @@ class test_decorator__type_safe__regression(TestCase):
         assert an_method(texts=texts_1) == texts_2
         assert an_method(texts=texts_1) == texts_3
         assert an_method(texts=texts_1) == texts_4
+
+    def test__regression__type_safe__return_value__not_works__with__bad__forward_refs(self):
+        import re
+
+        class An_Class(Type_Safe):
+            @type_safe
+            def an_method(self) -> 'An_Class2':
+                return self
+
+        error_message = ("Function 'test_decorator__type_safe__regression.test__regression__type_safe__return_value__not_works__with__bad__forward_refs."
+                         "<locals>.An_Class.an_method' return type validation failed: "                         
+                         "Expected type 'An_Class2' but got instance of 'An_Class'.")
+
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            An_Class().an_method()
+
+    def test__regression__type_safe__return_value__not_works__with_differnt__forward_refs(self):
+        class An_Class_2(Type_Safe):
+            pass
+        class An_Class_1(Type_Safe):
+            @type_safe
+            def an_method(self) -> 'An_Class_2':
+                return An_Class_2()
+
+        assert type(An_Class_1().an_method()) is An_Class_2         # FIXED: this used to fail before fix
+
+    def test__regression__type_safe__return_value__not_works__with_forward_refs(self):
+        class An_Class(Type_Safe):
+            @type_safe
+            def return_self(self) -> 'An_Class':
+                return self
+        # error_message = "Function 'test__decorator__type_safe__bugs.test__bug__type_safe__return_value__not_works__with_forward_refs.<locals>.An_Class.return_self' return type validation failed: isinstance() arg 2 must be a type, a tuple of types, or a union"
+        # with pytest.raises(TypeError, match=re.escape(error_message)):
+        #     An_Class().return_self()              # BUG
+        assert type(An_Class().return_self()) is An_Class           # FIXED
