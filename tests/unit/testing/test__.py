@@ -96,33 +96,36 @@ class test__(TestCase):
     def test_diff(self):                                                                  # Test diff method for debugging
         with __(a=1, b='test', c=3.14) as obj1:
             with __(a=1, b='test', c=3.14) as obj2:
-                assert obj1.diff(obj2) is None                                            # No differences
+                assert obj1.diff(obj2) == __()                                            # No differences
 
             with __(a=2, b='test', c=3.14) as obj3:
                 diff = obj1.diff(obj3)
-                assert diff == {'a': {'actual': 1, 'expected': 2}}                       # Single difference
+                assert diff == __(a=__(actual=1, expected=2))
+                #assert diff == {'a': {'actual': 1, 'expected': 2}}                       # Single difference
 
             with __(a=2, b='changed', d=4) as obj4:
                 diff = obj1.diff(obj4)
-                assert 'a' in diff                                                        # Changed field
-                assert 'b' in diff                                                        # Another changed field
-                assert 'c' in diff                                                        # Missing in obj4
-                assert 'd' in diff                                                        # Extra in obj4
+                assert diff == __(a=__(actual=1, expected=2),
+                                  b=__(actual='test', expected='changed'),
+                                  d=__(actual=__MISSING__, expected=4),
+                                  c=__(actual=3.14, expected=__MISSING__))
+                # assert 'a' in diff                                                        # Changed field
+                # assert 'b' in diff                                                        # Another changed field
+                # assert 'c' in diff                                                        # Missing in obj4
+                # assert 'd' in diff                                                        # Extra in obj4
 
-    def test_diff__with_dict(self):                                                       # Test diff with dict comparison
-        with __(a=1, b=2) as _:
-            diff = _.diff({'a': 1, 'b': 3})
-            assert diff == {'b': {'actual': 2, 'expected': 3}}                          # Dict comparison works
 
     def test_diff__with_missing_fields(self):                                            # Test diff with missing fields
         with __(a=1, b=2) as obj1:
             with __(a=1) as obj2:
                 diff = obj1.diff(obj2)
-                assert diff == {'b': {'actual': 2, 'expected': __MISSING__}}            # Missing marked correctly
+                assert diff == __(b=__(actual=2, expected=__MISSING__))
+                #assert diff == {'b': {'actual': 2, 'expected': __MISSING__}}            # Missing marked correctly
 
             with __(a=1, b=2, c=3) as obj3:
                 diff = obj1.diff(obj3)
-                assert diff == {'c': {'actual': __MISSING__, 'expected': 3}}            # Extra field detected
+                assert diff == __(c=__(actual=__MISSING__, expected=3))
+                #assert diff == {'c': {'actual': __MISSING__, 'expected': 3}}            # Extra field detected
 
     def test_excluding(self):                                                             # Test excluding fields from comparison
         with __(id='123', name='Test', created_at='2024-01-01', updated_at='2024-01-02') as _:
@@ -570,7 +573,9 @@ class test__(TestCase):
                 diff = actual.diff(expected)
                 # diff will show the actual values vs the operator tuples
                 assert diff is not None
-                assert 'score' in diff or 'duration' in diff                            # At least one field differs
+                assert diff == __(duration=__(actual=0.234, expected=('lt', 0.1)),
+                                  score=__(actual=85, expected=('gt', 90)))
+                #assert 'score' in diff or 'duration' in diff                            # At least one field differs
 
 
     # Test operators work with contains() method
@@ -809,15 +814,19 @@ class test__(TestCase):
 
     def test__diff_shows_operator_tuples(self):                                          # Test diff reveals operator structure
         with __(score=85, duration=0.234) as actual:
-            expected = __(score=__GREATER_THAN__(90), duration=__LESS_THAN__(0.1))
+            expected_1 = __(score=90, duration=0.1)
 
-            diff = actual.diff(expected)
+            diff_1 = actual.diff(expected_1)
+            assert type(diff_1) is __
+            assert diff_1       == __(duration = __(actual=0.234, expected=0.1),
+                                      score    = __(actual=85   , expected=90))                 # this passes ok
 
-            # diff should show actual values vs operator tuples
-            assert diff is not None
-            assert 'score' in diff
-            assert diff['score']['actual'] == 85
-            assert diff['score']['expected'] == ('gt', 90)                              # Shows operator structure
+            expected_2 = __(score=__GREATER_THAN__(90), duration=__LESS_THAN__(0.1))
+            diff_2     = actual.diff(expected_2)
+
+            assert diff_2 == __(duration = __(actual=0.234, expected=__LESS_THAN__(0.1)),
+                                score    = __(actual=85   , expected=__GREATER_THAN__(90)))     # this fails here, but the results are the same
+
 
     def test__diff_with_close_to_tolerance(self):                                        # Test diff shows CLOSE_TO details
         with __(value=1.0) as actual:
@@ -826,7 +835,8 @@ class test__(TestCase):
             diff = actual.diff(expected)
 
             # diff shows the operator tuple with tolerance
-            assert diff['value']['expected'] == ('close_to', 2.0, 0.5)
+            assert diff == __(value=__(actual=1.0, expected=('close_to', 2.0, 0.5)))
+            #assert diff['value']['expected'] == ('close_to', 2.0, 0.5)
 
     # Test operators with real-world patterns
 
@@ -1190,3 +1200,211 @@ class test__(TestCase):
             request_id=__SKIP__,
             metrics=__(score=__GREATER_THAN__(85))
         )
+
+    def test_contains__with_missing_marker(self):                   # Test contains behavior with __MISSING__ marker
+        with __(a=1, b=2) as _:
+            assert _.contains(c=__MISSING__)   is True              # confirms that 'c' is missing
+
+
+    def test__empty_nested_objects(self):                                   # Test comparison with empty nested __ objects
+        with __(data=__()) as obj1:
+            assert obj1 == __(data=__())
+            assert obj1.contains(__(data=__()))
+
+            diff = obj1.diff(__(data=__(x=1)))
+            assert diff == __(data=__(actual=__(), expected=__(x=1)))
+
+    def test__deeply_nested_mixed_operators_and_skip(self):
+        """Test 4+ levels of nesting with operators and skip"""
+        complex = __(
+            level1=__(
+                level2=__(
+                    level3=__(
+                        level4=__(value=42, timestamp=999)
+                    )
+                )
+            )
+        )
+
+        assert complex == __(
+            level1=__(
+                level2=__(
+                    level3=__(
+                        level4=__(
+                            value=__GREATER_THAN__(40),
+                            timestamp=__SKIP__
+                        )
+                    )
+                )
+            )
+        )
+
+
+    def test__diff_return_value_consistency(self):      # Test diff returns __() for no differences
+        with __(a=1) as obj1:
+            with __(a=1) as obj2:
+                diff = obj1.diff(obj2)
+                assert diff == __()  # there were no differences
+
+    def test__diff_ignores_skip_markers(self):              # Test that __SKIP__ values don't appear in diff results
+
+        # Case 1: __SKIP__ in left side
+        with __(a=1, b=__SKIP__, c=3) as obj1:
+            with __(a=1, b=2, c=3) as obj2:
+                diff = obj1.diff(obj2)
+                assert diff == __()  # No diff because b is skipped
+
+        # Case 2: __SKIP__ in right side (more common in tests)
+        with __(a=1, b=2, c=3) as obj1:
+            with __(a=1, b=__SKIP__, c=3) as obj2:
+                diff = obj1.diff(obj2)
+                assert diff == __()  # No diff because b is skipped
+
+        # Case 3: __SKIP__ on both sides
+        with __(a=1, b=__SKIP__) as obj1:
+            with __(a=1, b=__SKIP__) as obj2:
+                diff = obj1.diff(obj2)
+                assert diff == __()
+
+        # Case 4: Other fields still show differences
+        with __(a=1, b=__SKIP__, c=3) as obj1:
+            with __(a=2, b=2, c=3) as obj2:
+                diff = obj1.diff(obj2)
+                assert diff == __(a=__(actual=1, expected=2))  # Only 'a' differs, 'b' ignored
+
+
+    def test_contains__with_missing_marker__basic(self):
+        """Test __MISSING__ confirms field absence"""
+        with __(a=1, b=2) as _:
+            assert _.contains(c=__MISSING__)                        # Field 'c' doesn't exist - passes
+            assert _.contains(d=__MISSING__)                        # Field 'd' doesn't exist - passes
+            assert not _.contains(a=__MISSING__)                    # Field 'a' EXISTS - fails
+            assert not _.contains(b=__MISSING__)                    # Field 'b' EXISTS - fails
+
+    def test_contains__with_missing_marker__mixed_with_existing(self):
+        """Test __MISSING__ combined with regular field checks"""
+        with __(a=1, b=2, c=3) as _:
+            # Check some fields exist AND some don't exist
+            assert _.contains(a=1, d=__MISSING__)                   # 'a' exists with value 1, 'd' missing
+            assert _.contains(b=2, c=3, x=__MISSING__)             # Multiple exist, one missing
+            assert not _.contains(a=1, b=__MISSING__)              # 'b' exists, expected missing - fails
+
+    def test_contains__with_missing_marker__nested_objects(self):
+        """Test __MISSING__ with nested structures"""
+        with __(user=__(id='u1', name='Alice'), config=__(timeout=30)) as _:
+            # Check top-level field is missing
+            assert _.contains(settings=__MISSING__)                 # 'settings' doesn't exist
+
+            # Check nested field exists, but another top-level is missing
+            assert _.contains(user=__(id='u1'), metadata=__MISSING__)
+
+            # Field exists when expected missing - fails
+            assert not _.contains(user=__MISSING__)                 # 'user' EXISTS
+
+    def test_contains__with_missing_marker__with_operators(self):
+        """Test __MISSING__ combined with comparison operators"""
+        with __(score=85, duration=0.234) as _:
+            assert _.contains(
+                score=__GREATER_THAN__(80),                         # Field exists and passes operator
+                latency=__MISSING__                                 # Field doesn't exist
+            )
+
+            assert _.contains(
+                duration=__LESS_THAN__(0.5),
+                timestamp=__MISSING__,
+                request_id=__MISSING__
+            )
+
+    def test_contains__with_missing_marker__all_missing(self):
+        """Test checking multiple missing fields"""
+        with __(a=1) as _:
+            assert _.contains(b=__MISSING__, c=__MISSING__, d=__MISSING__)  # All missing
+            assert not _.contains(a=__MISSING__, b=__MISSING__)             # 'a' exists
+
+    def test_contains__with_missing_marker__empty_object(self):
+        """Test __MISSING__ on completely empty object"""
+        with __() as _:
+            assert _.contains(a=__MISSING__)                        # Everything is missing in empty object
+            assert _.contains(x=__MISSING__, y=__MISSING__)
+
+    def test_contains__with_missing_marker__real_world_validation(self):
+        """Real-world pattern: validate deprecated fields removed"""
+        api_response_v2 = __(
+            status=200,
+            data=__(items=[1, 2, 3], total=3),
+            metadata=__(version='2.0')
+        )
+
+        # Validate new fields exist AND old deprecated fields are gone
+        assert api_response_v2.contains(
+            status=200,                                             # New field exists
+            data=__(total=3),                                      # Nested field exists
+            deprecated_user_id=__MISSING__,                        # Old field removed
+            legacy_timestamp=__MISSING__                           # Old field removed
+        )
+
+    def test_contains__with_missing_marker__with_skip(self):
+        """Test __MISSING__ combined with __SKIP__"""
+        with __(a=1, b=2, c=3) as _:
+            assert _.contains(
+                a=__SKIP__,                                         # Don't care about 'a' value
+                d=__MISSING__,                                      # 'd' must not exist
+                b=2                                                 # 'b' must equal 2
+            )
+
+    def test_contains__with_missing_marker__validates_field_removal(self):
+        """Test pattern for validating fields were removed in transformation"""
+        original = __(id='123', name='Test', password='secret', ssn='123-45-6789')
+
+        # After sanitization
+        sanitized = __(id='123', name='Test')
+
+        # Validate sensitive fields removed
+        assert sanitized.contains(
+            id='123',                                               # Keep public fields
+            name='Test',
+            password=__MISSING__,                                   # Sensitive removed
+            ssn=__MISSING__                                         # Sensitive removed
+        )
+
+        # Original should NOT contain missing (fields exist)
+        assert not original.contains(password=__MISSING__)
+        assert not original.contains(ssn=__MISSING__)
+
+    def test_contains__with_missing_marker__object_syntax(self):
+        """Test __MISSING__ with __ object syntax (not kwargs)"""
+        with __(a=1, b=2) as _:
+            assert _.contains(__(c=__MISSING__))                    # Object syntax
+            assert _.contains(__(a=1, d=__MISSING__))              # Mixed
+            assert not _.contains(__(a=__MISSING__))               # Field exists
+
+
+
+
+    ##############
+    # KNOWN bugs
+
+    # this documents this scenario
+    def test__bug__circular_reference_handling__recursion_is_not_handled(self):                # Test behavior with circular references
+        obj1 = __(a=1, b=2)
+        obj1.self_ref = obj1  # Circular reference
+
+        obj2 = __(a=1, b=2)
+        obj2.self_ref = obj2
+        error_message = "maximum recursion depth exceeded"
+        with pytest.raises(RecursionError, match=error_message):            # Should this handle gracefully or infinite loop?
+            assert obj1 == obj2
+
+    def test__bug__diff_with_nested_operators(self):     # Test diff with operators in nested structures
+        actual = __(user=__(score=85, name='Alice'),
+                    stats=__(wins=10)              )
+
+        expected = __(user=__(score=__GREATER_THAN__(90), name='Alice'),
+                     stats=__(wins=__BETWEEN__(5, 15)))
+
+        diff = actual.diff(expected)
+
+        assert diff == __(stats = __(actual   =__(wins=10),
+                                     expected =__(wins=('between', 5, 15))),            # BUG
+                          user  = __(actual   =__(score=85, name='Alice'),
+                                     expected = __(score=('gt', 90), name='Alice')))    # Correct

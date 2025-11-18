@@ -144,8 +144,8 @@ class test__using_Type_Safe(TestCase):
             user2.age     = 26                                                         # Different age
 
         diff = user1.obj().diff(user2.obj())
-        assert diff == {'email': {'actual': 'frank@test.com', 'expected': 'frank@different.com'},
-                       'age'  : {'actual': 25, 'expected': 26}}
+        assert diff == __(email = __(actual='frank@test.com', expected='frank@different.com'),
+                          age   = __(actual=25, expected=26))
 
     def test__obj_merge_for_test_variations(self):                                     # Test merge with Type_Safe .obj()
         with self.Schema__User() as base_user:
