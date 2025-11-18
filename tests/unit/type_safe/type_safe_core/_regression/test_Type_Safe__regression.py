@@ -642,9 +642,12 @@ class test_Type_Safe__regression(TestCase):
                        'an_class_2_b': {'an_str': 'value_1'}}
 
         assert An_Class_2_A.from_json(json_data_2).json() == json_data_2
-        new_error = "Expected 'An_Class_2_B', but got 'dict'"
-        with pytest.raises(TypeError, match=re.escape(new_error)):
-            An_Class_2_A(**json_data_2)
+
+        assert An_Class_2_A(**json_data_2).obj() == __(an_dict=__(key_1=__(an_str='value_1')),
+                                                       an_class_2_b=__(an_str='value_1'))           # and now this works
+
+        assert An_Class_2_A(**json_data_2).obj () == An_Class_2_A.from_json(json_data_2).obj()       # and these now match
+        assert An_Class_2_A(**json_data_2).json() == json_data_2
 
         # so the code below started to fail after the fix to the dict object assissment (see above ""Expected 'An_Class_2_B', but got 'dict'"")
         # this feels ok since we should be using from_json to create new nester objects and not **json_data_2
@@ -1510,10 +1513,8 @@ class test_Type_Safe__regression(TestCase):
         assert type(an_class_from_json.an_dict['key_1'])  is An_Class_2_B
         assert an_class_from_json.an_dict['key_1'].an_str == 'value_1'
 
-        expected_error_1 = "Expected 'An_Class_2_B', but got 'dict'"
-        with pytest.raises(TypeError, match=re.escape(expected_error_1)):                           # this doesn't work
-            An_Class_2_A(**an_class_json)                                                           # but that is expected behavior
-        #an_class_2b = An_Class_2_B()
+        assert An_Class_2_A(**an_class_json).json() == an_class_json
+
         an_class_data   = {'an_dict': {'key_1': An_Class_2_B(**{'an_str': 'value_1'})}}             # since this is how it needs to be done, which works
         an_class_from_kwargs = An_Class_2_A(**an_class_data)                                        #   the idea is if a pure json import is needed,
         assert an_class_from_kwargs.json() == an_class_json                                         #   then .from_json(..) is what should be used

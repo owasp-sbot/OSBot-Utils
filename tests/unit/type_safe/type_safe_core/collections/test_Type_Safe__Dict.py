@@ -222,8 +222,19 @@ class test_Type_Safe__Dict(TestCase):
 
         an_class = An_Class()
         an_class.an_dict_custom['ok'] = CustomType(a=1, b='abc')
-        with pytest.raises(TypeError, match="Expected 'CustomType', but got 'dict'"):
-            an_class.an_dict_custom['fail'] = {'a': 2, 'b': 'def'}
+
+        assert an_class.obj() == __(an_dict_custom=__(ok=__(a=1, b='abc')))
+        an_class.an_dict_custom['also_works'] = {'a': 2, 'b': 'def'}
+        assert an_class.obj() == __(an_dict_custom=__(ok         = __(a=1, b='abc'),
+                                                      also_works = __(a=2, b='def')))
+
+        error_message = "On CustomType, invalid type for attribute 'b'. Expected '<class 'str'>' but got '<class 'int'>'"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            an_class.an_dict_custom['fail'] = {'a': 2, 'b': 42}
+
+        error_message = "Expected 'CustomType', but got 'str'"
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            an_class.an_dict_custom['fail'] = "42"
 
     def test__dict_with_empty_collections(self):                            # Check that empty dict fields can be assigned without issues.
         class An_Class(Type_Safe):
