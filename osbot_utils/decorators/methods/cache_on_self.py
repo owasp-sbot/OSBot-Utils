@@ -1,8 +1,6 @@
-import inspect
 from functools                                         import wraps
-from typing import Any, Callable, TypeVar, Dict
-from weakref import WeakKeyDictionary
-
+from typing                                            import Any, Callable, TypeVar, Dict
+from weakref                                           import WeakKeyDictionary
 from osbot_utils.helpers.cache_on_self.Cache_On_Self   import Cache_On_Self
 
 
