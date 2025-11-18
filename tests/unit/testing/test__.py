@@ -996,3 +996,197 @@ class test__(TestCase):
 
         assert original.score == 85                                                      # Original unchanged
         assert original.duration == 0.234                                                # Original unchanged
+
+    def test_contains__with_kwargs__basic(self):                                     # Test contains with kwargs syntax
+        with __(id='123', name='Test', age=25, status='active') as _:
+            assert _.contains(id='123')                                              # Single field as kwarg
+            assert _.contains(id='123', name='Test')                                 # Multiple fields as kwargs
+            assert _.contains(id='123', name='Test', age=25)                         # More fields as kwargs
+            assert not _.contains(id='456')                                          # Wrong value
+            assert not _.contains(missing_field='value')                             # Non-existent field
+
+    def test_contains__with_kwargs__vs_object_syntax(self):                          # Test both syntaxes produce same results
+        with __(a=1, b=2, c=3) as _:
+            # Both syntaxes should work identically
+            assert _.contains(__(a=1, b=2)) == _.contains(a=1, b=2)
+            assert _.contains(__(a=1))      == _.contains(a=1)
+            assert _.contains(__(c=3))      == _.contains(c=3)
+
+    def test_contains__with_kwargs__with_operators(self):                            # Test kwargs with comparison operators
+        with __(score=85, duration=0.234, count=100) as _:
+            assert _.contains(score=__GREATER_THAN__(80))                           # Single operator
+            assert _.contains(duration=__LESS_THAN__(0.5))                          # Different operator
+            assert _.contains(count=__BETWEEN__(50, 150))                           # Range operator
+
+            # Multiple operators
+            assert _.contains(score   =__GREATER_THAN__(80  ),
+                              duration=__LESS_THAN__   (0.5))
+
+            # Mix operators and exact values
+            assert _.contains(score=__GREATER_THAN__(80),
+                              count=100)
+
+    def test_contains__with_kwargs__with_skip(self):                                 # Test kwargs with __SKIP__ marker
+        with __(id='123', name='Test', timestamp=999) as _:
+            assert _.contains(id='123', timestamp=__SKIP__)                          # Skip timestamp
+            assert _.contains(id=__SKIP__, name='Test')                              # Skip id
+            assert _.contains(id=__SKIP__, name='Test', timestamp=__SKIP__)         # Skip multiple
+
+    def test_contains__with_kwargs__nested_objects(self):                            # Test kwargs doesn't work with nested (by design)
+        with __(user=__(id='u1', name='Alice'), settings=__(theme='dark')) as _:
+            # Kwargs can only check top-level fields
+            assert _.contains(user=__(id='u1'))                                      # Must use __ for nested
+            # Can't do: _.contains(user=id='u1')  # This would fail - nested needs __
+
+    def test_contains__with_kwargs__empty(self):                                     # Test contains with no arguments
+        with __(a=1, b=2) as _:
+            result = _.contains()                                                    # Empty kwargs should return False
+            assert result == False                                                   # Should match empty
+
+    def test_contains__kwargs_cannot_mix_with_positional(self):                      # Test you can't mix both syntaxes
+        with __(a=1, b=2, c=3) as _:
+            assert _.contains(__(a=1, b=2))                                          # Positional __ object
+            assert _.contains(a=1, b=2)                                              # Kwargs
+            error_message = ("Cannot mix positional and keyword arguments in contains(). "
+                             "Use either _.contains(__(a=1, b=2)) or _.contains(a=1, b=2), not both.")
+            with pytest.raises(ValueError, match=re.escape(error_message)) :
+                assert _.contains(__(a=1), b=2)                                     # we can't use both techniques
+
+
+    def test_contains__with_kwargs__real_world_example(self):                        # Real-world pattern test
+        api_response = __(status=200,
+                          headers=__(content_type='application/json', x_request_id='req-123'),
+                          data=__(items=[1, 2, 3], total=3),
+                          timing=__(duration=0.234, cached=False))
+
+        # Old syntax (still works)
+        assert api_response.contains(__(status=200))
+
+        # New syntax (cleaner!)
+        assert api_response.contains(status=200)
+        assert api_response.contains(status=200, timing=__(duration=__LESS_THAN__(0.5)))
+
+    def test_contains__with_kwargs__all_types(self):                                 # Test kwargs with various Python types
+        with __(
+            string='test',
+            integer=42,
+            floating=3.14,
+            boolean=True,
+            none_val=None,
+            list_val=[1, 2, 3],
+            dict_val={'key': 'value'}
+        ) as _:
+            assert _.contains(string='test')                                         # String
+            assert _.contains(integer=42)                                            # Int
+            assert _.contains(floating=3.14)                                         # Float
+            assert _.contains(boolean=True)                                          # Bool
+            assert _.contains(none_val=None)                                         # None
+            assert _.contains(list_val=[1, 2, 3])                                    # List
+            assert _.contains(dict_val={'key': 'value'})                             # Dict
+
+    def test_contains__with_kwargs__operators_all_types(self):                       # Test all operators with kwargs syntax
+        with __(
+            score=85,
+            duration=0.234,
+            probability=0.753,
+            count=42
+        ) as _:
+            # Greater than
+            assert _.contains(score=__GREATER_THAN__(80))
+
+            # Less than
+            assert _.contains(duration=__LESS_THAN__(0.5))
+
+            # Between
+            assert _.contains(probability=__BETWEEN__(0.7, 0.8))
+
+            # Close to
+            assert _.contains(probability=__CLOSE_TO__(0.75, tolerance=0.01))
+
+            # Multiple operators
+            assert _.contains(score    = __GREATER_THAN__(80     ),
+                              duration = __LESS_THAN__   (0.5    ),
+                              count    = __BETWEEN__     (40, 50))
+
+    def test_contains__with_kwargs__partial_match(self):                            # Test partial matching with kwargs
+        with __(
+            id='test-123',
+            name='Test User',
+            email='test@example.com',
+            age=25,
+            status='active',
+            created_at='2024-01-01'
+        ) as _:
+            # Can check any subset of fields
+            assert _.contains(id='test-123')                                         # Just one field
+            assert _.contains(name='Test User', status='active')                     # Two fields
+            assert _.contains(email='test@example.com', age=25, status='active')     # Three fields
+
+    def test_contains__with_kwargs__comparison_with_object_syntax_operators(self):   # Compare both syntaxes with operators
+        with __(score=85, duration=0.234, count=100, status='active') as _:
+            # Both syntaxes should behave identically
+
+            # Greater than
+            assert _.contains(__(score=__GREATER_THAN__(80)))
+            assert _.contains(score=__GREATER_THAN__(80))
+
+            # Multiple with operators
+            old_syntax = _.contains(__(
+                score=__GREATER_THAN__(80),
+                duration=__LESS_THAN__(0.5),
+                status='active'
+            ))
+
+            new_syntax = _.contains(
+                score=__GREATER_THAN__(80),
+                duration=__LESS_THAN__(0.5),
+                status='active'
+            )
+
+            assert old_syntax == new_syntax == True
+
+    def test_contains__with_kwargs__failure_cases(self):                             # Test failure cases with kwargs
+        with __(score=85, name='test', status='active') as _:
+            assert not _.contains(score=90)                                          # Wrong value
+            assert not _.contains(missing='value')                                   # Missing field
+            assert not _.contains(score=__GREATER_THAN__(90))                       # Operator fails
+            assert not _.contains(name='test', score=90)                            # One field wrong
+
+    def test_contains__with_kwargs__integration_test(self):                          # Integration test combining features
+        complex_obj = __(
+            request_id='req-abc-123',
+            timestamp=1234567890,
+            status=200,
+            timing=__(
+                total=0.456,
+                db_query=0.234,
+                render=0.111
+            ),
+            metrics=__(
+                accuracy=0.953,
+                score=87.5,
+                count=1024
+            ),
+            metadata=__(
+                version='2.1.0',
+                cached=False
+            )
+        )
+
+        # Old syntax still works
+        assert complex_obj.contains(__(status=200, request_id=__SKIP__))
+
+        # New syntax is cleaner for top-level checks
+        assert complex_obj.contains(status=200, request_id=__SKIP__)
+        assert complex_obj.contains(
+            status=200,
+            timestamp=__SKIP__,
+            timing=__(total=__LESS_THAN__(0.5))
+        )
+
+        # With operators
+        assert complex_obj.contains(
+            status=__BETWEEN__(200, 299),
+            request_id=__SKIP__,
+            metrics=__(score=__GREATER_THAN__(85))
+        )

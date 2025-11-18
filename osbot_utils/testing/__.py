@@ -54,7 +54,14 @@ class __(SimpleNamespace):
                 return False
         return True
 
-    def contains(self, other):
+    def contains(self, other=None, **kwargs):
+        if other is not None and kwargs:
+            raise ValueError("Cannot mix positional and keyword arguments in contains(). "
+                             "Use either _.contains(__(a=1, b=2)) or _.contains(a=1, b=2), not both.")
+
+        if kwargs:                                          # If kwargs provided, use them instead of 'other'
+            other = kwargs
+
         other_dict = getattr(other, '__dict__', other) if hasattr(other, '__dict__') else other if isinstance(other, dict) else None
         if other_dict is None:
             return False
