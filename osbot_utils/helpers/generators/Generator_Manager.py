@@ -1,14 +1,14 @@
 import threading
-from _thread                                                    import RLock                              # Reentrant lock for thread-safe access
-from types                                                      import GeneratorType
-from typing                                                     import Dict                               # Typing imports for type hints
-from typing                                                     import Union
-from osbot_utils.type_safe.Type_Safe                         import Type_Safe                          # Type_Safe base class for type-safe attributes
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                            import Random_Guid                        # Helper for generating unique IDs
-from osbot_utils.helpers.generators.Generator_Context_Manager   import Generator_Context_Manager
-from osbot_utils.helpers.generators.Model__Generator_State      import Model__Generator_State
-from osbot_utils.helpers.generators.Model__Generator_Target     import Model__Generator_Target
-from osbot_utils.utils.Lists                                    import list_group_by
+from _thread                                                            import RLock                              # Reentrant lock for thread-safe access
+from types                                                              import GeneratorType
+from typing                                                             import Dict                               # Typing imports for type hints
+from typing                                                             import Union
+from osbot_utils.type_safe.Type_Safe                                    import Type_Safe                          # Type_Safe base class for type-safe attributes
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid   import Random_Guid                        # Helper for generating unique IDs
+from osbot_utils.helpers.generators.Generator_Context_Manager           import Generator_Context_Manager
+from osbot_utils.helpers.generators.Model__Generator_State              import Model__Generator_State
+from osbot_utils.helpers.generators.Model__Generator_Target             import Model__Generator_Target
+from osbot_utils.utils.Lists                                            import list_group_by
 
 
 class Generator_Manager(Type_Safe):                                                                        # Class for managing multiple generator targets

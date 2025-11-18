@@ -1,4 +1,4 @@
-from enum import Enum
+from enum                                                             import Enum
 from typing                                                           import Type
 from osbot_utils.testing.__                                           import __
 from osbot_utils.type_safe.Type_Safe__Base                            import Type_Safe__Base
