@@ -1,8 +1,11 @@
 import re
 import pytest
-from typing                             import Dict, List, Any
-from unittest                           import TestCase
-from osbot_utils.type_safe.Type_Safe    import Type_Safe
+from typing                                                                         import Dict, List, Any
+from unittest                                                                       import TestCase
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash  import Safe_Str__Hash
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
+
 
 class test_Type_Safe__Dict__bugs(TestCase):
 
@@ -32,3 +35,18 @@ class test_Type_Safe__Dict__bugs(TestCase):
         with Schema__Order__Alternative() as alt_order:
             alt_order.items = [{'product': 'laptop', 'qty': 1}]                          # Works
             assert alt_order.items == [{'product': 'laptop', 'qty': 1}]
+
+    def test__bug__list_of_dict_subclasses_from_plain_dicts(self):
+        from typing import List
+
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type = Safe_Str__Hash
+            expected_value_type = str
+
+        class Container(Type_Safe):
+            mappings: List[Hash_Mapping]
+
+        error_message = "Invalid type for item: Expected 'Hash_Mapping', but got 'dict'"
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            container = Container(mappings=[{'abc1234567': 'first'},
+                                            {'def4567890': 'second'}])                      # BUG: Lists are currently not supported

@@ -200,6 +200,7 @@ class Type_Safe__Validation:
             if origin_attr_type is set:
                 if type(value) is list:
                     return True                                                         # if the attribute is a set and the value is a list, then they are compatible
+
             if origin_attr_type is type:                                                # Add handling for Type[T]
                 type_args = get_args(attr_type)
                 if type_args:

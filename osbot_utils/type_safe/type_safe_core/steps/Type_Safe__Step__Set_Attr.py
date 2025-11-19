@@ -1,5 +1,6 @@
 from typing                                                             import get_origin, Annotated, get_args, Literal, Union
 from osbot_utils.type_safe.Type_Safe__Primitive                         import Type_Safe__Primitive
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache       import type_safe_cache
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert     import type_safe_convert
@@ -11,6 +12,8 @@ class Type_Safe__Step__Set_Attr:
     def resolve_value(self, _self, annotations, name, value):
         if type(value) is dict:
             value = self.resolve_value__dict(_self, name, value)
+        elif isinstance(value, Type_Safe__Dict):
+            value = self.convert_type_safe_dict(annotations, name, value)
         elif type(value) is list:
             value = self.resolve_value__list(_self, name, value)
         elif type(value) is tuple:
@@ -27,6 +30,18 @@ class Type_Safe__Step__Set_Attr:
 
         type_safe_validation.validate_type_compatibility(_self, annotations, name, value)
         return value
+
+    def convert_type_safe_dict(self, annotations, name, value):         # Convert between Type_Safe__Dict subclasses
+
+        expected_type = annotations.get(name)
+
+        if not (isinstance(expected_type, type) and issubclass(expected_type, Type_Safe__Dict)):
+            return value
+
+        if type(value) is expected_type:
+            return value
+
+        return expected_type(dict(value))                               # Create new instance - validation happens automatically
 
     def resolve_value__dict(self, _self, name, value):
         return type_safe_convert.convert_dict_to_value_from_obj_annotation(_self, name, value)
@@ -70,6 +85,7 @@ class Type_Safe__Step__Set_Attr:
                     return Type_Safe__Tuple(expected_types=args, items=value)
 
         return value
+
     def resolve_value__from_origin(self, value):
         #origin = type_safe_cache.get_origin(value)                                     # todo: figure out why this is the only place that the type_safe_cache.get_origin doesn't work (due to WeakKeyDictionary key error on value)
         origin = get_origin(value)
