@@ -673,3 +673,250 @@ class test_Type_Safe__Dict__as_base_class(TestCase):
         # Should still enforce types after clear
         hash_map['ccc3333333'] = 'Third'
         assert isinstance(list(hash_map.keys())[0], Safe_Str__Hash)
+
+
+    def test__compatible_type_safe_dict_subclasses(self):
+        '''Test assignment between compatible Type_Safe__Dict subclasses'''
+
+        class Hash_Mapping_A(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Hash_Mapping_B(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Container_A(Type_Safe):
+            data: Hash_Mapping_A
+
+        class Container_B(Type_Safe):
+            data: Hash_Mapping_B
+
+        # Create instance with A
+        mapping_a = Hash_Mapping_A({'abc1234567': 'value'})
+
+        # Should be able to use in B (compatible types)
+        container_b = Container_B(data=mapping_a)  # ✅ Works!
+
+        assert type(container_b.data) is Hash_Mapping_B  # Converted
+        assert container_b.data['abc1234567'] == 'value'
+
+
+    def test__incompatible_type_safe_dict_subclasses(self):
+        '''Test that incompatible subclasses still fail'''
+
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Id_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Id  # Different!
+            expected_value_type = int      # Different!
+
+        class Container(Type_Safe):
+            data: Hash_Mapping
+
+        id_mapping = Id_Mapping({'id-1': 42})
+
+        # Should fail - incompatible types
+        error_message = "Expected 'Safe_Str__Hash', but got 'Safe_Id'"
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            Container(data=id_mapping)  # ❌ Fails correctly
+
+
+    def test__type_safe_dict_to_generic_dict_annotation(self):                  # Test that Type_Safe__Dict subclass can be assigned to generic Dict annotation
+
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Container(Type_Safe):
+            data: Dict[Safe_Str__Hash, str]  # Generic Dict, not subclass
+
+        mapping = Hash_Mapping({'abc1234567': 'value'})
+
+        # Should work - compatible with generic Dict annotation
+        container = Container(data=mapping)
+
+        assert type(container.data) is Type_Safe__Dict  # Becomes Type_Safe__Dict
+        assert container.data['abc1234567'] == 'value'
+
+
+
+    def test__type_safe_dict_subclass_in_from_json(self):           # Test that from_json handles Type_Safe__Dict subclass conversion
+
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Container(Type_Safe):
+            data: Hash_Mapping
+
+        json_data = {
+            'data': {
+                'abc1234567': 'value',
+                'def4567890': 'another'
+            }
+        }
+
+        container = Container.from_json(json_data)
+
+        assert type(container.data) is Hash_Mapping
+        assert len(container.data) == 2
+        assert all(isinstance(k, Safe_Str__Hash) for k in container.data.keys())
+
+
+    def test__type_safe_dict_subclass_round_trip_with_conversion(self):     # Test full round-trip with subclass conversion
+
+        class Hash_Mapping_A(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Hash_Mapping_B(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Container_A(Type_Safe):
+            data: Hash_Mapping_A
+
+        class Container_B(Type_Safe):
+            data: Hash_Mapping_B
+
+        # Create with A
+        container_a = Container_A()
+        container_a.data['abc1234567'] = 'value'
+
+        # Serialize
+        json_data = container_a.json()
+
+        # Deserialize as B
+        container_b = Container_B.from_json(json_data)
+
+        # Should work and be correct type
+        assert type(container_b.data) is Hash_Mapping_B
+        assert container_b.data['abc1234567'] == 'value'
+
+
+
+    def test__empty_type_safe_dict_subclass_conversion(self):           # Test conversion of empty Type_Safe__Dict subclasses
+
+        class Hash_Mapping_A(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Hash_Mapping_B(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Container(Type_Safe):
+            data: Hash_Mapping_B
+
+        # Empty mapping of type A
+        empty_a = Hash_Mapping_A()
+
+        # Should convert to B (even though empty)
+        container = Container(data=empty_a)
+
+        assert type(container.data) is Hash_Mapping_B
+        assert len(container.data) == 0
+
+
+    def test__type_safe_dict_subclass_with_incompatible_values(self):       # Test that conversion fails cleanly when values are incompatible
+
+        class String_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Int_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = int
+
+        class Container(Type_Safe):
+            data: Int_Mapping
+
+        string_mapping = String_Mapping({'abc1234567': 'not_an_int'})
+
+        # Should fail - can't convert string to int
+        error_message = "Expected 'int', but got 'str'"
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            Container(data=string_mapping)
+
+
+    def test__bug__plain_dict_to_type_safe_dict_subclass(self):          # Test that plain dict is converted to Type_Safe__Dict subclass
+
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        class Container(Type_Safe):
+            data: Hash_Mapping
+
+        # Plain dict with compatible data
+        plain_dict = {'abc1234567': 'value'}
+
+        # Should convert plain dict to subclass
+        error_message = "On Container, invalid type for attribute 'data'. Expected '<class 'test_Type_Safe__Dict__as_base_class.test_Type_Safe__Dict__as_base_class.test__bug__plain_dict_to_type_safe_dict_subclass.<locals>.Hash_Mapping'>' but got '<class 'dict'>'"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            container = Container(data=plain_dict)
+
+        # assert type(container.data) is Hash_Mapping
+        # assert container.data['abc1234567'] == 'value'
+
+    def test__bug__nested_type_safe_dict_subclass_conversion(self):      # Test conversion with nested Type_Safe__Dict subclasses
+
+        class Inner_Mapping(Type_Safe__Dict):
+            expected_key_type   = str
+            expected_value_type = int
+
+        class Outer_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Id
+            expected_value_type = Inner_Mapping
+
+        class Container(Type_Safe):
+            data: Outer_Mapping
+
+        error_message = "On Container, invalid type for attribute 'data'. Expected '<class 'test_Type_Safe__Dict__as_base_class.test_Type_Safe__Dict__as_base_class.test__bug__nested_type_safe_dict_subclass_conversion.<locals>.Outer_Mapping'>' but got '<class 'dict'>'"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            container = Container(data={'outer-1':{}})
+
+        # container = Container(data={
+        #     'outer-1': {'inner-1': 1, 'inner-2': 2},
+        #     'outer-2': {'inner-3': 3}
+        # })
+
+        # Create with nested dicts
+        # container = Container(data={
+        #     'outer-1': {'inner-1': 1, 'inner-2': 2},
+        #     'outer-2': {'inner-3': 3}
+        # })
+        #
+        # assert type(container.data) is Outer_Mapping
+        # assert type(container.data['outer-1']) is Inner_Mapping
+        # assert container.data['outer-1']['inner-1'] == 1
+
+    # def test__real_world_response_transformation(self):
+    #     '''Your actual use case'''
+    #
+    #     # Simulate response with generic Type_Safe__Dict
+    #     class Response(Type_Safe):
+    #         hash_mapping: Type_Safe__Dict
+    #
+    #     response = Response()
+    #     response.hash_mapping = Type_Safe__Dict(Safe_Str__Hash,
+    #                                             Safe_Str__Comprehend__Text,
+    #         {'9b68eca2b0': 'content'}
+    #     )
+    #
+    #     # Your schema with specific subclass
+    #     class Schema__HTML__Transformation__Step_1(Type_Safe):
+    #         html_dict: Dict
+    #         hash_mapping: Safe_Dict__Hash__To__Text
+    #
+    #     # This should now work!
+    #     result = Schema__HTML__Transformation__Step_1(
+    #         html_dict={},
+    #         hash_mapping=response.hash_mapping  # ✅ Compatible!
+    #     )
+    #
+    #     assert type(result.hash_mapping) is Safe_Dict__Hash__To__Text
+    #     assert result.hash_mapping['9b68eca2b0'] == 'content'
