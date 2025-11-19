@@ -122,8 +122,9 @@ class Type_Safe__Base:
 
     def try_convert(self, value, expected_type):    # Try to convert value to expected type using Type_Safe conversion logic.
 
-        from osbot_utils.type_safe.Type_Safe            import Type_Safe
-        from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
+        from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+        from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
+        from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
 
         if expected_type is Any:                                    # Handle Any type
             return value
@@ -135,11 +136,15 @@ class Type_Safe__Base:
         if isinstance(value, expected_type):        # If already correct type, return as-is
             return value
 
-
         if (isinstance(expected_type, type) and             # Handle dict → Type_Safe conversion
             issubclass(expected_type, Type_Safe) and
             isinstance(value, dict)):
             return expected_type.from_json(value)
+
+        if (isinstance(expected_type, type) and             # Handle dict → Type_Safe__Dict conversion (not working as expected)
+            issubclass(expected_type, Type_Safe__Dict) and
+            isinstance(value, dict)):
+            return expected_type(value)
 
         if (isinstance(expected_type, type) and                 # Handle dict → Type_Safe__Primitive conversion
             issubclass(expected_type, Type_Safe__Primitive) and

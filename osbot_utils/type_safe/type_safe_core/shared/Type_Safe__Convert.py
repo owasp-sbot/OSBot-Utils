@@ -1,6 +1,7 @@
-from typing                                                       import get_args
-from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
-from osbot_utils.utils.Objects                                    import base_classes_names
+from typing                                                           import get_args
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache     import type_safe_cache
+from osbot_utils.utils.Objects                                        import base_classes_names
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
 
 
 class Type_Safe__Convert:
@@ -13,6 +14,9 @@ class Type_Safe__Convert:
                     args = get_args(attribute_annotation)
                     if len(args) == 2 and args[1] is type(None):                            # todo: find a better way to do this, since this is handling an edge case when origin_attr_type is Optional (which is an shorthand for Union[X, None] )
                         attribute_annotation = args[0]
+
+                    if isinstance(attribute_annotation, type) and issubclass(attribute_annotation, Type_Safe__Dict):
+                        return attribute_annotation(value)                                  # Convert plain dict to subclass
 
                     if 'Type_Safe' in base_classes_names(attribute_annotation):
                         return attribute_annotation(**value)

@@ -842,7 +842,7 @@ class test_Type_Safe__Dict__as_base_class(TestCase):
             Container(data=string_mapping)
 
 
-    def test__bug__plain_dict_to_type_safe_dict_subclass(self):          # Test that plain dict is converted to Type_Safe__Dict subclass
+    def test__plain_dict_to_type_safe_dict_subclass(self):          # Test that plain dict is converted to Type_Safe__Dict subclass
 
         class Hash_Mapping(Type_Safe__Dict):
             expected_key_type   = Safe_Str__Hash
@@ -854,15 +854,12 @@ class test_Type_Safe__Dict__as_base_class(TestCase):
         # Plain dict with compatible data
         plain_dict = {'abc1234567': 'value'}
 
-        # Should convert plain dict to subclass
-        error_message = "On Container, invalid type for attribute 'data'. Expected '<class 'test_Type_Safe__Dict__as_base_class.test_Type_Safe__Dict__as_base_class.test__bug__plain_dict_to_type_safe_dict_subclass.<locals>.Hash_Mapping'>' but got '<class 'dict'>'"
-        with pytest.raises(ValueError, match=re.escape(error_message)):
-            container = Container(data=plain_dict)
+        container = Container(data=plain_dict)
 
-        # assert type(container.data) is Hash_Mapping
-        # assert container.data['abc1234567'] == 'value'
+        assert type(container.data) is Hash_Mapping
+        assert container.data['abc1234567'] == 'value'
 
-    def test__bug__nested_type_safe_dict_subclass_conversion(self):      # Test conversion with nested Type_Safe__Dict subclasses
+    def test__nested_type_safe_dict_subclass_conversion(self):      # Test conversion with nested Type_Safe__Dict subclasses
 
         class Inner_Mapping(Type_Safe__Dict):
             expected_key_type   = str
@@ -875,48 +872,114 @@ class test_Type_Safe__Dict__as_base_class(TestCase):
         class Container(Type_Safe):
             data: Outer_Mapping
 
-        error_message = "On Container, invalid type for attribute 'data'. Expected '<class 'test_Type_Safe__Dict__as_base_class.test_Type_Safe__Dict__as_base_class.test__bug__nested_type_safe_dict_subclass_conversion.<locals>.Outer_Mapping'>' but got '<class 'dict'>'"
-        with pytest.raises(ValueError, match=re.escape(error_message)):
-            container = Container(data={'outer-1':{}})
+        #error_message = "On Container, invalid type for attribute 'data'. Expected '<class 'test_Type_Safe__Dict__as_base_class.test_Type_Safe__Dict__as_base_class.test__bug__nested_type_safe_dict_subclass_conversion.<locals>.Outer_Mapping'>' but got '<class 'dict'>'"
+        #with pytest.raises(ValueError, match=re.escape(error_message)):
+        # error_message = "Expected 'Inner_Mapping', but got 'dict'"
+        # with pytest.raises(TypeError, match=re.escape(error_message)):
+        #     container = Container(data={'outer-1':{}})
 
-        # container = Container(data={
-        #     'outer-1': {'inner-1': 1, 'inner-2': 2},
-        #     'outer-2': {'inner-3': 3}
-        # })
+        container = Container(data={'outer-1':{}})
+        assert container.obj()     == __(data=__(outer_1=__()))
+        assert type(container.data) is Outer_Mapping
 
-        # Create with nested dicts
-        # container = Container(data={
-        #     'outer-1': {'inner-1': 1, 'inner-2': 2},
-        #     'outer-2': {'inner-3': 3}
-        # })
-        #
-        # assert type(container.data) is Outer_Mapping
-        # assert type(container.data['outer-1']) is Inner_Mapping
-        # assert container.data['outer-1']['inner-1'] == 1
+        container = Container(data={
+            'outer-1': {'inner-1': 1, 'inner-2': 2},
+            'outer-2': {'inner-3': 3}
+        })
 
-    # def test__real_world_response_transformation(self):
-    #     '''Your actual use case'''
-    #
-    #     # Simulate response with generic Type_Safe__Dict
-    #     class Response(Type_Safe):
-    #         hash_mapping: Type_Safe__Dict
-    #
-    #     response = Response()
-    #     response.hash_mapping = Type_Safe__Dict(Safe_Str__Hash,
-    #                                             Safe_Str__Comprehend__Text,
-    #         {'9b68eca2b0': 'content'}
-    #     )
-    #
-    #     # Your schema with specific subclass
-    #     class Schema__HTML__Transformation__Step_1(Type_Safe):
-    #         html_dict: Dict
-    #         hash_mapping: Safe_Dict__Hash__To__Text
-    #
-    #     # This should now work!
-    #     result = Schema__HTML__Transformation__Step_1(
-    #         html_dict={},
-    #         hash_mapping=response.hash_mapping  # ✅ Compatible!
-    #     )
-    #
-    #     assert type(result.hash_mapping) is Safe_Dict__Hash__To__Text
-    #     assert result.hash_mapping['9b68eca2b0'] == 'content'
+        assert container.obj() == __(data=__(outer_1=__(inner_1=1, inner_2=2), outer_2=__(inner_3=3)))
+        assert type(container.data['outer-1']) is Inner_Mapping
+
+        assert type(container.data) is Outer_Mapping
+        assert container.data['outer-1']['inner-1'] == 1
+
+    def test__deeply_nested_type_safe_dict_subclass(self):
+        class Level3_Mapping(Type_Safe__Dict):
+            expected_key_type = str
+            expected_value_type = int
+
+        class Level2_Mapping(Type_Safe__Dict):
+            expected_key_type = str
+            expected_value_type = Level3_Mapping
+
+        class Level1_Mapping(Type_Safe__Dict):
+            expected_key_type = str
+            expected_value_type = Level2_Mapping
+
+        class Container(Type_Safe):
+            data: Level1_Mapping
+
+        # Triple nested plain dict
+        container = Container(data={
+            'level1': {
+                'level2': {
+                    'level3': 42
+                }
+            }
+        })
+
+        assert type(container.data) is Level1_Mapping
+        assert type(container.data['level1']) is Level2_Mapping
+        assert type(container.data['level1']['level2']) is Level3_Mapping
+
+
+    def test__from_json_with_nested_dict_subclasses(self):
+        class Inner_Mapping(Type_Safe__Dict):
+            expected_key_type = str
+            expected_value_type = int
+
+        class Outer_Mapping(Type_Safe__Dict):
+            expected_key_type = Safe_Id
+            expected_value_type = Inner_Mapping
+
+        class Container(Type_Safe):
+            data: Outer_Mapping
+
+        json_data = {
+            'data': {
+                'outer-1': {'inner-1': 1, 'inner-2': 2},
+                'outer-2': {'inner-3': 3}
+            }
+        }
+
+        container = Container.from_json(json_data)
+
+        assert type(container.data) is Outer_Mapping
+        assert type(container.data['outer-1']) is Inner_Mapping
+
+
+    def test__assign_plain_dict_to_existing_field(self):
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type = Safe_Str__Hash
+            expected_value_type = str
+
+        class Container(Type_Safe):
+            data: Hash_Mapping
+
+        container = Container()
+
+        # Assign plain dict after initialization
+        container.data = {'abc1234567': 'value'}
+
+        # Should convert to Hash_Mapping
+        assert type(container.data) is Hash_Mapping
+
+    def test__type_safe_object_containing_dict_subclass(self):
+        class Item(Type_Safe):
+            name: str
+            value: int
+
+        class Item_Mapping(Type_Safe__Dict):
+            expected_key_type = Safe_Id
+            expected_value_type = Item
+
+        class Container(Type_Safe):
+            items: Item_Mapping
+
+        # Plain dict with plain dict values
+        container = Container(items={
+            'item-1': {'name': 'First', 'value': 10}
+        })
+
+        assert type(container.items) is Item_Mapping
+        assert type(container.items['item-1']) is Item
