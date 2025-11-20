@@ -750,18 +750,27 @@ class test_Objects(TestCase):
         assert type(ComplexEnum.SET_VAL.value  ) is set
 
         # Should recursively serialize complex values
-        assert serialize_to_dict(ComplexEnum.LIST_VAL)        == [1, 2, 3]
-        assert serialize_to_dict(ComplexEnum.DICT_VAL)        == {'key': 'value', 'count': 42}
-        assert serialize_to_dict(ComplexEnum.TUPLE_VAL)       != ('a', 'b', 'c')                  # we can't convert to tuple since json doesn't support it
-        assert serialize_to_dict(ComplexEnum.TUPLE_VAL)       == ['a', 'b', 'c']                  # so the tuple becomes a list
-        assert sorted(serialize_to_dict(ComplexEnum.SET_VAL)) == sorted(['x', 'y', 'z'])          # same for set
+        assert serialize_to_dict(ComplexEnum.LIST_VAL )   == 'LIST_VAL'
+        assert serialize_to_dict(ComplexEnum.DICT_VAL )   == 'DICT_VAL'
+        assert serialize_to_dict(ComplexEnum.TUPLE_VAL)   == 'TUPLE_VAL'
+        assert serialize_to_dict(ComplexEnum.SET_VAL  )   == 'SET_VAL'
 
-        # Verify types
-        assert type(serialize_to_dict(ComplexEnum.LIST_VAL))  is list
-        assert type(serialize_to_dict(ComplexEnum.DICT_VAL))  is dict
-        assert type(serialize_to_dict(ComplexEnum.TUPLE_VAL)) is not tuple                        # we can't convert to tuple since json doesn't support it
-        assert type(serialize_to_dict(ComplexEnum.TUPLE_VAL)) is list                             # so the tuple becomes a list
-        assert type(serialize_to_dict(ComplexEnum.SET_VAL  )) is list                             # same for set
+
+    def test_from_json__Enum_tuple_support(self):
+        class An_Enum(tuple, Enum):
+            AB = ('a', 'b')
+            CD = ('c', 'd')
+
+        class An_Class(Type_Safe):
+            an_enum : An_Enum  # ← Stores the ENUM itself
+
+        # This is the real round-trip test:
+        an_class = An_Class(an_enum='AB')
+        assert an_class.json() == {'an_enum': 'AB'}  # ✅ Serializes to name
+
+        restored = An_Class.from_json(an_class.json())
+        assert restored.an_enum == An_Enum.AB  # ✅ Should deserialize back to enum
+        assert restored.an_enum == ('a', 'b')  # ✅ Enum value comparison works
 
     def test_enum_with_nested_complex_values(self):                       # Test nested serialization
         class NestedEnum(Enum):
@@ -769,10 +778,10 @@ class test_Objects(TestCase):
             NESTED_DICT = {'list': [1, 2], 'dict': {'a': 'b'}}
 
         result_list = serialize_to_dict(NestedEnum.NESTED_LIST)
-        assert result_list == [1, [2, 3], {'inner': 'dict'}]
+        assert result_list == 'NESTED_LIST' #[1, [2, 3], {'inner': 'dict'}]
 
         result_dict = serialize_to_dict(NestedEnum.NESTED_DICT)
-        assert result_dict == {'list': [1, 2], 'dict': {'a': 'b'}}
+        assert result_dict == 'NESTED_DICT' # {'list': [1, 2], 'dict': {'a': 'b'}}
 
     def test_enum_with_unsupported_value_types(self):                    # Test fallback to .name
         class CustomClass:
@@ -1042,10 +1051,15 @@ class test_Objects(TestCase):
         serialized_set   = serialize_to_dict(ComplexEnum.SET_VAL)
 
         # Verify serialization results
-        assert serialized_list  == [1, 2, 3]
-        assert serialized_dict  == {'key': 'value', 'count': 42}
-        assert serialized_tuple == ['a', 'b', 'c']                            # Tuple becomes list
-        assert sorted(serialized_set) == ['x', 'y', 'z']                      # Set becomes list
+        #assert serialized_list  == [1, 2, 3]
+        #assert serialized_dict  == {'key': 'value', 'count': 42}
+        #assert serialized_tuple == ['a', 'b', 'c']                            # Tuple becomes list
+        #assert sorted(serialized_set) == ['x', 'y', 'z']                      # Set becomes list
+
+        assert serialized_list        == 'LIST_VAL'
+        assert serialized_dict        == 'DICT_VAL'
+        assert serialized_tuple       == 'TUPLE_VAL'
+        assert serialized_set         == 'SET_VAL'
 
         # Round-trip test - Type_Safe with enum
         class Schema__Config(Type_Safe):
@@ -1146,3 +1160,48 @@ class test_Objects(TestCase):
         assert restored.config_map == DataEnum.DEFAULT_MAP.value
         assert restored.values == DataEnum.DEFAULT_LIST.value
         assert restored.sequence == list(DataEnum.DEFAULT_TUPLE.value)
+
+    def test__regression__from_json__enum_tuple_support(self):
+        from enum import Enum
+
+        class An_Enum(tuple, Enum):
+            AB = ('a', 'b')
+            CD = ('c', 'd')
+
+        class An_Class(Type_Safe):
+            an_enum : An_Enum
+
+        assert An_Class().obj()  == __()                # is this a bug?
+        assert An_Class().obj()  == __(an_enum = None)
+        assert An_Class().json() == {'an_enum': None}
+        assert An_Class(an_enum='AB'      ).an_enum == An_Enum.AB
+        assert An_Class(an_enum=An_Enum.AB).an_enum == An_Enum.AB
+        assert An_Class(an_enum=An_Enum.AB).an_enum == ('a', 'b')
+        assert An_Class(an_enum='AB'      ).an_enum == ('a', 'b')
+        assert An_Class(an_enum=An_Enum.AB).an_enum != An_Enum.CD
+
+        assert An_Class.from_json(An_Class().json()).json() == {'an_enum': None}
+        #error_message = "unhashable type: 'list'"
+        #with pytest.raises(TypeError, match=error_message):
+        #    An_Class.from_json(An_Class(an_enum='AB').json())            # BUG, this should have worked
+        An_Class.from_json(An_Class(an_enum='AB').json())
+
+        an_class = An_Class(an_enum=An_Enum.CD)
+        # with pytest.raises(TypeError, match=error_message):
+        #     An_Class.from_json(an_class.json())                         # BUG, this should have worked
+        An_Class.from_json(an_class.json())
+        #with pytest.raises(TypeError, match=error_message):
+        #assert an_class.json() == {'an_enum': ['c', 'd']}               # BUG this be shoud be 'CD'?
+        assert an_class.json() == {'an_enum': 'CD' }
+
+        # error_message_2 = ("assert {'an_enum': ['c', 'd']} == {'an_enum': <An_Enum.CD: ('c', 'd')>}\n  \n  "
+        #                    "Differing items:\n  {'an_enum': ['c', 'd']} != "
+        #                    "{'an_enum': <An_Enum.CD: ('c', 'd')>}\n  \n  "
+        #                    "Full diff:\n    {\n  -     'an_enum': <An_Enum.CD: ('c', 'd')>,\n  +    "
+        #                    " 'an_enum': [\n  +         'c',\n  +         'd',\n  +     ],\n    }")
+        # with pytest.raises(AssertionError, match=re.escape(error_message_2)):
+        #     assert an_class.json() == {'an_enum': An_Enum.CD}               #
+        assert an_class.json() == {'an_enum': 'CD'}
+        assert An_Class.from_json({'an_enum': 'CD'}      ).an_enum == ('c', 'd')
+        assert An_Class.from_json({'an_enum': An_Enum.CD}).an_enum == ('c', 'd')
+        assert An_Class.from_json(An_Class(an_enum='AB').json()).json() == {'an_enum': 'AB'}

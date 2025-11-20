@@ -273,12 +273,12 @@ def serialize_to_dict(obj):
     elif hasattr(obj, '__primitive_base__') and isinstance(obj, (str, int, float)):
         return obj.__primitive_base__(obj)
     elif isinstance(obj, Enum):
-        if isinstance(obj.value, (str, int, float, bool, type(None))):                          # Check if the enum value is directly serializable
-            return obj.value
-        elif isinstance(obj.value, (list, tuple, dict, set, frozenset)):                                        # Recursively serialize complex values
-            return serialize_to_dict(obj.value)
+        if isinstance(obj.value, (str, int, float, bool, type(None))):                           # Check if the enum value is directly serializable
+            return obj.value                                                                     # todo: question could this cover all Type_Safe__Primitive classes?
+        # elif isinstance(obj.value, (list, tuple, dict, set, frozenset)):                                         # Recursively serialize complex values
+        #     return serialize_to_dict(obj.value)                                                # removed this since this was causing side effects in some roundtrips
         else:
-            return obj.name                                                                     # Fallback to name for non-serializable values
+            return obj.name                                                                      # it is better to use the enum name (which roundtrips ok)
     elif isinstance(obj, (str, int, float, bool, bytes, Decimal)) or obj is None:                # todo: add support for objects like datetime
         return obj
     elif isinstance(obj, type):
