@@ -42,14 +42,14 @@ class test_Type_Safe__Method(TestCase):
             return True
 
         self.example_func = example
-        self.type_checker = Type_Safe__Method(example)
+        self.type_checker = Type_Safe__Method(example).setup()
 
     # Test check_for_any_use method
     def test_check_for_any_use__with_lowercase_any(self):                              # Test detection of lowercase 'any' usage
         def bad_func(param: any):                                                       # Using lowercase any
             pass
 
-        checker = Type_Safe__Method(bad_func)
+        checker = Type_Safe__Method(bad_func).setup()
 
         with self.assertRaises(ValueError) as context:
             checker.check_for_any_use()
@@ -61,7 +61,7 @@ class test_Type_Safe__Method(TestCase):
         def good_func(param: Any):
             pass
 
-        checker = Type_Safe__Method(good_func)
+        checker = Type_Safe__Method(good_func).setup()
         checker.check_for_any_use()                                                    # Should not raise
 
     # Test validate_immutable_parameter method
@@ -71,7 +71,7 @@ class test_Type_Safe__Method(TestCase):
                                  ) -> None:
             pass
 
-        checker = Type_Safe__Method(func_with_mutable_default)
+        checker = Type_Safe__Method(func_with_mutable_default).setup()
         bound_args = checker.bind_args((), {})  # This will use the default values
 
         # Get the actual default-bound arguments
@@ -94,7 +94,7 @@ class test_Type_Safe__Method(TestCase):
                                        ) -> None:
             pass
 
-        checker    = Type_Safe__Method(func_with_immutable_defaults)
+        checker    = Type_Safe__Method(func_with_immutable_defaults).setup()
         bound_args = checker.bind_args((), {})
 
         # These should not raise
@@ -109,7 +109,7 @@ class test_Type_Safe__Method(TestCase):
                                 ) -> None:
             pass
 
-        checker = Type_Safe__Method(func_with_type_params)
+        checker = Type_Safe__Method(func_with_type_params).setup()
 
         # Valid: exact type
         checker.validate_type_parameter('base_type', BaseClass   , Type[BaseClass])
@@ -124,7 +124,7 @@ class test_Type_Safe__Method(TestCase):
         def func_with_type_params(base_type: Type[BaseClass]) -> None:
             pass
 
-        checker = Type_Safe__Method(func_with_type_params)
+        checker = Type_Safe__Method(func_with_type_params).setup()
 
         # Invalid: not a type
         with self.assertRaises(ValueError) as context:
@@ -141,7 +141,7 @@ class test_Type_Safe__Method(TestCase):
         def func_with_dict(data: Dict[str, int]) -> None:
             pass
 
-        checker = Type_Safe__Method(func_with_dict)
+        checker = Type_Safe__Method(func_with_dict).setup()
 
         # Valid dict
         valid_dict = {"key1": 1, "key2": 2}
@@ -169,7 +169,7 @@ class test_Type_Safe__Method(TestCase):
         def func_with_any(param: Any) -> None:
             pass
 
-        checker = Type_Safe__Method(func_with_any)
+        checker = Type_Safe__Method(func_with_any).setup()
 
         # All these should pass
         assert checker.validate_direct_type('param', 42       , Any) is True
@@ -182,7 +182,7 @@ class test_Type_Safe__Method(TestCase):
         def func_with_optional_type(param: Optional[Type[BaseClass]]=None) -> None:
             pass
 
-        checker    = Type_Safe__Method(func_with_optional_type)
+        checker    = Type_Safe__Method(func_with_optional_type).setup()
         bound_args = checker.bind_args((), {})
 
         # Valid: None for optional
@@ -201,7 +201,7 @@ class test_Type_Safe__Method(TestCase):
                            ) -> None:
             pass
 
-        checker = Type_Safe__Method(func_with_unions)
+        checker = Type_Safe__Method(func_with_unions).setup()
 
         # Simple union - valid cases
         checker.validate_union_type('simple', 42    , Union[int, str])
@@ -270,7 +270,7 @@ class test_Type_Safe__Method(TestCase):
         def func_optional(param: Optional[str]=None) -> None:
             pass
 
-        checker = Type_Safe__Method(func_optional)
+        checker = Type_Safe__Method(func_optional).setup()
         # Should handle None for optional
         checker.validate_direct_type('param', None, Optional[str])
 
@@ -278,7 +278,7 @@ class test_Type_Safe__Method(TestCase):
         def func_with_default(param: str = "default") -> None:
             pass
 
-        checker = Type_Safe__Method(func_with_default)
+        checker = Type_Safe__Method(func_with_default).setup()
         # Should handle None when has default
         checker.validate_direct_type('param', None, str)
 
@@ -302,7 +302,7 @@ class test_Type_Safe__Method(TestCase):
         def func_no_annotation(param):
             pass
 
-        checker    = Type_Safe__Method(func_no_annotation)
+        checker    = Type_Safe__Method(func_no_annotation).setup()
         bound_args = checker.bind_args(("test",), {})
 
         # Should not raise when no annotation
@@ -313,7 +313,7 @@ class test_Type_Safe__Method(TestCase):
         def func_nested(param: List[str]=None) -> None:
             pass
 
-        checker    = Type_Safe__Method(func_nested)
+        checker    = Type_Safe__Method(func_nested).setup()
         bound_args = checker.bind_args((), {})
 
         # Valid: None for outer optional
@@ -342,7 +342,7 @@ class test_Type_Safe__Method(TestCase):
                           ) -> None:
             pass
 
-        checker = Type_Safe__Method(comprehensive_func)
+        checker = Type_Safe__Method(comprehensive_func).setup()
 
         # Test with all valid arguments
         args   = ("test",)
@@ -362,7 +362,7 @@ class test_Type_Safe__Method(TestCase):
         def func(param: List[int]) -> None:
             pass
 
-        checker = Type_Safe__Method(func)
+        checker = Type_Safe__Method(func).setup()
 
         # Test various error scenarios for message clarity
         with self.assertRaises(ValueError) as context:
@@ -378,7 +378,7 @@ class test_Type_Safe__Method(TestCase):
         def func_with_type(param: Type[str]=None) -> None:
             pass
 
-        checker    = Type_Safe__Method(func_with_type)
+        checker    = Type_Safe__Method(func_with_type).setup()
         bound_args = checker.bind_args((), {})
 
         # This should trigger the Type origin branch
@@ -394,7 +394,7 @@ class test_Type_Safe__Method(TestCase):
         def func_with_set(param: Set[int]) -> None:
             pass
 
-        checker = Type_Safe__Method(func_with_set)
+        checker = Type_Safe__Method(func_with_set).setup()
 
         # Valid set
         valid_set = {1, 2, 3}
@@ -410,7 +410,7 @@ class test_Type_Safe__Method(TestCase):
         def no_annotations_func(a, b, c):
             pass
 
-        checker    = Type_Safe__Method(no_annotations_func)
+        checker    = Type_Safe__Method(no_annotations_func).setup()
         args       = (1, "test", [1, 2, 3])
 
         # Should handle gracefully without annotations
@@ -424,7 +424,7 @@ class test_Type_Safe__Method(TestCase):
         def func_with_custom(param: CustomDefault = None) -> None:
             pass
 
-        checker    = Type_Safe__Method(func_with_custom)
+        checker    = Type_Safe__Method(func_with_custom).setup()
         bound_args = checker.bind_args((CustomDefault(),), {})
 
         # Should not raise because it's not using the default
@@ -435,7 +435,7 @@ class test_Type_Safe__Method(TestCase):
         def func_optional_list(param: Optional[List[str]]=None) -> None:
             pass
 
-        checker    = Type_Safe__Method(func_optional_list)
+        checker    = Type_Safe__Method(func_optional_list).setup()
         bound_args = checker.bind_args((), {})
 
         # Should recursively check the list type
@@ -453,7 +453,7 @@ class test_Type_Safe__Method(TestCase):
             __origin__ = str
 
         # This should handle types with __origin__ attribute
-        checker = Type_Safe__Method(lambda x: Type[TypeWithOrigin])
+        checker = Type_Safe__Method(lambda x: Type[TypeWithOrigin]).setup()
 
         # Test the branch where required_base has __origin__
         with self.assertRaises(ValueError):
@@ -465,7 +465,7 @@ class test_Type_Safe__Method(TestCase):
                        ) -> None:
             pass
 
-        checker = Type_Safe__Method(kwargs_func)
+        checker = Type_Safe__Method(kwargs_func).setup()
 
         # Valid kwargs
         bound_args = checker.handle_type_safety((), {'required': 'test', 'optional': 20})
@@ -485,7 +485,7 @@ class test_Type_Safe__Method(TestCase):
                      ) -> None:
             pass
 
-        checker = Type_Safe__Method(mixed_func)
+        checker = Type_Safe__Method(mixed_func).setup()
 
         # Valid mixed arguments
         bound_args = checker.handle_type_safety(
@@ -502,7 +502,7 @@ class test_Type_Safe__Method(TestCase):
                     ) -> None:
             pass
 
-        checker = Type_Safe__Method(varargs_func)
+        checker = Type_Safe__Method(varargs_func).setup()
 
         expected_error = "Parameter 'args' expected type <class 'int'>, but got <class 'tuple'>"
         with pytest.raises(ValueError, match=expected_error):
@@ -514,7 +514,7 @@ class test_Type_Safe__Method(TestCase):
             # Note: Optional[Optional[T]] is equivalent to Optional[T]
             pass
 
-        checker    = Type_Safe__Method(func_deep_optional)
+        checker    = Type_Safe__Method(func_deep_optional).setup()
         bound_args = checker.bind_args((), {})
 
         # All these should be valid
@@ -526,7 +526,7 @@ class test_Type_Safe__Method(TestCase):
         def func_min_union(param: Union[str, int]) -> None:
             pass
 
-        checker = Type_Safe__Method(func_min_union)
+        checker = Type_Safe__Method(func_min_union).setup()
 
         # Should validate both types
         checker.validate_union_type('param', "test", Union[str, int])
@@ -536,7 +536,7 @@ class test_Type_Safe__Method(TestCase):
         def func(param: str) -> None:
             pass
 
-        checker = Type_Safe__Method(func)
+        checker = Type_Safe__Method(func).setup()
 
         # The 'from None' in the code suppresses exception chaining
         with self.assertRaises(ValueError) as context:
@@ -556,12 +556,12 @@ class test_Type_Safe__Method(TestCase):
                 pass
 
         # Test class method
-        checker    = Type_Safe__Method(MyClass.class_method)
+        checker    = Type_Safe__Method(MyClass.class_method).setup()
         bound_args = checker.handle_type_safety(("test",), {})
         assert bound_args.arguments['param'] == "test"
 
         # Test static method
-        checker    = Type_Safe__Method(MyClass.static_method)
+        checker    = Type_Safe__Method(MyClass.static_method).setup()
         bound_args = checker.handle_type_safety((42,), {})
         assert bound_args.arguments['param'] == 42
 
@@ -576,7 +576,7 @@ class test_Type_Safe__Method(TestCase):
                 result = [transform(item) for item in result]
             return result
 
-        checker = Type_Safe__Method(process_data)
+        checker = Type_Safe__Method(process_data).setup()
 
         # Define transformations
         def uppercase_strings(item):
@@ -610,7 +610,7 @@ class test_Type_Safe__Method(TestCase):
                       regular_int: int                 ):
             return path, count, name, regular_str, regular_int
 
-        method = Type_Safe__Method(test_func)
+        method = Type_Safe__Method(test_func).setup()
 
         # Create real bound_args using the actual binding
         bound_args = method.bind_args(args   = ()                       ,
@@ -657,7 +657,7 @@ class test_Type_Safe__Method(TestCase):
         def test_func_invalid(value: Safe_Int):
             return value
 
-        method_invalid = Type_Safe__Method(test_func_invalid)
+        method_invalid = Type_Safe__Method(test_func_invalid).setup()
         bound_args_invalid = method_invalid.bind_args(args=(), kwargs={'value': 'not_a_number'})
 
         # This should not raise during conversion
@@ -673,7 +673,7 @@ class test_Type_Safe__Method(TestCase):
         def good_func(path: Safe_Str__File__Path, count: Safe_Int):
             return path, count
 
-        method = Type_Safe__Method(good_func)
+        method = Type_Safe__Method(good_func).setup()
 
         # Test with valid inputs that need conversion
         bound_args = method.handle_type_safety(
@@ -691,7 +691,7 @@ class test_Type_Safe__Method(TestCase):
         def strict_func(value: Safe_Int):
             return value
 
-        method_strict = Type_Safe__Method(strict_func)
+        method_strict = Type_Safe__Method(strict_func).setup()
 
         # This should raise because dict can't convert to Safe_Int
         with pytest.raises(ValueError, match="Parameter 'value' expected type"):
@@ -701,7 +701,7 @@ class test_Type_Safe__Method(TestCase):
         def optional_func(value: Safe_Int = 10):
             return value
 
-        method_optional = Type_Safe__Method(optional_func)
+        method_optional = Type_Safe__Method(optional_func).setup()
 
         # Should use default when not provided
         bound_args = method_optional.handle_type_safety(args=(), kwargs={})
@@ -716,7 +716,7 @@ class test_Type_Safe__Method(TestCase):
         def mixed_func(safe_path: Safe_Str__File__Path, regular_str: str, safe_int: Safe_Int, regular_int: int):
             return safe_path, regular_str, safe_int, regular_int
 
-        method_mixed = Type_Safe__Method(mixed_func)
+        method_mixed = Type_Safe__Method(mixed_func).setup()
         bound_args = method_mixed.handle_type_safety(
             args=(),
             kwargs={

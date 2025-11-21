@@ -54,7 +54,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                        email  = email,
                        status = status)
 
-        checker = Type_Safe__Method(create_user)
+        checker = Type_Safe__Method(create_user).setup()
 
         # Valid request
         bound_args = checker.handle_type_safety(("John Doe", "john@example.com", 30, ["user", "admin"]),
@@ -78,7 +78,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                       ) -> ConfigBase:                                                   # Load configuration with type validation
             return config_class()
 
-        checker = Type_Safe__Method(load_config)
+        checker = Type_Safe__Method(load_config).setup()
 
         # Valid configuration
         bound_args = checker.handle_type_safety(("config.yml", "production"),
@@ -112,7 +112,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                 query += f" LIMIT {limit}"
             return query
 
-        checker = Type_Safe__Method(build_query)
+        checker = Type_Safe__Method(build_query).setup()
 
         # Valid query
         bound_args = checker.handle_type_safety(
@@ -138,7 +138,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                           ) -> Container[int]:                                           # Create a generic container
             return container_type(items)
 
-        checker = Type_Safe__Method(create_container)
+        checker = Type_Safe__Method(create_container).setup()
 
         # Valid container creation
         bound_args = checker.handle_type_safety(
@@ -151,7 +151,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
 
     def test_decorator_pattern(self):                                                    # Test using Type_Safe__Method as a decorator
         def type_safe(func):                                                             # Decorator to add type safety to functions
-            checker = Type_Safe__Method(func)
+            checker = Type_Safe__Method(func).setup()
 
             def wrapper(*args, **kwargs):
                 bound_args = checker.handle_type_safety(args, kwargs)
@@ -183,7 +183,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                           ) -> Dict[str, Any]:                                           # Async function with type validation
             return {"url": url, "success": True}
 
-        checker = Type_Safe__Method(fetch_data)
+        checker = Type_Safe__Method(fetch_data).setup()
 
         # Validate async function parameters
         bound_args = checker.handle_type_safety(
@@ -201,7 +201,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                               ) -> Dict[str, Any]:                                       # Process deeply nested data structures
             return {"processed": True}
 
-        checker = Type_Safe__Method(process_nested_data)
+        checker = Type_Safe__Method(process_nested_data).setup()
 
         # Valid nested structure
         test_data = { "section1": [ {"id": 1, "name": "test" , "values": [1.0, 2.0, 3.0]},
@@ -220,7 +220,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def process_data(data: Dict[str, List[int]]) -> int:
             return sum(sum(v) for v in data.values())
 
-        checker = Type_Safe__Method(process_data)
+        checker = Type_Safe__Method(process_data).setup()
 
         # Valid nested structure
         test_data = {"a": [1, 2, 3], "b": [4, 5]}
@@ -250,7 +250,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def process_people(people: Dict[str, Person]) -> List[str]:
             return [p.name for p in people.values()]
 
-        checker = Type_Safe__Method(process_people)
+        checker = Type_Safe__Method(process_people).setup()
 
         # Valid: Type_Safe instances
         john = Person(name="John", age=30)
@@ -275,7 +275,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                     total += sum(inner_list)
             return total
 
-        checker = Type_Safe__Method(process_nested)
+        checker = Type_Safe__Method(process_nested).setup()
 
         # Valid three-level structure
         test_data = {
@@ -310,7 +310,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                     result[k] = str(v)
             return result
 
-        checker = Type_Safe__Method(process_mixed)
+        checker = Type_Safe__Method(process_mixed).setup()
 
         # Valid mixed types
         test_data = {
@@ -338,7 +338,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def process_optional(data: Dict[str, Optional[List[int]]]) -> int:
             return sum(sum(v) for v in data.values() if v is not None)
 
-        checker = Type_Safe__Method(process_optional)
+        checker = Type_Safe__Method(process_optional).setup()
 
         # Valid with None values
         test_data = {"a": [1, 2, 3], "b": None, "c": [4, 5]}
@@ -358,7 +358,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def process_data(data: Dict[str, List[Dict[str, int]]]) -> None:
             pass
 
-        checker = Type_Safe__Method(process_data)
+        checker = Type_Safe__Method(process_data).setup()
 
         # Create deeply nested invalid data
         test_data = {
@@ -386,7 +386,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def process_tuples(data: Dict[str, Tuple[int, str, float]]) -> List[str]:
             return [f"{v[1]}: {v[0]} ({v[2]})" for v in data.values()]
 
-        checker = Type_Safe__Method(process_tuples)
+        checker = Type_Safe__Method(process_tuples).setup()
 
         # Valid tuples
         test_data = {
@@ -415,7 +415,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def process_data(data: Dict[str, List[int]]) -> int:
             return len(data)
 
-        checker = Type_Safe__Method(process_data)
+        checker = Type_Safe__Method(process_data).setup()
 
         # Empty dict is valid
         bound_args = checker.handle_type_safety(({},), {})
@@ -432,7 +432,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def process_sets(data: Dict[str, Set[int]]) -> int:
             return sum(len(s) for s in data.values())
 
-        checker = Type_Safe__Method(process_sets)
+        checker = Type_Safe__Method(process_sets).setup()
 
         # Valid sets
         test_data = {"a": {1, 2, 3}, "b": {4, 5}}
@@ -457,7 +457,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def process_nested_class(data: Dict[str, OuterClass.InnerClass]) -> None:
             pass
 
-        checker = Type_Safe__Method(process_nested_class)
+        checker = Type_Safe__Method(process_nested_class).setup()
 
         # Invalid: wrong type
         with pytest.raises(ValueError) as exc_info:
@@ -476,7 +476,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def process_large(data: Dict[str, List[int]]) -> int:
             return sum(sum(v) for v in data.values())
 
-        checker = Type_Safe__Method(process_large)
+        checker = Type_Safe__Method(process_large).setup()
 
         # Create progressively larger datasets
         sizes = [1, 10, 50]                         # this also works for 1000, but no need to run it :)
@@ -513,7 +513,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                           ) -> Dict[str, Any]:                                           # Process a document with multiple inheritance
             return {"type": doc_type.__name__}
 
-        checker = Type_Safe__Method(process_document)
+        checker = Type_Safe__Method(process_document).setup()
 
         # Valid document
         doc        = Document()
@@ -529,7 +529,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
                           ) -> None:                                                   # Function with multiple parameters to validate
             pass
 
-        checker = Type_Safe__Method(complex_validation)
+        checker = Type_Safe__Method(complex_validation).setup()
 
         # Multiple invalid parameters
         errors = []
@@ -557,7 +557,7 @@ class test_Type_Safe__Method__misc_use_cases(unittest.TestCase):                
         def dynamic_func(obj: DynamicClass) -> None:
             pass
 
-        checker = Type_Safe__Method(dynamic_func)
+        checker = Type_Safe__Method(dynamic_func).setup()
 
         # Initial validation
         obj        = DynamicClass()

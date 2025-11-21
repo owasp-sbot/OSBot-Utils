@@ -94,7 +94,7 @@ class test__decorator__type_safe__performance(TestCase):
 #                    ) -> None:
 #             pass
 #
-#         checker = Type_Safe__Method(simple_func)
+#         checker = Type_Safe__Method(simple_func).setup()
 #
 #         # Measure validation time
 #         def validate():
@@ -118,7 +118,7 @@ class test__decorator__type_safe__performance(TestCase):
 #                        ) -> None:
 #             pass
 #
-#         checker = Type_Safe__Method(complex_func)
+#         checker = Type_Safe__Method(complex_func).setup()
 #
 #         # Measure validation time with all parameters
 #         def validate():
@@ -143,7 +143,7 @@ class test__decorator__type_safe__performance(TestCase):
 #         def list_func(items: List[int]) -> None:
 #             pass
 #
-#         checker = Type_Safe__Method(list_func)
+#         checker = Type_Safe__Method(list_func).setup()
 #
 #         for size in [10, 100, 1000]:
 #             test_list = list(range(size))
@@ -161,7 +161,7 @@ class test__decorator__type_safe__performance(TestCase):
 #         def dict_func(data: Dict[str, int]) -> None:
 #             pass
 #
-#         checker = Type_Safe__Method(dict_func)
+#         checker = Type_Safe__Method(dict_func).setup()
 #
 #         for size in [10, 100, 1000]:
 #             test_dict = {f"key{i}": i for i in range(size)}

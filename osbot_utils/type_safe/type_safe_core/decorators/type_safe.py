@@ -5,13 +5,15 @@ from osbot_utils.type_safe.type_safe_core.methods.Type_Safe__Method import Type_
 
 
 def type_safe(func):                                                                                # Main decorator function
-    type_checker = Type_Safe__Method(func)  # Create type checker instance
+    type_checker = Type_Safe__Method(func).setup()                                                  # Create type checker instance
     return_type  = func.__annotations__.get('return')
 
     validator        = Type_Safe__Base() if return_type else None
     has_only_self    = len(type_checker.params) == 1 and type_checker.params[0] == 'self'           # Check if method has only 'self' parameter or no parameters
     has_no_params    = len(type_checker.params) == 0
     direct_execution = has_no_params or has_only_self                                               # these are major performance optimisation where this @type_safe had an overhead of 250x (even on methods with no params) to now having an over head of ~5x
+    has_var_keyword  = type_checker.var_keyword_param is not None                                   # Pre-calculate if we need to handle VAR_KEYWORD parameters (performance optimization)
+
 
     @functools.wraps(func)                                                                          # Preserve function metadata
     def wrapper(*args, **kwargs):                                                                   # Wrapper function
@@ -19,7 +21,11 @@ def type_safe(func):                                                            
             result =  func(*args, **kwargs)
         else:
             bound_args = type_checker.handle_type_safety(args, kwargs)                              # Validate type safety
-            result     =  func(**bound_args.arguments)                                              # Call original function
+            if has_var_keyword:                                                                     # Only call prepare_function_arguments if needed
+                regular_args, var_kwargs = type_checker.prepare_function_arguments(bound_args)
+                result = func(**regular_args, **var_kwargs)
+            else:
+                result = func(**bound_args.arguments)
 
         if return_type is not None and result is not None:                                          # Validate return type using existing type checking infrastructure
             if isinstance(return_type, type) and issubclass(return_type, Type_Safe__Primitive):     # Try to convert Type_Safe__Primitive types
