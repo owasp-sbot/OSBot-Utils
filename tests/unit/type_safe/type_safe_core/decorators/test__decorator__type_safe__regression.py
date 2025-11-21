@@ -523,3 +523,51 @@ class test_decorator__type_safe__regression(TestCase):
         # with pytest.raises(TypeError, match=re.escape(error_message)):
         #     An_Class().return_self()              # BUG
         assert type(An_Class().return_self()) is An_Class           # FIXED
+
+    def test__regression__type_safe__decorator__params_value(self):
+
+        from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+
+        @type_safe
+        def an_method( **params):
+            return params
+
+        # assert an_method()     == {'params': {}}                # BUG
+        # assert an_method(a=42) == {'params': {'a': 42}}         # BUG
+        assert an_method()     == {}
+        assert an_method(a=42) == {'a': 42}
+
+        @type_safe
+        def an_method_2( **params_2):
+            return params_2
+
+        #assert an_method_2()     == {'params_2': {}}            # BUG
+        #assert an_method_2(a=42) == {'params_2': {'a': 42}}     # BUG
+
+        assert an_method_2()     == {}
+        assert an_method_2(a=42) == {'a': 42}
+
+
+    def test__regression__kwargs_not_properly_returned_in_type_safe(self):
+
+        class Test_Class(Type_Safe):
+            @type_safe
+            def method_with_kwargs(self, name: str, **kwargs):          # The bug is caused by the non handling correctly of the **kwargs parameter
+                return {"name": name, "kwargs": kwargs}                 # We expect kwargs to contain all extra parameters
+
+        test_obj = Test_Class()
+        with self.assertRaises(ValueError) as context:                  # This works as expected - type safety catches the error
+            test_obj.method_with_kwargs(name=b'123')                    # Wrong type for 'name'
+
+        assert str(context.exception) == "Parameter 'name' expected type <class 'str'>, but got <class 'bytes'>"
+
+        result   = test_obj.method_with_kwargs(name="test", extra=True, another="value")
+        expected = {"kwargs": {"extra": True, "another": "value"},
+                    "name"  : "test",}
+        with_bug = {'kwargs': { "kwargs": {"extra": True, "another": "value"}},             # # BUG: there is an extra kwargs added to the return value
+                     "name" : "test",}
+
+        # assert result != expected  # BUG: This is what we expect
+        # assert result == current   # BUG: This is what we get
+        assert result == expected
+        assert result != with_bug

@@ -10,10 +10,20 @@ from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables im
 
 class Type_Safe__Method:                                                                  # Class to handle method type safety validation
     def __init__(self, func):                                                             # Initialize with function
-        self.func         = func                                                          # Store original function
-        self.sig          = inspect.signature(func)                                       # Get function signature
-        self.annotations  = func.__annotations__                                          # Get function annotations
-        self.params       = list(self.sig.parameters.keys())
+        self.func              = func                                                          # Store original function
+        self.sig               = None                             # Get function signature
+        self.annotations       = None                             # Get function annotations
+        self.params            = None
+        self.var_keyword_param = None
+
+    def setup(self):
+        self.sig               = inspect.signature(self.func)                                       # Get function signature
+        self.annotations       = self.func.__annotations__                                          # Get function annotations
+        self.params            = list(self.sig.parameters.keys())
+        self.var_keyword_param = next((name for name, param in self.sig.parameters.items()          # Pre-calculate VAR_KEYWORD parameter name for performance optimization
+                                       if param.kind is inspect.Parameter.VAR_KEYWORD),
+                                       None)
+        return self
 
     def check_for_any_use(self):
         for param_name, type_hint in self.annotations.items():
@@ -71,6 +81,19 @@ class Type_Safe__Method:                                                        
         bound_args = self.sig.bind(*args, **kwargs)                                         # Bind arguments to signature
         bound_args.apply_defaults()                                                         # Apply default values
         return bound_args                                                                   # Return bound arguments
+
+    def prepare_function_arguments(self, bound_args):                                       # Prepare arguments for function call, handling VAR_KEYWORD parameters correctly
+
+        if self.var_keyword_param is None:
+            return bound_args.arguments, {}                                                           # Optimized path if no **kwargs
+
+        regular_args = {k: v for k, v in bound_args.arguments.items()
+                        if k != self.var_keyword_param}                                               # Exclude **kwargs param
+
+        var_kwargs   = bound_args.arguments.get(self.var_keyword_param, {})                           # Extract **kwargs
+
+        return regular_args, var_kwargs
+
 
     def validate_parameter(self, param_name: str, param_value: Any, bound_args):            # Validate a single parameter
         self.validate_immutable_parameter(param_name, param_value)                          # Validata the param_value (make sure if it set it is on of IMMUTABLE_TYPES)
