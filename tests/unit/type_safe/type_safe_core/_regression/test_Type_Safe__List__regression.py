@@ -6,6 +6,7 @@ from osbot_utils.type_safe.primitives.core.Safe_UInt                    import S
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_Str                     import Safe_Str
 from osbot_utils.testing.__                                             import __
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set    import Type_Safe__Set
@@ -271,3 +272,83 @@ class test_Type_Safe__List__regression(TestCase):
         # with pytest.raises(ValueError, match=re.escape(error_message)):       # BUG
         #     an_method(an_list)
         assert an_method(an_list) == an_list                                    # FIXED
+
+    def test__regression__type_safe_list__auto_conversion_issue_on_extend(self):
+        cache_hashes = Type_Safe__List(expected_type=Safe_Str__Cache_Hash)
+
+        assert cache_hashes.obj() == []
+
+        error_message_1 = "In Type_Safe__List: Could not convert str to Safe_Str__Cache_Hash: in Safe_Str__Cache_Hash, value does not match required pattern: ^[a-f0-9]{10,96}$"
+        with pytest.raises(TypeError, match=re.escape(error_message_1)):
+            cache_hashes.append('aaa')
+        #cache_hashes.extend(['aaa'])                        # BUG: type safety on .extend() failed: should had raise Type_Fail exception
+        #assert cache_hashes.obj()    == ['aaa']             # BUG: value should have not been assigned
+        #assert cache_hashes[0]       == 'aaa'               # BUG: value should have not been assigned
+        #assert type(cache_hashes[0]) is str                 # BUG all items should be Safe_Str__Cache_Hash
+
+        with pytest.raises(TypeError, match=re.escape(error_message_1)):
+            cache_hashes.extend(['aaa'])                     # FIXED
+
+        assert cache_hashes.obj() == []                      # FIXED
+
+    def test__regression__type_safe_list__auto_conversion_issue_on_setitem_iadd_insert(self):
+
+        # First verify append correctly rejects invalid values
+        cache_hashes = Type_Safe__List(expected_type=Safe_Str__Cache_Hash)
+        error_message = "In Type_Safe__List: Could not convert str to Safe_Str__Cache_Hash: in Safe_Str__Cache_Hash, value does not match required pattern: ^[a-f0-9]{10,96}$"
+
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            cache_hashes.append('aaa')
+
+        # Add a valid item first so we can test __setitem__
+        valid_hash = 'abcdef1234567890'  # Valid: 16 hex chars, within 10-96 range
+        cache_hashes.append(valid_hash)
+        assert len(cache_hashes) == 1
+        assert type(cache_hashes[0]) is Safe_Str__Cache_Hash  # Correctly converted
+
+        # BUG 1: __setitem__ bypasses type safety
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            cache_hashes[0] = 'bad_value'                       # FIXED
+        assert cache_hashes == [valid_hash]
+
+        #cache_hashes[0] = 'bad_value'                      # BUG: should raise TypeError
+        #assert cache_hashes[0] == 'bad_value'              # BUG: value should not have been assigned
+        #assert type(cache_hashes[0]) is str                # BUG: should be Safe_Str__Cache_Hash
+
+        # Reset for next test
+        cache_hashes = Type_Safe__List(expected_type=Safe_Str__Cache_Hash)
+
+        # BUG 2: __iadd__ (+=) bypasses type safety
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            cache_hashes += ['another_bad']
+        # cache_hashes += ['another_bad']                    # BUG: should raise TypeError
+        # assert cache_hashes.obj() == ['another_bad']      # BUG: value should not have been assigned
+        # assert type(cache_hashes[0]) is str               # BUG: should be Safe_Str__Cache_Hash
+
+
+        # Reset for next test
+        cache_hashes = Type_Safe__List(expected_type=Safe_Str__Cache_Hash)
+
+        # BUG 3: insert() bypasses type safety
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            cache_hashes.insert(0, 'inserted_bad')            # BUG: should raise TypeError
+        # assert cache_hashes.obj() == ['inserted_bad']     # BUG: value should not have been assigned
+        # assert type(cache_hashes[0]) is str               # BUG: should be Safe_Str__Cache_Hash
+
+
+    def test__regression__type_safe_list__valid_values_work_on_all_methods(self):
+        cache_hashes = Type_Safe__List(expected_type=Safe_Str__Cache_Hash)
+        valid_hash_1 = 'abcdef1234567890'
+        valid_hash_2 = 'fedcba0987654321'
+        valid_hash_3 = '1234567890abcdef'
+        valid_hash_4 = 'aabbccdd11223344'
+
+        # All mutation methods should work with valid values
+        cache_hashes.append(valid_hash_1)
+        cache_hashes.insert(0, valid_hash_2)
+        cache_hashes += [valid_hash_3]
+        cache_hashes.extend([valid_hash_4])
+        cache_hashes[0] = valid_hash_1  # Replace via __setitem__
+
+        assert len(cache_hashes) == 4
+        assert all(type(item) is Safe_Str__Cache_Hash for item in cache_hashes)

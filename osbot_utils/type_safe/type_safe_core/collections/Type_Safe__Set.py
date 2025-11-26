@@ -66,3 +66,57 @@ class Type_Safe__Set(Type_Safe__Base, set):
         if isinstance(other, (set, Type_Safe__Set)):
             return set(self) == set(other)
         return False
+
+    def update(self, *others):
+        for other in others:
+            for item in other:
+                self.add(item)  # Delegates to add() which validates
+
+    def __ior__(self, other):
+        # Handle |= operator
+        for item in other:
+            self.add(item)  # Delegates to add() which validates
+        return self
+
+    def __or__(self, other):
+        # Handle | operator - returns new Type_Safe__Set
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        # Copy self first
+        for item in self:
+            result.add(item)
+        # Then add other
+        for item in other:
+            result.add(item)
+        return result
+
+    def __ror__(self, other):
+        # Handle reverse | operator (when left operand is regular set)
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        # Copy other first
+        for item in other:
+            result.add(item)
+        # Then add self
+        for item in self:
+            result.add(item)
+        return result
+
+    def __iand__(self, other):
+        # Handle &= operator (intersection) - only keeps existing valid items
+        super().__iand__(other)
+        return self
+
+    def __isub__(self, other):
+        # Handle -= operator (difference) - only removes items
+        super().__isub__(other)
+        return self
+
+    def __ixor__(self, other):
+        # Handle ^= operator (symmetric difference)
+        # Items from other need validation before being added
+        to_add = set(other) - set(self)
+        to_remove = set(self) & set(other)
+        for item in to_remove:
+            self.discard(item)
+        for item in to_add:
+            self.add(item)  # Validates
+        return self

@@ -43,37 +43,55 @@ class Type_Safe__List(Type_Safe__Base, list):
     def __enter__(self): return self
     def __exit__ (self, type, value, traceback): pass
 
-    def append(self, item):
-        from osbot_utils.type_safe.Type_Safe        import Type_Safe                                                                    # to prevent circular imports
+    def _validate_and_convert_item(self, item):     # Validate and convert an item to the expected type."
+        from osbot_utils.type_safe.Type_Safe import Type_Safe
 
-        if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe) and type(item) is dict:                       # Handle Type_Safe objects from dicts
+        if type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe) and type(item) is dict:
             item = self.expected_type.from_json(item)
-        elif type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe__Primitive):                                 # Handle Type_Safe__Primitive conversions (str -> Safe_Str, etc.)
+        elif type(self.expected_type) is type and issubclass(self.expected_type, Type_Safe__Primitive):
             if not isinstance(item, self.expected_type):
                 try:
                     item = self.expected_type(item)
                 except (ValueError, TypeError) as e:
-                    # Re-raise with more context about what failed
                     raise TypeError(f"In Type_Safe__List: Could not convert {type(item).__name__} to {self.expected_type.__name__}: {e}") from None
 
-        elif hasattr(self.expected_type, '__bases__') and any(base.__name__ == 'Enum' for base in self.expected_type.__bases__):        # Handle Enums
-
+        elif hasattr(self.expected_type, '__bases__') and any(base.__name__ == 'Enum' for base in self.expected_type.__bases__):
             if isinstance(self.expected_type, type) and issubclass(self.expected_type, Enum):
                 if isinstance(item, str):
-                    if item in self.expected_type.__members__:                                                                          # Try to convert string to enum
+                    if item in self.expected_type.__members__:
                         item = self.expected_type[item]
                     elif hasattr(self.expected_type, '_value2member_map_') and item in self.expected_type._value2member_map_:
                         item = self.expected_type._value2member_map_[item]
 
-        try:                                                                                                                            # Now validate the (possibly converted) item
+        try:
             self.is_instance_of_type(item, self.expected_type)
         except TypeError as e:
             raise TypeError(f"In Type_Safe__List: Invalid type for item: {e}") from None
 
+        return item
+
+    def append(self, item):
+        item = self._validate_and_convert_item(item)
         super().append(item)
 
+    def __setitem__(self, index, item):
+        item = self._validate_and_convert_item(item)
+        super().__setitem__(index, item)
 
-    def json(self): # Convert the list to a JSON-serializable format.
+    def __iadd__(self, items):
+        for item in items:
+            self.append(item)
+        return self
+
+    def insert(self, index, item):
+        item = self._validate_and_convert_item(item)
+        super().insert(index, item)
+
+    def extend(self, items):
+        for item in items:
+            self.append(item)
+
+    def json(self):                                                                     # Convert the list to a JSON-serializable format.
         from osbot_utils.type_safe.Type_Safe import Type_Safe                           # Import here to avoid circular imports
 
         result = []
@@ -84,10 +102,8 @@ class Type_Safe__List(Type_Safe__Base, list):
                 result.append(item.__to_primitive__())
             elif isinstance(item, (list, tuple, frozenset)):
                 result.append([x.json() if isinstance(x, Type_Safe) else serialize_to_dict(x) for x in item])
-                #result.append([x.json() if isinstance(x, Type_Safe) else x for x in item])      # BUG here
             elif isinstance(item, dict):
                 result.append(serialize_to_dict(item))          # leverage serialize_to_dict since that method already knows how to handle
-                #result.append({k: v.json() if isinstance(v, Type_Safe) else v for k, v in item.items()})
             elif isinstance(item, type):
                 result.append(class_full_name(item))
             else:

@@ -142,3 +142,54 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         # Handle keyword arguments
         for key, value in kwargs.items():
             self[key] = value
+
+    def setdefault(self, key, default=None):
+        if key not in self:
+            self[key] = default  # Delegates to __setitem__ which validates
+        return self[key]
+
+    def __ior__(self, other):
+        # Handle |= operator (Python 3.9+)
+        if hasattr(other, 'items'):
+            for key, value in other.items():
+                self[key] = value  # Delegates to __setitem__ which validates
+        else:
+            for key, value in other:
+                self[key] = value
+        return self
+
+    def __or__(self, other):
+        # Handle | operator (Python 3.9+) - returns new dict
+        result = Type_Safe__Dict(
+            expected_key_type=self.expected_key_type,
+            expected_value_type=self.expected_value_type
+        )
+        # Copy self first
+        for key, value in self.items():
+            result[key] = value
+        # Then merge other
+        if hasattr(other, 'items'):
+            for key, value in other.items():
+                result[key] = value
+        else:
+            for key, value in other:
+                result[key] = value
+        return result
+
+    def __ror__(self, other):
+        # Handle reverse | operator (when left operand is regular dict)
+        result = Type_Safe__Dict(
+            expected_key_type=self.expected_key_type,
+            expected_value_type=self.expected_value_type
+        )
+        # Copy other first
+        if hasattr(other, 'items'):
+            for key, value in other.items():
+                result[key] = value
+        else:
+            for key, value in other:
+                result[key] = value
+        # Then merge self
+        for key, value in self.items():
+            result[key] = value
+        return result
