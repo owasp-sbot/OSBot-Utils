@@ -75,3 +75,46 @@ class Type_Safe__Tuple(Type_Safe__Base, tuple):
             else:
                 result.append(serialize_to_dict(item))          # Use serialize_to_dict for unknown types (so that we don't return a non json object)
         return result
+
+    def __add__(self, other):
+        # Tuple concatenation - requires defining new expected_types
+        # This is tricky because we need to know the types of the other tuple
+        # Option 1: Raise an error (safest)
+        # Option 2: Return plain tuple (loses type safety)
+        # Option 3: If other is Type_Safe__Tuple, combine expected_types
+
+        if isinstance(other, Type_Safe__Tuple):
+            new_expected_types = self.expected_types + other.expected_types
+            new_items = tuple(self) + tuple(other)
+            return Type_Safe__Tuple(expected_types=new_expected_types, items=new_items)
+        else:
+            # Can't safely concatenate without knowing types
+            raise TypeError(
+                f"Cannot concatenate Type_Safe__Tuple with {type(other).__name__}. "
+                f"Use Type_Safe__Tuple for both operands to preserve type safety."
+            )
+
+    def __radd__(self, other):
+        # Reverse concatenation
+        if isinstance(other, Type_Safe__Tuple):
+            new_expected_types = other.expected_types + self.expected_types
+            new_items = tuple(other) + tuple(self)
+            return Type_Safe__Tuple(expected_types=new_expected_types, items=new_items)
+        else:
+            raise TypeError(
+                f"Cannot concatenate {type(other).__name__} with Type_Safe__Tuple. "
+                f"Use Type_Safe__Tuple for both operands to preserve type safety."
+            )
+
+    def __mul__(self, n):
+        # Tuple repetition - repeat expected_types n times
+        if not isinstance(n, int) or n < 0:
+            raise TypeError(f"can't multiply Type_Safe__Tuple by non-int of type {type(n).__name__}")
+
+        new_expected_types = self.expected_types * n
+        new_items = tuple(self) * n
+        return Type_Safe__Tuple(expected_types=new_expected_types, items=new_items)
+
+    def __rmul__(self, n):
+        # Handle n * tuple
+        return self.__mul__(n)

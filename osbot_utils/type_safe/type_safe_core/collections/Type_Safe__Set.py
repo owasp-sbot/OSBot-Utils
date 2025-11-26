@@ -120,3 +120,91 @@ class Type_Safe__Set(Type_Safe__Base, set):
         for item in to_add:
             self.add(item)  # Validates
         return self
+
+    def __and__(self, other):
+        # Handle & operator (intersection) - returns Type_Safe__Set
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        for item in super().__and__(other):
+            result.add(item)
+        return result
+
+    def __rand__(self, other):
+        # Handle reverse & operator
+        return self.__and__(other)
+
+    def __sub__(self, other):
+        # Handle - operator (difference) - returns Type_Safe__Set
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        for item in super().__sub__(other):
+            result.add(item)
+        return result
+
+    def __rsub__(self, other):
+        # Handle reverse - operator
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        for item in set(other) - set(self):
+            result.add(item)  # Validates items from other
+        return result
+
+    def __xor__(self, other):
+        # Handle ^ operator (symmetric difference) - returns Type_Safe__Set with validation
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        # Items only in self (already validated)
+        for item in set(self) - set(other):
+            result.add(item)
+        # Items only in other (need validation)
+        for item in set(other) - set(self):
+            result.add(item)  # Validates
+        return result
+
+    def __rxor__(self, other):
+        # Handle reverse ^ operator
+        return self.__xor__(other)
+
+    def copy(self):
+        # Return a Type_Safe__Set copy, not a plain set
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        for item in self:
+            result.add(item)
+        return result
+
+    def union(self, *others):
+        # Return Type_Safe__Set with validation
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        for item in self:
+            result.add(item)
+        for other in others:
+            for item in other:
+                result.add(item)  # Validates
+        return result
+
+    def intersection(self, *others):
+        # Return Type_Safe__Set (items already validated since they're in self)
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        base_result = set(self)
+        for other in others:
+            base_result &= set(other)
+        for item in base_result:
+            result.add(item)
+        return result
+
+    def difference(self, *others):
+        # Return Type_Safe__Set (items already validated since they're in self)
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        base_result = set(self)
+        for other in others:
+            base_result -= set(other)
+        for item in base_result:
+            result.add(item)
+        return result
+
+    def symmetric_difference(self, other):
+        # Return Type_Safe__Set with validation for items from other
+        result = Type_Safe__Set(expected_type=self.expected_type)
+        # Items only in self (already validated)
+        for item in set(self) - set(other):
+            result.add(item)
+        # Items only in other (need validation)
+        for item in set(other) - set(self):
+            result.add(item)  # Validates
+        return result

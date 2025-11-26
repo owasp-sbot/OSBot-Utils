@@ -109,3 +109,49 @@ class Type_Safe__List(Type_Safe__Base, list):
             else:
                 result.append(serialize_to_dict(item))          # also Use serialize_to_dict for unknown types (so that we don't return a non json object)
         return result
+
+    def __add__(self, other):
+        # Handle list1 + list2 - returns new Type_Safe__List with validation
+        result = Type_Safe__List(expected_type=self.expected_type)
+        for item in self:
+            result.append(item)
+        for item in other:
+            result.append(item)  # Validates each item
+        return result
+
+    def __radd__(self, other):
+        # Handle list + type_safe_list - returns new Type_Safe__List with validation
+        result = Type_Safe__List(expected_type=self.expected_type)
+        for item in other:
+            result.append(item)  # Validates each item
+        for item in self:
+            result.append(item)
+        return result
+
+    def __mul__(self, n):
+        # Handle list * n - returns new Type_Safe__List
+        result = Type_Safe__List(expected_type=self.expected_type)
+        for _ in range(n):
+            for item in self:
+                result.append(item)
+        return result
+
+    def __rmul__(self, n):
+        # Handle n * list - same as __mul__
+        return self.__mul__(n)
+
+    def __imul__(self, n):
+        # Handle list *= n - modifies in place
+        items = list(self)
+        self.clear()
+        for _ in range(n):
+            for item in items:
+                self.append(item)
+        return self
+
+    def copy(self):
+        # Return a Type_Safe__List copy, not a plain list
+        result = Type_Safe__List(expected_type=self.expected_type)
+        for item in self:
+            result.append(item)
+        return result

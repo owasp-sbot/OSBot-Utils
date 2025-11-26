@@ -1,17 +1,17 @@
 import re
 import pytest
-from typing                                                             import List, Dict, Set, Tuple
-from unittest                                                           import TestCase
-from osbot_utils.type_safe.primitives.core.Safe_UInt                    import Safe_UInt
-from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_Str                     import Safe_Str
-from osbot_utils.testing.__                                             import __
+from typing                                                                              import List, Dict, Set, Tuple
+from unittest                                                                            import TestCase
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                     import Safe_UInt
+from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                      import Safe_Str
+from osbot_utils.testing.__                                                              import __
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set    import Type_Safe__Set
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple  import Type_Safe__Tuple
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe          import type_safe
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict                    import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                    import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                     import Type_Safe__Set
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple                   import Type_Safe__Tuple
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
 
 
 class test_Type_Safe__List__regression(TestCase):
@@ -352,3 +352,38 @@ class test_Type_Safe__List__regression(TestCase):
 
         assert len(cache_hashes) == 4
         assert all(type(item) is Safe_Str__Cache_Hash for item in cache_hashes)
+
+
+    def test__regression__type_safe_list__bypasses_on_add_mul_copy(self):
+        cache_hashes = Type_Safe__List(expected_type=Safe_Str__Cache_Hash)
+        valid_hash = 'abcdef1234567890'
+        cache_hashes.append(valid_hash)
+
+        # BUG 1: __add__ (list1 + list2) bypasses type safety and returns plain list
+        error_message = "In Type_Safe__List: Could not convert str to Safe_Str__Cache_Hash: in Safe_Str__Cache_Hash, value does not match required pattern: ^[a-f0-9]{10,96}$"
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+            cache_hashes + ['bad_value']
+
+        # result = cache_hashes + ['bad_value']
+        # assert type(result) is list                          # BUG: should be Type_Safe__List
+        # assert 'bad_value' in result                         # BUG: invalid value in result
+        #
+        # # BUG 2: __radd__ (list + type_safe_list) bypasses type safety
+        with pytest.raises(TypeError, match=re.escape(error_message)):
+             ['bad_value'] + cache_hashes
+        # result = ['bad_value'] + cache_hashes
+        # assert type(result) is list                          # BUG: should be Type_Safe__List
+        # assert 'bad_value' in result                         # BUG: invalid value in result
+        #
+        # __imul__ (list *= n) doesn't lose type safety
+        cache_hashes *= 2
+        assert type(cache_hashes) is Type_Safe__List                    # BUG: should be Type_Safe__List
+        #
+        # # Reset
+        cache_hashes = Type_Safe__List(expected_type=Safe_Str__Cache_Hash)
+        cache_hashes.append(valid_hash)
+
+        # BUG 4: copy() returns plain list
+        copied = cache_hashes.copy()
+        # assert type(copied) is list                          # BUG: should be Type_Safe__List
+        assert type(copied) is Type_Safe__List

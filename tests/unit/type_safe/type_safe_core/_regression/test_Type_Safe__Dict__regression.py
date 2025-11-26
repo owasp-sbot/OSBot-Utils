@@ -1,22 +1,22 @@
 import json
 import re
 import pytest
-from enum                                                                           import Enum
-from unittest                                                                       import TestCase
-from typing                                                                         import Dict, Type, Set, Any, List
-from osbot_utils.testing.__helpers                                                  import obj
-from osbot_utils.type_safe.primitives.core.Safe_Int                                 import Safe_Int
-from osbot_utils.testing.__                                                         import __
-from osbot_utils.type_safe.Type_Safe__Primitive                                     import Type_Safe__Primitive
+from enum                                                                                import Enum
+from unittest                                                                            import TestCase
+from typing                                                                              import Dict, Type, Set, Any, List
+from osbot_utils.testing.__helpers                                                       import obj
+from osbot_utils.type_safe.primitives.core.Safe_Int                                      import Safe_Int
+from osbot_utils.testing.__                                                              import __
+from osbot_utils.type_safe.Type_Safe__Primitive                                          import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
-from osbot_utils.utils.Env                                                          import not_in_github_action
-from osbot_utils.utils.Objects                                                      import base_classes
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict                    import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                    import Type_Safe__List
+from osbot_utils.utils.Env                                                               import not_in_github_action
+from osbot_utils.utils.Objects                                                           import base_classes
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                        import Safe_Id
+from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 
 
 class test_Type_Safe__Dict__regression(TestCase):
@@ -518,3 +518,21 @@ class test_Type_Safe__Dict__regression(TestCase):
         # Test __ror__ (regular_dict | type_safe_dict)
         with pytest.raises(ValueError, match=re.escape(error_message)):
             {'key3': 'bad_value'} | type_safe_dict
+
+    def test__regression__type_safe_dict__bypasses_on_copy_fromkeys(self):
+        type_safe_dict = Type_Safe__Dict(expected_key_type=str, expected_value_type=Safe_Str__Cache_Hash)
+        valid_hash = 'abcdef1234567890'
+        type_safe_dict['key1'] = valid_hash
+
+        # BUG 1: copy() returns plain dict
+        copied = type_safe_dict.copy()
+        #assert type(copied) is dict                          # BUG: should be Type_Safe__Dict
+        assert type(copied) is Type_Safe__Dict
+
+        # fromkeys() doesn't work
+        #error_message = "Type_Safe__Dict requires expected_key_type and expected_value_type"
+        error_message = "Type_Safe__Dict.fromkeys() requires expected_key_type and expected_value_type"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            Type_Safe__Dict.fromkeys(['a', 'b'], valid_hash)
+            #result = Type_Safe__Dict.fromkeys(['a', 'b'], valid_hash)
+            #assert type(result) is dict                          # BUG: should be Type_Safe__Dict

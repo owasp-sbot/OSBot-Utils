@@ -1,9 +1,10 @@
+import pytest
 from typing                                                                     import Dict, Tuple, Type
 from unittest                                                                   import TestCase
 from osbot_utils.testing.__                                                     import __
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
-
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple          import Type_Safe__Tuple
 
 
 class test_Type_Safe__Tuple__regression(TestCase):
@@ -64,3 +65,19 @@ class test_Type_Safe__Tuple__regression(TestCase):
                                                                     Safe_Str__Id)}).json()).json() == { 'an_dict_tuple': { 'an-id': ( 'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id',
                                                                                                                          'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id')},       # BUG
                                                                                                         'an_tuple'     : []}
+
+
+    def test__regression__type_safe_tuple__bypasses_on_add_mul(self):
+        tuple1 = Type_Safe__Tuple(expected_types=(str, int), items=('hello', 42))
+
+        # BUG 1: __add__ (tuple concatenation) returns plain tuple
+        error_message_1 = "Cannot concatenate Type_Safe__Tuple with tuple. Use Type_Safe__Tuple for both operands to preserve type safety."
+        with pytest.raises(TypeError, match=re.escape(error_message_1)):
+            tuple1 + ('world',)
+        #result = tuple1 + ('world',)
+        #assert type(result) is tuple                         # BUG: should be Type_Safe__Tuple or raise error
+
+        # BUG 2: __mul__ (tuple repetition) returns plain tuple
+        result = tuple1 * 2
+        #assert type(result) is tuple                         # BUG: should be Type_Safe__Tuple
+        assert type(result) is Type_Safe__Tuple

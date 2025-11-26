@@ -193,3 +193,29 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         for key, value in self.items():
             result[key] = value
         return result
+
+    def copy(self):
+        # Return a Type_Safe__Dict copy, not a plain dict
+        result = Type_Safe__Dict(
+            expected_key_type=self.expected_key_type,
+            expected_value_type=self.expected_value_type
+        )
+        for key, value in self.items():
+            result[key] = value
+        return result
+
+    @classmethod
+    def fromkeys(cls, keys, value=None, expected_key_type=None, expected_value_type=None):
+
+        if expected_key_type is None or expected_value_type is None:                            # Create Type_Safe__Dict from keys with validation
+            expected_key_type   = expected_key_type   or cls.expected_key_type                  # Try to get from class-level defaults
+            expected_value_type = expected_value_type or cls.expected_value_type
+
+        if expected_key_type is None or expected_value_type is None:
+            raise ValueError(f"{cls.__name__}.fromkeys() requires expected_key_type and expected_value_type")
+
+        result = cls(expected_key_type   = expected_key_type  ,
+                     expected_value_type = expected_value_type)
+        for key in keys:
+            result[key] = value                                                                 # Validates both key and value
+        return result

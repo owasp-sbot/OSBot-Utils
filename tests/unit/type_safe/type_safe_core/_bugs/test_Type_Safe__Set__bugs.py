@@ -3,11 +3,10 @@ import re
 from typing                                                                              import Set
 from unittest                                                                            import TestCase
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                     import Type_Safe__Set
 
 
 class test_Type_Safe__Dict__bugs(TestCase):
+
 
     def test__bug__set_enums_assignment(self):
         from enum import Enum
