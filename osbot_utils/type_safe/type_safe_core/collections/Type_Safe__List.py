@@ -9,11 +9,22 @@ from osbot_utils.type_safe.Type_Safe__Base      import Type_Safe__Base, type_str
 class Type_Safe__List(Type_Safe__Base, list):
     expected_type : Type = None                         # Class-level default
 
-    def __init__(self, expected_type=None, *args):
-        super().__init__(*args)
-        self.expected_type = expected_type or self.__class__.expected_type
-        if self.expected_type is None:
+    def __init__(self, expected_type=None, initial_data=None):
+        super().__init__()                                                                  # Initialize empty list first
+
+        if isinstance(expected_type, list) and initial_data is None:                        # Smart detection: if expected_type is a list and initial_data is None
+            initial_data  = expected_type                                                   # They're using the pattern: An_List(['a', 'b'])
+            expected_type = None                                                            # Move the list to initial_data
+
+        self.expected_type = expected_type or self.__class__.expected_type                  # Use provided type, or fall back to class-level attribute
+
+        if self.expected_type is None:                                                      # Validate that we have type set (either from args or class)
             raise ValueError(f"{self.__class__.__name__} requires expected_type")
+
+        if initial_data is not None:                                                        # Process initial data through our type-safe append
+            for item in initial_data:
+                self.append(item)                                                           # let the .append() check the type_safety
+
 
     def __contains__(self, item):
         if super().__contains__(item):                                                                                          # First try direct lookup
