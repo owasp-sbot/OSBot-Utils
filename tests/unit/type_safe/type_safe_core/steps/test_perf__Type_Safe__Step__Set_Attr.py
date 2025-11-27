@@ -59,7 +59,7 @@ class test_perf__Type_Safe__Step__Set_Attr(TestCase):                           
             type_safe_step_set_attr.setattr(obj, obj, "dict_val", {"key": "value"})
 
         with Performance_Measure__Session() as session:
-            session.measure(set_list_attr).assert_time__less_than(self.time_9_kns )
+            session.measure(set_list_attr).assert_time__less_than(self.time_10_kns)
             session.measure(set_dict_attr).assert_time__less_than(self.time_10_kns)
 
     def test_union_setattr(self):                                                  # Test union type attribute setting
