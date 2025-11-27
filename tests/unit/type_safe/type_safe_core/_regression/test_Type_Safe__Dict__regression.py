@@ -1,21 +1,23 @@
 import json
 import re
 import pytest
-from enum                                                                           import Enum
-from unittest                                                                       import TestCase
-from typing                                                                         import Dict, Type, Set, Any, List
-from osbot_utils.testing.__helpers                                                  import obj
-from osbot_utils.type_safe.primitives.core.Safe_Int                                 import Safe_Int
-from osbot_utils.testing.__                                                         import __
-from osbot_utils.type_safe.Type_Safe__Primitive                                     import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path   import Safe_Str__File__Path
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List               import Type_Safe__List
-from osbot_utils.utils.Env                                                          import not_in_github_action
-from osbot_utils.utils.Objects                                                      import base_classes
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                   import Safe_Id
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from enum                                                                                import Enum
+from unittest                                                                            import TestCase
+from typing                                                                              import Dict, Type, Set, Any, List
+from osbot_utils.testing.__helpers                                                       import obj
+from osbot_utils.type_safe.primitives.core.Safe_Int                                      import Safe_Int
+from osbot_utils.testing.__                                                              import __
+from osbot_utils.type_safe.Type_Safe__Primitive                                          import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash       import Safe_Str__Hash
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict                    import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                    import Type_Safe__List
+from osbot_utils.utils.Env                                                               import not_in_github_action
+from osbot_utils.utils.Objects                                                           import base_classes
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                        import Safe_Id
+from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
 
 
 class test_Type_Safe__Dict__regression(TestCase):
@@ -461,3 +463,102 @@ class test_Type_Safe__Dict__regression(TestCase):
 
         # And it's JSON-serializable
         assert json.dumps(simple.json()) == '{"data": {"active": 100}}'  # ✓ Works
+
+    def test__regression__type_safe_dict__auto_conversion_issue_on_setdefault_and_ior(self):
+
+        # First verify __setitem__ correctly rejects invalid values
+        type_safe_dict = Type_Safe__Dict(expected_key_type=str, expected_value_type=Safe_Str__Cache_Hash)
+
+        valid_hash = 'abcdef1234567890'
+        type_safe_dict['key1'] = valid_hash
+        assert len(type_safe_dict) == 1
+        assert type(type_safe_dict['key1']) is Safe_Str__Cache_Hash
+
+        # Verify __setitem__ rejects invalid values
+        error_message = "in Safe_Str__Cache_Hash, value does not match required pattern: ^[a-f0-9]{10,96}$"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            type_safe_dict['key2'] = 'bad_value'
+
+        # BUG 1: setdefault() bypasses type safety
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            type_safe_dict.setdefault('key3', 'bad_default')
+        # result = type_safe_dict.setdefault('key3', 'bad_default')   # BUG: should raise TypeError
+        # assert 'key3' in type_safe_dict                              # BUG: key should not exist
+        # assert type_safe_dict['key3'] == 'bad_default'               # BUG: value should not have been assigned
+        # assert type(type_safe_dict['key3']) is str                   # BUG: should be Safe_Str__Cache_Hash
+
+        # Reset for next test
+        type_safe_dict = Type_Safe__Dict(expected_key_type=str, expected_value_type=Safe_Str__Cache_Hash)
+
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            type_safe_dict |= {'key4': 'another_bad'}
+
+        # type_safe_dict |= {'key4': 'another_bad'}               # BUG: should raise TypeError
+        # assert 'key4' in type_safe_dict                          # BUG: key should not exist
+        # assert type(type_safe_dict['key4']) is str               # BUG: should be Safe_Str__Cache_Hash
+
+
+    def test__regression__type_safe_dict__or_operators(self):
+        type_safe_dict = Type_Safe__Dict(expected_key_type=str, expected_value_type=Safe_Str__Cache_Hash)
+        valid_hash = 'abcdef1234567890'
+        type_safe_dict['key1'] = valid_hash
+
+        error_message = "in Safe_Str__Cache_Hash, value does not match required pattern: ^[a-f0-9]{10,96}$"
+
+        # Test __or__ rejects invalid values
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            type_safe_dict | {'key2': 'bad_value'}
+
+        # Test __or__ works with valid values
+        valid_hash_2 = 'fedcba0987654321'
+        result = type_safe_dict | {'key2': valid_hash_2}
+        assert type(result) is Type_Safe__Dict
+        assert len(result) == 2
+        assert type(result['key2']) is Safe_Str__Cache_Hash
+
+        # Test __ror__ (regular_dict | type_safe_dict)
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            {'key3': 'bad_value'} | type_safe_dict
+
+    def test__regression__type_safe_dict__bypasses_on_copy_fromkeys(self):
+        type_safe_dict = Type_Safe__Dict(expected_key_type=str, expected_value_type=Safe_Str__Cache_Hash)
+        valid_hash = 'abcdef1234567890'
+        type_safe_dict['key1'] = valid_hash
+
+        # BUG 1: copy() returns plain dict
+        copied = type_safe_dict.copy()
+        #assert type(copied) is dict                          # BUG: should be Type_Safe__Dict
+        assert type(copied) is Type_Safe__Dict
+
+        # fromkeys() doesn't work
+        #error_message = "Type_Safe__Dict requires expected_key_type and expected_value_type"
+        error_message = "Type_Safe__Dict.fromkeys() requires expected_key_type and expected_value_type"
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            Type_Safe__Dict.fromkeys(['a', 'b'], valid_hash)
+            #result = Type_Safe__Dict.fromkeys(['a', 'b'], valid_hash)
+            #assert type(result) is dict                          # BUG: should be Type_Safe__Dict
+
+    def test__regression__type_safe_dict_subclass__operations_preserve_subclass_type(self):
+
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        hash_map = Hash_Mapping({'abc1234567': 'value'})
+        assert type(hash_map) is Hash_Mapping
+
+        # FIXED: copy() returns Hash_Mapping
+        copied = hash_map.copy()
+        assert type(copied) is Hash_Mapping
+
+        # FIXED: | operator returns Hash_Mapping
+        merged = hash_map | {'def1234567': 'other'}
+        assert type(merged) is Hash_Mapping
+
+        # |= still works (modifies in place)
+        hash_map |= {'aaa1234567': 'third'}
+        assert type(hash_map) is Hash_Mapping
+
+        # FIXED: fromkeys returns Hash_Mapping
+        from_keys = Hash_Mapping.fromkeys(['aaa1234567', 'bbb1234567'], 'default')
+        assert type(from_keys) is Hash_Mapping

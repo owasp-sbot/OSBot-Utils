@@ -1,12 +1,17 @@
+from typing                                     import Type
 from osbot_utils.utils.Objects                  import class_full_name, serialize_to_dict
 from osbot_utils.type_safe.Type_Safe__Base      import Type_Safe__Base, type_str
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
 
 class Type_Safe__Set(Type_Safe__Base, set):
-    def __init__(self, expected_type, *args):
+    expected_type : Type = None                         # Class-level default
+
+    def __init__(self, expected_type=None, *args):
         super().__init__(*args)
-        self.expected_type = expected_type
+        self.expected_type = expected_type or self.__class__.expected_type
+        if self.expected_type is None:
+            raise ValueError(f"{self.__class__.__name__} requires expected_type")
 
     def __contains__(self, item):
         if super().__contains__(item):                                                                  # First try direct lookup
@@ -66,3 +71,137 @@ class Type_Safe__Set(Type_Safe__Base, set):
         if isinstance(other, (set, Type_Safe__Set)):
             return set(self) == set(other)
         return False
+
+    def update(self, *others):
+        for other in others:
+            for item in other:
+                self.add(item)  # Delegates to add() which validates
+
+    def copy(self):
+        # Return a copy of the same subclass type
+        result = self.__class__(expected_type=self.expected_type)
+        for item in self:
+            result.add(item)
+        return result
+
+    def __or__(self, other):
+        # Handle | operator - returns new instance of same subclass
+        result = self.__class__(expected_type=self.expected_type)
+        for item in self:
+            result.add(item)
+        for item in other:
+            result.add(item)  # Validates
+        return result
+
+    def __ror__(self, other):
+        # Handle reverse | operator - returns same subclass type
+        result = self.__class__(expected_type=self.expected_type)
+        for item in other:
+            result.add(item)  # Validates
+        for item in self:
+            result.add(item)
+        return result
+
+    def __and__(self, other):
+        # Handle & operator (intersection) - returns same subclass type
+        result = self.__class__(expected_type=self.expected_type)
+        for item in super().__and__(other):
+            result.add(item)
+        return result
+
+    def __rand__(self, other):
+        # Handle reverse & operator
+        return self.__and__(other)
+
+    def __sub__(self, other):
+        # Handle - operator (difference) - returns same subclass type
+        result = self.__class__(expected_type=self.expected_type)
+        for item in super().__sub__(other):
+            result.add(item)
+        return result
+
+    def __rsub__(self, other):
+        # Handle reverse - operator
+        result = self.__class__(expected_type=self.expected_type)
+        for item in set(other) - set(self):
+            result.add(item)  # Validates items from other
+        return result
+
+    def __xor__(self, other):
+        # Handle ^ operator (symmetric difference) - returns same subclass type
+        result = self.__class__(expected_type=self.expected_type)
+        for item in set(self) - set(other):
+            result.add(item)
+        for item in set(other) - set(self):
+            result.add(item)  # Validates
+        return result
+
+    def __rxor__(self, other):
+        # Handle reverse ^ operator
+        return self.__xor__(other)
+
+    def union(self, *others):
+        # Return same subclass type with validation
+        result = self.__class__(expected_type=self.expected_type)
+        for item in self:
+            result.add(item)
+        for other in others:
+            for item in other:
+                result.add(item)  # Validates
+        return result
+
+    def intersection(self, *others):
+        # Return same subclass type
+        result = self.__class__(expected_type=self.expected_type)
+        base_result = set(self)
+        for other in others:
+            base_result &= set(other)
+        for item in base_result:
+            result.add(item)
+        return result
+
+    def difference(self, *others):
+        # Return same subclass type
+        result = self.__class__(expected_type=self.expected_type)
+        base_result = set(self)
+        for other in others:
+            base_result -= set(other)
+        for item in base_result:
+            result.add(item)
+        return result
+
+    def symmetric_difference(self, other):
+        # Return same subclass type with validation for items from other
+        result = self.__class__(expected_type=self.expected_type)
+        for item in set(self) - set(other):
+            result.add(item)
+        for item in set(other) - set(self):
+            result.add(item)  # Validates
+        return result
+
+    def __ior__(self, other):
+        # Handle |= operator
+        for item in other:
+            self.add(item)  # Delegates to add() which validates
+        return self
+
+    def __iand__(self, other):
+        # Handle &= operator (intersection) - only keeps existing valid items
+        super().__iand__(other)
+        return self
+
+    def __isub__(self, other):
+        # Handle -= operator (difference) - only removes items
+        super().__isub__(other)
+        return self
+
+    def __ixor__(self, other):
+        # Handle ^= operator (symmetric difference)
+        # Items from other need validation before being added
+        to_add = set(other) - set(self)
+        to_remove = set(self) & set(other)
+        for item in to_remove:
+            self.discard(item)
+        for item in to_add:
+            self.add(item)  # Validates
+        return self

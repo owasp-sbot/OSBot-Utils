@@ -112,7 +112,7 @@ class test_Type_Safe__regression(TestCase):
         with pytest.raises(ValueError, match=expected_error_2):
             An_class.from_json(dict(no_optional  = 123))           # type validation works here too
 
-        bug_error_1 = "On An_class, invalid type for attribute 'with_optional'. Expected 'typing.Optional[test_Type_Safe__bugs.test_Type_Safe__bugs.test__bug__from_json_with_optional.<locals>.An_Enum]' but got '<class 'str'>'"
+        #bug_error_1 = "On An_class, invalid type for attribute 'with_optional'. Expected 'typing.Optional[test_Type_Safe__bugs.test_Type_Safe__bugs.test__bug__from_json_with_optional.<locals>.An_Enum]' but got '<class 'str'>'"
         # with pytest.raises(ValueError, match=re.escape(bug_error_1)):
         #     An_class.from_json(dict(with_optional='abc'))               # BUG: but with optional the auto conversion of str (which is valid value to convert) didn't work
         An_class.from_json(dict(with_optional='abc'))                     # FIXED

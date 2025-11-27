@@ -983,3 +983,57 @@ class test_Type_Safe__Dict__as_base_class(TestCase):
 
         assert type(container.items) is Item_Mapping
         assert type(container.items['item-1']) is Item
+
+    def test__subclass_preserves_type_on_copy_and_or(self):
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        hash_map = Hash_Mapping({'abc1234567': 'value'})
+
+        # copy() should return Hash_Mapping, not Type_Safe__Dict
+        copied = hash_map.copy()
+        assert type(copied) is Hash_Mapping
+
+        # | should return Hash_Mapping
+        merged = hash_map | {'def1234567': 'other'}
+        assert type(merged) is Hash_Mapping
+
+        # fromkeys should return Hash_Mapping
+        from_keys = Hash_Mapping.fromkeys(['aaa1234567', 'bbb1234567'], 'default')
+        assert type(from_keys) is Hash_Mapping
+
+
+    def test__regression__type_safe_dict_subclass__operations_dont_preserve_subclass_type(self):
+
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        hash_map = Hash_Mapping({'abc1234567': 'value'})
+        assert type(hash_map) is Hash_Mapping
+
+        # BUG 1: copy() returns Type_Safe__Dict instead of Hash_Mapping
+        copied = hash_map.copy()
+        assert type(copied) is not Type_Safe__Dict            # FIXED: should be Hash_Mapping
+        assert type(copied) is      Hash_Mapping              # FIXED: should be Hash_Mapping
+        # assert type(copied) is Type_Safe__Dict               # BUG: should be Hash_Mapping
+        # assert type(copied) is not Hash_Mapping              # BUG: should be Hash_Mapping
+
+        # BUG 2: | operator returns Type_Safe__Dict instead of Hash_Mapping
+        merged = hash_map | {'def1234567': 'other'}
+        assert type(merged) is not Type_Safe__Dict               # FIXED
+        assert type(merged) is Hash_Mapping                      # FIXED
+        # assert type(merged) is Type_Safe__Dict               # BUG: should be Hash_Mapping
+        # assert type(merged) is not Hash_Mapping              # BUG: should be Hash_Mapping
+
+        # BUG 3: |= works correctly (modifies in place, so type is preserved)
+        hash_map |= {'aaa1234567': 'third'}                  # FIXED
+        assert type(hash_map) is Hash_Mapping                # This one is OK
+
+        # BUG 4: fromkeys returns Type_Safe__Dict instead of Hash_Mapping
+        from_keys = Hash_Mapping.fromkeys(['aaa1234567', 'bbb1234567'], 'default')
+        assert type(from_keys) is not Type_Safe__Dict          # FIXED
+        assert type(from_keys) is Hash_Mapping                 # FIXED
+        # assert type(from_keys) is Type_Safe__Dict            # BUG: should be Hash_Mapping
+        # assert type(from_keys) is not Hash_Mapping           # BUG: should be Hash_Mapping

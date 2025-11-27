@@ -142,3 +142,74 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         # Handle keyword arguments
         for key, value in kwargs.items():
             self[key] = value
+
+    def setdefault(self, key, default=None):
+        if key not in self:
+            self[key] = default  # Delegates to __setitem__ which validates
+        return self[key]
+
+    def __ior__(self, other):
+        # Handle |= operator (Python 3.9+)
+        if hasattr(other, 'items'):
+            for key, value in other.items():
+                self[key] = value  # Delegates to __setitem__ which validates
+        else:
+            for key, value in other:
+                self[key] = value
+        return self
+
+    def copy(self):
+        # Return a copy of the same subclass type, not Type_Safe__Dict
+        result = self.__class__(
+            expected_key_type=self.expected_key_type,
+            expected_value_type=self.expected_value_type
+        )
+        for key, value in self.items():
+            result[key] = value
+        return result
+
+    def __or__(self, other):
+        # Handle | operator (Python 3.9+) - returns new instance of same subclass
+        result = self.__class__(
+            expected_key_type=self.expected_key_type,
+            expected_value_type=self.expected_value_type
+        )
+        for key, value in self.items():
+            result[key] = value
+        if hasattr(other, 'items'):
+            for key, value in other.items():
+                result[key] = value
+        else:
+            for key, value in other:
+                result[key] = value
+        return result
+
+    def __ror__(self, other):
+        # Handle reverse | operator - returns same subclass type
+        result = self.__class__(
+            expected_key_type=self.expected_key_type,
+            expected_value_type=self.expected_value_type
+        )
+        if hasattr(other, 'items'):
+            for key, value in other.items():
+                result[key] = value
+        else:
+            for key, value in other:
+                result[key] = value
+        for key, value in self.items():
+            result[key] = value
+        return result
+
+    @classmethod
+    def fromkeys(cls, keys, value=None, expected_key_type=None, expected_value_type=None):
+        expected_key_type   = expected_key_type   or cls.expected_key_type                          # Use cls to create instance of the actual subclass
+        expected_value_type = expected_value_type or cls.expected_value_type
+
+        if expected_key_type is None or expected_value_type is None:
+            raise ValueError(f"{cls.__name__}.fromkeys() requires expected_key_type and expected_value_type")
+
+        result = cls(expected_key_type   = expected_key_type  ,
+                     expected_value_type = expected_value_type)
+        for key in keys:
+            result[key] = value
+        return result
