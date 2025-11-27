@@ -6,6 +6,7 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set            
 
 
 class test_Type_Safe__Set__regression(TestCase):
+
     def test__regression__type_safe_set__auto_conversion_issue_on_update_and_ior(self):
 
         # First verify add() correctly rejects invalid values
@@ -48,7 +49,7 @@ class test_Type_Safe__Set__regression(TestCase):
         # assert type(result) is set                             # BUG: should be Type_Safe__Set
         # assert 'or_bad' in result                              # BUG: invalid value in result
 
-    def test__bug__type_safe_set__bypasses_on_set_operations(self):
+    def test__regression__type_safe_set__bypasses_on_set_operations(self):
 
         cache_hashes = Type_Safe__Set(expected_type=Safe_Str__Cache_Hash)
         valid_hash = 'abcdef1234567890'
@@ -101,3 +102,47 @@ class test_Type_Safe__Set__regression(TestCase):
         # result = cache_hashes.symmetric_difference(other_set)
         # assert type(result) is set                           # BUG: should be Type_Safe__Set
         # assert 'bad_value' in result                         # BUG: invalid value in result
+
+    def test__regression__type_safe_set_subclass__operations_dont_preserve_subclass_type(self):
+        from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                     import Type_Safe__Set
+        from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
+
+        class Hash_Set(Type_Safe__Set):
+            expected_type = Safe_Str__Cache_Hash
+
+        valid_hash_1 = 'abcdef1234567890'
+        valid_hash_2 = 'fedcba0987654321'
+        hash_set = Hash_Set()
+        hash_set.add(valid_hash_1)
+        assert type(hash_set) is Hash_Set
+
+        # BUG 1: copy() returns Type_Safe__Set instead of Hash_Set
+        copied = hash_set.copy()
+        # assert type(copied) is Type_Safe__Set                # BUG: should be Hash_Set
+        # assert type(copied) is not Hash_Set                  # BUG
+        assert type(copied) is Hash_Set                         # FIXED
+
+
+        # BUG 2: | operator returns Type_Safe__Set instead of Hash_Set
+        merged = hash_set | {valid_hash_2}
+        # assert type(merged) is Type_Safe__Set                # BUG: should be Hash_Set
+        # assert type(merged) is not Hash_Set                  # BUG
+        assert type(copied) is Hash_Set                         # FIXED
+
+        # BUG 3: union() returns Type_Safe__Set instead of Hash_Set
+        unioned = hash_set.union({valid_hash_2})
+        # assert type(unioned) is Type_Safe__Set               # BUG: should be Hash_Set
+        # assert type(unioned) is not Hash_Set                 # BUG
+        assert type(copied) is Hash_Set                         # FIXED
+
+        # BUG 4: intersection() returns Type_Safe__Set instead of Hash_Set
+        intersected = hash_set.intersection({valid_hash_1})
+        # assert type(intersected) is Type_Safe__Set           # BUG: should be Hash_Set
+        # assert type(intersected) is not Hash_Set             # BUG
+        assert type(copied) is Hash_Set                         # FIXED
+
+        # BUG 5: difference() returns Type_Safe__Set instead of Hash_Set
+        diffed = hash_set.difference({valid_hash_2})
+        # assert type(diffed) is Type_Safe__Set                # BUG: should be Hash_Set
+        # assert type(diffed) is not Hash_Set                  # BUG
+        assert type(copied) is Hash_Set                         # FIXED

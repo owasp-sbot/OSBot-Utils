@@ -80,7 +80,7 @@ class test_Type_Safe__List__regression(TestCase):
             An_Class().http_methods = ["HEAD"]                # ok since 'HEAD' is not a valid value in Enum__Method
 
 
-    def test__bug__in_type_safe__list__nested_conversion(self):
+    def test__regression__in_type_safe__list__nested_conversion(self):
         class Schema__Model(Type_Safe):
             an_list : List[Safe_Str]
 
@@ -387,3 +387,33 @@ class test_Type_Safe__List__regression(TestCase):
         copied = cache_hashes.copy()
         # assert type(copied) is list                          # BUG: should be Type_Safe__List
         assert type(copied) is Type_Safe__List
+
+    def test__regression__type_safe_list_subclass__operations_dont_preserve_subclass_type(self):
+
+        class Hash_List(Type_Safe__List):
+            expected_type = Safe_Str__Cache_Hash
+            # def __init__(self, *args):
+            #     super().__init__(Safe_Str__Cache_Hash, *args)
+
+        valid_hash = 'abcdef1234567890'
+        hash_list = Hash_List()
+        hash_list.append(valid_hash)
+        assert type(hash_list) is Hash_List
+
+        # BUG 1: copy() returns Type_Safe__List instead of Hash_List
+        copied = hash_list.copy()
+        #assert type(copied) is Type_Safe__List                 # BUG: should be Hash_List
+        #assert type(copied) is not Hash_List                   # BUG
+        assert type(copied) is Hash_List                        # FIXED
+
+        # BUG 2: __add__ returns Type_Safe__List instead of Hash_List
+        added = hash_list + [valid_hash]
+        # assert type(added) is Type_Safe__List                 # BUG: should be Hash_List
+        # assert type(added) is not Hash_List                   # BUG
+        assert type(copied) is Hash_List                        # FIXED
+
+        # BUG 3: __mul__ returns Type_Safe__List instead of Hash_List
+        multiplied = hash_list * 2
+        # assert type(multiplied) is Type_Safe__List            # BUG: should be Hash_List
+        # assert type(multiplied) is not Hash_List              # BUG
+        assert type(copied) is Hash_List                        # FIXED

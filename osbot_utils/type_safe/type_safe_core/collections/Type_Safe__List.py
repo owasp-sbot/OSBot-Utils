@@ -7,11 +7,13 @@ from osbot_utils.type_safe.Type_Safe__Base      import Type_Safe__Base, type_str
 
 
 class Type_Safe__List(Type_Safe__Base, list):
-    expected_type : Type
+    expected_type : Type = None                         # Class-level default
 
-    def __init__(self, expected_type, *args):
+    def __init__(self, expected_type=None, *args):
         super().__init__(*args)
-        self.expected_type = expected_type
+        self.expected_type = expected_type or self.__class__.expected_type
+        if self.expected_type is None:
+            raise ValueError(f"{self.__class__.__name__} requires expected_type")
 
     def __contains__(self, item):
         if super().__contains__(item):                                                                                          # First try direct lookup
@@ -110,9 +112,16 @@ class Type_Safe__List(Type_Safe__Base, list):
                 result.append(serialize_to_dict(item))          # also Use serialize_to_dict for unknown types (so that we don't return a non json object)
         return result
 
+    def copy(self):
+        # Return a copy of the same subclass type
+        result = self.__class__(expected_type=self.expected_type)
+        for item in self:
+            result.append(item)
+        return result
+
     def __add__(self, other):
-        # Handle list1 + list2 - returns new Type_Safe__List with validation
-        result = Type_Safe__List(expected_type=self.expected_type)
+        # Handle list1 + list2 - returns new instance of same subclass
+        result = self.__class__(expected_type=self.expected_type)
         for item in self:
             result.append(item)
         for item in other:
@@ -120,8 +129,8 @@ class Type_Safe__List(Type_Safe__Base, list):
         return result
 
     def __radd__(self, other):
-        # Handle list + type_safe_list - returns new Type_Safe__List with validation
-        result = Type_Safe__List(expected_type=self.expected_type)
+        # Handle list + type_safe_list - returns new instance of same subclass
+        result = self.__class__(expected_type=self.expected_type)
         for item in other:
             result.append(item)  # Validates each item
         for item in self:
@@ -129,8 +138,8 @@ class Type_Safe__List(Type_Safe__Base, list):
         return result
 
     def __mul__(self, n):
-        # Handle list * n - returns new Type_Safe__List
-        result = Type_Safe__List(expected_type=self.expected_type)
+        # Handle list * n - returns new instance of same subclass
+        result = self.__class__(expected_type=self.expected_type)
         for _ in range(n):
             for item in self:
                 result.append(item)
@@ -141,17 +150,10 @@ class Type_Safe__List(Type_Safe__Base, list):
         return self.__mul__(n)
 
     def __imul__(self, n):
-        # Handle list *= n - modifies in place
+        # Handle list *= n - modifies in place, type already correct
         items = list(self)
         self.clear()
         for _ in range(n):
             for item in items:
                 self.append(item)
         return self
-
-    def copy(self):
-        # Return a Type_Safe__List copy, not a plain list
-        result = Type_Safe__List(expected_type=self.expected_type)
-        for item in self:
-            result.append(item)
-        return result

@@ -158,16 +158,24 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
                 self[key] = value
         return self
 
-    def __or__(self, other):
-        # Handle | operator (Python 3.9+) - returns new dict
-        result = Type_Safe__Dict(
+    def copy(self):
+        # Return a copy of the same subclass type, not Type_Safe__Dict
+        result = self.__class__(
             expected_key_type=self.expected_key_type,
             expected_value_type=self.expected_value_type
         )
-        # Copy self first
         for key, value in self.items():
             result[key] = value
-        # Then merge other
+        return result
+
+    def __or__(self, other):
+        # Handle | operator (Python 3.9+) - returns new instance of same subclass
+        result = self.__class__(
+            expected_key_type=self.expected_key_type,
+            expected_value_type=self.expected_value_type
+        )
+        for key, value in self.items():
+            result[key] = value
         if hasattr(other, 'items'):
             for key, value in other.items():
                 result[key] = value
@@ -177,39 +185,25 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         return result
 
     def __ror__(self, other):
-        # Handle reverse | operator (when left operand is regular dict)
-        result = Type_Safe__Dict(
+        # Handle reverse | operator - returns same subclass type
+        result = self.__class__(
             expected_key_type=self.expected_key_type,
             expected_value_type=self.expected_value_type
         )
-        # Copy other first
         if hasattr(other, 'items'):
             for key, value in other.items():
                 result[key] = value
         else:
             for key, value in other:
                 result[key] = value
-        # Then merge self
-        for key, value in self.items():
-            result[key] = value
-        return result
-
-    def copy(self):
-        # Return a Type_Safe__Dict copy, not a plain dict
-        result = Type_Safe__Dict(
-            expected_key_type=self.expected_key_type,
-            expected_value_type=self.expected_value_type
-        )
         for key, value in self.items():
             result[key] = value
         return result
 
     @classmethod
     def fromkeys(cls, keys, value=None, expected_key_type=None, expected_value_type=None):
-
-        if expected_key_type is None or expected_value_type is None:                            # Create Type_Safe__Dict from keys with validation
-            expected_key_type   = expected_key_type   or cls.expected_key_type                  # Try to get from class-level defaults
-            expected_value_type = expected_value_type or cls.expected_value_type
+        expected_key_type   = expected_key_type   or cls.expected_key_type                          # Use cls to create instance of the actual subclass
+        expected_value_type = expected_value_type or cls.expected_value_type
 
         if expected_key_type is None or expected_value_type is None:
             raise ValueError(f"{cls.__name__}.fromkeys() requires expected_key_type and expected_value_type")
@@ -217,5 +211,5 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
         result = cls(expected_key_type   = expected_key_type  ,
                      expected_value_type = expected_value_type)
         for key in keys:
-            result[key] = value                                                                 # Validates both key and value
+            result[key] = value
         return result

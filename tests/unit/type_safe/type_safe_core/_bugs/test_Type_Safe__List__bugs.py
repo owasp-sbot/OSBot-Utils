@@ -3,9 +3,6 @@ import pytest
 from typing                                                                              import List
 from unittest                                                                            import TestCase
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
-from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                    import Type_Safe__List
-
 
 class test_Type_Safe__List__bugs(TestCase):
 

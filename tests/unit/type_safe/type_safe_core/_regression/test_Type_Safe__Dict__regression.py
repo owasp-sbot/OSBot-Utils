@@ -9,6 +9,7 @@ from osbot_utils.type_safe.primitives.core.Safe_Int                             
 from osbot_utils.testing.__                                                              import __
 from osbot_utils.type_safe.Type_Safe__Primitive                                          import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash       import Safe_Str__Hash
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id          import Safe_Str__Id
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict                    import Type_Safe__Dict
@@ -536,3 +537,28 @@ class test_Type_Safe__Dict__regression(TestCase):
             Type_Safe__Dict.fromkeys(['a', 'b'], valid_hash)
             #result = Type_Safe__Dict.fromkeys(['a', 'b'], valid_hash)
             #assert type(result) is dict                          # BUG: should be Type_Safe__Dict
+
+    def test__regression__type_safe_dict_subclass__operations_preserve_subclass_type(self):
+
+        class Hash_Mapping(Type_Safe__Dict):
+            expected_key_type   = Safe_Str__Hash
+            expected_value_type = str
+
+        hash_map = Hash_Mapping({'abc1234567': 'value'})
+        assert type(hash_map) is Hash_Mapping
+
+        # FIXED: copy() returns Hash_Mapping
+        copied = hash_map.copy()
+        assert type(copied) is Hash_Mapping
+
+        # FIXED: | operator returns Hash_Mapping
+        merged = hash_map | {'def1234567': 'other'}
+        assert type(merged) is Hash_Mapping
+
+        # |= still works (modifies in place)
+        hash_map |= {'aaa1234567': 'third'}
+        assert type(hash_map) is Hash_Mapping
+
+        # FIXED: fromkeys returns Hash_Mapping
+        from_keys = Hash_Mapping.fromkeys(['aaa1234567', 'bbb1234567'], 'default')
+        assert type(from_keys) is Hash_Mapping
