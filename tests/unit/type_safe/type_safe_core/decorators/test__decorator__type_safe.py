@@ -433,7 +433,8 @@ class test__decorator__type_safe(TestCase):
 
         assert return_list_int() == [1, 2, 3]
 
-        with pytest.raises(TypeError, match="return type validation failed"):
+        error_message = "In Type_Safe__List: Invalid type for item: Expected 'int', but got 'str'"
+        with pytest.raises(TypeError, match=re.escape(error_message)):
             return_list_wrong()
 
 
@@ -472,10 +473,12 @@ class test__decorator__type_safe(TestCase):
 
         assert return_dict() == {"a": 1, "b": 2}
 
-        with pytest.raises(TypeError, match="return type validation failed"):
+        error_message_1 = "Expected 'str', but got 'int'"
+        with pytest.raises(TypeError, match=error_message_1):
             return_dict_wrong_key()
 
-        with pytest.raises(TypeError, match="return type validation failed"):
+        error_message_2 = "Expected 'int', but got 'str'"
+        with pytest.raises(TypeError, match=error_message_2):
             return_dict_wrong_value()
 
 
