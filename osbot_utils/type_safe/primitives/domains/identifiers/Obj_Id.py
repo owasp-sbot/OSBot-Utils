@@ -4,10 +4,9 @@ from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 _hex_table = [f"{i:02x}" for i in range(256)]
 
 def is_obj_id(value: str):
-    var_type = type(value)
-    if var_type is Obj_Id:
+    if isinstance(value, Obj_Id):
         return True
-    if var_type is str:
+    if isinstance(value, str):
         if len(value) == 8:         # todo: add efficient check if we only have hex values
             return True
     return False
