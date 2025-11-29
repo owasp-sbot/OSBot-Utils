@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/CSS_Dict__To__Css/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>CSS_Dict__To__Css - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "CSS_Dict__To__Css";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/CSS_Dict__To__Css.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/CSS_Dict__To__Css/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">CSS_Dict__To__Css</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="css_dict__to__css">CSS_Dict__To__Css<a class="headerlink" href="#css_dict__to__css" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>CSS_Dict__To__Css</code> converts Python dictionaries containing CSS rules into properly formatted CSS strings. This utility enables programmatic CSS generation and manipulation through Python data structures.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class CSS_Dict__To__Css(Kwargs_To_Self):
+    css: dict
+
+    def add_css_entry(self, selector, data):
+        self.css[selector] = data
+        return self
+
+    def convert(self, indent=''):
+        css_lines = []
+        for selector, properties in self.css.items():
+            css_line = f&quot;{indent}{selector} {&quot;
+            for prop, value in properties.items():
+                css_line += f&quot;\n{indent}    {prop}: {value};&quot;
+            css_line += '\n' + indent + &quot;}&quot;
+            css_lines.append(css_line)
+        return &quot;\n&quot;.join(css_lines)
+</code></pre>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>This converter enables:
+1. <strong>Programmatic CSS Generation</strong>: Build CSS from Python data structures
+2. <strong>Dynamic Styling</strong>: Generate CSS based on runtime conditions
+3. <strong>CSS Manipulation</strong>: Modify CSS rules programmatically
+4. <strong>Integration</strong>: Embed generated CSS in HTML documents</p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="add_css_entryselector-str-data-dict-self"><code>add_css_entry(selector: str, data: dict) -&gt; self</code><a class="headerlink" href="#add_css_entryselector-str-data-dict-self" title="Permanent link">&para;</a></h3>
+<p>Adds a CSS rule to the stylesheet.</p>
+<pre><code class="language-python">css_converter = CSS_Dict__To__Css()
+css_converter.add_css_entry('.button', {
+    'background-color': '#007bff',
+    'color': 'white',
+    'padding': '10px 20px'
+})
+</code></pre>
+<h3 id="convertindent-str-str"><code>convert(indent: str = '') -&gt; str</code><a class="headerlink" href="#convertindent-str-str" title="Permanent link">&para;</a></h3>
+<p>Converts the CSS dictionary to a formatted CSS string.</p>
+<pre><code class="language-python">css_string = css_converter.convert()
+# Output:
+# .button {
+#     background-color: #007bff;
+#     color: white;
+#     padding: 10px 20px;
+# }
+</code></pre>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-css-generation">Basic CSS Generation<a class="headerlink" href="#basic-css-generation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.CSS_Dict__To__Css import CSS_Dict__To__Css
+
+# Create CSS converter
+css_converter = CSS_Dict__To__Css()
+
+# Add CSS rules
+css_converter.add_css_entry('.container', {
+    'max-width': '1200px',
+    'margin': '0 auto',
+    'padding': '20px'
+})
+
+css_converter.add_css_entry('.header', {
+    'background-color': '#333',
+    'color': '#fff',
+    'padding': '1rem'
+})
+
+# Generate CSS
+css_output = css_converter.convert()
+print(css_output)
+</code></pre>
+<h3 id="complex-css-structure">Complex CSS Structure<a class="headerlink" href="#complex-css-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Initialize with CSS data
+css_data = {
+    '.navbar': {
+        'display': 'flex',
+        'justify-content': 'space-between',
+        'align-items': 'center',
+        'padding': '1rem 2rem',
+        'background-color': '#f8f9fa'
+    },
+    '.navbar-brand': {
+        'font-size': '1.5rem',
+        'font-weight': 'bold',
+        'color': '#333',
+        'text-decoration': 'none'
+    },
+    '.navbar-nav': {
+        'display': 'flex',
+        'list-style': 'none',
+        'margin': '0',
+        'padding': '0'
+    },
+    '.nav-item': {
+        'margin-left': '1rem'
+    },
+    '.nav-link': {
+        'color': '#666',
+        'text-decoration': 'none',
+        'transition': 'color 0.3s'
+    },
+    '.nav-link:hover': {
+        'color': '#007bff'
+    }
+}
+
+css_converter = CSS_Dict__To__Css(css=css_data)
+formatted_css = css_converter.convert()
+</code></pre>
+<h3 id="with-indentation">With Indentation<a class="headerlink" href="#with-indentation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Generate indented CSS for embedding in HTML
+css_converter = CSS_Dict__To__Css()
+css_converter.add_css_entry('body', {
+    'font-family': 'Arial, sans-serif',
+    'line-height': '1.6',
+    'color': '#333'
+})
+
+# Convert with indentation
+indented_css = css_converter.convert(indent='        ')
+# Useful for embedding in &lt;style&gt; tags with proper HTML indentation
+</code></pre>
+<h2 id="integration-with-tag-system">Integration with Tag System<a class="headerlink" href="#integration-with-tag-system" title="Permanent link">&para;</a></h2>
+<h3 id="adding-css-to-html-documents">Adding CSS to HTML Documents<a class="headerlink" href="#adding-css-to-html-documents" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.tags.Tag__Style import Tag__Style
+from osbot_utils.helpers.html.transformers.CSS_Dict__To__Css import CSS_Dict__To__Css
+
+# Create style tag
+style_tag = Tag__Style()
+
+# Add CSS rules
+style_tag.add_css_entry('.alert', {
+    'padding': '15px',
+    'margin-bottom': '20px',
+    'border': '1px solid transparent',
+    'border-radius': '4px'
+})
+
+style_tag.add_css_entry('.alert-success', {
+    'color': '#155724',
+    'background-color': '#d4edda',
+    'border-color': '#c3e6cb'
+})
+
+# The Tag__Style class uses CSS_Dict__To__Css internally
+rendered_style = style_tag.render()
+</code></pre>
+<h3 id="dynamic-css-generation">Dynamic CSS Generation<a class="headerlink" href="#dynamic-css-generation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def generate_theme_css(primary_color, secondary_color, font_size='16px'):
+    &quot;&quot;&quot;Generate theme CSS based on parameters.&quot;&quot;&quot;
+    css_converter = CSS_Dict__To__Css()
+
+    # Base styles
+    css_converter.add_css_entry(':root', {
+        '--primary-color': primary_color,
+        '--secondary-color': secondary_color,
+        '--font-size-base': font_size
+    })
+
+    # Component styles using CSS variables
+    css_converter.add_css_entry('.btn-primary', {
+        'background-color': 'var(--primary-color)',
+        'color': 'white',
+        'border': 'none',
+        'padding': 'calc(var(--font-size-base) * 0.5) calc(var(--font-size-base) * 1)',
+        'font-size': 'var(--font-size-base)'
+    })
+
+    css_converter.add_css_entry('.text-secondary', {
+        'color': 'var(--secondary-color)'
+    })
+
+    return css_converter.convert()
+
+# Generate theme
+theme_css = generate_theme_css('#007bff', '#6c757d', '18px')
+</code></pre>
+<h2 id="advanced-patterns">Advanced Patterns<a class="headerlink" href="#advanced-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="css-builder-class">CSS Builder Class<a class="headerlink" href="#css-builder-class" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class CssBuilder:
+    def __init__(self):
+        self.converter = CSS_Dict__To__Css()
+
+    def add_reset_styles(self):
+        &quot;&quot;&quot;Add CSS reset styles.&quot;&quot;&quot;
+        self.converter.add_css_entry('*', {
+            'margin': '0',
+            'padding': '0',
+            'box-sizing': 'border-box'
+        })
+        return self
+
+    def add_typography(self, font_family='Arial, sans-serif'):
+        &quot;&quot;&quot;Add typography styles.&quot;&quot;&quot;
+        self.converter.add_css_entry('body', {
+            'font-family': font_family,
+            'font-size': '16px',
+            'line-height': '1.5',
+            'color': '#333'
+        })
+
+        for i in range(1, 7):
+            size = 2.5 - (i * 0.3)
+            self.converter.add_css_entry(f'h{i}', {
+                'font-size': f'{size}rem',
+                'margin-bottom': '0.5rem'
+            })
+
+        return self
+
+    def add_utility_classes(self):
+        &quot;&quot;&quot;Add utility classes.&quot;&quot;&quot;
+        utilities = {
+            '.text-center': {'text-align': 'center'},
+            '.text-right': {'text-align': 'right'},
+            '.mt-1': {'margin-top': '0.25rem'},
+            '.mt-2': {'margin-top': '0.5rem'},
+            '.mt-3': {'margin-top': '1rem'},
+            '.p-1': {'padding': '0.25rem'},
+            '.p-2': {'padding': '0.5rem'},
+            '.p-3': {'padding': '1rem'}
+        }
+
+        for selector, styles in utilities.items():
+            self.converter.add_css_entry(selector, styles)
+
+        return self
+
+    def build(self):
+        &quot;&quot;&quot;Build the final CSS.&quot;&quot;&quot;
+        return self.converter.convert()
+
+# Usage
+css = (CssBuilder()
+    .add_reset_styles()
+    .add_typography('Georgia, serif')
+    .add_utility_classes()
+    .build()
+)
+</code></pre>
+<h3 id="media-query-support">Media Query Support<a class="headerlink" href="#media-query-support" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def add_responsive_styles(css_converter):
+    &quot;&quot;&quot;Add responsive styles with media queries.&quot;&quot;&quot;
+    # Desktop styles
+    css_converter.add_css_entry('.container', {
+        'max-width': '1200px',
+        'margin': '0 auto',
+        'padding': '0 20px'
+    })
+
+    # Note: Media queries need special handling
+    # This is a limitation - CSS_Dict__To__Css doesn't directly support nested rules
+    # Workaround: Use selector names that include media query
+    css_converter.add_css_entry('@media (max-width: 768px) { .container', {
+        'padding': '0 10px'
+    })
+
+    # Better approach: Generate media queries separately
+    mobile_css = CSS_Dict__To__Css()
+    mobile_css.add_css_entry('.container', {
+        'padding': '0 10px'
+    })
+
+    # Combine with media query wrapper
+    mobile_styles = f&quot;@media (max-width: 768px) {{\n{mobile_css.convert('    ')}\n}}&quot;
+
+    return css_converter.convert() + '\n\n' + mobile_styles
+</code></pre>
+<h3 id="css-preprocessing">CSS Preprocessing<a class="headerlink" href="#css-preprocessing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class CssPreprocessor:
+    def __init__(self):
+        self.variables = {}
+        self.mixins = {}
+
+    def define_variable(self, name, value):
+        &quot;&quot;&quot;Define a CSS variable.&quot;&quot;&quot;
+        self.variables[name] = value
+
+    def process_css_dict(self, css_dict):
+        &quot;&quot;&quot;Process CSS dictionary with variable substitution.&quot;&quot;&quot;
+        processed = {}
+
+        for selector, properties in css_dict.items():
+            processed_props = {}
+
+            for prop, value in properties.items():
+                # Replace variables
+                if isinstance(value, str) and value.startswith('$'):
+                    var_name = value[1:]
+                    if var_name in self.variables:
+                        value = self.variables[var_name]
+
+                processed_props[prop] = value
+
+            processed[selector] = processed_props
+
+        return processed
+
+# Usage
+preprocessor = CssPreprocessor()
+preprocessor.define_variable('primary-color', '#007bff')
+preprocessor.define_variable('spacing-unit', '8px')
+
+raw_css = {
+    '.button': {
+        'background-color': '$primary-color',
+        'padding': '$spacing-unit',
+        'color': 'white'
+    }
+}
+
+processed_css = preprocessor.process_css_dict(raw_css)
+css_converter = CSS_Dict__To__Css(css=processed_css)
+final_css = css_converter.convert()
+</code></pre>
+<h2 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h2>
+<h3 id="caching-generated-css">Caching Generated CSS<a class="headerlink" href="#caching-generated-css" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from functools import lru_cache
+import hashlib
+import json
+
+class CachedCssGenerator:
+    def __init__(self):
+        self.cache = {}
+
+    def _generate_cache_key(self, css_dict):
+        &quot;&quot;&quot;Generate cache key from CSS dictionary.&quot;&quot;&quot;
+        # Convert to sorted JSON for consistent hashing
+        json_str = json.dumps(css_dict, sort_keys=True)
+        return hashlib.md5(json_str.encode()).hexdigest()
+
+    def generate(self, css_dict):
+        &quot;&quot;&quot;Generate CSS with caching.&quot;&quot;&quot;
+        cache_key = self._generate_cache_key(css_dict)
+
+        if cache_key in self.cache:
+            return self.cache[cache_key]
+
+        converter = CSS_Dict__To__Css(css=css_dict)
+        css_output = converter.convert()
+        self.cache[cache_key] = css_output
+
+        return css_output
+</code></pre>
+<h2 id="testing-patterns">Testing Patterns<a class="headerlink" href="#testing-patterns" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def test_css_generation():
+    &quot;&quot;&quot;Test CSS generation from dictionary.&quot;&quot;&quot;
+    css_dict = {
+        '.test-class': {
+            'color': 'red',
+            'font-size': '16px'
+        }
+    }
+
+    converter = CSS_Dict__To__Css(css=css_dict)
+    result = converter.convert()
+
+    expected = &quot;&quot;&quot;.test-class {
+    color: red;
+    font-size: 16px;
+}&quot;&quot;&quot;
+
+    assert result == expected
+
+def test_css_with_indentation():
+    &quot;&quot;&quot;Test CSS generation with custom indentation.&quot;&quot;&quot;
+    converter = CSS_Dict__To__Css()
+    converter.add_css_entry('.indented', {'margin': '10px'})
+
+    result = converter.convert(indent='    ')
+    expected = &quot;&quot;&quot;    .indented {
+        margin: 10px;
+    }&quot;&quot;&quot;
+
+    assert result == expected
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Use Meaningful Selectors</strong>: Follow CSS naming conventions</li>
+<li><strong>Group Related Rules</strong>: Organize CSS logically</li>
+<li><strong>Consider Specificity</strong>: Be aware of CSS specificity rules</li>
+<li><strong>Validate Values</strong>: Ensure CSS values are valid</li>
+<li><strong>Memory Efficiency</strong>: Reuse converters when possible</li>
+</ol>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="component-based-css">Component-Based CSS<a class="headerlink" href="#component-based-css" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def generate_component_css(component_name, styles):
+    &quot;&quot;&quot;Generate CSS for a component with BEM naming.&quot;&quot;&quot;
+    css_converter = CSS_Dict__To__Css()
+
+    # Block styles
+    css_converter.add_css_entry(f'.{component_name}', styles.get('block', {}))
+
+    # Element styles
+    for element, element_styles in styles.get('elements', {}).items():
+        css_converter.add_css_entry(f'.{component_name}__{element}', element_styles)
+
+    # Modifier styles
+    for modifier, modifier_styles in styles.get('modifiers', {}).items():
+        css_converter.add_css_entry(f'.{component_name}--{modifier}', modifier_styles)
+
+    return css_converter.convert()
+
+# Usage
+button_styles = {
+    'block': {
+        'padding': '10px 20px',
+        'border': 'none',
+        'cursor': 'pointer'
+    },
+    'elements': {
+        'icon': {
+            'margin-right': '5px'
+        }
+    },
+    'modifiers': {
+        'primary': {
+            'background-color': '#007bff',
+            'color': 'white'
+        },
+        'large': {
+            'padding': '15px 30px',
+            'font-size': '18px'
+        }
+    }
+}
+
+button_css = generate_component_css('button', button_styles)
+</code></pre>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>No Nested Rules</strong>: Doesn't support SCSS-style nesting</li>
+<li><strong>No Media Queries</strong>: Media queries need special handling</li>
+<li><strong>No CSS Functions</strong>: calc(), var() are treated as strings</li>
+<li><strong>No Validation</strong>: Doesn't validate CSS property/value pairs</li>
+<li><strong>Simple Format</strong>: Basic formatting without minification options</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

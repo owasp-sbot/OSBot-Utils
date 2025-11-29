@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/primitives/safe_float/safe_float__precision-controlled_floating-point_types/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Safe_Float - Type-Safe Floating-Point Primitives with Precision Control - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Safe_Float - Type-Safe Floating-Point Primitives with Precision Control";
+        var mkdocs_page_input_path = "type_safe/primitives/safe_float/safe_float__precision-controlled_floating-point_types.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/primitives/safe_float/safe_float__precision-controlled_floating-point_types/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Safe_Float - Type-Safe Floating-Point Primitives with Precision Control</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="safe_float-type-safe-floating-point-primitives-with-precision-control">Safe_Float - Type-Safe Floating-Point Primitives with Precision Control<a class="headerlink" href="#safe_float-type-safe-floating-point-primitives-with-precision-control" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Safe_Float provides a comprehensive system for creating type-safe floating-point types with advanced precision control, range validation, and domain-specific behavior. It addresses the fundamental challenges of floating-point arithmetic in Python by offering configurable precision handling, optional decimal arithmetic for exactness, and intelligent rounding strategies.</p>
+<h2 id="core-architecture">Core Architecture<a class="headerlink" href="#core-architecture" title="Permanent link">&para;</a></h2>
+<pre><code class="language-mermaid">classDiagram
+    class Type_Safe__Primitive {
+        &lt;&lt;abstract&gt;&gt;
+        +__primitive_base__
+        +arithmetic operations
+    }
+
+    class Safe_Float {
+        +min_value: Optional[float]
+        +max_value: Optional[float]
+        +allow_none: bool
+        +allow_bool: bool
+        +allow_str: bool
+        +allow_int: bool
+        +strict_type: bool
+        +decimal_places: Optional[int]
+        +use_decimal: bool
+        +epsilon: float
+        +round_output: bool
+        +clamp_to_range: bool
+        +__new__(value)
+        +__truediv__(other)
+        +__mul__(other)
+        +__eq__(other)
+        +__clean_float(value, decimal_places)
+    }
+
+    class Safe_Float__Money {
+        +decimal_places: 2
+        +use_decimal: True
+        +min_value: 0.0
+    }
+
+    class Safe_Float__Percentage_Exact {
+        +min_value: 0.0
+        +max_value: 100.0
+        +decimal_places: 2
+        +use_decimal: True
+    }
+
+    class Safe_Float__Engineering {
+        +epsilon: 1e-6
+        +round_output: True
+        +use_decimal: False
+    }
+
+    Type_Safe__Primitive &lt;|-- Safe_Float
+    Safe_Float &lt;|-- Safe_Float__Money
+    Safe_Float &lt;|-- Safe_Float__Percentage_Exact
+    Safe_Float &lt;|-- Safe_Float__Engineering
+</code></pre>
+<h2 id="the-floating-point-problem-safe_float-solves">The Floating-Point Problem Safe_Float Solves<a class="headerlink" href="#the-floating-point-problem-safe_float-solves" title="Permanent link">&para;</a></h2>
+<h3 id="traditional-python-float-issues">Traditional Python Float Issues<a class="headerlink" href="#traditional-python-float-issues" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Classic floating-point problems
+print(0.1 + 0.2)           # 0.30000000000000004 (not 0.3!)
+print(0.1 + 0.2 == 0.3)    # False!
+
+# Currency calculations gone wrong
+price = 19.99
+tax = 0.0825
+total = price * (1 + tax)  # 21.639174999999998 (not 21.64!)
+
+# Percentage precision issues
+completion = 100 * (7/9)   # 77.77777777777779
+</code></pre>
+<h3 id="safe_float-solutions">Safe_Float Solutions<a class="headerlink" href="#safe_float-solutions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money import Safe_Float__Money
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Percentage_Exact import Safe_Float__Percentage_Exact
+
+# Exact money calculations
+price = Safe_Float__Money(19.99)
+tax_rate = Safe_Float__Money(0.0825)
+total = price * (1 + tax_rate)  # Exactly 21.64
+
+# Precise percentage calculations
+completion = Safe_Float__Percentage_Exact(100 * (7/9))  # Exactly 77.78
+</code></pre>
+<h2 id="configuration-options">Configuration Options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h2>
+<p>Safe_Float provides extensive configuration for different use cases:</p>
+<h3 id="type-conversion-options">Type Conversion Options<a class="headerlink" href="#type-conversion-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>allow_none</code></td>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>Whether None converts to 0.0</td>
+</tr>
+<tr>
+<td><code>allow_bool</code></td>
+<td><code>bool</code></td>
+<td><code>False</code></td>
+<td>Whether bool values are accepted</td>
+</tr>
+<tr>
+<td><code>allow_str</code></td>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>Whether string conversion is allowed</td>
+</tr>
+<tr>
+<td><code>allow_int</code></td>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>Whether integer conversion is allowed</td>
+</tr>
+<tr>
+<td><code>strict_type</code></td>
+<td><code>bool</code></td>
+<td><code>False</code></td>
+<td>If True, only accept float type</td>
+</tr>
+</tbody>
+</table>
+<h3 id="range-validation-options">Range Validation Options<a class="headerlink" href="#range-validation-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>min_value</code></td>
+<td><code>Optional[float]</code></td>
+<td><code>None</code></td>
+<td>Minimum allowed value</td>
+</tr>
+<tr>
+<td><code>max_value</code></td>
+<td><code>Optional[float]</code></td>
+<td><code>None</code></td>
+<td>Maximum allowed value</td>
+</tr>
+<tr>
+<td><code>clamp_to_range</code></td>
+<td><code>bool</code></td>
+<td><code>False</code></td>
+<td>Clamp values to range instead of error</td>
+</tr>
+</tbody>
+</table>
+<h3 id="precision-control-options">Precision Control Options<a class="headerlink" href="#precision-control-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>decimal_places</code></td>
+<td><code>Optional[int]</code></td>
+<td><code>None</code></td>
+<td>Number of decimal places to maintain</td>
+</tr>
+<tr>
+<td><code>use_decimal</code></td>
+<td><code>bool</code></td>
+<td><code>False</code></td>
+<td>Use Python's Decimal for exact arithmetic</td>
+</tr>
+<tr>
+<td><code>epsilon</code></td>
+<td><code>float</code></td>
+<td><code>1e-9</code></td>
+<td>Tolerance for equality comparisons</td>
+</tr>
+<tr>
+<td><code>round_output</code></td>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>Round results to decimal_places</td>
+</tr>
+</tbody>
+</table>
+<h2 id="key-features-explained">Key Features Explained<a class="headerlink" href="#key-features-explained" title="Permanent link">&para;</a></h2>
+<h3 id="1-decimal-vs-float-mode">1. Decimal vs Float Mode<a class="headerlink" href="#1-decimal-vs-float-mode" title="Permanent link">&para;</a></h3>
+<p>Safe_Float can operate in two modes:</p>
+<p><strong>Float Mode (default)</strong> - Fast but potentially inexact:</p>
+<pre><code class="language-python">class FastCalculation(Safe_Float):
+    use_decimal = False  # Default
+    decimal_places = 2
+
+calc = FastCalculation(0.1)
+result = calc + FastCalculation(0.2)  # May have tiny errors
+</code></pre>
+<p><strong>Decimal Mode</strong> - Exact but slower:</p>
+<pre><code class="language-python">class ExactCalculation(Safe_Float):
+    use_decimal = True
+    decimal_places = 2
+
+calc = ExactCalculation(0.1)
+result = calc + ExactCalculation(0.2)  # Exactly 0.30
+</code></pre>
+<h3 id="2-intelligent-float-cleaning">2. Intelligent Float Cleaning<a class="headerlink" href="#2-intelligent-float-cleaning" title="Permanent link">&para;</a></h3>
+<p>The <code>__clean_float</code> method detects and corrects floating-point representation errors:</p>
+<pre><code class="language-python">@classmethod
+def __clean_float(cls, value: float, decimal_places: int) -&gt; float:
+    # Detects patterns like 0.299999999999 or 0.300000000001
+    # and corrects them to 0.30
+</code></pre>
+<p>This handles cases where floating-point math produces values very close to, but not exactly, the expected decimal value.</p>
+<h3 id="3-range-validation-with-options">3. Range Validation with Options<a class="headerlink" href="#3-range-validation-with-options" title="Permanent link">&para;</a></h3>
+<p><strong>Strict Mode</strong> (default) - Raises errors:</p>
+<pre><code class="language-python">class StrictPercentage(Safe_Float):
+    min_value = 0.0
+    max_value = 100.0
+    clamp_to_range = False  # Default
+
+pct = StrictPercentage(150)  # ✗ ValueError: must be &lt;= 100.0
+</code></pre>
+<p><strong>Clamping Mode</strong> - Automatically adjusts:</p>
+<pre><code class="language-python">class ClampedPercentage(Safe_Float):
+    min_value = 0.0
+    max_value = 100.0
+    clamp_to_range = True
+
+pct = ClampedPercentage(150)  # Returns 100.0 (clamped)
+pct = ClampedPercentage(-10)  # Returns 0.0 (clamped)
+</code></pre>
+<h3 id="4-epsilon-based-equality">4. Epsilon-Based Equality<a class="headerlink" href="#4-epsilon-based-equality" title="Permanent link">&para;</a></h3>
+<p>Floating-point equality uses epsilon tolerance:</p>
+<pre><code class="language-python">class Measurement(Safe_Float):
+    epsilon = 0.001  # Tolerance for comparisons
+
+m1 = Measurement(1.0)
+m2 = Measurement(1.0001)
+print(m1 == m2)  # True (within epsilon)
+
+m3 = Measurement(1.01)
+print(m1 == m3)  # False (exceeds epsilon)
+</code></pre>
+<h3 id="5-special-value-handling">5. Special Value Handling<a class="headerlink" href="#5-special-value-handling" title="Permanent link">&para;</a></h3>
+<p>Safe_Float explicitly rejects infinity and NaN:</p>
+<pre><code class="language-python">import math
+
+value = Safe_Float(math.inf)   # ✗ ValueError: does not allow infinite values
+value = Safe_Float(math.nan)   # ✗ ValueError: does not allow NaN values
+value = Safe_Float(1.0 / 0.0)  # ✗ ValueError: does not allow infinite values
+</code></pre>
+<h2 id="built-in-safe-float-types">Built-in Safe Float Types<a class="headerlink" href="#built-in-safe-float-types" title="Permanent link">&para;</a></h2>
+<h3 id="safe_float__money-financial-calculations">Safe_Float__Money - Financial Calculations<a class="headerlink" href="#safe_float__money-financial-calculations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money import Safe_Float__Money
+
+# Configuration:
+# - decimal_places = 2 (cents precision)
+# - use_decimal = True (exact arithmetic)
+# - min_value = 0.0 (no negative amounts)
+# - round_output = True
+
+# Currency calculations
+price = Safe_Float__Money(19.99)
+tax = Safe_Float__Money(1.65)
+total = price + tax  # Exactly 21.64
+
+# Percentage calculations
+discount_rate = Safe_Float__Money(0.15)  # 15%
+discount = price * discount_rate  # Exactly 3.00
+final_price = price - discount    # Exactly 16.99
+
+# Division with rounding
+split = Safe_Float__Money(100.00)
+three_way = split / 3  # 33.33 (not 33.333333...)
+
+# Prevents negative money
+refund = Safe_Float__Money(-10.00)  # ✗ ValueError: must be &gt;= 0.0
+</code></pre>
+<h3 id="safe_float__percentage_exact-precise-percentages">Safe_Float__Percentage_Exact - Precise Percentages<a class="headerlink" href="#safe_float__percentage_exact-precise-percentages" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Percentage_Exact import Safe_Float__Percentage_Exact
+
+# Configuration:
+# - min_value = 0.0, max_value = 100.0
+# - decimal_places = 2
+# - use_decimal = True
+
+# Progress calculations
+completed = Safe_Float__Percentage_Exact(75.5)
+remaining = Safe_Float__Percentage_Exact(100.0) - completed  # Exactly 24.50
+
+# Fraction to percentage
+ratio = Safe_Float__Percentage_Exact(100 * (7/9))  # 77.78 (not 77.777...)
+
+# Bounds enforcement
+over = Safe_Float__Percentage_Exact(101.0)   # ✗ ValueError: must be &lt;= 100.0
+under = Safe_Float__Percentage_Exact(-1.0)   # ✗ ValueError: must be &gt;= 0.0
+</code></pre>
+<h3 id="safe_float__engineering-engineering-calculations">Safe_Float__Engineering - Engineering Calculations<a class="headerlink" href="#safe_float__engineering-engineering-calculations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Engineering import Safe_Float__Engineering
+
+# Configuration:
+# - epsilon = 1e-6 (engineering tolerance)
+# - round_output = True
+# - use_decimal = False (performance over exactness)
+
+# Scientific calculations
+voltage = Safe_Float__Engineering(3.3)
+current = Safe_Float__Engineering(0.025)
+power = voltage * current  # Clean result without excessive decimals
+
+# Tolerance-based comparisons
+measured = Safe_Float__Engineering(3.300001)
+expected = Safe_Float__Engineering(3.3)
+print(measured == expected)  # True (within epsilon)
+</code></pre>
+<h2 id="real-world-usage-examples">Real-World Usage Examples<a class="headerlink" href="#real-world-usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="e-commerce-pricing-system">E-Commerce Pricing System<a class="headerlink" href="#e-commerce-pricing-system" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class ProductPricing(Type_Safe):
+    base_price: Safe_Float__Money
+    tax_rate: Safe_Float__Percentage_Exact
+    discount_percentage: Safe_Float__Percentage_Exact
+    shipping_cost: Safe_Float__Money
+
+    def calculate_subtotal(self) -&gt; Safe_Float__Money:
+        &quot;&quot;&quot;Calculate price after discount&quot;&quot;&quot;
+        discount_amount = self.base_price * (self.discount_percentage / 100)
+        return self.base_price - discount_amount
+
+    def calculate_tax(self) -&gt; Safe_Float__Money:
+        &quot;&quot;&quot;Calculate tax on subtotal&quot;&quot;&quot;
+        subtotal = self.calculate_subtotal()
+        return subtotal * (self.tax_rate / 100)
+
+    def calculate_total(self) -&gt; Safe_Float__Money:
+        &quot;&quot;&quot;Calculate final price including tax and shipping&quot;&quot;&quot;
+        subtotal = self.calculate_subtotal()
+        tax = self.calculate_tax()
+        return subtotal + tax + self.shipping_cost
+
+# Usage
+pricing = ProductPricing(
+    base_price=99.99,
+    tax_rate=8.25,
+    discount_percentage=10.0,
+    shipping_cost=5.99
+)
+
+print(f&quot;Subtotal: ${pricing.calculate_subtotal()}&quot;)  # $89.99
+print(f&quot;Tax: ${pricing.calculate_tax()}&quot;)            # $7.42
+print(f&quot;Total: ${pricing.calculate_total()}&quot;)        # $103.40
+
+# All calculations are exact to the penny!
+</code></pre>
+<h3 id="scientific-measurement-system">Scientific Measurement System<a class="headerlink" href="#scientific-measurement-system" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Measurement(Type_Safe):
+    temperature_c: Safe_Float__Engineering
+    pressure_bar: Safe_Float__Engineering
+    flow_rate_lpm: Safe_Float__Engineering
+
+    def temperature_f(self) -&gt; Safe_Float__Engineering:
+        &quot;&quot;&quot;Convert Celsius to Fahrenheit&quot;&quot;&quot;
+        return Safe_Float__Engineering(self.temperature_c * 9/5 + 32)
+
+    def pressure_psi(self) -&gt; Safe_Float__Engineering:
+        &quot;&quot;&quot;Convert bar to PSI&quot;&quot;&quot;
+        return Safe_Float__Engineering(self.pressure_bar * 14.5038)
+
+    def validate_operating_range(self):
+        &quot;&quot;&quot;Check if measurements are within safe operating range&quot;&quot;&quot;
+        if not (0 &lt;= self.temperature_c &lt;= 100):
+            raise ValueError(f&quot;Temperature {self.temperature_c}°C out of range&quot;)
+
+        if not (1 &lt;= self.pressure_bar &lt;= 10):
+            raise ValueError(f&quot;Pressure {self.pressure_bar} bar out of range&quot;)
+
+        if not (0 &lt;= self.flow_rate_lpm &lt;= 100):
+            raise ValueError(f&quot;Flow rate {self.flow_rate_lpm} L/min out of range&quot;)
+
+measurement = Measurement(
+    temperature_c=25.5,
+    pressure_bar=3.2,
+    flow_rate_lpm=45.7
+)
+
+print(f&quot;Temperature: {measurement.temperature_f()}°F&quot;)
+print(f&quot;Pressure: {measurement.pressure_psi()} PSI&quot;)
+measurement.validate_operating_range()  # Passes
+</code></pre>
+<h3 id="financial-portfolio-management">Financial Portfolio Management<a class="headerlink" href="#financial-portfolio-management" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class PortfolioPosition(Type_Safe):
+    symbol: str
+    shares: int
+    purchase_price: Safe_Float__Money
+    current_price: Safe_Float__Money
+    allocation_percentage: Safe_Float__Percentage_Exact
+
+    def cost_basis(self) -&gt; Safe_Float__Money:
+        &quot;&quot;&quot;Total investment cost&quot;&quot;&quot;
+        return Safe_Float__Money(self.shares * self.purchase_price)
+
+    def current_value(self) -&gt; Safe_Float__Money:
+        &quot;&quot;&quot;Current market value&quot;&quot;&quot;
+        return Safe_Float__Money(self.shares * self.current_price)
+
+    def gain_loss(self) -&gt; Safe_Float__Money:
+        &quot;&quot;&quot;Profit or loss&quot;&quot;&quot;
+        return self.current_value() - self.cost_basis()
+
+    def gain_loss_percentage(self) -&gt; Safe_Float__Percentage_Exact:
+        &quot;&quot;&quot;Percentage gain or loss&quot;&quot;&quot;
+        if self.cost_basis() == 0:
+            return Safe_Float__Percentage_Exact(0)
+
+        pct = 100 * (self.gain_loss() / self.cost_basis())
+        # Allow negative percentages for losses
+        if pct &lt; 0:
+            return Safe_Float__Percentage_Exact(0)  # Or handle differently
+        return Safe_Float__Percentage_Exact(min(pct, 100))
+
+position = PortfolioPosition(
+    symbol=&quot;AAPL&quot;,
+    shares=100,
+    purchase_price=150.00,
+    current_price=175.50,
+    allocation_percentage=25.5
+)
+
+print(f&quot;Cost Basis: ${position.cost_basis()}&quot;)         # $15,000.00
+print(f&quot;Current Value: ${position.current_value()}&quot;)   # $17,550.00
+print(f&quot;Gain/Loss: ${position.gain_loss()}&quot;)          # $2,550.00
+</code></pre>
+<h3 id="grade-calculation-system">Grade Calculation System<a class="headerlink" href="#grade-calculation-system" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class GradeCalculator(Type_Safe):
+    assignments: List[Safe_Float__Percentage_Exact]
+    exams: List[Safe_Float__Percentage_Exact]
+    participation: Safe_Float__Percentage_Exact
+
+    # Weights must sum to 100
+    assignment_weight: Safe_Float__Percentage_Exact = Safe_Float__Percentage_Exact(30.0)
+    exam_weight: Safe_Float__Percentage_Exact = Safe_Float__Percentage_Exact(60.0)
+    participation_weight: Safe_Float__Percentage_Exact = Safe_Float__Percentage_Exact(10.0)
+
+    def assignment_average(self) -&gt; Safe_Float__Percentage_Exact:
+        &quot;&quot;&quot;Calculate assignment average&quot;&quot;&quot;
+        if not self.assignments:
+            return Safe_Float__Percentage_Exact(0)
+
+        total = sum(float(a) for a in self.assignments)
+        avg = total / len(self.assignments)
+        return Safe_Float__Percentage_Exact(avg)
+
+    def exam_average(self) -&gt; Safe_Float__Percentage_Exact:
+        &quot;&quot;&quot;Calculate exam average&quot;&quot;&quot;
+        if not self.exams:
+            return Safe_Float__Percentage_Exact(0)
+
+        total = sum(float(e) for e in self.exams)
+        avg = total / len(self.exams)
+        return Safe_Float__Percentage_Exact(avg)
+
+    def final_grade(self) -&gt; Safe_Float__Percentage_Exact:
+        &quot;&quot;&quot;Calculate weighted final grade&quot;&quot;&quot;
+        assignment_contrib = self.assignment_average() * (self.assignment_weight / 100)
+        exam_contrib = self.exam_average() * (self.exam_weight / 100)
+        participation_contrib = self.participation * (self.participation_weight / 100)
+
+        total = assignment_contrib + exam_contrib + participation_contrib
+        return Safe_Float__Percentage_Exact(total)
+
+    def letter_grade(self) -&gt; str:
+        &quot;&quot;&quot;Convert percentage to letter grade&quot;&quot;&quot;
+        grade = self.final_grade()
+        if grade &gt;= 90: return 'A'
+        if grade &gt;= 80: return 'B'
+        if grade &gt;= 70: return 'C'
+        if grade &gt;= 60: return 'D'
+        return 'F'
+
+calculator = GradeCalculator(
+    assignments=[85.5, 92.0, 78.5, 88.0],
+    exams=[82.0, 90.0],
+    participation=95.0
+)
+
+print(f&quot;Assignment Average: {calculator.assignment_average()}%&quot;)  # 86.00%
+print(f&quot;Exam Average: {calculator.exam_average()}%&quot;)              # 86.00%
+print(f&quot;Final Grade: {calculator.final_grade()}%&quot;)                # 86.30%
+print(f&quot;Letter Grade: {calculator.letter_grade()}&quot;)               # B
+</code></pre>
+<h2 id="creating-custom-safe-float-types">Creating Custom Safe Float Types<a class="headerlink" href="#creating-custom-safe-float-types" title="Permanent link">&para;</a></h2>
+<h3 id="domain-specific-types">Domain-Specific Types<a class="headerlink" href="#domain-specific-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># GPS Coordinates (-180 to 180 for longitude, -90 to 90 for latitude)
+class Longitude(Safe_Float):
+    min_value = -180.0
+    max_value = 180.0
+    decimal_places = 6  # ~0.1 meter precision
+    use_decimal = True
+
+class Latitude(Safe_Float):
+    min_value = -90.0
+    max_value = 90.0
+    decimal_places = 6
+    use_decimal = True
+
+# Temperature with conversion methods
+class Temperature(Safe_Float):
+    min_value = -273.15  # Absolute zero in Celsius
+    max_value = 5778     # Surface of the sun
+    decimal_places = 2
+
+    def to_fahrenheit(self) -&gt; float:
+        return float(self) * 9/5 + 32
+
+    def to_kelvin(self) -&gt; float:
+        return float(self) + 273.15
+
+# Currency with multiple denominations
+class Currency(Safe_Float__Money):
+    def to_cents(self) -&gt; int:
+        return int(self * 100)
+
+    def to_dollars_and_cents(self) -&gt; tuple[int, int]:
+        total_cents = self.to_cents()
+        return divmod(total_cents, 100)
+
+    def __str__(self):
+        return f&quot;${float(self):.2f}&quot;
+
+# Physics calculations
+class Velocity(Safe_Float):
+    min_value = 0.0
+    max_value = 299792458  # Speed of light in m/s
+    decimal_places = 3
+    epsilon = 0.001
+
+    def to_kmh(self) -&gt; float:
+        return float(self) * 3.6
+
+    def to_mph(self) -&gt; float:
+        return float(self) * 2.23694
+</code></pre>
+<h3 id="validation-with-business-rules">Validation with Business Rules<a class="headerlink" href="#validation-with-business-rules" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class InterestRate(Safe_Float__Percentage_Exact):
+    min_value = 0.0
+    max_value = 30.0  # Cap at 30% to prevent usury
+
+    def monthly_rate(self) -&gt; 'InterestRate':
+        &quot;&quot;&quot;Convert annual rate to monthly&quot;&quot;&quot;
+        monthly = float(self) / 12
+        return InterestRate(monthly)
+
+    def compound(self, periods: int) -&gt; float:
+        &quot;&quot;&quot;Calculate compound interest multiplier&quot;&quot;&quot;
+        rate = float(self) / 100
+        return (1 + rate) ** periods
+
+class ExchangeRate(Safe_Float):
+    min_value = 0.0001  # Prevent divide by zero
+    max_value = 10000   # Sanity check
+    decimal_places = 4
+    use_decimal = True
+
+    def convert(self, amount: Safe_Float__Money) -&gt; Safe_Float__Money:
+        &quot;&quot;&quot;Convert currency using this rate&quot;&quot;&quot;
+        return Safe_Float__Money(float(amount) * float(self))
+
+    def inverse(self) -&gt; 'ExchangeRate':
+        &quot;&quot;&quot;Get inverse exchange rate&quot;&quot;&quot;
+        return ExchangeRate(1.0 / float(self))
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="mode-selection">Mode Selection<a class="headerlink" href="#mode-selection" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Speed</th>
+<th>Precision</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Float (default)</td>
+<td>Fast</td>
+<td>Good enough</td>
+<td>General calculations</td>
+</tr>
+<tr>
+<td>Decimal</td>
+<td>Slower</td>
+<td>Exact</td>
+<td>Financial, percentages</td>
+</tr>
+</tbody>
+</table>
+<h3 id="benchmarks">Benchmarks<a class="headerlink" href="#benchmarks" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import timeit
+
+# Float mode - fast
+float_time = timeit.timeit(
+    'Safe_Float__Engineering(1.1) + Safe_Float__Engineering(2.2)',
+    globals=globals(),
+    number=100000
+)
+
+# Decimal mode - slower but exact
+decimal_time = timeit.timeit(
+    'Safe_Float__Money(1.1) + Safe_Float__Money(2.2)',
+    globals=globals(),
+    number=100000
+)
+
+print(f&quot;Float mode: {float_time:.3f}s&quot;)    # ~0.5s
+print(f&quot;Decimal mode: {decimal_time:.3f}s&quot;) # ~2.0s
+</code></pre>
+<h3 id="optimization-tips">Optimization Tips<a class="headerlink" href="#optimization-tips" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Use float mode</strong> for engineering/scientific calculations where small errors are acceptable</li>
+<li><strong>Use decimal mode</strong> for money and exact percentages</li>
+<li><strong>Cache instances</strong> when using the same values repeatedly</li>
+<li><strong>Batch operations</strong> on raw floats, then validate results</li>
+<li><strong>Adjust epsilon</strong> based on your precision needs</li>
+</ol>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>Safe_Float provides comprehensive error messages:</p>
+<pre><code class="language-python"># Type errors
+try:
+    Safe_Float__Money(True)
+except TypeError as e:
+    print(e)  # &quot;Safe_Float__Money does not allow boolean values&quot;
+
+# Value errors
+try:
+    Safe_Float__Percentage_Exact(150)
+except ValueError as e:
+    print(e)  # &quot;Safe_Float__Percentage_Exact must be &lt;= 100.0, got 150&quot;
+
+# Conversion errors
+try:
+    Safe_Float__Money(&quot;not a number&quot;)
+except ValueError as e:
+    print(e)  # &quot;Cannot convert 'not a number' to float&quot;
+
+# Special value errors
+try:
+    import math
+    Safe_Float(math.inf)
+except ValueError as e:
+    print(e)  # &quot;Safe_Float does not allow infinite values&quot;
+
+# Division by zero
+try:
+    Safe_Float__Money(100) / 0
+except ZeroDivisionError as e:
+    print(e)  # &quot;Safe_Float__Money division by zero&quot;
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-choose-the-right-mode">1. Choose the Right Mode<a class="headerlink" href="#1-choose-the-right-mode" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Money - always use decimal
+class Price(Safe_Float):
+    use_decimal = True
+    decimal_places = 2
+
+# Engineering - float is usually fine
+class Measurement(Safe_Float):
+    use_decimal = False
+    epsilon = 0.001
+</code></pre>
+<h3 id="2-set-appropriate-precision">2. Set Appropriate Precision<a class="headerlink" href="#2-set-appropriate-precision" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># GPS coordinates need high precision
+class GPSCoordinate(Safe_Float):
+    decimal_places = 8  # ~1mm precision
+
+# Display percentages need less
+class DisplayPercentage(Safe_Float):
+    decimal_places = 1  # 75.5%
+</code></pre>
+<h3 id="3-handle-edge-cases">3. Handle Edge Cases<a class="headerlink" href="#3-handle-edge-cases" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class SafeDivision(Safe_Float):
+    @classmethod
+    def divide_safe(cls, a: float, b: float) -&gt; Optional['SafeDivision']:
+        &quot;&quot;&quot;Safe division with None on error&quot;&quot;&quot;
+        if b == 0:
+            return None
+        try:
+            return cls(a / b)
+        except (ValueError, OverflowError):
+            return None
+</code></pre>
+<h3 id="4-document-precision-requirements">4. Document Precision Requirements<a class="headerlink" href="#4-document-precision-requirements" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class CriticalMeasurement(Safe_Float):
+    &quot;&quot;&quot;
+    Critical measurement requiring exactly 3 decimal places.
+    Uses Decimal arithmetic to ensure precision.
+    Range: 0.001 to 999.999
+    &quot;&quot;&quot;
+    min_value = 0.001
+    max_value = 999.999
+    decimal_places = 3
+    use_decimal = True
+    round_output = True
+</code></pre>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Safe_Float provides a robust solution for floating-point arithmetic with:</p>
+<ul>
+<li><strong>Precision Control</strong>: Configurable decimal places with exact or approximate arithmetic</li>
+<li><strong>Range Validation</strong>: Min/max bounds with optional clamping</li>
+<li><strong>Special Value Handling</strong>: Rejects infinity and NaN</li>
+<li><strong>Domain-Specific Types</strong>: Money, percentages, engineering values</li>
+<li><strong>Intelligent Rounding</strong>: Detects and corrects representation errors</li>
+<li><strong>Flexible Conversion</strong>: Handles strings, integers, None with configuration</li>
+<li><strong>Performance Options</strong>: Choose between speed (float) and exactness (Decimal)</li>
+</ul>
+<p>The combination of precision control and type safety makes Safe_Float ideal for:
+- Financial calculations requiring penny-perfect accuracy
+- Scientific measurements with known precision requirements
+- Percentage calculations that must stay within bounds
+- Engineering calculations with tolerance-based comparisons
+- Any domain where floating-point errors are unacceptable</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
