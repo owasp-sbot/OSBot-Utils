@@ -6,4 +6,4 @@ class Cache_Id(Random_Guid):            # helper class so that we don't use Rand
         if value is None or value == '':
             return str.__new__(cls, '')
         else:
-            return super(Cache_Id, cls).__new__(cls, value)
+            return super().__new__(cls, value)

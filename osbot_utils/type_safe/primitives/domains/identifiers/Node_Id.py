@@ -6,4 +6,4 @@ class Node_Id(Obj_Id):                         # helper class so that we don't u
         if value is None or value == '':
             return str.__new__(cls, '')
         else:
-            return super(Obj_Id, cls).__new__(cls, value)
+            return super().__new__(cls, value)

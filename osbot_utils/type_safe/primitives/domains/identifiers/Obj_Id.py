@@ -1,29 +1,35 @@
+import re
 import random
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
 
-_hex_table = [f"{i:02x}" for i in range(256)]
+_regex_obj_id = re.compile(r'^[0-9a-f]{8}$')
 
-def is_obj_id(value: str):
+def is_obj_id(value):
     if isinstance(value, Obj_Id):
         return True
-    if isinstance(value, str):
-        if len(value) == 8:         # todo: add efficient check if we only have hex values
-            return True
+    if isinstance(value, str) and len(value) == 8:
+        return _regex_obj_id.match(value) is not None
     return False
 
 def new_obj_id():
-    return hex(random.getrandbits(32))[2:].zfill(8)  # slice off '0x' and pad
+    return hex(random.getrandbits(32))[2:].zfill(8)
 
-class Obj_Id(Type_Safe__Primitive,str):
-    def __new__(cls, value: str=None):
+class Obj_Id(Type_Safe__Primitive, str):
+    def __new__(cls, value: str = None):
         if value:
             if is_obj_id(value):
                 obj_id = value
             else:
-                raise ValueError(f'in Obj_Id: value provided was not a valid Obj_Id: {value}')
+                raise ValueError(f'in {cls.__name__}: value provided was not a valid {cls.__name__}: {value}')
         else:
             obj_id = new_obj_id()
-        return super().__new__(cls, obj_id)                                          # Return a new instance of Guid initialized with the string version of the UUID
+        return super().__new__(cls, obj_id)
 
     def __str__(self):
-        return self
+        return str.__str__(self)
+
+    def __add__(self, other):                                           # Concatenation returns plain str, not Obj_Id
+        return str.__str__(self) + other
+
+    def __radd__(self, other):                                          # Reverse concatenation returns plain str
+        return other + str.__str__(self)

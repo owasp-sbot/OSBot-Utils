@@ -1,7 +1,4 @@
 from typing import List
-
-import pytest
-import re
 from unittest                                                           import TestCase
 from osbot_utils.type_safe.Type_Safe                                    import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid   import Random_Guid
@@ -126,15 +123,18 @@ class test_Random_Guid(TestCase):
     def test_string_operations(self):                           # Test string behavior
         guid = Random_Guid()
 
-        # Concatenation
-        expected_error = f"in Random_Guid: value provided was not a Guid: {guid}-suffix"
-        with pytest.raises(ValueError, match=re.escape((expected_error))):
-            guid + '-suffix'
+        # Concatenation now returns plain string (not Random_Guid)
+        result1 = guid + '-suffix'
+        assert result1 == f"{guid}-suffix"
+        assert type(result1) is str                             # Returns plain str
 
+        result2 = 'prefix-' + guid
+        assert result2 == f"prefix-{guid}"
+        assert type(result2) is str                             # Returns plain str
 
-        expected_error = f"in Random_Guid: value provided was not a Guid: prefix-{guid}"
-        with pytest.raises(ValueError, match=re.escape((expected_error))):
-            'prefix-' + guid
+        result3 = 'prefix-' + guid + '-suffix'
+        assert result3 == f"prefix-{guid}-suffix"
+        assert type(result3) is str
 
         # Formatting
         assert f"ID: {guid}"         == f"ID: {str(guid)}"
