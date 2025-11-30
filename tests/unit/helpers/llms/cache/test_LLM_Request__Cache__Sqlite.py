@@ -57,6 +57,7 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
         cache_path         = self.cache.path_file__cache_entry         (cache_id         ).__to_primitive__()   # Get cache entry path
         cached_response    = self.cache.get                            (request          )                      # Get from cache
         cache_entry        = self.cache.get__cache_entry__from__cache_id(cache_id)
+        cache_id_str       = cache_id.__to_primitive__()
         response_id        = response.response_id .__to_primitive__()                                           # we need to use the primitive value for for the comparison below to work
         response_timestamp = response.timestamp   .__to_primitive__()
         cached_timestamp   = cache_entry.timestamp.__to_primitive__()
@@ -78,8 +79,8 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
                                'request__duration': 0.0,
                                'request__hash'    : hash_request,
                                'timestamp': cached_timestamp }
-        cache_index_data  = { 'cache_id__from__hash__request': { hash_request: cache_id       },
-                              'cache_id__to__file_path'       : { cache_id    : cache_path     }}
+        cache_index_data  = { 'cache_id__from__hash__request': { hash_request  : cache_id       },
+                              'cache_id__to__file_path'       : { cache_id_str : cache_path     }}
 
         assert cache_id                                             is not None         # Verify it worked
         assert hash_request                                         == "acfed094a5"     # Given the same import this value should always be the same
@@ -88,7 +89,7 @@ class test_LLM_Request__Cache__Sqlite(unittest.TestCase):        # Test cache in
         assert cached_response.response_id                          == response.response_id
 
 
-        assert self.cache.json() == { 'cache_entries'   : { cache_id: cache_entry_data},
+        assert self.cache.json() == { 'cache_entries'   : { cache_id_str: cache_entry_data},
                                       'cache_index'     : cache_index_data             ,
                                       'path_generator'  : {},
                                       'shared_areas'    : [],

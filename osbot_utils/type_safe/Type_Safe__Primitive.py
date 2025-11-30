@@ -76,6 +76,10 @@ class Type_Safe__Primitive:
             return self.__primitive_base__(self)
         return str(self)                                            # fallback
 
+    def json(self):
+        import json
+        return json.dumps(self.__to_primitive__())
+
     def obj(self):                                                                  # Get configuration as namespace object
         from osbot_utils.testing.__helpers import dict_to_obj
         return dict_to_obj(self.__cls_kwargs__())
