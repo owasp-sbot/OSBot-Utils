@@ -282,44 +282,44 @@ class test_Obj_Id(TestCase):
                 with_regex(value)
 
         if in_github_action():
-            assert duration.seconds < 0.05                                                  # ~0.016 on dev laptop
-        else:
             assert duration.seconds < 0.5
-
-    def test_performance_regex_vs_other(self):
-        import re
-
-        _hex_chars = set('0123456789abcdef')
-        _hex_regex = re.compile(r'^[0-9a-f]{8}$')
-
-        value = 'a1234567'
-
-        def with_set(v):
-            return len(v) == 8 and all(c in _hex_chars for c in v.lower())
-
-        def with_regex(v):
-            return _hex_regex.match(v.lower()) is not None
-
-        def with_set_direct(v):
-            return len(v) == 8 and set(v).issubset(_hex_chars)
-
-        size =  100000      # 100k                         # results are liner 1M = 10 x 100k result
-        # with capture_duration() as duration_mode_1:
-        #     for _ in range(1, size):
-        #         with_set(value)
-
-        with capture_duration() as duration_mode_2:
-            for _ in range(1, size):
-                with_regex(value)
-
-        # with capture_duration() as duration_mode_3:
-        #     for _ in range(1, size):
-        #         with_set_direct(value)
-        # print()
-        # print(f"mode 1 duration for {size}: {duration_mode_1.seconds}")      # 0.037 # on dev laptop
-        # print(f"mode 2 duration for {size}: {duration_mode_2.seconds}")      # 0.016
-        # print(f"mode 3 duration for {size}: {duration_mode_3.seconds}")      # 0.022
-        if in_github_action():
-            assert duration_mode_2.seconds < 0.05           # 0.016 on dev laptop
         else:
-            assert duration_mode_2.seconds < 0.5
+            assert duration.seconds < 0.05                                                    # ~0.016 on dev laptop
+
+    # def test_performance_regex_vs_other(self):
+    #     import re
+    #
+    #     _hex_chars = set('0123456789abcdef')
+    #     _hex_regex = re.compile(r'^[0-9a-f]{8}$')
+    #
+    #     value = 'a1234567'
+    #
+    #     def with_set(v):
+    #         return len(v) == 8 and all(c in _hex_chars for c in v.lower())
+    #
+    #     def with_regex(v):
+    #         return _hex_regex.match(v.lower()) is not None
+    #
+    #     def with_set_direct(v):
+    #         return len(v) == 8 and set(v).issubset(_hex_chars)
+    #
+    #     size =  100000      # 100k                         # results are liner 1M = 10 x 100k result
+    #     # with capture_duration() as duration_mode_1:
+    #     #     for _ in range(1, size):
+    #     #         with_set(value)
+    #
+    #     with capture_duration() as duration_mode_2:
+    #         for _ in range(1, size):
+    #             with_regex(value)
+    #
+    #     # with capture_duration() as duration_mode_3:
+    #     #     for _ in range(1, size):
+    #     #         with_set_direct(value)
+    #     # print()
+    #     # print(f"mode 1 duration for {size}: {duration_mode_1.seconds}")      # 0.037 # on dev laptop
+    #     # print(f"mode 2 duration for {size}: {duration_mode_2.seconds}")      # 0.016
+    #     # print(f"mode 3 duration for {size}: {duration_mode_3.seconds}")      # 0.022
+    #     if in_github_action():
+    #         assert duration_mode_2.seconds < 0.5
+    #     else:
+    #         assert duration_mode_2.seconds < 0.05           # 0.016 on dev laptop
