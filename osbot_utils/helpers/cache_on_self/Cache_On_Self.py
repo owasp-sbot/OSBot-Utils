@@ -37,10 +37,11 @@ class Cache_On_Self(Type_Safe):
             return self.execute(args, kwargs)
 
         if not kwargs and len(args) == 1:                                           # Fast path for common case: no kwargs, single arg (self)
-            target_self = args[0]
-            cache_key   = self.no_args_key
-
-            if self.cache_storage.has_cached_value(target_self, cache_key):         # Use cache_storage
+            target_self   = args[0]
+            cache_key     = self.no_args_key
+            if self.reload_next:
+                self.reload_next = False
+            elif self.cache_storage.has_cached_value(target_self, cache_key):       # Use cache_storage
                 self.metrics.hits += 1                                              # Increment cache Hit
                 return self.cache_storage.get_cached_value(target_self, cache_key)  # Use cache_storage
 
