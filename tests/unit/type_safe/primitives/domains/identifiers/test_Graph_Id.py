@@ -61,13 +61,13 @@ class test_Graph_Id(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════════
 
     def test__is_string_subclass(self):                                                     # Test that Graph_Id is a string
-        graph_id = Graph_Id()
+        graph_id = Graph_Id(Obj_Id())
 
         assert isinstance(graph_id, str         )
         assert isinstance(graph_id, Graph_Id    )
 
     def test__can_be_used_as_string(self):                                                  # Test string operations work
-        graph_id = Graph_Id()
+        graph_id = Graph_Id(Obj_Id())
 
         assert graph_id.upper()  == graph_id.upper()                                        # String methods work
         assert graph_id.lower()  == graph_id.lower()
@@ -130,7 +130,7 @@ class test_Graph_Id(TestCase):
             assert type(empty) is Graph_Id
 
     def test__use_in_dict_key(self):                                                        # Test Graph_Id can be used as dict key
-        graph_id = Graph_Id()
+        graph_id = Graph_Id(Obj_Id())
         data     = {graph_id: 'test_value'}
 
         assert data[graph_id] == 'test_value'

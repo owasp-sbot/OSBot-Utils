@@ -288,15 +288,13 @@ def serialize_to_dict(obj):
     elif isinstance(obj, (set, frozenset)):
         return [serialize_to_dict(item) for item in obj]
     elif isinstance(obj, dict):
-        serialized_dict = {}                                                        # todo: refactor to separate method
+        serialized_dict = {}
         for key, value in obj.items():
-            if isinstance(key, type):                                           # Handle type keys by converting to fully qualified string
-                serialized_key = f"{key.__module__}.{key.__name__}"
-            else:
-                serialized_key = key
-            serialized_dict[serialized_key] = serialize_to_dict(value)         # Recursively serialize the value
+            serialized_key   = serialize_to_dict(key)                               # Recursively handle ALL key types
+            serialized_value = serialize_to_dict(value)
+            serialized_dict[serialized_key] = serialized_value
         return serialized_dict
-        #return {key: serialize_to_dict(value) for key, value in obj.items()}
+
     elif callable(obj) and not isinstance(obj, type):                                                         # For functions/lambdas, return a string representation
         if hasattr(obj, '__name__'):
             return obj.__name__

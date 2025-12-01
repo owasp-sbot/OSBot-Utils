@@ -1,15 +1,15 @@
-from typing                                                         import List
-from unittest                                                       import TestCase
 import pytest
-from osbot_utils.testing.__                                         import __
-from osbot_utils.type_safe.Type_Safe                                import Type_Safe
-from osbot_utils.type_safe.Type_Safe__Primitive                     import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id  import Cache_Id
+from typing                                                           import List
+from unittest                                                         import TestCase
+from osbot_utils.testing.__                                           import __
+from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.domains.identifiers.Cache_Id    import Cache_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid import Random_Guid
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
-from osbot_utils.utils.Json                                         import json_to_str, json_round_trip
-from osbot_utils.utils.Misc                                         import is_guid
-from osbot_utils.utils.Objects                                      import base_classes
+from osbot_utils.utils.Json                                           import json_to_str, json_round_trip
+from osbot_utils.utils.Misc                                           import is_guid
+from osbot_utils.utils.Objects                                        import base_classes
 
 
 class test_Cache_Id(TestCase):
@@ -80,7 +80,7 @@ class test_Cache_Id(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════════
 
     def test__is_string_subclass(self):                                                     # Test that Cache_Id is a string
-        cache_id = Cache_Id()
+        cache_id = Cache_Id(Random_Guid())
 
         assert isinstance(cache_id, str)
         assert isinstance(cache_id, Random_Guid)
