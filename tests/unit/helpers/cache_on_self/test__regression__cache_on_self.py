@@ -544,3 +544,41 @@ class test__regression__cache_on_self(TestCase):
         for instance, cache_dict in cache_mgr.cache_storage.cache_data.items():
             assert instance.user_token       ==  'user_token'
             assert list(cache_dict.values()) == ['Access denied for secret_file']
+
+
+    def test__regression__reload_next_flag_isolation_between_instances(self):       # Test that reload_next flag is properly isolated between instances
+        class Reload_Flag_Class:
+            def __init__(self, name):
+                self.name = name
+                self.call_count = 0
+
+            @cache_on_self
+            def method(self):
+                self.call_count += 1
+                return f"{self.name} call {self.call_count}"
+
+        obj1 = Reload_Flag_Class("obj1")
+        obj2 = Reload_Flag_Class("obj2")
+
+        # Initial calls
+        assert obj1.method() == "obj1 call 1"
+        assert obj2.method() == "obj2 call 1"
+
+        # Set reload_next on obj1's cache manager
+        cache1 = obj1.method(__return__='cache_on_self')
+        cache2 = obj2.method(__return__='cache_on_self')
+
+        cache1.reload_next = True
+
+        # Verify isolation - obj2 uses cache, obj1 reloads
+        assert obj2.method() == "obj2 call 1"   # Cache hit - correct!
+        #assert obj1.method() != "obj1 call 2"   # Reload triggered         # BUG should be "obj1 call 2"
+        assert obj1.method() == "obj1 call 2"   # Reload triggered          # FIXED
+        #assert obj1.method() == "obj1 call 1"   # Reload triggered         # BUG should be "obj1 call 2"
+        assert obj1.method() == "obj1 call 2"   # Reload triggered         # FIXED
+
+
+        # Verify flags
+        #assert cache1.reload_next is True  # Reset after use            # BUG should be False
+        assert cache1.reload_next is False  # Reset after use            # FIXED
+        assert cache2.reload_next is False  # Reset after use
