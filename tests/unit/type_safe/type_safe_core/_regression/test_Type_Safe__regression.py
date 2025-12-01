@@ -1835,3 +1835,168 @@ class test_Type_Safe__regression(TestCase):
         # This works (because Child is subclass of incorrectly-resolved Child)
         child = Child(ref=Child)
         assert child.ref is Child                                           # Works (accidentally correct)
+
+    def test__regression__type_annotation__expected_behavior_after_fix(self):
+        # Documents what SHOULD work after the bug is fixed
+
+        class Animal(Type_Safe):
+            name: str = ''
+
+        class Dog(Animal):
+            breed: str = ''
+
+        class AnimalRegistry(Type_Safe):
+            animal_type: Type[Animal] = None
+
+        class DogRegistry(AnimalRegistry):
+            animal_type: Type[Dog]                                      # Should auto-default to Dog
+
+        # After fix, this should work:
+        # with DogRegistry() as _:
+        #     assert _.animal_type is Dog                               # Auto-assigned default
+
+        # Currently:
+        with DogRegistry() as _:
+            #assert _.animal_type is None                                # BUG: inherits None
+            assert _.animal_type is Dog
+
+    def test__regression__type_annotation__workaround_comparison(self):
+        # Compare buggy vs workaround patterns
+
+        class Processor(Type_Safe):
+            pass
+
+        class FastProcessor(Processor):
+            pass
+
+        class Config_Base(Type_Safe):
+            processor_type: Type[Processor] = None
+
+        # BUGGY: No explicit value
+        class Config_Fast_Buggy(Config_Base):
+            processor_type: Type[FastProcessor]
+
+        # WORKAROUND: Explicit value
+        class Config_Fast_Fixed(Config_Base):
+            processor_type: Type[FastProcessor] = FastProcessor
+
+        # Buggy version gets None
+        #assert Config_Fast_Buggy().processor_type is None               # BUG
+        assert Config_Fast_Buggy().processor_type is FastProcessor
+
+        # Workaround version gets correct value
+        assert Config_Fast_Fixed().processor_type is FastProcessor      # Works
+
+
+    def test__regression__type_annotation__subclass_redeclaration__no_auto_default(self):
+        # Bug: When a subclass re-declares a Type[T] annotation with a more specific type,
+        #      Type_Safe should auto-assign the type as the default value.
+        #      Instead, it inherits the parent's None value.
+        #
+        # Root cause: In Type_Safe__Step__Class_Kwargs.process_annotation(),
+        #             hasattr(base_cls, var_name) returns True (from parent),
+        #             so handle_undefined_var() is never called to calculate default.
+
+        class Base_Node(Type_Safe):
+            value: str = ''
+
+        class Extended_Node(Base_Node):
+            extra: int = 0
+
+        class Base_Types(Type_Safe):
+            node_type: Type[Base_Node] = None                           # Explicit None default
+
+        class Extended_Types(Base_Types):
+            node_type: Type[Extended_Node]                              # Re-declared with specific type, no explicit value
+
+        # Base class works as expected
+        with Base_Types() as _:
+            assert _.node_type is None                                  # Explicit None default
+
+        # BUG: Subclass should auto-assign Extended_Node as default
+        with Extended_Types() as _:
+            #assert _.node_type is None                                  # BUG: inherits parent's None
+            assert _.node_type is Extended_Node
+            # EXPECTED: _.node_type should be Extended_Node
+
+    def test__regression__type_annotation__subclass_redeclaration__with_explicit_value_works(self):
+        # Document that explicit value assignment DOES work (workaround)
+
+        class Base_Node(Type_Safe):
+            value: str = ''
+
+        class Extended_Node(Base_Node):
+            extra: int = 0
+
+        class Base_Types(Type_Safe):
+            node_type: Type[Base_Node] = None
+
+        class Extended_Types__Fixed(Base_Types):
+            node_type: Type[Extended_Node] = Extended_Node              # Explicit assignment works
+
+        # This workaround works correctly
+        with Extended_Types__Fixed() as _:
+            assert _.node_type is Extended_Node                         # Works with explicit value
+
+    def test__regression__type_annotation__multiple_type_fields(self):
+        # Bug affects multiple Type[T] fields
+
+        class Model_Node(Type_Safe):
+            pass
+
+        class Model_Edge(Type_Safe):
+            pass
+
+        class Simple_Node(Model_Node):
+            pass
+
+        class Simple_Edge(Model_Edge):
+            pass
+
+        class Base_Model_Types(Type_Safe):
+            node_model_type: Type[Model_Node] = None
+            edge_model_type: Type[Model_Edge] = None
+
+        class Simple_Model_Types(Base_Model_Types):
+            node_model_type: Type[Simple_Node]                          # Re-declared, no explicit value
+            edge_model_type: Type[Simple_Edge]                          # Re-declared, no explicit value
+
+        # BUG: Both fields inherit None instead of auto-assigning the type
+        with Simple_Model_Types() as _:
+            # assert _.node_model_type is None                            # BUG: should be Simple_Node
+            # assert _.edge_model_type is None                            # BUG: should be Simple_Edge
+            assert _.node_model_type is Simple_Node
+            assert _.edge_model_type is Simple_Edge
+
+    def test__regression__type_annotation__deep_inheritance_chain(self):
+        # Bug affects deeper inheritance chains
+
+        class Node_L0(Type_Safe):
+            pass
+
+        class Node_L1(Node_L0):
+            pass
+
+        class Node_L2(Node_L1):
+            pass
+
+        class Types_L0(Type_Safe):
+            node_type: Type[Node_L0] = None
+
+        class Types_L1(Types_L0):
+            node_type: Type[Node_L1]                                    # Re-declare for L1
+
+        class Types_L2(Types_L1):
+            node_type: Type[Node_L2]                                    # Re-declare for L2
+
+        # All levels inherit None instead of auto-assigning
+        with Types_L0() as _:
+            assert _.node_type is None                                  # Correct (explicit None)
+
+        with Types_L1() as _:
+            #assert _.node_type is None                                  # BUG: should be Node_L1
+            assert _.node_type is Node_L1
+
+        with Types_L2() as _:
+            #assert _.node_type is None                                  # BUG: should be Node_L2
+            assert _.node_type is Node_L2
