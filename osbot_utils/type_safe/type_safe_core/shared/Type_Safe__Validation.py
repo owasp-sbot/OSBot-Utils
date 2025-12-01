@@ -208,7 +208,14 @@ class Type_Safe__Validation:
                     if type_arg == value:
                         return True
                     if isinstance(type_arg, (str, ForwardRef)):                             # Handle forward reference
-                        type_arg = target.__class__                                         # If it's a forward reference, the target class should be the containing class
+                        forward_name = type_arg.__forward_arg__ if isinstance(type_arg, ForwardRef) else type_arg
+                        resolved_type = None                                                # Walk MRO to find the actual class
+                        for base_cls in target.__class__.__mro__:
+                            if base_cls.__name__ == forward_name:
+                                resolved_type = base_cls
+                                break
+                        type_arg = resolved_type if resolved_type else target.__class__     # Fallback to instance class if not found
+
                     return isinstance(value, type) and issubclass(value, type_arg)          # Check that value is a type and is subclass of type_arg
                 else:
                     return isinstance(value, type)
