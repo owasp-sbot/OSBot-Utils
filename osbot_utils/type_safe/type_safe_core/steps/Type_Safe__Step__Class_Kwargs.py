@@ -103,18 +103,21 @@ class Type_Safe__Step__Class_Kwargs:                                            
                                  var_name : str            ,
                                  var_type : Type           ):
 
-        class_declares_annotation = var_name in getattr(base_cls, '__annotations__', {})
+        class_declares_annotation = var_name in getattr(base_cls, '__annotations__', {})    # Check if this class has the annotation in its own __annotations__
+        class_has_own_value       = var_name in base_cls.__dict__                           # Check if this class defines its own value (not inherited)
 
-        if not hasattr(base_cls, var_name):
-            self.handle_undefined_var(cls, kwargs, var_name, var_type)
-        elif class_declares_annotation and base_cls is cls:
-            origin = type_safe_cache.get_origin(var_type)                               # Only recalculate default for Type[T] annotations
-            if origin is type:
-                self.handle_undefined_var(cls, kwargs, var_name, var_type)
-            else:
-                self.handle_defined_var(base_cls, var_name, var_type)
-        else:
-            self.handle_defined_var(base_cls, var_name, var_type)
+        if not hasattr(base_cls, var_name):                                                 # Case 1: No value exists anywhere in hierarchy
+            self.handle_undefined_var(cls, kwargs, var_name, var_type)                      #         Create fresh default value for this type
+        elif class_declares_annotation and base_cls is cls and not class_has_own_value:     # Case 2: Target class redeclares annotation without own value
+            self.handle_undefined_var(cls, kwargs, var_name, var_type)                      #         Create fresh default, don't inherit parent's explicit None
+        elif class_declares_annotation and base_cls is cls:                                 # Case 3: Target class declares annotation with its own value
+            origin = type_safe_cache.get_origin(var_type)                                   #         Check if it's a Type[T] annotation
+            if origin is type:                                                              #         Type[T] annotations need special handling
+                self.handle_undefined_var(cls, kwargs, var_name, var_type)                  #         Recalculate default for Type[T]
+            else:                                                                           #         Normal annotation with explicit value
+                self.handle_defined_var(base_cls, var_name, var_type)                       #         Validate the defined value
+        else:                                                                               # Case 4: Inherited value from parent class
+            self.handle_defined_var(base_cls, var_name, var_type)                           #         Use and validate the inherited value
 
     def process_annotations(self, cls      : Type           ,                           # Process all annotations
                                   base_cls : Type           ,

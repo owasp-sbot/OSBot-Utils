@@ -2000,3 +2000,26 @@ class test_Type_Safe__regression(TestCase):
         with Types_L2() as _:
             #assert _.node_type is None                                  # BUG: should be Node_L2
             assert _.node_type is Node_L2
+
+    def test__regression__base_class_none_prevents_object_creation(self):
+        from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+        from osbot_utils.testing.__ import __
+
+        class Base_Class(Type_Safe):
+            an_str : Safe_Str = None                        # BUG: this is preventing creation
+
+        class With_Base(Base_Class):
+            an_str : Safe_Str                               # BUG: this should have been created
+
+        class An_Class(Type_Safe):
+            an_str : Safe_Str
+
+        assert An_Class  ().json() == {'an_str': ''}
+        assert An_Class  ().obj () == __(an_str='')
+        assert Base_Class().json() == {'an_str': None}
+        assert Base_Class().obj () == __(an_str=None)
+        # assert With_Base ().json() == {'an_str': None}      # BUG
+        # assert With_Base ().obj () == __(an_str=None)       # BUG
+
+        assert With_Base ().json() == {'an_str': ''}      # FIXED
+        assert With_Base ().obj () == __(an_str='')       # FIXED
