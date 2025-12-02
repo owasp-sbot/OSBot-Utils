@@ -258,6 +258,8 @@ class Type_Safe__Step__From_Json:
             return self.deserialize_nested_dict(value_class, dict_value)
         if value_origin is tuple:
              return tuple(dict_value)                                               # typing.Tuple cannot be invoked, so we need to use the tuple
+        if value_origin is set:                                                     # Handle Set[T] type annotations
+            return self.deserialize_set_in_dict_value(_self, value_class, dict_value)
         else:                                                                       # Default: try to instantiate with the value
             return value_class(dict_value)
 
@@ -292,6 +294,36 @@ class Type_Safe__Step__From_Json:
 
         return type_safe_list
 
+    def deserialize_set_in_dict_value(self, _self, value_class, dict_value):              # Handle Set[T] types when they appear as dictionary values.
+        if not isinstance(dict_value, list):                                               # JSON deserializes sets as lists
+            return dict_value
+
+        args = get_args(value_class)
+        if not args:
+            return set(dict_value)                                                         # No type info, return as plain set
+
+        item_type = args[0]
+
+        if isinstance(item_type, ForwardRef):                                              # Handle forward references with _self context
+            if _self:
+                forward_name = item_type.__forward_arg__
+                if forward_name == _self.__class__.__name__:
+                    item_type = _self.__class__
+
+        type_safe_set = Type_Safe__Set(item_type)
+
+        for item in dict_value:                                                            # Handle Type_Safe subclasses
+            if isinstance(item_type, type) and issubclass(item_type, Type_Safe):
+                if isinstance(item, dict):
+                    type_safe_set.add(item_type.from_json(item))
+                else:
+                    type_safe_set.add(item)
+            elif isinstance(item_type, type) and issubclass(item_type, Type_Safe__Primitive):
+                type_safe_set.add(item_type(item))
+            else:
+                type_safe_set.add(item)
+
+        return type_safe_set
     def deserialize_nested_dict(self, value_class, dict_value):                     # Handle deserialization of nested Dict[K, V] types.
         if not isinstance(dict_value, dict):
             return dict_value

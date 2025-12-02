@@ -101,3 +101,38 @@ class test_Type_Safe__bugs(TestCase):
 
 
 
+    def test__bug__set__json__serialisation_issue(self):
+        import json
+        from typing import Dict, Set
+        from osbot_utils.testing.__ import __
+        from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+        from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id import Edge_Id
+
+        class An_Class(Type_Safe):
+            an_dict : Dict[Safe_Id  , Set[Edge_Id ]]
+        safe_id = Safe_Id('safe-id_jlqsh')
+        edge_id = Edge_Id('6106b8e7')
+        an_class = An_Class()
+        an_class.an_dict[safe_id] = {edge_id}
+
+        #assert an_class.obj () == __(an_dict=__(safe_id_jlqsh={'6106b8e7'}))            # BUG, this should be list, right? i.e. ['6106b8e7']
+        #assert an_class.json() == {'an_dict': {'safe-id_jlqsh': {'6106b8e7'}}}          # BUG, this should be list, right? i.e. ['6106b8e7']
+
+        assert an_class.obj () == __(an_dict=__(safe_id_jlqsh=['6106b8e7']))            # FIXED
+        assert an_class.json() == {'an_dict': {'safe-id_jlqsh': ['6106b8e7']}}          # FIXED
+
+        # error_message = "Object of type set is not JSON serializable"
+        # with pytest.raises(TypeError, match=error_message):                             # BUG
+        #     json.dumps(an_class.json())
+        assert json.dumps(an_class.json()) == '{"an_dict": {"safe-id_jlqsh": ["6106b8e7"]}}'
+
+        assert type(an_class.json().get('an_dict')                     ) is dict
+        #assert type(an_class.json().get('an_dict').get('safe-id_jlqsh')) is set         # BUG
+        assert type(an_class.json().get('an_dict').get('safe-id_jlqsh')) is list         # FIXED
+        assert json.loads(json.dumps(an_class.json())) ==  an_class.json()
+        error_message = "Type Set cannot be instantiated; use set() instead"
+        # with pytest.raises(TypeError, match=re.escape(error_message)):
+        #     An_Class.from_json(an_class.json())                                           # BUG
+        assert An_Class.from_json(an_class.json()).obj() == an_class.obj()                  # FIXED
+        assert An_Class.from_json(an_class.json()).json() == an_class.json()                # FIXED
+

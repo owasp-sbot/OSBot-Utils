@@ -1,3 +1,4 @@
+import json
 import re
 import pytest
 from typing                                                                     import Dict, Tuple, Type
@@ -30,11 +31,11 @@ class test_Type_Safe__Tuple__regression(TestCase):
         # assert An_Class(an_dict_tuple={'an-id': (Safe_Str__Id, Safe_Str__Id)}).json() == { 'an_dict_tuple': { 'an-id': ( Safe_Str__Id, Safe_Str__Id)},       # BUG
         #                                                                                    'an_tuple'     : []}
 
-        assert An_Class(an_dict_tuple={'an-id': (str, int)}).json() == { 'an_dict_tuple': {'an-id': ('builtins.str', 'builtins.int')},        # BUG , it should be ('builtins.str', 'builtins.int')
+        assert An_Class(an_dict_tuple={'an-id': (str, int)}).json() == { 'an_dict_tuple': {'an-id': ['builtins.str', 'builtins.int']},        # BUG , it should be ('builtins.str', 'builtins.int')
                                                                          'an_tuple'     : []                   }
 
-        assert An_Class(an_dict_tuple={'an-id': (Safe_Str__Id, Safe_Str__Id)}).json() == { 'an_dict_tuple': { 'an-id': ( 'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id',
-                                                                                                                         'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id')},       # BUG
+        assert An_Class(an_dict_tuple={'an-id': (Safe_Str__Id, Safe_Str__Id)}).json() == { 'an_dict_tuple': { 'an-id': [ 'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id',
+                                                                                                                         'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id']},       # BUG
                                                                                            'an_tuple'     : []}
 
         # assert An_Class(an_dict_tuple={'an_id': (Safe_Str__Id, Safe_Str__Id)}).obj() == __(an_tuple      = [],
@@ -60,12 +61,25 @@ class test_Type_Safe__Tuple__regression(TestCase):
         assert An_Class.from_json(An_Class(                                       ).json()).json() ==  {'an_dict_tuple': {}, 'an_tuple': []}
         assert An_Class.from_json(An_Class(an_tuple=(str, int)                    ).json()).json() == {'an_dict_tuple': {}, 'an_tuple': ['builtins.str', 'builtins.int']}
 
-        assert An_Class.from_json(An_Class(an_dict_tuple={'an-id': (str, int)    }).json()).json() == { 'an_dict_tuple': {'an-id': ('builtins.str', 'builtins.int')},        # BUG , it should be ('builtins.str', 'builtins.int')
+        assert An_Class.from_json(An_Class(an_dict_tuple={'an-id': (str, int)    }).json()).json() == { 'an_dict_tuple': {'an-id': ['builtins.str', 'builtins.int']},        # FIXED: BUG , it should be ['builtins.str', 'builtins.int']
                                                                                                     'an_tuple'     : []                   }
         assert An_Class.from_json(An_Class(an_dict_tuple={'an-id': (Safe_Str__Id,
-                                                                    Safe_Str__Id)}).json()).json() == { 'an_dict_tuple': { 'an-id': ( 'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id',
-                                                                                                                         'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id')},       # BUG
+                                                                    Safe_Str__Id)}).json()).json() == { 'an_dict_tuple': { 'an-id': [ 'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id',
+                                                                                                                                      'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id']},       # FIXED: BUG
                                                                                                         'an_tuple'     : []}
+        an_class = An_Class(an_dict_tuple = {'an-id': (Safe_Str__Id, Safe_Str__Id)},
+                            an_tuple      =  (str, str))
+        an_class_json = an_class.json()
+        assert an_class_json == {'an_dict_tuple': {'an-id': ['osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id',
+                                                             'osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id']},
+                                 'an_tuple': ['builtins.str', 'builtins.str']}
+        assert json.dumps(an_class_json) == ('{"an_tuple": ["builtins.str", "builtins.str"], '
+                                             '"an_dict_tuple": {"an-id": '
+                                                                '["osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id", '
+                                                                '"osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id.Safe_Str__Id"]}}')
+        assert An_Class.from_json(an_class_json).json() == an_class_json
+        assert json.loads(json.dumps(an_class_json)) == an_class_json
+
 
 
     def test__regression__type_safe_tuple__bypasses_on_add_mul(self):

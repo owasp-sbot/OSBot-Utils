@@ -178,8 +178,8 @@ class test_Type_Safe__regression(TestCase):
         assert type(an_class.data.edge_ids) is Type_Safe__Dict                      #  FIXED: correct this should be a dict
 
 
-        assert an_class.json() == {'data': {'edge_ids': {'b': {'id3'}},
-                                            'node_ids': {'a': ('id1', 'id2')},
+        assert an_class.json() == {'data': {'edge_ids': {'b': ['id3']},
+                                            'node_ids': {'a': ['id1', 'id2']},
                                             'tuple_1': ['id1', 'id2']}}
 
         # error_message = "In Type_Safe__Tuple: Invalid type for item: Expected 'str', but got 'int'"
