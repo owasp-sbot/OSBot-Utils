@@ -5,6 +5,7 @@ from decimal                                                                    
 from enum                                                                            import Enum
 from typing                                                                          import Dict, List, Set, Any, Optional, ForwardRef
 from unittest                                                                        import TestCase
+from osbot_utils.utils.Env                                                           import in_github_action
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash   import Safe_Str__Hash
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path    import Safe_Str__File__Path
@@ -521,7 +522,10 @@ class test_Type_Safe__Step__From_Json(TestCase):
         elapsed = time.time() - start
 
         assert len(obj.items) == 1000
-        assert elapsed < 0.01                                    # Should complete in under 10ms
+        if in_github_action():
+            assert elapsed < 0.05                                    # in GH Actions this is about ~10ms
+        else:
+            assert elapsed < 0.01                                    # on dev laptop this is ~2ms
 
     def test__forward_ref_in_list_works(self):                              # Forward refs in List work correctly """
 

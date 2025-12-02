@@ -71,7 +71,7 @@ class test_Type_Safe__bugs(TestCase):
         assert an_class.an_str == 'new_value'
         assert an_class.an_bool == False
 
-    def test__bug__type_annotation__non_none_parent_default(self):
+    def test__regression__type_annotation__non_none_parent_default(self):
         # What happens when parent has a non-None default?
         # This combines BOTH bugs:
         # 1. Subclass inherits parent's value (Base_Handler) instead of auto-assigning Extended_Handler
@@ -98,4 +98,6 @@ class test_Type_Safe__bugs(TestCase):
         error_message = "On Extended_Config, invalid type for attribute 'handler_type'. Expected 'typing.Type["
         with pytest.raises(ValueError, match=re.escape(error_message)):
             Extended_Config()                                           # BUG: should auto-assign Extended_Handler
+
+
 
