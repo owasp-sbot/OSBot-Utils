@@ -1085,17 +1085,6 @@ class test_Type_Safe(TestCase):
             test_class.data = 123                                                                   # confirm that type safety is still working on the main class
 
     def test_validate_type_immutability(self):                                        # Tests type immutability validation
-        # class Simple_Type(Type_Safe):
-        #     valid_int   : int        = 42                                            # valid immutable type
-        #     valid_str   : str        = 'abc'                                         # valid immutable type
-        #     valid_bool  : bool       = True                                          # valid immutable type
-        #     valid_tuple : tuple      = (1,2)                                         # valid immutable type
-        #
-        # simple = Simple_Type()                                                       # Should work fine with valid types
-        # assert simple.valid_int   == 42
-        # assert simple.valid_str   == 'abc'
-        # assert simple.valid_bool  == True
-        # assert simple.valid_tuple == (1,2)
 
         with pytest.raises(ValueError, match= "variable 'invalid_list' is defined as type '<class 'list'>' which is not supported by Type_Safe" ):                                    # Test invalid mutable type
             class Invalid_Type(Type_Safe):

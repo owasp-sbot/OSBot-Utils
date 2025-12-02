@@ -413,8 +413,7 @@ class test_Type_Safe__regression(TestCase):
         custom_complex = Custom_Complex()  # Should not raise TypeError
 
         # And type checking should work properly
-        with self.assertRaises(ValueError):
-            custom_complex.node_type = Complex_Node    # Doesn't Allow base class
+        custom_complex.node_type = Complex_Node     # Allow base class
         custom_complex.node_type = Custom_Complex  # Allow self
 
         with self.assertRaises(ValueError):
@@ -1704,3 +1703,300 @@ class test_Type_Safe__regression(TestCase):
         #     An_Class(an_custom_safe_float = Safe_Float(0.5))
 
         assert type(An_Class(an_custom_safe_float = Safe_Float(0.5)).an_custom_safe_float) is Custom_Safe_Float
+
+
+    def test__regression__forward_ref__inheritance__type_annotation_resolves_to_wrong_class(self):
+        # Bug: When a subclass inherits a Type[ForwardRef] annotation from a parent class,
+        #      the ForwardRef is incorrectly resolved to the subclass instead of the
+        #      actual class named in the ForwardRef.
+        #
+        # Root cause: In Type_Safe__Validation.check_if__type_matches__obj_annotation__for_attr(),
+        #             ForwardRef handling uses `target.__class__` which is the instance's class,
+        #             not the class actually named in the ForwardRef.
+
+        class Base_Class(Type_Safe):
+            node_type: Type['Base_Class'] = None                        # ForwardRef to Base_Class
+
+        class Sub_Class(Base_Class):                                    # Inherits node_type annotation
+            pass
+
+        # Verify inheritance is set up correctly
+        assert issubclass(Sub_Class, Base_Class) is True
+
+        # Direct use on Base_Class works correctly
+        assert Base_Class(                   ).node_type is None
+        assert Base_Class(node_type=Base_Class).node_type is Base_Class
+        assert Base_Class(node_type=Sub_Class ).node_type is Sub_Class   # Subclass is valid for Type[Base_Class]
+
+        # Setter on Base_Class also works
+        base_instance = Base_Class()
+        base_instance.node_type = Base_Class                            # Works correctly
+        assert base_instance.node_type is Base_Class
+
+        base_instance_2 = Base_Class()
+        base_instance_2.node_type = Sub_Class                           # Subclass assignment works
+        assert base_instance_2.node_type is Sub_Class
+
+        # BUG: Sub_Class inherits Type['Base_Class'] but ForwardRef resolves to Sub_Class
+        #      This causes the validation to check: issubclass(Base_Class, Sub_Class) -> False
+        #      When it SHOULD check: issubclass(Base_Class, Base_Class) -> True
+
+        sub_instance = Sub_Class()
+        # error_message = "On Sub_Class, invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('Base_Class')]' but got '<class"
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     sub_instance.node_type = Base_Class                           # BUG: should work but fails
+        sub_instance.node_type = Base_Class                                 # FIXED
+
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     Sub_Class(node_type=Base_Class)                               # BUG: constructor also fails
+        Sub_Class(node_type=Base_Class)                                     # FIXED
+        # Note: Assigning Sub_Class works because issubclass(Sub_Class, Sub_Class) is True
+        # (the wrong resolution accidentally passes for this case)
+        sub_instance_2 = Sub_Class()
+        sub_instance_2.node_type = Sub_Class                            # This works (accidentally)
+        assert sub_instance_2.node_type is Sub_Class
+
+    def test__regression__forward_ref__inheritance__with_setter_method(self):
+        # Same bug manifests when using setter methods
+
+        class Schema__Node(Type_Safe):
+            node_type: Type['Schema__Node'] = None
+
+            def set_node_type(self, node_type: Type['Schema__Node'] = None):
+                self.node_type = node_type or self.__class__
+                return self
+
+        class Schema__Node__Extended(Schema__Node):
+            extra_field: str = ''
+
+        # Base class setter works correctly
+        node = Schema__Node()
+        node.set_node_type(Schema__Node)
+        assert node.node_type is Schema__Node
+
+        # BUG: Subclass setter fails when setting to base class type
+        extended_node = Schema__Node__Extended()
+        error_message = "On Schema__Node__Extended, invalid type for attribute 'node_type'. Expected 'typing.Type[ForwardRef('Schema__Node')]' but got '<class"
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     extended_node.set_node_type(Schema__Node)                   # BUG: should work but fails
+        extended_node.set_node_type(Schema__Node)                         # FIXED: now works
+
+    def test__regression__forward_ref__inheritance__deep_hierarchy(self):
+        # Bug also affects deeper inheritance chains
+
+        class Level_0(Type_Safe):
+            type_ref: Type['Level_0'] = None
+
+        class Level_1(Level_0):
+            pass
+
+        class Level_2(Level_1):
+            pass
+
+        # All levels should accept Level_0 (the ForwardRef target)
+        assert Level_0(type_ref=Level_0).type_ref is Level_0            # Works
+        assert Level_0(type_ref=Level_1).type_ref is Level_1            # Works
+        assert Level_0(type_ref=Level_2).type_ref is Level_2            # Works
+
+        # error_message = "On Level_1, invalid type for attribute 'type_ref'. Expected 'typing.Type[ForwardRef('Level_0')]' but got '<class"
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     Level_1(type_ref=Level_0)                                   # BUG: should work
+        Level_1(type_ref=Level_0)                                         # FIXED
+
+        # error_message_2 = "On Level_2, invalid type for attribute 'type_ref'. Expected 'typing.Type[ForwardRef('Level_0')]' but got '<class"
+        # with pytest.raises(ValueError, match=re.escape(error_message_2)):
+        #     Level_2(type_ref=Level_0)                                   # BUG: should work
+        Level_2(type_ref=Level_0)                                         # FIXED
+
+        # with pytest.raises(ValueError, match=re.escape(error_message_2)):
+        #     Level_2(type_ref=Level_1)                                   # BUG: should work (Level_1 is subclass of Level_0)
+        Level_2(type_ref=Level_1)                                         # FIXED
+
+    def test__regression__forward_ref__expected_behavior_after_fix(self):
+        # This documents what SHOULD work after the bug is fixed
+        # Currently all these raise ValueError
+
+        class Parent(Type_Safe):
+            ref: Type['Parent'] = None
+
+        class Child(Parent):
+            pass
+
+        # After fix, all of these should work:
+        # - Child instance should accept Parent type (Parent is subclass of Parent)
+        # - Child instance should accept Child type (Child is subclass of Parent)
+        # - The ForwardRef 'Parent' should resolve to Parent class, not to Child
+
+        # For now, document that these fail:
+        # with pytest.raises(ValueError):
+        #     Child(ref=Parent)                                             # BUG: fails but should work
+        Child(ref=Parent)                                                   # FIXED
+
+        # This works (because Child is subclass of incorrectly-resolved Child)
+        child = Child(ref=Child)
+        assert child.ref is Child                                           # Works (accidentally correct)
+
+    def test__regression__type_annotation__expected_behavior_after_fix(self):
+        # Documents what SHOULD work after the bug is fixed
+
+        class Animal(Type_Safe):
+            name: str = ''
+
+        class Dog(Animal):
+            breed: str = ''
+
+        class AnimalRegistry(Type_Safe):
+            animal_type: Type[Animal] = None
+
+        class DogRegistry(AnimalRegistry):
+            animal_type: Type[Dog]                                      # Should auto-default to Dog
+
+        # After fix, this should work:
+        # with DogRegistry() as _:
+        #     assert _.animal_type is Dog                               # Auto-assigned default
+
+        # Currently:
+        with DogRegistry() as _:
+            #assert _.animal_type is None                                # BUG: inherits None
+            assert _.animal_type is Dog
+
+    def test__regression__type_annotation__workaround_comparison(self):
+        # Compare buggy vs workaround patterns
+
+        class Processor(Type_Safe):
+            pass
+
+        class FastProcessor(Processor):
+            pass
+
+        class Config_Base(Type_Safe):
+            processor_type: Type[Processor] = None
+
+        # BUGGY: No explicit value
+        class Config_Fast_Buggy(Config_Base):
+            processor_type: Type[FastProcessor]
+
+        # WORKAROUND: Explicit value
+        class Config_Fast_Fixed(Config_Base):
+            processor_type: Type[FastProcessor] = FastProcessor
+
+        # Buggy version gets None
+        #assert Config_Fast_Buggy().processor_type is None               # BUG
+        assert Config_Fast_Buggy().processor_type is FastProcessor
+
+        # Workaround version gets correct value
+        assert Config_Fast_Fixed().processor_type is FastProcessor      # Works
+
+
+    def test__regression__type_annotation__subclass_redeclaration__no_auto_default(self):
+        # Bug: When a subclass re-declares a Type[T] annotation with a more specific type,
+        #      Type_Safe should auto-assign the type as the default value.
+        #      Instead, it inherits the parent's None value.
+        #
+        # Root cause: In Type_Safe__Step__Class_Kwargs.process_annotation(),
+        #             hasattr(base_cls, var_name) returns True (from parent),
+        #             so handle_undefined_var() is never called to calculate default.
+
+        class Base_Node(Type_Safe):
+            value: str = ''
+
+        class Extended_Node(Base_Node):
+            extra: int = 0
+
+        class Base_Types(Type_Safe):
+            node_type: Type[Base_Node] = None                           # Explicit None default
+
+        class Extended_Types(Base_Types):
+            node_type: Type[Extended_Node]                              # Re-declared with specific type, no explicit value
+
+        # Base class works as expected
+        with Base_Types() as _:
+            assert _.node_type is None                                  # Explicit None default
+
+        # BUG: Subclass should auto-assign Extended_Node as default
+        with Extended_Types() as _:
+            #assert _.node_type is None                                  # BUG: inherits parent's None
+            assert _.node_type is Extended_Node
+            # EXPECTED: _.node_type should be Extended_Node
+
+    def test__regression__type_annotation__subclass_redeclaration__with_explicit_value_works(self):
+        # Document that explicit value assignment DOES work (workaround)
+
+        class Base_Node(Type_Safe):
+            value: str = ''
+
+        class Extended_Node(Base_Node):
+            extra: int = 0
+
+        class Base_Types(Type_Safe):
+            node_type: Type[Base_Node] = None
+
+        class Extended_Types__Fixed(Base_Types):
+            node_type: Type[Extended_Node] = Extended_Node              # Explicit assignment works
+
+        # This workaround works correctly
+        with Extended_Types__Fixed() as _:
+            assert _.node_type is Extended_Node                         # Works with explicit value
+
+    def test__regression__type_annotation__multiple_type_fields(self):
+        # Bug affects multiple Type[T] fields
+
+        class Model_Node(Type_Safe):
+            pass
+
+        class Model_Edge(Type_Safe):
+            pass
+
+        class Simple_Node(Model_Node):
+            pass
+
+        class Simple_Edge(Model_Edge):
+            pass
+
+        class Base_Model_Types(Type_Safe):
+            node_model_type: Type[Model_Node] = None
+            edge_model_type: Type[Model_Edge] = None
+
+        class Simple_Model_Types(Base_Model_Types):
+            node_model_type: Type[Simple_Node]                          # Re-declared, no explicit value
+            edge_model_type: Type[Simple_Edge]                          # Re-declared, no explicit value
+
+        # BUG: Both fields inherit None instead of auto-assigning the type
+        with Simple_Model_Types() as _:
+            # assert _.node_model_type is None                            # BUG: should be Simple_Node
+            # assert _.edge_model_type is None                            # BUG: should be Simple_Edge
+            assert _.node_model_type is Simple_Node
+            assert _.edge_model_type is Simple_Edge
+
+    def test__regression__type_annotation__deep_inheritance_chain(self):
+        # Bug affects deeper inheritance chains
+
+        class Node_L0(Type_Safe):
+            pass
+
+        class Node_L1(Node_L0):
+            pass
+
+        class Node_L2(Node_L1):
+            pass
+
+        class Types_L0(Type_Safe):
+            node_type: Type[Node_L0] = None
+
+        class Types_L1(Types_L0):
+            node_type: Type[Node_L1]                                    # Re-declare for L1
+
+        class Types_L2(Types_L1):
+            node_type: Type[Node_L2]                                    # Re-declare for L2
+
+        # All levels inherit None instead of auto-assigning
+        with Types_L0() as _:
+            assert _.node_type is None                                  # Correct (explicit None)
+
+        with Types_L1() as _:
+            #assert _.node_type is None                                  # BUG: should be Node_L1
+            assert _.node_type is Node_L1
+
+        with Types_L2() as _:
+            #assert _.node_type is None                                  # BUG: should be Node_L2
+            assert _.node_type is Node_L2

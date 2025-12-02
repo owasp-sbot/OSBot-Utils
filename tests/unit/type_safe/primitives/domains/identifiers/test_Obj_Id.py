@@ -1,5 +1,6 @@
-from unittest                                                       import TestCase
+import re
 import pytest
+from unittest                                                       import TestCase
 from osbot_utils.helpers.duration.decorators.capture_duration       import capture_duration
 from osbot_utils.testing.__                                         import __
 from osbot_utils.testing.performance.Performance_Measure__Session   import Performance_Measure__Session
@@ -119,7 +120,8 @@ class test_Obj_Id(TestCase):
 
         assert len(obj_id)       == 8
         assert is_obj_id(obj_id) is True
-        assert obj_id.islower()  is True                                                    # Always lowercase
+        assert re.fullmatch(r"[a-z0-9]{8}", obj_id)                                         # Always lowercase
+        #assert obj_id.islower()  is True                                                   # we can't use this , since when obj_id is all numbers, islower returns false
 
     def test__new_obj_id__uniqueness(self):                                                 # Test new_obj_id generates unique values
         ids = [new_obj_id() for _ in range(1000)]

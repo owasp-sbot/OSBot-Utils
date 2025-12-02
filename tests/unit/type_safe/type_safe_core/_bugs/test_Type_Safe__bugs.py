@@ -1,4 +1,6 @@
+import re
 import pytest
+from typing                                                           import Type
 from unittest                                                         import TestCase
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 
@@ -68,4 +70,32 @@ class test_Type_Safe__bugs(TestCase):
 
         assert an_class.an_str == 'new_value'
         assert an_class.an_bool == False
+
+    def test__bug__type_annotation__non_none_parent_default(self):
+        # What happens when parent has a non-None default?
+        # This combines BOTH bugs:
+        # 1. Subclass inherits parent's value (Base_Handler) instead of auto-assigning Extended_Handler
+        # 2. Then validation fails because Base_Handler is not a subclass of Extended_Handler
+
+        class Base_Handler(Type_Safe):
+            pass
+
+        class Extended_Handler(Base_Handler):
+            pass
+
+        class Base_Config(Type_Safe):
+            handler_type: Type[Base_Handler] = Base_Handler             # Non-None default
+
+        class Extended_Config(Base_Config):
+            handler_type: Type[Extended_Handler]                        # Re-declare with more specific type
+
+        # Parent default is Base_Handler
+        with Base_Config() as _:
+            assert _.handler_type is Base_Handler                       # Correct
+
+        # BUG: Subclass inherits parent's value (Base_Handler), then validation fails
+        #      because Base_Handler is not a subclass of Extended_Handler
+        error_message = "On Extended_Config, invalid type for attribute 'handler_type'. Expected 'typing.Type["
+        with pytest.raises(ValueError, match=re.escape(error_message)):
+            Extended_Config()                                           # BUG: should auto-assign Extended_Handler
 

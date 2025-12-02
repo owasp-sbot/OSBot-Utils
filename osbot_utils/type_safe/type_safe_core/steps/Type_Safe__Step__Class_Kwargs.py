@@ -1,8 +1,5 @@
 from typing                                                                     import Dict, Any, Type
-
-from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                import Obj_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid           import Random_Guid
+from osbot_utils.type_safe.Type_Safe__Primitive                                 import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache               import type_safe_cache, Type_Safe__Cache
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables   import IMMUTABLE_TYPES
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation          import type_safe_validation
@@ -100,15 +97,23 @@ class Type_Safe__Step__Class_Kwargs:                                            
         type_safe_validation.validate_variable_type(base_cls, var_name, var_type, var_value)
         type_safe_validation.validate_type_immutability(var_name, var_type)
 
-    def process_annotation(self, cls      : Type           ,                            # Process single annotation
+    def process_annotation(self, cls      : Type           ,
                                  base_cls : Type           ,
                                  kwargs   : Dict[str, Any] ,
                                  var_name : str            ,
-                                 var_type : Type           )\
-                       -> None:
-        if not hasattr(base_cls, var_name):                                             # Handle undefined variables
+                                 var_type : Type           ):
+
+        class_declares_annotation = var_name in getattr(base_cls, '__annotations__', {})
+
+        if not hasattr(base_cls, var_name):
             self.handle_undefined_var(cls, kwargs, var_name, var_type)
-        else:                                                                           # Handle defined variables
+        elif class_declares_annotation and base_cls is cls:
+            origin = type_safe_cache.get_origin(var_type)                               # Only recalculate default for Type[T] annotations
+            if origin is type:
+                self.handle_undefined_var(cls, kwargs, var_name, var_type)
+            else:
+                self.handle_defined_var(base_cls, var_name, var_type)
+        else:
             self.handle_defined_var(base_cls, var_name, var_type)
 
     def process_annotations(self, cls      : Type           ,                           # Process all annotations
@@ -118,6 +123,7 @@ class Type_Safe__Step__Class_Kwargs:                                            
         if hasattr(base_cls, '__annotations__'):                                        # Process if annotations exist
             for var_name, var_type in type_safe_cache.get_class_annotations(base_cls):
                 self.process_annotation(cls, base_cls, kwargs, var_name, var_type)
+
 
     def process_mro_class(self, base_cls : Type           ,                             # Process class in MRO chain
                                 kwargs   : Dict[str, Any] )\

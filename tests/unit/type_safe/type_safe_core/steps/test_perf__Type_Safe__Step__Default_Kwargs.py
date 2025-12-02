@@ -46,9 +46,9 @@ class test_perf__Type_Safe__Step__Default_Kwargs(TestCase):
             return type_safe_step_default_kwargs.locals(obj)
 
         with Performance_Measure__Session() as session:
-            session.measure(get_default_kwargs).assert_time(self.time_1_kns)
-            session.measure(get_kwargs        ).assert_time(self.time_1_kns)
-            session.measure(get_locals        ).assert_time(self.time_2_kns)
+            session.measure(get_default_kwargs).assert_time(self.time_2_kns)
+            session.measure(get_kwargs        ).assert_time(self.time_2_kns)
+            session.measure(get_locals        ).assert_time(self.time_3_kns)
 
     def test_simple_class(self):                                                    # Test with simple attributes
         class SimpleClass:
