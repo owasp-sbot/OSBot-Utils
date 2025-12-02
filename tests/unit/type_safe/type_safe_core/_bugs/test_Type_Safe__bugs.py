@@ -100,4 +100,3 @@ class test_Type_Safe__bugs(TestCase):
             Extended_Config()                                           # BUG: should auto-assign Extended_Handler
 
 
-

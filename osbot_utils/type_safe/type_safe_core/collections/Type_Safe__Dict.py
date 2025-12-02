@@ -90,9 +90,9 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
                 if isinstance(v, list):
                     return serialized
                 elif isinstance(v, tuple):
-                    return tuple(serialized)
+                    return serialized
                 else:  # set
-                    return set(serialized)
+                    return serialized
             else:
                 return serialize_to_dict(v)                             # Use serialize_to_dict for unknown types (so that we don't return a non json object)
 

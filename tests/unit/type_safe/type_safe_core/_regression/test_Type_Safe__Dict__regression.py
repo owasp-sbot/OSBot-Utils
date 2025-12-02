@@ -238,8 +238,10 @@ class test_Type_Safe__Dict__regression(TestCase):
 
         # Get JSON representation
         json_data = type_dict.json()
-        assert json_data == { 'test_Type_Safe__Dict__regression.Another_Type' : {'value4', 'value3'},
-                              'test_Type_Safe__Dict__regression.Bug_Type_Keys': {'value2', 'value1'}}     # FIXED
+        json_data['test_Type_Safe__Dict__regression.Another_Type'  ].sort()     # because the original was a set, we need to sort it so that the comparison below works
+        json_data['test_Type_Safe__Dict__regression.Bug_Type_Keys' ].sort()
+        assert json_data == { 'test_Type_Safe__Dict__regression.Another_Type' : ['value3', 'value4'],
+                              'test_Type_Safe__Dict__regression.Bug_Type_Keys': ['value1', 'value2']}     # FIXED
 
         # # The bug is that the keys in json_data are still Type objects
         # # This assertion passes when the bug is present
@@ -268,7 +270,7 @@ class test_Type_Safe__Dict__regression(TestCase):
 
         #assert json_data == { 'values': { test_Type_Safe__Dict__bugs.Bug_Type_Keys: ['test1', 'test2']}}       # BUG should not be using type
         bug_type_keys = json_data.get('values').get('test_Type_Safe__Dict__regression.Bug_Type_Keys')
-        assert type(bug_type_keys) is set
+        assert type(bug_type_keys) is list
         assert 'test1' in bug_type_keys
         assert 'test2' in bug_type_keys
         #assert type(json_data.values['test_Type_Safe__Dict__bugs.Bug_Type_Keys']) is set
