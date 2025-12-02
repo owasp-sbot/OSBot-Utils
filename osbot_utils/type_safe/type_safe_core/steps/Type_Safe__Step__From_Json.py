@@ -308,8 +308,9 @@ class Type_Safe__Step__From_Json:
             return dict_value  # No type info, use raw dict
 
     def deserialize_type_safe_value(self, value_class, dict_value):                         # Handle deserialization of Type_Safe subclass values.
-        if 'node_type' in dict_value:
-            value_class = type_safe_convert.get_class_from_class_name(dict_value['node_type'])
+        value = dict_value.get('node_type')
+        if value:
+            value_class = type_safe_convert.get_class_from_class_name(value)
 
         return self.deserialize_from_dict(value_class(), dict_value)
 
