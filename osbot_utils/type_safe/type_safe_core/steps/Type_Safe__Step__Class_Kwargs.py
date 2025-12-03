@@ -13,8 +13,10 @@ class Type_Safe__Step__Class_Kwargs:                                            
     def __init__(self):
         self.type_safe_cache = type_safe_cache                                           # Initialize with singleton cache
 
-    def get_cls_kwargs(self, cls                  : Type )\
-                    -> Dict[str, Any]:                                                   # Main entry point for getting class kwargs, returns dict of class kwargs
+    def get_cls_kwargs(self,                                                            # Main entry point for getting class kwargs, returns dict of class kwargs
+                       cls            : Type                  ,
+                       provided_kwargs: Dict[str, Any] = None                           # kwargs that were provided on the __init__
+                   )-> Dict[str, Any]:
 
         if not hasattr(cls, '__mro__'):                                                  # Handle non-class inputs
             return {}
@@ -29,9 +31,9 @@ class Type_Safe__Step__Class_Kwargs:                                            
         base_classes = type_safe_cache.get_class_mro(cls)
         for base_cls in base_classes:
             self.process_mro_class  (base_cls, kwargs)                                  # Handle each class in MRO
-            self.process_annotations(cls, base_cls, kwargs)                             # Process its annotations
+            self.process_annotations(cls, base_cls, kwargs, provided_kwargs)            # Process its annotations
 
-        if self.is_kwargs_cacheable(cls, kwargs):                                            # if we can cache it (i.e. only IMMUTABLE_TYPES vars)
+        if not provided_kwargs and self.is_kwargs_cacheable(cls, kwargs):                                            # Only cache if no provided_kwargs were used and  if we can cache it (i.e. only IMMUTABLE_TYPES vars)
             type_safe_cache.set_cache__cls_kwargs(cls, kwargs)                          #   cache it
         # else:
         #     pass                                                  # todo:: see how we can cache more the cases when the data is clean (i.e. default values)
@@ -49,30 +51,28 @@ class Type_Safe__Step__Class_Kwargs:                                            
         return match
 
 
-    def handle_undefined_var(self, cls      : Type            ,                         # Handle undefined class variables
-                                   kwargs   : Dict[str, Any] ,
-                                   var_name : str            ,
-                                   var_type : Type           )\
-                          -> None:
-        if var_name in kwargs:                                                          # Skip if already defined
+    def handle_undefined_var(self, cls            : Type                  ,                         # Handle undefined class variables
+                                   kwargs         : Dict[str, Any]        ,
+                                   var_name       : str                   ,
+                                   var_type       : Type                  ,
+                                   provided_kwargs: Dict[str, Any] = None
+                               )-> None:
+
+        if var_name in kwargs:
             return
-        var_value        = type_safe_step_default_value.default_value(cls, var_type)    # Get default value
-        kwargs[var_name] = var_value                                                    # Store in kwargs
+        if provided_kwargs and var_name in provided_kwargs:                     # Skip if caller already provided this value
+            from osbot_utils.type_safe.Type_Safe import Type_Safe
+            if isinstance(var_type, type) and issubclass(var_type, Type_Safe):  # this logic fixes quite a big performance bug with large objects, since without this, we would be calculating the default values for objects that we already have the value since they were provided in the kwargs
+                kwargs[var_name] = None                                         # Placeholder - actual value comes from provided_kwargs
+                return
+
+        var_value        = type_safe_step_default_value.default_value(cls, var_type)
+        kwargs[var_name] = var_value
 
     def handle_defined_var(self, base_cls : Type ,                                      # Handle defined class variables
                                  var_name : str  ,
                                  var_type : Type )\
                         -> None:
-        # var_value = getattr(base_cls, var_name)                                         # Get current value
-        # if var_value is None:                                                           # Allow None assignments
-        #     return
-        #
-        # if type_safe_validation.should_skip_type_check(var_type):                       # Skip validation if needed
-        #     return
-        #
-        # type_safe_validation.validate_variable_type    (var_name, var_type, var_value)  # Validate type
-        # type_safe_validation.validate_type_immutability(var_name, var_type)             # Validate immutability
-
         var_value = getattr(base_cls, var_name)
         if var_value is None:
             return
@@ -97,35 +97,38 @@ class Type_Safe__Step__Class_Kwargs:                                            
         type_safe_validation.validate_variable_type(base_cls, var_name, var_type, var_value)
         type_safe_validation.validate_type_immutability(var_name, var_type)
 
-    def process_annotation(self, cls      : Type           ,
-                                 base_cls : Type           ,
-                                 kwargs   : Dict[str, Any] ,
-                                 var_name : str            ,
-                                 var_type : Type           ):
+    def process_annotation(self, cls            : Type           ,
+                                 base_cls       : Type           ,
+                                 kwargs         : Dict[str, Any] ,
+                                 var_name       : str            ,
+                                 var_type       : Type           ,
+                                 provided_kwargs: Dict[str, Any] = None
+                            ) -> None:
+        class_declares_annotation = var_name in getattr(base_cls, '__annotations__', {})      # Check if this class has the annotation in its own __annotations__
+        class_has_own_value       = var_name in base_cls.__dict__                             # Check if this class defines its own value (not inherited)
 
-        class_declares_annotation = var_name in getattr(base_cls, '__annotations__', {})    # Check if this class has the annotation in its own __annotations__
-        class_has_own_value       = var_name in base_cls.__dict__                           # Check if this class defines its own value (not inherited)
+        if not hasattr(base_cls, var_name):                                                   # Case 1: No value exists anywhere in hierarchy
+            self.handle_undefined_var(cls, kwargs, var_name, var_type, provided_kwargs)       #         Create fresh default value for this type
+        elif class_declares_annotation and base_cls is cls and not class_has_own_value:       # Case 2: Target class redeclares annotation without own value
+            self.handle_undefined_var(cls, kwargs, var_name, var_type, provided_kwargs)       #         Create fresh default, don't inherit parent's explicit None
+        elif class_declares_annotation and base_cls is cls:                                   # Case 3: Target class declares annotation with its own value
+            origin = type_safe_cache.get_origin(var_type)                                     #         Check if it's a Type[T] annotation
+            if origin is type:                                                                #         Type[T] annotations need special handling
+                self.handle_undefined_var(cls, kwargs, var_name, var_type, provided_kwargs)   #         Recalculate default for Type[T] (if value has not been provided)
+            else:                                                                             #         Normal annotation with explicit value
+                self.handle_defined_var(base_cls, var_name, var_type)                         #         Validate the defined value
+        else:                                                                                 # Case 4: Inherited value from parent class
+            self.handle_defined_var(base_cls, var_name, var_type)                             #         Use and validate the inherited value
 
-        if not hasattr(base_cls, var_name):                                                 # Case 1: No value exists anywhere in hierarchy
-            self.handle_undefined_var(cls, kwargs, var_name, var_type)                      #         Create fresh default value for this type
-        elif class_declares_annotation and base_cls is cls and not class_has_own_value:     # Case 2: Target class redeclares annotation without own value
-            self.handle_undefined_var(cls, kwargs, var_name, var_type)                      #         Create fresh default, don't inherit parent's explicit None
-        elif class_declares_annotation and base_cls is cls:                                 # Case 3: Target class declares annotation with its own value
-            origin = type_safe_cache.get_origin(var_type)                                   #         Check if it's a Type[T] annotation
-            if origin is type:                                                              #         Type[T] annotations need special handling
-                self.handle_undefined_var(cls, kwargs, var_name, var_type)                  #         Recalculate default for Type[T]
-            else:                                                                           #         Normal annotation with explicit value
-                self.handle_defined_var(base_cls, var_name, var_type)                       #         Validate the defined value
-        else:                                                                               # Case 4: Inherited value from parent class
-            self.handle_defined_var(base_cls, var_name, var_type)                           #         Use and validate the inherited value
+    def process_annotations(self, cls            : Type           ,                           # Process all annotations
+                                  base_cls       : Type           ,
+                                  kwargs         : Dict[str, Any] ,
+                                  provided_kwargs: Dict[str, Any] = None
+                            )  -> None:
 
-    def process_annotations(self, cls      : Type           ,                           # Process all annotations
-                                  base_cls : Type           ,
-                                  kwargs   : Dict[str, Any] )\
-                         -> None:
-        if hasattr(base_cls, '__annotations__'):                                        # Process if annotations exist
+        if hasattr(base_cls, '__annotations__'):
             for var_name, var_type in type_safe_cache.get_class_annotations(base_cls):
-                self.process_annotation(cls, base_cls, kwargs, var_name, var_type)
+                self.process_annotation(cls, base_cls, kwargs, var_name, var_type, provided_kwargs)
 
 
     def process_mro_class(self, base_cls : Type           ,                             # Process class in MRO chain

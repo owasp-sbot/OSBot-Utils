@@ -2027,6 +2027,232 @@ class test_Type_Safe__regression(TestCase):
         assert With_Base ().json() == {'an_str': ''}      # FIXED
         assert With_Base ().obj () == __(an_str='')       # FIXED
 
+
+    def test__regression__cls_kwargs_creates_ghost_objects_ignoring_provided_kwargs(self):
+        """
+        BUG: __cls_kwargs__() creates default values for ALL annotated fields,
+        even when those fields are already provided in **kwargs.
+
+        This causes:
+        1. Unnecessary object instantiation (performance hit)
+        2. Side effects from constructors (like ID generation) that are then discarded
+        3. For deeply nested Type_Safe hierarchies, this compounds significantly
+
+        The fix should make __cls_kwargs__() aware of which keys are in kwargs,
+        and skip creating defaults for those.
+        """
+        instantiation_count = {'inner': 0, 'outer': 0}
+
+        class Inner_Class(Type_Safe):
+            value: str
+
+            def __init__(self, **kwargs):
+                instantiation_count['inner'] += 1
+                super().__init__(**kwargs)
+
+        class Outer_Class(Type_Safe):
+            inner: Inner_Class                          # Type_Safe will auto-create default Inner_Class
+
+            def __init__(self, **kwargs):
+                instantiation_count['outer'] += 1
+                super().__init__(**kwargs)
+
+        # Reset counters
+        instantiation_count['inner'] = 0
+        instantiation_count['outer'] = 0
+
+        # Create inner object BEFORE creating outer
+        existing_inner = Inner_Class(value="pre-existing")
+
+        assert instantiation_count['inner'] == 1        # One Inner_Class created so far
+        assert instantiation_count['outer'] == 0
+
+        # Now create outer, passing the existing inner via kwargs
+        outer = Outer_Class(inner=existing_inner)
+
+        assert instantiation_count['outer'] == 1        # One Outer_Class created
+
+        # BUG: Inner_Class was instantiated TWICE - once for existing_inner,
+        #      and once as a "ghost" default in __cls_kwargs__() that was immediately discarded
+        #assert instantiation_count['inner'] == 2        # BUG: Should be 1, not 2
+        assert instantiation_count['inner'] == 1        # FIXED
+
+        # The actual inner object is correct (it's our pre-existing one)
+        assert outer.inner is existing_inner
+        assert outer.inner.value == "pre-existing"
+
+    def test__regression__ghost_objects_compound_in_nested_hierarchies(self):
+        """
+        BUG: For deeply nested Type_Safe objects, the ghost object problem compounds.
+
+        Each level creates ghost defaults for ALL its Type_Safe children,
+        which in turn create ghost defaults for THEIR children, etc.
+
+        This can cause exponential unnecessary instantiations.
+        """
+        instantiation_counts = {'level_1': 0, 'level_2': 0, 'level_3': 0}
+
+        class Level_3(Type_Safe):
+            name: str = "level_3"
+
+            def __init__(self, **kwargs):
+                instantiation_counts['level_3'] += 1
+                super().__init__(**kwargs)
+
+        class Level_2(Type_Safe):
+            child: Level_3
+
+            def __init__(self, **kwargs):
+                instantiation_counts['level_2'] += 1
+                super().__init__(**kwargs)
+
+        class Level_1(Type_Safe):
+            child: Level_2
+
+            def __init__(self, **kwargs):
+                instantiation_counts['level_1'] += 1
+                super().__init__(**kwargs)
+
+        # Reset
+        for key in instantiation_counts:
+            instantiation_counts[key] = 0
+
+        # Create full hierarchy manually
+        level_3 = Level_3(name="my_level_3")
+        level_2 = Level_2(child=level_3)
+        level_1 = Level_1(child=level_2)
+
+        # Expected: 1 of each (we created them explicitly)
+        # BUG: Ghost objects are created at each level
+
+        # Level_3: Created once explicitly, plus ghost from Level_2's __cls_kwargs__,
+        #          plus ghost from Level_1's __cls_kwargs__ (which creates ghost Level_2 which creates ghost Level_3)
+        #assert instantiation_counts['level_3'] == 3     # BUG: Should be 1
+        assert instantiation_counts['level_3'] == 1      # FIXED
+
+        # Level_2: Created once explicitly, plus ghost from Level_1's __cls_kwargs__
+        #assert instantiation_counts['level_2'] == 2     # BUG: Should be 1
+        assert instantiation_counts['level_2'] == 1       # FIXED
+
+        # Level_1: Created once explicitly
+        assert instantiation_counts['level_1'] == 1     # Correct
+
+        # Total instantiations: 6 instead of expected 3
+        total = sum(instantiation_counts.values())
+        #assert total == 6                               # BUG: Should be 3
+        assert total == 3                                # FIXED
+
+    def test__regression__ghost_objects_cause_side_effects_like_id_generation(self):
+        """
+        BUG: When Type_Safe classes have side effects in __init__ (like generating IDs),
+        ghost objects cause those side effects to occur and then be discarded.
+
+        This is particularly problematic for:
+        - ID generation (IDs are "used up" but never actually used)
+        - Database connections
+        - File handles
+        - Any resource allocation
+        """
+        generated_ids = []
+
+        def generate_id():
+            new_id = f"id_{len(generated_ids) + 1}"
+            generated_ids.append(new_id)
+            return new_id
+
+        class Schema_With_Id(Type_Safe):
+            schema_id: str
+
+            def __init__(self, **kwargs):
+                if 'schema_id' not in kwargs:
+                    kwargs['schema_id'] = generate_id()     # Auto-generate ID if not provided
+                super().__init__(**kwargs)
+
+        class Model_With_Schema(Type_Safe):
+            data: Schema_With_Id
+
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+
+        # Reset
+        generated_ids.clear()
+
+        # Create schema with explicit ID
+        my_schema = Schema_With_Id(schema_id="my_explicit_id")
+        assert generated_ids == []                      # No auto-generation needed
+
+        # Create model with the existing schema
+        model = Model_With_Schema(data=my_schema)
+
+        # BUG: A ghost Schema_With_Id was created in __cls_kwargs__(),
+        #      which triggered ID generation, then was discarded
+        #assert generated_ids == ['id_1']                # BUG: Should be empty []
+        assert generated_ids == []                       # FIXED
+
+        # The actual schema has our explicit ID
+        assert model.data.schema_id == "my_explicit_id"
+
+        # But we "wasted" id_1 on a ghost object
+        assert 'id_1' not in [model.data.schema_id]     # id_1 was generated but never used
+
+    def test__regression__ghost_objects_with_list_of_type_safe(self):
+        """
+        BUG: Even List[Type_Safe] annotations cause ghost object creation,
+        because __cls_kwargs__() creates an empty Type_Safe__List as default,
+        which still processes the annotation.
+        """
+        instantiation_count = {'item': 0}
+
+        class Item(Type_Safe):
+            name: str
+
+            def __init__(self, **kwargs):
+                instantiation_count['item'] += 1
+                super().__init__(**kwargs)
+
+        class Container(Type_Safe):
+            items: List[Item]
+
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+
+        # Reset
+        instantiation_count['item'] = 0
+
+        # Create items
+        item1 = Item(name="first")
+        item2 = Item(name="second")
+
+        assert instantiation_count['item'] == 2
+
+        # Create container with existing items
+        container = Container(items=[item1, item2])
+
+        # For List[Item], the default is an empty Type_Safe__List,
+        # so no ghost Item objects should be created here
+        # (This might actually work correctly - testing to confirm)
+        assert instantiation_count['item'] == 2         # Should remain 2
+
+        assert container.items[0] is item1
+        assert container.items[1] is item2
+
+    def test__regression__ghost_object_creation(self):
+        from osbot_utils.helpers.cache.schemas.Schema__Cache__Hash__Config                     import Schema__Cache__Hash__Config
+        from osbot_utils.type_safe.primitives.domains.cryptography.enums.Enum__Hash__Algorithm import Enum__Hash__Algorithm
+
+        config = Schema__Cache__Hash__Config(algorithm=Enum__Hash__Algorithm.SHA256, length=16)
+
+        from osbot_utils.helpers.cache.Cache__Hash__Generator import Cache__Hash__Generator
+        with Cache__Hash__Generator() as _:
+            assert _.config is not None
+
+        with Cache__Hash__Generator(config=config) as _:
+            assert _.config is not None
+
+        with Cache__Hash__Generator() as _:
+            #assert _.config is None             # BUG
+            assert _.config is not None         # FIXED
+
     def test__regression__set__json__serialisation_issue(self):
 
         class An_Class(Type_Safe):
