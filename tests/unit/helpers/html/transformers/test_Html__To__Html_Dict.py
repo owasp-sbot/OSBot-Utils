@@ -1,7 +1,7 @@
-from unittest                                       import TestCase
+from unittest                                                    import TestCase
 from osbot_utils.helpers.html.transformers.Html_Dict__To__Html   import Html_Dict__To__Html
 from osbot_utils.helpers.html.transformers.Html__To__Html_Dict   import Html__To__Html_Dict, STRING__SCHEMA_TEXT
-from tests._test_data.Sample_Test_Files             import Sample_Test_Files
+from tests._test_data.Sample_Test_Files                          import Sample_Test_Files
 
 
 class test_Html__To__Html_Dict(TestCase):
