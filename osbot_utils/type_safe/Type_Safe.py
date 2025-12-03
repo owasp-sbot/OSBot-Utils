@@ -11,8 +11,7 @@ from osbot_utils.utils.Objects                                                  
 class Type_Safe:
 
     def __init__(self, **kwargs):
-
-        class_kwargs = self.__cls_kwargs__()
+        class_kwargs = self.__cls_kwargs__(provided_kwargs=kwargs)
         type_safe_step_init.init(self, class_kwargs, **kwargs)
 
 
@@ -28,8 +27,8 @@ class Type_Safe:
         return list_set(self.__locals__())
 
     @classmethod
-    def __cls_kwargs__(cls):                                                # Return current class dictionary of class level variables and their values
-        return type_safe_step_class_kwargs.get_cls_kwargs(cls)
+    def __cls_kwargs__(cls, provided_kwargs=None):                          # Return current class dictionary of class level variables and their values
+        return type_safe_step_class_kwargs.get_cls_kwargs(cls, provided_kwargs)
 
     @classmethod
     def __default__value__(cls, var_type):

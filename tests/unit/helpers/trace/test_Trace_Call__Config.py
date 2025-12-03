@@ -82,14 +82,14 @@ class test_Trace_Call__Config(TestCase):
             assert _.print_traces_on_exit     is True
 
     def test_duration(self):
-        with self.subTest("Initial state"):
+        #with self.subTest("Initial state"):
             config = self.trace_call_config
             assert config.capture_duration is False
             assert config.print_duration is False
             assert config.print_padding_duration == PRINT_PADDING__DURATION
             assert config.with_duration_bigger_than == 0
 
-        with self.subTest("After setting duration"):
+        #with self.subTest("After setting duration"):
             config.duration(bigger_than=10, padding=20)
             assert config.capture_duration is True
             assert config.print_duration is True

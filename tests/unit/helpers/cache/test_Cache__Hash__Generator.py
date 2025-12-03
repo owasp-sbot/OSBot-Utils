@@ -184,3 +184,4 @@ class test_Cache__Hash__Generator(TestCase):
             assert _.from_json_field(data_1, json_field='Answer') == '73475cb40a568e8d'
             assert _.from_json      (data_2)                      == 'e92ec70711870c51'
             assert _.from_json_field(data_2, json_field='Answer') == '44cb730c420480a0'
+

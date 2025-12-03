@@ -1,6 +1,6 @@
 import re
 import pytest
-from typing                                                           import Type
+from typing import Type, List
 from unittest                                                         import TestCase
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 
@@ -71,7 +71,7 @@ class test_Type_Safe__bugs(TestCase):
         assert an_class.an_str == 'new_value'
         assert an_class.an_bool == False
 
-    def test__regression__type_annotation__non_none_parent_default(self):
+    def test__bug__type_annotation__non_none_parent_default(self):
         # What happens when parent has a non-None default?
         # This combines BOTH bugs:
         # 1. Subclass inherits parent's value (Base_Handler) instead of auto-assigning Extended_Handler

@@ -69,7 +69,7 @@ class test_Xml__File__Load(TestCase):
         }
 
         for xml, expected_namespaces in namespace_xmls.items():
-            with self.subTest(xml=xml):
+            #with self.subTest(xml=xml):
                 xml_file = self.xml_loader.load_from_string(xml)
                 assert all(ns in xml_file.namespaces for ns in expected_namespaces)
 

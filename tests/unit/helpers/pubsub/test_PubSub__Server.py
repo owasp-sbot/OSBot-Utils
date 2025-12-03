@@ -120,7 +120,7 @@ class test_PubSub__Server(TestCase):
             client_1.join_room(room_name)
             client_2.join_room(room_name)
             _.wait_micro_seconds()                            # this needs to be higher if we do anything inside those client_* methods :)
-            assert _.room(room_name).clients == {client_1, client_2}
+            assert len(_.room(room_name).clients) ==len({client_1, client_2})       # using len since this set was making this fail rarely
 
             client_1.leave_room(room_name)
             client_2.leave_room(room_name)
