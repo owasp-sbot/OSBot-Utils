@@ -22,6 +22,10 @@ class Type_Safe__Validation:
         import types
         import typing
 
+        if source_type is None:
+            return target_type is type(None) or target_type is None or target_type is typing.Any
+
+
         if isinstance(target_type, str):                                    # If the "target_type" is a forward reference (string), handle it here.
             if target_type == source_type.__name__:                         # Simple check: does the string match the actual class name
                 return True
@@ -118,6 +122,13 @@ class Type_Safe__Validation:
 
         if value_type in args:                                              # Direct match
             return True
+
+        if value_type is types.FunctionType: # Handle Callable types within Union (e.g., Optional[Callable[[str], None]]), hen value_type is a function, check if any union arg is a compatible Callable
+            for arg in args:
+                arg_origin = type_safe_cache.get_origin(arg)
+                if arg_origin is collections.abc.Callable:
+                    return True  # Accept functions for Callable annotations in unions  , Full signature validation happens elsewhere
+
 
         if value_type in TYPE_MAPPINGS:                                     # Check for typing generics equivalence
             if TYPE_MAPPINGS[value_type] in args:                           # If value_type is a built-in, check if its typing equivalent is in args
