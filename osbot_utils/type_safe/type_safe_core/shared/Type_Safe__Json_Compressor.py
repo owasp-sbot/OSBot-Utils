@@ -1,4 +1,5 @@
 from typing                                                                                 import Dict, Any, Type
+from osbot_utils.type_safe.Type_Safe__Primitive                                             import Type_Safe__Primitive
 from osbot_utils.type_safe.Type_Safe__Base                                                  import Type_Safe__Base
 from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache                           import type_safe_cache
@@ -23,7 +24,9 @@ class Type_Safe__Json_Compressor(Type_Safe__Base):
         return compressed
 
     def compress_object(self, obj: Any) -> Any:
-        if isinstance(obj, Type_Safe):
+        if isinstance(obj, Type_Safe__Primitive):
+            return obj.__to_primitive__()
+        elif isinstance(obj, Type_Safe):
             annotations = type_safe_cache.get_obj_annotations(obj)
             return self.process_type_safe_object(obj, annotations)
         elif isinstance(obj, dict):
@@ -41,6 +44,8 @@ class Type_Safe__Json_Compressor(Type_Safe__Base):
                                   ) -> Dict:
         result = {}
         for key, value in obj.__dict__.items():
+            if value is None:
+                continue
             if key.startswith('_'):                                            # Skip internal attributes
                 continue
             if key in annotations:
@@ -53,8 +58,12 @@ class Type_Safe__Json_Compressor(Type_Safe__Base):
     def compress_annotated_value(self, value      : Any ,
                                        annotation : Any
                                   ) -> Any:
+        if value is None:
+            return None
         origin = type_safe_cache.get_origin(annotation)
-        if origin in (type, Type):                                            # Handle Type annotations
+        if isinstance(value, Type_Safe__Primitive):
+            return value.__to_primitive__()
+        elif origin in (type, Type):                                            # Handle Type annotations
             if value:
                 return self.type_registry.register_type(class_full_name(value))
             return None
@@ -69,10 +78,14 @@ class Type_Safe__Json_Compressor(Type_Safe__Base):
     def compress_dict(self, data: Dict) -> Dict:
         if not isinstance(data, dict):
             return data
-
         result = {}
         for key, value in data.items():
-            compressed_key         = self.compress_object(key) if isinstance(key, Type_Safe) else key
+            if isinstance(value, Type_Safe__Primitive):
+                compressed_key = value.__to_primitive__()
+            elif isinstance(key, Type_Safe):
+                compressed_key = self.compress_object(key)
+            else:
+                compressed_key=str(key)
             compressed_value       = self.compress_object(value)
             result[compressed_key] = compressed_value
         return result
