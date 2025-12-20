@@ -91,10 +91,10 @@ class Type_Safe__Dict(Type_Safe__Base, dict):
                     return serialized
                 elif isinstance(v, tuple):
                     return serialized
-                else:  # set
-                    if isinstance(self.expected_key_type, type) and issubclass(self.expected_key_type,str):              # for strings
+                else:                               # set
+                    try:                                                                                                 # if it is possible
                         return sorted(serialized)                                                                        #      return sorted set to make it more deterministic and easier to test
-                    else:                                                                                                # else
+                    except TypeError:                                                                                                # else
                         return serialized                                                                                #      return list created from set (which is had non-deterministic order)
             else:
                 return serialize_to_dict(v)                             # Use serialize_to_dict for unknown types (so that we don't return a non json object)
