@@ -1,7 +1,7 @@
 import types
 from typing                                                       import get_args, Union, Optional, Any, ForwardRef, Literal
+from osbot_utils.type_safe.Type_Safe__Primitive                   import Type_Safe__Primitive
 from osbot_utils.utils.Dev                                        import pprint
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id  import Obj_Id
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache import type_safe_cache
 
 EXACT_TYPE_MATCH = (int, float, str, bytes, bool, complex)
@@ -52,10 +52,13 @@ class Type_Safe__Base:
                 actual_type_name   = type_str(type(item))
                 raise TypeError(f"Expected '{expected_type_name}', but got '{actual_type_name}'")
             for idx, elem in enumerate(item):
-                try:
-                    self.is_instance_of_type(elem, item_type)
-                except TypeError as e:
-                    raise TypeError(f"In list at index {idx}: {e}")
+                if isinstance(item_type, type) and issubclass(item_type, Type_Safe__Primitive):
+                    item_type(elem)                                         # Constructor validates and converts
+                else:
+                    try:
+                        self.is_instance_of_type(elem, item_type)
+                    except TypeError as e:
+                        raise TypeError(f"In list at index {idx}: {e}")
             return True
         elif origin is dict and args:                                                    # Expected type is Dict[...]
             key_type, value_type = args
@@ -81,12 +84,13 @@ class Type_Safe__Base:
             if len(args) != len(item):
                 raise TypeError(f"Expected tuple of length {len(args)}, but got {len(item)}")
             for idx, (elem, elem_type) in enumerate(zip(item, args)):
-                if elem_type is Obj_Id:                                     # todo: refactor this out, and figure out better way to handle this kind of de-serialisation
-                    elem = elem_type(elem)
-                try:
-                    self.is_instance_of_type(elem, elem_type)
-                except TypeError as e:
-                    raise TypeError(f"In tuple at index {idx}: {e}")
+                if isinstance(elem_type, type) and issubclass(elem_type, Type_Safe__Primitive):
+                    elem_type(elem)                                             # Constructor validates the value | todo: double check this logic since we could have a situation where the type_safe primitive was ok, but we never got that value into the system (this might be checked and converted at a later stage, but it will be good to double check)
+                else:
+                    try:
+                        self.is_instance_of_type(elem, elem_type)               # Only check non-primitives
+                    except TypeError as e:
+                        raise TypeError(f"In tuple at index {idx}: {e}")
             return True
         elif origin is Union or expected_type is Optional:                                                   # Expected type is Union[...]
             for arg in args:
