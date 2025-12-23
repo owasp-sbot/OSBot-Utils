@@ -148,3 +148,8 @@ class Timestamp_Collector__Report(Type_Safe):
 
     def print_hotspots(self, top_n: int = 10):
         print(self.format_hotspots(top_n))
+
+    def print_all(self):
+        self.print_report()
+        self.print_hotspots()
+        self.print_timeline()
