@@ -1,4 +1,4 @@
-from osbot_utils.utils.Env import get_env, load_dotenv, in_python_debugger, in_github_action
+from osbot_utils.utils.Env import get_env, load_dotenv, in_python_debugger, in_github_action, not_in_github_action
 
 needs_load_dotenv = True
 
@@ -20,3 +20,7 @@ def skip__if_in_python_debugger():
 def skip_if_in_github_action():
     if in_github_action():
         skip_pytest("Skipping test because we are in a github action")
+
+def skip__if_not__in_github_actions():
+    if not_in_github_action():
+        skip_pytest('For performance reasons only run this test in GitHub Actions')
