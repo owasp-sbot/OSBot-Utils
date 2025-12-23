@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing                          import Dict, Any
+from typing      import Dict, Any
 
 @dataclass(slots=True)
 class Schema__Timestamp_Entry:

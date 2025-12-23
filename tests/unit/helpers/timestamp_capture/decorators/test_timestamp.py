@@ -163,3 +163,70 @@ class test_timestamp(TestCase):
 
         assert duration_ns >= 10_000_000                                           # At least 10ms
         assert duration_ns <  50_000_000                                           # Less than 50ms (reasonable overhead)
+
+    def test_timestamp__custom_name__on_method(self):                              # Test custom name on class method
+        class MyService:
+            @timestamp(name="service.process")
+            def process(self, data):
+                return data * 2
+
+        _timestamp_collector_ = Timestamp_Collector()
+
+        with _timestamp_collector_:
+            service = MyService()
+            result = service.process(21)
+
+        assert result                                == 42
+        assert _timestamp_collector_.entries[0].name == 'service.process'
+        assert _timestamp_collector_.entries[1].name == 'service.process'          # exit has same name
+
+    def test_timestamp__custom_name__with_dots(self):                              # Test hierarchical naming convention
+        @timestamp(name="pipeline.stage1.parse")
+        def parse():
+            return "parsed"
+
+        @timestamp(name="pipeline.stage2.transform")
+        def transform():
+            return "transformed"
+
+        _timestamp_collector_ = Timestamp_Collector()
+
+        with _timestamp_collector_:
+            parse()
+            transform()
+
+        names = [e.name for e in _timestamp_collector_.entries]
+        assert 'pipeline.stage1.parse'     in names
+        assert 'pipeline.stage2.transform' in names
+
+    def test_timestamp__custom_name__aggregation(self):                            # Test that custom names aggregate correctly
+        @timestamp(name="repeated.operation")
+        def operation():
+            pass
+
+        _timestamp_collector_ = Timestamp_Collector()
+
+        with _timestamp_collector_:
+            for _ in range(5):
+                operation()
+
+        from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Analysis import Timestamp_Collector__Analysis
+
+        analysis = Timestamp_Collector__Analysis(collector=_timestamp_collector_)
+        timings  = analysis.get_method_timings()
+
+        assert 'repeated.operation'                  in timings
+        assert timings['repeated.operation'].call_count == 5
+
+    def test_timestamp__custom_name__empty_string(self):                           # Test empty string falls back to qualname
+        @timestamp(name="")
+        def func_with_empty_name():
+            return True
+
+        _timestamp_collector_ = Timestamp_Collector()
+
+        with _timestamp_collector_:
+            func_with_empty_name()
+
+        # Empty string is falsy, so falls back to __qualname__
+        assert 'func_with_empty_name' in _timestamp_collector_.entries[0].name
