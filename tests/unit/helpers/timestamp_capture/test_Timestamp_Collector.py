@@ -1,8 +1,6 @@
 import threading
 from unittest                                                                      import TestCase
-
-from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
-
+from osbot_utils.testing.Pytest                                                    import skip__if_not__in_github_actions
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                     import Timestamp_Collector
 from osbot_utils.helpers.timestamp_capture.schemas.Schema__Timestamp_Entry         import Schema__Timestamp_Entry
 from osbot_utils.type_safe.Type_Safe                                               import Type_Safe

@@ -117,6 +117,9 @@ def in_github_action():
 
     return os.getenv('GITHUB_ACTIONS') == 'true'
 
+def not_in_github_action():
+    return in_github_action() is False
+
 def in_pytest_with_coverage():
     import os
 
