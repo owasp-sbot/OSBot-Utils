@@ -1,8 +1,8 @@
+from dataclasses import dataclass
 from typing                          import Dict, Any
-from osbot_utils.type_safe.Type_Safe import Type_Safe
 
-
-class Schema__Timestamp_Entry(Type_Safe):                   # Single timestamp capture entry
+@dataclass(slots=True)
+class Schema__Timestamp_Entry:
     name         : str              = ''
     event        : str              = ''                    # 'enter' | 'exit'
     timestamp_ns : int              = 0                     # perf_counter_ns (monotonic)
@@ -10,3 +10,9 @@ class Schema__Timestamp_Entry(Type_Safe):                   # Single timestamp c
     thread_id    : int              = 0
     depth        : int              = 0
     extra        : Dict[str, Any]   = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return False

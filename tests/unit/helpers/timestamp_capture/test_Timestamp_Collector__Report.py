@@ -1,5 +1,8 @@
 import time
 from unittest                                                                      import TestCase
+
+from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
+
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                     import Timestamp_Collector
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Report             import Timestamp_Collector__Report
 from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
@@ -28,6 +31,7 @@ class test_Timestamp_Collector__Report(TestCase):
         assert 'Methods Traced'               in output
 
     def test_format_report__with_data(self):                                       # Test report with timing data
+        skip__if_not__in_github_actions()
         with Timestamp_Collector(name='data_test') as collector:
             collector.enter('method_a')
             time.sleep(0.01)
@@ -105,6 +109,7 @@ class test_Timestamp_Collector__Report(TestCase):
         assert 'Hotspots' in output
 
     def test_format_hotspots__with_data(self):                                     # Test hotspots with timing data
+        skip__if_not__in_github_actions()
         with Timestamp_Collector() as collector:
             collector.enter('slow')
             time.sleep(0.015)

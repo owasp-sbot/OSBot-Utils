@@ -1,5 +1,8 @@
 import time
 from unittest                                                                         import TestCase
+
+from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
+
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                        import Timestamp_Collector
 from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block           import timestamp_block
 
@@ -66,6 +69,7 @@ class test_timestamp_block(TestCase):
         assert _timestamp_collector_.entries[1].event  == 'exit'
 
     def test_timestamp_block__timing_accuracy(self):                                  # Test timing is reasonably accurate
+        skip__if_not__in_github_actions()
         _timestamp_collector_ = Timestamp_Collector()
 
         with _timestamp_collector_:

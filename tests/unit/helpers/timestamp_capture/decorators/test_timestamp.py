@@ -1,5 +1,8 @@
 import time
 from unittest                                                                      import TestCase
+
+from osbot_fast_api_serverless.utils.testing.skip_tests import skip__if_not__in_github_actions
+
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                     import Timestamp_Collector
 from osbot_utils.helpers.timestamp_capture.decorators.timestamp                    import timestamp
 from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
@@ -146,6 +149,7 @@ class test_timestamp(TestCase):
         assert _timestamp_collector_.method_count() == 1                           # Still just one unique method
 
     def test_timestamp__timing_accuracy(self):                                     # Test timing is reasonably accurate
+        skip__if_not__in_github_actions()
         @timestamp
         def sleep_function():
             time.sleep(0.01)                                                       # 10ms

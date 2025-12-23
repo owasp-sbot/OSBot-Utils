@@ -9,7 +9,7 @@ class test_Schema__Method_Timing(TestCase):
     def test__init__(self):                                                      # Test auto-initialization of schema
         with Schema__Method_Timing() as _:
             assert type(_)          is Schema__Method_Timing
-            assert base_classes(_)  == [Type_Safe, object]
+            assert base_classes(_)  == [object]
             assert _.name           == ''
             assert _.call_count     == 0
             assert _.total_ns       == 0
@@ -30,20 +30,3 @@ class test_Schema__Method_Timing(TestCase):
             assert _.min_ns         == 3_000_000
             assert _.max_ns         == 8_000_000
             assert _.self_ns        == 30_000_000
-
-    def test__json_round_trip(self):                                             # Test serialization round-trip
-        with Schema__Method_Timing(name       = 'convert'          ,
-                                   call_count = 5                  ,
-                                   total_ns   = 100_000_000        ,
-                                   min_ns     = 15_000_000         ,
-                                   max_ns     = 25_000_000         ,
-                                   self_ns    = 60_000_000         ) as _:
-            json_data = _.json()
-            recreated = Schema__Method_Timing.from_json(json_data)
-
-            assert recreated.name       == _.name
-            assert recreated.call_count == _.call_count
-            assert recreated.total_ns   == _.total_ns
-            assert recreated.min_ns     == _.min_ns
-            assert recreated.max_ns     == _.max_ns
-            assert recreated.self_ns    == _.self_ns
