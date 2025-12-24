@@ -6,6 +6,7 @@ from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Report          
 from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block           import timestamp_block
 from osbot_utils.helpers.timestamp_capture.decorators.timestamp                       import timestamp
 from osbot_utils.testing.Pytest                                                       import skip__if_not__in_github_actions
+from osbot_utils.testing.Stdout import Stdout
 from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
 
 
@@ -75,8 +76,9 @@ class test_Timestamp_Collector__integration(TestCase):
 
         hotspot_text = report.format_hotspots()
         assert 'Hotspots'                      in hotspot_text
-
-        report.print_all()
+        with Stdout() as stdout:
+            report.print_all()
+        assert 'imestamp Report: report_test' in stdout.value()
 
 
     def test_full_workflow__hotspot_analysis(self):                                   # Test hotspot correctly identifies slow methods
