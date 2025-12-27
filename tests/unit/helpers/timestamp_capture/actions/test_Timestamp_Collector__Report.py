@@ -2,7 +2,7 @@ import time
 from unittest                                                                      import TestCase
 from osbot_utils.testing.Pytest                                                    import skip__if_not__in_github_actions
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                     import Timestamp_Collector
-from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Report             import Timestamp_Collector__Report
+from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Report     import Timestamp_Collector__Report
 from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
 from osbot_utils.utils.Objects                                                     import base_classes
 

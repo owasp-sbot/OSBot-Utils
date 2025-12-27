@@ -1,6 +1,6 @@
-from osbot_utils.helpers.timestamp_capture.schemas.Schema__Method_Timing   import Schema__Method_Timing
-from osbot_utils.helpers.timestamp_capture.schemas.Schema__Timestamp_Entry import Schema__Timestamp_Entry
-from osbot_utils.helpers.timestamp_capture.timestamp_collector__config     import NS_TO_MS
+from osbot_utils.helpers.timestamp_capture.schemas.capture.Schema__Method_Timing   import Schema__Method_Timing
+from osbot_utils.helpers.timestamp_capture.schemas.capture.Schema__Timestamp_Entry import Schema__Timestamp_Entry
+from osbot_utils.helpers.timestamp_capture.timestamp_capture__config               import NS_TO_MS
 
 
 def timestamp_entry__to_ms(entry: Schema__Timestamp_Entry) -> float:            # Convert entry timestamp to milliseconds

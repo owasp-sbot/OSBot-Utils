@@ -1,7 +1,7 @@
 import sys
 from typing                                                             import Optional
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector          import Timestamp_Collector
-from osbot_utils.helpers.timestamp_capture.timestamp_collector__config  import MAX_STACK_DEPTH, COLLECTOR_VAR_NAME
+from osbot_utils.helpers.timestamp_capture.timestamp_capture__config    import MAX_STACK_DEPTH, COLLECTOR_VAR_NAME
 
 
 def find_timestamp_collector(max_depth: int = MAX_STACK_DEPTH           # Walk call stack to find Timestamp_Collector

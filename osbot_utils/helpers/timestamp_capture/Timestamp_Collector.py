@@ -13,9 +13,9 @@ Usage:
 
 import time
 import threading
-from typing                                                                import List, Dict, Any
-from osbot_utils.helpers.timestamp_capture.schemas.Schema__Timestamp_Entry import Schema__Timestamp_Entry
-from osbot_utils.type_safe.Type_Safe                                       import Type_Safe
+from typing                                                                        import List, Dict, Any
+from osbot_utils.helpers.timestamp_capture.schemas.capture.Schema__Timestamp_Entry import Schema__Timestamp_Entry
+from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
 
 
 class Timestamp_Collector(Type_Safe):

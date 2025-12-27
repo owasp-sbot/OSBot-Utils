@@ -5,10 +5,10 @@ Timestamp Collector Analysis
 Analyzes collected timestamps to compute method timings and hotspots.
 """
 
-from typing                                                                import List, Dict
-from osbot_utils.helpers.timestamp_capture.schemas.Schema__Method_Timing   import Schema__Method_Timing
-from osbot_utils.type_safe.Type_Safe                                       import Type_Safe
-from osbot_utils.helpers.timestamp_capture.Timestamp_Collector             import Timestamp_Collector
+from typing                                                                      import List, Dict
+from osbot_utils.helpers.timestamp_capture.schemas.capture.Schema__Method_Timing import Schema__Method_Timing
+from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
+from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                   import Timestamp_Collector
 
 
 class Timestamp_Collector__Analysis(Type_Safe):

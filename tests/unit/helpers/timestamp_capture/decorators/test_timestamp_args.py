@@ -2,7 +2,7 @@
 
 from unittest                                                                         import TestCase
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                        import Timestamp_Collector
-from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Analysis              import Timestamp_Collector__Analysis
+from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Analysis      import Timestamp_Collector__Analysis
 from osbot_utils.helpers.timestamp_capture.decorators.timestamp_args                  import timestamp_args
 
 

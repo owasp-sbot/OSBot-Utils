@@ -2,8 +2,8 @@ import time
 from unittest                                                                      import TestCase
 from osbot_utils.testing.Pytest                                                    import skip__if_not__in_github_actions
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                     import Timestamp_Collector
-from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Analysis           import Timestamp_Collector__Analysis
-from osbot_utils.helpers.timestamp_capture.schemas.Schema__Method_Timing           import Schema__Method_Timing
+from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Analysis   import Timestamp_Collector__Analysis
+from osbot_utils.helpers.timestamp_capture.schemas.capture.Schema__Method_Timing   import Schema__Method_Timing
 from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
 from osbot_utils.utils.Objects                                                     import base_classes
 
