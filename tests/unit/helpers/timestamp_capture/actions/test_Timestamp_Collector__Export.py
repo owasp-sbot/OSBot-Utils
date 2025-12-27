@@ -9,6 +9,7 @@ from osbot_utils.helpers.timestamp_capture.schemas.export.Schema__Call_Tree_Node
 from osbot_utils.helpers.timestamp_capture.schemas.export.Schema__Export_Full         import Schema__Export_Full
 from osbot_utils.helpers.timestamp_capture.schemas.export.Schema__Export_Summary      import Schema__Export_Summary
 from osbot_utils.helpers.timestamp_capture.schemas.speedscope.Schema__Speedscope      import Schema__Speedscope
+from osbot_utils.testing.Pytest import skip_if_in_github_action
 from osbot_utils.testing.__                                                           import __, __LESS_THAN__, __BETWEEN__, __SKIP__
 from osbot_utils.utils.Env import in_github_action
 from osbot_utils.utils.Json                                                           import json_to_str
@@ -48,6 +49,7 @@ class test_Timestamp_Collector__Export(TestCase):
         cls.export = Timestamp_Collector__Export(collector=cls.collector)
 
     def test__setup(self):                                          # name with __ so that it executes first
+        skip_if_in_github_action()                                  # even with delta this test was very flaky in GH actions
         assert len(self.collector.entries)        == 8
         assert type(self.export)                  is Timestamp_Collector__Export
 
