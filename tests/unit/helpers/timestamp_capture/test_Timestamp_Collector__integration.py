@@ -1,12 +1,12 @@
 import time as time_module
 from unittest                                                                         import TestCase
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                        import Timestamp_Collector
-from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Analysis              import Timestamp_Collector__Analysis
-from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Report                import Timestamp_Collector__Report
+from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Analysis      import Timestamp_Collector__Analysis
+from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Report        import Timestamp_Collector__Report
 from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block           import timestamp_block
 from osbot_utils.helpers.timestamp_capture.decorators.timestamp                       import timestamp
 from osbot_utils.testing.Pytest                                                       import skip__if_not__in_github_actions
-from osbot_utils.testing.Stdout import Stdout
+from osbot_utils.testing.Stdout                                                       import Stdout
 from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
 
 

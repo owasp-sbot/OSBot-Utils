@@ -1,5 +1,6 @@
 import time
 from unittest                                                                      import TestCase
+from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Analysis   import Timestamp_Collector__Analysis
 from osbot_utils.testing.Pytest                                                    import skip__if_not__in_github_actions
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                     import Timestamp_Collector
 from osbot_utils.helpers.timestamp_capture.decorators.timestamp                    import timestamp
@@ -209,8 +210,6 @@ class test_timestamp(TestCase):
         with _timestamp_collector_:
             for _ in range(5):
                 operation()
-
-        from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Analysis import Timestamp_Collector__Analysis
 
         analysis = Timestamp_Collector__Analysis(collector=_timestamp_collector_)
         timings  = analysis.get_method_timings()

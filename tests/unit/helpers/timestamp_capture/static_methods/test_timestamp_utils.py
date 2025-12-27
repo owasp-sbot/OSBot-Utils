@@ -1,12 +1,12 @@
-from unittest                                                                     import TestCase
-from osbot_utils.helpers.timestamp_capture.schemas.Schema__Method_Timing          import Schema__Method_Timing
-from osbot_utils.helpers.timestamp_capture.schemas.Schema__Timestamp_Entry        import Schema__Timestamp_Entry
-from osbot_utils.helpers.timestamp_capture.static_methods.timestamp_utils         import (timestamp_entry__to_ms    ,
-                                                                                          method_timing__total_ms   ,
-                                                                                          method_timing__avg_ms     ,
-                                                                                          method_timing__self_ms    ,
-                                                                                          method_timing__min_ms     ,
-                                                                                          method_timing__max_ms     )
+from unittest                                                                      import TestCase
+from osbot_utils.helpers.timestamp_capture.schemas.capture.Schema__Method_Timing   import Schema__Method_Timing
+from osbot_utils.helpers.timestamp_capture.schemas.capture.Schema__Timestamp_Entry import Schema__Timestamp_Entry
+from osbot_utils.helpers.timestamp_capture.static_methods.timestamp_utils          import (timestamp_entry__to_ms    ,
+                                                                                           method_timing__total_ms   ,
+                                                                                           method_timing__avg_ms     ,
+                                                                                           method_timing__self_ms    ,
+                                                                                           method_timing__min_ms     ,
+                                                                                           method_timing__max_ms     )
 
 
 class test_timestamp_utils(TestCase):

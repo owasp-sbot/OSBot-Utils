@@ -5,7 +5,7 @@ Timestamp Collector Report
 Formats and prints timing reports from collected timestamps.
 """
 
-from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Analysis         import Timestamp_Collector__Analysis
+from osbot_utils.helpers.timestamp_capture.actions.Timestamp_Collector__Analysis import Timestamp_Collector__Analysis
 from osbot_utils.helpers.timestamp_capture.static_methods.timestamp_utils        import method_timing__total_ms, method_timing__self_ms, method_timing__avg_ms
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                   import Timestamp_Collector

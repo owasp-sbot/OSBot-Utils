@@ -1,7 +1,7 @@
 from unittest                                                                      import TestCase
 from osbot_utils.helpers.timestamp_capture.Timestamp_Collector                     import Timestamp_Collector
 from osbot_utils.helpers.timestamp_capture.static_methods.find_timestamp_collector import find_timestamp_collector
-from osbot_utils.helpers.timestamp_capture.timestamp_collector__config             import COLLECTOR_VAR_NAME
+from osbot_utils.helpers.timestamp_capture.timestamp_capture__config               import COLLECTOR_VAR_NAME
 
 
 class test_find_timestamp_collector(TestCase):

@@ -1,5 +1,5 @@
 from unittest                                                                    import TestCase
-from osbot_utils.helpers.timestamp_capture.schemas.Schema__Method_Timing         import Schema__Method_Timing
+from osbot_utils.helpers.timestamp_capture.schemas.capture.Schema__Method_Timing import Schema__Method_Timing
 from osbot_utils.utils.Objects                                                   import base_classes
 
 
