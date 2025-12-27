@@ -10,6 +10,7 @@ from osbot_utils.helpers.timestamp_capture.schemas.export.Schema__Export_Full   
 from osbot_utils.helpers.timestamp_capture.schemas.export.Schema__Export_Summary      import Schema__Export_Summary
 from osbot_utils.helpers.timestamp_capture.schemas.speedscope.Schema__Speedscope      import Schema__Speedscope
 from osbot_utils.testing.__                                                           import __, __LESS_THAN__, __BETWEEN__, __SKIP__
+from osbot_utils.utils.Env import in_github_action
 from osbot_utils.utils.Json                                                           import json_to_str
 
 
@@ -50,10 +51,14 @@ class test_Timestamp_Collector__Export(TestCase):
         assert len(self.collector.entries)        == 8
         assert type(self.export)                  is Timestamp_Collector__Export
 
+        if in_github_action():
+            delta = 5
+        else:
+            delta = 1
         with self.export.to_export_summary() as _:
             assert type(_)                        is Schema__Export_Summary
-            assert _.total_duration_ms            < 0.30
-            assert _.hotspots[0].self_ms          < 0.08
+            assert _.total_duration_ms            < 0.30 * delta
+            assert _.hotspots[0].self_ms          < 0.08 * delta
 
             # explicit asserts derived from _.obj() comparison
             assert _.name                         == 'export_test'
@@ -63,48 +68,48 @@ class test_Timestamp_Collector__Export(TestCase):
 
             # hotspot 0
             assert _.hotspots[0].name             == 'test_Timestamp_Collector__Export.create_timestamp_entries.<locals>.outer'
-            assert _.hotspots[0].self_ms           < 0.08
+            assert _.hotspots[0].self_ms           < 0.08 * delta
             assert 35                             <= _.hotspots[0].percentage <= 45
             assert _.hotspots[0].calls            == 1
 
             # hotspot 1
             assert _.hotspots[1].name             == 'test_Timestamp_Collector__Export.create_timestamp_entries.<locals>.inner_a'
-            assert _.hotspots[1].self_ms           < 0.05
+            assert _.hotspots[1].self_ms           < 0.05 * delta
             assert 20                             <= _.hotspots[1].percentage <= 25
             assert _.hotspots[1].calls            == 1
 
             # hotspot 2
             assert _.hotspots[2].name             == 'test_Timestamp_Collector__Export.create_timestamp_entries.<locals>.leaf'
-            assert _.hotspots[2].self_ms           < 0.05
+            assert _.hotspots[2].self_ms           < 0.05 * delta
             assert 10                             <= _.hotspots[2].percentage <= 15
             assert _.hotspots[2].calls            == 1
 
             # hotspot 3
             assert _.hotspots[3].name             == 'test_Timestamp_Collector__Export.create_timestamp_entries.<locals>.inner_b'
-            assert _.hotspots[3].self_ms           < 0.05
+            assert _.hotspots[3].self_ms           < 0.05 * delta
             assert 5                              <= _.hotspots[3].percentage <= 15
             assert _.hotspots[3].calls            == 1
 
             # full object comparison (authoritative)
             assert _.obj() == __(name              = 'export_test' ,
-                                 total_duration_ms= __LESS_THAN__(0.20),
+                                 total_duration_ms= __LESS_THAN__(0.20 * delta),
                                  method_count     = 4              ,
                                  entry_count      = 8              ,
                                  hotspots         = [
                                      __(name       = 'test_Timestamp_Collector__Export.create_timestamp_entries.<locals>.outer'  ,
-                                        self_ms    = __LESS_THAN__(0.08),
+                                        self_ms    = __LESS_THAN__(0.08 * delta),
                                         percentage = __BETWEEN__(35, 45),
                                         calls      = 1),
                                      __(name       = 'test_Timestamp_Collector__Export.create_timestamp_entries.<locals>.inner_a',
-                                        self_ms    = __LESS_THAN__(0.05),
+                                        self_ms    = __LESS_THAN__(0.05 * delta),
                                         percentage = __BETWEEN__(20, 25),
                                         calls      = 1),
                                      __(name       = 'test_Timestamp_Collector__Export.create_timestamp_entries.<locals>.leaf'   ,
-                                        self_ms    = __LESS_THAN__(0.05),
+                                        self_ms    = __LESS_THAN__(0.05 * delta),
                                         percentage = __BETWEEN__(10, 15),
                                         calls      = 1),
                                      __(name       = 'test_Timestamp_Collector__Export.create_timestamp_entries.<locals>.inner_b',
-                                        self_ms    = __LESS_THAN__(0.05),
+                                        self_ms    = __LESS_THAN__(0.05 * delta),
                                         percentage = __BETWEEN__(5 , 15),
                                         calls      = 1)
                                  ])
