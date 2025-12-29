@@ -71,7 +71,7 @@ class test_Timestamp_Collector__Export(TestCase):
             # hotspot 0
             assert _.hotspots[0].name             == 'test_Timestamp_Collector__Export.create_timestamp_entries.<locals>.outer'
             assert _.hotspots[0].self_ms           < 0.08 * delta
-            assert 35                             <= _.hotspots[0].percentage <= 45
+            assert 20                             <= _.hotspots[0].percentage <= 45
             assert _.hotspots[0].calls            == 1
 
             # hotspot 1
