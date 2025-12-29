@@ -15,7 +15,7 @@ from osbot_utils.utils.Env                                                      
 # Performance Tests
 # =============================================================================
 
-class test_perf_Type_Safe__On_Demand(TestCase):
+class test_perf__Type_Safe__On_Demand(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Warm up classes to ensure fair comparison

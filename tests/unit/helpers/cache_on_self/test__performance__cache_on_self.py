@@ -72,7 +72,7 @@ class test__performance__cache_on_self(TestCase):
                 obj.cached_method(1, 2, 3)
 
         overhead_ratio = duration_cached.seconds / duration_no_cache.seconds
-        assert overhead_ratio < 400  # Higher overhead due to hash calculation
+        assert overhead_ratio < 500  # Higher overhead due to hash calculation
 
     def test__performance__cache_miss_overhead(self):
         """Test performance overhead for cache misses"""

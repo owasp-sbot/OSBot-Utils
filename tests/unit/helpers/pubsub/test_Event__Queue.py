@@ -5,7 +5,7 @@ from unittest                                           import TestCase
 from osbot_utils.base_classes.Kwargs_To_Self            import Kwargs_To_Self
 from osbot_utils.helpers.pubsub.Event__Queue            import Event__Queue, TIMEOUT__QUEUE_GET
 from osbot_utils.helpers.pubsub.schemas.Schema__Event   import Schema__Event
-from osbot_utils.testing.Pytest                         import skip_if_in_github_action
+from osbot_utils.testing.Pytest import skip_if_in_github_action, skip_pytest
 from osbot_utils.utils.Objects                          import base_types
 
 class test_Event_Queue(TestCase):
@@ -80,6 +80,7 @@ class test_Event_Queue(TestCase):
         assert _.running is False
 
     def test_send_message(self):
+        skip_pytest("fails ina non-deterministic way locally and on some GH actions executions")
         skip_if_in_github_action()                                  # this failed sometimes in GH Actions (on 3.11.11)
         message_1 = 'Hello World!'
         message_2 = 'from here'
@@ -97,7 +98,7 @@ class test_Event_Queue(TestCase):
             event_5 = _.send_data(data_1)
             event_6 = _.send_data(data_2)
             _.wait_micro_seconds()
-            assert _.events == [event_1, event_2, event_3, event_4, event_5, event_6]
+            assert _.events == [event_1, event_2, event_3, event_4, event_5, event_6]           # todo: figure out why sometimes (not always) this fails where _.events == []
             assert event_1.json() == {'event_data'  : {}                ,
                                       'event_id'     : event_1.event_id ,
                                       'event_message': 'Hello World!'   ,

@@ -18,11 +18,10 @@ class test_Type_Safe__On_Demand__edge_cases(TestCase):                          
         with Empty() as _:
             assert len(_._on_demand__types)       == 0
             json_data = _.json()
-            # Internal attributes are included in json - verify key ones
-            assert '_on_demand__init_complete' in json_data
-            assert json_data['_on_demand__init_complete'] is True
-            assert '_on_demand__types' in json_data
-            assert json_data['_on_demand__types'] == {}
+            # Internal attributes should NOT be in JSON output
+            assert '_on_demand__init_complete' not in json_data
+            assert '_on_demand__types' not in json_data
+            assert json_data                      == {}                             # Empty class = empty JSON
 
     def test__only_primitives(self):                                                # Test class with only primitive attributes
         class OnlyPrimitives(Type_Safe__On_Demand):
