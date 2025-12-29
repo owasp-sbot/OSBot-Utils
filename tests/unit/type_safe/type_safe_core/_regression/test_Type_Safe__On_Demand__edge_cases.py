@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing                                                           import List, Dict
 from unittest                                                         import TestCase
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 from osbot_utils.type_safe.Type_Safe__On_Demand                       import Type_Safe__On_Demand
