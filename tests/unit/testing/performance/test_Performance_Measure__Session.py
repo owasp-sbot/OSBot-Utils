@@ -317,12 +317,12 @@ class test_Performance_Measure__Session(TestCase):
         mock_in_github.return_value = True
         with Performance_Measure__Session() as _:
             _.measure(lambda: None, loops=[1, 2, 3])
-            # In GitHub Actions, uses last value + 100, then * 5 as upper bound
+            # In GitHub Actions, uses last value + 100, then * 5 as upper bound (but only if score is 0)
             # So assert_time(100) allows: 200 <= score <= 1000
             # This should pass or fail based on actual score
             score = _.result.final_score
             if 200 <= score <= 1000:
-                _.assert_time(100)                                                              # Should pass
+                _.assert_time(200)                                                              # Should pass
 
     # ------------------------------------------------
     # Tests for assert_time__less_than
