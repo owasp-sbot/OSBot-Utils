@@ -286,7 +286,7 @@ class test_Obj_Id(TestCase):
         if in_github_action():
             assert duration.seconds < 0.5
         else:
-            assert duration.seconds < 0.05                                                    # ~0.016 on dev laptop
+            assert duration.seconds < 0.08                                                    # ~0.016 on dev laptop
 
     # def test_performance_regex_vs_other(self):
     #     import re

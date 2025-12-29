@@ -2,9 +2,7 @@ import sys
 import pytest
 from typing                                                                         import Dict
 from unittest                                                                       import TestCase
-
-from osbot_utils.testing.Pytest import skip__if_not__in_github_actions
-from osbot_utils.testing.__                                                         import __
+from osbot_utils.testing.Pytest                                                     import skip__if_not__in_github_actions
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.Type_Safe__On_Demand                                     import Type_Safe__On_Demand
 from osbot_utils.testing.performance.Performance_Measure__Session                   import Performance_Measure__Session
@@ -15,7 +13,7 @@ from osbot_utils.utils.Env                                                      
 # Performance Tests
 # =============================================================================
 
-class test_perf_Type_Safe__On_Demand(TestCase):
+class test_perf__Type_Safe__On_Demand(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                            # Warm up classes to ensure fair comparison
