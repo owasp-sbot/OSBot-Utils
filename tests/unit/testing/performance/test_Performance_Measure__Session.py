@@ -2,13 +2,11 @@ import pytest
 from statistics                                                                     import mean, median
 from unittest                                                                       import TestCase
 from unittest.mock                                                                  import patch
-from osbot_utils.testing.__                                                         import __
 from osbot_utils.testing.performance.Performance_Measure__Session                   import Performance_Measure__Session
 from osbot_utils.testing.performance.Performance_Measure__Session                   import MEASURE__INVOCATION__LOOPS
 from osbot_utils.testing.performance.Performance_Measure__Session                   import MEASURE__INVOCATION__LOOPS__QUICK
 from osbot_utils.testing.performance.Performance_Measure__Session                   import MEASURE__INVOCATION__LOOPS__FAST
 from osbot_utils.testing.performance.models.Model__Performance_Measure__Measurement import Model__Performance_Measure__Measurement
-from osbot_utils.testing.performance.models.Model__Performance_Measure__Result      import Model__Performance_Measure__Result
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 
 
@@ -309,6 +307,8 @@ class test_Performance_Measure__Session(TestCase):
         with Performance_Measure__Session() as _:
             _.measure(lambda: None, loops=[1, 2, 3])
             score  = _.result.final_score
+            print()
+            print(score)
             result = _.assert_time(score)
             assert result is _
 

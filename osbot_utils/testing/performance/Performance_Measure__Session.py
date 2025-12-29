@@ -108,7 +108,9 @@ class Performance_Measure__Session(Type_Safe):
         if self.assert_enabled is False:
             return self
         if in_github_action():
-            last_expected_time = expected_time[-1] + 100                                        # +100 in case it is 0
+            last_expected_time = expected_time[-1]
+            if last_expected_time == 0:
+                last_expected_time += 100                                                       # +100 in case it is 0
             new_expected_time  = last_expected_time * 5                                         # using last_expected_time * 5 as the upper limit (since these tests are significantly slowed in GitHub Actions)
             assert last_expected_time <= self.result.final_score <= new_expected_time, f"Performance changed for {self.result.name}: expected {last_expected_time} < {self.result.final_score:,d}ns < {new_expected_time}"
         else:

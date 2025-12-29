@@ -39,8 +39,12 @@ Compatibility:
     - Primitives, collections, and explicit defaults work normally
     - Subclasses can mix Type_Safe__On_Demand and Type_Safe
 """
-from typing                                import Any, Type, Union, get_origin, get_args
-from osbot_utils.type_safe.Type_Safe       import Type_Safe
+from typing                                                           import Any, Type, Union, get_origin, get_args
+from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+from osbot_utils.type_safe.Type_Safe__Primitive                       import Type_Safe__Primitive
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set  import Type_Safe__Set
 
 
 class Type_Safe__On_Demand(Type_Safe):                                          # Type_Safe subclass that creates nested Type_Safe objects on demand.
@@ -83,19 +87,10 @@ class Type_Safe__On_Demand(Type_Safe):                                          
         object.__setattr__(self, '_on_demand__init_complete', True)                 # Enable on-demand creation now that init is complete
 
     @staticmethod
-    def _on_demand__should_create(var_type: Type) -> bool:
-        """
-        Determine if a type should be created on demand.
+    def _on_demand__should_create(                                                  # Determine if a type should be created on demand.
+                                  var_type: Type                                    # the type annotation to check
+                             ) -> bool:                                             # True if this type should be created on demand: True for Type_Safe subclasses (excluding primitives and collections).False for primitives, collections, and non-Type_Safe types.
 
-        Returns True for Type_Safe subclasses (excluding primitives and collections).
-        Returns False for primitives, collections, and non-Type_Safe types.
-
-        Args:
-            var_type: The type annotation to check
-
-        Returns:
-            bool: True if this type should be created on demand
-        """
         origin = get_origin(var_type)                                               # Handle Optional[X] and Union[X, None]
         if origin is Union:
             args = get_args(var_type)
@@ -107,37 +102,21 @@ class Type_Safe__On_Demand(Type_Safe):                                          
         if not isinstance(var_type, type):                                          # Must be a concrete type
             return False
 
-        if not issubclass(var_type, Type_Safe):                                     # Must be a Type_Safe subclass
+        if not issubclass(var_type, Type_Safe):                                             # Must be a Type_Safe subclass
             return False
 
-        try:                                                                        # Exclude Type_Safe__Primitive - they're cheap to create
-            from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
-            if issubclass(var_type, Type_Safe__Primitive):
-                return False
-        except ImportError:
-            pass
+        if issubclass(var_type, Type_Safe__Primitive):                                      # Exclude Type_Safe__Primitive - they're cheap to create
+            return False
 
-        try:                                                                        # Exclude Type_Safe collections - they're also cheap
-            from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
-            from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
-            from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set  import Type_Safe__Set
-            if issubclass(var_type, (Type_Safe__List, Type_Safe__Dict, Type_Safe__Set)):
+        if issubclass(var_type, (Type_Safe__List, Type_Safe__Dict, Type_Safe__Set)):        # Exclude Type_Safe collections - they're also cheap
                 return False
-        except ImportError:
-            pass
 
         return True
 
-    def __getattribute__(self, name: str) -> Any:
-        """
-        Override to create Type_Safe objects on first access.
+    def __getattribute__(self,                                                              # Override to create Type_Safe objects on first access.
+                         name: str                                                          # Attribute name being accessed
+                    ) -> Any:                                                               # The attribute value, creating it if needed
 
-        Args:
-            name: Attribute name being accessed
-
-        Returns:
-            The attribute value, creating it if needed
-        """
         if name.startswith('_'):                                                    # Fast path for internal/private attributes
             return object.__getattribute__(self, name)
 
@@ -160,8 +139,7 @@ class Type_Safe__On_Demand(Type_Safe):                                          
 
         return object.__getattribute__(self, name)
 
-    def __repr__(self) -> str:
-        """String representation showing on-demand status."""
+    def __repr__(self) -> str:                                                      # String representation showing on-demand status.
         pending_count = len(getattr(self, '_on_demand__types', {}))
         if pending_count > 0:
             return f"<{type(self).__name__} ({pending_count} attrs pending)>"

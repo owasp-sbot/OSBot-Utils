@@ -1,10 +1,10 @@
 from typing import List, Dict
-from unittest                                                       import TestCase
-from osbot_utils.type_safe.Type_Safe                                import Type_Safe
-from osbot_utils.type_safe.Type_Safe__On_Demand                     import Type_Safe__On_Demand
-from osbot_utils.type_safe.primitives.core.Safe_Str                 import Safe_Str
-from osbot_utils.type_safe.primitives.core.Safe_Int                 import Safe_Int
-from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id   import Safe_Id
+from unittest                                                         import TestCase
+from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
+from osbot_utils.type_safe.Type_Safe__On_Demand                       import Type_Safe__On_Demand
+from osbot_utils.type_safe.primitives.core.Safe_Str                   import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Int                   import Safe_Int
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id     import Safe_Id
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
 
