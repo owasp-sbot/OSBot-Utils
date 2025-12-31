@@ -1,7 +1,7 @@
 from unittest                                                                       import TestCase
 from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Edge          import Schema__Call_Graph__Edge
 from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Edge_Type import Enum__Call_Graph__Edge_Type
-from osbot_utils.testing.Graph__Deterministic__Ids                                  import test_graph_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                                  import graph_ids_for_tests
 from osbot_utils.testing.__                                                         import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                   import Edge_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
@@ -44,7 +44,7 @@ class test_Schema__Call_Graph__Edge(TestCase):                                  
             assert _.edge_type == 'chain'
 
     def test__with_values(self):                                                     # Test with explicit values
-        with test_graph_ids():
+        with graph_ids_for_tests():
             with Schema__Call_Graph__Edge(edge_id        = Edge_Id(Obj_Id())                ,
                                           from_node      = Node_Id(Obj_Id())                ,
                                           to_node        = Node_Id(Obj_Id())                ,

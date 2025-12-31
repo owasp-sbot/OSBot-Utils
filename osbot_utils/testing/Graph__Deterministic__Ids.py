@@ -1,7 +1,6 @@
 import inspect
-from contextlib     import contextmanager
-from unittest.mock  import patch
-
+from contextlib                      import contextmanager
+from unittest.mock                   import patch
 from osbot_utils.type_safe.Type_Safe import Type_Safe
 
 TEST_ID_PREFIX__GRAPH = 'a'
@@ -82,6 +81,6 @@ MGraph__Test__Ids = Graph__Deterministic__Ids
 
 # here are other experiments in trying to find the best way to use this
 
-deterministic_ids  = graph_deterministic_ids
-fixed_graph_ids    = graph_deterministic_ids
-test_graph_ids     = graph_deterministic_ids
+deterministic_ids   = graph_deterministic_ids
+fixed_graph_ids     = graph_deterministic_ids
+graph_ids_for_tests = graph_deterministic_ids

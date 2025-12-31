@@ -3,7 +3,7 @@ from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph            
 from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Edge          import Schema__Call_Graph__Edge
 from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Node          import Schema__Call_Graph__Node
 from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Edge_Type import Enum__Call_Graph__Edge_Type
-from osbot_utils.testing.Graph__Deterministic__Ids                                  import test_graph_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                                  import graph_ids_for_tests
 from osbot_utils.testing.__                                                         import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                   import Edge_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
@@ -23,7 +23,7 @@ class test_Schema__Call_Graph(TestCase):                                        
             assert _.edge_count()         == 0
 
     def test__add_node(self):                                                        # Test adding nodes
-        with test_graph_ids():
+        with graph_ids_for_tests():
             with Schema__Call_Graph() as graph:
                 node = Schema__Call_Graph__Node(node_id   = Node_Id(Obj_Id())         ,
                                                 name      = Safe_Str__Label('func_a') )
@@ -54,7 +54,7 @@ class test_Schema__Call_Graph(TestCase):                                        
             assert graph.edge_count() == 1
 
     def test__add_edge__with_edge_type(self):                                        # Test adding typed edges
-        with test_graph_ids():
+        with graph_ids_for_tests():
             with Schema__Call_Graph() as graph:
                 edge = Schema__Call_Graph__Edge(edge_id   = Edge_Id(Obj_Id())                     ,
                                                 from_node = Node_Id(Obj_Id())                     ,
@@ -66,7 +66,7 @@ class test_Schema__Call_Graph(TestCase):                                        
                 assert graph.edges[0].edge_type == Enum__Call_Graph__Edge_Type.CONTAINS
 
     def test__get_node(self):                                                        # Test node retrieval
-        with test_graph_ids():
+        with graph_ids_for_tests():
             with Schema__Call_Graph() as graph:
                 node = Schema__Call_Graph__Node(node_id = Node_Id(Obj_Id())          ,
                                                 name    = Safe_Str__Label('test')    )
@@ -76,7 +76,7 @@ class test_Schema__Call_Graph(TestCase):                                        
                 assert graph.get_node('nonexistent') is None
 
     def test__leaf_nodes(self):                                                      # Test finding leaf nodes
-        with test_graph_ids():
+        with graph_ids_for_tests():
             with Schema__Call_Graph() as graph:
                 node_a = Schema__Call_Graph__Node(node_id = Node_Id(Obj_Id())        ,
                                                   name    = Safe_Str__Label('a')     )
@@ -92,7 +92,7 @@ class test_Schema__Call_Graph(TestCase):                                        
                 assert leaves[0].name == 'b'                                         # b has no outgoing calls
 
     def test__root_nodes(self):                                                      # Test finding root nodes
-        with test_graph_ids():
+        with graph_ids_for_tests():
             with Schema__Call_Graph() as graph:
                 node_a = Schema__Call_Graph__Node(node_id = Node_Id(Obj_Id())        ,
                                                   name    = Safe_Str__Label('a')     )
@@ -108,7 +108,7 @@ class test_Schema__Call_Graph(TestCase):                                        
                 assert roots[0].name == 'a'                                          # a has no incoming calls
 
     def test__nodes_at_depth(self):                                                  # Test depth filtering
-        with test_graph_ids():
+        with graph_ids_for_tests():
             with Schema__Call_Graph() as graph:
                 node_0  = Schema__Call_Graph__Node(node_id = Node_Id(Obj_Id())       ,
                                                    name    = Safe_Str__Label('root') ,

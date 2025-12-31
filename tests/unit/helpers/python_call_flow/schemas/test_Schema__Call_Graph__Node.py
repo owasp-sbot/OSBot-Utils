@@ -1,7 +1,7 @@
 from unittest                                                                       import TestCase
 from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Node          import Schema__Call_Graph__Node
 from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Node_Type import Enum__Call_Graph__Node_Type
-from osbot_utils.testing.Graph__Deterministic__Ids                                  import graph_deterministic_ids, test_graph_ids
+from osbot_utils.testing.Graph__Deterministic__Ids                                  import graph_deterministic_ids, graph_ids_for_tests
 from osbot_utils.testing.__                                                         import __
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
@@ -74,7 +74,7 @@ class test_Schema__Call_Graph__Node(TestCase):                                  
             assert _.node_type == 'method'
 
     def test__calls_and_called_by(self):                                             # Test call relationship lists
-        with test_graph_ids():
+        with graph_ids_for_tests():
             with Schema__Call_Graph__Node() as _:
                 _.calls.append(Node_Id(Obj_Id()))
                 _.calls.append(Node_Id(Obj_Id()))
