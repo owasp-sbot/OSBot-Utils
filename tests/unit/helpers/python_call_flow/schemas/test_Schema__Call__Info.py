@@ -1,7 +1,6 @@
 from unittest                                                                       import TestCase
 from osbot_utils.helpers.python_call_flow.schemas.Schema__Call__Info                import Schema__Call__Info
 from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Edge_Type import Enum__Call_Graph__Edge_Type
-from osbot_utils.testing.__                                                         import __
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label  import Safe_Str__Label
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                import Safe_UInt
 

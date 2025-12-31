@@ -11,6 +11,7 @@ class Schema__Call_Graph__Config(Type_Safe):                                    
     # Method Visibility
     include_private        : bool                  = True                            # Include _private methods
     include_dunder         : bool                  = False                           # Include __dunder__ methods
+    include_inherited      : bool                  = False                           # Include inherited methods
 
     # Scope Control
     include_stdlib         : bool                  = False                           # Follow into Python stdlib

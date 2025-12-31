@@ -13,6 +13,7 @@ class Call_Flow__Exporter__Mermaid(Type_Safe):                                  
     show_depth      : bool                      = True                               # Show depth indicators
     show_contains   : bool                      = True                               # Show CONTAINS edges
     max_label_len   : int                       = 30                                 # Truncate long labels
+    font_size       : int                       = 14                                 # Node font size in pixels
 
     def export(self) -> str:                                                         # Generate Mermaid flowchart
         lines = list()
@@ -74,7 +75,7 @@ class Call_Flow__Exporter__Mermaid(Type_Safe):                                  
         if self.show_modules and str(node.module):
             label = f"{node.module}.{node.name}"
         else:
-            label = str(node.full_name) if '.' in str(node.full_name) else str(node.name)
+            label = str(node.name)                                                   # Use short name by default
 
         if len(label) > self.max_label_len:                                          # Truncate if too long
             label = label[:self.max_label_len - 3] + "..."
@@ -110,12 +111,19 @@ class Call_Flow__Exporter__Mermaid(Type_Safe):                                  
     def escape_label(self, label: str) -> str:                                       # Escape special chars in labels
         return label.replace('"', "'").replace('<', '&lt;').replace('>', '&gt;')
 
+    def get_title(self) -> str:                                                      # Get display title for graph
+        full_name = str(self.graph.name)
+        if '.' in full_name:
+            return full_name.split('.')[-1]                                          # Just the class/function name
+        return full_name
+
     def to_html(self) -> str:                                                        # Generate standalone HTML with Mermaid
         mermaid_code = self.export()
+        title        = self.get_title()
         return f'''<!DOCTYPE html>
 <html>
 <head>
-    <title>Call Flow: {self.escape_label(str(self.graph.name))}</title>
+    <title>Call Flow: {self.escape_label(title)}</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <style>
         body {{ font-family: sans-serif; padding: 20px; }}
@@ -125,7 +133,7 @@ class Call_Flow__Exporter__Mermaid(Type_Safe):                                  
     </style>
 </head>
 <body>
-    <h1>{self.escape_label(str(self.graph.name))}</h1>
+    <h1>{self.escape_label(title)}</h1>
     <div class="stats">
         <strong>Nodes:</strong> {self.graph.node_count()} |
         <strong>Edges:</strong> {self.graph.edge_count()} |
@@ -135,7 +143,17 @@ class Call_Flow__Exporter__Mermaid(Type_Safe):                                  
 {mermaid_code}
     </div>
     <script>
-        mermaid.initialize({{ startOnLoad: true, theme: 'default' }});
+        mermaid.initialize({{
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {{
+                nodeSpacing: 50,
+                rankSpacing: 50
+            }},
+            themeVariables: {{
+                fontSize: '{self.font_size}px'
+            }}
+        }});
     </script>
 </body>
 </html>'''

@@ -28,6 +28,7 @@ class test_Schema__Call_Graph__Config(TestCase):                                
                                  include_dunder        = False ,
                                  include_stdlib        = False ,
                                  include_external      = False ,
+                                 include_inherited     = False ,
                                  module_allowlist      = []    ,
                                  module_blocklist      = []    ,
                                  class_allowlist       = []    ,

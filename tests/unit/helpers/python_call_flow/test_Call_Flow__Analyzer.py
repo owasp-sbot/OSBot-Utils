@@ -110,6 +110,7 @@ class test_Call_Flow__Analyzer(TestCase):                                       
                                                      include_dunder=False,
                                                      include_stdlib=False,
                                                      include_external=False,
+                                                     include_inherited=False,
                                                      resolve_self_calls=True,
                                                      capture_source=False,
                                                      create_external_nodes=True,

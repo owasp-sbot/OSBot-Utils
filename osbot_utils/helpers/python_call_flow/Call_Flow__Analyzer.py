@@ -106,6 +106,15 @@ class Call_Flow__Analyzer(Type_Safe):                                           
             if not self.call_filter.should_include_method(name):
                 continue
 
+            if not self.config.include_inherited:                                    # Skip inherited methods
+                qualname_parts = method.__qualname__.split('.')
+                if len(qualname_parts) >= 2:
+                    method_class = qualname_parts[-2]                                # Class name is before method name
+                else:
+                    method_class = qualname_parts[0]
+                if method_class != cls.__name__:
+                    continue
+
             method_full_name = self.node_registry.qualified_name(method)
             existing_method  = self.node_registry.lookup(method_full_name)
 

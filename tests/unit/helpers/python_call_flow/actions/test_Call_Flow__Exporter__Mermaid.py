@@ -4,11 +4,11 @@
 from unittest                                                                       import TestCase
 from osbot_utils.helpers.python_call_flow.Call_Flow__Analyzer                       import Call_Flow__Analyzer
 from osbot_utils.helpers.python_call_flow.actions.Call_Flow__Exporter__Mermaid      import Call_Flow__Exporter__Mermaid
-from osbot_utils.testing.Graph__Deterministic__Ids import graph_ids_for_tests
-from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.testing.Graph__Deterministic__Ids                                  import graph_ids_for_tests
+from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label  import Safe_Str__Label
-from osbot_utils.utils.Files import path_combine, file_save
-from tests.unit.helpers.python_call_flow.test_Call_Flow__Analyzer import Sample__Helper, sample_function
+from osbot_utils.utils.Files                                                        import path_combine, file_save
+from tests.unit.helpers.python_call_flow.test_Call_Flow__Analyzer                   import Sample__Helper, sample_function
 
 
 class test_Call_Flow__Exporter__Mermaid(TestCase):                                   # Test Mermaid export
@@ -69,7 +69,12 @@ class test_Call_Flow__Exporter__Mermaid(TestCase):                              
 
         class An_Class__Python():
             def method_1(self):
+                self.method_2()
                 pass
+
+            def method_2(self):
+                from osbot_utils.utils.Dev import pprint
+                pprint('42')
 
         class An_Class__Type__Safe(Type_Safe):
             def method_1(self):
@@ -80,11 +85,12 @@ class test_Call_Flow__Exporter__Mermaid(TestCase):                              
 
                 def analyse_target(target, depth):
                     analyzer.config.max_depth=depth
-                    graph = analyzer.analyze(target)
+                    graph = analyzer.analyze(Call_Flow__Analyzer)
 
                     with Call_Flow__Exporter__Mermaid(graph=graph) as _:
                         _.direction     = 'LR'
                         _.max_label_len = 100
+                        _.font_size = 40
                         html          = _.to_html()
                         target_folder = path_combine(__file__, '../_saved_html')
                         target_file   = path_combine(target_folder, f'call-flow__{target.__name__}__depth-{depth}' + '.html')
@@ -92,12 +98,14 @@ class test_Call_Flow__Exporter__Mermaid(TestCase):                              
                         file_save(html, path=target_file)
                     #print(target_file)
 
-                analyse_target(An_Class__Python    , 0)
-                analyse_target(An_Class__Type__Safe, 0)
-                analyse_target(An_Class__Python    , 1)
-                analyse_target(An_Class__Type__Safe, 1)
-                analyse_target(An_Class__Python    , 2)
-                analyse_target(An_Class__Type__Safe, 2)
+                # analyse_target(An_Class__Python    , 0)
+                # analyse_target(An_Class__Type__Safe, 0)
+                # analyse_target(An_Class__Python    , 1)
+                # analyse_target(An_Class__Type__Safe, 1)
+                # analyse_target(An_Class__Python    , 2)
+                # analyse_target(An_Class__Type__Safe, 2)
+                analyse_target(Call_Flow__Analyzer, 1)
+                analyse_target(Call_Flow__Analyzer, 2)
 
                 # target = sample_function
                 # target = Sample__Helper

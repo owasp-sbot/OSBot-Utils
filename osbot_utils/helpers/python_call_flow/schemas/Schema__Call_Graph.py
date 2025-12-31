@@ -1,5 +1,3 @@
-# osbot_utils/helpers/ast/call_flow/schemas/Schema__Call_Graph.py
-
 from typing                                                                          import Dict, List
 from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Config         import Schema__Call_Graph__Config
 from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Edge           import Schema__Call_Graph__Edge
