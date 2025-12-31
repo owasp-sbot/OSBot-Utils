@@ -6,7 +6,7 @@ from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Config    
 from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Node_Type import Enum__Call_Graph__Node_Type
 from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Edge_Type import Enum__Call_Graph__Edge_Type
 from osbot_utils.testing.Graph__Deterministic__Ids                                  import test_graph_ids
-from osbot_utils.testing.Pytest import skip__if_not__in_github_actions
+from osbot_utils.testing.Pytest import skip__if_not__in_github_actions, skip_if_in_github_action
 from osbot_utils.testing.__ import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
@@ -78,10 +78,19 @@ class test_Call_Flow__Analyzer(TestCase):                                       
             assert type(_.class_context)   is Type_Safe__Dict
 
     def test__analyze__simple_function(self):                                        # Test analyzing a simple function
-        skip__if_not__in_github_actions()
+        skip_if_in_github_action()
         with test_graph_ids():
             with Call_Flow__Analyzer() as analyzer:
                 graph = analyzer.analyze(sample_function)
+
+                with Call_Flow__Exporter__Mermaid(graph=graph) as _:
+                    html          = _.to_html()
+                    target_folder = path_combine(__file__, '../_saved_html')
+                    target_file   = path_combine(target_folder, 'test__analyze__simple_function' + '.html')
+
+                    file_save(html, path=target_file)
+                    #print(target_file)
+
 
                 assert graph.obj() == __(  max_depth_found=1,
                                            graph_id='a0000001',
@@ -112,7 +121,7 @@ class test_Call_Flow__Analyzer(TestCase):                                       
                                                                 calls=['c0000002'],
                                                                 called_by=[],
                                                                 source_code='',
-                                                                line_number=52),
+                                                                line_number=53),
                                                     c0000002=__(is_entry=False,
                                                                 is_external=True,
                                                                 is_recursive=False,
@@ -143,13 +152,6 @@ class test_Call_Flow__Analyzer(TestCase):                                       
                 #assert entry_node.is_entry   is True
                 #assert int(entry_node.depth) == 0
 
-                with Call_Flow__Exporter__Mermaid(graph=graph) as _:
-                    html          = _.to_html()
-                    target_folder = path_combine(__file__, '../_saved_html')
-                    target_file   = path_combine(target_folder, 'test__analyze__simple_function' + '.html')
-
-                    file_save(html, path=target_file)
-                    #print(target_file)
 
     def test__analyze__class__creates_class_node(self):                              # Test class node at depth 0
         with Call_Flow__Analyzer() as analyzer:
