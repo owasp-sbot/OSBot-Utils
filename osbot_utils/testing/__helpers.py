@@ -2,7 +2,7 @@ import json
 from types                                                                                      import SimpleNamespace
 from osbot_utils.testing.__                                                                     import __
 from collections.abc                                                                            import Mapping
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Python__Identifier import Safe_Str__Python__Identifier
+from osbot_utils.type_safe.primitives.domains.python.safe_str.Safe_Str__Python__Identifier      import Safe_Str__Python__Identifier
 
 def dict_to_obj(target):
     if isinstance(target, Mapping):

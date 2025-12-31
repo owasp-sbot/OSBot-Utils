@@ -133,7 +133,7 @@ class test_Call_Flow__Analyzer(TestCase):                                       
                                                                 calls=['c0000002'],
                                                                 called_by=[],
                                                                 source_code='',
-                                                                line_number=57),
+                                                                line_number=58),
                                                     c0000002=__(is_entry=False,
                                                                 is_external=True,
                                                                 is_recursive=False,

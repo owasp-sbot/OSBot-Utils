@@ -1,8 +1,8 @@
 import pytest
-from unittest                                                                                import TestCase
-from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Python__Identifier import Safe_Str__Python__Identifier
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Python__Module import Safe_Str__Python__Module
+from unittest                                                                               import TestCase
+from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
+from osbot_utils.type_safe.primitives.domains.python.safe_str.Safe_Str__Python__Identifier  import Safe_Str__Python__Identifier
+from osbot_utils.type_safe.primitives.domains.python.safe_str.Safe_Str__Python__Module      import Safe_Str__Python__Module
 
 
 class test_Safe_Str__Python__Module(TestCase):
