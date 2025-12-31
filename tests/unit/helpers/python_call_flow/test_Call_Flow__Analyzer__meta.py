@@ -65,7 +65,7 @@ class test_Call_Flow__Analyzer__meta(TestCase):                                 
             mermaid = exporter.export()
 
             assert 'flowchart'                      in mermaid                                            # Has flowchart declaration
-            assert 'analyze'                        in mermaid or 'Call_Flow__Analyzer' in mermaid             
+            assert 'analyze'                        in mermaid or 'Call_Flow__Analyzer' in mermaid
 
             # print(f"\n{'═'*60}")
             # print("MERMAID OUTPUT (first 30 lines):")

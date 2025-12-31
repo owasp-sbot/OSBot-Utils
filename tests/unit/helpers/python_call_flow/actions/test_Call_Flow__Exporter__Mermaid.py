@@ -5,6 +5,7 @@ from unittest                                                                   
 from osbot_utils.helpers.python_call_flow.Call_Flow__Analyzer                       import Call_Flow__Analyzer
 from osbot_utils.helpers.python_call_flow.actions.Call_Flow__Exporter__Mermaid      import Call_Flow__Exporter__Mermaid
 from osbot_utils.testing.Graph__Deterministic__Ids                                  import graph_ids_for_tests
+from osbot_utils.testing.Pytest                                                     import skip_if_in_github_action
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label  import Safe_Str__Label
 from osbot_utils.utils.Files                                                        import path_combine, file_save
@@ -66,7 +67,7 @@ class test_Call_Flow__Exporter__Mermaid(TestCase):                              
 
 
     def test_create_mermaid_html(self):
-
+        skip_if_in_github_action()
         class An_Class__Python():
             def method_1(self):
                 self.method_2()

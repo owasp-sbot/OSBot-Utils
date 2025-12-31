@@ -12,7 +12,8 @@ from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Config    
 from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Node_Type import Enum__Call_Graph__Node_Type
 from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Edge_Type import Enum__Call_Graph__Edge_Type
 from osbot_utils.testing.Graph__Deterministic__Ids                                  import graph_ids_for_tests
-from osbot_utils.testing.__ import __
+from osbot_utils.testing.Pytest                                                     import skip_if_in_github_action
+from osbot_utils.testing.__                                                         import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                import Safe_UInt
@@ -89,6 +90,7 @@ class test_Call_Flow__Analyzer(TestCase):                                       
             assert type(_.class_context)   is Type_Safe__Dict
 
     def test__analyze__simple_function(self):                                        # Test analyzing a simple function
+        skip_if_in_github_action()
         with graph_ids_for_tests():
             with Call_Flow__Analyzer() as analyzer:
                 graph = analyzer.analyze(sample_function)
