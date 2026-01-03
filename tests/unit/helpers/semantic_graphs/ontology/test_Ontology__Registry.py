@@ -9,8 +9,8 @@ from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology      
 from osbot_utils.testing.Temp_File                                                   import Temp_File
 from osbot_utils.testing.__                                                          import __
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
-from osbot_utils.utils.Files                                                         import file_not_exists, file_exists
-from osbot_utils.utils.Json                                                          import str_to_json, json_to_str
+from osbot_utils.utils.Files                                                         import file_not_exists
+from osbot_utils.utils.Json                                                          import str_to_json
 
 
 class test_Ontology__Registry(TestCase):                                             # Test ontology registry

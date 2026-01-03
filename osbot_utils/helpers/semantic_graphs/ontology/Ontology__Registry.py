@@ -15,12 +15,6 @@ class Ontology__Registry(Type_Safe):                                            
     @type_safe
     def load_from_file(self, file_path: Safe_Str__File__Path) -> Schema__Ontology:
         data = json_file_load(file_path)
-        # if file_exists(file_path) is False:
-        #     return None
-        # raw_json = file_contents(file_path)
-        # if raw_json is None:
-        #     return None
-        # data = json_parse(raw_json)                                 # when file doesn't exist of parsing fails we get {}
         if data == {}:
             return None
         return self.load_from_dict(data)
@@ -35,27 +29,6 @@ class Ontology__Registry(Type_Safe):                                            
     @type_safe
     def parse_ontology(self, data: dict) -> Schema__Ontology:
         return Schema__Ontology.from_json(data)
-        # node_types = Dict__Node_Types__By_Id()
-        #
-        # for type_id, type_data in data.get('node_types', {}).items():
-        #     relationships = Schema__Ontology__Node_Type().relationships
-        #
-        #     for verb, rel_data in type_data.get('relationships', {}).items():
-        #         targets      = List__Node_Type_Ids([Node_Type_Id(t) for t in rel_data.get('targets', [])])
-        #         relationship = Schema__Ontology__Relationship(inverse = Safe_Str__Ontology__Verb(rel_data.get('inverse', '')),
-        #                                                       targets = targets                                             )
-        #         relationships[verb] = relationship
-        #
-        #     node_type = Schema__Ontology__Node_Type(description   = type_data.get('description', '') ,
-        #                                             relationships = relationships                    ,
-        #                                             taxonomy_ref  = type_data.get('taxonomy_ref', ''))
-        #     node_types[type_id] = node_type
-        #
-        # return Schema__Ontology(ontology_id  = Ontology_Id(data.get('ontology_id', '')),
-        #                         version      = data.get('version', '1.0.0')            ,
-        #                         description  = data.get('description', '')             ,
-        #                         taxonomy_ref = data.get('taxonomy_ref', '')            ,
-        #                         node_types   = node_types                              )
 
     @type_safe
     def get(self, ontology_id: Ontology_Id) -> Schema__Ontology:

@@ -4,18 +4,12 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Rule_Sets__By_Id     import Dict__Rule_Sets__By_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id               import Node_Type_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id                import Ontology_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id                import Rule_Set_Id
 from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set                 import Schema__Rule_Set
-from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Cardinality        import Schema__Rule__Cardinality
-from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Transitivity       import Schema__Rule__Transitivity
-from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb     import Safe_Str__Ontology__Verb
 from osbot_utils.type_safe.Type_Safe                                                   import Type_Safe
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path      import Safe_Str__File__Path
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                         import type_safe
-from osbot_utils.utils.Files                                                           import file_exists, file_contents
-from osbot_utils.utils.Json import json_parse, json_file_load
+from osbot_utils.utils.Json                                                            import json_file_load
 
 
 class Rule__Engine(Type_Safe):                                                       # Load rule sets and apply to graphs
@@ -37,30 +31,6 @@ class Rule__Engine(Type_Safe):                                                  
     @type_safe
     def parse_rule_set(self, data: dict) -> Schema__Rule_Set:                        # Parse rule set from dict
         return Schema__Rule_Set.from_json(data)
-        # transitivity_rules = []
-        # for rule_data in data.get('transitivity_rules', []):
-        #     rule = Schema__Rule__Transitivity(source_type = Node_Type_Id(rule_data.get('source_type', '')),
-        #                                       verb        = Safe_Str__Ontology__Verb(rule_data.get('verb', '')),
-        #                                       target_type = Node_Type_Id(rule_data.get('target_type', '')))
-        #     transitivity_rules.append(rule)
-        #
-        # cardinality_rules = []
-        # for rule_data in data.get('cardinality_rules', []):
-        #     max_targets = rule_data.get('max_targets')
-        #     rule = Schema__Rule__Cardinality(source_type = Node_Type_Id(rule_data.get('source_type', '')),
-        #                                      verb        = Safe_Str__Ontology__Verb(rule_data.get('verb', '')),
-        #                                      target_type = Node_Type_Id(rule_data.get('target_type', '')),
-        #                                      min_targets = rule_data.get('min_targets', 0)                    ,
-        #                                      max_targets = max_targets                                        ,
-        #                                      description = rule_data.get('description', '')                   )
-        #     cardinality_rules.append(rule)
-        #
-        # return Schema__Rule_Set(rule_set_id        = Rule_Set_Id(data.get('rule_set_id', '')),
-        #                         ontology_ref       = Ontology_Id(data.get('ontology_ref', '')),
-        #                         version            = data.get('version', '1.0.0')            ,
-        #                         description        = data.get('description', '')             ,
-        #                         transitivity_rules = transitivity_rules                      ,
-        #                         cardinality_rules  = cardinality_rules                       )
 
     @type_safe
     def get(self, rule_set_id: Rule_Set_Id) -> Schema__Rule_Set:                     # Get cached rule set by ID

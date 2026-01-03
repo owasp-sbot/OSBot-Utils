@@ -9,9 +9,9 @@ from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Validator        
 from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils                           import Ontology__Utils
 from osbot_utils.helpers.semantic_graphs.rule.Rule_Set__Utils                               import Rule_Set__Utils
 from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Validation_Errors         import List__Validation_Errors
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph import Schema__Semantic_Graph
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge import Schema__Semantic_Graph__Edge
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node import Schema__Semantic_Graph__Node
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph               import Schema__Semantic_Graph
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge         import Schema__Semantic_Graph__Edge
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node         import Schema__Semantic_Graph__Node
 from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Validation_Result            import Schema__Validation_Result
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                    import Node_Type_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id                     import Ontology_Id
@@ -23,11 +23,11 @@ from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set          
 from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Cardinality             import Schema__Rule__Cardinality
 from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb          import Safe_Str__Ontology__Verb
 from osbot_utils.testing.Graph__Deterministic__Ids                                          import graph_ids_for_tests
-from osbot_utils.testing.__ import __
-from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id import Edge_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id import Graph_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id import Obj_Id
+from osbot_utils.testing.__                                                                 import __
+from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                           import Edge_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                          import Graph_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                           import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                            import Obj_Id
 
 
 # todo:

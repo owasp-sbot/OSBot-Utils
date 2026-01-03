@@ -31,22 +31,6 @@ class Taxonomy__Registry(Type_Safe):                                            
     @type_safe
     def parse_taxonomy(self, data: dict) -> Schema__Taxonomy:                        # Parse taxonomy from dict
         return Schema__Taxonomy.from_json(data)
-        # categories = {}
-        #
-        # for cat_id, cat_data in data.get('categories', {}).items():
-        #     child_refs = [Category_Id(c) for c in cat_data.get('child_refs', [])]
-        #     category = Schema__Taxonomy__Category(category_id = Category_Id(cat_data.get('category_id', cat_id)),
-        #                                           name        = cat_data.get('name', cat_id)                    ,
-        #                                           description = cat_data.get('description', '')                 ,
-        #                                           parent_ref  = Category_Id(cat_data.get('parent_ref', ''))     ,
-        #                                           child_refs  = child_refs                                      )
-        #     categories[cat_id] = category
-        #
-        # return Schema__Taxonomy(taxonomy_id   = Taxonomy_Id(data.get('taxonomy_id', '')),
-        #                         version       = data.get('version', '1.0.0')           ,
-        #                         description   = data.get('description', '')            ,
-        #                         root_category = Category_Id(data.get('root_category', '')),
-        #                         categories    = categories                             )
 
     @type_safe
     def get(self, taxonomy_id: Taxonomy_Id) -> Schema__Taxonomy:                     # Get cached taxonomy by ID
