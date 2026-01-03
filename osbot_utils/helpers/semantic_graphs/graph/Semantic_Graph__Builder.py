@@ -1,19 +1,18 @@
-from typing                                                                          import Optional
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id             import Node_Type_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id              import Rule_Set_Id
-from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology           import Schema__Ontology
-from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb   import Safe_Str__Ontology__Verb
-from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                   import Graph_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                    import Edge_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                     import Obj_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id              import Ontology_Id
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph        import Schema__Semantic_Graph
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node  import Schema__Semantic_Graph__Node
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge  import Schema__Semantic_Graph__Edge
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id                 import Rule_Set_Id
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology              import Schema__Ontology
+from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb      import Safe_Str__Ontology__Verb
+from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                      import Graph_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                       import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                       import Edge_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id                 import Ontology_Id
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph           import Schema__Semantic_Graph
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node     import Schema__Semantic_Graph__Node
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge     import Schema__Semantic_Graph__Edge
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id         import Safe_Str__Id
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                          import type_safe
 
 
 class Semantic_Graph__Builder(Type_Safe):                                            # Fluent API for building graphs

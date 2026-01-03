@@ -1,5 +1,5 @@
 import json
-from typing                                                                             import Dict, Optional
+from typing                                                                             import Dict
 from pathlib                                                                            import Path
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                import Node_Type_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id                 import Ontology_Id

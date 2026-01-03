@@ -1,15 +1,14 @@
 from typing                                                                          import List
-
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id             import Node_Type_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id              import Ontology_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id              import Rule_Set_Id
 from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Cardinality      import Schema__Rule__Cardinality
 from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Transitivity     import Schema__Rule__Transitivity
-from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb import Safe_Str__Ontology__Verb
+from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb   import Safe_Str__Ontology__Verb
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text         import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version      import Safe_Str__Version
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
 
 
 # refactor out methods

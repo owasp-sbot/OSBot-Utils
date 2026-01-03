@@ -1,6 +1,6 @@
 from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
-from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Relationships__By_Verb import Dict__Relationships__By_Verb
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Id                  import Category_Id
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Relationships__By_Verb  import Dict__Relationships__By_Verb
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Id                   import Category_Id
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text              import Safe_Str__Text
 
 
