@@ -417,3 +417,41 @@ class test_Type_Safe__List__regression(TestCase):
         # assert type(multiplied) is Type_Safe__List            # BUG: should be Hash_List
         # assert type(multiplied) is not Hash_List              # BUG
         assert type(copied) is Hash_List                        # FIXED
+
+    def test__regression__collections_subclass__assigment(self):
+
+        class List__Abc(Type_Safe__List):                                              # List of node type identifiers
+            expected_type = Safe_Str
+
+        class An_Class(Type_Safe):
+            targets : List__Abc
+
+        An_Class(targets = [])                                                          # this works
+        An_Class(targets = List__Abc([Safe_Str('method')]) )                            # this works
+
+        # error_message_1 = ("On An_Class, invalid type for attribute 'targets'. Expected "
+        #                    "'<class 'test_Type_Safe__List__bugs.test_Type_Safe__List__bugs."
+        #                    "test__bug__collections_subclass__assigment.<locals>.List__Abc'>' "
+        #                    "but got '<class 'list'>'")
+        # with pytest.raises(ValueError, match=re.escape(error_message_1)):
+        #     An_Class(targets = [List__Abc('method')])                                 # FIXED: BUG, but this fails this works
+        An_Class(targets = [List__Abc('method')])                                       # FIXED
+        An_Class(targets = ['method'])
+
+        assert An_Class(targets = []                              ).obj() ==__(targets=[])
+        assert An_Class(targets = List__Abc([Safe_Str('method')]) ).obj() ==__(targets=['method'])
+        assert An_Class(targets = [List__Abc('method')]           ).obj() !=__(targets=['method'])
+        assert An_Class(targets = ['method']                      ).obj() ==__(targets=['method'])
+
+        assert An_Class(targets = [List__Abc('method')]           ).obj() ==__(targets=['list_method__with_0_elements'])    #
+        assert str(List__Abc('method'))                                   == 'list[method] with 0 elements'
+        assert Safe_Str(List__Abc('method'))                              == 'list_method__with_0_elements'
+
+        assert type(An_Class(targets = []                              ).targets) == List__Abc
+        assert type(An_Class(targets = List__Abc([Safe_Str('method')]) ).targets) == List__Abc
+        assert type(An_Class(targets = [List__Abc('method')]           ).targets) == List__Abc
+        assert type(An_Class(targets = ['method']                      ).targets) == List__Abc
+
+        assert type(An_Class(targets = List__Abc([Safe_Str('method')]) ).targets[0]) == Safe_Str
+        assert type(An_Class(targets = [List__Abc('method')]           ).targets[0]) == Safe_Str
+        assert type(An_Class(targets = ['method']                      ).targets[0]) == Safe_Str

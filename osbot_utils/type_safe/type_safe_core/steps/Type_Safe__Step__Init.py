@@ -125,6 +125,12 @@ class Type_Safe__Step__Init:
                         for item in value:
                             type_safe_list.append(item)
                         return type_safe_list
+                elif isinstance(annotation, type) and issubclass(annotation, Type_Safe__List):
+                    if isinstance(value, list) and not isinstance(value, annotation):
+                        return annotation(value)                                            # Uses the constructor pattern
+                elif isinstance(annotation, type) and issubclass(annotation, Type_Safe__Set):
+                    if isinstance(value, (set, frozenset)) and not isinstance(value, annotation):
+                        return annotation(value)
 
                 # Handle non-empty set
                 elif origin is set and isinstance(value, set):

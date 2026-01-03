@@ -1,6 +1,8 @@
 import re
 import pytest
 from unittest                                                                            import TestCase
+from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                      import Safe_Str
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set                     import Type_Safe__Set
 
@@ -146,3 +148,30 @@ class test_Type_Safe__Set__regression(TestCase):
         # assert type(diffed) is Type_Safe__Set                # BUG: should be Hash_Set
         # assert type(diffed) is not Hash_Set                  # BUG
         assert type(copied) is Hash_Set                         # FIXED
+
+    def test__regression__Type_Safe__Set_subclass__assignment(self):        # Regression test for Type_Safe__Set subclass assignment
+
+        class Set__Abc(Type_Safe__Set):
+            expected_type = Safe_Str
+
+        class An_Class(Type_Safe):
+            targets: Set__Abc
+
+        An_Class(targets=set())                                          # this works
+        An_Class(targets=Set__Abc({Safe_Str('method')}))                 # this works
+        An_Class(targets={'method'})                                     # FIXED
+        An_Class(targets={Safe_Str('method')})                           # FIXED
+
+        assert An_Class(targets=set()                           ).json() == {'targets': []}
+        assert An_Class(targets=Set__Abc({Safe_Str('method')})  ).json() == {'targets': ['method']}
+        assert An_Class(targets={'method'}                      ).json() == {'targets': ['method']}
+        assert An_Class(targets={Safe_Str('method')}            ).json() == {'targets': ['method']}
+
+        assert type(An_Class(targets=set()                          ).targets) == Set__Abc
+        assert type(An_Class(targets=Set__Abc({Safe_Str('method')}) ).targets) == Set__Abc
+        assert type(An_Class(targets={'method'}                     ).targets) == Set__Abc
+        assert type(An_Class(targets={Safe_Str('method')}           ).targets) == Set__Abc
+
+        # Items are correctly converted to Safe_Str
+        assert type(list(An_Class(targets={'method'}          ).targets)[0]) == Safe_Str
+        assert type(list(An_Class(targets={Safe_Str('method')}).targets)[0]) == Safe_Str

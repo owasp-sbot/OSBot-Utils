@@ -7,7 +7,6 @@ from osbot_utils.type_safe.Type_Safe                                            
 
 class test_Type_Safe__Dict__bugs(TestCase):
 
-
     def test__bug__set_enums_assignment(self):
         from enum import Enum
 

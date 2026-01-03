@@ -23,29 +23,40 @@ class test_Safe_Str__Version(TestCase):
         assert str(Safe_Str__Version("v000.001.002")) == "v000.001.002"
 
     def test_invalid_versions(self):
-        expected_error_message = re.escape("in Safe_Str__Version, value does not match required pattern: ^v(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$")
-        # Exceeds max digits
+        expected_error_message = re.escape("in Safe_Str__Version, value does not match required pattern: ^v?\\d{1,3}(?:\\.\\d{1,3}){0,2}$")
+
+        # Exceeds max digits per segment
         with pytest.raises(ValueError, match=expected_error_message):
-            Safe_Str__Version("v1000.1.1")
+            Safe_Str__Version("v1000")
 
         with pytest.raises(ValueError, match=expected_error_message):
-            Safe_Str__Version("v1.1000.1")
+            Safe_Str__Version("v1.1000")
 
         with pytest.raises(ValueError, match=expected_error_message):
             Safe_Str__Version("v1.1.1000")
 
-        # Incorrect format
+        # Too many segments
         with pytest.raises(ValueError, match=expected_error_message):
-            Safe_Str__Version("1.2.3")
-
-        with pytest.raises(ValueError, match=expected_error_message):
-            Safe_Str__Version("v1.2")
+            Safe_Str__Version("1.2.3.4")
 
         with pytest.raises(ValueError, match=expected_error_message):
             Safe_Str__Version("v1.2.3.4")
 
+        # Malformed formats
         with pytest.raises(ValueError, match=expected_error_message):
-            Safe_Str__Version("v1.2.alpha")
+            Safe_Str__Version("v")
+
+        with pytest.raises(ValueError, match=expected_error_message):
+            Safe_Str__Version("1.")
+
+        with pytest.raises(ValueError, match=expected_error_message):
+            Safe_Str__Version("1..0")
+
+        with pytest.raises(ValueError, match=expected_error_message):
+            Safe_Str__Version("v1..3")
+
+        with pytest.raises(ValueError, match=expected_error_message):
+            Safe_Str__Version("1.0-beta")
 
         with pytest.raises(ValueError, match=expected_error_message):
             Safe_Str__Version("vx.y.z")
@@ -53,19 +64,14 @@ class test_Safe_Str__Version(TestCase):
         with pytest.raises(ValueError, match=expected_error_message):
             Safe_Str__Version("version1.2.3")
 
-        with pytest.raises(ValueError, match=expected_error_message):
-            Safe_Str__Version("v1..3")
-
-        # Empty or None
-        #with pytest.raises(ValueError, match="in Safe_Str__Version, value cannot be None when allow_empty is False"):
+        # Empty / None allowed
         assert Safe_Str__Version(None) == ''
-
-        #with pytest.raises(ValueError, match="in Safe_Str__Version, value cannot be empty when allow_empty is False"):
         assert Safe_Str__Version("") == ''
 
         # Exceeds max length
         with pytest.raises(ValueError, match="exceeds maximum length"):
-            Safe_Str__Version("v123.456.7890")  # 12 characters, too long
+            Safe_Str__Version("v123.456.7890")
+
 
     def test__safe_str__version_string_representation(self):
         version = Safe_Str__Version("v3.4.5")
@@ -94,3 +100,34 @@ class test_Safe_Str__Version(TestCase):
         # TypeError on invalid concat
         with pytest.raises(TypeError, match="can only concatenate str"):
             _ = version + 1
+
+
+    def test_valid_single_segment_versions(self):
+        assert str(Safe_Str__Version("1"))   == "1"
+        assert str(Safe_Str__Version("2"))   == "2"
+        assert str(Safe_Str__Version("999")) == "999"
+
+        assert str(Safe_Str__Version("v1"))   == "v1"
+        assert str(Safe_Str__Version("v999")) == "v999"
+
+    def test_valid_two_segment_versions(self):
+        assert str(Safe_Str__Version("1.0"))     == "1.0"
+        assert str(Safe_Str__Version("10.20"))   == "10.20"
+        assert str(Safe_Str__Version("999.999")) == "999.999"
+
+        assert str(Safe_Str__Version("v1.0"))     == "v1.0"
+        assert str(Safe_Str__Version("v10.20"))   == "v10.20"
+        assert str(Safe_Str__Version("v999.999")) == "v999.999"
+
+
+    def test_valid_three_segment_versions(self):
+        assert str(Safe_Str__Version("1.2.3"))       == "1.2.3"
+        assert str(Safe_Str__Version("000.001.002")) == "000.001.002"
+
+        assert str(Safe_Str__Version("v1.2.3"))       == "v1.2.3"
+        assert str(Safe_Str__Version("v000.001.002")) == "v000.001.002"
+
+    def test_whitespace_trimming_across_modes(self):
+        assert str(Safe_Str__Version("  1  "))     == "1"
+        assert str(Safe_Str__Version("  1.0  "))   == "1.0"
+        assert str(Safe_Str__Version("  v1.0.0 ")) == "v1.0.0"

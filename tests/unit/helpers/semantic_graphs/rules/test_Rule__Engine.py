@@ -1,0 +1,102 @@
+from unittest                                                                       import TestCase
+from osbot_utils.helpers.semantic_graphs.rules.Rule__Engine                         import Rule__Engine
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id             import Ontology_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id             import Rule_Set_Id
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set              import Schema__Rule_Set
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+
+
+class test_Rule__Engine(TestCase):                                                   # Test rule engine
+
+    def setUp(self):                                                                 # Fresh engine for each test
+        self.engine = Rule__Engine()
+
+    def test__init__(self):                                                          # Test basic creation
+        with Rule__Engine() as _:
+            assert type(_.cache) is Type_Safe__Dict
+            assert _.cache       == {}
+
+    def test__load_from_dict(self):                                                  # Test loading from dictionary
+        data = {
+            'rule_set_id' : 'test_rules'                                             ,
+            'ontology_ref': 'test_ontology'                                          ,
+            'version'     : '2.0.0'                                                  ,
+            'description' : 'Test rule set'                                          ,
+            'transitivity_rules': [
+                {
+                    'source_type': 'class'                                           ,
+                    'verb'       : 'inherits_from'                                   ,
+                    'target_type': 'class'                                           ,
+                }
+            ]                                                                        ,
+            'cardinality_rules': [
+                {
+                    'source_type' : 'method'                                         ,
+                    'verb'        : 'in'                                             ,
+                    'target_type' : 'class'                                          ,
+                    'min_targets' : 1                                                ,
+                    'max_targets' : 1                                                ,
+                    'description' : 'Method in one class'                            ,
+                }                                                                    ,
+                {
+                    'source_type' : 'class'                                          ,
+                    'verb'        : 'has'                                            ,
+                    'target_type' : 'method'                                         ,
+                    'min_targets' : 0                                                ,
+                    'max_targets' : None                                             ,
+                    'description' : 'Class can have any number of methods'           ,
+                }
+            ]
+        }
+
+        with self.engine as _:
+            rule_set = _.load_from_dict(data)
+
+            assert type(rule_set)             is Schema__Rule_Set
+            assert str(rule_set.rule_set_id)  == 'test_rules'
+            assert str(rule_set.ontology_ref) == 'test_ontology'
+            assert len(rule_set.transitivity_rules) == 1
+            assert len(rule_set.cardinality_rules)  == 2
+
+            assert rule_set.is_transitive('class', 'inherits_from', 'class') is True # Check rules work
+
+            method_card = rule_set.get_cardinality('method', 'in', 'class')
+            assert method_card is not None
+            assert int(method_card.min_targets) == 1
+
+    def test__get_and_register(self):                                                # Test get and register operations
+        with self.engine as _:
+            assert _.get('unknown') is None
+
+            rule_set = Schema__Rule_Set(
+                rule_set_id        = Rule_Set_Id('manual')                            ,
+                ontology_ref       = Ontology_Id('test')                              ,
+                transitivity_rules = []                                              ,
+                cardinality_rules  = []                                              ,
+            )
+            _.register(rule_set)
+
+            assert _.get('manual') is rule_set
+
+    def test__list_rule_sets(self):                                                  # Test listing rule sets
+        with self.engine as _:
+            assert _.list_rule_sets() == []
+
+            _.load_from_dict({'rule_set_id': 'rs1', 'ontology_ref': 'o1',
+                             'transitivity_rules': [], 'cardinality_rules': []})
+            _.load_from_dict({'rule_set_id': 'rs2', 'ontology_ref': 'o2',
+                             'transitivity_rules': [], 'cardinality_rules': []})
+
+            rule_sets = _.list_rule_sets()
+            assert len(rule_sets) == 2
+            assert 'rs1' in rule_sets
+            assert 'rs2' in rule_sets
+
+    def test__clear(self):                                                           # Test cache clearing
+        with self.engine as _:
+            _.load_from_dict({'rule_set_id': 'test', 'ontology_ref': 'o',
+                             'transitivity_rules': [], 'cardinality_rules': []})
+            assert len(_.cache) == 1
+
+            _.clear()
+            assert len(_.cache) == 0
