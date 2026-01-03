@@ -74,8 +74,6 @@ class Semantic_Graph__Validator(Type_Safe):                                     
     @type_safe
     def validate_cardinality(self, graph: Schema__Semantic_Graph) -> List__Validation_Errors:
         errors = List__Validation_Errors()
-        if self.rule_set is None:
-            return errors
 
         for rule in self.rule_set.cardinality_rules:
             source_type = rule.source_type

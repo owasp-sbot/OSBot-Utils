@@ -8,6 +8,10 @@ from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Rule_Sets__By_
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id             import Ontology_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id             import Rule_Set_Id
 from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set              import Schema__Rule_Set
+from osbot_utils.testing.Temp_File                                                  import Temp_File
+from osbot_utils.utils.Files                                                        import file_exists, file_contents
+from osbot_utils.utils.Json                                                         import str_to_json
+
 
 # todo:
 #     :
@@ -95,3 +99,74 @@ class test_Rule__Engine(TestCase):                                              
 
             assert type(_.cache) is Dict__Rule_Sets__By_Id
             assert type(_.cache['test']) is Schema__Rule_Set
+
+    def test__load_from_file__file_not_exists(self):                                 # Cover line 27-28
+        with Rule__Engine() as engine:
+            result = engine.load_from_file('/nonexistent/path/rules.json')
+
+            assert result is None
+
+    def test__load_from_file__empty_file(self):                                      # Cover lines 29-30 (raw_json empty)
+        with Temp_File(file_name        = 'empty.json',
+                       contents=''                    ,
+                       return_file_path = True        ) as file_path:
+
+            assert file_exists(file_path)
+            assert file_contents(file_path) == ''
+
+            with Rule__Engine() as engine:
+                result = engine.load_from_file(file_path)
+
+                assert result is None
+
+    def test__load_from_file__invalid_json(self):                                    # Cover lines 31-32 (json_parse fails)
+        invalid_json = 'not valid json {{{'
+        with Temp_File(file_name        = 'invalid.json',
+                       contents         = invalid_json                    ,
+                       return_file_path = True        ) as file_path:
+
+
+            with Rule__Engine() as engine:
+                result = engine.load_from_file(file_path)
+
+                assert result is None
+
+    def test__load_from_file__valid_json(self):                                      # Cover successful path
+        json_content = '''{
+            "rule_set_id": "test_rules",
+            "ontology_ref": "test_ontology",
+            "version": "1.0.0",
+            "description": "Test rules",
+            "transitivity_rules": [
+                {
+                    "source_type": "class",
+                    "verb": "inherits_from",
+                    "target_type": "class"
+                }
+            ],
+            "cardinality_rules": [
+                {
+                    "source_type": "method",
+                    "verb": "in",
+                    "target_type": "class",
+                    "min_targets": 1,
+                    "max_targets": 1,
+                    "description": "Method in one class"
+                }
+            ]
+        }'''
+        with Temp_File(file_name        = 'valid.json',
+                       contents         = json_content                    ,
+                       return_file_path = True        ) as file_path:
+
+
+
+            with Rule__Engine() as engine:
+                result = engine.load_from_file(file_path)
+
+                assert result is not None
+                assert str(result.rule_set_id) == 'test_rules'
+                assert len(result.transitivity_rules) == 1
+                assert len(result.cardinality_rules) == 1
+                assert type(result) == Schema__Rule_Set
+                assert result.json() == str_to_json(json_content)

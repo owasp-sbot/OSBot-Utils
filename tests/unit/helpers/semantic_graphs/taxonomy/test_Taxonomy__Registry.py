@@ -8,6 +8,10 @@ from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Id         
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Taxonomy_Id                 import Taxonomy_Id
 from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy              import Schema__Taxonomy
 from osbot_utils.helpers.semantic_graphs.taxonomy.Taxonomy__Registry                    import Taxonomy__Registry
+from osbot_utils.testing.Temp_File                                                      import Temp_File
+from osbot_utils.utils.Files                                                            import file_exists, file_contents
+from osbot_utils.utils.Json                                                             import str_to_json
+
 
 # todo:
 #     :
@@ -91,3 +95,69 @@ class test_Taxonomy__Registry(TestCase):                                        
 
             assert type(_.cache) is Dict__Taxonomies__By_Id
             assert type(_.cache['test']) is Schema__Taxonomy
+
+    def test__load_from_file__file_not_exists(self):                                 # Cover line 24-25
+        with Taxonomy__Registry() as registry:
+            result = registry.load_from_file('/nonexistent/path/taxonomy.json')
+
+            assert result is None
+
+    def test__load_from_file__empty_file(self):                                      # Cover lines 26-27 (raw_json empty)
+        with Temp_File(file_name        = 'empty.json',
+                       contents         = ''          ,
+                       return_file_path = True        ) as file_path:
+
+            assert file_exists(file_path)
+            assert file_contents(file_path) == ''
+
+            with Taxonomy__Registry() as registry:
+                result = registry.load_from_file(file_path)
+
+                assert result is None
+
+    def test__load_from_file__invalid_json(self):                                    # Cover lines 28-29 (json_parse fails)
+        invalid_json = 'not valid json {{{'
+        with Temp_File(file_name        = 'invalid.json',
+                       contents         = invalid_json  ,
+                       return_file_path = True          ) as file_path:
+
+            with Taxonomy__Registry() as registry:
+                result = registry.load_from_file(file_path)
+
+                assert result is None
+
+    def test__load_from_file__valid_json(self):                                      # Cover successful path
+        json_content = '''{
+            "taxonomy_id": "test_taxonomy",
+            "version": "1.0.0",
+            "description": "Test taxonomy",
+            "root_category": "root",
+            "categories": {
+                "root": {
+                    "category_id": "root",
+                    "name": "Root",
+                    "description": "Root category",
+                    "parent_ref": "",
+                    "child_refs": ["child1"]
+                },
+                "child1": {
+                    "category_id": "child1",
+                    "name": "Child_1",
+                    "description": "First child",
+                    "parent_ref": "root",
+                    "child_refs": []
+                }
+            }
+        }'''
+        with Temp_File(file_name        = 'valid.json',
+                       contents         = json_content,
+                       return_file_path = True        ) as file_path:
+
+            with Taxonomy__Registry() as registry:
+                result = registry.load_from_file(file_path)
+
+                assert result                   is not None
+                assert str(result.taxonomy_id)  == 'test_taxonomy'
+                assert len(result.categories)   == 2
+                assert type(result)             == Schema__Taxonomy
+                assert result.json()            == str_to_json(json_content)

@@ -2,11 +2,15 @@ import re
 import pytest
 from unittest                                                                        import TestCase
 from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Registry                 import Ontology__Registry
-from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils import Ontology__Utils
-from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Ontologies__By_Id import Dict__Ontologies__By_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id             import Ontology_Id
+from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils                    import Ontology__Utils
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Ontologies__By_Id  import Dict__Ontologies__By_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id              import Ontology_Id
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology           import Schema__Ontology
+from osbot_utils.testing.Temp_File                                                   import Temp_File
+from osbot_utils.testing.__                                                          import __
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
+from osbot_utils.utils.Files                                                         import file_not_exists, file_exists
+from osbot_utils.utils.Json                                                          import str_to_json, json_to_str
 
 
 class test_Ontology__Registry(TestCase):                                             # Test ontology registry
@@ -214,4 +218,76 @@ class test_Ontology__Registry(TestCase):                                        
         error_message_2 = "Parameter 'value' expected type <class 'str'>, but got <class 'int'>"
         with pytest.raises(ValueError, match=re.escape(error_message_2)):
             an_method_3(42)
+
+
+
+    def test__load_from_file__file_not_exists(self):                                 # Cover line 25-26
+        with Ontology__Registry() as registry:
+            result = registry.load_from_file('/nonexistent/path/ontology.json')
+
+            assert result is None
+
+    def test__load_from_file__empty_file(self):                                      # Cover lines 27-28 (raw_json empty)
+        with Temp_File(file_name        = 'empty.json',
+                       return_file_path = True ,
+                       create_file      = False) as file_path:
+            assert file_not_exists(file_path)
+            with Ontology__Registry() as registry:
+                result = registry.load_from_file(file_path)
+                assert result is None
+
+    def test__load_from_file__invalid_json(self):                                    # Cover lines 29-30 (json_parse fails)
+        file_contents = 'not valid json {{{'
+        with Temp_File(file_name        = 'invalid.json',
+                       return_file_path = True ,
+                       contents         = file_contents) as file_path:
+
+            with Ontology__Registry() as registry:
+                result = registry.load_from_file(file_path)
+                assert result is None
+
+    def test__load_from_file__valid_json(self):                                      # Cover successful path
+        json_content = '''\
+{    
+    "version": "1.0.0",
+    "ontology_id": "test_ontology",
+    "description": "Test",
+    "taxonomy_ref": "",
+    "node_types": {
+        "class": {
+            "description": "A class",
+            "relationships": {
+                "has": {
+                    "inverse": "in",
+                    "targets": [
+                        "method"
+                    ]
+                }
+            },
+            "taxonomy_ref": ""
+        }
+    }
+}'''
+        with Temp_File(file_name        = 'valid.json',
+                       return_file_path = True ,
+                       contents         = json_content) as file_path:
+
+            with Ontology__Registry() as registry:
+                result = registry.load_from_file(file_path)
+                assert result is not None
+
+                with result as _:
+                    assert type(result) is Schema__Ontology
+                    assert str(_.ontology_id) == 'test_ontology'
+                    assert len(result.node_types) == 1
+                    assert _.json() == str_to_json(json_content)
+                    assert _.obj()  == __( version='1.0.0',
+                                           ontology_id='test_ontology',
+                                           description='Test',
+                                           taxonomy_ref='',
+                                           node_types=__(_class=__(description='A class',
+                                                                   relationships=__(has=__(inverse='in',
+                                                                                           targets=['method'])),
+                                                                   taxonomy_ref='')))
+
 

@@ -10,7 +10,7 @@ from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology      
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Node_Type       import Schema__Ontology__Node_Type
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Relationship    import Schema__Ontology__Relationship
 from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb          import Safe_Str__Ontology__Verb
-from osbot_utils.testing.__ import __
+from osbot_utils.testing.__                                                                 import __
 
 # todo:
 #     :
@@ -181,3 +181,43 @@ class test_Ontology__Utils(TestCase):                                           
         assert 'method'   in type_ids
         assert 'function' in type_ids
         assert len(type_ids) == 4
+
+
+    def test__edge_inverse_name__no_inverse_verb(self):                              # Cover line 95
+        # Create ontology with relationship that has NO inverse
+        utils = Ontology__Utils()
+
+        # Relationship with empty inverse
+        class_has = Schema__Ontology__Relationship(inverse = Safe_Str__Ontology__Verb(''),  # Empty inverse
+                                                   targets = [Node_Type_Id('method')]      )
+        class_node_type = Schema__Ontology__Node_Type(description   = 'Python class',
+                                                      relationships = {'has': class_has})
+
+        ontology = Schema__Ontology(ontology_id = Ontology_Id('test'),
+                                    node_types  = {'class': class_node_type})
+
+        result = utils.edge_inverse_name(ontology, 'class', 'has', 'method')
+
+        assert result == ""                                                          # Empty string when no inverse
+
+    def test__edge_inverse_name__invalid_source_type(self):                          # Cover when source_type not found
+        utils    = Ontology__Utils()
+        ontology = Schema__Ontology(ontology_id = Ontology_Id('test'),
+                                    node_types  = {}                  )
+
+        result = utils.edge_inverse_name(ontology, 'nonexistent', 'has', 'method')
+
+        assert result == ""
+
+    def test__edge_inverse_name__invalid_verb(self):                                 # Cover when verb not found
+        utils = Ontology__Utils()
+
+        class_node_type = Schema__Ontology__Node_Type(description   = 'Python class',
+                                                      relationships = {})            # No relationships
+
+        ontology = Schema__Ontology(ontology_id = Ontology_Id('test'),
+                                    node_types  = {'class': class_node_type})
+
+        result = utils.edge_inverse_name(ontology, 'class', 'nonexistent_verb', 'method')
+
+        assert result == ""
