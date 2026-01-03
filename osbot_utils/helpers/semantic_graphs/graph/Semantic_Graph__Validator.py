@@ -1,17 +1,28 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Semantic_Graph__Validator - Validate graphs against ontology and rules
+# Refactored to use Utils classes for operations
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Validation_Errors  import List__Validation_Errors
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph        import Schema__Semantic_Graph
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Validation_Result     import Schema__Validation_Result
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology           import Schema__Ontology
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set               import Schema__Rule_Set
+from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb   import Safe_Str__Ontology__Verb
+from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils                    import Ontology__Utils
+from osbot_utils.helpers.semantic_graphs.rule.Rule_Set__Utils                        import Rule_Set__Utils
+from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Utils                 import Semantic_Graph__Utils
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
-from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology           import Schema__Ontology
-from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set               import Schema__Rule_Set
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph        import Schema__Semantic_Graph
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Validation_Result     import Schema__Validation_Result
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Validation_Errors  import List__Validation_Errors
-from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb   import Safe_Str__Ontology__Verb
 
 
 class Semantic_Graph__Validator(Type_Safe):                                          # Validate graphs against ontology and rules
-    ontology : Schema__Ontology                                                      # Ontology to validate against
-    rule_set : Schema__Rule_Set                                                      # Optional rules to apply
+    ontology       : Schema__Ontology                                                # Ontology to validate against
+    rule_set       : Schema__Rule_Set                                                # Optional rules to apply
+    graph_utils    : Semantic_Graph__Utils                                           # Graph operations helper
+    ontology_utils : Ontology__Utils                                                 # Ontology operations helper
+    rule_set_utils : Rule_Set__Utils                                                 # Rule set operations helper
 
     @type_safe
     def validate(self, graph: Schema__Semantic_Graph) -> Schema__Validation_Result:  # Validate graph, return result
@@ -27,7 +38,7 @@ class Semantic_Graph__Validator(Type_Safe):                                     
     @type_safe
     def validate_node_types(self, graph: Schema__Semantic_Graph) -> List__Validation_Errors:
         errors      = List__Validation_Errors()
-        valid_types = set(self.ontology.node_type_ids())
+        valid_types = set(self.ontology_utils.node_type_ids(self.ontology))
 
         for node_id, node in graph.nodes.items():
             node_type = node.node_type
@@ -41,8 +52,8 @@ class Semantic_Graph__Validator(Type_Safe):                                     
         errors = List__Validation_Errors()
 
         for edge in graph.edges:
-            from_node = graph.get_node(edge.from_node)
-            to_node   = graph.get_node(edge.to_node)
+            from_node = self.graph_utils.get_node(graph, edge.from_node)
+            to_node   = self.graph_utils.get_node(graph, edge.to_node)
 
             if from_node is None:
                 errors.append(f"Edge {edge.edge_id}: from_node '{edge.from_node}' not found")
@@ -55,7 +66,7 @@ class Semantic_Graph__Validator(Type_Safe):                                     
             to_type   = to_node.node_type
             verb      = edge.verb
 
-            if self.ontology.valid_edge(from_type, verb, to_type) is False:
+            if self.ontology_utils.valid_edge(self.ontology, from_type, verb, to_type) is False:
                 errors.append(f"Edge {edge.edge_id}: invalid edge {from_type} --{verb}--> {to_type}")
 
         return errors
@@ -76,10 +87,10 @@ class Semantic_Graph__Validator(Type_Safe):                                     
                     continue
 
                 count = 0
-                for edge in graph.edges_from(node_id):
+                for edge in self.graph_utils.edges_from(graph, node_id):
                     if edge.verb != verb:
                         continue
-                    to_node = graph.get_node(edge.to_node)
+                    to_node = self.graph_utils.get_node(graph, edge.to_node)
                     if to_node and to_node.node_type == target_type:
                         count += 1
 
@@ -93,12 +104,12 @@ class Semantic_Graph__Validator(Type_Safe):                                     
         return errors
 
     @type_safe
-    def validate_edge(self, graph        : Schema__Semantic_Graph,
-                            from_node_id : Node_Id               ,
-                            verb         : Safe_Str__Ontology__Verb,
-                            to_node_id   : Node_Id               ) -> bool:
-        from_node = graph.get_node(from_node_id)
-        to_node   = graph.get_node(to_node_id)
+    def validate_edge(self, graph       : Schema__Semantic_Graph   ,
+                            from_node_id: Node_Id                  ,
+                            verb        : Safe_Str__Ontology__Verb ,
+                            to_node_id  : Node_Id                  ) -> bool:
+        from_node = self.graph_utils.get_node(graph, from_node_id)
+        to_node   = self.graph_utils.get_node(graph, to_node_id)
 
         if from_node is None or to_node is None:
             return False
@@ -106,4 +117,4 @@ class Semantic_Graph__Validator(Type_Safe):                                     
         from_type = from_node.node_type
         to_type   = to_node.node_type
 
-        return self.ontology.valid_edge(from_type, verb, to_type)
+        return self.ontology_utils.valid_edge(self.ontology, from_type, verb, to_type)

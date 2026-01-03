@@ -2,6 +2,7 @@ import re
 import pytest
 from unittest                                                                        import TestCase
 from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Registry                 import Ontology__Registry
+from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils import Ontology__Utils
 from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Ontologies__By_Id import Dict__Ontologies__By_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id             import Ontology_Id
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology           import Schema__Ontology
@@ -11,7 +12,8 @@ from osbot_utils.type_safe.type_safe_core.decorators.type_safe                  
 class test_Ontology__Registry(TestCase):                                             # Test ontology registry
 
     def setUp(self):                                                                 # Fresh registry for each test
-        self.registry = Ontology__Registry()
+        self.registry       = Ontology__Registry()
+        self.ontology_utils = Ontology__Utils()
 
     def test__init__(self):                                                          # Test basic creation
         with Ontology__Registry() as _:
@@ -76,17 +78,17 @@ class test_Ontology__Registry(TestCase):                                        
             ontology = _.load_from_dict(data)
 
             assert len(ontology.node_types) == 4                                     # Check node types
+            with self.ontology_utils as _:
+                assert _.valid_edge(ontology,'package', 'has', 'module')    is True        # Check relationships
+                assert _.valid_edge(ontology,'package', 'has', 'package')   is True
+                assert _.valid_edge(ontology,'module', 'defines', 'class')  is True
+                assert _.valid_edge(ontology,'module', 'defines', 'function') is True
+                assert _.valid_edge(ontology,'module', 'imports', 'module') is True
 
-            assert ontology.valid_edge('package', 'has', 'module')    is True        # Check relationships
-            assert ontology.valid_edge('package', 'has', 'package')   is True
-            assert ontology.valid_edge('module', 'defines', 'class')  is True
-            assert ontology.valid_edge('module', 'defines', 'function') is True
-            assert ontology.valid_edge('module', 'imports', 'module') is True
+                assert _.valid_edge(ontology,'package', 'has', 'class')     is False       # Invalid edges
+                assert _.valid_edge(ontology,'class', 'defines', 'function') is False
 
-            assert ontology.valid_edge('package', 'has', 'class')     is False       # Invalid edges
-            assert ontology.valid_edge('class', 'defines', 'function') is False
-
-            assert ontology.get_inverse_verb('module', 'defines') == 'defined_in'    # Check inverses
+                assert _.get_inverse_verb(ontology,'module', 'defines') == 'defined_in'    # Check inverses
 
     def test__load_from_dict__is_cached(self):                                       # Test ontology is cached after load
         data = {'ontology_id': 'cached_test', 'node_types': {}}

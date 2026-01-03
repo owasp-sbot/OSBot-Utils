@@ -1,182 +1,77 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Test Schema__Ontology - Tests for ontology schema (pure data)
+# Note: Ontology operations have been moved to Ontology__Utils
+# ═══════════════════════════════════════════════════════════════════════════════
+
 from unittest                                                                               import TestCase
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Node_Types__By_Id         import Dict__Node_Types__By_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                    import Node_Type_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id                     import Ontology_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Taxonomy_Id                     import Taxonomy_Id
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology                  import Schema__Ontology
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Node_Type       import Schema__Ontology__Node_Type
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Relationship    import Schema__Ontology__Relationship
 from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb          import Safe_Str__Ontology__Verb
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version             import Safe_Str__Version
+from osbot_utils.type_safe.Type_Safe                                                        import Type_Safe
 
 
-class test_Schema__Ontology(TestCase):                                               # Test main ontology schema
+class test_Schema__Ontology(TestCase):                                               # Test ontology schema
 
-    @classmethod
-    def setUpClass(cls):                                                             # Create test ontology once
-        cls.ontology = cls.create_test_ontology()
+    def test__init__(self):                                                          # Test initialization
+        with Schema__Ontology(ontology_id = Ontology_Id('test')) as _:
+            assert type(_)            is Schema__Ontology
+            assert isinstance(_, Type_Safe)
+            assert str(_.ontology_id) == 'test'
+            assert str(_.version)     == '1.0.0'
 
-    @classmethod
-    def create_test_ontology(cls) -> Schema__Ontology:                               # Build minimal test ontology
-        module_defines = Schema__Ontology__Relationship(                             # module -> class, function
-            inverse = Safe_Str__Ontology__Verb('defined_in')                         ,
-            targets = [Node_Type_Id('class'), Node_Type_Id('function')]              ,
-        )
-        module_imports = Schema__Ontology__Relationship(                             # module -> module
-            inverse = Safe_Str__Ontology__Verb('imported_by')                        ,
-            targets = [Node_Type_Id('module')]                                       ,
-        )
-        module_node_type = Schema__Ontology__Node_Type(
-            description   = 'Python module'                                          ,
-            relationships = {'defines': module_defines, 'imports': module_imports}   ,
-        )
-
-        class_has = Schema__Ontology__Relationship(                                  # class -> method
-            inverse = Safe_Str__Ontology__Verb('in')                                 ,
-            targets = [Node_Type_Id('method')]                                       ,
-        )
-        class_inherits = Schema__Ontology__Relationship(                             # class -> class
-            inverse = Safe_Str__Ontology__Verb('inherited_by')                       ,
-            targets = [Node_Type_Id('class')]                                        ,
-        )
-        class_node_type = Schema__Ontology__Node_Type(
-            description   = 'Python class'                                           ,
-            relationships = {'has': class_has, 'inherits_from': class_inherits}      ,
-        )
-
-        method_calls = Schema__Ontology__Relationship(                               # method -> method, function
-            inverse = Safe_Str__Ontology__Verb('called_by')                          ,
-            targets = [Node_Type_Id('method'), Node_Type_Id('function')]             ,
-        )
-        method_node_type = Schema__Ontology__Node_Type(
-            description   = 'Python method'                                          ,
-            relationships = {'calls': method_calls}                                  ,
-        )
-
-        function_node_type = Schema__Ontology__Node_Type(                            # function (no relationships)
-            description   = 'Python function'                                        ,
-            relationships = {}                                                       ,
-        )
-
-        return Schema__Ontology(
-            ontology_id = Ontology_Id('test_ontology')                                ,
-            version     = '1.0.0'                                                    ,
-            description = 'Test ontology for unit tests'                             ,
-            node_types  = {
-                'module'  : module_node_type                                         ,
-                'class'   : class_node_type                                          ,
-                'method'  : method_node_type                                         ,
-                'function': function_node_type                                       ,
-            }                                                                        ,
-        )
-
-    def test__init__(self):                                                          # Test basic initialization
-        with Schema__Ontology(ontology_id=Ontology_Id('empty')) as _:
+    def test__init__types(self):                                                     # Test attribute types
+        with Schema__Ontology(ontology_id = Ontology_Id('test')) as _:
             assert type(_.ontology_id)  is Ontology_Id
-            assert str(_.ontology_id)   == 'empty'
-            assert str(_.version)       == '1.0.0'                                   # Default version
-            assert str(_.description)   == ''
-            assert _.node_types         == {}
+            assert type(_.version)      is Safe_Str__Version
+            assert type(_.description)  is Safe_Str__Text
+            assert type(_.taxonomy_ref) is Taxonomy_Id
+            assert type(_.node_types)   is Dict__Node_Types__By_Id
 
-    def test__ontology_structure(self):                                              # Test full ontology structure
-        with self.ontology as _:
-            assert str(_.ontology_id)   == 'test_ontology'
-            assert str(_.version)       == '1.0.0'
-            assert len(_.node_types)    == 4
+    def test__init__default_values(self):                                            # Test default values
+        with Schema__Ontology(ontology_id = Ontology_Id('test')) as _:
+            assert str(_.version)      == '1.0.0'
+            assert str(_.description)  == ''
+            assert str(_.taxonomy_ref) == ''
+            assert len(_.node_types)   == 0
 
-    def test__valid_edge__returns_true_for_valid_edges(self):                        # Test valid edge detection
-        with self.ontology as _:
-            assert _.valid_edge('module', 'defines', 'class')        is True
-            assert _.valid_edge('module', 'defines', 'function')     is True
-            assert _.valid_edge('module', 'imports', 'module')       is True
-            assert _.valid_edge('class', 'has', 'method')            is True
-            assert _.valid_edge('class', 'inherits_from', 'class')   is True
-            assert _.valid_edge('method', 'calls', 'method')         is True
-            assert _.valid_edge('method', 'calls', 'function')       is True
+    def test__init__with_node_types(self):                                           # Test with node types
+        class_has = Schema__Ontology__Relationship(inverse = Safe_Str__Ontology__Verb('in'),
+                                                   targets = [Node_Type_Id('method')])
+        class_node_type = Schema__Ontology__Node_Type(description   = 'Python class',
+                                                      relationships = {'has': class_has})
 
-    def test__valid_edge__returns_false_for_invalid_edges(self):                     # Test invalid edge detection
-        with self.ontology as _:
-            assert _.valid_edge('module', 'defines', 'method')       is False        # method not in targets
-            assert _.valid_edge('class', 'defines', 'method')        is False        # class has 'has', not 'defines'
-            assert _.valid_edge('function', 'has', 'class')          is False        # function has no relationships
-            assert _.valid_edge('invalid', 'has', 'class')           is False        # invalid source type
-            assert _.valid_edge('module', 'invalid_verb', 'class')   is False        # invalid verb
+        with Schema__Ontology(ontology_id = Ontology_Id('test'),
+                              node_types  = {'class': class_node_type}) as _:
+            assert len(_.node_types)           == 1
+            assert 'class'                     in _.node_types
+            assert _.node_types['class']       is class_node_type
 
-    def test__get_inverse_verb(self):                                                # Test inverse verb lookup
-        with self.ontology as _:
-            assert _.get_inverse_verb('module', 'defines')       == 'defined_in'
-            assert _.get_inverse_verb('module', 'imports')       == 'imported_by'
-            assert _.get_inverse_verb('class', 'has')            == 'in'
-            assert _.get_inverse_verb('class', 'inherits_from')  == 'inherited_by'
-            assert _.get_inverse_verb('method', 'calls')         == 'called_by'
+    def test__pure_data_no_methods(self):                                            # Verify no ontology operation methods
+        with Schema__Ontology(ontology_id = Ontology_Id('test')) as _:
+            # These methods should NOT exist on the schema (moved to Utils)
+            assert not hasattr(_, 'valid_edge')        or not callable(getattr(_, 'valid_edge', None))
+            assert not hasattr(_, 'get_inverse_verb')  or not callable(getattr(_, 'get_inverse_verb', None))
+            assert not hasattr(_, 'all_valid_edges')   or not callable(getattr(_, 'all_valid_edges', None))
+            assert not hasattr(_, 'node_type_ids')     or not callable(getattr(_, 'node_type_ids', None))
+            assert not hasattr(_, 'verbs_for_node_type') or not callable(getattr(_, 'verbs_for_node_type', None))
 
-    def test__get_inverse_verb__returns_none_for_invalid(self):                      # Test invalid lookups
-        with self.ontology as _:
-            assert _.get_inverse_verb('invalid', 'has')          is None
-            assert _.get_inverse_verb('module', 'invalid')       is None
-            assert _.get_inverse_verb('function', 'calls')       is None             # function has no relationships
+    def test__json_serialization(self):                                              # Test JSON round-trip
+        original = Schema__Ontology(ontology_id  = Ontology_Id('test_ontology'),
+                                    version      = '2.0.0'                    ,
+                                    description  = 'Test ontology'            ,
+                                    taxonomy_ref = Taxonomy_Id('taxonomy')    )
 
-    def test__edge_forward_name(self):                                               # Test forward edge name computation
-        with self.ontology as _:
-            assert _.edge_forward_name('module', 'defines', 'class')    == 'module_defines_class'
-            assert _.edge_forward_name('module', 'defines', 'function') == 'module_defines_function'
-            assert _.edge_forward_name('class', 'has', 'method')        == 'class_has_method'
-            assert _.edge_forward_name('class', 'inherits_from', 'class') == 'class_inherits_from_class'
+        json_data = original.json()
+        restored  = Schema__Ontology.from_json(json_data)
 
-    def test__edge_inverse_name(self):                                               # Test inverse edge name computation
-        with self.ontology as _:
-            assert _.edge_inverse_name('module', 'defines', 'class')    == 'class_defined_in_module'
-            assert _.edge_inverse_name('class', 'has', 'method')        == 'method_in_class'
-            assert _.edge_inverse_name('class', 'inherits_from', 'class') == 'class_inherited_by_class'
-
-    def test__all_valid_edges(self):                                                 # Test edge enumeration
-        with self.ontology as _:
-            edges = _.all_valid_edges()
-
-            expected = [                                                             # All expected valid edges
-                ('module', 'defines', 'class')                                       ,
-                ('module', 'defines', 'function')                                    ,
-                ('module', 'imports', 'module')                                      ,
-                ('class', 'has', 'method')                                           ,
-                ('class', 'inherits_from', 'class')                                  ,
-                ('method', 'calls', 'method')                                        ,
-                ('method', 'calls', 'function')                                      ,
-            ]
-
-            for edge in expected:
-                assert edge in edges, f"Expected edge {edge} not found"
-
-            assert len(edges) == 7                                                   # Exactly 7 valid edges
-
-    def test__node_type_ids(self):                                                   # Test node type listing
-        with self.ontology as _:
-            type_ids = _.node_type_ids()
-            assert 'module'   in type_ids
-            assert 'class'    in type_ids
-            assert 'method'   in type_ids
-            assert 'function' in type_ids
-            assert len(type_ids) == 4
-
-    def test__verbs_for_node_type(self):                                             # Test verb listing per type
-        with self.ontology as _:
-            module_verbs = _.verbs_for_node_type('module')
-            assert 'defines' in module_verbs
-            assert 'imports' in module_verbs
-
-            class_verbs = _.verbs_for_node_type('class')
-            assert 'has'          in class_verbs
-            assert 'inherits_from' in class_verbs
-
-            assert _.verbs_for_node_type('function') == []                           # No verbs
-            assert _.verbs_for_node_type('invalid')  == []                           # Invalid type
-
-    def test__targets_for_verb(self):                                                # Test target listing
-        with self.ontology as _:
-            module_defines_targets = _.targets_for_verb('module', 'defines')
-            assert 'class'    in module_defines_targets
-            assert 'function' in module_defines_targets
-            assert 'method'   not in module_defines_targets
-
-            class_has_targets = _.targets_for_verb('class', 'has')
-            assert 'method' in class_has_targets
-            assert len(class_has_targets) == 1
-
-            assert _.targets_for_verb('invalid', 'has')    == []                     # Invalid source
-            assert _.targets_for_verb('module', 'invalid') == []                     # Invalid verb
+        assert str(restored.ontology_id)  == str(original.ontology_id)
+        assert str(restored.version)      == str(original.version)
+        assert str(restored.description)  == str(original.description)
+        assert str(restored.taxonomy_ref) == str(original.taxonomy_ref)
