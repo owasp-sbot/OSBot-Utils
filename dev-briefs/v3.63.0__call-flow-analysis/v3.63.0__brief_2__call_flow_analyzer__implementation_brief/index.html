@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.63.0__brief_2__call_flow_analyzer__implementation_brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>(Brief 2) Call Flow Analyzer - Implementation Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "(Brief 2) Call Flow Analyzer - Implementation Brief";
+        var mkdocs_page_input_path = "dev-briefs/v3.63.0__call-flow-analysis/v3.63.0__brief_2__call_flow_analyzer__implementation_brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.63.0__brief_2__call_flow_analyzer__implementation_brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">(Brief 2) Call Flow Analyzer - Implementation Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="brief-2-call-flow-analyzer-implementation-brief">(Brief 2) Call Flow Analyzer - Implementation Brief<a class="headerlink" href="#brief-2-call-flow-analyzer-implementation-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> v3.63.0<br />
+<strong>Status:</strong> Phase 1 Implementation<br />
+<strong>Target:</strong> OSBot-Utils (<code>osbot_utils.helpers.python_call_flow</code>)<br />
+<strong>Created:</strong> December 2024</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This document provides a complete specification for implementing a Python static call flow analyzer that extracts call graphs from Python source code. The tool analyzes classes and functions to discover method calls, producing a graph structure compatible with MGraph-DB for visualization and querying.</p>
+<p><strong>Primary Use Case:</strong> Given a Python class like <code>Call_Flow__Analyzer</code>, produce a graph showing:
+- What methods exist in the class
+- Which methods call which other methods
+- What external dependencies are referenced
+- The structural containment relationships (class contains methods)</p>
+<p><strong>Key Deliverable:</strong> A working analyzer that can analyze itself (meta-analysis), demonstrating correctness through self-reference.</p>
+<hr />
+<h2 id="part-1-why-this-tool-exists">Part 1: Why This Tool Exists<a class="headerlink" href="#part-1-why-this-tool-exists" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h3>
+<p>Understanding Python codebases is difficult because:</p>
+<ol>
+<li><strong>Call relationships are implicit</strong> - You must read every method to understand what calls what</li>
+<li><strong>IDE tools show callers/callees but not the full graph</strong> - Missing the big picture</li>
+<li><strong>Refactoring is risky</strong> - Without knowing the full call chain, changes have unexpected impacts</li>
+<li><strong>Documentation gets stale</strong> - Static diagrams don't update with code changes</li>
+</ol>
+<h3 id="the-solution">The Solution<a class="headerlink" href="#the-solution" title="Permanent link">&para;</a></h3>
+<p>A <strong>deterministic, code-driven</strong> call flow analyzer that:</p>
+<ol>
+<li><strong>Parses Python AST</strong> to extract call relationships</li>
+<li><strong>Produces a graph</strong> with nodes (classes, methods, functions) and edges (contains, calls)</li>
+<li><strong>Integrates with MGraph-DB</strong> for visualization and querying</li>
+<li><strong>Is versionable</strong> - Graph output can be diffed alongside code changes</li>
+</ol>
+<h3 id="why-not-dynamic-analysis">Why Not Dynamic Analysis?<a class="headerlink" href="#why-not-dynamic-analysis" title="Permanent link">&para;</a></h3>
+<p>Dynamic analysis (tracing at runtime) captures actual execution paths but:
+- Requires running the code
+- Only captures exercised paths
+- Misses error handling and conditional branches
+- Cannot be run in CI/CD easily</p>
+<p>Static analysis captures <strong>all possible</strong> call paths from source code alone.</p>
+<hr />
+<h2 id="part-2-core-principles">Part 2: Core Principles<a class="headerlink" href="#part-2-core-principles" title="Permanent link">&para;</a></h2>
+<h3 id="principle-1-everything-is-a-node">Principle 1: Everything is a Node<a class="headerlink" href="#principle-1-everything-is-a-node" title="Permanent link">&para;</a></h3>
+<p>Every entity in the graph gets a unique <code>Node_Id</code>:
+- Classes → Node_Id
+- Methods → Node_Id
+- Functions → Node_Id
+- External references → Node_Id (with <code>is_external=True</code>)</p>
+<p>This enables MGraph-DB compatibility where all entities are first-class graph nodes.</p>
+<h3 id="principle-2-relationships-are-typed-edges">Principle 2: Relationships are Typed Edges<a class="headerlink" href="#principle-2-relationships-are-typed-edges" title="Permanent link">&para;</a></h3>
+<p>A single unified graph with edge types distinguishing:
+- <strong>Structural relationships:</strong> <code>CONTAINS</code> (class contains method)
+- <strong>Behavioral relationships:</strong> <code>CALLS</code>, <code>SELF</code>, <code>CHAIN</code></p>
+<p>Query by filtering edge types, not by maintaining separate graphs.</p>
+<h3 id="principle-3-lazy-discovery-from-entry-point">Principle 3: Lazy Discovery from Entry Point<a class="headerlink" href="#principle-3-lazy-discovery-from-entry-point" title="Permanent link">&para;</a></h3>
+<p>Only capture entities <strong>reachable from the entry point</strong>. Do not scan entire codebases.</p>
+<pre><code>analyze(MyClass)
+  → Discover MyClass (entry)
+  → Discover methods in MyClass
+  → Discover calls FROM those methods
+  → Recursively follow (within scope limits)
+</code></pre>
+<p>This keeps graphs focused and manageable.</p>
+<h3 id="principle-4-scope-control">Principle 4: Scope Control<a class="headerlink" href="#principle-4-scope-control" title="Permanent link">&para;</a></h3>
+<p>Not everything should be followed:
+- Standard library? Usually no.
+- External packages? Usually no.
+- Specific modules? Configurable allow/block lists.</p>
+<p>The user controls traversal boundaries.</p>
+<h3 id="principle-5-depth-represents-call-distance">Principle 5: Depth Represents Call Distance<a class="headerlink" href="#principle-5-depth-represents-call-distance" title="Permanent link">&para;</a></h3>
+<pre><code>Entry point (class)     → depth=0
+Contained methods       → depth=1
+Methods called by those → depth=2
+And so on...
+</code></pre>
+<p>Depth is <strong>call depth</strong>, not structural nesting.</p>
+<h3 id="principle-6-type-safety-throughout">Principle 6: Type Safety Throughout<a class="headerlink" href="#principle-6-type-safety-throughout" title="Permanent link">&para;</a></h3>
+<p>Use OSBot-Utils Type_Safe patterns:
+- All schemas extend <code>Type_Safe</code>
+- Use domain-specific Safe_* primitives
+- Create new primitives when needed (not generic <code>List[str]</code>)</p>
+<h3 id="principle-7-leverage-existing-osbot-utils-capabilities">Principle 7: Leverage Existing OSBot-Utils Capabilities<a class="headerlink" href="#principle-7-leverage-existing-osbot-utils-capabilities" title="Permanent link">&para;</a></h3>
+<p>Use the AST helpers already in OSBot-Utils:
+- <code>Ast_Module</code> - Parse source from object/file/string
+- <code>Ast_Visit</code> - Visitor pattern with capture modes
+- <code>Ast_Call</code> - Wrapper for call nodes with resolution helpers</p>
+<p>Do not use raw <code>ast</code> module directly.</p>
+<hr />
+<h2 id="part-3-architecture-overview">Part 3: Architecture Overview<a class="headerlink" href="#part-3-architecture-overview" title="Permanent link">&para;</a></h2>
+<h3 id="graph-structure-ascii-diagram">Graph Structure (ASCII Diagram)<a class="headerlink" href="#graph-structure-ascii-diagram" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           UNIFIED CALL FLOW GRAPH                                │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  NODES (by type)                           EDGES (by type)                       │
+│  ══════════════                            ═══════════════                        │
+│                                                                                  │
+│  ┌─────────────────┐                       CONTAINS (structural)                 │
+│  │ CLASS           │                       ─────────────────────                 │
+│  │ node_type=class │──────CONTAINS────────►  Class ──► Method                   │
+│  │ is_entry=True   │                                                            │
+│  │ depth=0         │                       CALLS (behavioral)                    │
+│  └─────────────────┘                       ───────────────────                   │
+│           │                                  Method ──► Method                   │
+│           │ CONTAINS                         Method ──► External                 │
+│           ▼                                                                      │
+│  ┌─────────────────┐                       SELF (self.method() calls)           │
+│  │ METHOD          │                       ─────────────────────────            │
+│  │ node_type=method│──────CALLS/SELF──────►  Method ──► Method (same class)     │
+│  │ is_entry=False  │                                                            │
+│  │ depth=1         │                       CHAIN (obj.attr.method() calls)      │
+│  └─────────────────┘                       ───────────────────────────          │
+│           │                                  Method ──► External                 │
+│           │ CALLS                                                                │
+│           ▼                                                                      │
+│  ┌─────────────────┐                                                            │
+│  │ EXTERNAL        │                                                            │
+│  │ node_type=func  │                                                            │
+│  │ is_external=True│                                                            │
+│  │ depth=2         │                                                            │
+│  └─────────────────┘                                                            │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="analysis-flow-ascii-diagram">Analysis Flow (ASCII Diagram)<a class="headerlink" href="#analysis-flow-ascii-diagram" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           ANALYSIS FLOW                                          │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  analyze(Sample__Processor)                                                      │
+│         │                                                                        │
+│         ▼                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ 1. RESET STATE                                                           │    │
+│  │    • Clear name_to_node_id mapping                                       │    │
+│  │    • Clear visited tracking                                              │    │
+│  │    • Create fresh Schema__Call_Graph                                     │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                        │
+│         ▼                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ 2. CREATE CLASS NODE (entry point)                                       │    │
+│  │    • node_id = Node_Id(Obj_Id())  →  'c0000001'                          │    │
+│  │    • is_entry = True                                                     │    │
+│  │    • depth = 0                                                           │    │
+│  │    • Register: name_to_node_id[&quot;...Sample__Processor&quot;] = node_id         │    │
+│  │    • Set: graph.entry_point = node_id                                    │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                        │
+│         ▼                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ 3. DISCOVER METHODS                                                      │    │
+│  │    For each method in class:                                             │    │
+│  │    • Create METHOD node (depth=1)                                        │    │
+│  │    • Create CONTAINS edge (class → method)                               │    │
+│  │    • Register in name_to_node_id                                         │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                        │
+│         ▼                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ 4. EXTRACT CALLS (for each method)                                       │    │
+│  │    Using Ast_Visit:                                                      │    │
+│  │    • Parse method source                                                 │    │
+│  │    • Capture all Ast_Call nodes                                          │    │
+│  │    • For each call:                                                      │    │
+│  │      ├─ Resolve target (self.method? direct? chain?)                     │    │
+│  │      ├─ Check scope (should_follow?)                                     │    │
+│  │      ├─ Lookup/create target node                                        │    │
+│  │      ├─ Create edge (caller → callee)                                    │    │
+│  │      └─ Recursively analyze if within scope and depth                    │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                        │
+│         ▼                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ 5. RETURN GRAPH                                                          │    │
+│  │    • Schema__Call_Graph with all nodes and edges                         │    │
+│  │    • Ready for export (Mermaid, JSON, MGraph-DB)                         │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="scope-control-decision-flow-ascii-diagram">Scope Control Decision Flow (ASCII Diagram)<a class="headerlink" href="#scope-control-decision-flow-ascii-diagram" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        SCOPE DECISION FLOW                                       │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  Should we follow this target?                                                   │
+│         │                                                                        │
+│         ▼                                                                        │
+│  ┌─────────────────┐                                                            │
+│  │ In blocklist?   │───YES──► BLOCK (create external node if configured)        │
+│  └────────┬────────┘                                                            │
+│           │ NO                                                                   │
+│           ▼                                                                      │
+│  ┌─────────────────┐                                                            │
+│  │ Is stdlib?      │───YES──► include_stdlib=True? ──NO──► BLOCK                │
+│  └────────┬────────┘                              └─YES─► CONTINUE ↓            │
+│           │ NO                                                                   │
+│           ▼                                                                      │
+│  ┌─────────────────┐                                                            │
+│  │ Is external?    │───YES──► include_external=True? ──NO──► BLOCK              │
+│  └────────┬────────┘                                 └─YES─► CONTINUE ↓         │
+│           │ NO                                                                   │
+│           ▼                                                                      │
+│  ┌─────────────────┐                                                            │
+│  │ Allowlist set?  │───YES──► In allowlist? ──NO──► BLOCK                       │
+│  └────────┬────────┘                         └─YES─► FOLLOW                     │
+│           │ NO (no allowlist = allow all)                                        │
+│           ▼                                                                      │
+│        FOLLOW                                                                    │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="part-4-schema-definitions">Part 4: Schema Definitions<a class="headerlink" href="#part-4-schema-definitions" title="Permanent link">&para;</a></h2>
+<h3 id="file-structure">File Structure<a class="headerlink" href="#file-structure" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/helpers/python_call_flow/
+├── __init__.py
+├── Call_Flow__Analyzer.py
+├── Call_Flow__Exporter__Mermaid.py
+├── schemas/
+│   ├── __init__.py
+│   ├── Schema__Call_Graph.py
+│   ├── Schema__Call_Graph__Config.py
+│   ├── Schema__Call_Graph__Edge.py
+│   ├── Schema__Call_Graph__Node.py
+│   └── enums/
+│       ├── __init__.py
+│       ├── Enum__Call_Graph__Node_Type.py
+│       └── Enum__Call_Graph__Edge_Type.py
+└── primitives/                              # New primitives if needed
+    ├── __init__.py
+    └── Safe_Str__Python__Module_Pattern.py  # Example
+</code></pre>
+<h3 id="schema__call_graph__node">Schema__Call_Graph__Node<a class="headerlink" href="#schema__call_graph__node" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing                                                                          import List
+from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Node_Type  import Enum__Call_Graph__Node_Type
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label   import Safe_Str__Label
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text         import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path    import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+
+class Schema__Call_Graph__Node(Type_Safe):                                           # Single node in call graph
+    node_id      : Node_Id                                                           # Unique node identifier
+    name         : Safe_Str__Label                                                   # Short display name
+    full_name    : Safe_Str__Label                                                   # Fully qualified name
+    node_type    : Enum__Call_Graph__Node_Type                                       # CLASS, METHOD, FUNCTION
+    module       : Safe_Str__Label                                                   # Source module path
+    file_path    : Safe_Str__File__Path                                              # File where defined
+    depth        : Safe_UInt                                                         # Call depth from entry
+    calls        : List[Node_Id]                                                     # Outgoing call targets
+    called_by    : List[Node_Id]                                                     # Incoming callers
+    source_code  : Safe_Str__Text                                                    # Source code (optional)
+    line_number  : Safe_UInt                                                         # Line number in file
+    is_entry     : bool                         = False                              # Is entry point?
+    is_external  : bool                         = False                              # External/unresolved?
+    is_recursive : bool                         = False                              # Calls itself?
+</code></pre>
+<h3 id="schema__call_graph__edge">Schema__Call_Graph__Edge<a class="headerlink" href="#schema__call_graph__edge" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Edge_Type  import Enum__Call_Graph__Edge_Type
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                    import Edge_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+
+class Schema__Call_Graph__Edge(Type_Safe):                                           # Edge in call graph
+    edge_id       : Edge_Id                                                          # Unique edge identifier
+    from_node     : Node_Id                                                          # Source node
+    to_node       : Node_Id                                                          # Target node
+    edge_type     : Enum__Call_Graph__Edge_Type                                      # CONTAINS, CALLS, SELF, CHAIN
+    line_number   : Safe_UInt                                                        # Line where relationship defined
+    is_conditional: bool                        = False                              # Inside if/try/etc
+</code></pre>
+<h3 id="schema__call_graph__config">Schema__Call_Graph__Config<a class="headerlink" href="#schema__call_graph__config" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing                                                                          import List
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label   import Safe_Str__Label
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+
+class Schema__Call_Graph__Config(Type_Safe):                                         # Configuration for traversal
+    # Depth Control
+    max_depth              : Safe_UInt             = Safe_UInt(5)                    # Max call depth from entry
+
+    # Method Visibility
+    include_private        : bool                  = True                            # Include _private methods
+    include_dunder         : bool                  = False                           # Include __dunder__ methods
+
+    # Scope Control
+    include_stdlib         : bool                  = False                           # Follow into Python stdlib
+    include_external       : bool                  = False                           # Follow into pip packages
+
+    # Fine-grained Scope (TODO: create proper Safe_* primitives for these)
+    module_allowlist       : List[Safe_Str__Label]                                   # ONLY follow these module prefixes
+    module_blocklist       : List[Safe_Str__Label]                                   # NEVER follow these modules
+    class_allowlist        : List[Safe_Str__Label]                                   # ONLY follow these classes
+    class_blocklist        : List[Safe_Str__Label]                                   # NEVER follow these classes
+
+    # Analysis Options
+    resolve_self_calls     : bool                  = True                            # Resolve self.method() calls
+    capture_source         : bool                  = False                           # Store source code in nodes
+    create_external_nodes  : bool                  = True                            # Create placeholders for external
+</code></pre>
+<h3 id="schema__call_graph">Schema__Call_Graph<a class="headerlink" href="#schema__call_graph" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing                                                                          import Dict, List
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Config         import Schema__Call_Graph__Config
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Edge           import Schema__Call_Graph__Edge
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Node           import Schema__Call_Graph__Node
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                   import Graph_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label   import Safe_Str__Label
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+
+class Schema__Call_Graph(Type_Safe):                                                 # Complete call graph
+    graph_id        : Graph_Id                                                       # Unique graph identifier
+    name            : Safe_Str__Label                                                # Descriptive name
+    entry_point     : Node_Id                                                        # Starting node
+    config          : Schema__Call_Graph__Config                                     # Configuration used
+    nodes           : Dict[str, Schema__Call_Graph__Node]                            # node_id → node
+    edges           : List[Schema__Call_Graph__Edge]                                 # All edges
+    max_depth_found : Safe_UInt                    = Safe_UInt(0)                    # Deepest level reached
+</code></pre>
+<h3 id="enum__call_graph__node_type">Enum__Call_Graph__Node_Type<a class="headerlink" href="#enum__call_graph__node_type" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from enum import Enum
+
+class Enum__Call_Graph__Node_Type(str, Enum):
+    CLASS    = 'class'                                                               # Class definition
+    METHOD   = 'method'                                                              # Method within a class
+    FUNCTION = 'function'                                                            # Standalone function
+</code></pre>
+<h3 id="enum__call_graph__edge_type">Enum__Call_Graph__Edge_Type<a class="headerlink" href="#enum__call_graph__edge_type" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from enum import Enum
+
+class Enum__Call_Graph__Edge_Type(str, Enum):
+    # Structural
+    CONTAINS = 'contains'                                                            # Class contains Method
+
+    # Behavioral
+    CALLS    = 'calls'                                                               # Direct function call
+    SELF     = 'self'                                                                # self.method() call
+    CHAIN    = 'chain'                                                               # obj.attr.method() call
+</code></pre>
+<hr />
+<h2 id="part-5-call_flow__analyzer-implementation">Part 5: Call_Flow__Analyzer Implementation<a class="headerlink" href="#part-5-call_flow__analyzer-implementation" title="Permanent link">&para;</a></h2>
+<h3 id="class-structure">Class Structure<a class="headerlink" href="#class-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing                                                                          import Dict, Optional, Any
+from osbot_utils.helpers.ast                                                         import Ast_Module
+from osbot_utils.helpers.ast.Ast_Visit                                               import Ast_Visit
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph                 import Schema__Call_Graph
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Config         import Schema__Call_Graph__Config
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Edge           import Schema__Call_Graph__Edge
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Node           import Schema__Call_Graph__Node
+from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Node_Type  import Enum__Call_Graph__Node_Type
+from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Edge_Type  import Enum__Call_Graph__Edge_Type
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                   import Graph_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                    import Edge_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                     import Obj_Id
+
+class Call_Flow__Analyzer(Type_Safe):
+    config           : Schema__Call_Graph__Config                                    # Traversal configuration
+    graph            : Schema__Call_Graph                                            # The resulting graph
+    name_to_node_id  : Dict[str, Node_Id]                                            # qualified_name → Node_Id
+    visited_methods  : Dict[str, bool]                                               # Track analyzed methods
+    class_context    : Dict[str, type]                                               # Track class for self resolution
+</code></pre>
+<h3 id="key-methods-public-api">Key Methods (Public API)<a class="headerlink" href="#key-methods-public-api" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def analyze(self, target) -&gt; Schema__Call_Graph:
+    &quot;&quot;&quot;Main entry point - analyze a function, class, or module.&quot;&quot;&quot;
+
+def analyze_class(self, cls: type, depth: int) -&gt; Node_Id:
+    &quot;&quot;&quot;Analyze a class, creating class node and method nodes.&quot;&quot;&quot;
+
+def analyze_function(self, func, depth: int, class_context: type = None) -&gt; Node_Id:
+    &quot;&quot;&quot;Analyze a single function or method.&quot;&quot;&quot;
+</code></pre>
+<h3 id="key-methods-internal">Key Methods (Internal)<a class="headerlink" href="#key-methods-internal" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def reset_state(self):
+    &quot;&quot;&quot;Reset internal state for fresh analysis.&quot;&quot;&quot;
+
+def register_node(self, full_name: str, node_id: Node_Id):
+    &quot;&quot;&quot;Register a node in the name→id mapping.&quot;&quot;&quot;
+
+def lookup_node_id(self, full_name: str) -&gt; Optional[Node_Id]:
+    &quot;&quot;&quot;Lookup a node by qualified name.&quot;&quot;&quot;
+
+def get_qualified_name(self, target) -&gt; str:
+    &quot;&quot;&quot;Get fully qualified name for a target.&quot;&quot;&quot;
+
+def create_class_node(self, cls: type, depth: int) -&gt; Schema__Call_Graph__Node:
+    &quot;&quot;&quot;Create a node for a class.&quot;&quot;&quot;
+
+def create_method_node(self, func, depth: int, class_context: type) -&gt; Schema__Call_Graph__Node:
+    &quot;&quot;&quot;Create a node for a method.&quot;&quot;&quot;
+
+def create_external_node(self, call_name: str, depth: int) -&gt; Schema__Call_Graph__Node:
+    &quot;&quot;&quot;Create a placeholder node for an external/unresolved call.&quot;&quot;&quot;
+
+def create_edge(self, from_node: Node_Id, to_node: Node_Id,
+                edge_type: Enum__Call_Graph__Edge_Type, line_number: int = 0):
+    &quot;&quot;&quot;Create an edge between two nodes.&quot;&quot;&quot;
+
+def extract_calls(self, func, caller_node: Schema__Call_Graph__Node,
+                  depth: int, class_context: type = None):
+    &quot;&quot;&quot;Extract all function calls from a method using AST helpers.&quot;&quot;&quot;
+
+def resolve_call(self, call, class_context: type = None) -&gt; Optional[Dict[str, Any]]:
+    &quot;&quot;&quot;Resolve an Ast_Call to target information.&quot;&quot;&quot;
+
+def should_follow(self, qualified_name: str, target) -&gt; bool:
+    &quot;&quot;&quot;Determine if we should follow/analyze this target.&quot;&quot;&quot;
+
+def is_stdlib(self, module: str) -&gt; bool:
+    &quot;&quot;&quot;Check if module is Python standard library.&quot;&quot;&quot;
+
+def is_external(self, module: str) -&gt; bool:
+    &quot;&quot;&quot;Check if module is an external (pip) package.&quot;&quot;&quot;
+
+def is_blocked(self, qualified_name: str, module: str) -&gt; bool:
+    &quot;&quot;&quot;Check if target is in any blocklist.&quot;&quot;&quot;
+
+def is_allowed(self, qualified_name: str, module: str) -&gt; bool:
+    &quot;&quot;&quot;Check if target passes allowlists.&quot;&quot;&quot;
+</code></pre>
+<hr />
+<h2 id="part-6-using-osbot-utils-ast-helpers">Part 6: Using OSBot-Utils AST Helpers<a class="headerlink" href="#part-6-using-osbot-utils-ast-helpers" title="Permanent link">&para;</a></h2>
+<h3 id="key-classes-to-use">Key Classes to Use<a class="headerlink" href="#key-classes-to-use" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+</code></pre>
+<h3 id="parsing-a-functionclass">Parsing a Function/Class<a class="headerlink" href="#parsing-a-functionclass" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Ast_Module accepts: source string, file path, or Python object
+module = Ast_Module(func)  # Parse a function directly
+module = Ast_Module(MyClass)  # Parse a class
+</code></pre>
+<h3 id="extracting-calls-with-ast_visit">Extracting Calls with Ast_Visit<a class="headerlink" href="#extracting-calls-with-ast_visit" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def extract_calls(self, func, caller_node, depth, class_context=None):
+    try:
+        module = Ast_Module(func)
+    except:
+        return                                                                       # Can't get source
+
+    with Ast_Visit(module) as visitor:
+        visitor.capture_calls()                                                      # Enable call capture
+        visitor.visit()                                                              # Execute visitor
+
+        for call in visitor.captured_nodes().get('Ast_Call', []):
+            call_info = self.resolve_call(call, class_context)
+            if call_info:
+                self.process_call(call_info, caller_node, depth)
+</code></pre>
+<h3 id="resolving-calls">Resolving Calls<a class="headerlink" href="#resolving-calls" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def resolve_call(self, call, class_context=None):
+    &quot;&quot;&quot;Resolve an Ast_Call node to call information.&quot;&quot;&quot;
+    call_name = call.name()                                                          # Built-in resolution
+    if not call_name:
+        return None
+
+    func_node = call.func()
+    func_type = type(func_node).__name__
+
+    # Check for self.method() pattern
+    if func_type == 'Ast_Attribute':
+        value = func_node.value()
+        if type(value).__name__ == 'Ast_Name' and value.id() == 'self':
+            # This is self.method()
+            return {
+                'name'    : call_name,
+                'type'    : 'self',
+                'class'   : class_context,
+                'resolved': self.resolve_self_method(call_name, class_context),
+            }
+
+    # Direct call
+    if func_type == 'Ast_Name':
+        return {
+            'name'    : call_name,
+            'type'    : 'calls',
+            'resolved': None,
+        }
+
+    # Chained call (obj.attr.method)
+    if func_type == 'Ast_Attribute':
+        return {
+            'name'    : call_name,
+            'type'    : 'chain',
+            'resolved': None,
+        }
+
+    return None
+</code></pre>
+<hr />
+<h2 id="part-7-expected-test-output">Part 7: Expected Test Output<a class="headerlink" href="#part-7-expected-test-output" title="Permanent link">&para;</a></h2>
+<h3 id="sample-test-class">Sample Test Class<a class="headerlink" href="#sample-test-class" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Sample__Processor:
+    def __init__(self):
+        self.helper = Sample__Helper()
+
+    def run(self, items):
+        validated = self.validate(items)
+        transformed = self.transform(validated)
+        return self.output(transformed)
+
+    def validate(self, items):
+        return [i for i in items if i is not None]
+
+    def transform(self, items):
+        results = []
+        for item in items:
+            result = self.helper.do_work(item)
+            results.append(result)
+        return results
+
+    def output(self, items):
+        return {'count': len(items), 'items': items}
+</code></pre>
+<h3 id="expected-graph-output">Expected Graph Output<a class="headerlink" href="#expected-graph-output" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with test_graph_ids():
+    analyzer = Call_Flow__Analyzer()
+    graph = analyzer.analyze(Sample__Processor)
+
+    assert graph.obj() == __(
+        graph_id        = 'a0000001',
+        name            = 'test_module.Sample__Processor',
+        entry_point     = 'c0000001',
+        max_depth_found = 2,
+        config          = __(...),
+        nodes           = __(
+            c0000001 = __(                                                           # CLASS (entry)
+                node_id     = 'c0000001',
+                name        = 'Sample__Processor',
+                full_name   = 'test_module.Sample__Processor',
+                node_type   = 'class',
+                depth       = 0,
+                is_entry    = True,
+                is_external = False,
+                calls       = [],
+                called_by   = [],
+            ),
+            c0000002 = __(                                                           # METHOD: run
+                node_id     = 'c0000002',
+                name        = 'run',
+                full_name   = 'test_module.Sample__Processor.run',
+                node_type   = 'method',
+                depth       = 1,
+                is_entry    = False,
+                calls       = ['c0000003', 'c0000004', 'c0000005'],
+                called_by   = [],
+            ),
+            c0000003 = __(                                                           # METHOD: validate
+                node_id     = 'c0000003',
+                name        = 'validate',
+                full_name   = 'test_module.Sample__Processor.validate',
+                node_type   = 'method',
+                depth       = 1,
+                calls       = [],
+                called_by   = ['c0000002'],
+            ),
+            c0000004 = __(                                                           # METHOD: transform
+                node_id     = 'c0000004',
+                name        = 'transform',
+                full_name   = 'test_module.Sample__Processor.transform',
+                node_type   = 'method',
+                depth       = 1,
+                calls       = ['c0000006'],                                          # Calls external
+                called_by   = ['c0000002'],
+            ),
+            c0000005 = __(                                                           # METHOD: output
+                node_id     = 'c0000005',
+                name        = 'output',
+                full_name   = 'test_module.Sample__Processor.output',
+                node_type   = 'method',
+                depth       = 1,
+                calls       = [],
+                called_by   = ['c0000002'],
+            ),
+            c0000006 = __(                                                           # EXTERNAL: helper.do_work
+                node_id     = 'c0000006',
+                name        = 'do_work',
+                full_name   = 'external.helper.do_work',
+                node_type   = 'function',
+                depth       = 2,
+                is_external = True,
+                calls       = [],
+                called_by   = ['c0000004'],
+            ),
+        ),
+        edges = [
+            # CONTAINS edges (class → methods)
+            __(edge_id='d0000001', from_node='c0000001', to_node='c0000002', edge_type='contains'),
+            __(edge_id='d0000002', from_node='c0000001', to_node='c0000003', edge_type='contains'),
+            __(edge_id='d0000003', from_node='c0000001', to_node='c0000004', edge_type='contains'),
+            __(edge_id='d0000004', from_node='c0000001', to_node='c0000005', edge_type='contains'),
+            # CALLS edges (method → method)
+            __(edge_id='d0000005', from_node='c0000002', to_node='c0000003', edge_type='self'),
+            __(edge_id='d0000006', from_node='c0000002', to_node='c0000004', edge_type='self'),
+            __(edge_id='d0000007', from_node='c0000002', to_node='c0000005', edge_type='self'),
+            __(edge_id='d0000008', from_node='c0000004', to_node='c0000006', edge_type='chain'),
+        ],
+    )
+</code></pre>
+<hr />
+<h2 id="part-8-code-formatting-guidelines">Part 8: Code Formatting Guidelines<a class="headerlink" href="#part-8-code-formatting-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="import-alignment">Import Alignment<a class="headerlink" href="#import-alignment" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph                import Schema__Call_Graph
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Config        import Schema__Call_Graph__Config
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
+</code></pre>
+<h3 id="attribute-alignment">Attribute Alignment<a class="headerlink" href="#attribute-alignment" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Call_Graph__Node(Type_Safe):
+    node_id      : Node_Id                                                           # Unique identifier
+    name         : Safe_Str__Label                                                   # Short name
+    full_name    : Safe_Str__Label                                                   # Qualified name
+    node_type    : Enum__Call_Graph__Node_Type                                       # CLASS/METHOD/FUNCTION
+    depth        : Safe_UInt                    = Safe_UInt(0)                        # Call depth
+    is_entry     : bool                         = False                              # Entry point?
+</code></pre>
+<h3 id="method-naming">Method Naming<a class="headerlink" href="#method-naming" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>NO underscores</strong> at start of method names</li>
+<li>Use descriptive names: <code>should_follow</code> not <code>_should_follow</code></li>
+<li>Public methods: <code>analyze</code>, <code>analyze_class</code>, <code>analyze_function</code></li>
+<li>Internal helpers: <code>resolve_call</code>, <code>create_edge</code>, <code>is_stdlib</code></li>
+</ul>
+<h3 id="comments">Comments<a class="headerlink" href="#comments" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def analyze(self, target) -&gt; Schema__Call_Graph:                                     # Main entry point
+    self.reset_state()                                                               # Clear previous state
+
+    if inspect.isclass(target):                                                      # Handle class analysis
+        self.analyze_class(target, depth=0)
+</code></pre>
+<hr />
+<h2 id="part-9-testing-strategy">Part 9: Testing Strategy<a class="headerlink" href="#part-9-testing-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="test-file-structure">Test File Structure<a class="headerlink" href="#test-file-structure" title="Permanent link">&para;</a></h3>
+<pre><code>tests/unit/helpers/python_call_flow/
+├── test_Call_Flow__Analyzer.py
+├── test_Call_Flow__Exporter__Mermaid.py
+└── schemas/
+    ├── test_Schema__Call_Graph.py
+    ├── test_Schema__Call_Graph__Config.py
+    ├── test_Schema__Call_Graph__Edge.py
+    └── test_Schema__Call_Graph__Node.py
+</code></pre>
+<h3 id="key-test-patterns">Key Test Patterns<a class="headerlink" href="#key-test-patterns" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Graph__Deterministic__Ids import test_graph_ids
+from osbot_utils.testing.__ import __
+
+class test_Call_Flow__Analyzer(TestCase):
+
+    def test__analyze__class(self):
+        with test_graph_ids():                                                       # Deterministic IDs
+            with Call_Flow__Analyzer() as analyzer:
+                graph = analyzer.analyze(Sample__Processor)
+
+                assert graph.entry_point == 'c0000001'                               # Class is entry
+                assert graph.node_count() == 6                                       # Class + 5 methods
+                assert graph.edge_count() == 8                                       # 4 CONTAINS + 4 CALLS
+</code></pre>
+<h3 id="meta-test-analyzer-analyzing-itself">Meta Test (Analyzer Analyzing Itself)<a class="headerlink" href="#meta-test-analyzer-analyzing-itself" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__meta__self_analysis(self):
+    with test_graph_ids():
+        analyzer = Call_Flow__Analyzer()
+        graph = analyzer.analyze(Call_Flow__Analyzer)                                # Analyze itself!
+
+        assert graph.node_count() &gt;= 10                                              # Should find many methods
+        assert 'analyze' in [n.name for n in graph.nodes.values()]                   # Entry method found
+</code></pre>
+<hr />
+<h2 id="part-10-implementation-checklist">Part 10: Implementation Checklist<a class="headerlink" href="#part-10-implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="phase-11-schema-updates">Phase 1.1: Schema Updates<a class="headerlink" href="#phase-11-schema-updates" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create/verify <code>Enum__Call_Graph__Node_Type</code> with CLASS, METHOD, FUNCTION</li>
+<li>[ ] Create/verify <code>Enum__Call_Graph__Edge_Type</code> with CONTAINS, CALLS, SELF, CHAIN</li>
+<li>[ ] Update <code>Schema__Call_Graph__Edge</code> to use <code>edge_type</code> (renamed from <code>call_type</code>)</li>
+<li>[ ] Add scope control fields to <code>Schema__Call_Graph__Config</code></li>
+</ul>
+<h3 id="phase-12-analyzer-core">Phase 1.2: Analyzer Core<a class="headerlink" href="#phase-12-analyzer-core" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add <code>name_to_node_id</code> mapping to <code>Call_Flow__Analyzer</code></li>
+<li>[ ] Implement <code>reset_state()</code> to clear mappings</li>
+<li>[ ] Implement <code>register_node()</code> and <code>lookup_node_id()</code></li>
+<li>[ ] Implement <code>get_qualified_name()</code></li>
+</ul>
+<h3 id="phase-13-node-creation">Phase 1.3: Node Creation<a class="headerlink" href="#phase-13-node-creation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>create_class_node()</code> (depth=0, is_entry=True)</li>
+<li>[ ] Implement <code>create_method_node()</code> (depth=1 for contained methods)</li>
+<li>[ ] Implement <code>create_external_node()</code> (is_external=True)</li>
+<li>[ ] Implement <code>create_edge()</code></li>
+</ul>
+<h3 id="phase-14-analysis-flow">Phase 1.4: Analysis Flow<a class="headerlink" href="#phase-14-analysis-flow" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>analyze()</code> main entry point</li>
+<li>[ ] Implement <code>analyze_class()</code> with class node + method discovery</li>
+<li>[ ] Implement <code>analyze_function()</code> for method/function analysis</li>
+</ul>
+<h3 id="phase-15-call-extraction-using-ast-helpers">Phase 1.5: Call Extraction (Using AST Helpers)<a class="headerlink" href="#phase-15-call-extraction-using-ast-helpers" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>extract_calls()</code> using <code>Ast_Visit</code></li>
+<li>[ ] Implement <code>resolve_call()</code> for self/direct/chain detection</li>
+<li>[ ] Implement <code>resolve_self_method()</code> for class method lookup</li>
+<li>[ ] Implement <code>process_call()</code> for edge creation and recursion</li>
+</ul>
+<h3 id="phase-16-scope-control">Phase 1.6: Scope Control<a class="headerlink" href="#phase-16-scope-control" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>should_follow()</code></li>
+<li>[ ] Implement <code>is_stdlib()</code></li>
+<li>[ ] Implement <code>is_external()</code></li>
+<li>[ ] Implement <code>is_blocked()</code> and <code>is_allowed()</code></li>
+</ul>
+<h3 id="phase-17-testing">Phase 1.7: Testing<a class="headerlink" href="#phase-17-testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Write schema tests (all passing)</li>
+<li>[ ] Write analyzer tests with deterministic IDs</li>
+<li>[ ] Write meta self-analysis test</li>
+<li>[ ] Write scope control tests</li>
+</ul>
+<hr />
+<h2 id="part-11-reference-documents">Part 11: Reference Documents<a class="headerlink" href="#part-11-reference-documents" title="Permanent link">&para;</a></h2>
+<p>The following documents provide additional context and should be referenced during implementation:</p>
+<ol>
+<li><strong>Type_Safe &amp; Python Formatting Guide for LLMs</strong> - Coding style and patterns</li>
+<li><strong>Type_Safe Testing Guidance for LLMs</strong> - Testing patterns and <code>.obj()</code> usage</li>
+<li><strong>OSBot-Utils Safe Primitives Reference Guide</strong> - Available Safe_* primitives</li>
+<li><strong>AST Helpers LLM Usage Brief</strong> - How to use Ast_Module, Ast_Visit, etc.</li>
+</ol>
+<hr />
+<h2 id="part-12-success-criteria">Part 12: Success Criteria<a class="headerlink" href="#part-12-success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="minimum-viable-product-mvp">Minimum Viable Product (MVP)<a class="headerlink" href="#minimum-viable-product-mvp" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Can analyze a class and produce a graph with nodes and edges</li>
+<li>[ ] Class node is entry point (depth=0)</li>
+<li>[ ] Method nodes are contained (depth=1)</li>
+<li>[ ] CONTAINS edges connect class to methods</li>
+<li>[ ] CALLS/SELF edges connect methods to called methods</li>
+<li>[ ] External calls produce external placeholder nodes</li>
+<li>[ ] All tests pass with deterministic IDs</li>
+</ul>
+<h3 id="full-implementation">Full Implementation<a class="headerlink" href="#full-implementation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Scope control (stdlib, external, allow/block lists)</li>
+<li>[ ] Mermaid export working</li>
+<li>[ ] HTML visualization working</li>
+<li>[ ] Meta self-analysis working</li>
+<li>[ ] Ready for MGraph-DB integration</li>
+</ul>
+<hr />
+<p><em>End of Implementation Brief</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

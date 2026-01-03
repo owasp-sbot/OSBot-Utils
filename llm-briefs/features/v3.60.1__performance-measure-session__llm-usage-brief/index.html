@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.60.1__performance-measure-session__llm-usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Performance_Measure__Session - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Performance_Measure__Session - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.60.1__performance-measure-session__llm-usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.60.1__performance-measure-session__llm-usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Performance_Measure__Session - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="performance_measure__session-llm-usage-brief">Performance_Measure__Session - LLM Usage Brief<a class="headerlink" href="#performance_measure__session-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.60.1<br />
+<strong>Purpose</strong>: Guide for LLMs and developers on using the nanosecond-precision performance measurement framework<br />
+<strong>Location</strong>: <code>osbot_utils.testing.performance</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="what-is-performance_measure__session">What is Performance_Measure__Session?<a class="headerlink" href="#what-is-performance_measure__session" title="Permanent link">&para;</a></h2>
+<p><strong>Performance_Measure__Session is a high-precision benchmarking framework that produces statistically stable, reproducible performance metrics at nanosecond resolution.</strong> It eliminates the noise and variability that plagues typical Python timing approaches by using Fibonacci-based sampling, outlier removal, and dynamic score normalization.</p>
+<h3 id="the-problem-it-solves">The Problem It Solves<a class="headerlink" href="#the-problem-it-solves" title="Permanent link">&para;</a></h3>
+<p>Python's built-in timing approaches are noisy and inconsistent:</p>
+<pre><code class="language-python"># Standard library - unreliable and verbose
+import time
+
+# Single measurement - wildly variable due to GC, context switches
+start = time.perf_counter_ns()
+my_function()
+elapsed = time.perf_counter_ns() - start  # Could vary 10x between runs!
+
+# Manual averaging - still affected by outliers
+times = []
+for _ in range(100):
+    start = time.perf_counter_ns()
+    my_function()
+    times.append(time.perf_counter_ns() - start)
+avg = sum(times) / len(times)  # One GC pause ruins the average
+</code></pre>
+<p><strong>With Performance_Measure__Session:</strong></p>
+<pre><code class="language-python">from osbot_utils.testing.performance.Performance_Measure__Session import Perf
+
+with Perf() as _:
+    _.measure(my_function).print()
+# Output: my_function | score: 2,000 ns | raw: 1,847 ns
+# Stable, reproducible, statistically robust
+</code></pre>
+<h3 id="design-philosophy">Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Statistical robustness</strong> — Fibonacci sampling captures warm-up effects; outlier trimming removes GC noise</li>
+<li><strong>Reproducible scores</strong> — Dynamic normalization produces consistent values across runs</li>
+<li><strong>CI-aware assertions</strong> — Automatic adjustment for slower GitHub Actions runners</li>
+<li><strong>Zero ceremony</strong> — Context manager pattern, fluent API, sensible defaults</li>
+<li><strong>Type_Safe integration</strong> — All models use runtime type checking</li>
+</ol>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="1-import-and-measure-a-function">1. Import and Measure a Function<a class="headerlink" href="#1-import-and-measure-a-function" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.performance.Performance_Measure__Session import Perf
+
+def my_function():
+    return [i * 2 for i in range(100)]
+
+with Perf() as _:
+    _.measure(my_function).print()
+</code></pre>
+<p>Output:</p>
+<pre><code>my_function                    | score:   2,000 ns  | raw:   1,847 ns
+</code></pre>
+<h3 id="2-assert-performance-in-tests">2. Assert Performance in Tests<a class="headerlink" href="#2-assert-performance-in-tests" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from unittest                                                                     import TestCase
+from osbot_utils.testing.performance.Performance_Measure__Session import Perf
+
+class test_my_performance(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.session = Perf(assert_enabled=True)
+
+    def test_critical_operation(self):
+        def fast_operation():
+            return sum(range(10))
+
+        with self.session as _:
+            _.measure(fast_operation).print().assert_time(1_000, 2_000)
+</code></pre>
+<h3 id="3-thats-it">3. That's It<a class="headerlink" href="#3-thats-it" title="Permanent link">&para;</a></h3>
+<p>The session handles all the complexity: 1,595 measurements using Fibonacci scaling, outlier removal, score normalization, and CI-aware assertions.</p>
+<blockquote>
+<p><strong>Tip</strong>: For slow functions (&gt;100ms), use <code>measure__quick()</code> or <code>measure__fast()</code> to reduce test time.</p>
+</blockquote>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Core session - choose your preferred alias
+from osbot_utils.testing.performance.Performance_Measure__Session import Performance_Measure__Session  # Full name
+from osbot_utils.testing.performance.Performance_Measure__Session import Perf                          # Short (recommended)
+from osbot_utils.testing.performance.Performance_Measure__Session import perf_session                  # snake_case
+from osbot_utils.testing.performance.Performance_Measure__Session import performance_session           # Full snake_case
+
+# Loop presets (optional - use measure__quick() and measure__fast() instead)
+from osbot_utils.testing.performance.Performance_Measure__Session import MEASURE__INVOCATION__LOOPS        # Full: 1,595 invocations
+from osbot_utils.testing.performance.Performance_Measure__Session import MEASURE__INVOCATION__LOOPS__QUICK  # Quick: 19 invocations
+from osbot_utils.testing.performance.Performance_Measure__Session import MEASURE__INVOCATION__LOOPS__FAST   # Fast: 87 invocations
+
+# Data models (typically not needed directly)
+from osbot_utils.testing.performance.models.Model__Performance_Measure__Result      import Model__Performance_Measure__Result
+from osbot_utils.testing.performance.models.Model__Performance_Measure__Measurement import Model__Performance_Measure__Measurement
+</code></pre>
+<p><strong>Recommended usage:</strong></p>
+<pre><code class="language-python">from osbot_utils.testing.performance.Performance_Measure__Session import Perf
+
+with Perf() as _:
+    _.measure__fast(my_function).print()
+</code></pre>
+<hr />
+<h2 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="the-measurement-loop-constant">The Measurement Loop Constant<a class="headerlink" href="#the-measurement-loop-constant" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">MEASURE__INVOCATION__LOOPS = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
+</code></pre>
+<p>This Fibonacci sequence provides:
+- <strong>Rapid early sampling</strong> (1, 2, 3, 5, 8) — catches cold-start behavior
+- <strong>Logarithmic scaling</strong> — captures warm-up and cache effects
+- <strong>Large final samples</strong> (233, 377, 610) — statistical stability
+- <strong>Total: 1,595 invocations</strong> per <code>measure()</code> call</p>
+<h3 id="score-vs-raw-score">Score vs Raw Score<a class="headerlink" href="#score-vs-raw-score" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>raw_score</code></td>
+<td>Weighted median-mean after outlier removal</td>
+<td>Debugging, detailed analysis</td>
+</tr>
+<tr>
+<td><code>final_score</code></td>
+<td>Normalized to magnitude-appropriate precision</td>
+<td>Assertions, comparisons</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why two scores?</strong> Raw scores vary slightly between runs (1,847ns vs 1,912ns). Final scores are normalized (both → 2,000ns) for stable assertions.</p>
+<h3 id="ci-environment-handling">CI Environment Handling<a class="headerlink" href="#ci-environment-handling" title="Permanent link">&para;</a></h3>
+<p>When running in GitHub Actions, assertions automatically adjust:</p>
+<ul>
+<li><code>assert_time()</code> — Uses last expected time × 5 as upper bound</li>
+<li><code>assert_time__less_than()</code> — Multiplies threshold by 6</li>
+</ul>
+<p>This accounts for GitHub's slower, shared runners without changing your test code.</p>
+<hr />
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>The system consists of three <code>Type_Safe</code> classes:</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────┐
+│                   Performance_Measure__Session                       │
+│  ─────────────────────────────────────────────────────────────────  │
+│  result         : Model__Performance_Measure__Result                │
+│  assert_enabled : bool                                              │
+│  padding        : int                                               │
+│  ─────────────────────────────────────────────────────────────────  │
+│  measure()      → runs Fibonacci-based sampling                     │
+│  print()        → formatted output                                  │
+│  assert_time()  → validate against expected values                  │
+└────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                 Model__Performance_Measure__Result                   │
+│  ─────────────────────────────────────────────────────────────────  │
+│  measurements : Dict[int, Model__Performance_Measure__Measurement]  │
+│  name         : str                                                 │
+│  raw_score    : float                                               │
+│  final_score  : float                                               │
+└────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│              Model__Performance_Measure__Measurement                 │
+│  ─────────────────────────────────────────────────────────────────  │
+│  avg_time     : int       # Average time in nanoseconds             │
+│  min_time     : int       # Minimum time observed                   │
+│  max_time     : int       # Maximum time observed                   │
+│  median_time  : int       # Median time                             │
+│  stddev_time  : float     # Standard deviation                      │
+│  raw_times    : List[int] # Raw measurements for analysis           │
+│  sample_size  : int       # Number of measurements taken            │
+│  score        : float     # Normalized score for this sample        │
+│  raw_score    : float     # Unrounded score                         │
+└────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h2 id="measurement-algorithm">Measurement Algorithm<a class="headerlink" href="#measurement-algorithm" title="Permanent link">&para;</a></h2>
+<h3 id="raw-score-calculation">Raw Score Calculation<a class="headerlink" href="#raw-score-calculation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def calculate_raw_score(self, times: List[int]) -&gt; int:
+    sorted_times = sorted(times)                    # Sort for analysis
+    trim_size    = max(1, len(times) // 10)         # Remove ~10% outliers from each end
+    trimmed      = sorted_times[trim_size:-trim_size]
+    med          = median(trimmed)
+    trimmed_mean = mean(trimmed)
+    raw_score    = int(med * 0.6 + trimmed_mean * 0.4)  # Weighted: 60% median, 40% mean
+    return raw_score
+</code></pre>
+<p><strong>Why this approach?</strong>
+- Removes outliers (GC pauses, context switches)
+- Median dominance (0.6 weight) resists extreme values
+- Mean contribution (0.4 weight) captures overall distribution</p>
+<h3 id="stable-score-normalization">Stable Score Normalization<a class="headerlink" href="#stable-score-normalization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def calculate_stable_score(self, raw_score: float) -&gt; int:
+    if raw_score &lt; 1_000:                                    # Under 1µs
+        return int(round(raw_score / 100) * 100)             # Round to nearest 100ns
+    elif raw_score &lt; 10_000:                                 # Under 10µs
+        return int(round(raw_score / 1000) * 1000)           # Round to nearest 1000ns
+    elif raw_score &lt; 100_000:                                # Under 100µs
+        return int(round(raw_score / 10000) * 10000)         # Round to nearest 10000ns
+    else:                                                    # Above 100µs
+        return int(round(raw_score / 100000) * 100000)       # Round to nearest 100000ns
+</code></pre>
+<p><strong>Why dynamic normalization?</strong> Makes scores stable across runs while maintaining meaningful precision at each magnitude.</p>
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-basic-measurement-context-manager">Pattern 1: Basic Measurement (Context Manager)<a class="headerlink" href="#pattern-1-basic-measurement-context-manager" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.performance.Performance_Measure__Session import Perf
+
+def my_function():
+    return [i * 2 for i in range(100)]
+
+with Perf() as _:
+    _.measure(my_function).print()
+</code></pre>
+<p>Output:</p>
+<pre><code>my_function                    | score:   2,000 ns  | raw:   1,847 ns
+</code></pre>
+<h3 id="pattern-2-reusable-session-recommended-for-test-suites">Pattern 2: Reusable Session (Recommended for Test Suites)<a class="headerlink" href="#pattern-2-reusable-session-recommended-for-test-suites" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_performance(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.session = Perf(assert_enabled=True)
+
+    def test_basic_operations(self):
+        def operation_a(): ...
+        def operation_b(): ...
+
+        with self.session as _:
+            _.measure(operation_a).print().assert_time(1_000, 2_000)
+            _.measure(operation_b).print().assert_time(5_000)
+</code></pre>
+<h3 id="pattern-3-measuring-class-instantiation">Pattern 3: Measuring Class Instantiation<a class="headerlink" href="#pattern-3-measuring-class-instantiation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class MyClass(Type_Safe):
+    name  : str
+    count : int
+
+with Perf() as _:
+    _.measure(MyClass).print()  # Measures ctor performance
+</code></pre>
+<h3 id="pattern-4-chained-methods-fluent-api">Pattern 4: Chained Methods (Fluent API)<a class="headerlink" href="#pattern-4-chained-methods-fluent-api" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Perf() as _:
+    _.measure(target).print().assert_time(1_000, 2_000)      # Print then assert
+    _.measure(target).assert_time(1_000)                      # Assert without print
+    _.measure(target).print(40)                               # Custom padding (40 chars)
+</code></pre>
+<h3 id="pattern-5-cross-environment-assertions">Pattern 5: Cross-Environment Assertions<a class="headerlink" href="#pattern-5-cross-environment-assertions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># For cross-environment stability (local vs CI)
+session.measure(target).assert_time(
+    1_000,      # Fast local machine
+    2_000,      # Slower machine
+    10_000      # GitHub Actions (used as base for 5x multiplier)
+)
+</code></pre>
+<h3 id="pattern-6-quick-mode-for-slow-functions">Pattern 6: Quick Mode for Slow Functions<a class="headerlink" href="#pattern-6-quick-mode-for-slow-functions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># For functions that take &gt;100ms, use quick mode to avoid long test times
+def test_slow_initialization():
+    def init_heavy_object():
+        HeavyObject()  # Takes ~1.8 seconds
+
+    with Perf() as _:
+        # Quick mode: 19 invocations instead of 1,595
+        _.measure__quick(init_heavy_object).print().assert_time__less_than(2_000_000_000)
+</code></pre>
+<p><strong>Measurement Methods:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Invocations</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>measure(target)</code></td>
+<td>1,595</td>
+<td>Default, full precision</td>
+</tr>
+<tr>
+<td><code>measure__fast(target)</code></td>
+<td>87</td>
+<td>Balanced speed/precision</td>
+</tr>
+<tr>
+<td><code>measure__quick(target)</code></td>
+<td>19</td>
+<td>Slow functions (&gt;100ms)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pattern-7-custom-loop-configuration">Pattern 7: Custom Loop Configuration<a class="headerlink" href="#pattern-7-custom-loop-configuration" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># For complete control, pass any list of loop sizes
+with Perf() as _:
+    _.measure(target, loops=[1, 3, 10])           # Only 14 invocations
+    _.measure(target, loops=[100])                 # Single batch of 100
+    _.measure(target, loops=[1, 1, 1, 1, 1])       # 5 single measurements
+</code></pre>
+<h3 id="pattern-8-detailed-report-with-histogram">Pattern 8: Detailed Report with Histogram<a class="headerlink" href="#pattern-8-detailed-report-with-histogram" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Perf() as _:
+    _.measure(my_function).print_report()
+</code></pre>
+<p>Output:</p>
+<pre><code>────────────────────────────────────────────────────────────
+  Performance Report: my_function
+────────────────────────────────────────────────────────────
+
+  Score        :     2.000 µs   (normalized)
+  Raw Score    :     1.996 µs   (actual)
+
+  Samples      :        1,595
+  Min          :     1.883 µs
+  Max          :    12.160 µs
+  Average      :     2.136 µs
+  Median       :     1.994 µs
+  Std Dev      :       830 ns
+
+  Variance     : 6.5x   (max/min ratio)
+
+  Distribution:                               count       %
+
+    1.883 µs - 2.910 µs   │████████████████████████████████████████  1550 ( 97.0%) ◀ score
+    2.910 µs - 3.938 µs   │                                            20 (  1.3%)
+    3.938 µs - 4.966 µs   │                                            10 (  0.6%)
+    ...
+────────────────────────────────────────────────────────────
+</code></pre>
+<p>The <code>◀ score</code> marker shows which bin contains the calculated score.</p>
+<hr />
+<h2 id="common-recipes">Common Recipes<a class="headerlink" href="#common-recipes" title="Permanent link">&para;</a></h2>
+<h3 id="recipe-comparing-two-implementations">Recipe: Comparing Two Implementations<a class="headerlink" href="#recipe-comparing-two-implementations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def compare_implementations():
+    def impl_a():
+        return sorted(data)
+
+    def impl_b():
+        return list(sorted(data))
+
+    with Perf() as _:
+        print()
+        _.measure(impl_a).print(20)
+        _.measure(impl_b).print(20)
+</code></pre>
+<h3 id="recipe-exploratory-performance-analysis">Recipe: Exploratory Performance Analysis<a class="headerlink" href="#recipe-exploratory-performance-analysis" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Disable assertions to explore without test failures
+session = Perf(assert_enabled=False)
+
+with session as _:
+    print(&quot;\nBaseline measurements:&quot;)
+    _.measure(operation_v1).print()
+    _.measure(operation_v2).print()
+    _.measure(operation_v3).print()
+</code></pre>
+<h3 id="recipe-measuring-slow-initialization">Recipe: Measuring Slow Initialization<a class="headerlink" href="#recipe-measuring-slow-initialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># For heavy objects that take &gt;100ms to initialize
+with Perf() as _:
+    _.measure__quick(HeavyClass).print()           # 19 invocations
+    _.measure__quick(AnotherHeavy).print()
+
+# For medium-slow functions, use fast mode for better precision
+with Perf() as _:
+    _.measure__fast(MediumClass).print()           # 87 invocations
+</code></pre>
+<h3 id="recipe-measuring-type_safe-inheritance-impact">Recipe: Measuring Type_Safe Inheritance Impact<a class="headerlink" href="#recipe-measuring-type_safe-inheritance-impact" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Base(Type_Safe):
+    value: str
+
+class Level1(Base):
+    extra: int
+
+class Level2(Level1):
+    more: float
+
+with Perf() as _:
+    print(&quot;\nInheritance depth impact:&quot;)
+    _.measure(Base  ).print()   # Fastest
+    _.measure(Level1).print()   # Slower
+    _.measure(Level2).print()   # Slowest
+</code></pre>
+<h3 id="recipe-debugging-performance-issues">Recipe: Debugging Performance Issues<a class="headerlink" href="#recipe-debugging-performance-issues" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Use print_report() to understand distribution and outliers
+with Perf() as _:
+    _.measure(suspicious_function).print_report()
+
+# If variance is high (e.g., 10x+), you may have:
+# - GC pauses affecting some runs
+# - Cold cache on first iterations
+# - External I/O or network calls
+# - Contention from other processes
+</code></pre>
+<hr />
+<h2 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
+<h3 id="performance_measure__session">Performance_Measure__Session<a class="headerlink" href="#performance_measure__session" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>measure(target, loops=None)</code></td>
+<td>Run measurements on target (default: 1,595 invocations)</td>
+<td><code>self</code> (for chaining)</td>
+</tr>
+<tr>
+<td><code>measure__quick(target)</code></td>
+<td>Quick mode - 19 invocations (for slow functions &gt;100ms)</td>
+<td><code>self</code> (for chaining)</td>
+</tr>
+<tr>
+<td><code>measure__fast(target)</code></td>
+<td>Fast mode - 87 invocations (balanced speed/precision)</td>
+<td><code>self</code> (for chaining)</td>
+</tr>
+<tr>
+<td><code>print(padding=None)</code></td>
+<td>Print one-line result</td>
+<td><code>self</code> (for chaining)</td>
+</tr>
+<tr>
+<td><code>print_report(bins=10, width=40)</code></td>
+<td>Print detailed report with histogram</td>
+<td><code>self</code> (for chaining)</td>
+</tr>
+<tr>
+<td><code>assert_time(*expected)</code></td>
+<td>Assert final_score matches one of expected values</td>
+<td><code>self</code> (for chaining)</td>
+</tr>
+<tr>
+<td><code>assert_time__less_than(max)</code></td>
+<td>Assert final_score is below threshold</td>
+<td><code>self</code> (for chaining)</td>
+</tr>
+<tr>
+<td><code>assert_time__more_than(min)</code></td>
+<td>Assert final_score is above threshold</td>
+<td><code>self</code> (for chaining)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="constructor-parameters">Constructor Parameters<a class="headerlink" href="#constructor-parameters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>assert_enabled</code></td>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>Enable/disable assertion methods</td>
+</tr>
+<tr>
+<td><code>padding</code></td>
+<td><code>int</code></td>
+<td><code>30</code></td>
+<td>Name column width for <code>print()</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="measure-parameters">measure() Parameters<a class="headerlink" href="#measure-parameters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target</code></td>
+<td><code>Callable</code></td>
+<td>required</td>
+<td>Function or class to measure</td>
+</tr>
+<tr>
+<td><code>loops</code></td>
+<td><code>List[int]</code></td>
+<td><code>None</code></td>
+<td>Custom loop sizes (default uses <code>MEASURE__INVOCATION__LOOPS</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-use-class-level-session-in-test-suites">DO: Use Class-Level Session in Test Suites<a class="headerlink" href="#do-use-class-level-session-in-test-suites" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - session reused across tests
+class test_performance(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.session = Perf(assert_enabled=True)
+
+    def test_one(self):
+        with self.session as _:
+            _.measure(func_a).assert_time(1_000)
+
+    def test_two(self):
+        with self.session as _:
+            _.measure(func_b).assert_time(2_000)
+</code></pre>
+<h3 id="do-define-time-thresholds-as-class-attributes">DO: Define Time Thresholds as Class Attributes<a class="headerlink" href="#do-define-time-thresholds-as-class-attributes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - readable, reusable thresholds
+cls.time_1_kns  =   1_000    # 1µs
+cls.time_5_kns  =   5_000    # 5µs
+cls.time_10_kns =  10_000    # 10µs
+
+session.measure(target).assert_time(self.time_1_kns, self.time_5_kns)
+</code></pre>
+<h3 id="do-provide-multiple-expected-values-for-ci-stability">DO: Provide Multiple Expected Values for CI Stability<a class="headerlink" href="#do-provide-multiple-expected-values-for-ci-stability" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - handles different environments
+session.measure(target).assert_time(
+    1_000,      # Local fast machine
+    2_000,      # Local slower machine
+    10_000      # GitHub Actions (last value × 5 used as upper bound)
+)
+</code></pre>
+<h3 id="do-use-assert_time__less_than-for-upper-bounds">DO: Use <code>assert_time__less_than</code> for Upper Bounds<a class="headerlink" href="#do-use-assert_time__less_than-for-upper-bounds" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - when you only care about maximum acceptable time
+session.measure(target).assert_time__less_than(30_000)
+</code></pre>
+<h3 id="do-use-quick-mode-for-slow-functions">DO: Use Quick Mode for Slow Functions<a class="headerlink" href="#do-use-quick-mode-for-slow-functions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - use measure__quick for slow functions (&gt;100ms)
+session.measure__quick(slow_init).print()
+
+# ✅ Also good - use measure__fast for medium-slow functions
+session.measure__fast(medium_init).print()
+
+# ❌ Bad - full 1,595 iterations of a 1s function = 26 minutes!
+session.measure(slow_init)  # Don't do this for slow functions
+</code></pre>
+<h3 id="dont-create-new-sessions-inside-each-test">DON'T: Create New Sessions Inside Each Test<a class="headerlink" href="#dont-create-new-sessions-inside-each-test" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - unnecessary overhead
+def test_something(self):
+    session = Perf()  # Creates new session each time
+    with session as _:
+        _.measure(func).assert_time(1_000)
+</code></pre>
+<h3 id="dont-measure-functions-with-side-effects">DON'T: Measure Functions with Side Effects<a class="headerlink" href="#dont-measure-functions-with-side-effects" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - file I/O timing varies wildly
+def writes_to_disk():
+    with open('/tmp/file.txt', 'w') as f:
+        f.write('data')
+
+session.measure(writes_to_disk)  # Results will be inconsistent
+</code></pre>
+<h3 id="dont-use-raw-literal-values-without-convention">DON'T: Use Raw Literal Values Without Convention<a class="headerlink" href="#dont-use-raw-literal-values-without-convention" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - magic numbers
+session.measure(func).assert_time(2000, 5000, 10000)
+
+# ✅ Good - clear naming convention
+session.measure(func).assert_time(self.time_2_kns, self.time_5_kns, self.time_10_kns)
+</code></pre>
+<h3 id="dont-skip-output-when-debugging">DON'T: Skip Output When Debugging<a class="headerlink" href="#dont-skip-output-when-debugging" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - hard to debug assertion failures
+session.measure(target).assert_time(1_000)
+
+# ✅ Good - see actual values when debugging
+session.measure(target).print().assert_time(1_000)
+
+# ✅ Even better - see full distribution for analysis
+session.measure(target).print_report().assert_time(1_000)
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-assertion-fails-locally-but-passes-in-ci">Problem: Assertion Fails Locally But Passes in CI<a class="headerlink" href="#problem-assertion-fails-locally-but-passes-in-ci" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Local machine is faster than expected CI thresholds</p>
+<p><strong>Solution</strong>: Add your local timing as first expected value:</p>
+<pre><code class="language-python"># Your local machine runs at 800ns, CI expects 2000ns
+session.measure(target).assert_time(
+    1_000,      # Local (rounded to nearest 1000)
+    2_000       # CI baseline
+)
+</code></pre>
+<h3 id="problem-assertion-passes-locally-but-fails-in-ci">Problem: Assertion Passes Locally But Fails in CI<a class="headerlink" href="#problem-assertion-passes-locally-but-fails-in-ci" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: CI is slower than the 5x multiplier allows</p>
+<p><strong>Solution 1</strong>: Add a higher expected value:</p>
+<pre><code class="language-python">session.measure(target).assert_time(
+    1_000,      # Local
+    2_000,
+    5_000       # Higher baseline for CI (5x = 25,000ns max)
+)
+</code></pre>
+<p><strong>Solution 2</strong>: Use <code>assert_time__less_than</code> instead:</p>
+<pre><code class="language-python">session.measure(target).assert_time__less_than(10_000)  # CI gets 6x = 60,000ns
+</code></pre>
+<h3 id="problem-inconsistent-scores-between-runs">Problem: Inconsistent Scores Between Runs<a class="headerlink" href="#problem-inconsistent-scores-between-runs" title="Permanent link">&para;</a></h3>
+<p><strong>Cause 1</strong>: Function has variable execution time (I/O, network, randomness)</p>
+<p><strong>Solution</strong>: Measure pure computational functions only</p>
+<p><strong>Cause 2</strong>: System under heavy load</p>
+<p><strong>Solution</strong>: Run tests in isolation, close other applications</p>
+<h3 id="problem-score-is-0ns">Problem: Score Is 0ns<a class="headerlink" href="#problem-score-is-0ns" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Function is too fast to measure (sub-100ns)</p>
+<p><strong>Solution</strong>: Wrap in a loop or measure a larger unit of work:</p>
+<pre><code class="language-python">def measure_100_iterations():
+    for _ in range(100):
+        tiny_function()
+
+session.measure(measure_100_iterations).print()
+# Then divide result by 100 mentally
+</code></pre>
+<h3 id="problem-assert_enabledfalse-not-working">Problem: <code>assert_enabled=False</code> Not Working<a class="headerlink" href="#problem-assert_enabledfalse-not-working" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Session created before setting <code>assert_enabled</code></p>
+<p><strong>Solution</strong>: Pass to constructor:</p>
+<pre><code class="language-python"># ✅ Correct
+session = Perf(assert_enabled=False)
+
+# ❌ Won't work - attribute is set at construction
+session = Perf()
+session.assert_enabled = False  # Too late
+</code></pre>
+<h3 id="problem-cant-compare-results-across-python-versions">Problem: Can't Compare Results Across Python Versions<a class="headerlink" href="#problem-cant-compare-results-across-python-versions" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Different Python versions have different performance characteristics</p>
+<p><strong>Solution</strong>: Accept this as expected; use version-specific thresholds if needed, or use <code>assert_time__less_than</code> for broader compatibility.</p>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When using Performance_Measure__Session (or <code>Perf</code> alias):</p>
+<ul>
+<li>[ ] Import <code>Perf</code> from <code>osbot_utils.testing.performance.Performance_Measure__Session</code></li>
+<li>[ ] Create session once in <code>setUpClass()</code>, not per-test</li>
+<li>[ ] Use context manager pattern: <code>with self.session as _:</code></li>
+<li>[ ] Define time thresholds with naming convention: <code>time_X_kns</code></li>
+<li>[ ] Provide multiple expected values for cross-environment stability</li>
+<li>[ ] Put fastest expected value first, CI baseline last</li>
+<li>[ ] Use <code>.print()</code> for one-line output during development</li>
+<li>[ ] Use <code>.print_report()</code> for detailed analysis with histogram</li>
+<li>[ ] Use <code>assert_time()</code> for exact normalized values</li>
+<li>[ ] Use <code>assert_time__less_than()</code> for upper-bound checks</li>
+<li>[ ] Set <code>assert_enabled=False</code> for exploratory analysis</li>
+<li>[ ] Measure pure functions (no I/O, no network, no randomness)</li>
+<li>[ ] Use <code>measure__quick()</code> for slow functions (&gt;100ms)</li>
+<li>[ ] Use <code>measure__fast()</code> for balanced speed/precision</li>
+<li>[ ] Remember: CI gets 5-6x multiplier automatically</li>
+<li>[ ] Remember: 1,595 invocations per <code>measure()</code> call (or fewer with <code>loops</code> parameter)</li>
+<li>[ ] Remember: Scores are normalized by magnitude (100ns, 1000ns, 10000ns, 100000ns)</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/legacy/Type_Safe.py/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Type Safe Class - Usage Guide - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type Safe Class - Usage Guide";
+        var mkdocs_page_input_path = "type_safe/legacy/Type_Safe.py.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/legacy/Type_Safe.py/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type Safe Class - Usage Guide</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type-safe-class-usage-guide">Type Safe Class - Usage Guide<a class="headerlink" href="#type-safe-class-usage-guide" title="Permanent link">&para;</a></h1>
+<p>The Type_Safe class provides robust runtime type checking and serialization for Python objects. It acts as a base class that enforces type safety through Python's type hints and annotations while offering convenient serialization methods and utilities. This enables developers to create strongly-typed classes with validation, safe serialization, and clear interfaces - all with minimal boilerplate code.</p>
+<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
+<p>Type_Safe combines runtime type validation with modern Python type annotations to provide a comprehensive solution for type-safe programming. The class validates all attribute assignments against their declared types, supports the full range of Python's typing hints (Optional, Union, List, Dict, etc.), and provides type-safe versions of Python's built-in collections. Built-in serialization capabilities enable safe conversion to and from JSON, while automatic default value handling and context manager support streamline common programming patterns.</p>
+<ul>
+<li>Runtime type checking with annotations</li>
+<li>Support for Python typing hints including Optional, Union, List, Dict</li>
+<li>JSON serialization/deserialization </li>
+<li>Type-safe collections (lists, dicts, sets)</li>
+<li>Automatic default value handling</li>
+<li>Context manager support</li>
+</ul>
+<h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
+<p>The Type_Safe class is designed to be used as a base class for your own classes. By inheriting from Type_Safe and using Python's type annotations, you get automatic type checking and validation with minimal setup. The class validates all attribute assignments against their declared types and raises informative errors when type mismatches occur.</p>
+<h3 id="simple-type-safety">Simple Type Safety<a class="headerlink" href="#simple-type-safety" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class User(Type_Safe):
+    name: str
+    age: int 
+    active: bool = True
+
+# Type checking enforced
+user = User(name=&quot;Alice&quot;, age=30)
+user.name = &quot;Bob&quot;      # OK
+user.age = &quot;30&quot;        # Raises ValueError - wrong type
+user.active = None     # Raises ValueError - None not allowed
+</code></pre>
+<h3 id="optional-types">Optional Types<a class="headerlink" href="#optional-types" title="Permanent link">&para;</a></h3>
+<p>Type_Safe fully supports Python's Optional type hint, allowing attributes to accept None values when explicitly declared as Optional. This provides flexibility while maintaining type safety, making it easy to work with nullable fields and optional configurations.</p>
+<pre><code class="language-python">from typing import Optional
+
+class Config(Type_Safe):
+    debug: Optional[bool] = None
+    port: Optional[int] = None
+
+config = Config()
+config.debug = True    # OK
+config.debug = None    # OK - Optional allows None
+</code></pre>
+<h3 id="collections">Collections<a class="headerlink" href="#collections" title="Permanent link">&para;</a></h3>
+<p>Type_Safe provides specialized collection classes (Type_Safe_List, Type_Safe_Dict, Type_Safe_Set) that maintain type safety for their contents. These collections enforce type checking on all operations, ensuring that only values of the correct type can be added or assigned. This type safety extends to nested collections and complex data structures.</p>
+<pre><code class="language-python">from typing import List, Dict
+
+class DataStore(Type_Safe):
+    items: List[str] = []           # Type-safe list
+    mappings: Dict[str, int] = {}   # Type-safe dict
+
+store = DataStore()
+store.items.append(&quot;item1&quot;)         # OK
+store.items.append(123)             # Raises TypeError
+store.mappings[&quot;key1&quot;] = 42         # OK 
+store.mappings[123] = &quot;value&quot;       # Raises TypeError
+</code></pre>
+<h3 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">&para;</a></h3>
+<p>Built-in serialization capabilities allow Type_Safe objects to be easily converted to and from JSON-compatible formats. The serialization system handles complex types, nested objects, and maintains type safety during deserialization. This makes it simple to persist objects, transfer them over networks, or integrate with APIs while maintaining type safety.</p>
+<pre><code class="language-python">class Record(Type_Safe):
+    id: int
+    data: str
+
+record = Record(id=1, data=&quot;test&quot;)
+
+# To JSON-compatible dict
+json_data = record.json()           # {&quot;id&quot;: 1, &quot;data&quot;: &quot;test&quot;}
+
+# From JSON 
+new_record = Record.from_json(json_data)
+</code></pre>
+<h3 id="context-manager">Context Manager<a class="headerlink" href="#context-manager" title="Permanent link">&para;</a></h3>
+<p>Type_Safe implements the context manager protocol, allowing instances to be used in 'with' statements. This enables resource management patterns and ensures proper setup/cleanup of objects. The context manager implementation is lightweight and can be extended by subclasses to add custom setup and cleanup behavior.</p>
+<pre><code class="language-python">class Resource(Type_Safe):
+    name: str
+    state: str = &quot;new&quot;
+
+with Resource(name=&quot;test&quot;) as resource:
+    resource.state = &quot;active&quot;
+</code></pre>
+<h2 id="advanced-features">Advanced Features<a class="headerlink" href="#advanced-features" title="Permanent link">&para;</a></h2>
+<p>Type_Safe provides several advanced features for handling complex type requirements and data validation scenarios. These features enable fine-grained control over type checking, custom validation rules, and support for complex type hierarchies.</p>
+<h3 id="union-types">Union Types<a class="headerlink" href="#union-types" title="Permanent link">&para;</a></h3>
+<p>Union types allow attributes to accept multiple types while maintaining type safety. Type_Safe fully supports Python's Union type hint, enabling flexible type definitions while ensuring that only allowed types can be assigned. This is particularly useful when attributes need to handle multiple valid types.</p>
+<pre><code class="language-python">from typing import Union
+
+class Value(Type_Safe):
+    data: Union[str, int]
+
+value = Value()
+value.data = &quot;test&quot;    # OK
+value.data = 42        # OK
+value.data = True      # Raises ValueError
+</code></pre>
+<h3 id="complex-types">Complex Types<a class="headerlink" href="#complex-types" title="Permanent link">&para;</a></h3>
+<p>Type_Safe handles nested object hierarchies and complex type relationships. Objects can contain other Type_Safe objects as attributes, creating type-safe object graphs. The system maintains type safety throughout the object hierarchy, including during serialization and deserialization.</p>
+<pre><code class="language-python">class Component(Type_Safe):
+    type: str
+
+class System(Type_Safe):
+    name: str
+    main: Component
+    parts: List[Component]
+
+# Nested type-safe objects
+system = System(
+    name=&quot;test&quot;,
+    main=Component(type=&quot;primary&quot;),
+    parts=[Component(type=&quot;secondary&quot;)]
+)
+</code></pre>
+<h3 id="custom-type-validation">Custom Type Validation<a class="headerlink" href="#custom-type-validation" title="Permanent link">&para;</a></h3>
+<p>Beyond basic type checking, Type_Safe supports custom validation rules through validator classes. These validators can enforce additional constraints like minimum/maximum values, regular expression patterns, or custom validation logic. Validators are applied during attribute assignment and maintain the same error handling patterns as basic type checking.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.validators import Min, Max, Regex
+
+class ValidatedData(Type_Safe):
+    count: Min[int, 0]              # Must be &gt;= 0
+    size: Max[int, 100]            # Must be &lt;= 100
+    code: Regex[str, r&quot;^[A-Z]+$&quot;]  # Must be uppercase letters
+
+data = ValidatedData()
+data.count = -1       # Raises ValueError
+data.size = 200      # Raises ValueError
+data.code = &quot;abc&quot;    # Raises ValueError
+</code></pre>
+<h2 id="utility-methods">Utility Methods<a class="headerlink" href="#utility-methods" title="Permanent link">&para;</a></h2>
+<p>Type_Safe provides a comprehensive set of utility methods for working with type-safe objects. These methods facilitate common operations like serialization, object inspection, and state management. Each utility method is designed to maintain type safety while providing convenient access to object functionality.</p>
+<ul>
+<li><code>json()</code> - Convert to JSON-compatible dict</li>
+<li><code>obj()</code> - Convert to simple object</li>
+<li><code>print()</code> - Pretty print object state</li>
+<li><code>reset()</code> - Reset to default values</li>
+<li><code>__locals__()</code> - Get current attributes</li>
+<li><code>__kwargs__()</code> - Get all attributes including inherited</li>
+</ul>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<p>Following these best practices ensures effective use of Type_Safe's features while maintaining code quality and type safety. These guidelines have been developed based on common usage patterns and help avoid potential pitfalls while maximizing the benefits of runtime type checking.</p>
+<ol>
+<li>Define types using annotations for all attributes</li>
+<li>Use Optional[] for attributes that can be None</li>
+<li>Use type-safe collections when managing lists/dicts</li>
+<li>Handle type validation errors appropriately</li>
+<li>Use context manager when managing resources</li>
+</ol>
+<h2 id="common-gotchas">Common Gotchas<a class="headerlink" href="#common-gotchas" title="Permanent link">&para;</a></h2>
+<p>While Type_Safe aims to make type safety intuitive, there are some behaviors that might be unexpected. Understanding these common pitfalls helps prevent errors and ensures proper usage of the type system. Most of these gotchas relate to Python's type system limitations or design decisions made to balance type safety with usability.</p>
+<ul>
+<li>Attributes without type annotations aren't type checked</li>
+<li>Type validation occurs on every attribute assignment</li>
+<li>Mutable defaults (lists, dicts) are not shared between instances</li>
+<li>Direct dict/list assignments bypass type checking - use provided collections</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

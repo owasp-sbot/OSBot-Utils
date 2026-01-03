@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.63.0__brief-1__call-flow-analysis__project-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>(Brief #1) Call Flow Analysis - Project Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "(Brief #1) Call Flow Analysis - Project Brief";
+        var mkdocs_page_input_path = "dev-briefs/v3.63.0__call-flow-analysis/v3.63.0__brief-1__call-flow-analysis__project-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.63.0__brief-1__call-flow-analysis__project-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">(Brief #1) Call Flow Analysis - Project Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="brief-1-call-flow-analysis-project-brief">(Brief #1) Call Flow Analysis - Project Brief<a class="headerlink" href="#brief-1-call-flow-analysis-project-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.63.0 (Initial Design)<br />
+<strong>Purpose</strong>: Static call flow analysis and visualization for Python codebases<br />
+<strong>Foundation</strong>: <code>osbot_utils.helpers.ast</code> (existing AST parsing infrastructure)<br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils  </p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Build a lightweight call flow analysis tool that leverages the existing OSBot-Utils AST infrastructure to:</p>
+<ol>
+<li><strong>Parse</strong> Python code starting from a function or class entry point</li>
+<li><strong>Connect</strong> all call dependencies into a navigable graph structure</li>
+<li><strong>Visualize</strong> the call graph using browser-based renderers (Mermaid, network graphs)</li>
+<li><strong>Understand</strong> bottlenecks and optimization opportunities</li>
+<li><strong>Refactor</strong> with confidence using before/after comparisons</li>
+</ol>
+<h3 id="why-not-just-use-an-llm">Why Not Just Use an LLM?<a class="headerlink" href="#why-not-just-use-an-llm" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>LLM-Only Approach</th>
+<th>Code-Driven Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>May miss or hallucinate call paths</td>
+<td>Deterministic, accurate extraction</td>
+</tr>
+<tr>
+<td>Hard to version control outputs</td>
+<td>Graph data is code → versionable</td>
+</tr>
+<tr>
+<td>Inconsistent across runs</td>
+<td>Reproducible results</td>
+</tr>
+<tr>
+<td>No animation/interactivity</td>
+<td>Rich browser-based visualization</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hybrid Strategy</strong>: Use LLMs to <em>analyze</em> and <em>propose</em> refactorings on the graph data, but generate the actual call flow diagrams from parsed code.</p>
+<hr />
+<h2 id="core-objectives">Core Objectives<a class="headerlink" href="#core-objectives" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-call-graph-extraction">Phase 1: Call Graph Extraction<a class="headerlink" href="#phase-1-call-graph-extraction" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Take a function or class as entry point</li>
+<li>Extract all method/function calls recursively</li>
+<li>Build a directed graph of call relationships</li>
+<li>Support configurable depth limits</li>
+</ul>
+<h3 id="phase-2-visualization">Phase 2: Visualization<a class="headerlink" href="#phase-2-visualization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Generate browser-based interactive visualizations</li>
+<li>Support multiple output formats (Mermaid, network graph, PlantUML)</li>
+<li>Enable "code as data" approach for flexible rendering</li>
+</ul>
+<h3 id="phase-3-refactoring-support">Phase 3: Refactoring Support<a class="headerlink" href="#phase-3-refactoring-support" title="Permanent link">&para;</a></h3>
+<ul>
+<li>"Digital twin" of codebase for planning refactors</li>
+<li>Before/after comparison views</li>
+<li>Optional: Animate execution paths to identify bottlenecks</li>
+</ul>
+<hr />
+<h2 id="technical-design">Technical Design<a class="headerlink" href="#technical-design" title="Permanent link">&para;</a></h2>
+<h3 id="leveraging-existing-ast-infrastructure">Leveraging Existing AST Infrastructure<a class="headerlink" href="#leveraging-existing-ast-infrastructure" title="Permanent link">&para;</a></h3>
+<p>The OSBot-Utils AST helpers already provide:</p>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+
+# Parse any Python target
+module = Ast_Module(MyClass)
+
+# Capture function definitions and calls
+with Ast_Visit(module) as visitor:
+    visitor.capture_functions()
+    visitor.capture_calls()
+    visitor.visit()
+
+    functions = visitor.captured_nodes()['Ast_Function_Def']
+    calls = visitor.captured_nodes()['Ast_Call']
+</code></pre>
+<h3 id="what-we-need-to-build">What We Need to Build<a class="headerlink" href="#what-we-need-to-build" title="Permanent link">&para;</a></h3>
+<h4 id="1-call_graph-class">1. Call_Graph Class<a class="headerlink" href="#1-call_graph-class" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+from typing import Dict, List, Set
+
+class Call_Graph_Node(Type_Safe):
+    name        : str                           # Fully qualified name
+    node_type   : str                           # 'function', 'method', 'class'
+    module      : str                           # Source module
+    calls       : List[str]                     # Outgoing calls (names)
+    called_by   : List[str]                     # Incoming calls (names)
+    depth       : int                           # Distance from entry point
+    source_code : str                           # Optional: the actual code
+
+class Call_Graph(Type_Safe):
+    entry_point : str                           # Starting function/class
+    max_depth   : int              = 5          # How deep to traverse
+    nodes       : Dict[str, Call_Graph_Node]    # All discovered nodes
+    edges       : List[tuple]                   # (caller, callee) pairs
+
+    def build_from(self, target) -&gt; 'Call_Graph':
+        &quot;&quot;&quot;Parse target and build call graph.&quot;&quot;&quot;
+        ...
+
+    def to_mermaid(self) -&gt; str:
+        &quot;&quot;&quot;Export as Mermaid flowchart.&quot;&quot;&quot;
+        ...
+
+    def to_networkx(self):
+        &quot;&quot;&quot;Export as NetworkX graph for analysis.&quot;&quot;&quot;
+        ...
+
+    def to_json(self) -&gt; dict:
+        &quot;&quot;&quot;Export as JSON for browser visualization.&quot;&quot;&quot;
+        ...
+</code></pre>
+<h4 id="2-type-resolution">2. Type Resolution<a class="headerlink" href="#2-type-resolution" title="Permanent link">&para;</a></h4>
+<p>Since the codebase uses Type_Safe throughout, type resolution is more tractable:</p>
+<pre><code class="language-python">class Type_Resolver(Type_Safe):
+    &quot;&quot;&quot;Resolve call targets to their actual types/modules.&quot;&quot;&quot;
+
+    import_map  : Dict[str, str]                # alias -&gt; full module path
+    class_map   : Dict[str, str]                # variable -&gt; class type
+
+    def resolve_call(self, call_node: Ast_Call) -&gt; str:
+        &quot;&quot;&quot;
+        Given a call like `self.helper.process()`, resolve to:
+        'MyClass.helper.process' or 'HelperClass.process'
+        &quot;&quot;&quot;
+        ...
+</code></pre>
+<h4 id="3-depth-control-strategy">3. Depth Control Strategy<a class="headerlink" href="#3-depth-control-strategy" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">class Traversal_Config(Type_Safe):
+    max_depth           : int  = 5              # Stop after N levels
+    include_stdlib      : bool = False          # Skip standard library
+    include_external    : bool = False          # Skip pip packages
+    module_allowlist    : List[str]             # Only traverse these modules
+    module_blocklist    : List[str]             # Never traverse these
+
+    # Example: Only analyze our own code
+    # module_allowlist = ['osbot_utils', 'myproject']
+</code></pre>
+<h3 id="proposed-architecture">Proposed Architecture<a class="headerlink" href="#proposed-architecture" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                        Call_Flow_Analyzer                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐       │
+│  │  AST Parser  │───▶│ Type Resolver│───▶│ Graph Builder│       │
+│  │ (existing)   │    │   (new)      │    │    (new)     │       │
+│  └──────────────┘    └──────────────┘    └──────────────┘       │
+│         │                                        │               │
+│         ▼                                        ▼               │
+│  ┌──────────────┐                       ┌──────────────┐        │
+│  │  Ast_Visit   │                       │  Call_Graph  │        │
+│  │  Ast_Module  │                       │    (new)     │        │
+│  └──────────────┘                       └──────────────┘        │
+│                                                  │               │
+│                    ┌─────────────────────────────┼───────────┐  │
+│                    ▼                             ▼           ▼  │
+│            ┌──────────────┐           ┌──────────────┐ ┌─────┐ │
+│            │   Mermaid    │           │  NetworkX    │ │JSON │ │
+│            │   Exporter   │           │  Exporter    │ │ API │ │
+│            └──────────────┘           └──────────────┘ └─────┘ │
+│                    │                             │           │  │
+└────────────────────┼─────────────────────────────┼───────────┼──┘
+                     ▼                             ▼           ▼
+              ┌──────────────┐           ┌──────────────┐ ┌─────────┐
+              │   Mermaid    │           │   D3.js /    │ │ React   │
+              │   Live       │           │   vis.js     │ │Component│
+              └──────────────┘           └──────────────┘ └─────────┘
+                     └─────────────────────────┴───────────────┘
+                                    Browser-Based
+                                   Visualizations
+</code></pre>
+<hr />
+<h2 id="visualization-options">Visualization Options<a class="headerlink" href="#visualization-options" title="Permanent link">&para;</a></h2>
+<h3 id="option-1-mermaid-recommended-starting-point">Option 1: Mermaid (Recommended Starting Point)<a class="headerlink" href="#option-1-mermaid-recommended-starting-point" title="Permanent link">&para;</a></h3>
+<pre><code class="language-mermaid">flowchart TD
+    A[MyClass.process] --&gt; B[MyClass._validate]
+    A --&gt; C[MyClass._transform]
+    C --&gt; D[Helper.convert]
+    C --&gt; E[Helper.format]
+    B --&gt; F[Validator.check]
+</code></pre>
+<p><strong>Pros</strong>: Simple, renders in GitHub/GitLab, easy to diff<br />
+<strong>Cons</strong>: Limited interactivity</p>
+<h3 id="option-2-interactive-network-graph-d3js-visjs">Option 2: Interactive Network Graph (D3.js / vis.js)<a class="headerlink" href="#option-2-interactive-network-graph-d3js-visjs" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Zoomable, pannable</li>
+<li>Click to expand/collapse branches</li>
+<li>Highlight paths on hover</li>
+<li>Search and filter</li>
+</ul>
+<h3 id="option-3-hierarchical-tree-view">Option 3: Hierarchical Tree View<a class="headerlink" href="#option-3-hierarchical-tree-view" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Collapsible tree structure</li>
+<li>Shows depth levels clearly</li>
+<li>Good for understanding call chains</li>
+</ul>
+<h3 id="option-4-animated-execution-flow">Option 4: Animated Execution Flow<a class="headerlink" href="#option-4-animated-execution-flow" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Step through call sequence</li>
+<li>Highlight active path</li>
+<li>Show timing data (if available from profiling)</li>
+</ul>
+<hr />
+<h2 id="implementation-roadmap">Implementation Roadmap<a class="headerlink" href="#implementation-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="milestone-1-core-graph-extraction-week-1-2">Milestone 1: Core Graph Extraction (Week 1-2)<a class="headerlink" href="#milestone-1-core-graph-extraction-week-1-2" title="Permanent link">&para;</a></h3>
+<p><strong>Deliverables:</strong>
+- [ ] <code>Call_Graph</code> and <code>Call_Graph_Node</code> Type_Safe classes
+- [ ] Basic call extraction from single function/class
+- [ ] Depth-limited traversal
+- [ ] Unit tests with sample code</p>
+<p><strong>Key Challenge</strong>: Resolving <code>self.method()</code> and attribute chains</p>
+<h3 id="milestone-2-type-resolution-week-2-3">Milestone 2: Type Resolution (Week 2-3)<a class="headerlink" href="#milestone-2-type-resolution-week-2-3" title="Permanent link">&para;</a></h3>
+<p><strong>Deliverables:</strong>
+- [ ] <code>Type_Resolver</code> class
+- [ ] Import tracking (handle <code>from x import y as z</code>)
+- [ ] Class attribute type inference
+- [ ] Cross-module resolution</p>
+<p><strong>Key Challenge</strong>: Handling dynamic typing, <code>*args</code>, <code>**kwargs</code></p>
+<h3 id="milestone-3-basic-visualization-week-3-4">Milestone 3: Basic Visualization (Week 3-4)<a class="headerlink" href="#milestone-3-basic-visualization-week-3-4" title="Permanent link">&para;</a></h3>
+<p><strong>Deliverables:</strong>
+- [ ] Mermaid exporter
+- [ ] JSON export for browser consumption
+- [ ] Simple HTML viewer with embedded Mermaid</p>
+<p><strong>Key Challenge</strong>: Readable layout for large graphs</p>
+<h3 id="milestone-4-interactive-browser-visualization-week-4-6">Milestone 4: Interactive Browser Visualization (Week 4-6)<a class="headerlink" href="#milestone-4-interactive-browser-visualization-week-4-6" title="Permanent link">&para;</a></h3>
+<p><strong>Deliverables:</strong>
+- [ ] React component for call graph
+- [ ] D3.js or vis.js network renderer
+- [ ] Filtering and search
+- [ ] Expand/collapse functionality</p>
+<h3 id="milestone-5-refactoring-support-week-6-8">Milestone 5: Refactoring Support (Week 6-8)<a class="headerlink" href="#milestone-5-refactoring-support-week-6-8" title="Permanent link">&para;</a></h3>
+<p><strong>Deliverables:</strong>
+- [ ] Before/after comparison view
+- [ ] "Proposed changes" overlay on graph
+- [ ] Export diff as actionable refactoring plan
+- [ ] Integration with LLM for analysis suggestions</p>
+<hr />
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="example-1-analyze-a-single-function">Example 1: Analyze a Single Function<a class="headerlink" href="#example-1-analyze-a-single-function" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.call_flow import Call_Flow_Analyzer
+
+analyzer = Call_Flow_Analyzer(max_depth=3)
+graph = analyzer.analyze(MyClass.process_data)
+
+# Export to Mermaid
+print(graph.to_mermaid())
+
+# Get statistics
+print(f&quot;Total functions: {len(graph.nodes)}&quot;)
+print(f&quot;Max call depth: {graph.max_observed_depth}&quot;)
+print(f&quot;Leaf functions: {graph.leaf_nodes()}&quot;)
+</code></pre>
+<h3 id="example-2-analyze-with-module-filtering">Example 2: Analyze with Module Filtering<a class="headerlink" href="#example-2-analyze-with-module-filtering" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.call_flow import Call_Flow_Analyzer, Traversal_Config
+
+config = Traversal_Config(
+    max_depth        = 5,
+    include_stdlib   = False,
+    module_allowlist = ['myproject', 'osbot_utils']
+)
+
+analyzer = Call_Flow_Analyzer(config=config)
+graph = analyzer.analyze(MyPipeline)
+
+# Only shows calls within allowed modules
+</code></pre>
+<h3 id="example-3-interactive-visualization">Example 3: Interactive Visualization<a class="headerlink" href="#example-3-interactive-visualization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.call_flow import Call_Flow_Analyzer
+from osbot_utils.helpers.ast.call_flow.viz import Call_Graph_Viewer
+
+graph = Call_Flow_Analyzer().analyze(MyClass)
+
+# Launch browser-based viewer
+viewer = Call_Graph_Viewer(graph)
+viewer.open_in_browser()  # Opens interactive visualization
+</code></pre>
+<h3 id="example-4-beforeafter-refactoring-comparison">Example 4: Before/After Refactoring Comparison<a class="headerlink" href="#example-4-beforeafter-refactoring-comparison" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.call_flow import Call_Flow_Analyzer, Call_Graph_Diff
+
+# Analyze before refactoring
+before = Call_Flow_Analyzer().analyze(OldImplementation)
+
+# Analyze after refactoring  
+after = Call_Flow_Analyzer().analyze(NewImplementation)
+
+# Compare
+diff = Call_Graph_Diff(before, after)
+print(diff.summary())
+# Added: 3 functions
+# Removed: 5 functions
+# Modified call paths: 12
+
+diff.to_mermaid_comparison()  # Side-by-side Mermaid
+</code></pre>
+<hr />
+<h2 id="type_safe-advantage">Type_Safe Advantage<a class="headerlink" href="#type_safe-advantage" title="Permanent link">&para;</a></h2>
+<p>Because the target codebase uses Type_Safe, we have significant advantages:</p>
+<ol>
+<li><strong>Explicit Types</strong>: All attributes are typed → easier to resolve call targets</li>
+<li><strong>No Dynamic Attributes</strong>: <code>__setattr__</code> enforcement → predictable attribute access</li>
+<li><strong>Class Hierarchy</strong>: Clear inheritance chains → can trace method resolution</li>
+<li><strong>Consistent Patterns</strong>: Type_Safe classes follow patterns → heuristics work better</li>
+</ol>
+<pre><code class="language-python"># Type_Safe code is easier to analyze
+class MyProcessor(Type_Safe):
+    helper: Helper_Class              # We KNOW helper is Helper_Class
+
+    def process(self, data):
+        return self.helper.transform(data)  # Can resolve to Helper_Class.transform
+</code></pre>
+<hr />
+<h2 id="potential-challenges-mitigations">Potential Challenges &amp; Mitigations<a class="headerlink" href="#potential-challenges-mitigations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Challenge</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dynamic dispatch (<code>getattr</code>, <code>**kwargs</code>)</td>
+<td>Mark as "unresolved" in graph, flag for manual review</td>
+</tr>
+<tr>
+<td>Lambdas and closures</td>
+<td>Inline or mark as anonymous nodes</td>
+</tr>
+<tr>
+<td>Circular dependencies</td>
+<td>Detect cycles, mark in visualization</td>
+</tr>
+<tr>
+<td>Large graphs (100s of nodes)</td>
+<td>Clustering, collapsible regions, filtering</td>
+</tr>
+<tr>
+<td>Cross-module resolution</td>
+<td>Build import map first, resolve incrementally</td>
+</tr>
+<tr>
+<td>External library calls</td>
+<td>Option to stub or exclude</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="success-criteria">Success Criteria<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="minimum-viable-product-mvp">Minimum Viable Product (MVP)<a class="headerlink" href="#minimum-viable-product-mvp" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Parse a function and extract direct calls (depth=1)</li>
+<li>[ ] Generate valid Mermaid diagram</li>
+<li>[ ] Handle basic <code>self.method()</code> resolution</li>
+</ul>
+<h3 id="full-feature-set">Full Feature Set<a class="headerlink" href="#full-feature-set" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Configurable depth traversal</li>
+<li>[ ] Cross-module type resolution</li>
+<li>[ ] Interactive browser visualization</li>
+<li>[ ] Before/after comparison</li>
+<li>[ ] Export to multiple formats (Mermaid, JSON, GraphML)</li>
+</ul>
+<h3 id="stretch-goals">Stretch Goals<a class="headerlink" href="#stretch-goals" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Animated execution flow</li>
+<li>[ ] Integration with timestamp_capture for real timing data</li>
+<li>[ ] LLM-assisted refactoring suggestions on graph</li>
+<li>[ ] Git integration for tracking graph changes over time</li>
+</ul>
+<hr />
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Create LLM Brief</strong> for AST helpers ✅ (completed above)</li>
+<li><strong>Prototype <code>Call_Graph</code> extraction</strong> - Start with simple single-file case</li>
+<li><strong>Test on real OSBot-Utils code</strong> - Use existing classes as test cases</li>
+<li><strong>Iterate on type resolution</strong> - Handle common patterns first</li>
+<li><strong>Build Mermaid exporter</strong> - Quick visual feedback loop</li>
+<li><strong>Expand to browser visualization</strong> - Once core extraction is solid</li>
+</ol>
+<hr />
+<h2 id="open-questions">Open Questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Scope of "call"</strong>: Include property access? Dunder methods? Decorators?</li>
+<li><strong>Graph storage</strong>: In-memory only, or persist to file/database?</li>
+<li><strong>Incremental updates</strong>: Re-parse everything, or detect changes?</li>
+<li><strong>Integration point</strong>: Standalone tool, or integrated into existing workflows?</li>
+</ol>
+<hr />
+<h2 id="appendix-related-existing-code">Appendix: Related Existing Code<a class="headerlink" href="#appendix-related-existing-code" title="Permanent link">&para;</a></h2>
+<h3 id="from-osbot_utilshelpersastcall_tree">From <code>osbot_utils.helpers.ast.Call_Tree</code><a class="headerlink" href="#from-osbot_utilshelpersastcall_tree" title="Permanent link">&para;</a></h3>
+<p>There's an existing <code>Call_Tree</code> class that was started but not completed:</p>
+<pre><code class="language-python">class Call_Tree:
+    def get_called_methods(self, func):
+        source = inspect.getsource(func)
+        tree = ast.parse(source)
+        # ... visitor pattern to collect calls
+        return visitor.called_methods
+</code></pre>
+<p>This can serve as a starting point, but needs:
+- Type resolution
+- Depth control<br />
+- Graph structure (not just list)
+- Cross-module support</p>
+<h3 id="from-osbot_utilshelpersastast_visit">From <code>osbot_utils.helpers.ast.Ast_Visit</code><a class="headerlink" href="#from-osbot_utilshelpersastast_visit" title="Permanent link">&para;</a></h3>
+<p>The visitor pattern is already implemented and working:</p>
+<pre><code class="language-python">with Ast_Visit(source) as visitor:
+    visitor.capture_calls()
+    visitor.capture_functions()
+    visitor.visit()
+
+    # captured_nodes() returns dict of node type -&gt; list of nodes
+</code></pre>
+<p>This is the foundation for call extraction.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

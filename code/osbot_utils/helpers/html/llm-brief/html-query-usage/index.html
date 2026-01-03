@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/llm-brief/html-query-usage/" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>Html__Query Usage Guide - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Html__Query Usage Guide";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/llm-brief/html-query-usage.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/llm-brief/html-query-usage/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Html__Query Usage Guide</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="html__query-usage-guide">Html__Query Usage Guide<a class="headerlink" href="#html__query-usage-guide" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">🎯 Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p><code>Html__Query</code> provides a <strong>high-level, type-safe interface</strong> for querying and analyzing HTML documents without using regex or string manipulation.</p>
+<h2 id="import">📦 Import<a class="headerlink" href="#import" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from osbot_utils.helpers.html.utils.Html__Query import Html__Query
+</code></pre>
+<h2 id="basic-usage">🔧 Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
+<h3 id="context-manager-pattern-recommended">Context Manager Pattern (Recommended)<a class="headerlink" href="#context-manager-pattern-recommended" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">html = &quot;&lt;html&gt;&lt;head&gt;&lt;title&gt;Test&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;div id='main'&gt;Content&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;&quot;
+
+with Html__Query(html=html) as query:
+    title = query.title                    # &quot;Test&quot;
+    main_div = query.find_by_id('main')   # Schema__Html_Node object
+    text = query.get_text(main_div)       # &quot;Content&quot;
+</code></pre>
+<h2 id="core-properties">📊 Core Properties<a class="headerlink" href="#core-properties" title="Permanent link">&para;</a></h2>
+<h3 id="document-structure">Document Structure<a class="headerlink" href="#document-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Html__Query(html=html) as query:
+    query.root     # Root HTML node (Schema__Html_Node)
+    query.head     # Head node or None
+    query.body     # Body node or None
+    query.title    # Page title text or None
+</code></pre>
+<h3 id="link-elements">Link Elements<a class="headerlink" href="#link-elements" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Html__Query(html=html) as query:
+    query.links       # List of link attribute dicts
+    query.link_hrefs  # List of href strings
+    query.css_links   # List of stylesheet hrefs
+    query.favicon     # Favicon URL or None
+</code></pre>
+<h3 id="script-elements">Script Elements<a class="headerlink" href="#script-elements" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Html__Query(html=html) as query:
+    query.script_sources  # External script URLs
+    query.inline_scripts  # Inline script contents
+</code></pre>
+<h3 id="meta-tags">Meta Tags<a class="headerlink" href="#meta-tags" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Html__Query(html=html) as query:
+    query.meta_tags  # List of meta tag attribute dicts
+</code></pre>
+<h2 id="query-methods">🔍 Query Methods<a class="headerlink" href="#query-methods" title="Permanent link">&para;</a></h2>
+<h3 id="check-element-existence">Check Element Existence<a class="headerlink" href="#check-element-existence" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Check for links
+query.has_link(href='/css/main.css')                    # Returns bool
+query.has_link(rel='stylesheet')                        # Returns bool
+query.has_link(href='/css/main.css', rel='stylesheet')  # Multiple conditions
+
+# Check for scripts
+query.has_script(src='/js/app.js')          # External script
+query.has_script(contains='SwaggerUIBundle') # Inline script content
+
+# Check for meta tags
+query.has_meta(name='description')
+query.has_meta(name='viewport', content='width=device-width')
+</code></pre>
+<h3 id="find-elements">Find Elements<a class="headerlink" href="#find-elements" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># By ID
+element = query.find_by_id('swagger-ui')  # Returns Schema__Html_Node or None
+
+# By class
+elements = query.find_by_class('container')  # Returns list of nodes
+
+# By tag name
+divs = query.find_by_tag('div')  # Returns list of all div nodes
+</code></pre>
+<h3 id="extract-content">Extract Content<a class="headerlink" href="#extract-content" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Get text from element
+text = query.get_text()           # All document text
+text = query.get_text(element)    # Text from specific element
+
+# Get attributes
+value = query.get_attribute(element, 'class')  # Returns attribute value or None
+</code></pre>
+<h2 id="testing-patterns">🧪 Testing Patterns<a class="headerlink" href="#testing-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="fastapi-documentation-testing">FastAPI Documentation Testing<a class="headerlink" href="#fastapi-documentation-testing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_swagger_ui_setup(self):
+    response = client.get('/docs')
+
+    with Html__Query(html=response.text) as query:
+        # Check page setup
+        assert query.title == 'API - Swagger UI'
+
+        # Verify resources
+        assert query.has_link(href='/static/swagger-ui.css', rel='stylesheet')
+        assert query.has_script(src='/static/swagger-ui-bundle.js')
+
+        # Check configuration
+        assert any('SwaggerUIBundle' in s for s in query.inline_scripts)
+
+        # Verify structure
+        swagger_div = query.find_by_id('swagger-ui')
+        assert swagger_div is not None
+</code></pre>
+<h3 id="form-validation-testing">Form Validation Testing<a class="headerlink" href="#form-validation-testing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_login_form(self):
+    with Html__Query(html=login_page_html) as query:
+        # Find form elements
+        username_input = query.find_by_id('username')
+        password_input = query.find_by_id('password')
+        submit_button = query.find_by_id('submit')
+
+        # Verify attributes
+        assert query.get_attribute(username_input, 'type') == 'text'
+        assert query.get_attribute(password_input, 'type') == 'password'
+        assert query.get_attribute(submit_button, 'type') == 'submit'
+</code></pre>
+<h3 id="cssjs-resource-testing">CSS/JS Resource Testing<a class="headerlink" href="#cssjs-resource-testing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_page_resources(self):
+    with Html__Query(html=page_html) as query:
+        # Check CSS files
+        assert '/css/bootstrap.min.css' in query.css_links
+        assert '/css/custom.css' in query.css_links
+
+        # Check JavaScript files
+        assert '/js/jquery.min.js' in query.script_sources
+        assert '/js/app.js' in query.script_sources
+
+        # Check favicon
+        assert query.favicon == '/favicon.ico'
+</code></pre>
+<h2 id="advanced-patterns">🏗️ Advanced Patterns<a class="headerlink" href="#advanced-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="custom-traversal">Custom Traversal<a class="headerlink" href="#custom-traversal" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Html__Query(html=html) as query:
+    # Find all elements
+    all_nodes = query.find_all()
+
+    # Find by custom attribute
+    node = query.find_by_attribute('data-testid', 'main-content')
+
+    # Get all children of a node
+    body = query.body
+    for child in body.child_nodes:
+        print(f&quot;Tag: {child.tag}, ID: {child.attrs.get('id')}&quot;)
+</code></pre>
+<h3 id="text-extraction">Text Extraction<a class="headerlink" href="#text-extraction" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Html__Query(html=html) as query:
+    # Extract all text from specific sections
+    content_div = query.find_by_id('content')
+    content_text = query.get_text_content(content_div)
+
+    # Get text from multiple elements
+    paragraphs = query.find_by_tag('p')
+    texts = [query.get_text(p) for p in paragraphs]
+</code></pre>
+<h3 id="nested-queries">Nested Queries<a class="headerlink" href="#nested-queries" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Html__Query(html=html) as query:
+    # Find container, then search within it
+    container = query.find_by_class('container')[0]
+
+    # Search within specific node
+    headers = query.find_all_by_tag('h2', container)
+    links = query.find_all_by_tag('a', container)
+</code></pre>
+<h2 id="data-access-patterns">🔄 Data Access Patterns<a class="headerlink" href="#data-access-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="direct-node-access">Direct Node Access<a class="headerlink" href="#direct-node-access" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Html__Query(html=html) as query:
+    node = query.find_by_id('main')
+
+    # Access node properties
+    node.tag          # 'div'
+    node.attrs        # {'id': 'main', 'class': 'container'}
+    node.child_nodes  # List of child Schema__Html_Node
+    node.text_nodes   # List of Schema__Html_Node__Data
+    node.position     # Position in parent
+</code></pre>
+<h3 id="working-with-attributes">Working with Attributes<a class="headerlink" href="#working-with-attributes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Html__Query(html=html) as query:
+    links = query.find_by_tag('a')
+
+    for link in links:
+        href = link.attrs.get('href', '')
+        target = link.attrs.get('target', '_self')
+        classes = link.attrs.get('class', '').split()
+</code></pre>
+<h2 id="performance-tips">⚡ Performance Tips<a class="headerlink" href="#performance-tips" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Use context manager</strong> to ensure proper cleanup</li>
+<li><strong>Cache query results</strong> when checking multiple conditions</li>
+<li><strong>Use specific queries</strong> (find_by_id) over general ones (find_all)</li>
+<li><strong>Avoid repeated parsing</strong> - parse once, query many times</li>
+</ol>
+<h2 id="common-pitfalls">🚫 Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># ❌ Don't parse HTML multiple times
+for element_id in element_ids:
+    with Html__Query(html=html) as query:  # Parsing repeatedly
+        element = query.find_by_id(element_id)
+
+# ✅ Parse once, query multiple times
+with Html__Query(html=html) as query:
+    for element_id in element_ids:
+        element = query.find_by_id(element_id)
+
+# ❌ Don't use string methods on query results
+element = query.find_by_id('main')
+if 'container' in str(element):  # Wrong approach
+
+# ✅ Use proper attribute access
+element = query.find_by_id('main')
+if 'container' in element.attrs.get('class', ''):
+</code></pre>
+<h2 id="related-classes">🔗 Related Classes<a class="headerlink" href="#related-classes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>Html__To__Html_Document</code>: Lower-level parsing</li>
+<li><code>Schema__Html_Node</code>: Node representation</li>
+<li><code>Html__Query__Fast_API</code>: FastAPI-specific extensions</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
