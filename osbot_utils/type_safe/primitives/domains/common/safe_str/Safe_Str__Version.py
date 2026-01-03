@@ -5,8 +5,10 @@ from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode impo
 
 
 
-TYPE_SAFE_STR__VERSION__REGEX      = re.compile(r'^v(\d{1,3})\.(\d{1,3})\.(\d{1,3})$')              # Regex to match versions like v0.1.1 or v999.999.999
-TYPE_SAFE_STR__VERSION__MAX_LENGTH = 12                                                             # Max length for 'v999.999.999'
+#TYPE_SAFE_STR__VERSION__REGEX      = re.compile(r'^v(\d{1,3})\.(\d{1,3})\.(\d{1,3})$')
+TYPE_SAFE_STR__VERSION__REGEX = re.compile(r'^v?\d{1,3}(?:\.\d{1,3}){0,2}$')                    # Regex to match versions like v0.1.1, v999.999.999, 0.1.1, 0.1 or even just 0,1 .. n
+
+TYPE_SAFE_STR__VERSION__MAX_LENGTH = 12                                                              # Max length for 'v999.999.999'
 
 class Safe_Str__Version(Safe_Str):
     regex             = TYPE_SAFE_STR__VERSION__REGEX

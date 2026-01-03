@@ -2,6 +2,7 @@ from typing                                                             import g
 from osbot_utils.type_safe.Type_Safe__Primitive                         import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict   import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List   import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set    import Type_Safe__Set
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache       import type_safe_cache
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Convert     import type_safe_convert
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation  import type_safe_validation
@@ -59,6 +60,12 @@ class Type_Safe__Step__Set_Attr:
         annotation  = annotations.get(name)
 
         if annotation:
+            if isinstance(annotation, type) and issubclass(annotation, Type_Safe__List):    # Handle Type_Safe__List subclass annotations
+                if not isinstance(value, annotation):
+                    return annotation(value)
+            elif isinstance(annotation, type) and issubclass(annotation, Type_Safe__Set):    # Handle Type_Safe__List subclass annotations
+                if not isinstance(value, annotation):
+                    return annotation(value)
             origin = type_safe_cache.get_origin(annotation)
             if origin is list:
                 args = get_args(annotation)                                             # Get the list element type

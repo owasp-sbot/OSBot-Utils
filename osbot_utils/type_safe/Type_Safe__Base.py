@@ -137,10 +137,11 @@ class Type_Safe__Base:
         if origin is not None:
             return value                                            # Can't convert generic types, let type check handle it
 
-        if isinstance(value, expected_type):        # If already correct type, return as-is
+        if (isinstance(expected_type, type) and
+            isinstance(value, expected_type)):                        # If already correct type, return as-is
             return value
 
-        if (isinstance(expected_type, type) and             # Handle dict → Type_Safe conversion
+        if (isinstance(expected_type, type) and                     # Handle dict → Type_Safe conversion
             issubclass(expected_type, Type_Safe) and
             isinstance(value, dict)):
             return expected_type.from_json(value)

@@ -8,6 +8,7 @@ from osbot_utils.testing.__helpers                                              
 from osbot_utils.type_safe.primitives.core.Safe_Int                                      import Safe_Int
 from osbot_utils.testing.__                                                              import __
 from osbot_utils.type_safe.Type_Safe__Primitive                                          import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.core.Safe_Str                                      import Safe_Str
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash       import Safe_Str__Hash
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path        import Safe_Str__File__Path
@@ -564,3 +565,28 @@ class test_Type_Safe__Dict__regression(TestCase):
         # FIXED: fromkeys returns Hash_Mapping
         from_keys = Hash_Mapping.fromkeys(['aaa1234567', 'bbb1234567'], 'default')
         assert type(from_keys) is Hash_Mapping
+
+    def test__regression__Type_Safe__Dict_subclass__assignment(self):  #Bug test for Type_Safe__Dict subclass assignment - same issue as Type_Safe__List
+
+        class Dict__Abc(Type_Safe__Dict):
+            expected_key_type   = Safe_Str
+            expected_value_type = int
+
+        class An_Class(Type_Safe):
+            targets: Dict__Abc
+
+        An_Class(targets={})                                              # this works
+        An_Class(targets=Dict__Abc({Safe_Str('key'): 42}))                # this works
+
+        error_message_1 = "On An_Class, invalid type for attribute 'targets'. Expected"
+        # with pytest.raises(ValueError, match=re.escape(error_message_1)):
+        #     An_Class(targets={'key': 42})                                 # BUG: plain dict not converted to Dict__Abc
+
+        # with pytest.raises(ValueError, match=re.escape(error_message_1)):
+        #     An_Class(targets={Safe_Str('key'): 42})                       # BUG: even with correct key type
+
+        assert An_Class(targets={}                              ).json()   == {'targets': {}}
+        assert An_Class(targets=Dict__Abc({Safe_Str('key'): 42})).json()   == {'targets': {'key': 42}}
+        assert An_Class(targets={'key': 42}                     ).json()   == {'targets': {'key': 42}}
+        assert An_Class(targets={Safe_Str('key'): 42}           ).json()   == {'targets': {'key': 42}}
+

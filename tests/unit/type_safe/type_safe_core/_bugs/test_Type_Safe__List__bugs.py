@@ -1,8 +1,7 @@
-import re
-import pytest
 from typing                                                                              import List
 from unittest                                                                            import TestCase
 from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
+
 
 class test_Type_Safe__List__bugs(TestCase):
 
