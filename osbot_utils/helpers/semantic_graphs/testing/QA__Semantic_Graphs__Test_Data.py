@@ -100,13 +100,13 @@ class QA__Semantic_Graphs__Test_Data(Type_Safe):                                
         categories[Category_Ref('container')]    = container
         categories[Category_Ref('code_unit')]    = code_unit
         categories[Category_Ref('callable')]     = callable_cat
-
-        return Schema__Taxonomy(taxonomy_id   = Taxonomy_Id(Obj_Id.from_seed('test:taxonomy:code_elements')),
-                                taxonomy_ref  = Taxonomy_Ref('code_elements')                               ,
-                                version       = Safe_Str__Version('1.0.0')                                  ,
-                                description   = Safe_Str__Text('Code elements taxonomy')                    ,
-                                root_category = Category_Ref('code_element')                                ,
-                                categories    = categories                                                  )
+        obj_id__from_seed                        = Obj_Id.from_seed('test:taxonomy:code_elements')
+        return Schema__Taxonomy(taxonomy_id   = Taxonomy_Id(obj_id__from_seed)              ,
+                                taxonomy_ref  = Taxonomy_Ref('code_elements')               ,
+                                version       = Safe_Str__Version('1.0.0')                  ,
+                                description   = Safe_Str__Text('Code elements taxonomy')    ,
+                                root_category = Category_Ref('code_element')                ,
+                                categories    = categories                                  )
 
     @type_safe
     def create_taxonomy__minimal(self) -> Schema__Taxonomy:                              # Minimal single-category taxonomy
@@ -188,8 +188,9 @@ class QA__Semantic_Graphs__Test_Data(Type_Safe):                                
         node_types[Node_Type_Ref('function')] = self.create_node_type(description   = Safe_Str__Text('Standalone function'),
                                                                        taxonomy_ref  = Category_Ref('callable')            ,
                                                                        relationships = function_rels                       )
+        obj_id__from_seed                    = Obj_Id.from_seed('test:ontology:code_structure')
 
-        return Schema__Ontology(ontology_id   = Ontology_Id(Obj_Id.from_seed('test:ontology:code_structure')),
+        return Schema__Ontology(ontology_id   = Ontology_Id(obj_id__from_seed)                               ,
                                 ontology_ref  = Ontology_Ref('code_structure')                               ,
                                 version       = Safe_Str__Version('1.0.0')                                   ,
                                 description   = Safe_Str__Text('Python code structure ontology')             ,
@@ -217,21 +218,20 @@ class QA__Semantic_Graphs__Test_Data(Type_Safe):                                
     @type_safe
     def create_rule_set__code_structure(self) -> Schema__Rule_Set:                       # Rules for code structure
         transitivity_rules = List__Rules__Transitivity()
-        transitivity_rules.append(Schema__Rule__Transitivity(
-            source_type = Node_Type_Ref('method'),
-            verb        = Safe_Str__Ontology__Verb('in'),
-            target_type = Node_Type_Ref('module')        ))
+        transitivity_rules.append(Schema__Rule__Transitivity(source_type = Node_Type_Ref('method'),
+                                                             verb        = Safe_Str__Ontology__Verb('in'),
+                                                             target_type = Node_Type_Ref('module')        ))
 
         cardinality_rules = List__Rules__Cardinality()
-        cardinality_rules.append(Schema__Rule__Cardinality(
-            source_type = Node_Type_Ref('method')              ,
-            verb        = Safe_Str__Ontology__Verb('in')       ,
-            target_type = Node_Type_Ref('class')               ,
-            min_targets = Safe_UInt(1)                         ,
-            max_targets = Safe_UInt(1)                         ,
-            description = Safe_Str__Text('Method must be in exactly one class')))
+        cardinality_rules.append(Schema__Rule__Cardinality(source_type = Node_Type_Ref('method')              ,
+                                                           verb        = Safe_Str__Ontology__Verb('in')       ,
+                                                           target_type = Node_Type_Ref('class')               ,
+                                                           min_targets = Safe_UInt(1)                         ,
+                                                           max_targets = Safe_UInt(1)                         ,
+                                                           description = Safe_Str__Text('Method must be in exactly one class')))
+        obj_id__from_seed = Obj_Id.from_seed('test:rules:code_structure')
 
-        return Schema__Rule_Set(rule_set_id        = Rule_Set_Id(Obj_Id.from_seed('test:rules:code_structure')),
+        return Schema__Rule_Set(rule_set_id        = Rule_Set_Id(obj_id__from_seed)                            ,
                                 rule_set_ref       = Rule_Set_Ref('code_structure_rules')                      ,
                                 ontology_ref       = Ontology_Ref('code_structure')                            ,
                                 version            = Safe_Str__Version('1.0.0')                                ,
@@ -326,7 +326,9 @@ class QA__Semantic_Graphs__Test_Data(Type_Safe):                                
                                       to_node   = method_node.node_id                                 ,
                                       seed      = Safe_Str__Id__Seed('test:edge:class_contains_method')))
 
-        return Schema__Semantic_Graph(graph_id     = Graph_Id(Obj_Id.from_seed('test:graph:simple_class')),
+        obj_id__from_seed = Obj_Id.from_seed('test:graph:simple_class')
+
+        return Schema__Semantic_Graph(graph_id     = Graph_Id(obj_id__from_seed)                          ,
                                       ontology_ref = Ontology_Ref('code_structure')                       ,
                                       rule_set_ref = Rule_Set_Ref('code_structure_rules')                 ,
                                       version      = Safe_Str__Version('1.0.0')                           ,
@@ -336,7 +338,7 @@ class QA__Semantic_Graphs__Test_Data(Type_Safe):                                
     @type_safe
     def create_graph__empty(self) -> Schema__Semantic_Graph:                             # Empty graph for testing
         return Schema__Semantic_Graph(graph_id     = Graph_Id(Obj_Id.from_seed('test:graph:empty')),
-                                      ontology_ref = Ontology_Ref('minimal')                       ,
+                                      ontology_ref = Ontology_Ref('empty')                       ,
                                       rule_set_ref = Rule_Set_Ref()                                ,
                                       version      = Safe_Str__Version('1.0.0')                    ,
                                       nodes        = Dict__Nodes__By_Id()                          ,
@@ -357,3 +359,34 @@ class QA__Semantic_Graphs__Test_Data(Type_Safe):                                
     @type_safe
     def deterministic_graph_id(self, seed: Safe_Str__Id__Seed) -> Graph_Id:              # Create deterministic graph ID
         return Graph_Id(Obj_Id.from_seed(seed))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Deterministic Obj_Id Constants (Canonical Test IDs)
+#
+# note: all values are casted to str so that the assert is easier to make
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+OBJ_ID__FOR__TAXONOMY__CODE_ELEMENTS     = str(Obj_Id.from_seed('test:taxonomy:code_elements'))          # --- Taxonomies ---
+OBJ_ID__FOR__TAXONOMY__MINIMAL           = str(Obj_Id.from_seed('test:taxonomy:minimal'      ))
+
+
+OBJ_ID__FOR__ONTOLOGY__CODE_STRUCTURE    = str(Obj_Id.from_seed('test:ontology:code_structure'))         # --- Ontologies ---
+OBJ_ID__FOR__ONTOLOGY__MINIMAL           = str(Obj_Id.from_seed('test:ontology:minimal'       ))
+
+
+OBJ_ID__FOR__RULE_SET__CODE_STRUCTURE    = str(Obj_Id.from_seed('test:rules:code_structure'))            # --- Rule Sets ---
+OBJ_ID__FOR__RULE_SET__EMPTY             = str(Obj_Id.from_seed('test:rules:empty'         ))
+
+
+OBJ_ID__FOR__GRAPH__SIMPLE_CLASS         = str(Obj_Id.from_seed('test:graph:simple_class'))              # --- Graphs ---
+OBJ_ID__FOR__GRAPH__EMPTY                = str(Obj_Id.from_seed('test:graph:empty'       ))
+
+
+OBJ_ID__FOR__NODE__MY_MODULE             = str(Obj_Id.from_seed('test:node:my_module'))                  # --- Nodes ---
+OBJ_ID__FOR__NODE__MY_CLASS              = str(Obj_Id.from_seed('test:node:MyClass'  ))
+OBJ_ID__FOR__NODE__MY_METHOD             = str(Obj_Id.from_seed('test:node:my_method'))
+
+OBJ_ID__FOR__EDGE__MODULE_CONTAINS_CLASS = str(Obj_Id.from_seed('test:edge:module_contains_class'))     # --- Edges ---
+OBJ_ID__FOR__EDGE__CLASS_CONTAINS_METHOD = str(Obj_Id.from_seed('test:edge:class_contains_method'))

@@ -4,7 +4,7 @@
 
 from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils                   import Ontology__Utils
 from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Validation_Errors import List__Validation_Errors
-from osbot_utils.helpers.semantic_graphs.schemas.graph                              import Schema__Semantic_Graph__Edge
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge import Schema__Semantic_Graph__Edge
 from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph       import Schema__Semantic_Graph
 from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Validation_Result    import Schema__Validation_Result
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology          import Schema__Ontology

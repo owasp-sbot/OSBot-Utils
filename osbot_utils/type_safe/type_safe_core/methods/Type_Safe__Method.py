@@ -1,5 +1,6 @@
 import collections
 import inspect                                                                                                                       # For function introspection
+import types
 from enum                                                                     import Enum
 from typing                                                                   import get_args, get_origin, Union, List, Any, Dict    # For type hinting utilities
 from osbot_utils.type_safe.Type_Safe__Base                                    import Type_Safe__Base
@@ -326,7 +327,12 @@ class Type_Safe__Method:                                                        
             base_type = origin
         else:
             base_type = expected_type
-
+        if isinstance(base_type, types.ModuleType):
+            # todo: see if we can detect this as a bug on creation (i.e. when expected_type is defined as module)
+            raise ValueError(f"Parameter '{param_name}' received a module ({base_type.__name__})          \n"
+                             f"            where a type was expected. This is always a bug and usually indicates    \n"
+                             f"            an incorrect import (imported a module instead of a class).              \n"
+                             f"            Expected type: {expected_type}"                                          ) from None
         if not isinstance(param_value, base_type):
             raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}") from None
         return True

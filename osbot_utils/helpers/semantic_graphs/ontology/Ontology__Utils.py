@@ -81,10 +81,10 @@ class Ontology__Utils(Type_Safe):                                               
                          verb        : Safe_Str__Ontology__Verb) -> Safe_Str__Ontology__Verb:  # Get inverse verb
         node_type = self.get_node_type(ontology, source_type)
         if node_type is None:
-            return Safe_Str__Ontology__Verb()
+            return None
         relationship = node_type.relationships.get(verb)
         if relationship is None:
-            return Safe_Str__Ontology__Verb()
+            return None
         return relationship.inverse
 
     @type_safe
