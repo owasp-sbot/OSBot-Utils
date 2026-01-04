@@ -1,6 +1,11 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Semantic_Graph__Utils - Tests for semantic graph utility operations
 # Uses QA__Semantic_Graphs__Test_Data for consistent test data creation
+#
+# Updated for Brief 3.7:
+#   - Uses node_type_id instead of node_type ref
+#   - Uses predicate_id instead of verb
+#   - Uses from_node_id/to_node_id instead of from_node/to_node
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                           import TestCase
@@ -8,12 +13,13 @@ from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Utils            
 from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Node_Ids              import List__Node_Ids
 from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge     import Schema__Semantic_Graph__Edge
 from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node     import Schema__Semantic_Graph__Node
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Ref               import Node_Type_Ref
-from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb      import Safe_Str__Ontology__Verb
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Predicate_Id                import Predicate_Id
 from osbot_utils.helpers.semantic_graphs.testing.QA__Semantic_Graphs__Test_Data         import QA__Semantic_Graphs__Test_Data, OBJ_ID__FOR__GRAPH__EMPTY
 from osbot_utils.testing.__                                                             import __
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                       import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id         import Safe_Str__Id
 
 
 class test_Semantic_Graph__Utils(TestCase):                                             # Test semantic graph utilities
@@ -22,6 +28,14 @@ class test_Semantic_Graph__Utils(TestCase):                                     
     def setUpClass(cls):                                                                # Shared test objects (performance)
         cls.test_data = QA__Semantic_Graphs__Test_Data()
         cls.utils     = Semantic_Graph__Utils()
+
+        # Cache commonly used IDs
+        cls.module_type_id   = Node_Type_Id(Obj_Id.from_seed('test:node_type:module'))
+        cls.class_type_id    = Node_Type_Id(Obj_Id.from_seed('test:node_type:class'))
+        cls.method_type_id   = Node_Type_Id(Obj_Id.from_seed('test:node_type:method'))
+        cls.function_type_id = Node_Type_Id(Obj_Id.from_seed('test:node_type:function'))
+        cls.contains_pred_id = Predicate_Id(Obj_Id.from_seed('test:predicate:contains'))
+        cls.calls_pred_id    = Predicate_Id(Obj_Id.from_seed('test:predicate:calls'))
 
     def test__init__(self):                                                             # Test initialization
         with Semantic_Graph__Utils() as _:
@@ -42,10 +56,9 @@ class test_Semantic_Graph__Utils(TestCase):                                     
         assert type(found) is Schema__Semantic_Graph__Node
         assert found.obj() == __(node_id_source = __(source_type = 'deterministic'        ,
                                                      seed        = 'test:node:my_module') ,
-                                 node_id         = 'ff5bcf64'                              ,
-                                 node_type       = 'module'                                ,
-                                 name            = 'my_module'                             ,
-                                 line_number     = 0                                       )
+                                 node_id        = 'ff5bcf64'                              ,
+                                 node_type_id   = str(self.module_type_id)                ,
+                                 name           = 'my_module'                             )
 
         assert not_found is None
 
@@ -70,11 +83,11 @@ class test_Semantic_Graph__Utils(TestCase):                                     
 
             assert self.utils.node_count(graph) == 0
 
-            node1 = _.create_node('class', 'A')
+            node1 = _.create_node(self.class_type_id, Safe_Str__Id('A'))
             graph.nodes[node1.node_id] = node1
             assert self.utils.node_count(graph) == 1
 
-            node2 = _.create_node('class', 'B')
+            node2 = _.create_node(self.class_type_id, Safe_Str__Id('B'))
             graph.nodes[node2.node_id] = node2
             assert self.utils.node_count(graph) == 2
 
@@ -82,17 +95,17 @@ class test_Semantic_Graph__Utils(TestCase):                                     
         with self.test_data as _:
             graph = _.create_graph__empty()
 
-            node1 = _.create_node('class' , 'A')
-            node2 = _.create_node('class' , 'B')
-            node3 = _.create_node('method', 'foo')
+            node1 = _.create_node(self.class_type_id , Safe_Str__Id('A'))
+            node2 = _.create_node(self.class_type_id , Safe_Str__Id('B'))
+            node3 = _.create_node(self.method_type_id, Safe_Str__Id('foo'))
 
             graph.nodes[node1.node_id] = node1
             graph.nodes[node2.node_id] = node2
             graph.nodes[node3.node_id] = node3
 
-            classes = self.utils.nodes_by_type(graph, Node_Type_Ref('class'))
-            methods = self.utils.nodes_by_type(graph, Node_Type_Ref('method'))
-            unknown = self.utils.nodes_by_type(graph, Node_Type_Ref('unknown'))
+            classes = self.utils.nodes_by_type(graph, self.class_type_id)
+            methods = self.utils.nodes_by_type(graph, self.method_type_id)
+            unknown = self.utils.nodes_by_type(graph, Node_Type_Id(Obj_Id()))
 
             assert len(classes) == 2
             assert len(methods) == 1
@@ -105,49 +118,49 @@ class test_Semantic_Graph__Utils(TestCase):                                     
     def test__edge_count(self):                                                         # Test edge counting
         with self.test_data as _:
             graph = _.create_graph__empty()
-            node1 = _.create_node('class', 'A')
-            node2 = _.create_node('method', 'foo')
+            node1 = _.create_node(self.class_type_id, Safe_Str__Id('A'))
+            node2 = _.create_node(self.method_type_id, Safe_Str__Id('foo'))
             graph.nodes[node1.node_id] = node1
             graph.nodes[node2.node_id] = node2
 
             assert graph.graph_id               == OBJ_ID__FOR__GRAPH__EMPTY
             assert self.utils.edge_count(graph) == 0
 
-            edge = _.create_edge(node1.node_id, 'has', node2.node_id)
+            edge = _.create_edge(node1.node_id, self.contains_pred_id, node2.node_id)
             graph.edges.append(edge)
             assert self.utils.edge_count(graph) == 1
 
     def test__outgoing_edges(self):                                                     # Test outgoing edge lookup
         with self.test_data as _:
             graph = _.create_graph__empty()
-            node1 = _.create_node('class', 'A')
-            node2 = _.create_node('method', 'foo')
-            node3 = _.create_node('method', 'bar')
+            node1 = _.create_node(self.class_type_id, Safe_Str__Id('A'))
+            node2 = _.create_node(self.method_type_id, Safe_Str__Id('foo'))
+            node3 = _.create_node(self.method_type_id, Safe_Str__Id('bar'))
             graph.nodes[node1.node_id] = node1
             graph.nodes[node2.node_id] = node2
             graph.nodes[node3.node_id] = node3
-    
-            graph.edges.append(_.create_edge(node1.node_id, 'has', node2.node_id))
-            graph.edges.append(_.create_edge(node1.node_id, 'has', node3.node_id))
-    
+
+            graph.edges.append(_.create_edge(node1.node_id, self.contains_pred_id, node2.node_id))
+            graph.edges.append(_.create_edge(node1.node_id, self.contains_pred_id, node3.node_id))
+
             edges_from_node1 = self.utils.outgoing_edges(graph, node1.node_id)
             edges_from_node2 = self.utils.outgoing_edges(graph, node2.node_id)
-    
+
             assert len(edges_from_node1) == 2
             assert len(edges_from_node2) == 0
 
     def test__incoming_edges(self):                                                     # Test incoming edge lookup
         with self.test_data as _:
             graph = _.create_graph__empty()
-            node1 = _.create_node('class', 'A')
-            node2 = _.create_node('class', 'B')
-            node3 = _.create_node('method', 'foo')
+            node1 = _.create_node(self.class_type_id, Safe_Str__Id('A'))
+            node2 = _.create_node(self.class_type_id, Safe_Str__Id('B'))
+            node3 = _.create_node(self.method_type_id, Safe_Str__Id('foo'))
             graph.nodes[node1.node_id] = node1
             graph.nodes[node2.node_id] = node2
             graph.nodes[node3.node_id] = node3
 
-            graph.edges.append(_.create_edge(node1.node_id, 'has', node3.node_id))
-            graph.edges.append(_.create_edge(node2.node_id, 'has', node3.node_id))
+            graph.edges.append(_.create_edge(node1.node_id, self.contains_pred_id, node3.node_id))
+            graph.edges.append(_.create_edge(node2.node_id, self.contains_pred_id, node3.node_id))
 
             edges_to_node3 = self.utils.incoming_edges(graph, node3.node_id)
             edges_to_node1 = self.utils.incoming_edges(graph, node1.node_id)
@@ -155,42 +168,42 @@ class test_Semantic_Graph__Utils(TestCase):                                     
             assert len(edges_to_node3) == 2
             assert len(edges_to_node1) == 0
 
-    def test__edges_with_verb(self):                                                    # Test verb filtering
+    def test__edges_with_predicate(self):                                               # Test predicate filtering
         with self.test_data as _:
             graph = _.create_graph__empty()
-            node1 = _.create_node('class', 'A')
-            node2 = _.create_node('method', 'foo')
-            node3 = _.create_node('class', 'B')
+            node1 = _.create_node(self.class_type_id, Safe_Str__Id('A'))
+            node2 = _.create_node(self.method_type_id, Safe_Str__Id('foo'))
+            node3 = _.create_node(self.method_type_id, Safe_Str__Id('bar'))
             graph.nodes[node1.node_id] = node1
             graph.nodes[node2.node_id] = node2
             graph.nodes[node3.node_id] = node3
 
-            graph.edges.append(_.create_edge(node1.node_id, 'has', node2.node_id))
-            graph.edges.append(_.create_edge(node1.node_id, 'inherits_from', node3.node_id))
+            graph.edges.append(_.create_edge(node1.node_id, self.contains_pred_id, node2.node_id))
+            graph.edges.append(_.create_edge(node2.node_id, self.calls_pred_id   , node3.node_id))
 
-            has_edges     = self.utils.edges_with_verb(graph, Safe_Str__Ontology__Verb('has'))
-            inherit_edges = self.utils.edges_with_verb(graph, Safe_Str__Ontology__Verb('inherits_from'))
-            calls_edges   = self.utils.edges_with_verb(graph, Safe_Str__Ontology__Verb('calls'))
+            contains_edges = self.utils.edges_with_predicate(graph, self.contains_pred_id)
+            calls_edges    = self.utils.edges_with_predicate(graph, self.calls_pred_id)
+            unknown_edges  = self.utils.edges_with_predicate(graph, Predicate_Id(Obj_Id()))
 
-        assert len(has_edges)     == 1
-        assert len(inherit_edges) == 1
-        assert len(calls_edges)   == 0
+        assert len(contains_edges) == 1
+        assert len(calls_edges)    == 1
+        assert len(unknown_edges)  == 0
 
     def test__neighbors(self):                                                          # Test neighbor lookup
         with self.test_data as _:
             graph = _.create_graph__empty()
-            node1 = _.create_node('class', 'A')
-            node2 = _.create_node('method', 'foo')
-            node3 = _.create_node('method', 'bar')
-            node4 = _.create_node('class', 'B')
+            node1 = _.create_node(self.class_type_id, Safe_Str__Id('A'))
+            node2 = _.create_node(self.method_type_id, Safe_Str__Id('foo'))
+            node3 = _.create_node(self.method_type_id, Safe_Str__Id('bar'))
+            node4 = _.create_node(self.class_type_id, Safe_Str__Id('B'))
             graph.nodes[node1.node_id] = node1
             graph.nodes[node2.node_id] = node2
             graph.nodes[node3.node_id] = node3
             graph.nodes[node4.node_id] = node4
 
-            graph.edges.append(_.create_edge(node1.node_id, 'has', node2.node_id))
-            graph.edges.append(_.create_edge(node1.node_id, 'has', node3.node_id))
-            graph.edges.append(_.create_edge(node1.node_id, 'inherits_from', node4.node_id))
+            graph.edges.append(_.create_edge(node1.node_id, self.contains_pred_id, node2.node_id))
+            graph.edges.append(_.create_edge(node1.node_id, self.contains_pred_id, node3.node_id))
+            graph.edges.append(_.create_edge(node1.node_id, self.contains_pred_id, node4.node_id))
 
             all_neighbors = self.utils.neighbors(graph, node1.node_id)
 
@@ -199,34 +212,34 @@ class test_Semantic_Graph__Utils(TestCase):                                     
     def test__has_edge(self):                                                           # Test edge existence check
         with self.test_data as _:
             graph = _.create_graph__empty()
-            node1 = _.create_node('class', 'A')
-            node2 = _.create_node('method', 'foo')
+            node1 = _.create_node(self.class_type_id, Safe_Str__Id('A'))
+            node2 = _.create_node(self.method_type_id, Safe_Str__Id('foo'))
             graph.nodes[node1.node_id] = node1
             graph.nodes[node2.node_id] = node2
 
-            graph.edges.append(_.create_edge(node1.node_id, 'has', node2.node_id))
+            graph.edges.append(_.create_edge(node1.node_id, self.contains_pred_id, node2.node_id))
 
-            has_edge   = self.utils.has_edge(graph, node1.node_id, Safe_Str__Ontology__Verb('has'), node2.node_id)
-            no_reverse = self.utils.has_edge(graph, node2.node_id, Safe_Str__Ontology__Verb('has'), node1.node_id)
-            no_verb    = self.utils.has_edge(graph, node1.node_id, Safe_Str__Ontology__Verb('calls'), node2.node_id)
+            has_edge   = self.utils.has_edge(graph, node1.node_id, self.contains_pred_id, node2.node_id)
+            no_reverse = self.utils.has_edge(graph, node2.node_id, self.contains_pred_id, node1.node_id)
+            no_pred    = self.utils.has_edge(graph, node1.node_id, self.calls_pred_id   , node2.node_id)
 
             assert has_edge   is True
             assert no_reverse is False
-            assert no_verb    is False
+            assert no_pred    is False
 
     def test__find_edge(self):                                                          # Test finding specific edge
         with self.test_data as _:
             graph = _.create_graph__empty()
-            node1 = _.create_node('class', 'A')
-            node2 = _.create_node('method', 'foo')
+            node1 = _.create_node(self.class_type_id, Safe_Str__Id('A'))
+            node2 = _.create_node(self.method_type_id, Safe_Str__Id('foo'))
             graph.nodes[node1.node_id] = node1
             graph.nodes[node2.node_id] = node2
 
-            edge = _.create_edge(node1.node_id, 'has', node2.node_id)
+            edge = _.create_edge(node1.node_id, self.contains_pred_id, node2.node_id)
             graph.edges.append(edge)
 
-            found     = self.utils.find_edge(graph, node1.node_id, Safe_Str__Ontology__Verb('has'), node2.node_id)
-            not_found = self.utils.find_edge(graph, node2.node_id, Safe_Str__Ontology__Verb('has'), node1.node_id)
+            found     = self.utils.find_edge(graph, node1.node_id, self.contains_pred_id, node2.node_id)
+            not_found = self.utils.find_edge(graph, node2.node_id, self.contains_pred_id, node1.node_id)
 
             assert found       is not None
             assert type(found) is Schema__Semantic_Graph__Edge
@@ -249,10 +262,10 @@ class test_Semantic_Graph__Utils(TestCase):                                     
     def test__qa_graph__nodes_by_type(self):                                            # Test filtering QA graph
         graph = self.test_data.create_graph__simple_class()
 
-        modules   = self.utils.nodes_by_type(graph, Node_Type_Ref('module'))
-        classes   = self.utils.nodes_by_type(graph, Node_Type_Ref('class'))
-        methods   = self.utils.nodes_by_type(graph, Node_Type_Ref('method'))
-        functions = self.utils.nodes_by_type(graph, Node_Type_Ref('function'))
+        modules   = self.utils.nodes_by_type(graph, self.module_type_id)
+        classes   = self.utils.nodes_by_type(graph, self.class_type_id)
+        methods   = self.utils.nodes_by_type(graph, self.method_type_id)
+        functions = self.utils.nodes_by_type(graph, self.function_type_id)
 
         assert len(modules)   == 1
         assert len(classes)   == 1
@@ -262,10 +275,10 @@ class test_Semantic_Graph__Utils(TestCase):                                     
     def test__empty_graph(self):                                                        # Test operations on empty graph
         graph = self.test_data.create_graph__empty()
 
-        assert self.utils.node_count(graph)                                      == 0
-        assert self.utils.edge_count(graph)                                      == 0
-        assert len(self.utils.all_node_ids(graph))                               == 0
-        assert self.utils.get_node(graph, Node_Id(Obj_Id()))                     is None
-        assert self.utils.has_node(graph, Node_Id(Obj_Id()))                     is False
-        assert len(self.utils.nodes_by_type(graph, Node_Type_Ref('class')))      == 0
-        assert len(self.utils.neighbors(graph, Node_Id(Obj_Id())))               == 0
+        assert self.utils.node_count(graph)                                    == 0
+        assert self.utils.edge_count(graph)                                    == 0
+        assert len(self.utils.all_node_ids(graph))                             == 0
+        assert self.utils.get_node(graph, Node_Id(Obj_Id()))                   is None
+        assert self.utils.has_node(graph, Node_Id(Obj_Id()))                   is False
+        assert len(self.utils.nodes_by_type(graph, self.class_type_id))        == 0
+        assert len(self.utils.neighbors(graph, Node_Id(Obj_Id())))             == 0

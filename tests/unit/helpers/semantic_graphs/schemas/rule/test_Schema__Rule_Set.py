@@ -1,86 +1,116 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Schema__Rule_Set - Tests for rule set schema (pure data)
 # Note: Rule set operations have been moved to Rule_Set__Utils
+#
+# Updated for Brief 3.7:
+#   - rule_set_id is Obj_Id-based
+#   - Has both ontology_ref and ontology_id support
+#   - Rule schemas still use ref-based approach internally
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from unittest                                                                       import TestCase
+from unittest                                                                          import TestCase
 from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Cardinality   import List__Rules__Cardinality
 from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Transitivity  import List__Rules__Transitivity
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id            import Node_Type_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id             import Ontology_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id             import Rule_Set_Id
-from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set              import Schema__Rule_Set
-from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Cardinality     import Schema__Rule__Cardinality
-from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Transitivity    import Schema__Rule__Transitivity
-from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb  import Safe_Str__Ontology__Verb
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text        import Safe_Str__Text
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version     import Safe_Str__Version
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Ref              import Node_Type_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Ref               import Ontology_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id                import Rule_Set_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Ref               import Rule_Set_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set                 import Schema__Rule_Set
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Cardinality        import Schema__Rule__Cardinality
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Transitivity       import Schema__Rule__Transitivity
+from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb     import Safe_Str__Ontology__Verb
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                   import Safe_UInt
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text           import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version        import Safe_Str__Version
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                       import Obj_Id
+from osbot_utils.type_safe.Type_Safe                                                   import Type_Safe
 
 
-class test_Schema__Rule_Set(TestCase):                                               # Test rule set schema
+class test_Schema__Rule_Set(TestCase):                                                 # Test rule set schema
 
-    def test__init__(self):                                                          # Test initialization
-        with Schema__Rule_Set(rule_set_id  = Rule_Set_Id('test'),
-                              ontology_ref = Ontology_Id('ontology')) as _:
-            assert type(_)            is Schema__Rule_Set
+    def test__init__(self):                                                            # Test initialization
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        with Schema__Rule_Set(rule_set_id  = rule_set_id                  ,
+                              rule_set_ref = Rule_Set_Ref('test')         ,
+                              ontology_ref = Ontology_Ref('ontology')     ) as _:
+            assert type(_)           is Schema__Rule_Set
             assert isinstance(_, Type_Safe)
-            assert str(_.rule_set_id) == 'test'
-            assert str(_.version)     == '1.0.0'
+            assert _.rule_set_id     == rule_set_id
+            assert str(_.rule_set_ref) == 'test'
 
-    def test__init__types(self):                                                     # Test attribute types
-        with Schema__Rule_Set(rule_set_id  = Rule_Set_Id('test'),
-                              ontology_ref = Ontology_Id('ontology')) as _:
+    def test__init__types(self):                                                       # Test attribute types
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        with Schema__Rule_Set(rule_set_id  = rule_set_id                  ,
+                              rule_set_ref = Rule_Set_Ref('test')         ,
+                              ontology_ref = Ontology_Ref('ontology')     ) as _:
             assert type(_.rule_set_id)        is Rule_Set_Id
-            assert type(_.ontology_ref)       is Ontology_Id
+            assert type(_.rule_set_ref)       is Rule_Set_Ref
+            assert type(_.ontology_ref)       is Ontology_Ref
             assert type(_.version)            is Safe_Str__Version
             assert type(_.description)        is Safe_Str__Text
             assert type(_.transitivity_rules) is List__Rules__Transitivity
             assert type(_.cardinality_rules)  is List__Rules__Cardinality
 
-    def test__init__default_values(self):                                            # Test default values
-        with Schema__Rule_Set(rule_set_id  = Rule_Set_Id('test'),
-                              ontology_ref = Ontology_Id('ontology')) as _:
+    def test__init__default_values(self):                                              # Test default values
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        with Schema__Rule_Set(rule_set_id  = rule_set_id                  ,
+                              rule_set_ref = Rule_Set_Ref('test')         ,
+                              ontology_ref = Ontology_Ref('ontology')     ) as _:
             assert str(_.version)            == '1.0.0'
             assert str(_.description)        == ''
             assert len(_.transitivity_rules) == 0
             assert len(_.cardinality_rules)  == 0
 
-    def test__init__with_rules(self):                                                # Test with rules
-        trans_rule = Schema__Rule__Transitivity(source_type = Node_Type_Id('class'),
+    def test__init__with_rules(self):                                                  # Test with rules
+        trans_rule = Schema__Rule__Transitivity(source_type = Node_Type_Ref('class')                  ,
                                                 verb        = Safe_Str__Ontology__Verb('inherits_from'),
-                                                target_type = Node_Type_Id('class'))
-        card_rule = Schema__Rule__Cardinality(source_type = Node_Type_Id('method'),
-                                              verb        = Safe_Str__Ontology__Verb('in'),
-                                              target_type = Node_Type_Id('class'),
-                                              min_targets = 1, max_targets = 1, description = '')
+                                                target_type = Node_Type_Ref('class')                  )
 
-        with Schema__Rule_Set(rule_set_id        = Rule_Set_Id('test'),
-                              ontology_ref       = Ontology_Id('ontology'),
-                              transitivity_rules = [trans_rule]          ,
-                              cardinality_rules  = [card_rule]           ) as _:
+        card_rule = Schema__Rule__Cardinality(source_type = Node_Type_Ref('method')         ,
+                                              verb        = Safe_Str__Ontology__Verb('in')  ,
+                                              target_type = Node_Type_Ref('class')          ,
+                                              min_targets = Safe_UInt(1)                    ,
+                                              max_targets = Safe_UInt(1)                    ,
+                                              description = Safe_Str__Text('')              )
+
+        transitivity_rules = List__Rules__Transitivity()
+        transitivity_rules.append(trans_rule)
+        cardinality_rules = List__Rules__Cardinality()
+        cardinality_rules.append(card_rule)
+
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        with Schema__Rule_Set(rule_set_id        = rule_set_id                    ,
+                              rule_set_ref       = Rule_Set_Ref('test')           ,
+                              ontology_ref       = Ontology_Ref('ontology')       ,
+                              transitivity_rules = transitivity_rules             ,
+                              cardinality_rules  = cardinality_rules              ) as _:
             assert len(_.transitivity_rules) == 1
             assert len(_.cardinality_rules)  == 1
             assert _.transitivity_rules[0]   is trans_rule
             assert _.cardinality_rules[0]    is card_rule
 
-    def test__pure_data_no_methods(self):                                            # Verify no rule set operation methods
-        with Schema__Rule_Set(rule_set_id  = Rule_Set_Id('test'),
-                              ontology_ref = Ontology_Id('ontology')) as _:
+    def test__pure_data_no_methods(self):                                              # Verify no rule set operation methods
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        with Schema__Rule_Set(rule_set_id  = rule_set_id                  ,
+                              rule_set_ref = Rule_Set_Ref('test')         ,
+                              ontology_ref = Ontology_Ref('ontology')     ) as _:
             # These methods should NOT exist on the schema (moved to Utils)
             assert not hasattr(_, 'is_transitive')   or not callable(getattr(_, 'is_transitive', None))
             assert not hasattr(_, 'get_cardinality') or not callable(getattr(_, 'get_cardinality', None))
 
-    def test__json_serialization(self):                                              # Test JSON round-trip
-        original = Schema__Rule_Set(rule_set_id  = Rule_Set_Id('test_rules'),
-                                    ontology_ref = Ontology_Id('ontology') ,
-                                    version      = '2.0.0'                 ,
-                                    description  = 'Test rule set'         )
+    def test__json_serialization(self):                                                # Test JSON round-trip
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules:serial'))
+        original    = Schema__Rule_Set(rule_set_id  = rule_set_id                         ,
+                                       rule_set_ref = Rule_Set_Ref('test_rules')          ,
+                                       ontology_ref = Ontology_Ref('ontology')            ,
+                                       version      = Safe_Str__Version('2.0.0')          ,
+                                       description  = Safe_Str__Text('Test rule set')     )
 
         json_data = original.json()
         restored  = Schema__Rule_Set.from_json(json_data)
 
         assert str(restored.rule_set_id)  == str(original.rule_set_id)
+        assert str(restored.rule_set_ref) == str(original.rule_set_ref)
         assert str(restored.ontology_ref) == str(original.ontology_ref)
         assert str(restored.version)      == str(original.version)
         assert str(restored.description)  == str(original.description)
