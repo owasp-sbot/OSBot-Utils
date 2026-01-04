@@ -1,112 +1,122 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# Semantic_Graph__Utils - Utility operations for semantic graphs
-# Extracted from Schema__Semantic_Graph to keep schemas as pure data containers
+# Semantic_Graph__Utils - Operations on Schema__Semantic_Graph (business logic)
+# All operations take graph as first parameter - schemas remain pure data
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Node_Ids               import List__Node_Ids
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Semantic_Graph__Edges  import List__Semantic_Graph__Edges
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Semantic_Graph__Nodes  import List__Semantic_Graph__Nodes
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                 import Node_Type_Id
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph            import Schema__Semantic_Graph
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node      import Schema__Semantic_Graph__Node
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge      import Schema__Semantic_Graph__Edge
-from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb       import Safe_Str__Ontology__Verb
-from osbot_utils.type_safe.Type_Safe                                                     import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                        import Node_Id
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                           import type_safe
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Node_Ids             import List__Node_Ids
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Semantic_Graph__Edges import List__Semantic_Graph__Edges
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph          import Schema__Semantic_Graph
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge    import Schema__Semantic_Graph__Edge
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node    import Schema__Semantic_Graph__Node
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Ref              import Node_Type_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb     import Safe_Str__Ontology__Verb
+from osbot_utils.type_safe.Type_Safe                                                   import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                      import Node_Id
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                         import type_safe
 
 
-class Semantic_Graph__Utils(Type_Safe):                                              # Utility operations for semantic graphs
-
-    # ═══════════════════════════════════════════════════════════════════════════════
-    # Node Operations
-    # ═══════════════════════════════════════════════════════════════════════════════
+class Semantic_Graph__Utils(Type_Safe):                                                # Operations on semantic graph schemas
 
     @type_safe
-    def add_node(self, graph: Schema__Semantic_Graph,
-                       node : Schema__Semantic_Graph__Node) -> Schema__Semantic_Graph:
-        graph.nodes[node.node_id] = node                                             # Add node to graph's node dict
-        return graph
+    def get_node(self                      ,
+                 graph   : Schema__Semantic_Graph,
+                 node_id : Node_Id               ) -> Schema__Semantic_Graph__Node:    # Get node by ID
+        return graph.nodes.get(node_id)
 
     @type_safe
-    def get_node(self, graph  : Schema__Semantic_Graph,
-                       node_id: Node_Id               ) -> Schema__Semantic_Graph__Node:
-        return graph.nodes.get(node_id)                                              # Get node by ID, None if not found
+    def has_node(self                      ,
+                 graph   : Schema__Semantic_Graph,
+                 node_id : Node_Id               ) -> bool:                            # Check if node exists
+        return node_id in graph.nodes
 
     @type_safe
-    def node_count(self, graph: Schema__Semantic_Graph) -> int:                      # Total number of nodes
+    def all_node_ids(self                  ,
+                     graph : Schema__Semantic_Graph) -> List__Node_Ids:                # All node IDs
+        result = List__Node_Ids()
+        for node_id in graph.nodes.keys():
+            result.append(node_id)
+        return result
+
+    @type_safe
+    def node_count(self                    ,
+                   graph : Schema__Semantic_Graph) -> int:                             # Number of nodes
         return len(graph.nodes)
 
     @type_safe
-    def nodes_by_type(self, graph    : Schema__Semantic_Graph,
-                            node_type: Node_Type_Id          ) -> List__Semantic_Graph__Nodes:
-        result = List__Semantic_Graph__Nodes()                                       # Get all nodes of a specific type
-        for node in graph.nodes.values():
-            if node.node_type == node_type:
-                result.append(node)
-        return result
-
-    # ═══════════════════════════════════════════════════════════════════════════════
-    # Edge Operations
-    # ═══════════════════════════════════════════════════════════════════════════════
-
-    @type_safe
-    def add_edge(self, graph: Schema__Semantic_Graph,
-                       edge : Schema__Semantic_Graph__Edge) -> Schema__Semantic_Graph:
-        graph.edges.append(edge)                                                     # Add edge to graph's edge list
-        return graph
-
-    @type_safe
-    def edge_count(self, graph: Schema__Semantic_Graph) -> int:                      # Total number of edges
+    def edge_count(self                    ,
+                   graph : Schema__Semantic_Graph) -> int:                             # Number of edges
         return len(graph.edges)
 
     @type_safe
-    def edges_from(self, graph  : Schema__Semantic_Graph,
-                         node_id: Node_Id               ) -> List__Semantic_Graph__Edges:
-        result = List__Semantic_Graph__Edges()                                       # Get outgoing edges from node
+    def nodes_by_type(self                       ,
+                      graph     : Schema__Semantic_Graph,
+                      node_type : Node_Type_Ref         ) -> List__Node_Ids:           # Nodes of specific type
+        result = List__Node_Ids()
+        for node_id, node in graph.nodes.items():
+            if node.node_type == node_type:
+                result.append(node_id)
+        return result
+
+    @type_safe
+    def outgoing_edges(self                ,
+                       graph   : Schema__Semantic_Graph,
+                       node_id : Node_Id               ) -> List__Semantic_Graph__Edges:  # Edges from node
+        result = List__Semantic_Graph__Edges()
         for edge in graph.edges:
             if edge.from_node == node_id:
                 result.append(edge)
         return result
 
     @type_safe
-    def edges_to(self, graph  : Schema__Semantic_Graph,
-                       node_id: Node_Id               ) -> List__Semantic_Graph__Edges:
-        result = List__Semantic_Graph__Edges()                                       # Get incoming edges to node
+    def incoming_edges(self                ,
+                       graph   : Schema__Semantic_Graph,
+                       node_id : Node_Id               ) -> List__Semantic_Graph__Edges:  # Edges to node
+        result = List__Semantic_Graph__Edges()
         for edge in graph.edges:
             if edge.to_node == node_id:
                 result.append(edge)
         return result
 
     @type_safe
-    def edges_by_verb(self, graph: Schema__Semantic_Graph,
-                            verb : Safe_Str__Ontology__Verb) -> List__Semantic_Graph__Edges:
-        result = List__Semantic_Graph__Edges()                                       # Get edges by relationship verb
+    def edges_with_verb(self                    ,
+                        graph : Schema__Semantic_Graph       ,
+                        verb  : Safe_Str__Ontology__Verb     ) -> List__Semantic_Graph__Edges:  # Edges with verb
+        result = List__Semantic_Graph__Edges()
         for edge in graph.edges:
             if edge.verb == verb:
                 result.append(edge)
         return result
 
-    # ═══════════════════════════════════════════════════════════════════════════════
-    # Neighbor Operations
-    # ═══════════════════════════════════════════════════════════════════════════════
-
     @type_safe
-    def neighbors(self, graph  : Schema__Semantic_Graph          ,
-                        node_id: Node_Id                         ,
-                        verb   : Safe_Str__Ontology__Verb = None ) -> List__Node_Ids:
-        result = List__Node_Ids()                                                    # Get connected node IDs (outgoing)
-        for edge in self.edges_from(graph, node_id):
-            if verb is None or edge.verb == verb:
+    def neighbors(self                     ,
+                  graph   : Schema__Semantic_Graph,
+                  node_id : Node_Id               ) -> List__Node_Ids:                 # Adjacent nodes
+        result = List__Node_Ids()
+        for edge in graph.edges:
+            if edge.from_node == node_id and edge.to_node not in result:
                 result.append(edge.to_node)
-        return result
-
-    @type_safe
-    def reverse_neighbors(self, graph  : Schema__Semantic_Graph          ,
-                                node_id: Node_Id                         ,
-                                verb   : Safe_Str__Ontology__Verb = None ) -> List__Node_Ids:
-        result = List__Node_Ids()                                                    # Get nodes pointing to this one
-        for edge in self.edges_to(graph, node_id):
-            if verb is None or edge.verb == verb:
+            if edge.to_node == node_id and edge.from_node not in result:
                 result.append(edge.from_node)
         return result
+
+    @type_safe
+    def has_edge(self                                ,
+                 graph     : Schema__Semantic_Graph  ,
+                 from_node : Node_Id                 ,
+                 verb      : Safe_Str__Ontology__Verb,
+                 to_node   : Node_Id                 ) -> bool:                        # Check if edge exists
+        for edge in graph.edges:
+            if edge.from_node == from_node and edge.verb == verb and edge.to_node == to_node:
+                return True
+        return False
+
+    @type_safe
+    def find_edge(self                               ,
+                  graph     : Schema__Semantic_Graph  ,
+                  from_node : Node_Id                 ,
+                  verb      : Safe_Str__Ontology__Verb,
+                  to_node   : Node_Id                 ) -> Schema__Semantic_Graph__Edge:  # Find specific edge
+        for edge in graph.edges:
+            if edge.from_node == from_node and edge.verb == verb and edge.to_node == to_node:
+                return edge
+        return None

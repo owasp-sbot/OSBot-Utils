@@ -1,11 +1,11 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# List__Rule_Set_Ids - Typed collection for lists of rule set instance IDs
-# Used by Rule__Engine for ID listing
+# List__Category_Refs - Typed collection for lists of category references
+# Used by Schema__Taxonomy__Category for child references
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id              import Rule_Set_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Ref             import Category_Ref
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                import Type_Safe__List
 
 
-class List__Rule_Set_Ids(Type_Safe__List):                                           # List of rule set instance IDs
-    expected_type = Rule_Set_Id
+class List__Category_Refs(Type_Safe__List):                                          # List of category references
+    expected_type = Category_Ref

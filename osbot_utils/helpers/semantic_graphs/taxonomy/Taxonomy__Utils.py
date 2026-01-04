@@ -1,79 +1,106 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# Taxonomy__Utils - Utility operations for taxonomy navigation
-# Extracted from Schema__Taxonomy to keep schemas as pure data containers
+# Taxonomy__Utils - Operations on Schema__Taxonomy (business logic)
+# All operations take taxonomy as first parameter - schemas remain pure data
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Category_Ids          import List__Category_Ids
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Taxonomy__Categories  import List__Taxonomy__Categories
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Id                 import Category_Id
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Category_Refs         import List__Category_Refs
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Ref                import Category_Ref
 from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy              import Schema__Taxonomy
 from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy__Category    import Schema__Taxonomy__Category
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                          import type_safe
 
 
-class Taxonomy__Utils(Type_Safe):                                                    # Utility operations for taxonomies
-
-    # ═══════════════════════════════════════════════════════════════════════════════
-    # Category Lookup
-    # ═══════════════════════════════════════════════════════════════════════════════
+class Taxonomy__Utils(Type_Safe):                                                       # Operations on taxonomy schemas
 
     @type_safe
-    def get_category(self, taxonomy   : Schema__Taxonomy,
-                           category_id: Category_Id     ) -> Schema__Taxonomy__Category:
-        return taxonomy.categories.get(category_id)                                  # Get category by ID
+    def get_category(self                       ,
+                     taxonomy     : Schema__Taxonomy,
+                     category_ref : Category_Ref    ) -> Schema__Taxonomy__Category:    # Get category by ref
+        return taxonomy.categories.get(category_ref)
 
     @type_safe
-    def get_root(self, taxonomy: Schema__Taxonomy) -> Schema__Taxonomy__Category:    # Get root category
-        return taxonomy.categories.get(taxonomy.root_category)
+    def has_category(self                       ,
+                     taxonomy     : Schema__Taxonomy,
+                     category_ref : Category_Ref    ) -> bool:                          # Check if category exists
+        return category_ref in taxonomy.categories
 
     @type_safe
-    def category_ids(self, taxonomy: Schema__Taxonomy) -> List__Category_Ids:        # Get all category IDs
-        result = List__Category_Ids()
-        for cat_id in taxonomy.categories.keys():
-            result.append(Category_Id(cat_id))
+    def all_category_refs(self                  ,
+                          taxonomy : Schema__Taxonomy) -> List__Category_Refs:          # All category refs
+        result = List__Category_Refs()
+        for ref in taxonomy.categories.keys():
+            result.append(ref)
         return result
 
-    # ═══════════════════════════════════════════════════════════════════════════════
-    # Hierarchy Navigation
-    # ═══════════════════════════════════════════════════════════════════════════════
+    @type_safe
+    def get_root_category(self                  ,
+                          taxonomy : Schema__Taxonomy) -> Schema__Taxonomy__Category:   # Get root category
+        return self.get_category(taxonomy, taxonomy.root_category)
 
     @type_safe
-    def get_children(self, taxonomy   : Schema__Taxonomy,
-                           category_id: Category_Id     ) -> List__Taxonomy__Categories:
-        result   = List__Taxonomy__Categories()                                      # Get child categories
-        category = taxonomy.categories.get(category_id)
-        if not category:
+    def get_parent(self                         ,
+                   taxonomy     : Schema__Taxonomy,
+                   category_ref : Category_Ref    ) -> Schema__Taxonomy__Category:      # Get parent category
+        category = self.get_category(taxonomy, category_ref)
+        if category is None or not category.parent_ref:
+            return None
+        return self.get_category(taxonomy, category.parent_ref)
+
+    @type_safe
+    def get_children(self                       ,
+                     taxonomy     : Schema__Taxonomy,
+                     category_ref : Category_Ref    ) -> List__Category_Refs:           # Get child refs
+        category = self.get_category(taxonomy, category_ref)
+        if category is None:
+            return List__Category_Refs()
+        return category.child_refs
+
+    @type_safe
+    def get_ancestors(self                      ,
+                      taxonomy     : Schema__Taxonomy,
+                      category_ref : Category_Ref    ) -> List__Category_Refs:          # All ancestor refs (parent → root)
+        result   = List__Category_Refs()
+        category = self.get_category(taxonomy, category_ref)
+        while category is not None and category.parent_ref:
+            result.append(category.parent_ref)
+            category = self.get_category(taxonomy, category.parent_ref)
+        return result
+
+    @type_safe
+    def get_descendants(self                    ,
+                        taxonomy     : Schema__Taxonomy,
+                        category_ref : Category_Ref    ) -> List__Category_Refs:        # All descendant refs (recursive)
+        result   = List__Category_Refs()
+        category = self.get_category(taxonomy, category_ref)
+        if category is None:
             return result
         for child_ref in category.child_refs:
-            if child_ref in taxonomy.categories:
-                result.append(taxonomy.categories[child_ref])
+            result.append(child_ref)
+            descendants = self.get_descendants(taxonomy, child_ref)
+            for desc_ref in descendants:
+                result.append(desc_ref)
         return result
 
     @type_safe
-    def get_parent(self, taxonomy   : Schema__Taxonomy,
-                         category_id: Category_Id     ) -> Schema__Taxonomy__Category:
-        category = taxonomy.categories.get(category_id)                              # Get parent category
-        if not category or not category.parent_ref:
-            return None
-        return taxonomy.categories.get(category.parent_ref)
+    def is_ancestor_of(self                          ,
+                       taxonomy     : Schema__Taxonomy,
+                       category_ref : Category_Ref    ,
+                       child_ref    : Category_Ref    ) -> bool:                        # Check if category is ancestor
+        ancestors = self.get_ancestors(taxonomy, child_ref)
+        return category_ref in ancestors
 
     @type_safe
-    def get_ancestors(self, taxonomy   : Schema__Taxonomy,
-                            category_id: Category_Id     ) -> List__Taxonomy__Categories:
-        ancestors = List__Taxonomy__Categories()                                     # Get all ancestors to root
-        current   = self.get_parent(taxonomy, category_id)
-        while current:
-            ancestors.append(current)
-            current = self.get_parent(taxonomy, current.category_id)
-        return ancestors
+    def is_descendant_of(self                        ,
+                         taxonomy     : Schema__Taxonomy,
+                         category_ref : Category_Ref    ,
+                         parent_ref   : Category_Ref    ) -> bool:                      # Check if category is descendant
+        ancestors = self.get_ancestors(taxonomy, category_ref)
+        return parent_ref in ancestors
 
     @type_safe
-    def get_descendants(self, taxonomy   : Schema__Taxonomy,
-                              category_id: Category_Id     ) -> List__Taxonomy__Categories:
-        descendants = List__Taxonomy__Categories()                                   # Get all descendants recursively
-        children    = self.get_children(taxonomy, category_id)
-        for child in children:
-            descendants.append(child)
-            descendants.extend(self.get_descendants(taxonomy, child.category_id))
-        return descendants
+    def depth(self                              ,
+              taxonomy     : Schema__Taxonomy   ,
+              category_ref : Category_Ref       ) -> int:                               # Depth in tree (root = 0)
+        ancestors = self.get_ancestors(taxonomy, category_ref)
+        return len(ancestors)

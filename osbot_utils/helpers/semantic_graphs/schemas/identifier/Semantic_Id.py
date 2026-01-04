@@ -1,17 +1,17 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# Semantic_Id - Base identifier type for semantic graph domain objects
-# Parent class for Ontology_Id, Taxonomy_Id, Category_Id, Node_Type_Id, Rule_Set_Id
+# Semantic_Id - Base class for all semantic graph instance IDs
+# Parent class for Node_Id, Edge_Id, Graph_Id, Ontology_Id, Taxonomy_Id, Rule_Set_Id
+#
+# IMPORTANT: This is for INSTANCE IDs (unique per object)
+#            NOT for references (use Semantic_Ref for human-readable labels)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-import re
-from osbot_utils.type_safe.primitives.core.Safe_Str                                  import Safe_Str
-
-SAFE_STR__SEMANTIC_ID__REGEX      = re.compile(r'[^a-zA-Z0-9_\-.]')
-SAFE_STR__SEMANTIC_ID__MAX_LENGTH = 128
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                     import Obj_Id
 
 
-class Semantic_Id(Safe_Str):                                                         # Base identifier for semantic objects
-    regex           = SAFE_STR__SEMANTIC_ID__REGEX                                   # Alphanumeric, underscore, dash, dot
-    max_length      = SAFE_STR__SEMANTIC_ID__MAX_LENGTH                              # Max 128 characters
-    allow_empty     = True                                                           # Allow empty for optional refs
-    trim_whitespace = True                                                           # Clean up input
+class Semantic_Id(Obj_Id):                                                           # Base for all instance IDs
+    def __new__(cls, value=None):                                                    # Allow empty values
+        if value is None or value == '':                                             # Empty case
+            return str.__new__(cls, '')                                              # Create empty string
+        else:
+            return super().__new__(cls, value)                                       # Delegate to Obj_Id
