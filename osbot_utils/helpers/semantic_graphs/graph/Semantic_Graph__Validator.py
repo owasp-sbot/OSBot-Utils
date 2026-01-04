@@ -9,9 +9,9 @@ from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Validation_Result
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology           import Schema__Ontology
 from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set               import Schema__Rule_Set
 from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb   import Safe_Str__Ontology__Verb
+from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Utils                 import Semantic_Graph__Utils
 from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils                    import Ontology__Utils
 from osbot_utils.helpers.semantic_graphs.rule.Rule_Set__Utils                        import Rule_Set__Utils
-from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Utils                 import Semantic_Graph__Utils
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
 from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe

@@ -4,6 +4,7 @@
 
 from unittest                                                                               import TestCase
 from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils                           import Ontology__Utils
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Valid_Edges import List__Valid_Edges
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                    import Node_Type_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id                     import Ontology_Id
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology                  import Schema__Ontology
@@ -120,10 +121,27 @@ class test_Ontology__Utils(TestCase):                                           
                     ('method', 'calls', 'method')    ,
                     ('method', 'calls', 'function')  ]
 
-        for edge in expected:
-            assert edge in edges, f"Expected edge {edge} not found"
+        assert type(edges)  == List__Valid_Edges
+        assert edges.json() == [ {'source_type': 'module', 'target_type': 'class', 'verb': 'defines'},
+                                 {'source_type': 'module', 'target_type': 'function', 'verb': 'defines'},
+                                 {'source_type': 'module', 'target_type': 'module', 'verb': 'imports'},
+                                 {'source_type': 'class', 'target_type': 'method', 'verb': 'has'},
+                                 {'source_type': 'class', 'target_type': 'class', 'verb': 'inherits_from'},
+                                 {'source_type': 'method', 'target_type': 'method', 'verb': 'calls'},
+                                 {'source_type': 'method', 'target_type': 'function', 'verb': 'calls'}]
+        assert edges.obj() == [__(source_type='module', verb='defines', target_type='class'),
+                               __(source_type='module', verb='defines', target_type='function'),
+                               __(source_type='module', verb='imports', target_type='module'),
+                               __(source_type='class', verb='has', target_type='method'),
+                               __(source_type='class', verb='inherits_from', target_type='class'),
+                               __(source_type='method', verb='calls', target_type='method'),
+                               __(source_type='method', verb='calls', target_type='function')]
 
         assert len(edges) == 7
+        # for edge in expected:
+        #     assert edge in edges, f"Expected edge {edge} not found"
+
+
 
     def test__get_inverse_verb(self):                                                # Test inverse verb lookup
         assert self.utils.get_inverse_verb(self.ontology, 'module', 'defines')      == 'defined_in'

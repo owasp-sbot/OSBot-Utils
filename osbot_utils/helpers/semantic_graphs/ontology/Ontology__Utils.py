@@ -3,11 +3,15 @@
 # Extracted from Schema__Ontology to keep schemas as pure data containers
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id           import Node_Type_Id
-from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology         import Schema__Ontology
-from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb import Safe_Str__Ontology__Verb
-from osbot_utils.type_safe.Type_Safe                                               import Type_Safe
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                     import type_safe
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Node_Type_Ids      import List__Node_Type_Ids
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Ontology__Verbs    import List__Ontology__Verbs
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Valid_Edges        import List__Valid_Edges
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id             import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology           import Schema__Ontology
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Valid_Edge         import Schema__Valid_Edge
+from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb   import Safe_Str__Ontology__Verb
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                       import type_safe
 
 
 class Ontology__Utils(Type_Safe):                                                    # Utility operations for ontologies
@@ -30,12 +34,15 @@ class Ontology__Utils(Type_Safe):                                               
         return target_type in relationship.targets
 
     @type_safe
-    def all_valid_edges(self, ontology: Schema__Ontology) -> list:                   # Get all valid edge combinations
-        edges = []
+    def all_valid_edges(self, ontology: Schema__Ontology) -> List__Valid_Edges:      # Get all valid edge combinations
+        edges = List__Valid_Edges()
         for source_id, node_type in ontology.node_types.items():
             for verb, rel in node_type.relationships.items():
                 for target_id in rel.targets:
-                    edges.append((source_id, verb, target_id))
+                    edge = Schema__Valid_Edge(source_type = Node_Type_Id(source_id)       ,
+                                              verb        = Safe_Str__Ontology__Verb(verb),
+                                              target_type = Node_Type_Id(target_id)       )
+                    edges.append(edge)
         return edges
 
     # ═══════════════════════════════════════════════════════════════════════════════
@@ -56,23 +63,29 @@ class Ontology__Utils(Type_Safe):                                               
 
     @type_safe
     def verbs_for_node_type(self, ontology    : Schema__Ontology,
-                                  node_type_id: Node_Type_Id    ) -> list:           # Get all verbs for node type
+                                  node_type_id: Node_Type_Id    ) -> List__Ontology__Verbs:
+        result = List__Ontology__Verbs()                                             # Get all verbs for node type
         node_type = ontology.node_types.get(node_type_id)
         if not node_type:
-            return []
-        return list(node_type.relationships.keys())
+            return result
+        for verb in node_type.relationships.keys():
+            result.append(Safe_Str__Ontology__Verb(verb))
+        return result
 
     @type_safe
     def targets_for_verb(self, ontology    : Schema__Ontology        ,
                                node_type_id: Node_Type_Id            ,
-                               verb        : Safe_Str__Ontology__Verb) -> list:      # Get valid targets for verb
+                               verb        : Safe_Str__Ontology__Verb) -> List__Node_Type_Ids:
+        result = List__Node_Type_Ids()                                               # Get valid targets for verb
         node_type = ontology.node_types.get(node_type_id)
         if not node_type:
-            return []
+            return result
         relationship = node_type.relationships.get(verb)
         if not relationship:
-            return []
-        return list(relationship.targets)
+            return result
+        for target in relationship.targets:
+            result.append(target)
+        return result
 
     # ═══════════════════════════════════════════════════════════════════════════════
     # Edge Naming
@@ -99,5 +112,8 @@ class Ontology__Utils(Type_Safe):                                               
     # ═══════════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def node_type_ids(self, ontology: Schema__Ontology) -> list:                     # Get all node type IDs
-        return list(ontology.node_types.keys())
+    def node_type_ids(self, ontology: Schema__Ontology) -> List__Node_Type_Ids:      # Get all node type IDs
+        result = List__Node_Type_Ids()
+        for type_id in ontology.node_types.keys():
+            result.append(Node_Type_Id(type_id))
+        return result

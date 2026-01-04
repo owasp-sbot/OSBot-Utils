@@ -3,6 +3,7 @@
 # Refactored to use Semantic_Graph__Utils for graph operations
 # ═══════════════════════════════════════════════════════════════════════════════
 
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Node_Ids           import List__Node_Ids
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id             import Node_Type_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id              import Rule_Set_Id
 from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology           import Schema__Ontology
@@ -29,6 +30,7 @@ class Semantic_Graph__Builder(Type_Safe):                                       
     graph_utils    : Semantic_Graph__Utils                                           # Graph operations helper
     ontology_utils : Ontology__Utils                                                 # Ontology operations helper
 
+    @type_safe
     def create(self, ontology_id: Ontology_Id,                                       # Start building a new graph
                      rule_set_id: Rule_Set_Id = None) -> 'Semantic_Graph__Builder':
         self.graph = Schema__Semantic_Graph(graph_id     = Graph_Id(Obj_Id()),
@@ -36,8 +38,9 @@ class Semantic_Graph__Builder(Type_Safe):                                       
                                             rule_set_ref = Rule_Set_Id(rule_set_id))
         return self
 
-    def with_ontology(self, ontology: Schema__Ontology) -> 'Semantic_Graph__Builder':  # Set ontology for validation
-        self.ontology = ontology
+    @type_safe
+    def with_ontology(self, ontology: Schema__Ontology) -> 'Semantic_Graph__Builder':
+        self.ontology = ontology                                                     # Set ontology for validation
         return self
 
     @type_safe
@@ -74,16 +77,21 @@ class Semantic_Graph__Builder(Type_Safe):                                       
         self.graph_utils.add_edge(self.graph, edge)
         return edge_id
 
+    @type_safe
     def build(self) -> Schema__Semantic_Graph:                                       # Return the completed graph
         return self.graph
 
     @type_safe
-    def find_node_by_name(self, name: Safe_Str__Id) -> Node_Id:                     # Find node by name
+    def find_node_by_name(self, name: Safe_Str__Id) -> Node_Id:                      # Find node by name
         for node in self.graph.nodes.values():
             if node.name == name:
                 return node.node_id
         return None
 
     @type_safe
-    def find_nodes_by_type(self, node_type: Node_Type_Id) -> list:                  # Find all nodes of type
-        return [n.node_id for n in self.graph.nodes.values() if n.node_type == node_type]
+    def find_nodes_by_type(self, node_type: Node_Type_Id) -> List__Node_Ids:         # Find all nodes of type
+        result = List__Node_Ids()
+        for node in self.graph.nodes.values():
+            if node.node_type == node_type:
+                result.append(node.node_id)
+        return result

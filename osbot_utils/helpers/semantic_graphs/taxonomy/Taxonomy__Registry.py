@@ -4,6 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Taxonomies__By_Id  import Dict__Taxonomies__By_Id
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Taxonomy_Ids       import List__Taxonomy_Ids
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Taxonomy_Id              import Taxonomy_Id
 from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy           import Schema__Taxonomy
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
@@ -18,7 +19,7 @@ class Taxonomy__Registry(Type_Safe):                                            
     @type_safe
     def load_from_file(self, file_path: Safe_Str__File__Path) -> Schema__Taxonomy:   # Load taxonomy from JSON file
         data = json_file_load(file_path)
-        if data == {}:
+        if data == {}:                                                               # If file doesn't exist or parse failed
             return None
         return self.load_from_dict(data)
 
@@ -40,9 +41,14 @@ class Taxonomy__Registry(Type_Safe):                                            
     def register(self, taxonomy: Schema__Taxonomy) -> None:                          # Manually register a taxonomy
         self.cache[taxonomy.taxonomy_id] = taxonomy
 
+    @type_safe
     def clear(self) -> 'Taxonomy__Registry':                                         # Clear the cache
         self.cache.clear()
         return self
 
-    def list_taxonomies(self) -> list:                                               # List all cached taxonomy IDs
-        return list(self.cache.keys())
+    @type_safe
+    def list_taxonomies(self) -> List__Taxonomy_Ids:                                 # List all cached taxonomy IDs
+        result = List__Taxonomy_Ids()
+        for taxonomy_id in self.cache.keys():
+            result.append(taxonomy_id)
+        return result
