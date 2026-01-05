@@ -1,6 +1,6 @@
 [tool.poetry]
 name        = "osbot_utils"
-version     = "v3.64.5"
+version     = "v3.64.6"
 description = "OWASP Security Bot - Utils"
 authors     = ["Dinis Cruz <dinis.cruz@owasp.org>"]
 license     = "MIT"
