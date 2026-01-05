@@ -8,53 +8,64 @@
 #   - All cross-references use IDs
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Categories__By_Ref      import Dict__Categories__By_Ref
-from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Node_Types__By_Id       import Dict__Node_Types__By_Id
-from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Nodes__By_Id            import Dict__Nodes__By_Id
-from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Predicates__By_Id       import Dict__Predicates__By_Id
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Category_Refs           import List__Category_Refs
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Edge_Rules              import List__Edge_Rules
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Cardinality      import List__Rules__Cardinality
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Transitivity     import List__Rules__Transitivity
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Semantic_Graph__Edges   import List__Semantic_Graph__Edges
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph             import Schema__Semantic_Graph
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge       import Schema__Semantic_Graph__Edge
-from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node       import Schema__Semantic_Graph__Node
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Ref                  import Category_Ref
-from osbot_utils.helpers.semantic_graphs.schemas.enum.Enum__Id__Source_Type               import Enum__Id__Source_Type
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                  import Node_Type_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Ref                 import Node_Type_Ref
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id                   import Ontology_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Ref                  import Ontology_Ref
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Predicate_Id                  import Predicate_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Predicate_Ref                 import Predicate_Ref
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id                   import Rule_Set_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Ref                  import Rule_Set_Ref
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Schema__Id__Source            import Schema__Id__Source
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Taxonomy_Id                   import Taxonomy_Id
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Taxonomy_Ref                  import Taxonomy_Ref
-from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology                import Schema__Ontology
-from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Edge_Rule     import Schema__Ontology__Edge_Rule
-from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Node_Type     import Schema__Ontology__Node_Type
-from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Predicate     import Schema__Ontology__Predicate
-from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set                    import Schema__Rule_Set
-from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Cardinality           import Schema__Rule__Cardinality
-from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Transitivity          import Schema__Rule__Transitivity
-from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy                import Schema__Taxonomy
-from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy__Category      import Schema__Taxonomy__Category
-from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb        import Safe_Str__Ontology__Verb
-from osbot_utils.type_safe.Type_Safe                                                      import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_UInt                                      import Safe_UInt
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text              import Safe_Str__Text
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version           import Safe_Str__Version
-from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                         import Edge_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                        import Graph_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                         import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                          import Obj_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id           import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id__Seed     import Safe_Str__Id__Seed
-from osbot_utils.type_safe.type_safe_core.decorators.type_safe                            import type_safe
-
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Categories__By_Ref         import Dict__Categories__By_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Node_Types__By_Id          import Dict__Node_Types__By_Id
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Nodes__By_Id               import Dict__Nodes__By_Id
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Predicates__By_Id          import Dict__Predicates__By_Id
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Category_Refs              import List__Category_Refs
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Edge_Rules                 import List__Edge_Rules
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Cardinality         import List__Rules__Cardinality
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Transitivity        import List__Rules__Transitivity
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Semantic_Graph__Edges      import List__Semantic_Graph__Edges
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph                import Schema__Semantic_Graph
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Edge          import Schema__Semantic_Graph__Edge
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node          import Schema__Semantic_Graph__Node
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Ref                     import Category_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.enum.Enum__Id__Source_Type                  import Enum__Id__Source_Type
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                     import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Ref                    import Node_Type_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id                      import Ontology_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Ref                     import Ontology_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Predicate_Id                     import Predicate_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Predicate_Ref                    import Predicate_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id                      import Rule_Set_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Ref                     import Rule_Set_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Schema__Id__Source               import Schema__Id__Source
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Taxonomy_Id                      import Taxonomy_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Taxonomy_Ref                     import Taxonomy_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology                   import Schema__Ontology
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Edge_Rule        import Schema__Ontology__Edge_Rule
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Node_Type        import Schema__Ontology__Node_Type
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology__Predicate        import Schema__Ontology__Predicate
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set                       import Schema__Rule_Set
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Cardinality              import Schema__Rule__Cardinality
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Transitivity             import Schema__Rule__Transitivity
+from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy                   import Schema__Taxonomy
+from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy__Category         import Schema__Taxonomy__Category
+from osbot_utils.helpers.semantic_graphs.schemas.safe_str.Safe_Str__Ontology__Verb           import Safe_Str__Ontology__Verb
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                         import Safe_UInt
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                 import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version              import Safe_Str__Version
+from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                            import Edge_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                           import Graph_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                            import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                             import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id              import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id__Seed        import Safe_Str__Id__Seed
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                               import type_safe
+from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Registry                         import Ontology__Registry
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Node_Type_Ids__By_Ref      import Dict__Node_Type_Ids__By_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Predicate_Ids__By_Ref      import Dict__Predicate_Ids__By_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Projected__Edges           import List__Projected__Edges
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Projected__Nodes           import List__Projected__Nodes
+from osbot_utils.helpers.semantic_graphs.schemas.projected.Schema__Projected__Data           import Schema__Projected__Data
+from osbot_utils.helpers.semantic_graphs.schemas.projected.Schema__Projected__Edge           import Schema__Projected__Edge
+from osbot_utils.helpers.semantic_graphs.schemas.projected.Schema__Projected__Node           import Schema__Projected__Node
+from osbot_utils.helpers.semantic_graphs.schemas.projected.Schema__Projected__References     import Schema__Projected__References
+from osbot_utils.helpers.semantic_graphs.schemas.projected.Schema__Projected__Semantic_Graph import Schema__Projected__Semantic_Graph
+from osbot_utils.helpers.semantic_graphs.schemas.projected.Schema__Projected__Sources        import Schema__Projected__Sources
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now             import Timestamp_Now
 
 class QA__Semantic_Graphs__Test_Data(Type_Safe):                                         # Test data factory for semantic graphs
 
@@ -447,6 +458,90 @@ class QA__Semantic_Graphs__Test_Data(Type_Safe):                                
         return Predicate_Id(Obj_Id.from_seed(seed))
 
     # ═══════════════════════════════════════════════════════════════════════════
+    # Projected Schema Factories
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    @type_safe
+    def create_projected_node(self                      ,
+                              ref  : Node_Type_Ref      ,
+                              name : Safe_Str__Id       ) -> Schema__Projected__Node:
+        return Schema__Projected__Node(ref  = ref ,
+                                       name = name)
+
+    @type_safe
+    def create_projected_edge(self                       ,
+                              from_name : Safe_Str__Id   ,
+                              to_name   : Safe_Str__Id   ,
+                              ref       : Predicate_Ref  ) -> Schema__Projected__Edge:
+        return Schema__Projected__Edge(from_name = from_name,
+                                       to_name   = to_name  ,
+                                       ref       = ref      )
+
+    @type_safe
+    def create_projected_data(self                              ,
+                              nodes : List__Projected__Nodes    ,
+                              edges : List__Projected__Edges    ) -> Schema__Projected__Data:
+        return Schema__Projected__Data(nodes = nodes,
+                                       edges = edges)
+
+    @type_safe
+    def create_projected_references(self                                ,
+                                    nodes : Dict__Node_Type_Ids__By_Ref ,
+                                    edges : Dict__Predicate_Ids__By_Ref ) -> Schema__Projected__References:
+        return Schema__Projected__References(nodes = nodes,
+                                             edges = edges)
+
+    @type_safe
+    def create_projected_sources(self                                    ,
+                                 source_graph_id : Graph_Id              ,
+                                 ontology_seed   : Safe_Str__Id__Seed = None,
+                                 generated_at    : Timestamp_Now      = None) -> Schema__Projected__Sources:
+        return Schema__Projected__Sources(source_graph_id = source_graph_id             ,
+                                          ontology_seed   = ontology_seed               ,
+                                          generated_at    = generated_at or Timestamp_Now())
+
+    @type_safe
+    def create_projected_semantic_graph(self                                       ,
+                                        projection : Schema__Projected__Data       ,
+                                        references : Schema__Projected__References ,
+                                        sources    : Schema__Projected__Sources    ) -> Schema__Projected__Semantic_Graph:
+        return Schema__Projected__Semantic_Graph(projection = projection,
+                                                 references = references,
+                                                 sources    = sources   )
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Projection Integration Setup
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    @type_safe
+    def create_projection_test_setup(self) -> tuple:                                 # Returns (registry, graph) for projector tests
+        ontology = self.create_ontology__code_structure()                            # Create ontology with node types & predicates
+        registry = Ontology__Registry()                                              # Create registry
+        registry.register(ontology)                                                  # Register ontology (enables by_id lookup)
+        graph    = self.create_graph__simple_class()                                 # Create graph referencing that ontology
+        return (registry, graph)
+
+    @type_safe
+    def create_projected__simple_class__expected(self) -> Schema__Projected__Data:   # Expected projection of simple_class graph
+        nodes = List__Projected__Nodes()
+        nodes.append(self.create_projected_node(ref  = Node_Type_Ref('module'),
+                                                name = Safe_Str__Id('my_module')))
+        nodes.append(self.create_projected_node(ref  = Node_Type_Ref('class'),
+                                                name = Safe_Str__Id('MyClass')))
+        nodes.append(self.create_projected_node(ref  = Node_Type_Ref('method'),
+                                                name = Safe_Str__Id('my_method')))
+
+        edges = List__Projected__Edges()
+        edges.append(self.create_projected_edge(from_name = Safe_Str__Id('my_module'),
+                                                to_name   = Safe_Str__Id('MyClass')  ,
+                                                ref       = Predicate_Ref('contains')))
+        edges.append(self.create_projected_edge(from_name = Safe_Str__Id('MyClass')  ,
+                                                to_name   = Safe_Str__Id('my_method'),
+                                                ref       = Predicate_Ref('contains')))
+
+        return Schema__Projected__Data(nodes = nodes,
+                                       edges = edges)
+    # ═══════════════════════════════════════════════════════════════════════════
     # Ontology
     # ═══════════════════════════════════════════════════════════════════════════
 
@@ -578,3 +673,32 @@ OBJ_ID__FOR__PREDICATE__CONTAINS         = str(Obj_Id.from_seed('test:predicate:
 OBJ_ID__FOR__PREDICATE__IN               = str(Obj_Id.from_seed('test:predicate:in'))
 OBJ_ID__FOR__PREDICATE__CALLS            = str(Obj_Id.from_seed('test:predicate:calls'))
 OBJ_ID__FOR__PREDICATE__CALLED_BY        = str(Obj_Id.from_seed('test:predicate:called_by'))
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Expected Projected Output (for simple_class graph)
+# ═══════════════════════════════════════════════════════════════════════════
+
+EXPECTED__PROJECTED__SIMPLE_CLASS__NODES = [                                                  # --- Projected Nodes ---
+    {'ref': 'module', 'name': 'my_module'},
+    {'ref': 'class' , 'name': 'MyClass'  },
+    {'ref': 'method', 'name': 'my_method'},
+]
+
+EXPECTED__PROJECTED__SIMPLE_CLASS__EDGES = [                                                  # --- Projected Edges ---
+    {'from_name': 'my_module', 'to_name': 'MyClass'  , 'ref': 'contains'},
+    {'from_name': 'MyClass'  , 'to_name': 'my_method', 'ref': 'contains'},
+]
+
+EXPECTED__PROJECTED__SIMPLE_CLASS__REFERENCES__NODES = {                                      # --- Projected References (nodes) ---
+    'module'  : OBJ_ID__FOR__NODE_TYPE__MODULE,
+    'class'   : OBJ_ID__FOR__NODE_TYPE__CLASS ,
+    'method'  : OBJ_ID__FOR__NODE_TYPE__METHOD,
+    'function': OBJ_ID__FOR__NODE_TYPE__FUNCTION,
+}
+
+EXPECTED__PROJECTED__SIMPLE_CLASS__REFERENCES__EDGES = {                                      # --- Projected References (edges) ---
+    'contains' : OBJ_ID__FOR__PREDICATE__CONTAINS ,
+    'in'       : OBJ_ID__FOR__PREDICATE__IN       ,
+    'calls'    : OBJ_ID__FOR__PREDICATE__CALLS    ,
+    'called_by': OBJ_ID__FOR__PREDICATE__CALLED_BY,
+}

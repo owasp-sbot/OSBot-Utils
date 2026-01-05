@@ -17,7 +17,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
 
 
-class Projected__Edge(Type_Safe):                                                    # Human-readable edge
+class Schema__Projected__Edge(Type_Safe):                                                    # Human-readable edge
     from_name : Safe_Str__Id                                                         # Source node name
     to_name   : Safe_Str__Id                                                         # Target node name
     ref       : Predicate_Ref                                                        # Predicate reference ("calls", "contains")

@@ -16,6 +16,6 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
 
 
-class Projected__Node(Type_Safe):                                                    # Human-readable node
+class Schema__Projected__Node(Type_Safe):                                                    # Human-readable node
     ref  : Node_Type_Ref                                                             # Node type reference ("class", "method")
     name : Safe_Str__Id                                                              # Instance name ("MyClass")
