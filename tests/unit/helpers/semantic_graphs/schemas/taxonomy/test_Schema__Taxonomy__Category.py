@@ -1,94 +1,131 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# Test Schema__Taxonomy__Category - Tests for taxonomy category schema
+# Test Schema__Rule_Set - Tests for rule set schema (pure data)
+# Note: Rule set operations have been moved to Rule_Set__Utils
 #
-# Updated for Brief 3.7:
-#   - category_id → category_ref (ref is primary identifier)
-#   - name uses Safe_Str__Id type
-#   - description uses Safe_Str__Text type
-#   - parent_ref uses Category_Ref type
-#   - child_refs uses List__Category_Refs type
+# Updated for Brief 3.8:
+#   - ontology_ref → ontology_id (Ontology_Id)
+#   - Added required_node_properties (List__Rules__Required_Node_Property)
+#   - Added required_edge_properties (List__Rules__Required_Edge_Property)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from unittest                                                                           import TestCase
-from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Category_Refs         import List__Category_Refs
-from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Ref                import Category_Ref
-from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy__Category    import Schema__Taxonomy__Category
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text            import Safe_Str__Text
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id         import Safe_Str__Id
+from unittest                                                                                   import TestCase
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Cardinality            import List__Rules__Cardinality
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Required_Edge_Property import List__Rules__Required_Edge_Property
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Required_Node_Property import List__Rules__Required_Node_Property
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Transitivity           import List__Rules__Transitivity
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id                        import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id                         import Ontology_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Predicate_Id                        import Predicate_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Property_Name_Id                    import Property_Name_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id                         import Rule_Set_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Ref                        import Rule_Set_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set                          import Schema__Rule_Set
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Required_Edge_Property      import Schema__Rule__Required_Edge_Property
+from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule__Required_Node_Property      import Schema__Rule__Required_Node_Property
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                    import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version                 import Safe_Str__Version
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                                import Obj_Id
+from osbot_utils.type_safe.Type_Safe                                                            import Type_Safe
 
 
-class test_Schema__Taxonomy__Category(TestCase):                                        # Test category schema
+class test_Schema__Rule_Set(TestCase):                                                 # Test rule set schema
 
-    def test__init__(self):                                                             # Test initialization with defaults
-        with Schema__Taxonomy__Category() as _:
-            assert type(_.category_ref) is Category_Ref
-            assert str(_.category_ref)  == ''
-            assert str(_.name)          == ''
-            assert str(_.description)   == ''
-            assert str(_.parent_ref)    == ''
-            assert type(_.child_refs)   is List__Category_Refs
-            assert len(_.child_refs)    == 0
+    def test__init__(self):                                                            # Test initialization
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        ontology_id = Ontology_Id(Obj_Id.from_seed('test:ontology'))
+        with Schema__Rule_Set(rule_set_id  = rule_set_id                  ,
+                              rule_set_ref = Rule_Set_Ref('test')         ,
+                              ontology_id  = ontology_id                  ) as _:
+            assert type(_)             is Schema__Rule_Set
+            assert isinstance(_, Type_Safe)
+            assert _.rule_set_id       == rule_set_id
+            assert str(_.rule_set_ref) == 'test'
+            assert _.ontology_id       == ontology_id                                  # Brief 3.8
 
-    def test__init__types(self):                                                        # Test attribute types
-        with Schema__Taxonomy__Category(category_ref = Category_Ref('test')        ,
-                                        name         = Safe_Str__Id('test')        ,
-                                        description  = Safe_Str__Text('A test')    ,
-                                        parent_ref   = Category_Ref('')            ,
-                                        child_refs   = List__Category_Refs()       ) as _:
-            assert type(_.category_ref) is Category_Ref
-            assert type(_.name)         is Safe_Str__Id
-            assert type(_.description)  is Safe_Str__Text
-            assert type(_.parent_ref)   is Category_Ref
-            assert type(_.child_refs)   is List__Category_Refs
+    def test__init__types(self):                                                       # Test attribute types
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        ontology_id = Ontology_Id(Obj_Id.from_seed('test:ontology'))
+        with Schema__Rule_Set(rule_set_id  = rule_set_id                  ,
+                              rule_set_ref = Rule_Set_Ref('test')         ,
+                              ontology_id  = ontology_id                  ) as _:
+            assert type(_.rule_set_id)              is Rule_Set_Id
+            assert type(_.rule_set_ref)             is Rule_Set_Ref
+            assert type(_.ontology_id)              is Ontology_Id                     # Brief 3.8
+            assert type(_.version)                  is Safe_Str__Version
+            assert type(_.transitivity_rules)       is List__Rules__Transitivity
+            assert type(_.cardinality_rules)        is List__Rules__Cardinality
+            assert type(_.required_node_properties) is List__Rules__Required_Node_Property  # Brief 3.8
+            assert type(_.required_edge_properties) is List__Rules__Required_Edge_Property  # Brief 3.8
 
-    def test__with_values(self):                                                        # Test with explicit values
-        child_refs = List__Category_Refs()
-        child_refs.append(Category_Ref('class_unit'))
+    def test__init__default_values(self):                                              # Test default values
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        ontology_id = Ontology_Id(Obj_Id.from_seed('test:ontology'))
+        with Schema__Rule_Set(rule_set_id  = rule_set_id                  ,
+                              rule_set_ref = Rule_Set_Ref('test')         ,
+                              ontology_id  = ontology_id                  ) as _:
+            assert str(_.version)                  == '1.0.0'
+            assert len(_.transitivity_rules)       == 0
+            assert len(_.cardinality_rules)        == 0
+            assert len(_.required_node_properties) == 0                                # Brief 3.8
+            assert len(_.required_edge_properties) == 0                                # Brief 3.8
 
-        with Schema__Taxonomy__Category(category_ref = Category_Ref('code_unit')              ,
-                                        name         = Safe_Str__Id('code_unit')              ,
-                                        description  = Safe_Str__Text('Executable code units'),
-                                        parent_ref   = Category_Ref('code_element')           ,
-                                        child_refs   = child_refs                             ) as _:
-            assert str(_.category_ref) == 'code_unit'
-            assert str(_.name)         == 'code_unit'
-            assert str(_.description)  == 'Executable code units'
-            assert str(_.parent_ref)   == 'code_element'
-            assert len(_.child_refs)   == 1
-            assert str(_.child_refs[0]) == 'class_unit'
+    def test__init__with_property_rules(self):                                         # Brief 3.8: property rules
+        rule_set_id    = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        ontology_id    = Ontology_Id(Obj_Id.from_seed('test:ontology'))
+        method_id      = Node_Type_Id(Obj_Id.from_seed('test:nt:method'))
+        calls_id       = Predicate_Id(Obj_Id.from_seed('test:pred:calls'))
+        line_number_id = Property_Name_Id(Obj_Id.from_seed('test:pn:line_number'))
+        call_count_id  = Property_Name_Id(Obj_Id.from_seed('test:pn:call_count'))
 
-    def test__with_multiple_children(self):                                             # Test with multiple children
-        child_refs = List__Category_Refs()
-        child_refs.append(Category_Ref('container'))
-        child_refs.append(Category_Ref('code_unit'))
-        child_refs.append(Category_Ref('callable'))
+        node_prop_rule = Schema__Rule__Required_Node_Property(node_type_id     = method_id      ,
+                                                              property_name_id = line_number_id ,
+                                                              required         = True           )
 
-        with Schema__Taxonomy__Category(category_ref = Category_Ref('code_element')           ,
-                                        name         = Safe_Str__Id('code_element')           ,
-                                        description  = Safe_Str__Text('Root element')         ,
-                                        parent_ref   = Category_Ref('')                       ,
-                                        child_refs   = child_refs                             ) as _:
-            assert len(_.child_refs) == 3
-            assert Category_Ref('container') in _.child_refs
-            assert Category_Ref('code_unit') in _.child_refs
-            assert Category_Ref('callable')  in _.child_refs
+        edge_prop_rule = Schema__Rule__Required_Edge_Property(predicate_id     = calls_id      ,
+                                                              property_name_id = call_count_id ,
+                                                              required         = False         )
 
-    def test__json_serialization(self):                                                 # Test JSON round-trip
-        child_refs = List__Category_Refs()
-        child_refs.append(Category_Ref('child1'))
-        child_refs.append(Category_Ref('child2'))
+        required_node_properties = List__Rules__Required_Node_Property()
+        required_node_properties.append(node_prop_rule)
 
-        original = Schema__Taxonomy__Category(category_ref = Category_Ref('parent')           ,
-                                              name         = Safe_Str__Id('parent')           ,
-                                              description  = Safe_Str__Text('Parent category'),
-                                              parent_ref   = Category_Ref('root')             ,
-                                              child_refs   = child_refs                       )
+        required_edge_properties = List__Rules__Required_Edge_Property()
+        required_edge_properties.append(edge_prop_rule)
+
+        with Schema__Rule_Set(rule_set_id              = rule_set_id              ,
+                              rule_set_ref             = Rule_Set_Ref('test')     ,
+                              ontology_id              = ontology_id              ,
+                              required_node_properties = required_node_properties ,
+                              required_edge_properties = required_edge_properties ) as _:
+            assert len(_.required_node_properties) == 1
+            assert len(_.required_edge_properties) == 1
+            assert _.required_node_properties[0]   is node_prop_rule
+            assert _.required_edge_properties[0]   is edge_prop_rule
+            assert _.required_node_properties[0].required is True
+            assert _.required_edge_properties[0].required is False
+
+    def test__pure_data_no_methods(self):                                              # Verify no rule set operation methods
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules'))
+        ontology_id = Ontology_Id(Obj_Id.from_seed('test:ontology'))
+        with Schema__Rule_Set(rule_set_id  = rule_set_id                  ,
+                              rule_set_ref = Rule_Set_Ref('test')         ,
+                              ontology_id  = ontology_id                  ) as _:
+            # These methods should NOT exist on the schema (moved to Utils)
+            assert not hasattr(_, 'is_transitive')            or not callable(getattr(_, 'is_transitive', None))
+            assert not hasattr(_, 'get_cardinality')          or not callable(getattr(_, 'get_cardinality', None))
+            assert not hasattr(_, 'get_required_node_property') or not callable(getattr(_, 'get_required_node_property', None))
+
+    def test__json_serialization(self):                                                # Test JSON round-trip
+        rule_set_id = Rule_Set_Id(Obj_Id.from_seed('test:rules:serial'))
+        ontology_id = Ontology_Id(Obj_Id.from_seed('test:ontology'))
+        original    = Schema__Rule_Set(rule_set_id  = rule_set_id                         ,
+                                       rule_set_ref = Rule_Set_Ref('test_rules')          ,
+                                       ontology_id  = ontology_id                         ,
+                                       version      = Safe_Str__Version('2.0.0')          )
 
         json_data = original.json()
-        restored  = Schema__Taxonomy__Category.from_json(json_data)
+        restored  = Schema__Rule_Set.from_json(json_data)
 
-        assert str(restored.category_ref) == str(original.category_ref)
-        assert str(restored.name)         == str(original.name)
-        assert str(restored.description)  == str(original.description)
-        assert str(restored.parent_ref)   == str(original.parent_ref)
-        assert len(restored.child_refs)   == len(original.child_refs)
+        assert str(restored.rule_set_id)  == str(original.rule_set_id)
+        assert str(restored.rule_set_ref) == str(original.rule_set_ref)
+        assert str(restored.ontology_id)  == str(original.ontology_id)                 # Brief 3.8
+        assert str(restored.version)      == str(original.version)

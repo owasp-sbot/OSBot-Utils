@@ -14,6 +14,7 @@ from osbot_utils.testing.Graph__Deterministic__Ids                              
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                     import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label import Safe_Str__Label
 
 
 class test_Schema__Semantic_Graph__Node(TestCase):                                   # Test semantic graph node schema
@@ -33,17 +34,17 @@ class test_Schema__Semantic_Graph__Node(TestCase):                              
             node_type_id = Node_Type_Id(Obj_Id.from_seed('test:node_type:class'))
             with Schema__Semantic_Graph__Node(node_id      = Node_Id(Obj_Id())    ,
                                               node_type_id = node_type_id         ,
-                                              name         = Safe_Str__Id('MyClass')) as _:
+                                              name         = Safe_Str__Label('MyClass')) as _:
                 assert type(_.node_id)      is Node_Id
                 assert type(_.node_type_id) is Node_Type_Id
-                assert type(_.name)         is Safe_Str__Id
+                assert type(_.name)         is Safe_Str__Label
 
     def test__init__default_values(self):                                            # Test default values
         with graph_ids_for_tests():
             node_type_id = Node_Type_Id(Obj_Id.from_seed('test:node_type:class'))
             with Schema__Semantic_Graph__Node(node_id      = Node_Id(Obj_Id())    ,
                                               node_type_id = node_type_id         ,
-                                              name         = Safe_Str__Id('MyClass')) as _:
+                                              name         = Safe_Str__Label('MyClass')) as _:
                 assert _.node_id_source is None                                      # Optional, defaults to None
 
     def test__json_serialization(self):                                              # Test JSON round-trip

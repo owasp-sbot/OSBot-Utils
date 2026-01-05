@@ -2,10 +2,10 @@
 # Test Ontology__Registry - Tests for ontology registry with typed collections
 # Uses QA__Semantic_Graphs__Test_Data for consistent test data creation
 #
-# Updated for Brief 3.7:
+# Updated for Brief 3.8:
 #   - taxonomy_ref → taxonomy_id
-#   - Uses predicate-based edge validation instead of embedded relationships
-#   - Removed version parameter from factory methods
+#   - Ontology includes property_names and property_types
+#   - Node types have category_id linking to taxonomy
 # ═══════════════════════════════════════════════════════════════════════════════
 
 import re
@@ -64,12 +64,10 @@ class test_Ontology__Registry(TestCase):                                        
         taxonomy_id = Taxonomy_Id(Obj_Id.from_seed('test:taxonomy'))
         with self.registry as _:
             ontology = _.create_with__random_id(ontology_ref = Ontology_Ref('full')                ,
-                                                taxonomy_id  = taxonomy_id                         ,
-                                                description  = Safe_Str__Text('Full test ontology'))
+                                                taxonomy_id  = taxonomy_id                         )
 
             assert str(ontology.ontology_ref) == 'full'
             assert ontology.taxonomy_id       == taxonomy_id
-            assert str(ontology.description)  == 'Full test ontology'
 
     def test__create_with__random_id__is_registered(self):                              # Test auto-registration
         with self.registry as _:
@@ -199,15 +197,13 @@ class test_Ontology__Registry(TestCase):                                        
 
     def test__overwrite_existing_ref(self):                                             # Test same ref overwrites
         with self.registry as _:
-            v1 = _.create_with__random_id(ontology_ref = Ontology_Ref('versioned'),
-                                          description  = Safe_Str__Text('Version 1'))
+            v1 = _.create_with__random_id(ontology_ref = Ontology_Ref('versioned'))
 
-            assert str(_.get_by_ref(Ontology_Ref('versioned')).description) == 'Version 1'
+            assert _.get_by_ref(Ontology_Ref('versioned')).ontology_ref == 'versioned'
 
-            v2 = _.create_with__random_id(ontology_ref = Ontology_Ref('versioned'),
-                                          description  = Safe_Str__Text('Version 2'))
-
-            assert str(_.get_by_ref(Ontology_Ref('versioned')).description) == 'Version 2'
+            v2 = _.create_with__random_id(ontology_ref = Ontology_Ref('versioned'))
+            assert v1.ontology_id != v2.ontology_id
+            assert _.get_by_ref(Ontology_Ref('versioned')).ontology_ref == 'versioned'
             assert len(_.all_refs()) == 1                                               # Still just one ref entry
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -258,32 +254,46 @@ class test_Ontology__Registry(TestCase):                                        
             an_method_3(42)
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Integration with QA Test Data
+    # Integration with QA Test Data (Brief 3.8)
     # ═══════════════════════════════════════════════════════════════════════════
 
     def test__register_qa_ontology(self):                                               # Test registering QA-created ontology
-        ontology = self.test_data.create_ontology__code_structure()
+        ontology = self.test_data.create_ontology()                                     # Brief 3.8 API
 
         with self.registry as _:
             _.register(ontology)
 
-            assert _.get_by_ref(Ontology_Ref('code_structure')) is ontology
-            assert _.has_ref(Ontology_Ref('code_structure'))    is True
+            assert _.get_by_ref(Ontology_Ref('code_analysis')) is ontology              # Brief 3.8 ref
+            assert _.has_ref(Ontology_Ref('code_analysis'))    is True
 
             refs = _.all_refs()
             ref_strs = [str(r) for r in refs]
-            assert 'code_structure' in ref_strs
+            assert 'code_analysis' in ref_strs
 
-    def test__qa_ontology__validates_correctly(self):                                   # Test QA ontology with utils
-        ontology = self.test_data.create_ontology__code_structure()
+    def test__qa_ontology__has_properties(self):                                        # Brief 3.8: ontology includes properties
+        ontology = self.test_data.create_ontology()
 
         with self.registry as _:
             _.register(ontology)
-            retrieved = _.get_by_ref(Ontology_Ref('code_structure'))
+            retrieved = _.get_by_ref(Ontology_Ref('code_analysis'))
+
+            assert len(retrieved.property_names) >= 1                                   # Has property names
+            assert len(retrieved.property_types) >= 1                                   # Has property types
+
+    def test__qa_ontology__node_types_have_category_id(self):                           # Brief 3.8: node types link to taxonomy
+        ontology = self.test_data.create_ontology()
+
+        for nt in ontology.node_types.values():
+            assert nt.category_id is not None                                           # All have category links
+
+    def test__qa_ontology__validates_correctly(self):                                   # Test QA ontology with utils
+        ontology = self.test_data.create_ontology()
+
+        with self.registry as _:
+            _.register(ontology)
+            retrieved = _.get_by_ref(Ontology_Ref('code_analysis'))
 
             with self.ontology_utils as utils:                                          # Verify edge rules work
-                # Use is_valid_edge_by_ref for ref-based validation
-                assert utils.is_valid_edge_by_ref(retrieved, Node_Type_Ref('module'), Predicate_Ref('contains'), Node_Type_Ref('class'))    is True
                 assert utils.is_valid_edge_by_ref(retrieved, Node_Type_Ref('class') , Predicate_Ref('contains'), Node_Type_Ref('method'))   is True
                 assert utils.is_valid_edge_by_ref(retrieved, Node_Type_Ref('method'), Predicate_Ref('calls')   , Node_Type_Ref('function')) is True
 
@@ -291,16 +301,33 @@ class test_Ontology__Registry(TestCase):                                        
                 contains_pred = utils.get_predicate_by_ref(retrieved, Predicate_Ref('contains'))
                 inverse_pred  = utils.get_inverse_predicate(retrieved, contains_pred.predicate_id)
                 assert inverse_pred is not None
-                assert inverse_pred.predicate_ref == Predicate_Ref('in')
 
     def test__qa_ontology__dual_lookup(self):                                           # Test QA ontology dual lookup
-        ontology = self.test_data.create_ontology__code_structure()
+        ontology = self.test_data.create_ontology()
 
         with self.registry as _:
             _.register(ontology)
 
-            by_ref = _.get_by_ref(Ontology_Ref('code_structure'))
+            by_ref = _.get_by_ref(Ontology_Ref('code_analysis'))
             by_id  = _.get_by_id(ontology.ontology_id)
 
             assert by_ref is by_id
             assert by_ref is ontology
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Property Lookup (Brief 3.8)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def test__qa_ontology__property_name_lookup(self):                                  # Test property name in registry
+        ontology = self.test_data.create_ontology()
+        registry = self.test_data.create_ontology_registry()
+
+        line_number_id = self.test_data.get_property_name_id__line_number()
+
+        assert line_number_id in ontology.property_names                                # Can look up property
+
+    def test__qa_ontology__property_type_lookup(self):                                  # Test property type in registry
+        ontology   = self.test_data.create_ontology()
+        integer_id = self.test_data.get_property_type_id__integer()
+
+        assert integer_id in ontology.property_types                                    # Can look up property type

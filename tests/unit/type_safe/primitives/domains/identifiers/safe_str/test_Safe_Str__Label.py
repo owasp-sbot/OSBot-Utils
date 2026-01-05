@@ -10,7 +10,7 @@ class test_Safe_Str__Label(TestCase):
     def test__init__(self):                                      # Test basic initialization
         with Safe_Str__Label() as _:
             assert type(_)                      is Safe_Str__Label
-            assert _.regex.pattern              == r'[^a-zA-Z0-9_\-.: ]'     # Allows dots, colons, spaces (from Topic)
+            assert _.regex.pattern              == r'[^a-zA-Z0-9_\-.: ()]'     # Allows dots, colons, spaces (from Topic)
             assert _.allow_empty                is True
             assert _.trim_whitespace            is True
             assert _.allow_all_replacement_char is True
@@ -110,7 +110,7 @@ class test_Safe_Str__Label(TestCase):
         # Brackets and braces
         assert str(Safe_Str__Label('[category]'             )) == '_category_'
         assert str(Safe_Str__Label('{type}'                 )) == '_type_'
-        assert str(Safe_Str__Label('(group)'                )) == '_group_'
+        assert str(Safe_Str__Label('(group)'                )) == '(group)'
 
         # Unicode
         assert str(Safe_Str__Label('café:menu'              )) == 'caf_:menu'
