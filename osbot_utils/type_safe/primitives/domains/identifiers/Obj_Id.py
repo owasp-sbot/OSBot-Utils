@@ -1,3 +1,4 @@
+import hashlib
 import re
 import random
 from osbot_utils.type_safe.Type_Safe__Primitive import Type_Safe__Primitive
@@ -33,3 +34,11 @@ class Obj_Id(Type_Safe__Primitive, str):
 
     def __radd__(self, other):                                          # Reverse concatenation returns plain str
         return other + str.__str__(self)
+
+    @classmethod
+    def from_seed(cls, seed: str) -> 'Obj_Id':                                       # Create deterministic ID from seed
+        if not seed:                                                                 # Seed cannot be empty
+            raise ValueError("Seed string cannot be empty")
+        hash_bytes  = hashlib.sha256(seed.encode('utf-8')).digest()                  # SHA256 hash of seed
+        deterministic_id = hash_bytes.hex()[:8]                                      # First 8 hex chars
+        return cls(deterministic_id)
