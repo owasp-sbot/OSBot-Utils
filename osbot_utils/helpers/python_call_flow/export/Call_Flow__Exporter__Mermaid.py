@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from typing                                                                     import Dict, Optional
-from osbot_utils.helpers.python_call_flow.Call_Flow__Ontology                   import Call_Flow__Ontology
+from osbot_utils.helpers.python_call_flow.core.Call_Flow__Ontology              import Call_Flow__Ontology
 from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Flow__Result     import Schema__Call_Flow__Result
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph   import Schema__Semantic_Graph

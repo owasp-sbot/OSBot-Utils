@@ -8,15 +8,13 @@ from typing                                                                     
 from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 from osbot_utils.utils.Json                                                     import json_load_file
 from osbot_utils.utils.Files                                                    import path_combine, file_exists
-
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id        import Node_Type_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Predicate_Id        import Predicate_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Id         import Category_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id         import Ontology_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Taxonomy_Id         import Taxonomy_Id
 
-
-DATA_FOLDER                         = Path(__file__).parent / 'data'
+FOLDER_NAME__CALL_FLOW__GRAPH_SPEC  = '../_graph_spec'
 ONTOLOGY_FILE                       = 'ontology__call_flow.json'
 TAXONOMY_FILE                       = 'taxonomy__call_flow.json'
 
@@ -37,8 +35,9 @@ class Call_Flow__Ontology(Type_Safe):                                           
         if self._loaded:
             return self
 
-        ontology_path = path_combine(str(DATA_FOLDER), ONTOLOGY_FILE)
-        taxonomy_path = path_combine(str(DATA_FOLDER), TAXONOMY_FILE)
+        target_folder = self.folder__call_flow__graph_spec()
+        ontology_path = path_combine(target_folder, ONTOLOGY_FILE)
+        taxonomy_path = path_combine(target_folder, TAXONOMY_FILE)
 
         if not file_exists(ontology_path):
             raise FileNotFoundError(f"Ontology file not found: {ontology_path}")
@@ -52,6 +51,9 @@ class Call_Flow__Ontology(Type_Safe):                                           
         self._loaded = True
 
         return self
+
+    def folder__call_flow__graph_spec(self):
+        return path_combine(__file__, FOLDER_NAME__CALL_FLOW__GRAPH_SPEC)
 
     def _build_lookup_caches(self):                                              # Build ref → ID lookup caches
         self.node_type_ref_to_id = {}                                            # Node types: ref -> ID

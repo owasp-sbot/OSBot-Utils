@@ -3,16 +3,13 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 import tempfile
-from pathlib                                                                         import Path
-from unittest                                                                        import TestCase
-from osbot_utils.helpers.python_call_flow.Call_Flow__Data__Generator                 import (id_from_seed      ,
-                                                                                             generate_ontology ,
-                                                                                             generate_taxonomy ,
-                                                                                             generate_data_files)
-from osbot_utils.helpers.python_call_flow.schemas.Consts__Call_Flow__Seeds          import SEED__ONTOLOGY, SEED__NODE_TYPE__CLASS, SEED__PREDICATE__CONTAINS
+from pathlib                                                                import Path
+from unittest                                                               import TestCase
+from osbot_utils.helpers.python_call_flow._build.generate_data_files        import id_from_seed, generate_ontology, generate_taxonomy, generate_data_files
+from osbot_utils.helpers.python_call_flow.schemas.Consts__Call_Flow__Seeds  import SEED__ONTOLOGY, SEED__NODE_TYPE__CLASS, SEED__PREDICATE__CONTAINS
 
 
-class test_Call_Flow__Data__Generator(TestCase):                                     # Test data generator functions
+class test_generate_data_files(TestCase):                                     # Test data generator functions
 
     def test__id_from_seed(self):                                                    # Test deterministic ID generation
         id_1 = id_from_seed('test_seed')

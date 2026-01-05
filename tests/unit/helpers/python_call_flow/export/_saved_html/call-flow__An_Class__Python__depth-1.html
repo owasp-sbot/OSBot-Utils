@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Call Flow: An_Class__Python</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h1 { color: #333; }
+        .stats { background: #f5f5f5; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+        .mermaid { background: white; }
+    </style>
+</head>
+<body>
+    <h1>An_Class__Python</h1>
+    <div class="stats">
+        <strong>Nodes:</strong> 5 |
+        <strong>Edges:</strong> 4 |
+        <strong>Max Depth:</strong> 2
+    </div>
+    <div class="mermaid">
+flowchart LR
+
+    subgraph depth_0[Depth 0]
+        c0000008(["An_Class__Python"])
+    end
+
+    subgraph depth_1[Depth 1]
+        c0000009("method_1")
+        c0000010("method_2")
+    end
+
+    subgraph depth_2[Depth 2]
+        c0000011[/"method_2"/]
+        c0000012[/"pprint"/]
+    end
+
+
+    c0000008 -.->|contains| c0000009
+    c0000008 -.->|contains| c0000010
+    c0000009 -->|self| c0000011
+    c0000010 --> c0000012
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>

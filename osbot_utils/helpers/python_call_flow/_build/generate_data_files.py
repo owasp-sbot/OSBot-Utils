@@ -289,7 +289,7 @@ def generate_data_files(output_dir: str = None):                                
     json_save_file_pretty(ontology_data, ontology_path)
     json_save_file_pretty(taxonomy_data, taxonomy_path)
 
-    print(f"Generated: {ontology_path}")
-    print(f"Generated: {taxonomy_path}")
+    #print(f"Generated: {ontology_path}")
+    #print(f"Generated: {taxonomy_path}")
 
     return ontology_path, taxonomy_path

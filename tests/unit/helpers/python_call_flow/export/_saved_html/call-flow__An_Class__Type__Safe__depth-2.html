@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Call Flow: An_Class__Type__Safe</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h1 { color: #333; }
+        .stats { background: #f5f5f5; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+        .mermaid { background: white; }
+    </style>
+</head>
+<body>
+    <h1>An_Class__Type__Safe</h1>
+    <div class="stats">
+        <strong>Nodes:</strong> 2 |
+        <strong>Edges:</strong> 1 |
+        <strong>Max Depth:</strong> 1
+    </div>
+    <div class="mermaid">
+flowchart LR
+
+    subgraph depth_0[Depth 0]
+        c0000019(["An_Class__Type__Safe"])
+    end
+
+    subgraph depth_1[Depth 1]
+        c0000020("method_1")
+    end
+
+
+    c0000019 -.->|contains| c0000020
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>

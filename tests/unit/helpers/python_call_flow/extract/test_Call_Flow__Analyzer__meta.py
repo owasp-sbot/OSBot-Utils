@@ -1,5 +1,5 @@
 from unittest                                                               import TestCase
-from osbot_utils.helpers.python_call_flow.Call_Flow__Analyzer               import Call_Flow__Analyzer
+from osbot_utils.helpers.python_call_flow.extract.Call_Flow__Analyzer       import Call_Flow__Analyzer
 from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Flow__Config import Schema__Call_Flow__Config
 from osbot_utils.helpers.python_call_flow.testing.QA__Call_Flow__Test_Data  import QA__Call_Flow__Test_Data
 

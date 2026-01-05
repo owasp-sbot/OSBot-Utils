@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Call Flow: Call_Flow__Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h1 { color: #333; }
+        .stats { background: #f5f5f5; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
+        .mermaid { background: white; }
+    </style>
+</head>
+<body>
+    <h1>Call_Flow__Analyzer</h1>
+    <div class="stats">
+        <strong>Nodes:</strong> 58 |
+        <strong>Edges:</strong> 80 |
+        <strong>Max Depth:</strong> 2
+    </div>
+    <div class="mermaid">
+flowchart LR
+
+    subgraph depth_0[Depth 0]
+        c0000001(["Call_Flow__Analyzer"])
+    end
+
+    subgraph depth_1[Depth 1]
+        c0000002("analyze")
+        c0000003("analyze_class")
+        c0000004("analyze_function")
+        c0000005("analyze_method_calls")
+        c0000006("collect_methods")
+        c0000007("extract_and_process_calls")
+        c0000008("get_or_create_external_node")
+        c0000009("get_qualified_name")
+        c0000010("initialize_graph")
+        c0000011("is_stdlib")
+        c0000012("link_nodes")
+        c0000013("lookup_node_id")
+        c0000014("process_call")
+        c0000015("register_node")
+        c0000016("reset_state")
+        c0000017("setup_components")
+        c0000018("should_skip_call")
+        c0000019("update_max_depth")
+    end
+
+    subgraph depth_2[Depth 2]
+        c0000020[/"reset_state"/]
+        c0000021[/"initialize_graph"/]
+        c0000022[/"analyze_class"/]
+        c0000023[/"isclass"/]
+        c0000024[/"analyze_function"/]
+        c0000025[/"isfunction"/]
+        c0000026[/"ismethod"/]
+        c0000027[/"ValueError"/]
+        c0000028[/"qualified_name"/]
+        c0000029[/"lookup"/]
+        c0000030[/"create_class_node"/]
+        c0000031[/"add_node"/]
+        c0000032[/"register"/]
+        c0000033[/"collect_methods"/]
+        c0000034[/"analyze_method_calls"/]
+        c0000035[/"update_max_depth"/]
+        c0000036[/"create_method_node"/]
+        c0000037[/"extract_and_process_calls"/]
+        c0000038[/"should_include_method"/]
+        c0000039[/"split"/]
+        c0000040[/"create_contains"/]
+        c0000041[/"add_edge"/]
+        c0000042[/"getmembers"/]
+        c0000043[/"extract_calls"/]
+        c0000044[/"resolve"/]
+        c0000045[/"process_call"/]
+        c0000046[/"create_external_node"/]
+        c0000047[/"Graph_Id"/]
+        c0000048[/"Obj_Id"/]
+        c0000049[/"Safe_Str__Label"/]
+        c0000050[/"is_stdlib"/]
+        c0000051[/"create"/]
+        c0000052[/"should_skip"/]
+        c0000053[/"get_or_create_external_node"/]
+        c0000054[/"link_nodes"/]
+        c0000055[/"reset"/]
+        c0000056[/"Schema__Call_Graph"/]
+        c0000057[/"setup_components"/]
+        c0000058[/"Safe_UInt"/]
+    end
+
+
+    c0000001 -.->|contains| c0000002
+    c0000001 -.->|contains| c0000003
+    c0000001 -.->|contains| c0000004
+    c0000001 -.->|contains| c0000005
+    c0000001 -.->|contains| c0000006
+    c0000001 -.->|contains| c0000007
+    c0000001 -.->|contains| c0000008
+    c0000001 -.->|contains| c0000009
+    c0000001 -.->|contains| c0000010
+    c0000001 -.->|contains| c0000011
+    c0000001 -.->|contains| c0000012
+    c0000001 -.->|contains| c0000013
+    c0000001 -.->|contains| c0000014
+    c0000001 -.->|contains| c0000015
+    c0000001 -.->|contains| c0000016
+    c0000001 -.->|contains| c0000017
+    c0000001 -.->|contains| c0000018
+    c0000001 -.->|contains| c0000019
+    c0000002 -->|self| c0000020
+    c0000002 -->|self| c0000021
+    c0000002 -->|self| c0000022
+    c0000002 -.-> c0000023
+    c0000002 -->|self| c0000024
+    c0000002 -.-> c0000025
+    c0000002 -.-> c0000026
+    c0000002 --> c0000027
+    c0000003 -.-> c0000028
+    c0000003 -.-> c0000029
+    c0000003 -.-> c0000030
+    c0000003 -.-> c0000031
+    c0000003 -.-> c0000032
+    c0000003 -->|self| c0000033
+    c0000003 -->|self| c0000034
+    c0000003 -->|self| c0000035
+    c0000004 -.-> c0000028
+    c0000004 -.-> c0000029
+    c0000004 -.-> c0000036
+    c0000004 -.-> c0000031
+    c0000004 -.-> c0000032
+    c0000004 -->|self| c0000037
+    c0000004 -->|self| c0000035
+    c0000005 -.-> c0000028
+    c0000005 -->|self| c0000037
+    c0000006 -.-> c0000038
+    c0000006 -.-> c0000039
+    c0000006 -.-> c0000028
+    c0000006 -.-> c0000029
+    c0000006 -.-> c0000036
+    c0000006 -.-> c0000031
+    c0000006 -.-> c0000032
+    c0000006 -.-> c0000040
+    c0000006 -.-> c0000041
+    c0000006 -.-> c0000042
+    c0000007 -.-> c0000043
+    c0000007 -.-> c0000044
+    c0000007 -->|self| c0000045
+    c0000008 -.-> c0000029
+    c0000008 -.-> c0000046
+    c0000008 -.-> c0000031
+    c0000008 -.-> c0000032
+    c0000008 -->|self| c0000035
+    c0000009 -.-> c0000028
+    c0000010 -.-> c0000028
+    c0000010 --> c0000047
+    c0000010 --> c0000048
+    c0000010 --> c0000049
+    c0000011 -.-> c0000050
+    c0000012 -.-> c0000051
+    c0000012 -.-> c0000041
+    c0000013 -.-> c0000029
+    c0000014 -.-> c0000052
+    c0000014 -->|self| c0000024
+    c0000014 -->|self| c0000053
+    c0000014 -->|self| c0000054
+    c0000015 -.-> c0000032
+    c0000016 -.-> c0000055
+    c0000016 --> c0000056
+    c0000016 -->|self| c0000057
+    c0000018 -.-> c0000052
+    c0000019 --> c0000058
+    </div>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                nodeSpacing: 50,
+                rankSpacing: 50
+            },
+            themeVariables: {
+                fontSize: '40px'
+            }
+        });
+    </script>
+</body>
+</html>

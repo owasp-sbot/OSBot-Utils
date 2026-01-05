@@ -3,9 +3,9 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                        import TestCase
+from osbot_utils.helpers.python_call_flow.export.Call_Flow__Exporter__Mermaid        import Call_Flow__Exporter__Mermaid
 from osbot_utils.utils.Objects                                                       import base_classes
 from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
-from osbot_utils.helpers.python_call_flow.actions.Call_Flow__Exporter__Mermaid       import Call_Flow__Exporter__Mermaid
 from osbot_utils.helpers.python_call_flow.testing.QA__Call_Flow__Test_Data           import QA__Call_Flow__Test_Data
 
 
