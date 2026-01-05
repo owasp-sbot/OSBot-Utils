@@ -10,6 +10,7 @@ from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rule_Set_Refs 
 from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Cardinality  import List__Rules__Cardinality
 from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Rules__Transitivity import List__Rules__Transitivity
 from osbot_utils.helpers.semantic_graphs.schemas.enum.Enum__Id__Source_Type           import Enum__Id__Source_Type
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id import Ontology_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Ref              import Ontology_Ref
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Id               import Rule_Set_Id
 from osbot_utils.helpers.semantic_graphs.schemas.identifier.Rule_Set_Ref              import Rule_Set_Ref
@@ -32,18 +33,16 @@ class Rule__Engine(Type_Safe):                                                  
     # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def create_with__random_id(self                                      ,
-                               rule_set_ref      : Rule_Set_Ref          ,
-                               ontology_ref      : Ontology_Ref          ,
-                               description       : Safe_Str__Text        = None,
-                               version           : Safe_Str__Version     = None,
+    def create_with__random_id(self                                                ,
+                               rule_set_ref      : Rule_Set_Ref                    ,
+                               ontology_id       : Ontology_Id                     ,
+                               version           : Safe_Str__Version         = None,
                                transitivity_rules: List__Rules__Transitivity = None,
                                cardinality_rules : List__Rules__Cardinality  = None) -> Schema__Rule_Set:
         rule_set_id = Rule_Set_Id(Obj_Id())                                           # Random ID
         rule_set    = Schema__Rule_Set(rule_set_id        = rule_set_id             ,
                                        rule_set_ref       = rule_set_ref            ,
-                                       ontology_ref       = ontology_ref            ,
-                                       description        = description        or Safe_Str__Text()          ,
+                                       ontology_id        = ontology_id            ,
                                        version            = version            or Safe_Str__Version('1.0.0'),
                                        transitivity_rules = transitivity_rules or List__Rules__Transitivity(),
                                        cardinality_rules  = cardinality_rules  or List__Rules__Cardinality() )
@@ -53,9 +52,8 @@ class Rule__Engine(Type_Safe):                                                  
     @type_safe
     def create_with__deterministic_id(self                                      ,
                                       rule_set_ref      : Rule_Set_Ref          ,
-                                      ontology_ref      : Ontology_Ref          ,
+                                      ontology_id       : Ontology_Id           ,
                                       seed              : Safe_Str__Id__Seed    ,
-                                      description       : Safe_Str__Text        = None,
                                       version           : Safe_Str__Version     = None,
                                       transitivity_rules: List__Rules__Transitivity = None,
                                       cardinality_rules : List__Rules__Cardinality  = None) -> Schema__Rule_Set:
@@ -65,8 +63,7 @@ class Rule__Engine(Type_Safe):                                                  
         rule_set = Schema__Rule_Set(rule_set_id        = rule_set_id                ,
                                     rule_set_id_source = rule_set_id_source         ,
                                     rule_set_ref       = rule_set_ref               ,
-                                    ontology_ref       = ontology_ref               ,
-                                    description        = description        or Safe_Str__Text()          ,
+                                    ontology_id        = ontology_id                ,
                                     version            = version            or Safe_Str__Version('1.0.0'),
                                     transitivity_rules = transitivity_rules or List__Rules__Transitivity(),
                                     cardinality_rules  = cardinality_rules  or List__Rules__Cardinality() )
@@ -76,18 +73,16 @@ class Rule__Engine(Type_Safe):                                                  
     @type_safe
     def create_with__explicit_id(self                                      ,
                                  rule_set_ref       : Rule_Set_Ref          ,
-                                 ontology_ref       : Ontology_Ref          ,
+                                 ontology_id        : Ontology_Id          ,
                                  rule_set_id        : Rule_Set_Id           ,
                                  rule_set_id_source : Schema__Id__Source    = None,
-                                 description        : Safe_Str__Text        = None,
                                  version            : Safe_Str__Version     = None,
                                  transitivity_rules : List__Rules__Transitivity = None,
                                  cardinality_rules  : List__Rules__Cardinality  = None) -> Schema__Rule_Set:
         rule_set = Schema__Rule_Set(rule_set_id        = rule_set_id                ,
                                     rule_set_id_source = rule_set_id_source         ,
                                     rule_set_ref       = rule_set_ref               ,
-                                    ontology_ref       = ontology_ref               ,
-                                    description        = description        or Safe_Str__Text()          ,
+                                    ontology_id        = ontology_id                ,
                                     version            = version            or Safe_Str__Version('1.0.0'),
                                     transitivity_rules = transitivity_rules or List__Rules__Transitivity(),
                                     cardinality_rules  = cardinality_rules  or List__Rules__Cardinality() )
