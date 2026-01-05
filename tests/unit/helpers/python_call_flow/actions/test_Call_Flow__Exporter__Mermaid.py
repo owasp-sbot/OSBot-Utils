@@ -1,116 +1,146 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# Mermaid Exporter Tests
+# test_Call_Flow__Exporter__Mermaid - Tests for Mermaid diagram export
 # ═══════════════════════════════════════════════════════════════════════════════
-from unittest                                                                       import TestCase
-from osbot_utils.helpers.python_call_flow.Call_Flow__Analyzer                       import Call_Flow__Analyzer
-from osbot_utils.helpers.python_call_flow.actions.Call_Flow__Exporter__Mermaid      import Call_Flow__Exporter__Mermaid
-from osbot_utils.testing.Graph__Deterministic__Ids                                  import graph_ids_for_tests
-from osbot_utils.testing.Pytest                                                     import skip_if_in_github_action
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label  import Safe_Str__Label
-from osbot_utils.utils.Files                                                        import path_combine, file_save
-from tests.unit.helpers.python_call_flow.test_Call_Flow__Analyzer                   import Sample__Helper, sample_function
+
+from unittest                                                                        import TestCase
+from osbot_utils.utils.Objects                                                       import base_classes
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.helpers.python_call_flow.actions.Call_Flow__Exporter__Mermaid       import Call_Flow__Exporter__Mermaid
+from osbot_utils.helpers.python_call_flow.testing.QA__Call_Flow__Test_Data           import QA__Call_Flow__Test_Data
 
 
-class test_Call_Flow__Exporter__Mermaid(TestCase):                                   # Test Mermaid export
+class test_Call_Flow__Exporter__Mermaid(TestCase):                                   # Test Mermaid exporter
 
     @classmethod
-    def setUpClass(cls):                                                             # Create sample graph by analyzing
-        with Call_Flow__Analyzer() as analyzer:
-            cls.graph = analyzer.analyze(Sample__Helper)
+    def setUpClass(cls):                                                             # Shared setup
+        cls.qa     = QA__Call_Flow__Test_Data()
+        cls.result = cls.qa.create_result__self_calls()                              # Cached result
 
-    def test__init__(self):                                                          # Test exporter initialization
-        with Call_Flow__Exporter__Mermaid(graph=self.graph) as _:
-            assert _.graph          is self.graph
-            assert str(_.direction) == 'TD'
-            assert _.show_modules   is False
-            assert _.show_depth     is True
-            assert _.show_contains  is True
-            assert _.max_label_len  == 30
+    def test__init__(self):                                                          # Test initialization
+        with Call_Flow__Exporter__Mermaid() as _:
+            assert type(_)          is Call_Flow__Exporter__Mermaid
+            assert base_classes(_)  == [Type_Safe, object]
+            assert _.direction      == 'TD'
+            assert _.show_contains  == True
+            assert _.show_calls     == True
+
+    def test__init__with_result(self):                                               # Test init with result
+        with Call_Flow__Exporter__Mermaid(result=self.result) as _:
+            assert _.result is self.result
+            assert _.graph  is self.result.graph
+
+    def test__init__with_direction(self):                                            # Test init with direction
+        with Call_Flow__Exporter__Mermaid(direction='LR') as _:
+            assert _.direction == 'LR'
 
     def test__export__basic(self):                                                   # Test basic export
-        with Call_Flow__Exporter__Mermaid(graph=self.graph) as exporter:
+        with self.qa as _:
+            exporter = _.create_exporter__default(self.result)
+            mermaid  = exporter.export()
+
+            assert type(mermaid)     is str
+            assert 'flowchart TD'    in mermaid
+
+    def test__export__contains_node_names(self):                                     # Test nodes in output
+        with self.qa as _:
+            exporter = _.create_exporter__default(self.result)
+            mermaid  = exporter.export()
+
+            assert _.assert_mermaid_has_node(mermaid, 'Sample__Self_Calls')
+
+    def test__export__self_call_styling(self):                                       # Test self-call arrows
+        with self.qa as _:
+            exporter = _.create_exporter__default(self.result)
+            mermaid  = exporter.export()
+
+            assert _.assert_mermaid_has_self_call(mermaid)                           # Has -.-> and |self|
+
+    def test__export__direction_td(self):                                            # Test TD direction
+        with self.qa as _:
+            exporter = _.create_exporter__default(self.result)
+            mermaid  = exporter.export()
+
+            assert _.assert_mermaid_has_header(mermaid, 'TD')
+
+    def test__export__direction_lr(self):                                            # Test LR direction
+        with self.qa as _:
+            exporter = _.create_exporter__left_right(self.result)
+            mermaid  = exporter.export()
+
+            assert _.assert_mermaid_has_header(mermaid, 'LR')
+
+    def test__export__no_contains_edges(self):                                       # Test hiding contains
+        with self.qa as _:
+            exporter = _.create_exporter__no_contains(self.result)
+            mermaid  = exporter.export()
+
+            assert 'flowchart' in mermaid                                            # Still valid
+
+    def test__export__empty_graph(self):                                             # Test empty graph handling
+        with Call_Flow__Exporter__Mermaid() as exporter:
             mermaid = exporter.export()
 
-            assert mermaid.startswith('flowchart')
-            assert '-->'  in mermaid or '-.->' in mermaid
-
-    def test__export__direction(self):                                               # Test direction option
-        with Call_Flow__Exporter__Mermaid(graph=self.graph, direction=Safe_Str__Label('LR')) as exporter:
-            mermaid = exporter.export()
-            assert 'flowchart LR' in mermaid
-
-    def test__export__contains_edge_style(self):                                     # Test CONTAINS edge rendering
-        with Call_Flow__Exporter__Mermaid(graph=self.graph, show_contains=True) as exporter:
-            mermaid = exporter.export()
-            assert '-.->|contains|' in mermaid                                       # Dotted with label
+            assert 'No graph data' in mermaid
 
     def test__to_html(self):                                                         # Test HTML generation
-        with Call_Flow__Exporter__Mermaid(graph=self.graph) as exporter:
-            html = exporter.to_html()
+        with self.qa as _:
+            exporter = _.create_exporter__default(self.result)
+            html     = exporter.to_html()
 
             assert '<!DOCTYPE html>' in html
-            assert '<html>'          in html
             assert 'mermaid'         in html
 
-    def test__sanitize_id(self):                                                     # Test ID sanitization
-        with Call_Flow__Exporter__Mermaid(graph=self.graph) as exporter:
-            assert exporter.sanitize_id('a.b.c')    == 'a_b_c'
-            assert exporter.sanitize_id('a-b-c')    == 'a_b_c'
-            assert exporter.sanitize_id('<module>') == 'module'
-            assert exporter.sanitize_id('a b c')    == 'a_b_c'
+    def test__to_html__with_title(self):                                             # Test HTML with title
+        with self.qa as _:
+            exporter = _.create_exporter__default(self.result)
+            html     = exporter.to_html(title='Test Diagram')
 
-    def test__escape_label(self):                                                    # Test label escaping
-        with Call_Flow__Exporter__Mermaid(graph=self.graph) as exporter:
-            assert exporter.escape_label('a"b')  == "a'b"
-            assert exporter.escape_label('a<b>') == 'a&lt;b&gt;'
+            assert 'Test Diagram' in html
+
+    def test__expected_mermaid__arrow_styles(self):                                  # Test arrow style constants
+        with self.qa as _:
+            assert _.get_expected_mermaid__self_call_arrow()  == '-.->'
+            assert _.get_expected_mermaid__chain_call_arrow() == '==>'
+            assert _.get_expected_mermaid__contains_arrow()   == '-->'
+
+    def test__expected_mermaid__labels(self):                                        # Test label constants
+        with self.qa as _:
+            assert _.get_expected_mermaid__self_call_label() == '|self|'
 
 
-    def test_create_mermaid_html(self):
-        skip_if_in_github_action()
-        class An_Class__Python():
-            def method_1(self):
-                self.method_2()
-                pass
+# class test_Call_Flow__Exporter__Mermaid__fixtures(TestCase):                         # Test with different fixtures
+#
+#     @classmethod
+#     def setUpClass(cls):
+#         cls.qa = QA__Call_Flow__Test_Data()
 
-            def method_2(self):
-                from osbot_utils.utils.Dev import pprint
-                pprint('42')
+    def test__export__simple_class(self):                                            # Test simple class export
+        with self.qa as _:
+            fixture = _.create_complete_fixture__simple()
+            mermaid = fixture['mermaid']
 
-        class An_Class__Type__Safe(Type_Safe):
-            def method_1(self):
-                pass
+            assert 'flowchart TD' in mermaid
+            assert 'Simple_Class' in mermaid
 
-        with graph_ids_for_tests():
-            with Call_Flow__Analyzer() as analyzer:
+    def test__export__multiple_self_calls(self):                                     # Test multiple self calls
+        with self.qa as _:
+            fixture = _.create_complete_fixture__multiple_self_calls()
+            mermaid = fixture['mermaid']
 
-                def analyse_target(target, depth):
-                    analyzer.config.max_depth=depth
-                    graph = analyzer.analyze(Call_Flow__Analyzer)
+            assert 'flowchart TD' in mermaid
 
-                    with Call_Flow__Exporter__Mermaid(graph=graph) as _:
-                        _.direction     = 'LR'
-                        _.max_label_len = 100
-                        _.font_size = 40
-                        html          = _.to_html()
-                        target_folder = path_combine(__file__, '../_saved_html')
-                        target_file   = path_combine(target_folder, f'call-flow__{target.__name__}__depth-{depth}' + '.html')
+    def test__export__deep_calls(self):                                              # Test deep call chain
+        with self.qa as _:
+            fixture = _.create_complete_fixture__deep_calls()
+            mermaid = fixture['mermaid']
 
-                        file_save(html, path=target_file)
-                    #print(target_file)
+            assert 'flowchart TD' in mermaid
+            assert 'Deep_Calls'   in mermaid
 
-                # analyse_target(An_Class__Python    , 0)
-                # analyse_target(An_Class__Type__Safe, 0)
-                # analyse_target(An_Class__Python    , 1)
-                # analyse_target(An_Class__Type__Safe, 1)
-                # analyse_target(An_Class__Python    , 2)
-                # analyse_target(An_Class__Type__Safe, 2)
-                analyse_target(Call_Flow__Analyzer, 1)
-                analyse_target(Call_Flow__Analyzer, 2)
+    def test__all_fixtures__export(self):                                            # Test all fixtures export
+        with self.qa as _:
+            all_fixtures = _.create_all_fixtures()
 
-                # target = sample_function
-                # target = Sample__Helper
-                #target = test_Call_Flow__Exporter__Mermaid.test_create_mermaid_html
-                #target  = Call_Flow__Analyzer
-                #target = An_Class__Python
-
+            for name, fixture in all_fixtures.items():
+                mermaid = fixture['mermaid']
+                assert 'flowchart' in mermaid                                        # All produce valid output

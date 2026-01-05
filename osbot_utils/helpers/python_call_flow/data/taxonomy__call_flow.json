@@ -1,0 +1,36 @@
+{
+  "taxonomy_id": "8ff7f7e0",
+  "taxonomy_ref": "call_flow_taxonomy",
+  "version": "1.0.0",
+  "root_id": "073143fe",
+  "categories": {
+    "073143fe": {
+      "category_id": "073143fe",
+      "category_ref": "code_element",
+      "parent_id": null,
+      "child_ids": [
+        "9abaaadc",
+        "4561e12e",
+        "61d5c76e"
+      ]
+    },
+    "9abaaadc": {
+      "category_id": "9abaaadc",
+      "category_ref": "container",
+      "parent_id": "073143fe",
+      "child_ids": []
+    },
+    "4561e12e": {
+      "category_id": "4561e12e",
+      "category_ref": "callable",
+      "parent_id": "073143fe",
+      "child_ids": []
+    },
+    "61d5c76e": {
+      "category_id": "61d5c76e",
+      "category_ref": "reference",
+      "parent_id": "073143fe",
+      "child_ids": []
+    }
+  }
+}

@@ -1,159 +1,213 @@
-from typing                                                                          import List
-from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph                 import Schema__Call_Graph
-from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Node           import Schema__Call_Graph__Node
-from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Edge_Type  import Enum__Call_Graph__Edge_Type
-from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label   import Safe_Str__Label
+# ═══════════════════════════════════════════════════════════════════════════════
+# Call Flow Exporter - Mermaid
+# Exports call flow graphs to Mermaid diagram format
+# ═══════════════════════════════════════════════════════════════════════════════
 
+from typing                                                                     import Dict, Optional
+from osbot_utils.helpers.python_call_flow.Call_Flow__Ontology                   import Call_Flow__Ontology
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Flow__Result     import Schema__Call_Flow__Result
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph   import Schema__Semantic_Graph
 
-class Call_Flow__Exporter__Mermaid(Type_Safe):                                       # Export call graph to Mermaid format
-    graph           : Schema__Call_Graph                                             # Graph to export
-    direction       : Safe_Str__Label           = Safe_Str__Label('TD')              # TD (top-down) or LR (left-right)
-    show_modules    : bool                      = False                              # Include module names
-    show_depth      : bool                      = True                               # Show depth indicators
-    show_contains   : bool                      = True                               # Show CONTAINS edges
-    max_label_len   : int                       = 30                                 # Truncate long labels
-    font_size       : int                       = 14                                 # Node font size in pixels
+class Call_Flow__Exporter__Mermaid(Type_Safe):                                   # Export call flow result to Mermaid diagram
+    result        : Schema__Call_Flow__Result  = None                            # The call flow result to export
+    graph         : Schema__Semantic_Graph     = None                            # Direct graph reference (alternative to result)
+    ontology      : Call_Flow__Ontology        = None                            # Ontology for ID lookups
+    direction     : str                        = 'TD'                            # Diagram direction: TD, LR, BT, RL
+    show_contains : bool                       = True                            # Show CONTAINS edges
+    show_calls    : bool                       = True                            # Show CALLS edges
+    node_id_map   : Dict[str, str]             = None                            # Map node IDs to sanitized Mermaid IDs
 
-    def export(self) -> str:                                                         # Generate Mermaid flowchart
-        lines = list()
-        lines.append(f"flowchart {self.direction}")
-        lines.append("")
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.node_id_map is None:
+            self.node_id_map = {}
 
-        lines.extend(self.generate_node_definitions())                               # Node definitions
-        lines.append("")
+    def __enter__(self):
+        self.setup()
+        return self
 
-        lines.extend(self.generate_edge_definitions())                               # Edge connections
+    def __exit__(self, *args):
+        pass
+
+    def setup(self) -> 'Call_Flow__Exporter__Mermaid':                           # Initialize exporter
+        self.ontology = Call_Flow__Ontology().setup()
+        self.node_id_map = {}
+
+        if self.result and not self.graph:                                       # Get graph from result if provided
+            self.graph = self.result.graph
+
+        return self
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Main Export Methods
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def export(self) -> str:                                                     # Export graph to Mermaid flowchart string
+        if not self.graph:
+            return f"flowchart {self.direction}\n    empty[No graph data]"
+
+        lines = [f"flowchart {self.direction}"]
+
+        self._build_node_id_map()                                                # Build sanitized ID mappings
+
+        for node_id in list(self.graph.nodes.keys()):                            # Render nodes
+            node = self.graph.nodes[node_id]
+            node_line = self._render_node(node_id, node)
+            if node_line:
+                lines.append(f"    {node_line}")
+
+        for edge in self.graph.edges:                                            # Render edges
+            edge_line = self._render_edge(edge)
+            if edge_line:
+                lines.append(f"    {edge_line}")
 
         return '\n'.join(lines)
 
-    def generate_node_definitions(self) -> List[str]:                                # Generate node definition lines
-        lines    = []
-        by_depth = {}                                                                # Group by depth for subgraphs
+    def to_html(self                                                             ,
+                title  : str = 'Call Flow Diagram'                               ,
+                width  : str = '100%'                                            ,
+                height : str = '600px'                                           ) -> str:
+        mermaid_code = self.export()                                             # Generate standalone HTML page with Mermaid diagram
 
-        for node in self.graph.nodes.values():
-            depth = int(node.depth)
-            if depth not in by_depth:
-                by_depth[depth] = []
-            by_depth[depth].append(node)
-
-        for depth in sorted(by_depth.keys()):                                        # Output grouped by depth
-            if self.show_depth:
-                lines.append(f"    subgraph depth_{depth}[Depth {depth}]")
-
-            for node in by_depth[depth]:
-                node_def = self.format_node(node)
-                prefix   = "        " if self.show_depth else "    "
-                lines.append(f"{prefix}{node_def}")
-
-            if self.show_depth:
-                lines.append("    end")
-                lines.append("")
-
-        return lines
-
-    def format_node(self, node: Schema__Call_Graph__Node) -> str:                    # Format single node definition
-        node_id = self.sanitize_id(str(node.node_id))
-        label   = self.make_label(node)
-
-        node_type_str = str(node.node_type.value) if hasattr(node.node_type, 'value') else str(node.node_type)
-
-        if node.is_entry and node_type_str == 'class':                               # Entry class: stadium shape
-            return f'{node_id}(["{label}"])'
-        elif node.is_entry:                                                          # Entry point: double circle
-            return f'{node_id}(("{label}"))'
-        elif node.is_external:                                                       # External: parallelogram
-            return f'{node_id}[/"{label}"/]'
-        elif node_type_str == 'class':                                               # Class: stadium shape
-            return f'{node_id}(["{label}"])'
-        elif node_type_str == 'method':                                              # Method: rounded box
-            return f'{node_id}("{label}")'
-        else:                                                                        # Function: rectangle
-            return f'{node_id}["{label}"]'
-
-    def make_label(self, node: Schema__Call_Graph__Node) -> str:                     # Create display label for node
-        if self.show_modules and str(node.module):
-            label = f"{node.module}.{node.name}"
-        else:
-            label = str(node.name)                                                   # Use short name by default
-
-        if len(label) > self.max_label_len:                                          # Truncate if too long
-            label = label[:self.max_label_len - 3] + "..."
-
-        return self.escape_label(label)
-
-    def generate_edge_definitions(self) -> List[str]:                                # Generate edge connection lines
-        lines = []
-
-        for edge in self.graph.edges:
-            from_id   = self.sanitize_id(str(edge.from_node))
-            to_id     = self.sanitize_id(str(edge.to_node))
-            edge_type = edge.edge_type
-
-            if edge_type == Enum__Call_Graph__Edge_Type.CONTAINS:                    # CONTAINS: thin arrow
-                if self.show_contains:
-                    lines.append(f"    {from_id} -.->|contains| {to_id}")
-            elif edge_type == Enum__Call_Graph__Edge_Type.SELF:                      # SELF: normal arrow
-                lines.append(f"    {from_id} -->|self| {to_id}")
-            elif edge_type == Enum__Call_Graph__Edge_Type.CHAIN:                     # CHAIN: dotted arrow
-                lines.append(f"    {from_id} -.-> {to_id}")
-            else:                                                                    # CALLS: normal arrow
-                lines.append(f"    {from_id} --> {to_id}")
-
-        return lines
-
-    def sanitize_id(self, node_id: str) -> str:                                      # Make ID safe for Mermaid
-        sanitized = node_id.replace('.', '_').replace('-', '_')
-        sanitized = sanitized.replace('<', '').replace('>', '')
-        sanitized = sanitized.replace(' ', '_')
-        return sanitized
-
-    def escape_label(self, label: str) -> str:                                       # Escape special chars in labels
-        return label.replace('"', "'").replace('<', '&lt;').replace('>', '&gt;')
-
-    def get_title(self) -> str:                                                      # Get display title for graph
-        full_name = str(self.graph.name)
-        if '.' in full_name:
-            return full_name.split('.')[-1]                                          # Just the class/function name
-        return full_name
-
-    def to_html(self) -> str:                                                        # Generate standalone HTML with Mermaid
-        mermaid_code = self.export()
-        title        = self.get_title()
         return f'''<!DOCTYPE html>
 <html>
 <head>
-    <title>Call Flow: {self.escape_label(title)}</title>
+    <meta charset="utf-8">
+    <title>{title}</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <style>
-        body {{ font-family: sans-serif; padding: 20px; }}
-        h1 {{ color: #333; }}
-        .stats {{ background: #f5f5f5; padding: 10px; border-radius: 5px; margin-bottom: 20px; }}
-        .mermaid {{ background: white; }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }}
+        .mermaid {{
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        h1 {{
+            color: #333;
+            margin-bottom: 20px;
+        }}
     </style>
 </head>
 <body>
-    <h1>{self.escape_label(title)}</h1>
-    <div class="stats">
-        <strong>Nodes:</strong> {self.graph.node_count()} |
-        <strong>Edges:</strong> {self.graph.edge_count()} |
-        <strong>Max Depth:</strong> {self.graph.max_depth_found}
-    </div>
-    <div class="mermaid">
+    <h1>{title}</h1>
+    <div class="mermaid" style="width: {width}; min-height: {height};">
 {mermaid_code}
     </div>
     <script>
-        mermaid.initialize({{
-            startOnLoad: true,
-            theme: 'default',
-            flowchart: {{
-                nodeSpacing: 50,
-                rankSpacing: 50
-            }},
-            themeVariables: {{
-                fontSize: '{self.font_size}px'
-            }}
-        }});
+        mermaid.initialize({{ startOnLoad: true, theme: 'default' }});
     </script>
 </body>
 </html>'''
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Node Rendering
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _build_node_id_map(self):                                                # Build mapping from node IDs to Mermaid-safe IDs
+        counter = 0
+        for node_id in list(self.graph.nodes.keys()):                            # Convert to list for iteration
+            safe_id = f"n{counter}"
+            self.node_id_map[str(node_id)] = safe_id
+            counter += 1
+
+    def _render_node(self, node_id, node) -> str:                                # Render a single node to Mermaid format
+        safe_id    = self.node_id_map.get(str(node_id), str(node_id))
+        name       = str(node.name) if node.name else 'unnamed'
+        node_type  = self._get_node_type_ref(node.node_type_id)
+        shape      = self._get_node_shape(node_type, name)
+
+        return f"{safe_id}{shape}"
+
+    def _get_node_type_ref(self, node_type_id) -> str:                           # Get node type reference string from ID
+        node_type_id_str = str(node_type_id)
+
+        type_map = {str(self.ontology.node_type_id__class())   : 'class'    ,    # Map IDs to type refs
+                    str(self.ontology.node_type_id__method())  : 'method'   ,
+                    str(self.ontology.node_type_id__function()): 'function' ,
+                    str(self.ontology.node_type_id__module())  : 'module'   ,
+                    str(self.ontology.node_type_id__external()): 'external' }
+
+        return type_map.get(node_type_id_str, 'unknown')
+
+    def _get_node_shape(self, node_type: str, name: str) -> str:                 # Get Mermaid shape for node type
+        escaped_name = self._escape_name(name)
+
+        shapes = {'class'   : f'["{escaped_name}"]'                              ,    # Rectangle
+                  'method'  : f'("{escaped_name}")'                              ,    # Rounded rectangle (stadium)
+                  'function': f'("{escaped_name}")'                              ,    # Rounded rectangle
+                  'module'  : f'[["{escaped_name}"]]'                            ,    # Subroutine shape
+                  'external': f'>"{escaped_name}"]'                              }    # Asymmetric (flag)
+
+        return shapes.get(node_type, f'["{escaped_name}"]')
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Edge Rendering
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _render_edge(self, edge) -> Optional[str]:                               # Render a single edge to Mermaid format
+        predicate_ref = self._get_predicate_ref(edge.predicate_id)
+
+        if predicate_ref == 'contains' and not self.show_contains:               # Filter edges based on settings
+            return None
+        if predicate_ref in ('calls', 'calls_self', 'calls_chain') and not self.show_calls:
+            return None
+
+        from_id = self.node_id_map.get(str(edge.from_node_id), str(edge.from_node_id))
+        to_id   = self.node_id_map.get(str(edge.to_node_id), str(edge.to_node_id))
+
+        arrow = self._get_edge_arrow(predicate_ref)
+        label = self._get_edge_label(predicate_ref)
+
+        if label:
+            return f"{from_id} {arrow}|{label}| {to_id}"
+        else:
+            return f"{from_id} {arrow} {to_id}"
+
+    def _get_predicate_ref(self, predicate_id) -> str:                           # Get predicate reference string from ID
+        predicate_id_str = str(predicate_id)
+
+        predicate_map = {str(self.ontology.predicate_id__contains())   : 'contains'    ,
+                         str(self.ontology.predicate_id__calls())      : 'calls'       ,
+                         str(self.ontology.predicate_id__calls_self()) : 'calls_self'  ,
+                         str(self.ontology.predicate_id__calls_chain()): 'calls_chain' }
+
+        return predicate_map.get(predicate_id_str, 'unknown')
+
+    def _get_edge_arrow(self, predicate_ref: str) -> str:                        # Get Mermaid arrow style for predicate
+        arrows = {'contains'   : '-->'                                           ,    # Solid arrow
+                  'calls'      : '-->'                                           ,    # Solid arrow
+                  'calls_self' : '-.->'                                          ,    # Dotted arrow
+                  'calls_chain': '==>'                                           }    # Thick arrow
+
+        return arrows.get(predicate_ref, '-->')
+
+    def _get_edge_label(self, predicate_ref: str) -> Optional[str]:              # Get edge label for predicate
+        labels = {'contains'   : None                                            ,    # No label for containment
+                  'calls'      : None                                            ,    # No label for simple calls
+                  'calls_self' : 'self'                                          ,    # Label self calls
+                  'calls_chain': 'chain'                                         }    # Label chain calls
+
+        return labels.get(predicate_ref)
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Utilities
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _escape_name(self, name: str) -> str:                                    # Escape special characters for Mermaid
+        return (name.replace('"', "'")                                           # Replace quotes
+                    .replace('<', '&lt;')                                         # Escape HTML entities
+                    .replace('>', '&gt;'))
+
+    def _sanitize_id(self, name: str) -> str:                                    # Sanitize name for Mermaid node ID
+        return (name.replace('.', '_')
+                    .replace(' ', '_')
+                    .replace('-', '_')
+                    .replace(':', '_')
+                    .replace('<', '')
+                    .replace('>', ''))

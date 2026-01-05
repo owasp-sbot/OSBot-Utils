@@ -1,248 +1,408 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Call Flow Analyzer - Refactored to use Semantic Graph Framework
+# Analyzes Python call flows and produces semantic graphs
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import ast
 import inspect
-from typing                                                                         import Dict, Optional, List, Tuple
-from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph                import Schema__Call_Graph
-from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Config        import Schema__Call_Graph__Config
-from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Node          import Schema__Call_Graph__Node
-from osbot_utils.helpers.python_call_flow.schemas.Schema__Call__Info                import Schema__Call__Info
-from osbot_utils.helpers.python_call_flow.schemas.enums.Enum__Call_Graph__Edge_Type import Enum__Call_Graph__Edge_Type
-from osbot_utils.helpers.python_call_flow.Call_Flow__Node__Factory                  import Call_Flow__Node__Factory
-from osbot_utils.helpers.python_call_flow.Call_Flow__Edge__Factory                  import Call_Flow__Edge__Factory
-from osbot_utils.helpers.python_call_flow.Call_Flow__Call__Resolver                 import Call_Flow__Call__Resolver
-from osbot_utils.helpers.python_call_flow.Call_Flow__Call__Filter                   import Call_Flow__Call__Filter
-from osbot_utils.helpers.python_call_flow.Call_Flow__AST__Extractor                 import Call_Flow__AST__Extractor
-from osbot_utils.helpers.python_call_flow.Call_Flow__Node__Registry                 import Call_Flow__Node__Registry
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
-from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                  import Graph_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                   import Node_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label  import Safe_Str__Label
-from osbot_utils.type_safe.primitives.core.Safe_UInt                                import Safe_UInt
+import textwrap
+from typing                                                                     import Set, Dict, Any, List
+from osbot_utils.helpers.python_call_flow.Call_Flow__Builder                    import Call_Flow__Builder
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Flow__Config     import Schema__Call_Flow__Config
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Flow__Result     import Schema__Call_Flow__Result
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Extracted__Call       import Schema__Extracted__Call
+from osbot_utils.type_safe.Type_Safe                                            import Type_Safe
 
 
-class Call_Flow__Analyzer(Type_Safe):                                                # Orchestrates call graph analysis
-    config        : Schema__Call_Graph__Config                                       # Analysis configuration
-    graph         : Schema__Call_Graph                                               # The resulting call graph
 
-    node_factory  : Call_Flow__Node__Factory                                         # Creates graph nodes
-    edge_factory  : Call_Flow__Edge__Factory                                         # Creates graph edges
-    call_resolver : Call_Flow__Call__Resolver                                        # Resolves AST calls
-    call_filter   : Call_Flow__Call__Filter                                          # Filters calls
-    ast_extractor : Call_Flow__AST__Extractor                                        # Extracts calls from AST
-    node_registry : Call_Flow__Node__Registry                                        # Manages name→id mapping
 
-    visited_methods : Dict[str, bool]                                                # Track analyzed methods
-    class_context   : Dict[str, type]                                                # Track class for self resolution
+# ═══════════════════════════════════════════════════════════════════════════════
+# AST Visitor for extracting calls
+# ═══════════════════════════════════════════════════════════════════════════════
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.setup_components()
+class Call_Extractor(ast.NodeVisitor):                                           # AST visitor to extract function/method calls
+    def __init__(self):
+        self.calls          : List[Schema__Extracted__Call] = []
+        self.in_conditional : bool                          = False
 
-    def setup_components(self):                                                      # Initialize component dependencies
-        self.node_factory.config    = self.config
-        self.node_factory.registry  = self.node_registry
-        self.call_resolver.config   = self.config
-        self.call_filter.config     = self.config
+    def visit_If(self, node):                                                    # Track conditional context
+        old_conditional     = self.in_conditional
+        self.in_conditional = True
+        self.generic_visit(node)
+        self.in_conditional = old_conditional
 
-    def analyze(self, target) -> Schema__Call_Graph:                                 # Main entry point - analyze function/class/module
-        self.reset_state()
-        self.initialize_graph(target)
+    def visit_Call(self, node):                                                  # Extract call information
+        call_info = Schema__Extracted__Call(line_number    = node.lineno        ,
+                                            is_conditional = self.in_conditional)
+
+        if isinstance(node.func, ast.Attribute):                                 # Method call: obj.method() or self.method()
+            call_info.call_name = node.func.attr
+
+            if isinstance(node.func.value, ast.Name):                            # Simple attribute: self.method() or obj.method()
+                call_info.receiver        = node.func.value.id
+                call_info.full_expression = f"{node.func.value.id}.{node.func.attr}"
+                call_info.is_self_call    = node.func.value.id == 'self'
+
+            elif isinstance(node.func.value, ast.Attribute):                     # Chain: obj.attr.method()
+                call_info.is_chain_call   = True
+                call_info.full_expression = self._get_full_attr_chain(node.func)
+
+        elif isinstance(node.func, ast.Name):                                    # Direct function call: func()
+            call_info.call_name       = node.func.id
+            call_info.full_expression = node.func.id
+
+        if call_info.call_name:
+            self.calls.append(call_info)
+
+        self.generic_visit(node)
+
+    def _get_full_attr_chain(self, node) -> str:                                 # Build full attribute chain string
+        parts = []
+        current = node
+        while isinstance(current, ast.Attribute):
+            parts.append(current.attr)
+            current = current.value
+        if isinstance(current, ast.Name):
+            parts.append(current.id)
+        return '.'.join(reversed(parts))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Main Analyzer
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class Call_Flow__Analyzer(Type_Safe):                                            # Analyzes Python call flows using semantic graph framework
+    config            : Schema__Call_Flow__Config                                # Analysis configuration
+    builder           : Call_Flow__Builder                                       # Graph builder
+    visited           : Set[str]                                                 # Visited qualified names
+    class_methods     : Dict[str, Dict[str, Any]]                                # class_name -> {method_name -> method}
+    current_depth     : int                         = 0                          # Current analysis depth
+    max_depth_reached : int                         = 0                          # Maximum depth reached
+
+
+    def __enter__(self):
+        self.setup()
+        return self
+
+    def __exit__(self, *args):
+        pass
+
+    def setup(self) -> 'Call_Flow__Analyzer':                                    # Initialize analyzer components
+        self.builder = Call_Flow__Builder().setup()
+        self.visited = set()
+        self.class_methods = {}
+        self.current_depth = 0
+        self.max_depth_reached = 0
+        return self
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Main Entry Point
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def analyze(self, target) -> Schema__Call_Flow__Result:                      # Analyze a class or function
+        self.setup()
+
+        entry_point = self._get_qualified_name(target)
 
         if inspect.isclass(target):
-            self.analyze_class(target, depth=0)
+            self._analyze_class(target, is_entry=True)
         elif inspect.isfunction(target) or inspect.ismethod(target):
-            self.analyze_function(target, depth=0)
+            self._analyze_function(target, is_entry=True)
         else:
-            raise ValueError(f"Cannot analyze target of type: {type(target)}")
+            raise ValueError(f"Cannot analyze {type(target)}: must be class or function")
 
-        return self.graph
+        graph = self.builder.build()
 
-    def reset_state(self):                                                           # Reset internal state for fresh analysis
-        self.node_registry.reset()
-        self.visited_methods = {}
-        self.class_context   = {}
-        self.graph           = Schema__Call_Graph()
-        self.setup_components()                                                      # Re-wire components
+        return Schema__Call_Flow__Result(graph             = graph                                              ,
+                                         node_properties   = self.builder.node_properties                       ,
+                                         name_to_node_id   = {k: str(v) for k, v in
+                                                              self.builder.name_to_node_id.items()}             ,
+                                         entry_point       = entry_point                                        ,
+                                         max_depth_reached = self.max_depth_reached                             ,
+                                         total_nodes       = len(graph.nodes)                                   ,
+                                         total_edges       = len(graph.edges)                                   )
 
-    def initialize_graph(self, target):                                              # Set up graph metadata
-        target_name         = self.node_registry.qualified_name(target)
-        self.graph.graph_id = Graph_Id(Obj_Id())
-        self.graph.name     = Safe_Str__Label(target_name)
-        self.graph.config   = self.config
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Class Analysis
+    # ═══════════════════════════════════════════════════════════════════════════
 
-    def analyze_class(self, cls: type, depth: int) -> Optional[Node_Id]:             # Analyze a class
-        if depth > int(self.config.max_depth):
-            return None
+    def _analyze_class(self                                                      ,
+                       cls                                                       ,
+                       is_entry   : bool = False                                 ,
+                       class_name : str  = None                                  ):
+        qualified_name = class_name or self._get_qualified_name(cls)
 
-        full_name = self.node_registry.qualified_name(cls)
+        if qualified_name in self.visited:
+            return
+        self.visited.add(qualified_name)
 
-        existing_id = self.node_registry.lookup(full_name)                           # Check if already analyzed
-        if existing_id:
-            return existing_id
+        module_name = getattr(cls, '__module__', '')                             # Create class node
+        file_path   = self._get_file_path(cls)
+        line_number = self._get_line_number(cls)
 
-        class_node = self.node_factory.create_class_node(cls, depth)                 # Create class node
-        self.graph.add_node(class_node)
-        self.node_registry.register(full_name, class_node.node_id)
+        self.builder.add_class(qualified_name = qualified_name                   ,
+                               module_name    = module_name                      ,
+                               file_path      = file_path                        ,
+                               line_number    = line_number                      )
 
-        if depth == 0:                                                               # Set entry point
-            self.graph.entry_point = class_node.node_id
-            class_node.is_entry    = True
+        methods = self._collect_methods(cls, qualified_name)                     # Collect and store methods for self-call resolution
+        self.class_methods[qualified_name] = methods
 
-        self.class_context[full_name] = cls                                          # Track for self resolution
+        for method_name, method in methods.items():                              # Analyze each method
+            method_qualified_name = f"{qualified_name}.{method_name}"
 
-        methods_to_analyze = self.collect_methods(cls, class_node, depth)            # Phase 1: Create method nodes
+            if method_qualified_name not in self.visited:                        # Analyze if not already visited
+                self._analyze_method(method                                      ,
+                                     method_name          = method_name          ,
+                                     class_qualified_name = qualified_name       ,
+                                     is_entry             = False                )
 
-        for method, method_node_id in methods_to_analyze:                            # Phase 2: Extract calls
-            self.analyze_method_calls(method, method_node_id, depth + 1, cls)
+            if self.builder.has_node(method_qualified_name):
+                self.builder.add_contains(qualified_name, method_qualified_name)     # Always add containment edge
 
-        self.update_max_depth(depth + 1)
-
-        return class_node.node_id
-
-    def collect_methods(self, cls: type, class_node: Schema__Call_Graph__Node,       # Collect and create method nodes
-                        depth: int) -> List[Tuple]:
-        methods_to_analyze = []
+    def _collect_methods(self, cls, class_name: str) -> Dict[str, Any]:          # Collect methods from a class
+        methods = {}
 
         for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
-            if not self.call_filter.should_include_method(name):
-                continue
+            if self._should_include_method(name):
+                methods[name] = method
 
-            if not self.config.include_inherited:                                    # Skip inherited methods
-                qualname_parts = method.__qualname__.split('.')
-                if len(qualname_parts) >= 2:
-                    method_class = qualname_parts[-2]                                # Class name is before method name
-                else:
-                    method_class = qualname_parts[0]
-                if method_class != cls.__name__:
-                    continue
+        return methods
 
-            method_full_name = self.node_registry.qualified_name(method)
-            existing_method  = self.node_registry.lookup(method_full_name)
+    def _should_include_method(self, name: str) -> bool:                         # Check if method should be included
+        if name.startswith('__') and name.endswith('__'):                        # Dunder methods
+            return self.config.include_builtins
 
-            if not existing_method:                                                  # Create method node
-                method_node = self.node_factory.create_method_node(method, depth + 1, is_method=True)
-                self.graph.add_node(method_node)
-                self.node_registry.register(method_full_name, method_node.node_id)
-                method_node_id = method_node.node_id
-            else:
-                method_node_id = existing_method
+        if name.startswith('_'):                                                 # Private methods
+            return True                                                          # Include by default
 
-            edge = self.edge_factory.create_contains(class_node.node_id, method_node_id)  # CONTAINS edge
-            self.graph.add_edge(edge)
+        return True
 
-            methods_to_analyze.append((method, method_node_id))
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Method/Function Analysis
+    # ═══════════════════════════════════════════════════════════════════════════
 
-        return methods_to_analyze
+    def _analyze_method(self                                                     ,
+                        method                                                   ,
+                        method_name          : str                               ,
+                        class_qualified_name : str                               ,
+                        is_entry             : bool = False                      ):
+        qualified_name = f"{class_qualified_name}.{method_name}"
 
-    def analyze_method_calls(self, method, method_node_id: Node_Id,                  # Analyze calls within a method
-                             depth: int, class_context: type):
-        method_node = self.graph.nodes.get(str(method_node_id))
-        if not method_node:
+        if qualified_name in self.visited:
+            return
+        self.visited.add(qualified_name)
+
+        if self.current_depth > self.config.max_depth:
             return
 
-        full_name = self.node_registry.qualified_name(method)                        # Use qualified name as key
-        if full_name in self.visited_methods:
-            return
+        self.current_depth += 1
+        self.max_depth_reached = max(self.max_depth_reached, self.current_depth)
 
-        self.visited_methods[full_name] = True
-        self.extract_and_process_calls(method, method_node, depth, class_context)
+        module_name = getattr(method, '__module__', '')                          # Create method node
+        file_path   = self._get_file_path(method)
+        line_number = self._get_line_number(method)
 
-    def analyze_function(self, func, depth: int,                                     # Analyze a standalone function
-                         class_context: type = None) -> Optional[Node_Id]:
-        if depth > int(self.config.max_depth):
-            return None
+        self.builder.add_method(qualified_name = qualified_name                  ,
+                                module_name    = module_name                     ,
+                                file_path      = file_path                       ,
+                                line_number    = line_number                     ,
+                                is_entry       = is_entry                        )
 
-        full_name = self.node_registry.qualified_name(func)
-
-        existing_id = self.node_registry.lookup(full_name)                           # Check if already analyzed
-        if existing_id:
-            return existing_id
-
-        is_method = class_context is not None
-        node      = self.node_factory.create_method_node(func, depth, is_method=is_method)
-        self.graph.add_node(node)
-        self.node_registry.register(full_name, node.node_id)
-
-        if depth == 0:                                                               # Set entry point for functions
-            self.graph.entry_point = node.node_id
-            node.is_entry          = True
-
-        self.visited_methods[full_name] = True
-
-        self.extract_and_process_calls(func, node, depth, class_context)
-
-        self.update_max_depth(depth)
-
-        return node.node_id
-
-    def extract_and_process_calls(self, func, caller_node: Schema__Call_Graph__Node, # Extract calls and process them
-                                  depth: int, class_context: type = None):
-        calls = self.ast_extractor.extract_calls(func)
+        calls = self._extract_calls(method)                                      # Extract and process calls
 
         for call in calls:
-            call_info = self.call_resolver.resolve(call, class_context)
-            if call_info:
-                self.process_call(call_info, caller_node, depth)
+            self._process_call(caller_qualified_name = qualified_name            ,
+                               call                  = call                      ,
+                               class_qualified_name  = class_qualified_name      )
 
-    def process_call(self, call_info: Schema__Call__Info,                            # Process a resolved call
-                     caller_node: Schema__Call_Graph__Node, depth: int):
-        call_name = str(call_info.name)
+        self.current_depth -= 1
 
-        if self.call_filter.should_skip(call_name):                                  # Apply filters
+    def _analyze_function(self                                                   ,
+                          func                                                   ,
+                          is_entry       : bool = False                          ,
+                          qualified_name : str  = None                           ):
+        qualified_name = qualified_name or self._get_qualified_name(func)
+
+        if qualified_name in self.visited:
+            return
+        self.visited.add(qualified_name)
+
+        if self.current_depth > self.config.max_depth:
             return
 
-        callee_node_id = None
+        self.current_depth += 1
+        self.max_depth_reached = max(self.max_depth_reached, self.current_depth)
 
-        if call_info.resolved:                                                       # Resolved call - analyze target
-            callee_node_id = self.analyze_function(call_info.resolved, depth + 1, call_info.class_ref)
+        module_name = getattr(func, '__module__', '')                            # Create function node
+        file_path   = self._get_file_path(func)
+        line_number = self._get_line_number(func)
 
-        if not callee_node_id and self.config.create_external_nodes:                 # Create external placeholder
-            callee_node_id = self.get_or_create_external_node(call_name, depth + 1)
+        self.builder.add_function(qualified_name = qualified_name                ,
+                                  module_name    = module_name                   ,
+                                  file_path      = file_path                     ,
+                                  line_number    = line_number                   ,
+                                  is_entry       = is_entry                      )
 
-        if callee_node_id:
-            self.link_nodes(caller_node, callee_node_id, call_info.edge_type, int(call_info.line_number))
+        calls = self._extract_calls(func)                                        # Extract and process calls
 
-    def get_or_create_external_node(self, call_name: str, depth: int) -> Node_Id:    # Get existing or create external node
-        existing_id = self.node_registry.lookup(call_name)
-        if existing_id:
-            return existing_id
+        for call in calls:
+            self._process_call(caller_qualified_name = qualified_name            ,
+                               call                  = call                      ,
+                               class_qualified_name  = None                      )
 
-        external_node = self.node_factory.create_external_node(call_name, depth)
-        self.graph.add_node(external_node)
-        self.node_registry.register(call_name, external_node.node_id)
+        self.current_depth -= 1
 
-        self.update_max_depth(depth)
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Call Processing
+    # ═══════════════════════════════════════════════════════════════════════════
 
-        return external_node.node_id
+    def _process_call(self                                                       ,
+                      caller_qualified_name : str                                ,
+                      call                  : Schema__Extracted__Call            ,
+                      class_qualified_name  : str = None                         ):
+        if self._should_skip_call(call.call_name):                               # Skip stdlib/builtins
+            return
 
-    def link_nodes(self, caller_node: Schema__Call_Graph__Node, callee_node_id: Node_Id,  # Link caller to callee
-                   edge_type: Enum__Call_Graph__Edge_Type, line_number: int = 0):
-        caller_node.calls.append(callee_node_id)                                     # Update caller's outgoing calls
+        if call.is_self_call and class_qualified_name:                           # Handle self.method() calls
+            self._process_self_call(caller_qualified_name                        ,
+                                    call                                         ,
+                                    class_qualified_name                         )
 
-        edge = self.edge_factory.create(caller_node.node_id, callee_node_id, edge_type, line_number)
-        self.graph.add_edge(edge)
+        elif call.is_chain_call:                                                 # Handle chain calls (obj.attr.method())
+            self._process_chain_call(caller_qualified_name, call)
 
-        if str(callee_node_id) in self.graph.nodes:                                  # Update callee's incoming calls
-            self.graph.nodes[str(callee_node_id)].called_by.append(caller_node.node_id)
+        else:                                                                    # Handle regular function calls
+            self._process_regular_call(caller_qualified_name, call)
 
-    def update_max_depth(self, depth: int):                                          # Update max depth if needed
-        if depth > int(self.graph.max_depth_found):
-            self.graph.max_depth_found = Safe_UInt(depth)
+    def _process_self_call(self                                                  ,
+                           caller_qualified_name : str                           ,
+                           call                  : Schema__Extracted__Call       ,
+                           class_qualified_name  : str                           ):
+        method_name        = call.call_name
+        target_method_name = f"{class_qualified_name}.{method_name}"
 
-    # ═══════════════════════════════════════════════════════════════════════════════
-    # Delegated Methods - For backward compatibility and convenience
-    # ═══════════════════════════════════════════════════════════════════════════════
+        if class_qualified_name in self.class_methods:                           # Check if method exists in class
+            methods = self.class_methods[class_qualified_name]
+            if method_name in methods:
+                if target_method_name not in self.visited:                       # Analyze target method if not visited
+                    method = methods[method_name]
+                    self._analyze_method(method                                  ,
+                                         method_name          = method_name      ,
+                                         class_qualified_name = class_qualified_name)
 
-    def register_node(self, full_name: str, node_id: Node_Id):                       # Delegate to registry
-        self.node_registry.register(full_name, node_id)
+                if self.builder.has_node(target_method_name):                    # Only add edge if target node exists
+                    self.builder.add_calls_self(caller_qualified_name            ,
+                                                target_method_name               ,
+                                                call_line_number = call.line_number,
+                                                is_conditional   = call.is_conditional)
+                return
 
-    def lookup_node_id(self, full_name: str) -> Optional[Node_Id]:                   # Delegate to registry
-        return self.node_registry.lookup(full_name)
+        if self.config.include_external:                                         # Create as external if not found
+            if not self.builder.has_node(target_method_name):
+                self.builder.add_external(qualified_name = target_method_name    ,
+                                          module_name    = ''                    )
 
-    def get_qualified_name(self, target) -> str:                                     # Delegate to registry
-        return self.node_registry.qualified_name(target)
+            self.builder.add_calls_self(caller_qualified_name                    ,
+                                        target_method_name                       ,
+                                        call_line_number = call.line_number      ,
+                                        is_conditional   = call.is_conditional   )
 
-    def should_skip_call(self, call_name: str) -> bool:                              # Delegate to filter
-        return self.call_filter.should_skip(call_name)
 
-    def is_stdlib(self, call_name: str) -> bool:                                     # Delegate to filter
-        return self.call_filter.is_stdlib(call_name)
+    def _process_chain_call(self                                                 ,
+                            caller_qualified_name : str                          ,
+                            call                  : Schema__Extracted__Call      ):
+        target_name = call.full_expression                                       # Use full expression as target name
+
+        if self.config.include_external:
+            if not self.builder.has_node(target_name):
+                self.builder.add_external(qualified_name = target_name           ,
+                                          module_name    = ''                    )
+
+            self.builder.add_calls_chain(caller_qualified_name                   ,
+                                         target_name                             ,
+                                         call_line_number = call.line_number     ,
+                                         is_conditional   = call.is_conditional  )
+
+    def _process_regular_call(self                                               ,
+                              caller_qualified_name : str                        ,
+                              call                  : Schema__Extracted__Call    ):
+        target_name = call.call_name
+
+        if self.config.include_external:                                         # Create external node for unresolved calls
+            if not self.builder.has_node(target_name):
+                self.builder.add_external(qualified_name = target_name           ,
+                                          module_name    = ''                    )
+
+            self.builder.add_calls(caller_qualified_name                         ,
+                                   target_name                                   ,
+                                   call_line_number = call.line_number           ,
+                                   is_conditional   = call.is_conditional        )
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Call Extraction
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _extract_calls(self, func) -> List[Schema__Extracted__Call]:             # Extract calls from function/method using AST
+        source = inspect.getsource(func)
+        source = textwrap.dedent(source)                                     # Remove leading indentation
+        tree   = ast.parse(source)
+
+        extractor = Call_Extractor()
+        extractor.visit(tree)
+
+        return extractor.calls
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Filtering
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _should_skip_call(self, name: str) -> bool:                              # Check if call should be skipped
+        if self._is_stdlib(name):
+            return not self.config.include_builtins
+        return False
+
+    def _is_stdlib(self, name: str) -> bool:                                     # Check if name is a Python builtin/stdlib
+        builtins = {'print', 'len', 'str', 'int', 'float', 'bool', 'list',
+                    'dict', 'set', 'tuple', 'range', 'enumerate', 'zip',
+                    'map', 'filter', 'sorted', 'reversed', 'sum', 'min',
+                    'max', 'abs', 'round', 'pow', 'divmod', 'hex', 'oct',
+                    'bin', 'ord', 'chr', 'type', 'isinstance', 'issubclass',
+                    'hasattr', 'getattr', 'setattr', 'delattr', 'callable',
+                    'repr', 'hash', 'id', 'dir', 'vars', 'locals', 'globals',
+                    'iter', 'next', 'open', 'input', 'format', 'super',
+                    'staticmethod', 'classmethod', 'property', 'object',
+                    'Exception', 'BaseException', 'ValueError', 'TypeError',
+                    'AttributeError', 'KeyError', 'IndexError', 'RuntimeError'}
+        return name in builtins
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Utility Methods
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def _get_qualified_name(self, obj) -> str:                                   # Get fully qualified name for object
+        module = getattr(obj, '__module__', '')
+        name   = getattr(obj, '__qualname__', getattr(obj, '__name__', str(obj)))
+
+        if module:
+            return f"{module}.{name}"
+        return name
+
+    def _get_file_path(self, obj) -> str:                                        # Get file path for object
+        return inspect.getfile(obj)
+
+    def _get_line_number(self, obj) -> int:                                      # Get line number for object
+        _, line_number = inspect.getsourcelines(obj)
+        return line_number
+
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Convenience Methods (for backward compatibility with tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+
+    def should_skip_call(self, name: str) -> bool:                               # Public wrapper for tests
+        return self._should_skip_call(name)
+
+    def is_stdlib(self, name: str) -> bool:                                      # Public wrapper for tests
+        return self._is_stdlib(name)
