@@ -1,7 +1,7 @@
 import pytest
 from unittest                                                                   import TestCase
 from typing                                                                     import List, Dict, Any, Union, Optional
-from osbot_utils.testing.performance.Performance_Measure__Session               import Performance_Measure__Session
+from osbot_utils.helpers.performance.Performance_Measure__Session               import Performance_Measure__Session
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Default_Kwargs import type_safe_step_default_kwargs
 from osbot_utils.utils.Env                                                      import not_in_github_action
 

@@ -1,7 +1,7 @@
 from unittest                                                           import TestCase
 from typing                                                             import List, Dict, Any, Union, Optional, Annotated
 from enum                                                               import Enum
-from osbot_utils.testing.performance.Performance_Measure__Session       import Performance_Measure__Session
+from osbot_utils.helpers.performance.Performance_Measure__Session       import Performance_Measure__Session
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Init   import type_safe_step_init
 from osbot_utils.type_safe.validators.Type_Safe__Validator              import Type_Safe__Validator
 

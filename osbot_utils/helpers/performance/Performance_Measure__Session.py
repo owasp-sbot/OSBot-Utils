@@ -1,17 +1,17 @@
 import time
-from typing                                                                         import Callable, List, Optional
-from statistics                                                                     import mean, median, stdev
-from osbot_utils.utils.Env                                                          import in_github_action
-from osbot_utils.testing.performance.models.Model__Performance_Measure__Measurement import Model__Performance_Measure__Measurement
-from osbot_utils.testing.performance.models.Model__Performance_Measure__Result      import Model__Performance_Measure__Result
-from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from typing                                                                           import Callable, List, Optional
+from statistics                                                                       import mean, median, stdev
+from osbot_utils.utils.Env                                                            import in_github_action
+from osbot_utils.helpers.performance.schemas.Schema__Performance_Measure__Measurement import Schema__Performance_Measure__Measurement
+from osbot_utils.helpers.performance.schemas.Schema__Performance_Measure__Result      import Schema__Performance_Measure__Result
+from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
 
 MEASURE__INVOCATION__LOOPS        = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]     # Fibonacci sequence for measurement loops (1,597 total invocations)
 MEASURE__INVOCATION__LOOPS__QUICK = [1, 2, 3, 5, 8]                                             # Quick mode for slow functions (19 total invocations)
 MEASURE__INVOCATION__LOOPS__FAST  = [1, 2, 3, 5, 8, 13, 21, 34]                                 # Fast mode - balanced (87 total invocations)
 
 class Performance_Measure__Session(Type_Safe):
-    result        : Model__Performance_Measure__Result = None                                   # Current measurement result
+    result        : Schema__Performance_Measure__Result = None                                   # Current measurement result
     assert_enabled: bool                               = True
     padding       : int                                = 30
 
@@ -39,12 +39,12 @@ class Performance_Measure__Session(Type_Safe):
         else:
             return int(round(raw_score / 100000) * 100000)                                      # Above 100µs: nearest 100000ns
 
-    def calculate_metrics(self, times: List[int]) -> Model__Performance_Measure__Measurement:   # Calculate statistical metrics
+    def calculate_metrics(self, times: List[int]) -> Schema__Performance_Measure__Measurement:   # Calculate statistical metrics
         if not times:
             raise ValueError("Cannot calculate metrics from empty time list")
         raw_score = self.calculate_raw_score   (times)
         score     = self.calculate_stable_score(raw_score)
-        return Model__Performance_Measure__Measurement(
+        return Schema__Performance_Measure__Measurement(
             avg_time    = int(mean(times))                                                  ,
             min_time    = min(times)                                                        ,
             max_time    = max(times)                                                        ,
@@ -77,7 +77,7 @@ class Performance_Measure__Session(Type_Safe):
         raw_score   = self.calculate_raw_score  (all_times)
         final_score = self.calculate_stable_score(raw_score)                                    # Calculate final stable score
 
-        self.result = Model__Performance_Measure__Result(
+        self.result = Schema__Performance_Measure__Result(
             measurements = measurements                                                         ,
             name         = name                                                                 ,
             raw_score    = raw_score                                                            ,
@@ -95,7 +95,7 @@ class Performance_Measure__Session(Type_Safe):
                   ) -> 'Performance_Measure__Session':
         return self.measure(target, loops=MEASURE__INVOCATION__LOOPS__FAST)
 
-    def print_measurement(self, measurement: Model__Performance_Measure__Measurement):          # Format measurement details
+    def print_measurement(self, measurement: Schema__Performance_Measure__Measurement):          # Format measurement details
         print(f"Samples : {measurement.sample_size}")
         print(f"Score   : {measurement.score:,.0f}ns")
         print(f"Avg     : {measurement.avg_time:,}ns")

@@ -21,7 +21,7 @@ from osbot_utils.type_safe.primitives.core.Safe_Str                             
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                             import Safe_Id
 from osbot_utils.utils.Env                                                                    import not_in_github_action
 from osbot_utils.utils.Files                                                                  import path_combine
-from osbot_utils.testing.performance.Performance_Measure__Session                             import Perf
+from osbot_utils.helpers.performance.Performance_Measure__Session                             import Perf
 from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
 from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config                            import Type_Safe__Config
 from osbot_utils.type_safe.type_safe_core.config.static_methods.find_type_safe_config         import find_type_safe_config

@@ -4,7 +4,7 @@ from unittest                                                         import Tes
 from typing                                                           import Optional, List, Dict, Union, Any
 from enum                                                             import Enum, auto
 from osbot_utils.helpers.duration.decorators.capture_duration         import capture_duration
-from osbot_utils.testing.performance.Performance_Measure__Session     import Performance_Measure__Session
+from osbot_utils.helpers.performance.Performance_Measure__Session     import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 from osbot_utils.utils.Env                                            import not_in_github_action, in_github_action
 

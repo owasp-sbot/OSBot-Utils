@@ -2,11 +2,11 @@ import pytest
 from statistics                                                                     import mean, median
 from unittest                                                                       import TestCase
 from unittest.mock                                                                  import patch
-from osbot_utils.testing.performance.Performance_Measure__Session                   import Performance_Measure__Session
-from osbot_utils.testing.performance.Performance_Measure__Session                   import MEASURE__INVOCATION__LOOPS
-from osbot_utils.testing.performance.Performance_Measure__Session                   import MEASURE__INVOCATION__LOOPS__QUICK
-from osbot_utils.testing.performance.Performance_Measure__Session                   import MEASURE__INVOCATION__LOOPS__FAST
-from osbot_utils.testing.performance.models.Model__Performance_Measure__Measurement import Model__Performance_Measure__Measurement
+from osbot_utils.helpers.performance.Performance_Measure__Session                   import Performance_Measure__Session
+from osbot_utils.helpers.performance.Performance_Measure__Session                   import MEASURE__INVOCATION__LOOPS
+from osbot_utils.helpers.performance.Performance_Measure__Session                   import MEASURE__INVOCATION__LOOPS__QUICK
+from osbot_utils.helpers.performance.Performance_Measure__Session                   import MEASURE__INVOCATION__LOOPS__FAST
+from osbot_utils.helpers.performance.schemas.Schema__Performance_Measure__Measurement import Schema__Performance_Measure__Measurement
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 
 
@@ -105,7 +105,7 @@ class test_Performance_Measure__Session(TestCase):
             times   = [100, 200, 150, 175, 125]
             metrics = _.calculate_metrics(times)
 
-            assert type(metrics)        is Model__Performance_Measure__Measurement
+            assert type(metrics) is Schema__Performance_Measure__Measurement
             assert metrics.sample_size  == 5
             assert metrics.min_time     == 100
             assert metrics.max_time     == 200
@@ -312,7 +312,7 @@ class test_Performance_Measure__Session(TestCase):
             result = _.assert_time(score)
             assert result is _
 
-    @patch('osbot_utils.testing.performance.Performance_Measure__Session.in_github_action')
+    @patch('osbot_utils.helpers.performance.Performance_Measure__Session.in_github_action')
     def test_assert_time__github_actions_multiplier(self, mock_in_github):                      # Test 5x multiplier in GitHub Actions
         mock_in_github.return_value = True
         with Performance_Measure__Session() as _:
@@ -345,7 +345,7 @@ class test_Performance_Measure__Session(TestCase):
             result = _.assert_time__less_than(1)                                                # Should not raise
             assert result is _
 
-    @patch('osbot_utils.testing.performance.Performance_Measure__Session.in_github_action')
+    @patch('osbot_utils.helpers.performance.Performance_Measure__Session.in_github_action')
     def test_assert_time__less_than__github_actions_multiplier(self, mock_in_github):           # Test 6x multiplier in GitHub Actions
         mock_in_github.return_value = True
         with Performance_Measure__Session() as _:
