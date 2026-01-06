@@ -1,0 +1,212 @@
+{
+  "ontology_id": "1079fc5c",
+  "ontology_ref": "call_flow",
+  "taxonomy_id": "8ff7f7e0",
+  "version": "1.0.0",
+  "node_types": {
+    "ce44e48f": {
+      "node_type_id": "ce44e48f",
+      "node_type_ref": "class",
+      "category_id": "9abaaadc"
+    },
+    "143fb9ef": {
+      "node_type_id": "143fb9ef",
+      "node_type_ref": "method",
+      "category_id": "4561e12e"
+    },
+    "188fe0cb": {
+      "node_type_id": "188fe0cb",
+      "node_type_ref": "function",
+      "category_id": "4561e12e"
+    },
+    "dc07a3ae": {
+      "node_type_id": "dc07a3ae",
+      "node_type_ref": "module",
+      "category_id": "9abaaadc"
+    },
+    "bd2f2d3e": {
+      "node_type_id": "bd2f2d3e",
+      "node_type_ref": "external",
+      "category_id": "61d5c76e"
+    }
+  },
+  "predicates": {
+    "28386687": {
+      "predicate_id": "28386687",
+      "predicate_ref": "contains",
+      "inverse_id": "9ced5f76"
+    },
+    "9ced5f76": {
+      "predicate_id": "9ced5f76",
+      "predicate_ref": "contained_by",
+      "inverse_id": "28386687"
+    },
+    "35ab2291": {
+      "predicate_id": "35ab2291",
+      "predicate_ref": "calls",
+      "inverse_id": "74372214"
+    },
+    "74372214": {
+      "predicate_id": "74372214",
+      "predicate_ref": "called_by",
+      "inverse_id": "35ab2291"
+    },
+    "38e66c6b": {
+      "predicate_id": "38e66c6b",
+      "predicate_ref": "calls_self",
+      "inverse_id": null
+    },
+    "21c9b1b6": {
+      "predicate_id": "21c9b1b6",
+      "predicate_ref": "calls_chain",
+      "inverse_id": null
+    }
+  },
+  "property_names": {
+    "2b7607b1": {
+      "property_name_id": "2b7607b1",
+      "property_name_ref": "qualified_name",
+      "property_type_id": "27184299"
+    },
+    "69a8b10a": {
+      "property_name_id": "69a8b10a",
+      "property_name_ref": "module_name",
+      "property_type_id": "27184299"
+    },
+    "e3241d31": {
+      "property_name_id": "e3241d31",
+      "property_name_ref": "file_path",
+      "property_type_id": "27184299"
+    },
+    "fb6e1ec9": {
+      "property_name_id": "fb6e1ec9",
+      "property_name_ref": "line_number",
+      "property_type_id": "c856288a"
+    },
+    "6229138c": {
+      "property_name_id": "6229138c",
+      "property_name_ref": "call_depth",
+      "property_type_id": "c856288a"
+    },
+    "11cfe2d4": {
+      "property_name_id": "11cfe2d4",
+      "property_name_ref": "source_code",
+      "property_type_id": "34c7b89b"
+    },
+    "65ad210e": {
+      "property_name_id": "65ad210e",
+      "property_name_ref": "is_entry",
+      "property_type_id": "c169bc41"
+    },
+    "dd626c33": {
+      "property_name_id": "dd626c33",
+      "property_name_ref": "is_external",
+      "property_type_id": "c169bc41"
+    },
+    "dba368ef": {
+      "property_name_id": "dba368ef",
+      "property_name_ref": "is_recursive",
+      "property_type_id": "c169bc41"
+    },
+    "91a093a2": {
+      "property_name_id": "91a093a2",
+      "property_name_ref": "is_conditional",
+      "property_type_id": "c169bc41"
+    },
+    "30f38a6f": {
+      "property_name_id": "30f38a6f",
+      "property_name_ref": "call_line_number",
+      "property_type_id": "c856288a"
+    }
+  },
+  "property_types": {
+    "27184299": {
+      "property_type_id": "27184299",
+      "property_type_ref": "string"
+    },
+    "34c7b89b": {
+      "property_type_id": "34c7b89b",
+      "property_type_ref": "text"
+    },
+    "c856288a": {
+      "property_type_id": "c856288a",
+      "property_type_ref": "integer"
+    },
+    "c169bc41": {
+      "property_type_id": "c169bc41",
+      "property_type_ref": "boolean"
+    }
+  },
+  "edge_rules": [
+    {
+      "source_type_id": "dc07a3ae",
+      "predicate_id": "28386687",
+      "target_type_id": "ce44e48f"
+    },
+    {
+      "source_type_id": "dc07a3ae",
+      "predicate_id": "28386687",
+      "target_type_id": "188fe0cb"
+    },
+    {
+      "source_type_id": "ce44e48f",
+      "predicate_id": "28386687",
+      "target_type_id": "143fb9ef"
+    },
+    {
+      "source_type_id": "143fb9ef",
+      "predicate_id": "35ab2291",
+      "target_type_id": "143fb9ef"
+    },
+    {
+      "source_type_id": "143fb9ef",
+      "predicate_id": "35ab2291",
+      "target_type_id": "188fe0cb"
+    },
+    {
+      "source_type_id": "143fb9ef",
+      "predicate_id": "35ab2291",
+      "target_type_id": "bd2f2d3e"
+    },
+    {
+      "source_type_id": "188fe0cb",
+      "predicate_id": "35ab2291",
+      "target_type_id": "143fb9ef"
+    },
+    {
+      "source_type_id": "188fe0cb",
+      "predicate_id": "35ab2291",
+      "target_type_id": "188fe0cb"
+    },
+    {
+      "source_type_id": "188fe0cb",
+      "predicate_id": "35ab2291",
+      "target_type_id": "bd2f2d3e"
+    },
+    {
+      "source_type_id": "143fb9ef",
+      "predicate_id": "38e66c6b",
+      "target_type_id": "143fb9ef"
+    },
+    {
+      "source_type_id": "143fb9ef",
+      "predicate_id": "21c9b1b6",
+      "target_type_id": "143fb9ef"
+    },
+    {
+      "source_type_id": "143fb9ef",
+      "predicate_id": "21c9b1b6",
+      "target_type_id": "bd2f2d3e"
+    },
+    {
+      "source_type_id": "188fe0cb",
+      "predicate_id": "21c9b1b6",
+      "target_type_id": "143fb9ef"
+    },
+    {
+      "source_type_id": "188fe0cb",
+      "predicate_id": "21c9b1b6",
+      "target_type_id": "bd2f2d3e"
+    }
+  ]
+}

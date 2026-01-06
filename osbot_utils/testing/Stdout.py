@@ -16,9 +16,11 @@ class Stdout:
 
     def start(self):
         self.redirect_stdout.__enter__()
+        return self
 
     def stop(self, exc_type=None, exc_inst=None, exc_tb=None):
         self.redirect_stdout.__exit__(exc_type, exc_inst, exc_tb)
+        return self
 
     def value(self):
         return self.output.getvalue()
