@@ -9,3 +9,4 @@ dist
 tests/unit/helpers/python_call_flow/_saved_html
 tests/unit/helpers/python_call_flow/actions/_saved_html
 tests/unit/helpers/python_call_flow/export/_saved_html
+tests/unit/type_safe/type_safe_core/config/_performance/type-safe__config-stats
