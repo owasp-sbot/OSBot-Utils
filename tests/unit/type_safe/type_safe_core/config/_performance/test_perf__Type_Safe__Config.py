@@ -19,6 +19,7 @@ from typing                                                                     
 from unittest                                                                                 import TestCase
 from osbot_utils.type_safe.primitives.core.Safe_Str                                           import Safe_Str
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                             import Safe_Id
+from osbot_utils.utils.Env                                                                    import not_in_github_action
 from osbot_utils.utils.Files                                                                  import path_combine
 from osbot_utils.testing.performance.Performance_Measure__Session                             import Perf
 from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
@@ -167,14 +168,15 @@ class test_perf__Type_Safe__Config(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        output_text = cls.build_results_text()
-        print(output_text)
+        if not_in_github_action():
+            output_text = cls.build_results_text()
+            print(output_text)
 
-        target_json = path_combine(__file__, '../type-safe__config-stats/test_perf__Type_Safe__Config.json')
-        target_txt  = path_combine(__file__, '../type-safe__config-stats/test_perf__Type_Safe__Config.txt')
+            target_json = path_combine(__file__, '../type-safe__config-stats/test_perf__Type_Safe__Config.json')
+            target_txt  = path_combine(__file__, '../type-safe__config-stats/test_perf__Type_Safe__Config.txt')
 
-        cls.save_results_json(target_json)
-        cls.save_results_txt(target_txt, output_text)
+            cls.save_results_json(target_json)
+            cls.save_results_txt(target_txt, output_text)
 
     def setUp(self):
         if self._testMethodName.startswith("test_perf__F_") and not HAS_PYDANTIC:           # add this check here so that need to add a check to all tests
