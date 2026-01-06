@@ -15,9 +15,8 @@
 
 import json
 from dataclasses                                                                              import dataclass, field
-from typing                                                                                   import List, Dict, Optional
+from typing                                                                                   import List, Dict
 from unittest                                                                                 import TestCase
-from pydantic                                                                                 import BaseModel
 from osbot_utils.type_safe.primitives.core.Safe_Str                                           import Safe_Str
 from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                             import Safe_Id
 from osbot_utils.utils.Files                                                                  import path_combine
@@ -114,28 +113,39 @@ class DC__With_Collections:                                                     
     data  : Dict[str, int]  = field(default_factory=dict)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Pydantic BaseModel Test Classes (Section F)
-# ═══════════════════════════════════════════════════════════════════════════════
 
-class PD__Empty(BaseModel):                                                                   # Empty Pydantic model
-    pass
 
-class PD__With_Primitives(BaseModel):                                                         # Pydantic with Python primitives
-    name   : str  = ''
-    count  : int  = 0
-    active : bool = False
+# check if we have pydantic available
+try:
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # Pydantic BaseModel Test Classes (Section F)
+    # ═══════════════════════════════════════════════════════════════════════════════
+    from pydantic import BaseModel
+    HAS_PYDANTIC = True
+except:
+    BaseModel = None
+    HAS_PYDANTIC = False
 
-class PD__Inner(BaseModel):                                                                   # Inner Pydantic model for nesting tests
-    value : str = ''
 
-class PD__With_Nested(BaseModel):                                                             # Pydantic with nested model
-    inner  : PD__Inner = PD__Inner()
-    name   : str       = ''
+if HAS_PYDANTIC:
+    class PD__Empty(BaseModel):                                                                   # Empty Pydantic model
+        pass
 
-class PD__With_Collections(BaseModel):                                                        # Pydantic with Python collections
-    items : List[str]       = []
-    data  : Dict[str, int]  = {}
+    class PD__With_Primitives(BaseModel):                                                         # Pydantic with Python primitives
+        name   : str  = ''
+        count  : int  = 0
+        active : bool = False
+
+    class PD__Inner(BaseModel):                                                                   # Inner Pydantic model for nesting tests
+        value : str = ''
+
+    class PD__With_Nested(BaseModel):                                                             # Pydantic with nested model
+        inner  : PD__Inner = PD__Inner()
+        name   : str       = ''
+
+    class PD__With_Collections(BaseModel):                                                        # Pydantic with Python collections
+        items : List[str]       = []
+        data  : Dict[str, int]  = {}
 
 
 class test_perf__Type_Safe__Config(TestCase):
@@ -165,6 +175,10 @@ class test_perf__Type_Safe__Config(TestCase):
 
         cls.save_results_json(target_json)
         cls.save_results_txt(target_txt, output_text)
+
+    def setUp(self):
+        if self._testMethodName.startswith("test_perf__F_") and not HAS_PYDANTIC:           # add this check here so that need to add a check to all tests
+            self.skipTest("pydantic not installed")
 
     @classmethod
     def build_results_text(cls) -> str:                                                       # Build results as string, sorted by ID
