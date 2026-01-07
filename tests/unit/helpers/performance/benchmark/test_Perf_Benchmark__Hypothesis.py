@@ -240,7 +240,7 @@ class test_Perf_Benchmark__Hypothesis(TestCase):
             _.run_after(benchmarks)
             with Stdout() as stdout:
                 _.print_result()
-            assert '│ HYPOTHESIS: My Test                      │\n' in stdout.value()
+            assert '│ HYPOTHESIS: My Test' in stdout.value()                                # below is what it looks like, but it is not deterministic (unless we change the values of the results manually here in this test)
                                     # == ('\n'
                                     #     '┌──────────────────────────────────────────┐\n'
                                     #      '│ HYPOTHESIS: My Test                      │\n'
