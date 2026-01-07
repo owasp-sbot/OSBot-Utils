@@ -10,7 +10,7 @@ from osbot_utils.type_safe.Type_Safe                                            
 from osbot_utils.type_safe.primitives.core.Safe_Float                                                     import Safe_Float
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                                      import Safe_UInt
 from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export                              import Perf_Benchmark__Export
-from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__HTML import Perf_Benchmark__Export__HTML, CHART_COLORS
+from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__HTML                        import Perf_Benchmark__Export__HTML, CHART_COLORS
 from osbot_utils.helpers.performance.benchmark.schemas.Schema__Perf__Evolution                            import Schema__Perf__Evolution
 from osbot_utils.helpers.performance.benchmark.schemas.Schema__Perf__Statistics                           import Schema__Perf__Statistics
 from osbot_utils.helpers.performance.benchmark.schemas.collections.List__Benchmark_Comparisons            import List__Benchmark_Comparisons
