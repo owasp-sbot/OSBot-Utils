@@ -333,6 +333,6 @@ class Type_Safe__Method:                                                        
                              f"            where a type was expected. This is always a bug and usually indicates    \n"
                              f"            an incorrect import (imported a module instead of a class).              \n"
                              f"            Expected type: {expected_type}"                                          ) from None
-        if not isinstance(param_value, base_type):
+        if isinstance(base_type, type) and not isinstance(param_value, base_type):
             raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}") from None
         return True
