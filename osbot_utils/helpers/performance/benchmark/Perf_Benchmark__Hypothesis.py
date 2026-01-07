@@ -3,23 +3,26 @@
 # Structured experiments with baseline vs optimized code comparison
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from typing                                                                                               import Callable
-from osbot_utils.helpers.Print_Table                                                                      import Print_Table
-from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Description          import Safe_Str__Benchmark__Description
-from osbot_utils.type_safe.Type_Safe                                                                      import Type_Safe
-from osbot_utils.type_safe.primitives.core.Safe_Float                                                     import Safe_Float
-from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                         import Safe_Str__File__Path
-from osbot_utils.utils.Files                                                                              import file_create, file_exists
-from osbot_utils.utils.Json                                                                               import json_dumps, json_load_file
-from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing                                     import Perf_Benchmark__Timing
-from osbot_utils.helpers.performance.benchmark.schemas.timing.Schema__Perf_Benchmark__Timing__Config      import Schema__Perf_Benchmark__Timing__Config
-from osbot_utils.helpers.performance.benchmark.schemas.collections.Dict__Benchmark_Results                import Dict__Benchmark_Results
-from osbot_utils.helpers.performance.benchmark.schemas.Schema__Perf__Hypothesis__Result                   import Schema__Perf__Hypothesis__Result
-from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Hypothesis__Status                     import Enum__Hypothesis__Status
-from osbot_utils.helpers.performance.benchmark.schemas.benchmark.Schema__Perf__Benchmark__Result          import Schema__Perf__Benchmark__Result
+from typing                                                                                                   import Callable
+from osbot_utils.helpers.Print_Table                                                                          import Print_Table
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Measure_Mode                               import Enum__Measure_Mode
+from osbot_utils.helpers.performance.benchmark.schemas.hypothesis.Schema__Perf__Benchmark__Hypothesis__Config import Schema__Perf__Benchmark__Hypothesis__Config
+from osbot_utils.helpers.performance.benchmark.schemas.hypothesis.Schema__Perf__Hypothesis__Result            import Schema__Perf__Hypothesis__Result
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Description              import Safe_Str__Benchmark__Description
+from osbot_utils.type_safe.Type_Safe                                                                          import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Float                                                         import Safe_Float
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                             import Safe_Str__File__Path
+from osbot_utils.utils.Files                                                                                  import file_create, file_exists
+from osbot_utils.utils.Json                                                                                   import json_dumps, json_load_file
+from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing                                         import Perf_Benchmark__Timing
+from osbot_utils.helpers.performance.benchmark.schemas.timing.Schema__Perf_Benchmark__Timing__Config          import Schema__Perf_Benchmark__Timing__Config
+from osbot_utils.helpers.performance.benchmark.schemas.collections.Dict__Benchmark_Results                    import Dict__Benchmark_Results
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Hypothesis__Status                         import Enum__Hypothesis__Status
+from osbot_utils.helpers.performance.benchmark.schemas.benchmark.Schema__Perf__Benchmark__Result              import Schema__Perf__Benchmark__Result
 
 
 class Perf_Benchmark__Hypothesis(Type_Safe):                                     # Hypothesis tester
+    config             : Schema__Perf__Benchmark__Hypothesis__Config              # Configuration settings
     description        : Safe_Str__Benchmark__Description                        # What we're testing
     target_improvement : Safe_Float                                              # e.g., 0.5 for 50%
     before_results     : Dict__Benchmark_Results                                 # Baseline measurements
@@ -35,9 +38,8 @@ class Perf_Benchmark__Hypothesis(Type_Safe):                                    
                    benchmarks: Callable[[Perf_Benchmark__Timing], None]          # Benchmark function
               ) -> 'Perf_Benchmark__Hypothesis':
 
-        config = Schema__Perf_Benchmark__Timing__Config(title           ='Hypothesis Baseline',
-                                                        print_to_console = False)
-        timing = Perf_Benchmark__Timing(config=config)
+        timing_config = self.create_timing_config('Hypothesis Baseline')
+        timing        = Perf_Benchmark__Timing(config=timing_config)
         timing.start()
 
         benchmarks(timing)
@@ -50,9 +52,8 @@ class Perf_Benchmark__Hypothesis(Type_Safe):                                    
                   benchmarks: Callable[[Perf_Benchmark__Timing], None]           # Benchmark function
              ) -> 'Perf_Benchmark__Hypothesis':
 
-        config = Schema__Perf_Benchmark__Timing__Config(title            ='Hypothesis After',
-                                                        print_to_console = False)
-        timing = Perf_Benchmark__Timing(config=config)
+        timing_config = self.create_timing_config('Hypothesis After')
+        timing        = Perf_Benchmark__Timing(config=timing_config)
         timing.start()
 
         benchmarks(timing)
@@ -60,6 +61,27 @@ class Perf_Benchmark__Hypothesis(Type_Safe):                                    
         timing.stop()
         self.after_results = timing.results
         return self
+
+    def create_timing_config(self, title: str) -> Schema__Perf_Benchmark__Timing__Config:  # Create timing config from hypothesis config
+        # Start from user's timing_config or create default
+        if self.config.timing_config:
+            timing_config = self.config.timing_config
+        else:
+            timing_config = Schema__Perf_Benchmark__Timing__Config()
+
+        # Override specific values for hypothesis context
+        timing_config.title            = title
+        timing_config.print_to_console = False
+
+        # Set measure mode based on config
+        if self.config.measure_mode == Enum__Measure_Mode.QUICK:
+            timing_config.measure_quick = True
+        elif self.config.measure_mode == Enum__Measure_Mode.FAST:
+            timing_config.measure_quick = True                                   # TODO: implement FAST mode separately
+        else:  # DEFAULT
+            timing_config.measure_quick = False
+
+        return timing_config
 
 
     # ═══════════════════════════════════════════════════════════════════════════════
@@ -78,8 +100,7 @@ class Perf_Benchmark__Hypothesis(Type_Safe):                                    
             if benchmark_id not in self.after_results:
                 continue
 
-            before_score = int(self.before_results[benchmark_id].final_score)
-            after_score  = int(self.after_results[benchmark_id].final_score)
+            before_score, after_score = self.get_scores(benchmark_id)
 
             if before_score > 0:
                 improvement = (before_score - after_score) / before_score
@@ -109,6 +130,15 @@ class Perf_Benchmark__Hypothesis(Type_Safe):                                    
                                                 after_results      = self.after_results                     ,
                                                 status             = status                                 ,
                                                 comments           = self.comments                          )
+
+    def get_scores(self, benchmark_id: str) -> tuple:                            # Get before/after scores based on config
+        before = self.before_results[benchmark_id]
+        after  = self.after_results[benchmark_id]
+
+        if self.config.use_raw_scores:
+            return int(before.raw_score), int(after.raw_score)
+        else:
+            return int(before.final_score), int(after.final_score)
 
 
     # ═══════════════════════════════════════════════════════════════════════════════
@@ -148,49 +178,68 @@ class Perf_Benchmark__Hypothesis(Type_Safe):                                    
     # Reporting
     # ═══════════════════════════════════════════════════════════════════════════════
 
-    def print_result(self) -> None:                                              # Print result table
+    def build_report(self) -> str:                                               # Build full report as string
         result = self.evaluate()
         table  = Print_Table()
 
         table.set_title(f'HYPOTHESIS: {self.description}')
-        table.add_headers('Benchmark', 'Before', 'After', 'Change')
+        table.add_headers('Benchmark', 'Before', 'After', 'Overhead', 'Change', 'Per-Call')
 
         for benchmark_id in sorted(self.before_results.keys()):
             if benchmark_id not in self.after_results:
                 continue
 
-            before = self.before_results[benchmark_id]
-            after  = self.after_results[benchmark_id]
+            before_score, after_score = self.get_scores(benchmark_id)
+            overhead                  = after_score - before_score
 
-            before_score = int(before.final_score)
-            after_score  = int(after.final_score)
-
+            # Calculate change percentage
             if before_score > 0:
                 change_pct = ((before_score - after_score) / before_score) * 100
                 if change_pct > 0:
-                    change_str = f'-{change_pct:.1f}% ▼'
+                    change_str = f"-{change_pct:.1f}% ▼"
                 elif change_pct < 0:
-                    change_str = f'+{abs(change_pct):.1f}% ▲'
+                    change_str = f"+{abs(change_pct):.1f}% ▲"
                 else:
-                    change_str = '0%'
+                    change_str = "0%"
             else:
-                change_str = 'N/A'
+                change_str = "N/A"
 
-            table.add_row([str(after.name)                                       ,
-                           f'{before_score:,} ns'                                ,
-                           f'{after_score:,} ns'                                 ,
-                           change_str                                            ])
+            # Calculate per-call overhead for bulk operations
+            if 'x100' in benchmark_id:
+                per_call     = overhead / 100
+                per_call_str = f"{per_call:+,.0f} ns"
+            elif 'x10' in benchmark_id:
+                per_call     = overhead / 10
+                per_call_str = f"{per_call:+,.0f} ns"
+            else:
+                per_call_str = f"{overhead:+,} ns"
 
+            table.add_row([benchmark_id            ,
+                           f'{before_score:,} ns'  ,
+                           f'{after_score:,} ns'   ,
+                           f'{overhead:+,} ns'     ,
+                           change_str              ,
+                           per_call_str            ])
+
+        # Build footer with status and verdict
         target_pct = float(self.target_improvement) * 100 if self.target_improvement else 0
         actual_pct = float(result.actual_improvement) * 100
         status_str = result.status.value.upper()
 
         if result.status == Enum__Hypothesis__Status.SUCCESS:
-            status_line = f'✓ {status_str} ({actual_pct:.1f}% >= {target_pct:.1f}% target)'
+            status_line = f"✓ {status_str} ({actual_pct:.1f}% >= {target_pct:.1f}% target)"
         elif result.status == Enum__Hypothesis__Status.REGRESSION:
-            status_line = f'✗ {status_str} ({actual_pct:.1f}% - performance got worse)'
+            status_line = f"✗ {status_str} ({actual_pct:.1f}% - performance got worse)"
         else:
-            status_line = f'✗ {status_str} ({actual_pct:.1f}% < {target_pct:.1f}% target)'
+            status_line = f"✗ {status_str} ({actual_pct:.1f}% < {target_pct:.1f}% target)"
 
-        table.set_footer(status_line)
-        table.print()
+        verdict = "Per-call: <500ns ✅ | 500-1000ns ⚠️ | >1000ns ❌"
+        table.set_footer(f"{status_line} | {verdict}")
+
+        return table.text()
+
+    def save_report(self, filepath: Safe_Str__File__Path) -> None:               # Save report to file
+        file_create(str(filepath), self.build_report())
+
+    def print_report(self) -> None:                                              # Print report to console
+        print(self.build_report())

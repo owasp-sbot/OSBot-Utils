@@ -22,6 +22,7 @@ _getframe = sys._getframe                                                       
 
 def find_type_safe_config(max_depth: int = TYPE_SAFE__CONFIG__MAX_DEPTH) -> Optional[Type_Safe__Config]:
 
+    #return # disable find_type_safe_config
     try:
         frame = _getframe(1)                                                        # Start from caller's frame
     except ValueError:

@@ -1,3 +1,4 @@
+import unicodedata
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.utils.Str                   import ansi_text_visible_length
 
@@ -238,7 +239,9 @@ class Print_Table(Kwargs_To_Self):
         self.text__all                     += [  self.text__table_bottom                           ]
 
     def map_text__footer(self):
-        self.text__footer = f"{CHAR_TABLE_VERTICAL} {self.footer:{self.text__width}} {CHAR_TABLE_VERTICAL}"
+        padded_footer = self.pad_to_width(self.footer, self.text__width)
+        self.text__footer = f"{CHAR_TABLE_VERTICAL} {padded_footer} {CHAR_TABLE_VERTICAL}"
+
 
     def map_text__headers(self):
         self.text__headers = CHAR_TABLE_VERTICAL
@@ -255,7 +258,8 @@ class Print_Table(Kwargs_To_Self):
     def map_text__table_top   (self):   self.text__table_top    = f"{CHAR_TABLE_TOP_LEFT   }" + CHAR_TABLE_HORIZONTAL * (self.text__width + 2) + f"{CHAR_TABLE_TOP_RIGHT    }"
 
     def map_text__title(self):
-        self.text__title = f"{CHAR_TABLE_VERTICAL} {self.title:{self.text__width}} {CHAR_TABLE_VERTICAL}"
+        padded_title = self.pad_to_width(self.title, self.text__width)
+        self.text__title = f"{CHAR_TABLE_VERTICAL} {padded_title} {CHAR_TABLE_VERTICAL}"
 
     def map_text__width(self):
         self.text__width = self.table_width - 4
@@ -370,3 +374,24 @@ class Print_Table(Kwargs_To_Self):
             for header, cell in zip(self.headers, row):
                 table_dict[header].append(cell)
         return table_dict
+
+    def display_width(self, text: str) -> int:                                       # Calculate display width (emojis = 2)
+        text = self.strip_ansi(str(text))
+        width = 0
+        for char in text:
+            if ord(char) > 0x1F000 or unicodedata.east_asian_width(char) in ('F', 'W'):
+                width += 2
+            else:
+                width += 1
+        return width
+
+    def strip_ansi(self, text: str) -> str:                                          # Strip ANSI escape codes
+        import re
+        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+        return ansi_escape.sub('', str(text))
+
+    def pad_to_width(self, text: str, target_width: int) -> str:                     # Pad to target display width
+        current_width = self.display_width(text)
+        if current_width < target_width:
+            return text + ' ' * (target_width - current_width)
+        return text

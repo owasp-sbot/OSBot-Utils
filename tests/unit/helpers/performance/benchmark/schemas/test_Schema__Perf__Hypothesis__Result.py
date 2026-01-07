@@ -3,10 +3,10 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from unittest                                                                                             import TestCase
+from osbot_utils.helpers.performance.benchmark.schemas.hypothesis.Schema__Perf__Hypothesis__Result        import Schema__Perf__Hypothesis__Result
 from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Description          import Safe_Str__Benchmark__Description
 from osbot_utils.type_safe.Type_Safe                                                                      import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_Float                                                     import Safe_Float
-from osbot_utils.helpers.performance.benchmark.schemas.Schema__Perf__Hypothesis__Result                   import Schema__Perf__Hypothesis__Result
 from osbot_utils.helpers.performance.benchmark.schemas.collections.Dict__Benchmark_Results                import Dict__Benchmark_Results
 from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Hypothesis__Status                     import Enum__Hypothesis__Status
 from osbot_utils.helpers.performance.benchmark.testing.QA__Benchmark__Test_Data                           import QA__Benchmark__Test_Data

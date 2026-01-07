@@ -30,18 +30,18 @@ class test_Perf_Benchmark__Timing(TestCase):
             assert isinstance(_, Type_Safe)
             assert type(_.config) is Schema__Perf_Benchmark__Timing__Config
             assert type(_.results)   is Dict__Benchmark_Results
-            assert _.obj()           == __(config  = __(time_unit               = 'ns'   ,
-                                                        print_to_console        = True   ,
-                                                        auto_save_on_completion = False  ,
-                                                        asserts_enabled         = True   ,
-                                                        measure_quick           = True   ,
-                                                        title                   = ''     ,
-                                                        description             = ''     ,
-                                                        output_path             = ''     ,
-                                                        output_prefix           = ''     ,
-                                                        legend                  = __()    ),
-                                           results  = __()                             ,
-                                           sessions = __())
+            assert _.obj()           == __(config=__(time_unit='ns',
+                                                     print_to_console=True,
+                                                     auto_save_on_completion=False,
+                                                     asserts_enabled=True,
+                                                     measure_quick=True,
+                                                     title='',
+                                                     description='',
+                                                     output_path='',
+                                                     output_prefix='',
+                                                     legend=__()),
+                                           results=__(),
+                                           sessions=__())
 
 
 
@@ -117,16 +117,16 @@ class test_Perf_Benchmark__Timing(TestCase):
                                       raw_score    = __SKIP__      )
 
 
-            assert timing.obj() == __(config  = __(time_unit               = 'ns'                   ,
-                                                   print_to_console        = False                  ,
-                                                   auto_save_on_completion = False                  ,
-                                                   asserts_enabled         = True,
-                                                   measure_quick           = True,
-                                                   title                   = 'Test Benchmarks'      ,
-                                                   description             = ''                     ,
-                                                   output_path             = ''                     ,
-                                                   output_prefix           = ''                     ,
-                                                   legend                  = __()                   ),
+            assert timing.obj() == __(config=__( time_unit='ns',
+                                                 print_to_console=False,
+                                                 auto_save_on_completion=False,
+                                                 asserts_enabled=True,
+                                                 measure_quick=True,
+                                                 title='Test Benchmarks',
+                                                 description='',
+                                                 output_path='',
+                                                 output_prefix='',
+                                                 legend=__()),
                                       results = __(A_01__test              = __(benchmark_id = 'A_01__test' ,
                                                                                section      = 'A'           ,
                                                                                index        = '01'          ,
