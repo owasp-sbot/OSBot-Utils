@@ -72,7 +72,11 @@ class Perf_Benchmark__Timing(Type_Safe):                                        
              ) -> Schema__Perf__Benchmark__Result:
 
         session = Perf(assert_enabled=True)                                      # Fresh session per benchmark
-        session.measure__quick(target)
+        if self.config.measure_quick:
+            session.measure__quick(target)
+        else:
+            session.measure(target)
+
         perf_result = session.result
 
         section, index, name = self.parse_benchmark_id(benchmark_id)
@@ -87,8 +91,9 @@ class Perf_Benchmark__Timing(Type_Safe):                                        
         self.results[benchmark_id]  = result                                     # Store summary
         self.sessions[benchmark_id] = session                                    # Store full session
 
-        if assert_less_than is not None:
-            session.assert_time__less_than(int(assert_less_than))
+        if self.config.asserts_enabled:
+            if assert_less_than is not None:
+                session.assert_time__less_than(int(assert_less_than))
 
         return result
 

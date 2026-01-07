@@ -280,15 +280,18 @@ class Print_Table(Kwargs_To_Self):
 
 
     def print(self, data=None, order=None):
+        text = self.text(data=data, order=order)
+        print()                     # add a new line before the table
+        print(text)                 # print the table
+        return self
+
+    def text(self, data=None, order=None):
         if data:
             self.add_data(data)
         if order:
             self.reorder_columns(order)
-        print()
         self.map_texts()
-        for text in self.text__all:
-            print(text)
-        return self
+        return '\n'.join(self.text__all)
 
     def should_show_header(self, header):
         if self.headers_to_hide:

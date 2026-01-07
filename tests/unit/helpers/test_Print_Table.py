@@ -3,8 +3,8 @@ from unittest import TestCase
 from unittest.mock import patch, call
 
 import pytest
-
 from osbot_utils.helpers.Print_Table import Print_Table
+from osbot_utils.testing.Stdout import Stdout
 
 
 class test_Print_Table(TestCase):
@@ -237,13 +237,13 @@ class test_Print_Table(TestCase):
 
 
     def test_map_texts(self):
-        with  self.print_table as _:
+        with self.print_table as _:
             assert _.text__all == []
             _.map_texts()
             assert _.text__all == ['┌──┐', '└──┘']
-            with patch("builtins.print") as _:
+            with Stdout() as stdout:
                 self.print_table.print()
-                assert _.call_args_list == [call(), call('┌──┐'), call('└──┘')]
+            assert stdout.value() == '\n┌──┐\n└──┘\n'
 
 
     def test_map_text__footer(self):
@@ -255,13 +255,13 @@ class test_Print_Table(TestCase):
                                    '│ an footer value │',
                                    '└─────────────────┘']
 
-            with patch("builtins.print") as _:
+            with Stdout() as stdout:
                 self.print_table.print()
-                assert _.call_args_list == [ call(),
-                                             call('┌─────────────────┐'),
-                                             call('├─────────────────┤'),
-                                             call('│ an footer value │'),
-                                             call('└─────────────────┘')]
+            assert stdout.value() == ('\n'
+                                      '┌─────────────────┐\n'
+                                      '├─────────────────┤\n'
+                                      '│ an footer value │\n'
+                                      '└─────────────────┘\n')
 
     def test_map_text__title(self):
         with  self.print_table as _:
@@ -282,21 +282,21 @@ class test_Print_Table(TestCase):
             #_.print()
 
 
-        with patch("builtins.print") as _:
+        with Stdout() as stdout:
             self.print_table.print()
-            #assert len(_.call_args_list) == 12
-            assert _.call_args_list == [ call(),
-                                         call('┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐'),
-                                         call('│ BOTO3 REST calls (via BaseClient._make_api_call)                                                                                  │'),
-                                         call('├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤'),
-                                         call('│ # │ Method            │ Duration │ Params                      │ Return Value                                                     │'),
-                                         call('├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤'),
-                                         call("│ 0 │ GetCallerIdentity │ 412 ms   │  ('GetCallerIdentity', {})  │  {'UserId': 'AIDAW3', 'Account': '47', 'Arn': 'arn:aws:iam:...'} │"),
-                                         call("│ 1 │ GetCallerIdentity │  97 ms   │  ('GetCallerIdentity', {})  │  {'UserId': 'AIDAW3', 'Account': '47', 'Arn': 'arn:aws:iam:...'} │"),
-                                         call("│ 2 │ GetCallerIdentity │  96 ms   │  ('GetCallerIdentity', {})  │  {'UserId': 'AIDAW3', 'Account': '47', 'Arn': 'arn:aws:iam:...'} │"),
-                                         call('├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤'),
-                                         call('│ Total Duration:   0.73 secs | Total calls: 3                                                                                      │'),
-                                         call('└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘')]
+        assert stdout.value() == ('\n'
+                                  '┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐\n'
+                                  '│ BOTO3 REST calls (via BaseClient._make_api_call)                                                                                  │\n'
+                                  '├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤\n'
+                                  '│ # │ Method            │ Duration │ Params                      │ Return Value                                                     │\n'
+                                  '├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤\n'
+                                  "│ 0 │ GetCallerIdentity │ 412 ms   │  ('GetCallerIdentity', {})  │  {'UserId': 'AIDAW3', 'Account': '47', 'Arn': 'arn:aws:iam:...'} │\n"
+                                  "│ 1 │ GetCallerIdentity │  97 ms   │  ('GetCallerIdentity', {})  │  {'UserId': 'AIDAW3', 'Account': '47', 'Arn': 'arn:aws:iam:...'} │\n"
+                                  "│ 2 │ GetCallerIdentity │  96 ms   │  ('GetCallerIdentity', {})  │  {'UserId': 'AIDAW3', 'Account': '47', 'Arn': 'arn:aws:iam:...'} │\n"
+                                  '├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤\n'
+                                  '│ Total Duration:   0.73 secs | Total calls: 3                                                                                      │\n'
+                                  '└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘\n')
+
 
     def test_map_text__width(self):
         with self.print_table as _:

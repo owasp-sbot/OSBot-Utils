@@ -4,6 +4,7 @@
 
 from unittest                                                                                             import TestCase
 from osbot_utils.helpers.Print_Table                                                                      import Print_Table
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Report import Safe_Str__Benchmark__Report
 from osbot_utils.helpers.performance.benchmark.testing.QA__Benchmark__Test_Data                           import QA__Benchmark__Test_Data
 from osbot_utils.testing.Temp_File                                                                        import Temp_File
 from osbot_utils.testing.Temp_Folder import Temp_Folder
@@ -52,7 +53,7 @@ class test_Perf_Benchmark__Timing__Reporter(TestCase):
                                               config  = self.config ) as _:
             text = _.build_text()
 
-            assert type(text)       is Safe_Str__Text
+            assert type(text)       is Safe_Str__Benchmark__Report
             assert 'Test Report'    in text
             assert 'python__nop'    in text
             assert 'Total:'         in text
@@ -239,7 +240,7 @@ class test_Perf_Benchmark__Timing__Reporter(TestCase):
                                                      config  = self.config  )
             comparison = _.compare(other)
 
-            assert type(comparison) is Safe_Str__Text
+            assert type(comparison) is Safe_Str__Benchmark__Report
             assert 'Comparison'     in comparison
 
     def test_compare_results(self):                                              # Test compare_results
@@ -249,7 +250,7 @@ class test_Perf_Benchmark__Timing__Reporter(TestCase):
                                               config  = self.config ) as _:
             comparison = _.compare_results(other_results)
 
-            assert type(comparison) is Safe_Str__Text
+            assert type(comparison) is Safe_Str__Benchmark__Report
 
 
     # ═══════════════════════════════════════════════════════════════════════════════

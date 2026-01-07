@@ -11,7 +11,7 @@ from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Nam
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                import Safe_Str__File__Path
 
 
-class Schema__Perf_Benchmark__Timing__Config(Type_Safe):                                 # Benchmark configuration
+class Schema__Perf_Benchmark__Timing__Config(Type_Safe):                         # Benchmark configuration
     title                   : Safe_Str__Benchmark__Title                         # Session title
     description             : Safe_Str__Benchmark__Description                   # Optional subtitle
     output_path             : Safe_Str__File__Path                               # Base path for outputs
@@ -20,3 +20,5 @@ class Schema__Perf_Benchmark__Timing__Config(Type_Safe):                        
     time_unit               : Enum__Time_Unit = Enum__Time_Unit.NANOSECONDS      # Display unit
     print_to_console        : bool            = True                             # Print on completion
     auto_save_on_completion : bool            = False                            # Save in stop()/__exit__
+    asserts_enabled         : bool            = True                             # Allow asserts to be disabled (useful when debugging)
+    measure_quick           : bool            = True                             # Allow to control if session.measure__quick(..) or session.measure(..) is used

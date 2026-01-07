@@ -4,10 +4,10 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 from osbot_utils.helpers.Print_Table                                                                      import Print_Table
 from osbot_utils.helpers.performance.benchmark.schemas.benchmark.Schema__Perf__Benchmark__Result          import Schema__Perf__Benchmark__Result
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Report               import Safe_Str__Benchmark__Report
 from osbot_utils.type_safe.Type_Safe                                                                      import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_UInt                                                      import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Markdown                          import Safe_Str__Markdown
-from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text                              import Safe_Str__Text
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Time_Formatted                    import Safe_Str__Time_Formatted
 from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path                         import Safe_Str__File__Path
 from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html                                 import Safe_Str__Html
@@ -33,7 +33,7 @@ class Perf_Benchmark__Timing__Reporter(Type_Safe):                              
     # ═══════════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def build_text(self) -> Safe_Str__Text:                                      # Formatted text output
+    def build_text(self) -> Safe_Str__Benchmark__Report:                                      # Formatted text output
         table = self.create_results_table()
         table.map_texts()
         return '\n'.join(table.text__all)
@@ -161,11 +161,11 @@ class Perf_Benchmark__Timing__Reporter(Type_Safe):                              
     # ═══════════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def compare(self, other: 'Perf_Benchmark__Timing__Reporter') -> Safe_Str__Text:
+    def compare(self, other: 'Perf_Benchmark__Timing__Reporter') -> Safe_Str__Benchmark__Report:
         return self.compare_results(other.results)
 
     @type_safe
-    def compare_from_json(self, filepath: Safe_Str__File__Path) -> Safe_Str__Text:
+    def compare_from_json(self, filepath: Safe_Str__File__Path) -> Safe_Str__Benchmark__Report:
         data = json_load_file(filepath)
         if data is None:
             return ''
@@ -180,7 +180,7 @@ class Perf_Benchmark__Timing__Reporter(Type_Safe):                              
 
     @type_safe
     def compare_results(self                            ,                        # Compare with another results dict
-                        other: Dict__Benchmark_Results  ) -> Safe_Str__Text:
+                        other: Dict__Benchmark_Results  ) -> Safe_Str__Benchmark__Report:
         table = Print_Table()
         table.set_title('Comparison: Before vs After')
         table.add_headers('Benchmark', 'Before', 'After', 'Change')
