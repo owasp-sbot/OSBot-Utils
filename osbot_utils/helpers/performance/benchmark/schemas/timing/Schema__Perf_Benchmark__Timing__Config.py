@@ -22,3 +22,4 @@ class Schema__Perf_Benchmark__Timing__Config(Type_Safe):                        
     auto_save_on_completion : bool            = False                            # Save in stop()/__exit__
     asserts_enabled         : bool            = True                             # Allow asserts to be disabled (useful when debugging)
     measure_quick           : bool            = True                             # Allow to control if session.measure__quick(..) or session.measure(..) is used
+    measure_fast            : bool            = False

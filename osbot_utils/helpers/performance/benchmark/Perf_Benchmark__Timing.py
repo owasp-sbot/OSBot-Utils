@@ -74,6 +74,8 @@ class Perf_Benchmark__Timing(Type_Safe):                                        
         session = Perf(assert_enabled=True)                                      # Fresh session per benchmark
         if self.config.measure_quick:
             session.measure__quick(target)
+        elif self.config.measure_fast:
+            session.measure__fast(target)
         else:
             session.measure(target)
 

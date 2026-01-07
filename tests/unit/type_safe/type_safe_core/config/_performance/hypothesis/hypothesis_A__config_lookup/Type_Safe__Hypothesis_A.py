@@ -22,8 +22,9 @@ class Type_Safe__Hypothesis_A(Type_Safe):                                       
     # Future hypotheses will use config flags to skip expensive operations
     def __init__(self, **kwargs):
         config = find_type_safe_config()                                                      # THE CHANGE: lookup config from stack
-        #
-        #self.__hypothesis_config__ = config                                                   # Store for inspection (temporary)
-        object.__setattr__(self, "__hypothesis_config__", config)
+
+        object.__setattr__(self, "__hypothesis_config__", config)                             # Store for inspection (temporary)
 
         super().__init__(**kwargs)
+
+

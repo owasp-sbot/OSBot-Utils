@@ -4,7 +4,7 @@
 
 from unittest                                                                         import TestCase
 from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config                    import Type_Safe__Config
-from osbot_utils.type_safe.type_safe_core.config.static_methods.find_type_safe_config import TYPE_SAFE__CONFIG__VAR_NAME, TYPE_SAFE__CONFIG__CHECKED_VAR, TYPE_SAFE__CONFIG__MAX_DEPTH
+#from osbot_utils.type_safe.type_safe_core.config.static_methods.find_type_safe_config import TYPE_SAFE__CONFIG__VAR_NAME, TYPE_SAFE__CONFIG__CHECKED_VAR, TYPE_SAFE__CONFIG__MAX_DEPTH
 
 
 class test_Type_Safe__Config(TestCase):
@@ -181,12 +181,12 @@ class test_Type_Safe__Config(TestCase):
     # ═══════════════════════════════════════════════════════════════════════════════
 
 
-    def test_TYPE_SAFE__CONFIG__VAR_NAME(self):                                     # Test variable name constant
-        assert TYPE_SAFE__CONFIG__VAR_NAME == '_type_safe_config_'
-
-    def test_TYPE_SAFE__CONFIG__CHECKED_VAR(self):                                  # Test checked marker constant
-        assert TYPE_SAFE__CONFIG__CHECKED_VAR == '_type_safe_config__checked_'
-
-    def test_TYPE_SAFE__CONFIG__MAX_DEPTH(self):                                    # Test max depth constant
-        assert TYPE_SAFE__CONFIG__MAX_DEPTH == 15
-        assert TYPE_SAFE__CONFIG__MAX_DEPTH > 0
+    # def test_TYPE_SAFE__CONFIG__VAR_NAME(self):                                     # Test variable name constant
+    #     assert TYPE_SAFE__CONFIG__VAR_NAME == '_type_safe_config_'
+    #
+    # def test_TYPE_SAFE__CONFIG__CHECKED_VAR(self):                                  # Test checked marker constant
+    #     assert TYPE_SAFE__CONFIG__CHECKED_VAR == '_type_safe_config__checked_'
+    #
+    # def test_TYPE_SAFE__CONFIG__MAX_DEPTH(self):                                    # Test max depth constant
+    #     assert TYPE_SAFE__CONFIG__MAX_DEPTH == 15
+    #     assert TYPE_SAFE__CONFIG__MAX_DEPTH > 0

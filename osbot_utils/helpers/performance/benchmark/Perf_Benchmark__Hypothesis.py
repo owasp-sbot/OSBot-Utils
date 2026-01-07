@@ -76,10 +76,13 @@ class Perf_Benchmark__Hypothesis(Type_Safe):                                    
         # Set measure mode based on config
         if self.config.measure_mode == Enum__Measure_Mode.QUICK:
             timing_config.measure_quick = True
+            timing_config.measure_fast  = False
         elif self.config.measure_mode == Enum__Measure_Mode.FAST:
-            timing_config.measure_quick = True                                   # TODO: implement FAST mode separately
+            timing_config.measure_quick = False
+            timing_config.measure_fast = True                                   # TODO: implement FAST mode separately
         else:  # DEFAULT
             timing_config.measure_quick = False
+            timing_config.measure_fast  = False
 
         return timing_config
 
