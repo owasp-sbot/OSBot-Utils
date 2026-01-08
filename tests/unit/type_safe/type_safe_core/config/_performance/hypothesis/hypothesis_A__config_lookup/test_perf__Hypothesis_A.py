@@ -106,7 +106,7 @@ class test_perf__Hypothesis_A(TestCase):
 
         # Configure hypothesis settings
         config = Schema__Perf__Benchmark__Hypothesis__Config(use_raw_scores = True,                        # Use raw scores for accurate overhead measurement
-                                                            measure_mode   = Enum__Measure_Mode.QUICK)    # Quick mode for faster iteration
+                                                             measure_mode   = Enum__Measure_Mode.QUICK)    # Quick mode for faster iteration
 
         hypothesis = Perf_Benchmark__Hypothesis(config             = config,
                                                 description        = 'Hypothesis A: Config lookup overhead in Type_Safe.__init__',
@@ -129,9 +129,10 @@ class test_perf__Hypothesis_A(TestCase):
         # Evaluate and Report
         # ═══════════════════════════════════════════════════════════════════════
 
-        result = hypothesis.evaluate()
+        if False: # disabling so that we don't overwrite the results
+            result = hypothesis.evaluate()
 
-        if not_in_github_action():
-            hypothesis.print_report()
-            hypothesis.save_report(path_combine(output_path, 'hypothesis_a_report.txt'))
-            hypothesis.save(path_combine(output_path, 'hypothesis_a_result.json'))
+            if not_in_github_action():
+                hypothesis.print_report()
+                hypothesis.save_report(path_combine(output_path, 'hypothesis_a_report.txt'))
+                hypothesis.save(path_combine(output_path, 'hypothesis_a_result.json'))
