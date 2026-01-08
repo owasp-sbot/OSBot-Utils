@@ -18,16 +18,16 @@ class Type_Safe:
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
-    def __setattr__(self, name, value):
-        type_safe_step_set_attr.setattr(super(), self, name, value)
-
     # def __setattr__(self, name, value):
-    #     from osbot_utils.type_safe.type_safe_core.config.static_methods.find_type_safe_config import find_type_safe_config
-    #     config = find_type_safe_config()
-    #     if config and config.skip_validation:
-    #         object.__setattr__(self, name, value)                   # Direct bypass
-    #     else:
-    #         type_safe_step_set_attr.setattr(super(), self, name, value)
+    #     type_safe_step_set_attr.setattr(super(), self, name, value)
+
+    def __setattr__(self, name, value):
+        from osbot_utils.type_safe.type_safe_core.config.static_methods.find_type_safe_config import find_type_safe_config
+        config = find_type_safe_config()
+        if config and config.skip_validation:
+            object.__setattr__(self, name, value)                   # Direct bypass
+        else:
+            type_safe_step_set_attr.setattr(super(), self, name, value)
 
     def __attr_names__(self):
         from osbot_utils.utils.Misc import list_set
