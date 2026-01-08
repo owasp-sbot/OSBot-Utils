@@ -52,14 +52,14 @@ from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__N
 from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy                      import Schema__Taxonomy
 from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy__Category            import Schema__Taxonomy__Category
 from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils                               import Ontology__Utils
-from osbot_utils.helpers.semantic_graphs.taxonomy.Taxonomy__Registry import Taxonomy__Registry
+from osbot_utils.helpers.semantic_graphs.taxonomy.Taxonomy__Registry                            import Taxonomy__Registry
 from osbot_utils.helpers.semantic_graphs.taxonomy.Taxonomy__Utils                               import Taxonomy__Utils
 from osbot_utils.helpers.semantic_graphs.rule.Rule_Set__Utils                                   import Rule_Set__Utils
-from osbot_utils.testing.Graph__Deterministic__Ids import graph_deterministic_ids
-from osbot_utils.testing.__ import __, __SKIP__
-from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id import Edge_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id import Graph_Id
-from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id import Node_Id
+from osbot_utils.testing.Graph__Deterministic__Ids                                              import graph_deterministic_ids
+from osbot_utils.testing.__                                                                     import __, __SKIP__
+from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                               import Edge_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                              import Graph_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                               import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                                import Obj_Id
 
 
