@@ -3,7 +3,7 @@ import pytest
 from unittest                                                       import TestCase
 from osbot_utils.helpers.duration.decorators.capture_duration       import capture_duration
 from osbot_utils.testing.__                                         import __
-from osbot_utils.testing.performance.Performance_Measure__Session   import Performance_Measure__Session
+from osbot_utils.helpers.performance.Performance_Measure__Session   import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe__Primitive                     import Type_Safe__Primitive
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id    import Obj_Id, is_obj_id, new_obj_id
 from osbot_utils.utils.Env                                          import in_github_action

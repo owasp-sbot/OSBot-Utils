@@ -3,7 +3,7 @@ from unittest                                                                   
 from typing                                                                      import List, Dict, Any, Type
 from enum                                                                        import Enum
 from decimal                                                                     import Decimal
-from osbot_utils.testing.performance.Performance_Measure__Session                import Performance_Measure__Session
+from osbot_utils.helpers.performance.Performance_Measure__Session                import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                             import Type_Safe
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid            import Random_Guid
 from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid_Short      import Random_Guid_Short

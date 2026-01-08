@@ -1,7 +1,7 @@
 import sys
 from osbot_utils.base_classes.Kwargs_To_Self import Kwargs_To_Self
 from osbot_utils.helpers.Print_Table         import Print_Table
-from osbot_utils.utils.Call_Stack import Frame_Data, Call_Stack
+from osbot_utils.utils.Call_Stack            import Call_Stack
 
 
 class Python_Audit(Kwargs_To_Self):

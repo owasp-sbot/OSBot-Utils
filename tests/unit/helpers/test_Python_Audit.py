@@ -1,11 +1,9 @@
 import sys
-from unittest import TestCase
-from unittest.mock import call, patch
-
 import pytest
-
-from osbot_utils.testing.Patch_Print import Patch_Print
-from osbot_utils.helpers.Python_Audit import Python_Audit
+from unittest                           import TestCase
+from unittest.mock                      import call, patch
+from osbot_utils.helpers.Python_Audit   import Python_Audit
+from osbot_utils.testing.Stdout         import Stdout
 
 
 class test_Python_Audit(TestCase):
@@ -42,17 +40,15 @@ class test_Python_Audit(TestCase):
         assert self.python_audit.events() == self.python_audit.audit_events
         assert self.python_audit.events_by_type() == {'event-1': 1, 'event-2': 1}
 
-        with Patch_Print() as _:
+        with Stdout() as stdout:
             self.python_audit.print()
-
-        assert _.call_args_list() == [call(),
-                                      call('┌─────────────────────────────────────────┐'),
-                                      call('│ index │ event   │ args   │ stack        │'),
-                                      call('├─────────────────────────────────────────┤'),
-                                      call("│ 0     │ event-1 │ args-1 │ {'depth': 1} │"),
-                                      call("│ 1     │ event-2 │ args-2 │ {'depth': 1} │"),
-                                      call('└─────────────────────────────────────────┘')]
-
+        assert stdout.value() == ('\n'
+                                  '┌─────────────────────────────────────────┐\n'
+                                  '│ index │ event   │ args   │ stack        │\n'
+                                  '├─────────────────────────────────────────┤\n'
+                                  "│ 0     │ event-1 │ args-1 │ {'depth': 1} │\n"
+                                  "│ 1     │ event-2 │ args-2 │ {'depth': 1} │\n"
+                                  '└─────────────────────────────────────────┘\n')
 
 
     def test_start(self):

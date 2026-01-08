@@ -2,7 +2,7 @@ import inspect
 import pytest
 from unittest                                                           import TestCase
 from typing                                                             import get_args, get_origin, List, Dict, Any, Union, Optional
-from osbot_utils.testing.performance.Performance_Measure__Session       import Performance_Measure__Session
+from osbot_utils.helpers.performance.Performance_Measure__Session       import Performance_Measure__Session
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation  import type_safe_validation
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Init   import type_safe_step_init

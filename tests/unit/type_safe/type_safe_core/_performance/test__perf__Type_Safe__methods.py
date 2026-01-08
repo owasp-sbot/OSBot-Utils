@@ -1,7 +1,7 @@
 import pytest
 from unittest                                                         import TestCase
 from typing                                                           import List, Dict, Any
-from osbot_utils.testing.performance.Performance_Measure__Session     import Performance_Measure__Session
+from osbot_utils.helpers.performance.Performance_Measure__Session     import Performance_Measure__Session
 from osbot_utils.type_safe.Type_Safe                                  import Type_Safe
 from osbot_utils.utils.Json                                           import json_to_str
 

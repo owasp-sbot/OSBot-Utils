@@ -5,7 +5,7 @@ from unittest                                                                   
 from osbot_utils.testing.Pytest                                                     import skip__if_not__in_github_actions
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.type_safe.Type_Safe__On_Demand                                     import Type_Safe__On_Demand
-from osbot_utils.testing.performance.Performance_Measure__Session                   import Performance_Measure__Session
+from osbot_utils.helpers.performance.Performance_Measure__Session                   import Performance_Measure__Session
 from osbot_utils.utils.Env                                                          import in_github_action
 
 
