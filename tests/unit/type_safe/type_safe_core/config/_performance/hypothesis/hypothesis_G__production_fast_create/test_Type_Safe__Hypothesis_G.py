@@ -1,14 +1,13 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# Tests: Type_Safe__Fast_Create__Cache - Schema Generation and Caching
-# Verify schema generation, field classification, and cache behavior
+# Tests: Type_Safe__Hypothesis_G - Functional Tests for Fast Object Creation
+# Verify fast_create produces correct, fully functional objects
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from typing                                  import Dict, List
 from unittest                                import TestCase
+from Type_Safe__Config                       import Type_Safe__Config
 from Type_Safe__Hypothesis_G                 import Type_Safe__Hypothesis_G
 from Type_Safe__Fast_Create__Cache           import type_safe_fast_create_cache
-from schemas.Field__Schema                   import FIELD_MODE__STATIC
-from schemas.Field__Schema                   import FIELD_MODE__NESTED
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -52,135 +51,178 @@ class TS__Deep(Type_Safe__Hypothesis_G):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Immutability Tests
+# Normal Mode Tests (fast_create=False)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class test_is_immutable(TestCase):
-
-    def test__immutable_types(self):
-        cache = type_safe_fast_create_cache
-
-        assert cache.is_immutable('')        is True
-        assert cache.is_immutable('hello')   is True
-        assert cache.is_immutable(0)         is True
-        assert cache.is_immutable(42)        is True
-        assert cache.is_immutable(3.14)      is True
-        assert cache.is_immutable(True)      is True
-        assert cache.is_immutable(False)     is True
-        assert cache.is_immutable(None)      is True
-        assert cache.is_immutable(b'bytes')  is True
-        assert cache.is_immutable((1, 2, 3)) is True
-
-    def test__mutable_types(self):
-        cache = type_safe_fast_create_cache
-
-        assert cache.is_immutable([])        is False
-        assert cache.is_immutable({})        is False
-        assert cache.is_immutable(set())     is False
-        assert cache.is_immutable([1, 2, 3]) is False
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Schema Generation Tests
-# ═══════════════════════════════════════════════════════════════════════════════
-
-class test_generate_schema(TestCase):
+class test_normal_mode(TestCase):
 
     def setUp(self):
         type_safe_fast_create_cache.clear_cache()
 
-    def test__simple_class__all_static(self):
-        schema = type_safe_fast_create_cache.generate_schema(TS__Simple)
+    def test__creates_object_with_defaults(self):
+        obj = TS__Simple()
 
-        assert schema.target_class is TS__Simple
-        assert len(schema.fields)  == 3
+        assert type(obj) is TS__Simple
+        assert obj.name   == ''
+        assert obj.count  == 0
+        assert obj.active == False
 
-        for field in schema.fields:
-            assert field.mode == FIELD_MODE__STATIC
+    def test__creates_object_with_kwargs(self):
+        obj = TS__Simple(name='test', count=42)
 
-        assert schema.static_dict['name']   == ''
-        assert schema.static_dict['count']  == 0
-        assert schema.static_dict['active'] == False
+        assert obj.name   == 'test'
+        assert obj.count  == 42
+        assert obj.active == False
 
-    def test__class_with_collections__factory_fields(self):
-        schema = type_safe_fast_create_cache.generate_schema(TS__With_Collections)
+    def test__creates_nested_objects(self):
+        obj = TS__With_Nested()
 
-        assert 'name' in schema.static_dict                                       # Static field
-
-        assert len(schema.factory_fields) == 2                                    # items and data
-        factory_names = {f.name for f in schema.factory_fields}
-        assert factory_names == {'items', 'data'}
-
-    def test__class_with_nested__nested_fields(self):
-        schema = type_safe_fast_create_cache.generate_schema(TS__With_Nested)
-
-        assert len(schema.nested_fields)    == 1
-        assert schema.nested_fields[0].name == 'inner'
-        assert schema.nested_fields[0].mode == FIELD_MODE__NESTED
-        assert schema.nested_fields[0].nested_class is TS__Inner
-
-    def test__deep_nested_class(self):
-        schema = type_safe_fast_create_cache.generate_schema(TS__Deep)
-
-        assert len(schema.nested_fields)                == 1
-        assert schema.nested_fields[0].name             == 'level1'
-        assert schema.nested_fields[0].nested_class is TS__Deep_Level1
+        assert obj.inner        is not None
+        assert type(obj.inner)  is TS__Inner
+        assert obj.inner.value  == ''
+        assert obj.inner.count  == 0
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Cache Behavior Tests
+# Fast Create Mode Tests (fast_create=True)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class test_schema_cache(TestCase):
+class test_fast_create_mode(TestCase):
 
     def setUp(self):
         type_safe_fast_create_cache.clear_cache()
 
-    def test__schema_is_cached(self):
-        schema1 = type_safe_fast_create_cache.get_schema(TS__Simple)
-        schema2 = type_safe_fast_create_cache.get_schema(TS__Simple)
+    def test__creates_object_with_defaults(self):
+        with Type_Safe__Config(fast_create=True):
+            obj = TS__Simple()
 
-        assert schema1 is schema2                                                 # Same instance
+        assert type(obj) is TS__Simple
+        assert obj.name   == ''
+        assert obj.count  == 0
+        assert obj.active == False
 
-    def test__warm_cache__recursive(self):
-        type_safe_fast_create_cache.clear_cache()
-        type_safe_fast_create_cache.warm_cache(TS__Deep)
+    def test__creates_object_with_kwargs(self):
+        with Type_Safe__Config(fast_create=True):
+            obj = TS__Simple(name='fast', count=99)
 
-        assert TS__Deep        in type_safe_fast_create_cache.schema_cache
-        assert TS__Deep_Level1 in type_safe_fast_create_cache.schema_cache
-        assert TS__Deep_Level2 in type_safe_fast_create_cache.schema_cache
+        assert obj.name   == 'fast'
+        assert obj.count  == 99
+        assert obj.active == False
 
-    def test__clear_cache(self):
-        type_safe_fast_create_cache.get_schema(TS__Simple)
-        assert len(type_safe_fast_create_cache.schema_cache) > 0
+    def test__collections_not_shared(self):
+        with Type_Safe__Config(fast_create=True):
+            obj1 = TS__With_Collections()
+            obj2 = TS__With_Collections()
 
-        type_safe_fast_create_cache.clear_cache()
-        assert len(type_safe_fast_create_cache.schema_cache) == 0
+        obj1.items.append('item1')
+
+        assert len(obj1.items) == 1
+        assert len(obj2.items) == 0                                               # Not shared!
+
+    def test__nested_objects_created(self):
+        with Type_Safe__Config(fast_create=True):
+            obj = TS__With_Nested()
+
+        assert obj.inner        is not None
+        assert type(obj.inner)  is TS__Inner
+        assert obj.inner.value  == ''
+        assert obj.inner.count  == 0
+
+    def test__nested_objects_not_shared(self):
+        with Type_Safe__Config(fast_create=True):
+            obj1 = TS__With_Nested()
+            obj2 = TS__With_Nested()
+
+        obj1.inner.value = 'modified'
+
+        assert obj1.inner.value == 'modified'
+        assert obj2.inner.value == ''                                             # Not shared!
+
+    def test__deep_nested_created(self):
+        with Type_Safe__Config(fast_create=True):
+            obj = TS__Deep()
+
+        assert obj.level1              is not None
+        assert obj.level1.level2       is not None
+        assert obj.level1.level2.data  == ''
+
+    def test__json_works(self):
+        with Type_Safe__Config(fast_create=True):
+            obj = TS__Simple(name='json_test', count=42)
+
+        json_data = obj.json()
+
+        assert json_data['name']   == 'json_test'
+        assert json_data['count']  == 42
+        assert json_data['active'] == False
+
+    def test__isinstance_works(self):
+        with Type_Safe__Config(fast_create=True):
+            obj = TS__Simple()
+
+        assert isinstance(obj, TS__Simple)
+        assert isinstance(obj, Type_Safe__Hypothesis_G)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Factory Function Tests
+# Skip Validation Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class test_factory_functions(TestCase):
+class test_skip_validation(TestCase):
 
     def setUp(self):
         type_safe_fast_create_cache.clear_cache()
 
-    def test__factory_creates_fresh_instances(self):
-        schema = type_safe_fast_create_cache.get_schema(TS__With_Collections)
+    def test__setattr_works_with_skip_validation(self):
+        with Type_Safe__Config(fast_create=True, skip_validation=True):
+            obj      = TS__Simple()
+            obj.name = 'updated'
 
-        items_field = next(f for f in schema.factory_fields if f.name == 'items')
+        assert obj.name == 'updated'
 
-        instance1 = items_field.factory_func()
-        instance2 = items_field.factory_func()
+    def test__setattr_validates_without_skip_validation(self):
+        with Type_Safe__Config(fast_create=True, skip_validation=False):
+            obj      = TS__Simple()
+            obj.name = 'validated'                                                # Should still work
 
-        assert instance1 is not instance2                                         # Different instances
+        assert obj.name == 'validated'
 
-    def test__type_safe_list_preserves_expected_type(self):
-        schema = type_safe_fast_create_cache.get_schema(TS__With_Collections)
 
-        items_field = next(f for f in schema.factory_fields if f.name == 'items')
-        items       = items_field.factory_func()
+# ═══════════════════════════════════════════════════════════════════════════════
+# Config Context Tests
+# ═══════════════════════════════════════════════════════════════════════════════
 
-        assert items.expected_type is str
+class test_config_context(TestCase):
+
+    def setUp(self):
+        type_safe_fast_create_cache.clear_cache()
+
+    def test__config_only_active_in_context(self):
+        # Outside context - normal mode
+        obj1 = TS__Simple()
+
+        with Type_Safe__Config(fast_create=True):
+            # Inside context - fast mode
+            obj2 = TS__Simple()
+
+        # Outside context again - normal mode
+        obj3 = TS__Simple()
+
+        assert type(obj1) is TS__Simple
+        assert type(obj2) is TS__Simple
+        assert type(obj3) is TS__Simple
+
+    def test__nested_contexts(self):
+        with Type_Safe__Config(fast_create=True):
+            obj1 = TS__Simple()
+
+            with Type_Safe__Config(fast_create=True, skip_validation=True):
+                obj2      = TS__Simple()
+                obj2.name = 'nested'
+
+            obj3 = TS__Simple()
+
+        assert type(obj1) is TS__Simple
+        assert type(obj2) is TS__Simple
+        assert type(obj3) is TS__Simple
+        assert obj2.name  == 'nested'

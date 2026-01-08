@@ -1,5 +1,8 @@
 # todo: find a way to add these documentations strings to a separate location so that
 #       the data is available in IDE's code complete
+from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config                  import get_active_config
+from osbot_utils.type_safe.type_safe_core.fast_create.Type_Safe__Fast_Create        import type_safe_fast_create
+from osbot_utils.type_safe.type_safe_core.fast_create.Type_Safe__Fast_Create__Cache import type_safe_fast_create_cache
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Validation          import type_safe_validation
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Class_Kwargs   import type_safe_step_class_kwargs
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Default_Kwargs import type_safe_step_default_kwargs
@@ -11,15 +14,26 @@ from osbot_utils.utils.Objects                                                  
 class Type_Safe:
 
     def __init__(self, **kwargs):
+        config = get_active_config()
+        if config and config.fast_create:
+            if not type_safe_fast_create_cache.is_generating(type(self)):
+                type_safe_fast_create.create(self, **kwargs)
+                return
+
         class_kwargs = self.__cls_kwargs__(provided_kwargs=kwargs)
         type_safe_step_init.init(self, class_kwargs, **kwargs)
+
 
 
     def __enter__(self): return self
     def __exit__(self, exc_type, exc_val, exc_tb): pass
 
     def __setattr__(self, name, value):
-        type_safe_step_set_attr.setattr(super(), self, name, value)
+        config = get_active_config()
+        if config and config.skip_validation:
+            object.__setattr__(self, name, value)
+        else:
+            type_safe_step_set_attr.setattr(super(), self, name, value)
 
     # def __setattr__(self, name, value):
     #     from osbot_utils.type_safe.type_safe_core.config.static_methods.find_type_safe_config import find_type_safe_config
