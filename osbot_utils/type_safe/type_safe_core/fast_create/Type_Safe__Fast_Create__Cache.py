@@ -32,12 +32,18 @@ IMMUTABLE_TYPES = (str, int, float, bool, type(None), bytes, tuple, frozenset)  
 
 class Type_Safe__Fast_Create__Cache:                                              # Schema generation and caching
 
-    schema_cache : Dict[Type, Schema__Type_Safe__Fast_Create__Class]                                      # Class -> Schema mapping
+    schema_cache : Dict[Type, Schema__Type_Safe__Fast_Create__Class]              # Class -> Schema mapping
     generating   : Set[Type]                                                      # Guards against recursion
 
     def __init__(self):
         self.schema_cache = {}                                                    # Regular dict - classes persist
         self.generating   = set()                                                 # Recursion guard
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Public API

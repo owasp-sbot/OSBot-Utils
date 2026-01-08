@@ -17,8 +17,8 @@
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from typing                                  import Any
-from Type_Safe__Fast_Create__Cache           import type_safe_fast_create_cache
+from typing                                                                         import Any
+from osbot_utils.type_safe.type_safe_core.fast_create.Type_Safe__Fast_Create__Cache import type_safe_fast_create_cache
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
