@@ -33,6 +33,7 @@ class Type_Safe__Config:                                                        
                  'skip_mro_walk'    ,                                               # Use cached class kwargs if available
                  'on_demand_nested' ,                                               # Defer nested Type_Safe creation
                  'fast_collections' ,                                               # Fast creation for Type_Safe__List/Dict/Set
+                 'fast_create'      ,
                  '_previous_config' )                                               # For nested context restoration
 
     def __init__(self                          ,
@@ -41,13 +42,15 @@ class Type_Safe__Config:                                                        
                  skip_conversion  : bool = False,
                  skip_mro_walk    : bool = False,
                  on_demand_nested : bool = False,
-                 fast_collections : bool = False):
+                 fast_collections : bool = False,
+                 fast_create      : bool = False,):
         self.skip_setattr      = skip_setattr
         self.skip_validation   = skip_validation
         self.skip_conversion   = skip_conversion
         self.skip_mro_walk     = skip_mro_walk
         self.on_demand_nested  = on_demand_nested
         self.fast_collections  = fast_collections
+        self.fast_create       = fast_create
         self._previous_config  = None                                               # Will store previous config for nesting
 
     def __enter__(self):                                                            # Context manager entry
@@ -67,6 +70,7 @@ class Type_Safe__Config:                                                        
         if self.skip_mro_walk    : enabled.append('skip_mro_walk')
         if self.on_demand_nested : enabled.append('on_demand_nested')
         if self.fast_collections : enabled.append('fast_collections')
+        if self.fast_create      : enabled.append('fast_create')
 
         if enabled:
             return f"Type_Safe__Config({', '.join(enabled)})"
@@ -81,7 +85,8 @@ class Type_Safe__Config:                                                        
                 self.skip_conversion  == other.skip_conversion  and
                 self.skip_mro_walk    == other.skip_mro_walk    and
                 self.on_demand_nested == other.on_demand_nested and
-                self.fast_collections == other.fast_collections)
+                self.fast_collections == other.fast_collections and
+                self.fast_create      == other.fast_create         )
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Factory Methods
@@ -93,7 +98,8 @@ class Type_Safe__Config:                                                        
                    skip_validation  = True,
                    skip_conversion  = True,
                    skip_mro_walk    = True,
-                   fast_collections = True)
+                   fast_collections = True,
+                   fast_create      = True)
 
     @classmethod
     def on_demand_mode(cls) -> 'Type_Safe__Config':                                 # On-demand nested object creation only
