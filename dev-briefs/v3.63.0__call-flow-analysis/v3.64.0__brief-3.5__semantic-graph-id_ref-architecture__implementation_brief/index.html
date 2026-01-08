@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.64.0__brief-3.5__semantic-graph-id_ref-architecture__implementation_brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>(Brief 3.5) Semantic Graph ID/Ref Architecture Clarification - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "(Brief 3.5) Semantic Graph ID/Ref Architecture Clarification";
+        var mkdocs_page_input_path = "dev-briefs/v3.63.0__call-flow-analysis/v3.64.0__brief-3.5__semantic-graph-id_ref-architecture__implementation_brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.64.0__brief-3.5__semantic-graph-id_ref-architecture__implementation_brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">(Brief 3.5) Semantic Graph ID/Ref Architecture Clarification</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="brief-35-semantic-graph-idref-architecture-clarification">(Brief 3.5) Semantic Graph ID/Ref Architecture Clarification<a class="headerlink" href="#brief-35-semantic-graph-idref-architecture-clarification" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> v3.64.0<br />
+<strong>Status:</strong> Preparatory Refactoring<br />
+<strong>Target:</strong> OSBot-Utils (<code>osbot_utils.type_safe.primitives</code> and <code>osbot_utils.helpers.semantic_graphs</code>)<br />
+<strong>Created:</strong> January 2026<br />
+<strong>Prerequisites:</strong> Brief 3 Complete - Semantic Graphs Framework<br />
+<strong>Enables:</strong> Brief 4 - Call Flow as Semantic Graph  </p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This brief specifies a foundational refactoring to clarify the distinction between <strong>Instance IDs</strong> and <strong>Semantic References</strong> in the semantic graphs framework. The current implementation uses <code>*_Id</code> suffix for both concepts, causing architectural confusion.</p>
+<p><strong>Key Changes:</strong></p>
+<ol>
+<li><strong>Rename label/reference types:</strong> <code>*_Id</code> → <code>*_Ref</code> (e.g., <code>Ontology_Id</code> → <code>Ontology_Ref</code>)</li>
+<li><strong>Add deterministic ID creation:</strong> <code>Obj_Id.from_seed(seed_string)</code> for URI/seed-based IDs</li>
+<li><strong>Add ID provenance tracking:</strong> <code>Schema__Id__Source</code> with sidecar pattern <code>{id}_source</code></li>
+<li><strong>Keep schemas pure data:</strong> Complex ID logic lives in Registries/Builders, not schema <code>__init__</code></li>
+<li><strong>Update all semantic_graphs code</strong> to use new naming conventions</li>
+</ol>
+<p><strong>Why Now:</strong> Brief 4 (Call Flow as Semantic Graph) will be significantly cleaner with this foundation in place. The current naming confusion would propagate into call flow code and make the architecture harder to understand.</p>
+<hr />
+<h2 id="part-1-the-problem">Part 1: The Problem<a class="headerlink" href="#part-1-the-problem" title="Permanent link">&para;</a></h2>
+<h3 id="11-current-naming-confusion">1.1 Current Naming Confusion<a class="headerlink" href="#11-current-naming-confusion" title="Permanent link">&para;</a></h3>
+<p>The current implementation uses <code>*_Id</code> suffix for two fundamentally different concepts:</p>
+<pre><code class="language-python"># GROUP A: These are string labels/references (NOT instance identifiers)
+class Node_Type_Id(Semantic_Id): pass    # Values: &quot;class&quot;, &quot;method&quot;, &quot;function&quot;
+class Ontology_Id(Semantic_Id): pass     # Values: &quot;code_structure&quot;, &quot;call_flow&quot;
+class Taxonomy_Id(Semantic_Id): pass     # Values: &quot;call_flow_taxonomy&quot;
+class Category_Id(Semantic_Id): pass     # Values: &quot;container&quot;, &quot;callable&quot;
+class Rule_Set_Id(Semantic_Id): pass     # Values: &quot;call_flow_rules&quot;
+
+# GROUP B: These ARE instance identifiers
+class Node_Id(...): pass                 # Created via Node_Id(Obj_Id())
+class Edge_Id(...): pass                 # Created via Edge_Id(Obj_Id())
+class Graph_Id(...): pass                # Created via Graph_Id(Obj_Id())
+</code></pre>
+<h3 id="12-why-this-matters">1.2 Why This Matters<a class="headerlink" href="#12-why-this-matters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Group A (Labels)</th>
+<th>Group B (Instance IDs)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Source</strong></td>
+<td>JSON config, dict keys</td>
+<td>Created via <code>*_Id(Obj_Id())</code></td>
+</tr>
+<tr>
+<td><strong>Default value</strong></td>
+<td><code>''</code> (empty string)</td>
+<td><code>''</code> (empty string)</td>
+</tr>
+<tr>
+<td><strong>Unique value</strong></td>
+<td>From JSON/config</td>
+<td>From <code>Obj_Id()</code></td>
+</tr>
+<tr>
+<td><strong>Uniqueness scope</strong></td>
+<td>Per-ontology definition</td>
+<td>Per-instance globally</td>
+</tr>
+<tr>
+<td><strong>Human readable</strong></td>
+<td>YES ("class", "method")</td>
+<td>NO (random/sequential)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-missing-capability-deterministic-ids">1.3 Missing Capability: Deterministic IDs<a class="headerlink" href="#13-missing-capability-deterministic-ids" title="Permanent link">&para;</a></h3>
+<p>Currently, instance IDs can only be:
+- <strong>Random:</strong> <code>Node_Id(Obj_Id())</code> — different each time
+- <strong>Sequential (tests):</strong> Inside <code>graph_deterministic_ids()</code> context</p>
+<p><strong>Missing:</strong> Deterministic IDs from a stable seed (e.g., URI, qualified name), enabling:
+- Cross-session identity
+- Semantic Web compatibility
+- Reproducible ID generation</p>
+<hr />
+<h2 id="part-2-solution-architecture">Part 2: Solution Architecture<a class="headerlink" href="#part-2-solution-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="21-new-naming-convention">2.1 New Naming Convention<a class="headerlink" href="#21-new-naming-convention" title="Permanent link">&para;</a></h3>
+<pre><code>*_Id  = Instance identifier, unique per instance, created via *_Id(Obj_Id())
+*_Ref = Reference by name, string-based, comes from JSON/config
+</code></pre>
+<h3 id="22-rename-mapping">2.2 Rename Mapping<a class="headerlink" href="#22-rename-mapping" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Current Name</th>
+<th>New Name</th>
+<th>Base Class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Semantic_Id</code></td>
+<td><code>Semantic_Ref</code></td>
+<td><code>Safe_Str</code></td>
+<td>Base for string references</td>
+</tr>
+<tr>
+<td><code>Ontology_Id</code></td>
+<td><code>Ontology_Ref</code></td>
+<td><code>Semantic_Ref</code></td>
+<td>Reference ontology by name</td>
+</tr>
+<tr>
+<td><code>Taxonomy_Id</code></td>
+<td><code>Taxonomy_Ref</code></td>
+<td><code>Semantic_Ref</code></td>
+<td>Reference taxonomy by name</td>
+</tr>
+<tr>
+<td><code>Category_Id</code></td>
+<td><code>Category_Ref</code></td>
+<td><code>Semantic_Ref</code></td>
+<td>Reference category by name</td>
+</tr>
+<tr>
+<td><code>Node_Type_Id</code></td>
+<td><code>Node_Type_Ref</code></td>
+<td><code>Semantic_Ref</code></td>
+<td>Reference node type by name</td>
+</tr>
+<tr>
+<td><code>Rule_Set_Id</code></td>
+<td><code>Rule_Set_Ref</code></td>
+<td><code>Semantic_Ref</code></td>
+<td>Reference rule set by name</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Keep unchanged:</strong>
+- <code>Node_Id</code> — Instance ID for graph nodes
+- <code>Edge_Id</code> — Instance ID for graph edges
+- <code>Graph_Id</code> — Instance ID for graphs
+- <code>Safe_Str__Ontology__Verb</code> — Primitive with regex constraints</p>
+<h3 id="23-semantic_ref-regex">2.3 Semantic_Ref Regex<a class="headerlink" href="#23-semantic_ref-regex" title="Permanent link">&para;</a></h3>
+<p><code>Safe_Str</code> has regex <code>r'[^a-zA-Z0-9]'</code> which only allows alphanumeric characters. This is too restrictive for <code>Semantic_Ref</code> values which need:</p>
+<ul>
+<li><strong>Underscores:</strong> <code>call_flow</code>, <code>code_structure</code>, <code>call_flow_taxonomy</code></li>
+<li><strong>Hyphens:</strong> <code>call-flow</code> style naming</li>
+<li><strong>Colons:</strong> For CURIEs like <code>owl:Class</code>, <code>foaf:Person</code> (Semantic Web compact URIs)</li>
+<li><strong>Dots:</strong> For namespacing like <code>v1.0.thing</code></li>
+</ul>
+<pre><code class="language-python">import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+
+class Semantic_Ref(Safe_Str):
+    &quot;&quot;&quot;Base class for semantic reference strings (human-readable labels from config).&quot;&quot;&quot;
+    regex = re.compile(r'[^a-zA-Z0-9_:\-.]')      # Allow: alphanumeric, underscore, colon, hyphen, dot
+</code></pre>
+<p>This supports:
+- <code>call_flow</code> ✓
+- <code>owl:Class</code> ✓
+- <code>foaf:Person</code> ✓
+- <code>call-flow</code> ✓
+- <code>v1.0.thing</code> ✓</p>
+<h3 id="24-type-hierarchy-after-refactoring">2.4 Type Hierarchy After Refactoring<a class="headerlink" href="#24-type-hierarchy-after-refactoring" title="Permanent link">&para;</a></h3>
+<pre><code>Safe_Str (core primitive, regex: [^a-zA-Z0-9])
+│
+├── Semantic_Ref                          # String references from config
+│   │                                     # regex: [^a-zA-Z0-9_:\-.]
+│   ├── Ontology_Ref                      # &quot;call_flow&quot;, &quot;code_structure&quot;
+│   ├── Taxonomy_Ref                      # &quot;call_flow_taxonomy&quot;
+│   ├── Category_Ref                      # &quot;container&quot;, &quot;callable&quot;
+│   ├── Node_Type_Ref                     # &quot;class&quot;, &quot;method&quot;, &quot;function&quot;
+│   └── Rule_Set_Ref                      # &quot;call_flow_rules&quot;
+│
+├── Safe_Str__Ontology__Verb              # Verb primitive: &quot;calls&quot;, &quot;contains&quot;
+│
+└── Safe_Str__Id__Seed                    # Seed for deterministic IDs (URI, etc.)
+                                          # regex: [^a-zA-Z0-9_:/.#\-@]
+
+Obj_Id (auto-generating base)
+│
+├── Node_Id                               # Per-node instance ID
+├── Edge_Id                               # Per-edge instance ID
+└── Graph_Id                              # Per-graph instance ID
+</code></pre>
+<hr />
+<h2 id="part-3-deterministic-id-creation">Part 3: Deterministic ID Creation<a class="headerlink" href="#part-3-deterministic-id-creation" title="Permanent link">&para;</a></h2>
+<h3 id="31-the-from_seed-method">3.1 The <code>from_seed()</code> Method<a class="headerlink" href="#31-the-from_seed-method" title="Permanent link">&para;</a></h3>
+<p>Add to <code>Obj_Id</code> class:</p>
+<pre><code class="language-python">import hashlib
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id import Obj_Id
+
+
+class Obj_Id(Safe_Id):
+
+    @classmethod
+    def from_seed(cls, seed: str) -&gt; 'Obj_Id':
+        &quot;&quot;&quot;Create deterministic ID from seed string.
+
+        Same seed string always produces same ID.
+        Enables:
+        - Cross-session identity (same seed → same ID)
+        - Semantic Web compatibility (URI as seed)
+        - Reproducible ID generation
+
+        Args:
+            seed: Seed string (URI, qualified name, any stable identifier)
+
+        Returns:
+            Deterministic Obj_Id derived from seed
+        &quot;&quot;&quot;
+        if not seed:
+            raise ValueError(&quot;Seed string cannot be empty&quot;)
+        hash_bytes = hashlib.sha256(seed.encode('utf-8')).digest()
+        deterministic_id = hash_bytes.hex()[:8]                      # Match Obj_Id format
+        return cls(deterministic_id)
+</code></pre>
+<h3 id="32-id-creation-modes">3.2 ID Creation Modes<a class="headerlink" href="#32-id-creation-modes" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                         ID CREATION MODES                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  MODE 1: Random                                                          │
+│  ─────────────────                                                       │
+│  node_id = Node_Id(Obj_Id())                                             │
+│  → Random unique ID each call                                            │
+│  → Use for: runtime instances, session-specific entities                 │
+│                                                                          │
+│  MODE 2: Deterministic from seed (NEW)                                   │
+│  ─────────────────────────────────────                                   │
+│  ontology_id = Ontology_Id(Obj_Id.from_seed(uri))                        │
+│  → Same seed → same ID, always                                           │
+│  → Use for: entities with stable identity (URIs, qualified names)        │
+│                                                                          │
+│  MODE 3: Sequential (tests)                                              │
+│  ──────────────────────────                                              │
+│  with graph_deterministic_ids():                                         │
+│      node_id = Node_Id(Obj_Id())  # → 'c0000001', 'c0000002', ...        │
+│  → Use for: deterministic test assertions                                │
+│                                                                          │
+│  MODE 4: Explicit                                                        │
+│  ────────────────                                                        │
+│  node_id = Node_Id('existing-id-from-storage')                           │
+│  → Use for: loading from persisted data                                  │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="part-4-id-provenance-tracking">Part 4: ID Provenance Tracking<a class="headerlink" href="#part-4-id-provenance-tracking" title="Permanent link">&para;</a></h2>
+<h3 id="41-source-type-enum">4.1 Source Type Enum<a class="headerlink" href="#41-source-type-enum" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>osbot_utils/type_safe/primitives/domains/identifiers/enums/Enum__Id__Source_Type.py</code></p>
+<pre><code class="language-python">from enum import Enum
+
+
+class Enum__Id__Source_Type(str, Enum):
+    DETERMINISTIC = 'deterministic'                  # From seed string (URI, etc.)
+    RANDOM        = 'random'                         # Via Obj_Id()
+    SEQUENTIAL    = 'sequential'                     # Via graph_deterministic_ids context
+    EXPLICIT      = 'explicit'                       # Directly assigned (loaded from storage)
+</code></pre>
+<h3 id="42-seed-primitive">4.2 Seed Primitive<a class="headerlink" href="#42-seed-primitive" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>osbot_utils/type_safe/primitives/domains/identifiers/safe_str/Safe_Str__Id__Seed.py</code></p>
+<pre><code class="language-python">import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+
+class Safe_Str__Id__Seed(Safe_Str):                  # Seed string for deterministic IDs
+    regex = re.compile(r'[^a-zA-Z0-9_:/.#\-@]')      # Allow URI characters
+</code></pre>
+<p>Note: The regex is permissive to support URIs like <code>http://www.w3.org/2002/07/owl#Class</code>.</p>
+<h3 id="43-id-source-schema">4.3 ID Source Schema<a class="headerlink" href="#43-id-source-schema" title="Permanent link">&para;</a></h3>
+<p><strong>File:</strong> <code>osbot_utils/type_safe/primitives/domains/identifiers/schemas/Schema__Id__Source.py</code></p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.enums.Enum__Id__Source_Type        import Enum__Id__Source_Type
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id__Seed        import Safe_Str__Id__Seed
+
+
+class Schema__Id__Source(Type_Safe):                 # Provenance information for an ID
+    source_type : Enum__Id__Source_Type              # How the ID was created
+    seed        : Safe_Str__Id__Seed         = None  # The seed string (only for DETERMINISTIC)
+</code></pre>
+<h3 id="44-domain-specific-source-subclasses">4.4 Domain-Specific Source Subclasses<a class="headerlink" href="#44-domain-specific-source-subclasses" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># In semantic_graphs/schemas/identifier/
+
+class Ontology_Id__Source(Schema__Id__Source):       # Source for Ontology_Id
+    pass
+
+class Node_Id__Source(Schema__Id__Source):           # Source for Node_Id
+    pass
+
+class Edge_Id__Source(Schema__Id__Source):           # Source for Edge_Id
+    pass
+
+class Graph_Id__Source(Schema__Id__Source):          # Source for Graph_Id
+    pass
+</code></pre>
+<h3 id="45-sidecar-pattern-usage">4.5 Sidecar Pattern Usage<a class="headerlink" href="#45-sidecar-pattern-usage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Ontology(Type_Safe):
+    ontology_id        : Ontology_Id                 # The compact ID
+    ontology_id_source : Ontology_Id__Source = None  # How it was created (optional)
+    ontology_ref       : Ontology_Ref                # Human label
+    ...
+</code></pre>
+<p><strong>Key points:</strong>
+- Naming convention: <code>{id_field}_source</code>
+- Default to <code>None</code> — only populate when provenance matters
+- <code>seed</code> field is optional — only set for <code>DETERMINISTIC</code> source type
+- No overhead when not needed</p>
+<h3 id="46-two-storage-modes-for-seed">4.6 Two Storage Modes for Seed<a class="headerlink" href="#46-two-storage-modes-for-seed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th><code>*_id_source.seed</code></th>
+<th>External Cache</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Inline</strong></td>
+<td>Contains seed</td>
+<td>Not used</td>
+<td>Self-contained documents, full provenance</td>
+</tr>
+<tr>
+<td><strong>External</strong></td>
+<td><code>None</code></td>
+<td>Holds mapping</td>
+<td>Lightweight schemas, centralized provenance</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-5-version-captured-in-seed-design-decision">Part 5: Version Captured in Seed (Design Decision)<a class="headerlink" href="#part-5-version-captured-in-seed-design-decision" title="Permanent link">&para;</a></h2>
+<h3 id="51-the-redundancy-problem">5.1 The Redundancy Problem<a class="headerlink" href="#51-the-redundancy-problem" title="Permanent link">&para;</a></h3>
+<p>If we have both a <code>seed</code> (URI) and a <code>version</code> field, we create redundancy:</p>
+<pre><code class="language-python"># REDUNDANT - version appears twice
+class Schema__Ontology(Type_Safe):
+    ontology_id        : Ontology_Id
+    ontology_id_source : Ontology_Id__Source = None
+    ontology_ref       : Ontology_Ref
+    version            : Safe_Str__Version           # &quot;1.0.0&quot; ← REDUNDANT!
+    ...
+
+# Where seed might be:
+seed = &quot;http://osbot.dev/ontologies/call_flow/1.0.0&quot;  # ← Version already here!
+</code></pre>
+<h3 id="52-version-as-part-of-identity">5.2 Version as Part of Identity<a class="headerlink" href="#52-version-as-part-of-identity" title="Permanent link">&para;</a></h3>
+<p>In URI-based identity (Semantic Web pattern), <strong>version is part of the identifier</strong>:</p>
+<pre><code>http://osbot.dev/ontologies/call_flow/1.0     → Version 1.0
+http://osbot.dev/ontologies/call_flow/2.0.1   → Version 2.0.1 (DIFFERENT ID!)
+</code></pre>
+<p>This means:
+- <strong>Different version = different seed = different ID</strong>
+- <strong>No separate <code>version</code> field needed</strong>
+- <strong>Simpler schemas with fewer fields</strong>
+- <strong>Single source of truth</strong> — the seed contains everything</p>
+<h3 id="53-extracting-version-when-needed">5.3 Extracting Version When Needed<a class="headerlink" href="#53-extracting-version-when-needed" title="Permanent link">&para;</a></h3>
+<p>If version needs to be extracted programmatically:</p>
+<pre><code class="language-python"># From seed
+seed = ontology.ontology_id_source.seed              # &quot;http://osbot.dev/ontologies/call_flow/1.0&quot;
+version = seed.split('/')[-1]                        # &quot;1.0&quot;
+
+# Or with a helper method on Schema__Id__Source
+class Schema__Id__Source(Type_Safe):
+    source_type : Enum__Id__Source_Type
+    seed        : Safe_Str__Id__Seed = None
+
+    def extract_version(self) -&gt; str:
+        &quot;&quot;&quot;Extract version from seed (assumes URI pattern ending in /version).&quot;&quot;&quot;
+        if self.seed:
+            return str(self.seed).split('/')[-1]
+        return None
+</code></pre>
+<h3 id="54-non-uri-seeds">5.4 Non-URI Seeds<a class="headerlink" href="#54-non-uri-seeds" title="Permanent link">&para;</a></h3>
+<p>For seeds that aren't URIs, the same principle applies — version can be part of the seed:</p>
+<pre><code class="language-python">seed = &quot;call_flow:1.0.0&quot;                             # Version in seed
+seed = &quot;mymodule.MyClass@v2&quot;                         # Version in qualified name
+</code></pre>
+<h3 id="55-benefits">5.5 Benefits<a class="headerlink" href="#55-benefits" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>With Separate Version</th>
+<th>Version in Seed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fields</strong></td>
+<td>More fields</td>
+<td>Fewer fields</td>
+</tr>
+<tr>
+<td><strong>Sync issues</strong></td>
+<td>Version could mismatch seed</td>
+<td>Single source of truth</td>
+</tr>
+<tr>
+<td><strong>Identity</strong></td>
+<td>Ambiguous (same ref, different version?)</td>
+<td>Clear (different seed = different entity)</td>
+</tr>
+<tr>
+<td><strong>Semantic Web</strong></td>
+<td>Non-standard</td>
+<td>Standard URI pattern</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-6-schema-updates-pure-data">Part 6: Schema Updates (Pure Data)<a class="headerlink" href="#part-6-schema-updates-pure-data" title="Permanent link">&para;</a></h2>
+<p><strong>Critical Principle:</strong> Schemas are pure data containers. Complex ID generation logic belongs in Registries/Builders, NOT in schema <code>__init__</code> methods.</p>
+<h3 id="61-schema__semantic_graph">6.1 Schema__Semantic_Graph<a class="headerlink" href="#61-schema__semantic_graph" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Semantic_Graph(Type_Safe):
+    graph_id          : Graph_Id
+    graph_id_source   : Graph_Id__Source = None      # Optional provenance
+    ontology_ref      : Ontology_Ref                 # Reference by name
+    rule_set_ref      : Rule_Set_Ref                 # Reference by name
+    nodes             : Dict__Nodes__By_Id           # Typed collection
+    edges             : List__Edges                  # Typed collection
+
+    # NO complex __init__ - schema is pure data
+</code></pre>
+<h3 id="62-schema__semantic_graph__node">6.2 Schema__Semantic_Graph__Node<a class="headerlink" href="#62-schema__semantic_graph__node" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Semantic_Graph__Node(Type_Safe):
+    node_id        : Node_Id
+    node_id_source : Node_Id__Source = None          # Optional provenance
+    node_type      : Node_Type_Ref                   # Reference to type name
+    name           : Safe_Str__Id
+    line_number    : Safe_UInt
+
+    # NO complex __init__ - schema is pure data
+</code></pre>
+<h3 id="63-schema__semantic_graph__edge">6.3 Schema__Semantic_Graph__Edge<a class="headerlink" href="#63-schema__semantic_graph__edge" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Semantic_Graph__Edge(Type_Safe):
+    edge_id        : Edge_Id
+    edge_id_source : Edge_Id__Source = None          # Optional provenance
+    from_node      : Node_Id
+    verb           : Safe_Str__Ontology__Verb
+    to_node        : Node_Id
+    line_number    : Safe_UInt
+
+    # NO complex __init__ - schema is pure data
+</code></pre>
+<h3 id="64-schema__ontology">6.4 Schema__Ontology<a class="headerlink" href="#64-schema__ontology" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Ontology(Type_Safe):
+    ontology_id        : Ontology_Id
+    ontology_id_source : Ontology_Id__Source = None
+    ontology_ref       : Ontology_Ref                # Human-readable name
+    description        : Safe_Str__Text
+    taxonomy_ref       : Taxonomy_Ref
+    node_types         : Dict__Node_Types__By_Ref
+
+    # NO complex __init__ - ID creation handled by Registry
+    # NO version field - version is captured in seed/URI
+</code></pre>
+<hr />
+<h2 id="part-7-registry-factory-methods">Part 7: Registry Factory Methods<a class="headerlink" href="#part-7-registry-factory-methods" title="Permanent link">&para;</a></h2>
+<p>ID creation logic lives in Registries with explicit factory methods:</p>
+<h3 id="71-ontology__registry">7.1 Ontology__Registry<a class="headerlink" href="#71-ontology__registry" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Ontology__Registry(Type_Safe):
+    by_id  : Dict__Ontologies__By_Id                 # Ontology_Id → Schema__Ontology
+    by_ref : Dict__Ontology_Ids__By_Ref              # Ontology_Ref → Ontology_Id (xref)
+
+    def create_with__random_id(self, ontology_ref : Ontology_Ref,
+                                     description  : Safe_Str__Text    = None,
+                                     taxonomy_ref : Taxonomy_Ref      = None,
+                                     node_types   : Dict__Node_Types__By_Ref = None
+                              ) -&gt; Schema__Ontology:
+        &quot;&quot;&quot;Create ontology with random ID.&quot;&quot;&quot;
+        ontology_id = Ontology_Id(Obj_Id())
+        ontology = Schema__Ontology(
+            ontology_id  = ontology_id                                               ,
+            ontology_ref = ontology_ref                                              ,
+            description  = description                                               ,
+            taxonomy_ref = taxonomy_ref                                              ,
+            node_types   = node_types or Dict__Node_Types__By_Ref()                  ,
+        )
+        # ontology_id_source is None - no provenance tracked for random
+        self.register(ontology)
+        return ontology
+
+    def create_with__deterministic_id(self, ontology_ref : Ontology_Ref,
+                                            seed         : Safe_Str__Id__Seed,
+                                            description  : Safe_Str__Text    = None,
+                                            taxonomy_ref : Taxonomy_Ref      = None,
+                                            node_types   : Dict__Node_Types__By_Ref = None
+                                      ) -&gt; Schema__Ontology:
+        &quot;&quot;&quot;Create ontology with deterministic ID from seed (inline source).
+
+        Note: Version should be part of the seed (e.g., URI ending in /1.0.0).
+        &quot;&quot;&quot;
+        ontology_id = Ontology_Id(Obj_Id.from_seed(str(seed)))
+        ontology = Schema__Ontology(
+            ontology_id        = ontology_id                                         ,
+            ontology_id_source = Ontology_Id__Source(
+                source_type = Enum__Id__Source_Type.DETERMINISTIC                    ,
+                seed        = seed                                                   ,
+            )                                                                        ,
+            ontology_ref       = ontology_ref                                        ,
+            description        = description                                         ,
+            taxonomy_ref       = taxonomy_ref                                        ,
+            node_types         = node_types or Dict__Node_Types__By_Ref()            ,
+        )
+        self.register(ontology)
+        return ontology
+
+    def create_with__explicit_id(self, ontology_ref        : Ontology_Ref,
+                                       ontology_id         : Ontology_Id,
+                                       ontology_id_source  : Ontology_Id__Source = None,
+                                       description         : Safe_Str__Text      = None,
+                                       taxonomy_ref        : Taxonomy_Ref        = None,
+                                       node_types          : Dict__Node_Types__By_Ref = None
+                                 ) -&gt; Schema__Ontology:
+        &quot;&quot;&quot;Create ontology with caller-provided ID and optional source.&quot;&quot;&quot;
+        ontology = Schema__Ontology(
+            ontology_id        = ontology_id                                         ,
+            ontology_id_source = ontology_id_source                                  ,
+            ontology_ref       = ontology_ref                                        ,
+            description        = description                                         ,
+            taxonomy_ref       = taxonomy_ref                                        ,
+            node_types         = node_types or Dict__Node_Types__By_Ref()            ,
+        )
+        self.register(ontology)
+        return ontology
+
+    def register(self, ontology: Schema__Ontology):
+        &quot;&quot;&quot;Register ontology in lookup indexes.&quot;&quot;&quot;
+        self.by_id[ontology.ontology_id] = ontology
+        self.by_ref[ontology.ontology_ref] = ontology.ontology_id
+</code></pre>
+<h3 id="72-loading-from-json">7.2 Loading from JSON<a class="headerlink" href="#72-loading-from-json" title="Permanent link">&para;</a></h3>
+<p>Loading is always pure deserialization — no ID magic:</p>
+<pre><code class="language-python"># Loading from JSON is ALWAYS just deserialization
+ontology = Schema__Ontology.from_json(data)
+
+# The JSON contains everything needed:
+# - ontology_id: the ID (must be in JSON)
+# - ontology_id_source: provenance (if inline mode was used)
+# - ontology_ref: the human-readable name
+</code></pre>
+<p>This ensures roundtrips always work:</p>
+<pre><code class="language-python">original = Schema__Ontology(ontology_id=..., ontology_ref=..., ...)
+json_data = original.json()
+restored = Schema__Ontology.from_json(json_data)
+assert original.ontology_id == restored.ontology_id  # ✓ Always works
+</code></pre>
+<hr />
+<h2 id="part-8-external-seed-cache-optional">Part 8: External Seed Cache (Optional)<a class="headerlink" href="#part-8-external-seed-cache-optional" title="Permanent link">&para;</a></h2>
+<p>For cases where seed storage should be centralized (not inline in schemas), use a separate cache:</p>
+<h3 id="81-id__seed__cache">8.1 Id__Seed__Cache<a class="headerlink" href="#81-id__seed__cache" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Seeds__By_Id(Type_Safe__Dict):
+    expected_key_type   = Obj_Id
+    expected_value_type = Safe_Str__Id__Seed
+
+class Dict__Ids__By_Seed(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Id__Seed
+    expected_value_type = Obj_Id
+
+
+class Id__Seed__Cache(Type_Safe):
+    &quot;&quot;&quot;External cache for ID ↔ seed mappings.&quot;&quot;&quot;
+    seeds_by_id : Dict__Seeds__By_Id                 # id → seed
+    ids_by_seed : Dict__Ids__By_Seed                 # seed → id (reverse lookup)
+
+    def register(self, obj_id: Obj_Id, seed: Safe_Str__Id__Seed):
+        &quot;&quot;&quot;Register an ID ↔ seed mapping.&quot;&quot;&quot;
+        self.seeds_by_id[obj_id] = seed
+        self.ids_by_seed[seed]   = obj_id
+
+    def get_or_create_id(self, seed: Safe_Str__Id__Seed) -&gt; Obj_Id:
+        &quot;&quot;&quot;Get existing ID for seed, or create deterministically.&quot;&quot;&quot;
+        existing = self.ids_by_seed.get(seed)
+        if existing:
+            return existing
+        new_id = Obj_Id.from_seed(str(seed))
+        self.register(new_id, seed)
+        return new_id
+
+    def get_seed(self, obj_id: Obj_Id) -&gt; Safe_Str__Id__Seed:
+        &quot;&quot;&quot;Get seed for an ID.&quot;&quot;&quot;
+        return self.seeds_by_id.get(obj_id)
+</code></pre>
+<h3 id="82-semantic-web-id-cache">8.2 Semantic Web ID Cache<a class="headerlink" href="#82-semantic-web-id-cache" title="Permanent link">&para;</a></h3>
+<p>Pre-computed cache for well-known Semantic Web URIs:</p>
+<pre><code class="language-python">class Semantic_Web__Id__Cache(Id__Seed__Cache):
+    &quot;&quot;&quot;Pre-computed ID mappings for well-known Semantic Web URIs.&quot;&quot;&quot;
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._register_well_known_uris()
+
+    def _register_well_known_uris(self):
+        &quot;&quot;&quot;Pre-populate common Semantic Web URIs.&quot;&quot;&quot;
+        well_known = [
+            &quot;http://www.w3.org/2002/07/owl#Class&quot;                                    ,
+            &quot;http://www.w3.org/2002/07/owl#ObjectProperty&quot;                           ,
+            &quot;http://www.w3.org/2002/07/owl#DatatypeProperty&quot;                         ,
+            &quot;http://www.w3.org/2000/01/rdf-schema#label&quot;                             ,
+            &quot;http://www.w3.org/2000/01/rdf-schema#comment&quot;                           ,
+            &quot;http://xmlns.com/foaf/0.1/Person&quot;                                       ,
+            &quot;http://xmlns.com/foaf/0.1/name&quot;                                         ,
+        ]
+        for uri in well_known:
+            seed = Safe_Str__Id__Seed(uri)
+            self.get_or_create_id(seed)                                              # Registers it
+</code></pre>
+<h3 id="83-using-external-cache-with-registry">8.3 Using External Cache with Registry<a class="headerlink" href="#83-using-external-cache-with-registry" title="Permanent link">&para;</a></h3>
+<p>The cache is external to the registry — caller handles the lookup:</p>
+<pre><code class="language-python"># External cache usage
+semantic_cache = Semantic_Web__Id__Cache()
+
+# Caller gets/creates the ID from cache
+uri = Safe_Str__Id__Seed(&quot;http://www.w3.org/2002/07/owl#Class&quot;)
+ontology_id = Ontology_Id(semantic_cache.get_or_create_id(uri))
+
+# Then uses explicit_id method (source tracking is optional)
+registry.create_with__explicit_id(
+    ontology_ref = Ontology_Ref('owl'),
+    ontology_id  = ontology_id,
+    # ontology_id_source = None (seed is in external cache)
+)
+
+# OR with inline source tracking
+registry.create_with__explicit_id(
+    ontology_ref       = Ontology_Ref('owl'),
+    ontology_id        = ontology_id,
+    ontology_id_source = Ontology_Id__Source(
+        source_type = Enum__Id__Source_Type.DETERMINISTIC,
+        seed        = uri,
+    ),
+)
+</code></pre>
+<hr />
+<h2 id="part-9-collection-subclass-updates">Part 9: Collection Subclass Updates<a class="headerlink" href="#part-9-collection-subclass-updates" title="Permanent link">&para;</a></h2>
+<h3 id="91-rename-mapping">9.1 Rename Mapping<a class="headerlink" href="#91-rename-mapping" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Current Name</th>
+<th>New Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Dict__Node_Types__By_Id</code></td>
+<td><code>Dict__Node_Types__By_Ref</code></td>
+</tr>
+<tr>
+<td><code>Dict__Ontologies__By_Id</code></td>
+<td><code>Dict__Ontologies__By_Ref</code></td>
+</tr>
+<tr>
+<td><code>Dict__Taxonomies__By_Id</code></td>
+<td><code>Dict__Taxonomies__By_Ref</code></td>
+</tr>
+<tr>
+<td><code>Dict__Categories__By_Id</code></td>
+<td><code>Dict__Categories__By_Ref</code></td>
+</tr>
+<tr>
+<td><code>List__Node_Type_Ids</code></td>
+<td><code>List__Node_Type_Refs</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="92-updated-definitions">9.2 Updated Definitions<a class="headerlink" href="#92-updated-definitions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Node_Types__By_Ref(Type_Safe__Dict):
+    expected_key_type   = Node_Type_Ref
+    expected_value_type = Schema__Ontology__Node_Type
+
+class Dict__Ontologies__By_Ref(Type_Safe__Dict):
+    expected_key_type   = Ontology_Ref
+    expected_value_type = Schema__Ontology
+
+class List__Node_Type_Refs(Type_Safe__List):
+    expected_type = Node_Type_Ref
+</code></pre>
+<h3 id="93-new-collections-for-id-lookups">9.3 New Collections for ID Lookups<a class="headerlink" href="#93-new-collections-for-id-lookups" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Ontologies__By_Id(Type_Safe__Dict):
+    expected_key_type   = Ontology_Id
+    expected_value_type = Schema__Ontology
+
+class Dict__Ontology_Ids__By_Ref(Type_Safe__Dict):
+    expected_key_type   = Ontology_Ref
+    expected_value_type = Ontology_Id
+</code></pre>
+<hr />
+<h2 id="part-10-file-structure">Part 10: File Structure<a class="headerlink" href="#part-10-file-structure" title="Permanent link">&para;</a></h2>
+<h3 id="101-new-files-in-osbot_utilstype_safeprimitives">10.1 New Files in <code>osbot_utils/type_safe/primitives/</code><a class="headerlink" href="#101-new-files-in-osbot_utilstype_safeprimitives" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/type_safe/primitives/domains/identifiers/
+├── Obj_Id.py                                        # Add from_seed() method
+├── enums/
+│   └── Enum__Id__Source_Type.py                     # NEW
+├── safe_str/
+│   └── Safe_Str__Id__Seed.py                        # NEW (permissive regex for URIs)
+└── schemas/
+    └── Schema__Id__Source.py                        # NEW
+</code></pre>
+<h3 id="102-renamed-files-in-osbot_utilshelperssemantic_graphs">10.2 Renamed Files in <code>osbot_utils/helpers/semantic_graphs/</code><a class="headerlink" href="#102-renamed-files-in-osbot_utilshelperssemantic_graphs" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/helpers/semantic_graphs/schemas/
+├── identifier/
+│   ├── Semantic_Id.py        → Semantic_Ref.py
+│   ├── Ontology_Id.py        → Ontology_Ref.py
+│   ├── Taxonomy_Id.py        → Taxonomy_Ref.py
+│   ├── Category_Id.py        → Category_Ref.py
+│   ├── Node_Type_Id.py       → Node_Type_Ref.py
+│   ├── Rule_Set_Id.py        → Rule_Set_Ref.py
+│   ├── Ontology_Id__Source.py                       # NEW
+│   ├── Node_Id__Source.py                           # NEW
+│   ├── Edge_Id__Source.py                           # NEW
+│   └── Graph_Id__Source.py                          # NEW
+├── collection/
+│   ├── Dict__Node_Types__By_Id.py    → Dict__Node_Types__By_Ref.py
+│   ├── Dict__Ontologies__By_Id.py    → Dict__Ontologies__By_Ref.py
+│   ├── Dict__Ontologies__By_Id.py                   # NEW (for registry by_id)
+│   ├── Dict__Ontology_Ids__By_Ref.py                # NEW (for registry xref)
+│   └── List__Node_Type_Ids.py        → List__Node_Type_Refs.py
+├── graph/
+│   ├── Schema__Semantic_Graph.py                    # Update annotations
+│   ├── Schema__Semantic_Graph__Node.py              # Update annotations
+│   └── Schema__Semantic_Graph__Edge.py              # Update annotations
+├── ontology/
+│   └── Schema__Ontology*.py                         # Update annotations (remove version)
+├── taxonomy/
+│   └── Schema__Taxonomy*.py                         # Update annotations
+└── rule/
+    └── Schema__Rule*.py                             # Update annotations
+</code></pre>
+<h3 id="103-new-cache-files">10.3 New Cache Files<a class="headerlink" href="#103-new-cache-files" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/helpers/semantic_graphs/cache/
+├── __init__.py
+├── Id__Seed__Cache.py                               # NEW
+└── Semantic_Web__Id__Cache.py                       # NEW
+</code></pre>
+<hr />
+<h2 id="part-11-implementation-checklist">Part 11: Implementation Checklist<a class="headerlink" href="#part-11-implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-core-primitives-osbot_utilstype_safeprimitives">Phase 1: Core Primitives (osbot_utils/type_safe/primitives/)<a class="headerlink" href="#phase-1-core-primitives-osbot_utilstype_safeprimitives" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add <code>from_seed()</code> method to <code>Obj_Id</code></li>
+<li>[ ] Create <code>Enum__Id__Source_Type</code> enum</li>
+<li>[ ] Create <code>Safe_Str__Id__Seed</code> primitive (with permissive regex)</li>
+<li>[ ] Create <code>Schema__Id__Source</code> schema (with optional <code>seed</code> field)</li>
+<li>[ ] Add tests for <code>from_seed()</code> determinism</li>
+<li>[ ] Add tests for <code>Schema__Id__Source</code></li>
+</ul>
+<h3 id="phase-2-identifier-renames-semantic_graphsschemasidentifier">Phase 2: Identifier Renames (semantic_graphs/schemas/identifier/)<a class="headerlink" href="#phase-2-identifier-renames-semantic_graphsschemasidentifier" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Rename <code>Semantic_Id</code> → <code>Semantic_Ref</code> (with new regex <code>[^a-zA-Z0-9_:\-.]</code>)</li>
+<li>[ ] Rename <code>Ontology_Id</code> → <code>Ontology_Ref</code></li>
+<li>[ ] Rename <code>Taxonomy_Id</code> → <code>Taxonomy_Ref</code></li>
+<li>[ ] Rename <code>Category_Id</code> → <code>Category_Ref</code></li>
+<li>[ ] Rename <code>Node_Type_Id</code> → <code>Node_Type_Ref</code></li>
+<li>[ ] Rename <code>Rule_Set_Id</code> → <code>Rule_Set_Ref</code></li>
+<li>[ ] Create <code>Ontology_Id__Source</code>, <code>Node_Id__Source</code>, <code>Edge_Id__Source</code>, <code>Graph_Id__Source</code></li>
+</ul>
+<h3 id="phase-3-collection-renames-semantic_graphsschemascollection">Phase 3: Collection Renames (semantic_graphs/schemas/collection/)<a class="headerlink" href="#phase-3-collection-renames-semantic_graphsschemascollection" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Rename <code>Dict__Node_Types__By_Id</code> → <code>Dict__Node_Types__By_Ref</code></li>
+<li>[ ] Rename <code>Dict__Ontologies__By_Id</code> → <code>Dict__Ontologies__By_Ref</code></li>
+<li>[ ] Rename <code>Dict__Taxonomies__By_Id</code> → <code>Dict__Taxonomies__By_Ref</code></li>
+<li>[ ] Rename <code>Dict__Categories__By_Id</code> → <code>Dict__Categories__By_Ref</code></li>
+<li>[ ] Rename <code>List__Node_Type_Ids</code> → <code>List__Node_Type_Refs</code></li>
+<li>[ ] Create new ID-based collections (<code>Dict__Ontologies__By_Id</code>, <code>Dict__Ontology_Ids__By_Ref</code>)</li>
+</ul>
+<h3 id="phase-4-schema-updates-semantic_graphsschemas">Phase 4: Schema Updates (semantic_graphs/schemas/)<a class="headerlink" href="#phase-4-schema-updates-semantic_graphsschemas" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Update <code>Schema__Semantic_Graph</code> — add sidecar, update refs, NO complex <strong>init</strong></li>
+<li>[ ] Update <code>Schema__Semantic_Graph__Node</code> — add sidecar, update refs</li>
+<li>[ ] Update <code>Schema__Semantic_Graph__Edge</code> — add sidecar</li>
+<li>[ ] Update <code>Schema__Ontology</code> — add sidecar, update refs, remove version field, NO complex <strong>init</strong></li>
+<li>[ ] Update <code>Schema__Ontology__Node_Type</code> — update refs</li>
+<li>[ ] Update <code>Schema__Ontology__Relationship</code> — update refs</li>
+<li>[ ] Update <code>Schema__Taxonomy</code> — add sidecar, update refs, remove version field if present</li>
+<li>[ ] Update <code>Schema__Taxonomy__Category</code> — update refs</li>
+<li>[ ] Update <code>Schema__Rule_Set</code> — add sidecar, update refs, remove version field if present</li>
+</ul>
+<h3 id="phase-5-registry-updates-semantic_graphs">Phase 5: Registry Updates (semantic_graphs/)<a class="headerlink" href="#phase-5-registry-updates-semantic_graphs" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Update <code>Ontology__Registry</code> — add factory methods, update type annotations</li>
+<li>[ ] Update <code>Taxonomy__Registry</code> — add factory methods, update type annotations</li>
+<li>[ ] Update <code>Rule__Engine</code> — update type annotations</li>
+<li>[ ] Update <code>Semantic_Graph__Builder</code> — update type annotations</li>
+<li>[ ] Update <code>Semantic_Graph__Validator</code> — update type annotations</li>
+</ul>
+<h3 id="phase-6-cache-implementation-semantic_graphscache">Phase 6: Cache Implementation (semantic_graphs/cache/)<a class="headerlink" href="#phase-6-cache-implementation-semantic_graphscache" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>Id__Seed__Cache</code></li>
+<li>[ ] Create <code>Semantic_Web__Id__Cache</code></li>
+<li>[ ] Add tests for cache functionality</li>
+</ul>
+<h3 id="phase-7-test-updates">Phase 7: Test Updates<a class="headerlink" href="#phase-7-test-updates" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Update all identifier tests for new names</li>
+<li>[ ] Update all collection tests for new names</li>
+<li>[ ] Update all schema tests for sidecar fields</li>
+<li>[ ] Add tests for deterministic ID creation via <code>from_seed()</code></li>
+<li>[ ] Add tests for ID source tracking</li>
+<li>[ ] Add tests for registry factory methods</li>
+</ul>
+<h3 id="phase-8-code-structure-analyzer">Phase 8: Code Structure Analyzer<a class="headerlink" href="#phase-8-code-structure-analyzer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Update <code>osbot_utils/helpers/python_call_flow/code_structure/</code> to use <code>*_Ref</code> types</li>
+</ul>
+<hr />
+<h2 id="part-12-usage-examples">Part 12: Usage Examples<a class="headerlink" href="#part-12-usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="121-creating-ontology-with-random-id">12.1 Creating Ontology with Random ID<a class="headerlink" href="#121-creating-ontology-with-random-id" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">registry = Ontology__Registry()
+
+ontology = registry.create_with__random_id(
+    ontology_ref = Ontology_Ref('call_flow'),
+    description  = Safe_Str__Text('Python call flow analysis'),
+)
+
+# ontology.ontology_id = random ID
+# ontology.ontology_id_source = None (no provenance tracked)
+</code></pre>
+<h3 id="122-creating-ontology-with-deterministic-id-inline-source">12.2 Creating Ontology with Deterministic ID (Inline Source)<a class="headerlink" href="#122-creating-ontology-with-deterministic-id-inline-source" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">registry = Ontology__Registry()
+
+# Version is part of the URI
+uri = Safe_Str__Id__Seed('http://osbot.dev/ontologies/call_flow/1.0.0')
+ontology = registry.create_with__deterministic_id(
+    ontology_ref = Ontology_Ref('call_flow'),
+    seed         = uri,
+)
+
+# ontology.ontology_id = deterministic ID derived from URI
+# ontology.ontology_id_source.source_type = DETERMINISTIC
+# ontology.ontology_id_source.seed = 'http://osbot.dev/ontologies/call_flow/1.0.0'
+# Version (1.0.0) can be extracted from seed if needed
+</code></pre>
+<h3 id="123-creating-ontology-with-explicit-id-external-source">12.3 Creating Ontology with Explicit ID (External Source)<a class="headerlink" href="#123-creating-ontology-with-explicit-id-external-source" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Using external cache
+semantic_cache = Semantic_Web__Id__Cache()
+uri = Safe_Str__Id__Seed('http://osbot.dev/ontologies/call_flow/1.0.0')
+ontology_id = Ontology_Id(semantic_cache.get_or_create_id(uri))
+
+# Create with explicit ID
+registry = Ontology__Registry()
+ontology = registry.create_with__explicit_id(
+    ontology_ref = Ontology_Ref('call_flow'),
+    ontology_id  = ontology_id,
+    # ontology_id_source = None (seed is in external cache)
+)
+</code></pre>
+<h3 id="124-cross-session-identity">12.4 Cross-Session Identity<a class="headerlink" href="#124-cross-session-identity" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Session 1
+uri = &quot;http://osbot.dev/ontologies/call_flow/1.0.0&quot;
+ontology_id_1 = Ontology_Id(Obj_Id.from_seed(uri))
+print(ontology_id_1)  # → &quot;a3f2b8c1&quot;
+
+# Session 2 (different process, different day)
+ontology_id_2 = Ontology_Id(Obj_Id.from_seed(uri))
+print(ontology_id_2)  # → &quot;a3f2b8c1&quot; (SAME!)
+
+assert ontology_id_1 == ontology_id_2  # ✓ Always passes
+</code></pre>
+<h3 id="125-loading-from-json-pure-deserialization">12.5 Loading from JSON (Pure Deserialization)<a class="headerlink" href="#125-loading-from-json-pure-deserialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># JSON contains all necessary data (no separate version field)
+json_data = {
+    &quot;ontology_id&quot;: &quot;a3f2b8c1&quot;,
+    &quot;ontology_id_source&quot;: {
+        &quot;source_type&quot;: &quot;deterministic&quot;,
+        &quot;seed&quot;: &quot;http://osbot.dev/ontologies/call_flow/1.0.0&quot;   # Version in seed
+    },
+    &quot;ontology_ref&quot;: &quot;call_flow&quot;,
+    ...
+}
+
+# Loading is ALWAYS just deserialization
+ontology = Schema__Ontology.from_json(json_data)
+
+# Roundtrip works
+assert ontology.json() == json_data  # ✓
+
+# Extract version from seed if needed
+version = ontology.ontology_id_source.seed.split('/')[-1]  # &quot;1.0.0&quot;
+</code></pre>
+<h3 id="126-node-with-deterministic-id-from-qualified-name">12.6 Node with Deterministic ID from Qualified Name<a class="headerlink" href="#126-node-with-deterministic-id-from-qualified-name" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># For code analysis, use qualified name as seed
+qualified_name = &quot;mymodule.MyClass.my_method&quot;
+node_id = Node_Id(Obj_Id.from_seed(qualified_name))
+
+node = Schema__Semantic_Graph__Node(
+    node_id        = node_id,
+    node_id_source = Node_Id__Source(
+        source_type = Enum__Id__Source_Type.DETERMINISTIC,
+        seed        = Safe_Str__Id__Seed(qualified_name),
+    ),
+    node_type      = Node_Type_Ref('method'),
+    name           = Safe_Str__Id('my_method'),
+    line_number    = Safe_UInt(42),
+)
+
+# Same qualified name → same node_id, across sessions
+</code></pre>
+<hr />
+<h2 id="part-13-success-criteria">Part 13: Success Criteria<a class="headerlink" href="#part-13-success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="minimum-viable-product-mvp">Minimum Viable Product (MVP)<a class="headerlink" href="#minimum-viable-product-mvp" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] All <code>*_Id</code> → <code>*_Ref</code> renames complete</li>
+<li>[ ] <code>Obj_Id.from_seed()</code> implemented and tested</li>
+<li>[ ] <code>Schema__Id__Source</code> implemented with optional <code>seed</code></li>
+<li>[ ] All semantic_graphs tests pass</li>
+<li>[ ] No regressions in functionality</li>
+</ul>
+<h3 id="full-implementation">Full Implementation<a class="headerlink" href="#full-implementation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] All Phase 1-8 checklist items complete</li>
+<li>[ ] Sidecar pattern (<code>*_source</code>) on all ID fields in schemas</li>
+<li>[ ] Registry factory methods for all creation patterns</li>
+<li>[ ] <code>Id__Seed__Cache</code> and <code>Semantic_Web__Id__Cache</code> implemented</li>
+<li>[ ] Documentation updated</li>
+</ul>
+<h3 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__naming_clarity(self):
+    &quot;&quot;&quot;After refactoring, naming is self-documenting.&quot;&quot;&quot;
+
+    # References are clearly references (human labels)
+    node_type = Node_Type_Ref('class')               # Obviously a reference
+    ontology_ref = Ontology_Ref('call_flow')         # Obviously a reference
+
+    # IDs are clearly instance IDs
+    node_id = Node_Id(Obj_Id())                      # Obviously an instance ID
+
+    # Deterministic IDs work
+    uri = &quot;http://example.com/ontology&quot;
+    id_1 = Ontology_Id(Obj_Id.from_seed(uri))
+    id_2 = Ontology_Id(Obj_Id.from_seed(uri))
+    assert id_1 == id_2                              # Same seed → same ID
+
+def test__semantic_ref_regex(self):
+    &quot;&quot;&quot;Semantic_Ref allows underscores, colons, hyphens, dots.&quot;&quot;&quot;
+
+    # All valid Semantic_Ref values
+    assert Ontology_Ref('call_flow')                 # Underscore ✓
+    assert Ontology_Ref('owl:Class')                 # Colon (CURIE) ✓
+    assert Ontology_Ref('call-flow')                 # Hyphen ✓
+    assert Ontology_Ref('v1.0.thing')                # Dot ✓
+    assert Node_Type_Ref('foaf:Person')              # Semantic Web ✓
+
+def test__roundtrip(self):
+    &quot;&quot;&quot;JSON roundtrips work correctly.&quot;&quot;&quot;
+    original = Schema__Ontology(
+        ontology_id        = Ontology_Id(Obj_Id.from_seed('http://example.com/test/1.0')),
+        ontology_id_source = Ontology_Id__Source(
+            source_type = Enum__Id__Source_Type.DETERMINISTIC,
+            seed        = Safe_Str__Id__Seed('http://example.com/test/1.0'),
+        ),
+        ontology_ref       = Ontology_Ref('test'),
+    )
+    restored = Schema__Ontology.from_json(original.json())
+    assert original.ontology_id == restored.ontology_id
+    assert original.ontology_id_source.seed == restored.ontology_id_source.seed
+
+    # Extract version from seed
+    version = str(original.ontology_id_source.seed).split('/')[-1]
+    assert version == '1.0'
+</code></pre>
+<hr />
+<h2 id="part-14-migration-notes">Part 14: Migration Notes<a class="headerlink" href="#part-14-migration-notes" title="Permanent link">&para;</a></h2>
+<h3 id="141-no-external-impact">14.1 No External Impact<a class="headerlink" href="#141-no-external-impact" title="Permanent link">&para;</a></h3>
+<p>Since no external code is currently using the semantic_graphs framework (per project notes), this refactoring has no backward compatibility concerns.</p>
+<h3 id="142-ide-support">14.2 IDE Support<a class="headerlink" href="#142-ide-support" title="Permanent link">&para;</a></h3>
+<p>After renaming, IDEs will show clear type distinctions:
+- <code>node_type: Node_Type_Ref</code> — obviously a reference/label
+- <code>node_id: Node_Id</code> — obviously an instance ID</p>
+<h3 id="143-grep-friendly">14.3 Grep-Friendly<a class="headerlink" href="#143-grep-friendly" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Find all references
+grep -r &quot;Ontology_Ref&quot; osbot_utils/
+
+# Find all instance IDs
+grep -r &quot;Ontology_Id&quot; osbot_utils/
+
+# Find all ID source tracking
+grep -r &quot;_source&quot; osbot_utils/helpers/semantic_graphs/
+
+# Find all factory methods
+grep -r &quot;create_with__&quot; osbot_utils/helpers/semantic_graphs/
+</code></pre>
+<hr />
+<p><em>End of Implementation Brief</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

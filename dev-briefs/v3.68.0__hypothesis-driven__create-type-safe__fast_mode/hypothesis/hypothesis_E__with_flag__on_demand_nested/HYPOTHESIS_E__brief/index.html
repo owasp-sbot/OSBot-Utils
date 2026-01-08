@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_E__with_flag__on_demand_nested/HYPOTHESIS_E__brief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis E: on_demand_nested Flag Implementation - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis E: on_demand_nested Flag Implementation";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_E__with_flag__on_demand_nested/HYPOTHESIS_E__brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_E__with_flag__on_demand_nested/HYPOTHESIS_E__brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis E: on_demand_nested Flag Implementation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-e-on_demand_nested-flag-implementation">Hypothesis E: on_demand_nested Flag Implementation<a class="headerlink" href="#hypothesis-e-on_demand_nested-flag-implementation" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 7, 2026<br />
+<strong>Status</strong>: In Progress<br />
+<strong>Baseline</strong>: Standard Type_Safe (creates all nested objects upfront)</p>
+<hr />
+<h2 id="context-where-we-are">Context: Where We Are<a class="headerlink" href="#context-where-we-are" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Hypothesis</th>
+<th>Finding</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Thread-local config lookup costs ~350 ns</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Config presence vs None adds ~0 ns</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>C</td>
+<td><code>skip_validation</code> in <code>__setattr__</code> → 50-83% faster</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>D</td>
+<td><code>skip_conversion</code> in init → 20-30% faster</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td><strong><code>on_demand_nested</code> → defer nested creation</strong></td>
+<td>🔄 This one</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
+<p>Currently, Type_Safe creates ALL nested Type_Safe objects during <code>__init__</code>:</p>
+<pre><code class="language-python">class Schema__Data(Type_Safe):
+    edges : Dict[str, str]
+    labels: Dict[str, str]
+
+class Index__Edges(Type_Safe):
+    data: Schema__Data                    # Created immediately during Index__Edges()
+
+class MGraph__Index(Type_Safe):
+    edges_index : Index__Edges            # Created immediately
+    labels_index: Index__Labels           # Created immediately
+    nodes_index : Index__Nodes            # Created immediately
+</code></pre>
+<p>If you create <code>MGraph__Index()</code>:
+- <code>edges_index</code> is created → which creates <code>Schema__Data</code> → which creates 2 Type_Safe__Dicts
+- <code>labels_index</code> is created → same cascade
+- <code>nodes_index</code> is created → same cascade
+- <strong>Dozens of objects created even if never accessed!</strong></p>
+<hr />
+<h2 id="the-solution">The Solution<a class="headerlink" href="#the-solution" title="Permanent link">&para;</a></h2>
+<p>With <code>on_demand_nested=True</code>, nested Type_Safe objects are created <strong>only when first accessed</strong>:</p>
+<pre><code class="language-python">with Type_Safe__Config(on_demand_nested=True):
+    index = MGraph__Index()               # Fast! No nested objects created yet
+
+    # Later, when actually needed:
+    index.edges_index.data.edges['a'] = 'b'   # edges_index created NOW
+
+    # nodes_index and labels_index never created if never accessed!
+</code></pre>
+<hr />
+<h2 id="existing-implementation-type_safe__on_demand">Existing Implementation: Type_Safe__On_Demand<a class="headerlink" href="#existing-implementation-type_safe__on_demand" title="Permanent link">&para;</a></h2>
+<p>This was already implemented as a separate class. Key techniques:</p>
+<h3 id="1-intercept-in-__init__">1. Intercept in <code>__init__</code><a class="headerlink" href="#1-intercept-in-__init__" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __init__(self, **kwargs):
+    object.__setattr__(self, '_on_demand__types', {})
+
+    for var_name, var_type in annotations.items():
+        if should_create_on_demand(var_type):
+            on_demand_types[var_name] = var_type
+            kwargs[var_name] = None           # Prevent Type_Safe auto-creation!
+
+    super().__init__(**kwargs)
+</code></pre>
+<h3 id="2-create-on-first-access-via-__getattribute__">2. Create on First Access via <code>__getattribute__</code><a class="headerlink" href="#2-create-on-first-access-via-__getattribute__" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __getattribute__(self, name):
+    if name.startswith('_'):                  # Fast path for internals
+        return object.__getattribute__(self, name)
+
+    on_demand_types = object.__getattribute__(self, '_on_demand__types')
+    if name in on_demand_types:
+        var_type = on_demand_types.pop(name)  # Remove from pending
+        new_value = var_type()                # Create now!
+        object.__setattr__(self, name, new_value)
+        return new_value
+
+    return object.__getattribute__(self, name)
+</code></pre>
+<h3 id="3-what-gets-deferred">3. What Gets Deferred<a class="headerlink" href="#3-what-gets-deferred" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@staticmethod
+def _should_create_on_demand(var_type):
+    if not issubclass(var_type, Type_Safe):
+        return False                          # Only Type_Safe subclasses
+    if issubclass(var_type, Type_Safe__Primitive):
+        return False                          # Primitives are cheap
+    if issubclass(var_type, (Type_Safe__List, Type_Safe__Dict, Type_Safe__Set)):
+        return False                          # Collections are cheap
+    return True
+</code></pre>
+<hr />
+<h2 id="integration-with-type_safe__config">Integration with Type_Safe__Config<a class="headerlink" href="#integration-with-type_safe__config" title="Permanent link">&para;</a></h2>
+<p>The key insight: <strong>We don't need to check config in <code>__getattribute__</code></strong>.</p>
+<ol>
+<li>Check config only in <code>__init__</code> to decide whether to use on-demand mode</li>
+<li>If on-demand, set up <code>_on_demand__types</code> dict</li>
+<li><code>__getattribute__</code> just checks if that dict exists and has pending items</li>
+<li>When not using on-demand, <code>_on_demand__types</code> doesn't exist → normal behavior</li>
+</ol>
+<hr />
+<h2 id="expected-impact">Expected Impact<a class="headerlink" href="#expected-impact" title="Permanent link">&para;</a></h2>
+<p>From Type_Safe__On_Demand documentation:
+- <strong>20x faster</strong> construction for complex nested hierarchies
+- <strong>98% reduction</strong> in objects created during construction
+- <strong>~10ms savings</strong> for Html_MGraph's 6-index initialization</p>
+<p>For a class with 5 nested Type_Safe attributes:
+- Before: 5 nested objects created × cost of each
+- After: 0 nested objects created (until accessed)</p>
+<hr />
+<h2 id="test-strategy">Test Strategy<a class="headerlink" href="#test-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="baseline">Baseline<a class="headerlink" href="#baseline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def run_baseline_benchmarks(timing):
+    with Type_Safe__Config(on_demand_nested=False):      # Normal mode
+        timing.benchmark('A_03__with_nested', TS__With_Nested)
+</code></pre>
+<h3 id="hypothesis">Hypothesis<a class="headerlink" href="#hypothesis" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def run_hypothesis_benchmarks(timing):
+    with Type_Safe__Config(on_demand_nested=True):       # On-demand mode
+        timing.benchmark('A_03__with_nested', TS__With_Nested)
+</code></pre>
+<p><strong>Focus</strong>: Tests with nested Type_Safe objects should show massive improvement.</p>
+<hr />
+<h2 id="what-still-works">What Still Works<a class="headerlink" href="#what-still-works" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>With <code>on_demand_nested=True</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primitives (str, int, bool)</td>
+<td>✅ Created normally</td>
+</tr>
+<tr>
+<td>Collections (List, Dict, Set)</td>
+<td>✅ Created normally (cheap)</td>
+</tr>
+<tr>
+<td>Type_Safe__Primitive</td>
+<td>✅ Created normally (cheap)</td>
+</tr>
+<tr>
+<td>Explicit defaults</td>
+<td>✅ Used as-is</td>
+</tr>
+<tr>
+<td>User-provided kwargs</td>
+<td>✅ Used as-is</td>
+</tr>
+<tr>
+<td>JSON serialization</td>
+<td>✅ Works (creates pending objects)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-changes">What Changes<a class="headerlink" href="#what-changes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>With <code>on_demand_nested=True</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nested Type_Safe without default</td>
+<td>Created on first access</td>
+</tr>
+<tr>
+<td><code>repr()</code> shows pending count</td>
+<td><code>&lt;MyClass (3 attrs pending)&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="files-to-create">Files to Create<a class="headerlink" href="#files-to-create" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HYPOTHESIS_E__brief.md</code></td>
+<td>This document</td>
+</tr>
+<tr>
+<td><code>Type_Safe__Hypothesis_E.py</code></td>
+<td>Class with on_demand_nested support</td>
+</tr>
+<tr>
+<td><code>test_perf__Hypothesis_E.py</code></td>
+<td>Benchmark test</td>
+</tr>
+<tr>
+<td><code>HYPOTHESIS_E__debrief.md</code></td>
+<td>Post-analysis (after running)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="success-criteria">Success Criteria<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Performance</strong>: Major improvement for nested Type_Safe classes</li>
+<li><strong>Functional</strong>: Objects still work correctly when accessed</li>
+<li><strong>JSON</strong>: Serialization still works (forces creation of pending objects)</li>
+</ol>
+<hr />
+<h2 id="note-keeping-it-simple">Note: Keeping It Simple<a class="headerlink" href="#note-keeping-it-simple" title="Permanent link">&para;</a></h2>
+<p>This hypothesis focuses ONLY on <code>on_demand_nested</code>. We're NOT combining with:
+- <code>skip_validation</code> (Hypothesis C)
+- <code>skip_conversion</code> (Hypothesis D)</p>
+<p>This isolates the measurement to just the on-demand creation benefit.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_E__with_flag__on_demand_nested/HYPOTHESIS_E__debrief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis E: on_demand_nested Flag Implementation - Debrief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis E: on_demand_nested Flag Implementation - Debrief";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_E__with_flag__on_demand_nested/HYPOTHESIS_E__debrief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_E__with_flag__on_demand_nested/HYPOTHESIS_E__debrief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis E: on_demand_nested Flag Implementation - Debrief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-e-on_demand_nested-flag-implementation-debrief">Hypothesis E: on_demand_nested Flag Implementation - Debrief<a class="headerlink" href="#hypothesis-e-on_demand_nested-flag-implementation-debrief" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 7, 2026<br />
+<strong>Status</strong>: ✅ MAJOR SUCCESS<br />
+<strong>Result</strong>: 52-61% improvement, up to 6.4x speedup for complex nested classes</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Hypothesis E proved that deferring nested Type_Safe object creation until first access delivers <strong>massive performance gains</strong> for complex hierarchies. We also developed a <strong>simplified v2 implementation</strong> that eliminates permanent tracking attributes while maintaining (and slightly improving) performance.</p>
+<p>This is the <strong>biggest single optimization</strong> in the hypothesis series, with speedups of up to <strong>6.4x</strong> for MGraph-like structures.</p>
+<hr />
+<h2 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
+<p>Type_Safe creates ALL nested objects during <code>__init__</code>:</p>
+<pre><code class="language-python">class MGraph__Index(Type_Safe):
+    edges_index : Index__Edges      # Created immediately
+    nodes_index : Index__Nodes      # Created immediately  
+    labels_index: Index__Labels     # Created immediately
+
+index = MGraph__Index()  # Creates 3 indexes + their nested objects + their dicts...
+</code></pre>
+<p>For complex hierarchies, this creates dozens of objects even if never accessed.</p>
+<hr />
+<h2 id="the-solution">The Solution<a class="headerlink" href="#the-solution" title="Permanent link">&para;</a></h2>
+<p>With <code>on_demand_nested=True</code>, nested Type_Safe objects are created <strong>only when first accessed</strong>:</p>
+<pre><code class="language-python">with Type_Safe__Config(on_demand_nested=True):
+    index = MGraph__Index()              # Fast! No nested objects created
+
+    index.edges_index.data['key'] = 'v'  # edges_index created NOW
+    # nodes_index, labels_index never created if never accessed!
+</code></pre>
+<hr />
+<h2 id="two-implementations">Two Implementations<a class="headerlink" href="#two-implementations" title="Permanent link">&para;</a></h2>
+<h3 id="v1-tracking-dict-approach-original-type_safe__on_demand">v1: Tracking Dict Approach (Original Type_Safe__On_Demand)<a class="headerlink" href="#v1-tracking-dict-approach-original-type_safe__on_demand" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __init__(self, **kwargs):
+    object.__setattr__(self, '_on_demand__init_complete', False)
+    object.__setattr__(self, '_on_demand__types', {})
+
+    # ... collect types into _on_demand__types ...
+
+    super().__init__(**kwargs)
+    object.__setattr__(self, '_on_demand__init_complete', True)
+
+def __getattribute__(self, name):
+    if name in self._on_demand__types:
+        var_type = self._on_demand__types.pop(name)
+        # ... create and return ...
+
+def json(self):
+    result = super().json()
+    return self._on_demand__clean_json(result)  # Remove tracking attrs
+</code></pre>
+<p><strong>Issues:</strong>
+- Permanent <code>_on_demand__types</code> dict on every object
+- Permanent <code>_on_demand__init_complete</code> flag on every object
+- Requires <code>_on_demand__clean_json()</code> hack for serialization</p>
+<h3 id="v2-temporary-flag-approach-simplified">v2: Temporary Flag Approach (Simplified)<a class="headerlink" href="#v2-temporary-flag-approach-simplified" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __init__(self, **kwargs):
+    if config and config.on_demand_nested:
+        object.__setattr__(self, '_on_demand__init_complete', False)  # SET
+        try:
+            # ... set kwargs[var_name] = None for Type_Safe attrs ...
+            super().__init__(**kwargs)
+        finally:
+            object.__delattr__(self, '_on_demand__init_complete')     # DELETE
+    else:
+        super().__init__(**kwargs)
+
+def __getattribute__(self, name):
+    try:
+        object.__getattribute__(self, '_on_demand__init_complete')
+        return object.__getattribute__(self, name)  # In init → don't create
+    except AttributeError:
+        pass  # After init → do create logic
+
+    value = object.__getattribute__(self, name)
+    if value is None:
+        var_type = get_annotation_type(name)
+        if should_create_on_demand(var_type):
+            new_value = var_type()
+            object.__setattr__(self, name, new_value)
+            return new_value
+    return value
+</code></pre>
+<p><strong>Benefits:</strong>
+- Flag only exists DURING <code>__init__</code>, then deleted
+- No permanent tracking attributes
+- No json cleanup needed
+- Simpler code (~90 lines vs ~120 lines)</p>
+<hr />
+<h2 id="performance-results">Performance Results<a class="headerlink" href="#performance-results" title="Permanent link">&para;</a></h2>
+<h3 id="v1-results">v1 Results<a class="headerlink" href="#v1-results" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│ HYPOTHESIS: Hypothesis E: on_demand_nested=True vs False                        │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark              │ Before       │ After      │ Change   │ Speedup        │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ A_01__empty            │ 8,358 ns     │ 7,871 ns   │ -5.8% ▼  │ 1.1x           │
+│ A_03__one_nested       │ 42,436 ns    │ 17,362 ns  │ -59.1% ▼ │ 2.4x           │
+│ A_04__three_nested     │ 105,329 ns   │ 25,408 ns  │ -75.9% ▼ │ 4.1x           │
+│ A_05__deep_nested      │ 93,511 ns    │ 17,065 ns  │ -81.8% ▼ │ 5.5x           │
+│ A_06__mgraph_like      │ 131,943 ns   │ 21,887 ns  │ -83.4% ▼ │ 6.0x           │
+│ B_04__mgraph_like_x10  │ 1,130,750 ns │ 201,280 ns │ -82.2% ▼ │ 5.6x           │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ ✓ SUCCESS (61.1% &gt;= 30.0% target)                                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="v2-results">v2 Results<a class="headerlink" href="#v2-results" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│ HYPOTHESIS: Hypothesis E v2: on_demand_nested (simplified)                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark              │ Before     │ After      │ Change   │ Speedup          │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ A_01__empty            │ 1,133 ns   │ 1,663 ns   │ +46.8% ▲ │ 0.7x (overhead)  │
+│ A_03__one_nested       │ 26,659 ns  │ 11,871 ns  │ -55.5% ▼ │ 2.2x             │
+│ A_04__three_nested     │ 51,194 ns  │ 18,994 ns  │ -62.9% ▼ │ 2.7x             │
+│ A_05__deep_nested      │ 56,829 ns  │ 12,002 ns  │ -78.9% ▼ │ 4.7x             │
+│ A_06__mgraph_like      │ 97,928 ns  │ 15,375 ns  │ -84.3% ▼ │ 6.4x             │
+│ B_04__mgraph_like_x10  │ 923,547 ns │ 147,003 ns │ -84.1% ▼ │ 6.3x             │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ ✓ SUCCESS (52.1% &gt;= 30.0% target)                                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="v1-vs-v2-comparison">v1 vs v2 Comparison<a class="headerlink" href="#v1-vs-v2-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>v1</th>
+<th>v2</th>
+<th>Winner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Overall improvement</td>
+<td>61.1%</td>
+<td>52.1%</td>
+<td>v1</td>
+</tr>
+<tr>
+<td>A_06 MGraph-like</td>
+<td>83.4%</td>
+<td><strong>84.3%</strong></td>
+<td><strong>v2</strong></td>
+</tr>
+<tr>
+<td>B_04 MGraph x10</td>
+<td>82.2%</td>
+<td><strong>84.1%</strong></td>
+<td><strong>v2</strong></td>
+</tr>
+<tr>
+<td>A_01 empty overhead</td>
+<td>-5.8%</td>
+<td>+46.8%</td>
+<td>v1</td>
+</tr>
+<tr>
+<td>Permanent tracking attrs</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+<td><strong>v2</strong></td>
+</tr>
+<tr>
+<td>json() cleanup needed</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+<td><strong>v2</strong></td>
+</tr>
+<tr>
+<td>Code complexity</td>
+<td>Higher</td>
+<td><strong>Lower</strong></td>
+<td><strong>v2</strong></td>
+</tr>
+<tr>
+<td>Lines of code</td>
+<td>~120</td>
+<td><strong>~90</strong></td>
+<td><strong>v2</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-insight">Key Insight<a class="headerlink" href="#key-insight" title="Permanent link">&para;</a></h3>
+<p>v2's lower overall score (52.1% vs 61.1%) is due to the empty class overhead (+46.8%). But for the cases that matter (nested classes), <strong>v2 is actually faster</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Nested Complexity</th>
+<th>v1</th>
+<th>v2</th>
+<th>Winner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MGraph-like (A_06)</td>
+<td>6.0x</td>
+<td><strong>6.4x</strong></td>
+<td><strong>v2</strong></td>
+</tr>
+<tr>
+<td>MGraph-like x10 (B_04)</td>
+<td>5.6x</td>
+<td><strong>6.3x</strong></td>
+<td><strong>v2</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-temporary-flag-insight">The Temporary Flag Insight<a class="headerlink" href="#the-temporary-flag-insight" title="Permanent link">&para;</a></h2>
+<p>The key breakthrough for v2 was realizing:</p>
+<ol>
+<li><strong>The flag only needs to exist during <code>__init__</code></strong></li>
+<li><strong>After <code>__init__</code>, we can delete it</strong></li>
+<li><strong><code>__getattribute__</code> checks flag existence, not value</strong></li>
+</ol>
+<pre><code class="language-python"># During __init__: flag exists
+try:
+    object.__getattribute__(self, '_on_demand__init_complete')
+    # Flag exists → we're in init → don't auto-create
+except AttributeError:
+    # Flag doesn't exist → we're after init → do auto-create
+</code></pre>
+<p>This means:
+- No permanent attributes polluting the object
+- <code>json()</code>, <code>from_json()</code>, <code>obj()</code> never see the flag
+- No cleanup hacks needed</p>
+<hr />
+<h2 id="scaling-analysis">Scaling Analysis<a class="headerlink" href="#scaling-analysis" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Nested Objects</th>
+<th>v2 Speedup</th>
+<th>Time Saved</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2.2x</td>
+<td>~15 µs</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2.7x</td>
+<td>~32 µs</td>
+</tr>
+<tr>
+<td>Deep (3 levels)</td>
+<td>4.7x</td>
+<td>~45 µs</td>
+</tr>
+<tr>
+<td>MGraph-like</td>
+<td><strong>6.4x</strong></td>
+<td><strong>~83 µs</strong></td>
+</tr>
+<tr>
+<td>MGraph-like x10</td>
+<td><strong>6.3x</strong></td>
+<td><strong>~777 µs</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The more nested objects, the bigger the win.</strong></p>
+<p>For Html_MGraph with 6 indexes, each with nested Schema__Data objects:
+- Estimated savings: <strong>~500 µs per MGraph__Index creation</strong>
+- For batch operations creating 100 objects: <strong>~50 ms saved</strong></p>
+<hr />
+<h2 id="what-gets-deferred">What Gets Deferred<a class="headerlink" href="#what-gets-deferred" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">@staticmethod
+def should_create_on_demand(var_type):
+    # YES - defer these (expensive):
+    if issubclass(var_type, Type_Safe):           # ✅ Defer
+        return True
+
+    # NO - create immediately (cheap):
+    if issubclass(var_type, Type_Safe__Primitive): # ❌ Cheap
+        return False
+    if issubclass(var_type, Type_Safe__List):      # ❌ Cheap
+        return False
+    if issubclass(var_type, Type_Safe__Dict):      # ❌ Cheap
+        return False
+    if issubclass(var_type, Type_Safe__Set):       # ❌ Cheap
+        return False
+</code></pre>
+<p>Only <strong>nested Type_Safe subclasses</strong> are deferred - primitives and collections are cheap to create.</p>
+<hr />
+<h2 id="production-implementation">Production Implementation<a class="headerlink" href="#production-implementation" title="Permanent link">&para;</a></h2>
+<h3 id="recommended-v2-approach">Recommended: v2 Approach<a class="headerlink" href="#recommended-v2-approach" title="Permanent link">&para;</a></h3>
+<p>Add to <code>Type_Safe.__init__</code>:</p>
+<pre><code class="language-python">def __init__(self, **kwargs):
+    config = get_active_config()
+
+    if config and config.on_demand_nested:
+        object.__setattr__(self, '_on_demand__init_complete', False)
+        try:
+            # Walk MRO, set kwargs[var_name] = None for Type_Safe attrs
+            for base_cls in type(self).__mro__:
+                if base_cls is object:
+                    continue
+                for var_name, var_type in getattr(base_cls, '__annotations__', {}).items():
+                    if should_create_on_demand(var_type) and var_name not in kwargs:
+                        kwargs[var_name] = None
+
+            # Normal init
+            class_kwargs = self.__cls_kwargs__(provided_kwargs=kwargs)
+            type_safe_step_init.init(self, class_kwargs, **kwargs)
+        finally:
+            object.__delattr__(self, '_on_demand__init_complete')
+    else:
+        # Normal init
+        class_kwargs = self.__cls_kwargs__(provided_kwargs=kwargs)
+        type_safe_step_init.init(self, class_kwargs, **kwargs)
+</code></pre>
+<p>Add <code>__getattribute__</code> to <code>Type_Safe</code>:</p>
+<pre><code class="language-python">def __getattribute__(self, name):
+    if name.startswith('_'):
+        return object.__getattribute__(self, name)
+
+    try:
+        object.__getattribute__(self, '_on_demand__init_complete')
+        return object.__getattribute__(self, name)  # In init
+    except AttributeError:
+        pass
+
+    value = object.__getattribute__(self, name)
+    if value is None:
+        var_type = get_annotation_type_for(self, name)
+        if should_create_on_demand(var_type):
+            new_value = var_type()
+            object.__setattr__(self, name, new_value)
+            return new_value
+    return value
+</code></pre>
+<hr />
+<h2 id="usage-pattern">Usage Pattern<a class="headerlink" href="#usage-pattern" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Normal usage - all nested objects created (safe default)
+index = MGraph__Index()
+index.edges_index.data['key'] = 'value'
+
+# Bulk operations - defer creation for performance
+with Type_Safe__Config(on_demand_nested=True):
+    indexes = [MGraph__Index() for _ in range(100)]  # 6.4x faster!
+
+    # Objects created only when accessed
+    for idx in indexes:
+        if needs_edges(idx):
+            idx.edges_index.process()  # Created here
+        # nodes_index never created if not needed!
+</code></pre>
+<hr />
+<h2 id="summary-hypothesis-journey">Summary: Hypothesis Journey<a class="headerlink" href="#summary-hypothesis-journey" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Hypothesis</th>
+<th>Flag</th>
+<th>Impact</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Thread-local config</td>
+<td>~350 ns overhead</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Config presence</td>
+<td>~0 ns</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>C</td>
+<td><code>skip_validation</code></td>
+<td>50-83% faster</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>D</td>
+<td><code>skip_conversion</code></td>
+<td>20-30% faster</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td><strong><code>on_demand_nested</code></strong></td>
+<td><strong>52-84% faster</strong></td>
+<td>✅ Done</td>
+</tr>
+</tbody>
+</table>
+<h3 id="combined-potential">Combined Potential<a class="headerlink" href="#combined-potential" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>MGraph-like Creation</th>
+<th>Speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Normal (no config)</td>
+<td>~100 µs</td>
+<td>1x</td>
+</tr>
+<tr>
+<td><code>skip_validation</code> only</td>
+<td>~20 µs</td>
+<td>5x</td>
+</tr>
+<tr>
+<td><code>on_demand_nested</code> only</td>
+<td>~15 µs</td>
+<td>6.4x</td>
+</tr>
+<tr>
+<td>All flags combined</td>
+<td><strong>~5 µs</strong></td>
+<td><strong>~20x</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="lessons-learned">Lessons Learned<a class="headerlink" href="#lessons-learned" title="Permanent link">&para;</a></h2>
+<h3 id="1-temporary-state-permanent-state">1. Temporary State &gt; Permanent State<a class="headerlink" href="#1-temporary-state-permanent-state" title="Permanent link">&para;</a></h3>
+<p>Instead of keeping <code>_on_demand__init_complete</code> forever, <strong>delete it after use</strong>. No cleanup needed!</p>
+<h3 id="2-attributeerror-as-signal">2. AttributeError as Signal<a class="headerlink" href="#2-attributeerror-as-signal" title="Permanent link">&para;</a></h3>
+<p>Using <code>try/except AttributeError</code> to check flag existence is:
+- Clean (no hasattr overhead)
+- Self-documenting (flag gone = init complete)
+- No pollution of object state</p>
+<h3 id="3-simpler-can-be-faster">3. Simpler Can Be Faster<a class="headerlink" href="#3-simpler-can-be-faster" title="Permanent link">&para;</a></h3>
+<p>v2's simpler implementation (no tracking dict) is <strong>faster for complex cases</strong> than v1's more complex approach.</p>
+<h3 id="4-target-the-expensive-cases">4. Target the Expensive Cases<a class="headerlink" href="#4-target-the-expensive-cases" title="Permanent link">&para;</a></h3>
+<p>Deferring only Type_Safe subclasses (not primitives/collections) gives maximum benefit with minimum complexity.</p>
+<hr />
+<h2 id="files">Files<a class="headerlink" href="#files" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Type_Safe__Hypothesis_E.py</code></td>
+<td>v1 implementation (tracking dict)</td>
+</tr>
+<tr>
+<td><code>Type_Safe__Hypothesis_E_v2.py</code></td>
+<td>v2 implementation (temporary flag)</td>
+</tr>
+<tr>
+<td><code>test_perf__Hypothesis_E.py</code></td>
+<td>v1 benchmarks</td>
+</tr>
+<tr>
+<td><code>test_perf__Hypothesis_E_v2.py</code></td>
+<td>v2 benchmarks</td>
+</tr>
+<tr>
+<td><code>test_Type_Safe__Hypothesis_E_v2.py</code></td>
+<td>v2 functional tests</td>
+</tr>
+<tr>
+<td><code>HYPOTHESIS_E__brief.md</code></td>
+<td>Initial hypothesis</td>
+</tr>
+<tr>
+<td><code>HYPOTHESIS_E__debrief.md</code></td>
+<td>This document</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="recommendation">Recommendation<a class="headerlink" href="#recommendation" title="Permanent link">&para;</a></h2>
+<p><strong>Use v2 (temporary flag approach)</strong> for production:</p>
+<ol>
+<li><strong>Simpler code</strong> - easier to maintain</li>
+<li><strong>No permanent attributes</strong> - cleaner objects</li>
+<li><strong>No json cleanup</strong> - no hacks needed</li>
+<li><strong>Faster for complex cases</strong> - 6.4x vs 6.0x</li>
+<li><strong>Acceptable trade-off</strong> - empty class overhead is negligible in practice</li>
+</ol>
+<p>The empty class overhead (+46.8%) only matters for classes with no nested Type_Safe attributes - exactly the cases where <code>on_demand_nested</code> provides no benefit anyway!</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

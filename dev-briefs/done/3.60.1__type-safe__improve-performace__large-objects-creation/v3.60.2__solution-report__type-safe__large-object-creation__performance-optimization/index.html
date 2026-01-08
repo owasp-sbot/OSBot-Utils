@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/done/3.60.1__type-safe__improve-performace__large-objects-creation/v3.60.2__solution-report__type-safe__large-object-creation__performance-optimization/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Type_Safe Large Object Creation: Performance Optimization Solution - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Large Object Creation: Performance Optimization Solution";
+        var mkdocs_page_input_path = "dev-briefs/done/3.60.1__type-safe__improve-performace__large-objects-creation/v3.60.2__solution-report__type-safe__large-object-creation__performance-optimization.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/done/3.60.1__type-safe__improve-performace__large-objects-creation/v3.60.2__solution-report__type-safe__large-object-creation__performance-optimization/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Large Object Creation: Performance Optimization Solution</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-large-object-creation-performance-optimization-solution">Type_Safe Large Object Creation: Performance Optimization Solution<a class="headerlink" href="#type_safe-large-object-creation-performance-optimization-solution" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.60.2<br />
+<strong>Date</strong>: December 2025<br />
+<strong>Status</strong>: ✅ TARGET ACHIEVED</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This document presents the solution to the Type_Safe large object creation performance bottleneck identified in the Html_MGraph conversion pipeline.</p>
+<h3 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Before</th>
+<th>After</th>
+<th>Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MGraph__Index()</code> construction</td>
+<td>1,800 µs</td>
+<td>90 µs</td>
+<td><strong>20x faster</strong></td>
+</tr>
+<tr>
+<td>Objects created per construction</td>
+<td>47</td>
+<td>1</td>
+<td><strong>98% reduction</strong></td>
+</tr>
+<tr>
+<td>6 index constructions</td>
+<td>~11 ms</td>
+<td>~0.5 ms</td>
+<td><strong>10.5 ms saved</strong></td>
+</tr>
+<tr>
+<td>Target (&lt; 200 µs)</td>
+<td>❌</td>
+<td>✅ (45% of budget)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="solution">Solution<a class="headerlink" href="#solution" title="Permanent link">&para;</a></h3>
+<p><strong>Type_Safe__On_Demand</strong>: A drop-in replacement for <code>Type_Safe</code> that creates nested objects only when first accessed.</p>
+<hr />
+<h2 id="root-cause-analysis">Root Cause Analysis<a class="headerlink" href="#root-cause-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h3>
+<p>When <code>Type_Safe</code> sees a class attribute typed as another <code>Type_Safe</code> class:</p>
+<pre><code class="language-python">class MGraph__Index(Type_Safe):
+    edges_index: Index__Edges  # Type_Safe auto-creates Index__Edges()
+</code></pre>
+<p>It automatically instantiates <code>Index__Edges()</code> during <code>MGraph__Index.__init__()</code>. For deeply nested hierarchies like <code>MGraph__Index</code> with 10+ nested Type_Safe attributes, each containing their own nested objects, this creates <strong>47+ objects</strong> on every construction—even though most are immediately discarded when <code>_sync_index_data()</code> rewires references.</p>
+<h3 id="key-discovery">Key Discovery<a class="headerlink" href="#key-discovery" title="Permanent link">&para;</a></h3>
+<p>Type_Safe already has a mechanism to skip object creation:</p>
+<pre><code class="language-python"># In Type_Safe__Step__Class_Kwargs.handle_undefined_var():
+if provided_kwargs and var_name in provided_kwargs:
+    kwargs[var_name] = None  # Placeholder - skips creation!
+    return
+</code></pre>
+<p><strong>If you pass a value in kwargs (even <code>None</code>), Type_Safe doesn't auto-create the object.</strong></p>
+<p>This is the foundation of our solution.</p>
+<hr />
+<h2 id="solution-type_safe__on_demand">Solution: Type_Safe__On_Demand<a class="headerlink" href="#solution-type_safe__on_demand" title="Permanent link">&para;</a></h2>
+<h3 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Intercept <code>__init__</code></strong>: Before calling <code>super().__init__()</code>, identify all Type_Safe-typed attributes</li>
+<li><strong>Pass None values</strong>: Add them to kwargs with <code>None</code> value to prevent auto-creation</li>
+<li><strong>Store types</strong>: Keep track of which attributes need on-demand creation</li>
+<li><strong>Override <code>__getattribute__</code></strong>: When an attribute is accessed, create it on-demand</li>
+</ol>
+<h3 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe__On_Demand(Type_Safe):
+
+    def __init__(self, **kwargs):
+        # Disable on-demand creation during init
+        object.__setattr__(self, '_on_demand__init_complete', False)
+        object.__setattr__(self, '__on_demand__types', {})
+
+        _on_demand__types = {}
+
+        # Find Type_Safe attributes that should be on-demand
+        for base_cls in type(self).__mro__:
+            if not hasattr(base_cls, '__annotations__'):
+                continue
+            for var_name, var_type in base_cls.__annotations__.items():
+                if var_name in kwargs:  # Already provided
+                    continue
+                if self._on_demand__should_create(var_type):
+                    _on_demand__types[var_name] = var_type
+                    kwargs[var_name] = None  # Prevent auto-creation
+
+        object.__setattr__(self, '__on_demand__types', _on_demand__types)
+        super().__init__(**kwargs)
+        object.__setattr__(self, '_on_demand__init_complete', True)
+
+    def __getattribute__(self, name: str):
+        if name.startswith('_'):
+            return object.__getattribute__(self, name)
+
+        # Don't create during init
+        init_complete = object.__getattribute__(self, '_on_demand__init_complete')
+        if not init_complete:
+            return object.__getattribute__(self, name)
+
+        # Create on first access
+        _on_demand__types = object.__getattribute__(self, '__on_demand__types')
+        if name in _on_demand__types:
+            var_type = _on_demand__types.pop(name)
+            new_value = var_type()
+            object.__setattr__(self, name, new_value)
+            return new_value
+
+        return object.__getattribute__(self, name)
+</code></pre>
+<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h3>
+<p>Simply replace <code>Type_Safe</code> with <code>Type_Safe__On_Demand</code>:</p>
+<pre><code class="language-python"># Before
+class MGraph__Index(Type_Safe):
+    edges_index: Index__Edges
+    ...
+
+# After
+class MGraph__Index(Type_Safe__On_Demand):
+    edges_index: Index__Edges  # Not created until accessed
+    ...
+</code></pre>
+<hr />
+<h2 id="benchmark-results">Benchmark Results<a class="headerlink" href="#benchmark-results" title="Permanent link">&para;</a></h2>
+<h3 id="construction-time">Construction Time<a class="headerlink" href="#construction-time" title="Permanent link">&para;</a></h3>
+<pre><code>Eager (Type_Safe):
+  MGraph__Index | score: 1,800,000 ns | raw: 1,754,722 ns
+
+On_Demand (Type_Safe__On_Demand):
+  MGraph__Index | score: 90,000 ns | raw: 85,764 ns
+
+Speedup: 20x
+</code></pre>
+<h3 id="object-creation">Object Creation<a class="headerlink" href="#object-creation" title="Permanent link">&para;</a></h3>
+<pre><code>Eager: 47 objects created immediately
+On_Demand:  1 object created immediately (others on-demand)
+Reduction: 98%
+</code></pre>
+<h3 id="html_mgraph-impact">Html_MGraph Impact<a class="headerlink" href="#html_mgraph-impact" title="Permanent link">&para;</a></h3>
+<pre><code>Before: 6 indexes × 1.8ms = 10.8ms
+After:  6 indexes × 0.09ms = 0.54ms
+Saved:  10.3ms per document
+</code></pre>
+<hr />
+<h2 id="integration-guide">Integration Guide<a class="headerlink" href="#integration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="option-1-replace-base-class">Option 1: Replace Base Class<a class="headerlink" href="#option-1-replace-base-class" title="Permanent link">&para;</a></h3>
+<p>Change your class hierarchies to inherit from <code>Type_Safe__On_Demand</code>:</p>
+<pre><code class="language-python">from type_safe_on-demand import Type_Safe__On_Demand
+
+class Schema__Index__Data(Type_Safe__On_Demand):
+    edges: Schema__Index__Data__Edges
+    ...
+
+class MGraph__Index(Type_Safe__On_Demand):
+    index_data: Schema__Index__Data
+    ...
+</code></pre>
+<h3 id="option-2-use-make_on-demand">Option 2: Use make_on-demand()<a class="headerlink" href="#option-2-use-make_on-demand" title="Permanent link">&para;</a></h3>
+<p>Convert existing classes without modifying them:</p>
+<pre><code class="language-python">from type_safe_on-demand import make_on-demand
+
+# Original class untouched
+class MGraph__Index(Type_Safe):
+    ...
+
+# Create on-demand version
+MGraph__Index_Fast = make_on-demand(MGraph__Index)
+</code></pre>
+<h3 id="option-3-framework-integration">Option 3: Framework Integration<a class="headerlink" href="#option-3-framework-integration" title="Permanent link">&para;</a></h3>
+<p>Add to osbot-utils as an opt-in feature:</p>
+<pre><code class="language-python">class Type_Safe:
+    __type_safe_on-demand__ = False  # New class flag
+
+    def __init__(self, **kwargs):
+        if getattr(self, '__type_safe_on-demand__', False):
+            # Use on-demand init logic
+            ...
+</code></pre>
+<hr />
+<h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
+<h3 id="what-works">What Works<a class="headerlink" href="#what-works" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ All Type_Safe features (JSON, validation, reset, etc.)</li>
+<li>✅ Primitive attributes (<code>int</code>, <code>str</code>, <code>bool</code>, etc.)</li>
+<li>✅ Type_Safe__Primitive subclasses</li>
+<li>✅ Type_Safe__List, Type_Safe__Dict, Type_Safe__Set</li>
+<li>✅ Explicit default values (<code>= None</code>, <code>= 0</code>, etc.)</li>
+<li>✅ Caller-provided kwargs</li>
+<li>✅ Nested on-demand classes</li>
+<li>✅ Mixed on-demand/eager hierarchies</li>
+</ul>
+<h3 id="considerations">Considerations<a class="headerlink" href="#considerations" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>First Access Timing</strong>: The first access to a on-demand attribute incurs creation cost. Plan accordingly for latency-sensitive code paths.</p>
+</li>
+<li>
+<p><strong>JSON Serialization</strong>: Accessing <code>.json()</code> will trigger creation of all on-demand attributes. This is usually desirable for serialization.</p>
+</li>
+<li>
+<p><strong>Internal Attributes</strong>: The <code>__on_demand__types</code> and <code>_on_demand__init_complete</code> attributes are added to instances. These should be filtered from JSON output if needed.</p>
+</li>
+</ol>
+<hr />
+<h2 id="recommended-next-steps">Recommended Next Steps<a class="headerlink" href="#recommended-next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Integrate Type_Safe__On_Demand</strong> into the MGraph__Index hierarchy</li>
+<li><strong>Benchmark in production</strong> with actual Html_MGraph workloads</li>
+<li><strong>Consider framework integration</strong> - add as opt-in to osbot-utils</li>
+<li><strong>Profile remaining bottlenecks</strong> - index construction is now fast; look at other hotspots</li>
+</ol>
+<hr />
+<h2 id="files-delivered">Files Delivered<a class="headerlink" href="#files-delivered" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type_safe_on-demand.py</code></td>
+<td>Production-ready implementation</td>
+</tr>
+<tr>
+<td><code>type_safe_on-demand_v4.py</code></td>
+<td>Full benchmark suite with eager comparison</td>
+</tr>
+<tr>
+<td><code>debug_type_safe.py</code></td>
+<td>Debugging utilities</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>The Type_Safe__On_Demand solution achieves the performance target with significant margin:</p>
+<ul>
+<li><strong>20x speedup</strong> in construction time</li>
+<li><strong>90 µs</strong> vs 200 µs target (45% of budget)</li>
+<li><strong>10.3 ms saved</strong> per Html_MGraph document processing</li>
+<li><strong>Drop-in replacement</strong> requiring minimal code changes</li>
+</ul>
+<p>The solution maintains full Type_Safe compatibility while dramatically reducing construction overhead for deeply nested object hierarchies.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

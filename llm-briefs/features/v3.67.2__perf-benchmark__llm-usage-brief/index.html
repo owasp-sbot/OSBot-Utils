@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.67.2__perf-benchmark__llm-usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Perf_Benchmark - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Perf_Benchmark - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.67.2__perf-benchmark__llm-usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.67.2__perf-benchmark__llm-usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Perf_Benchmark - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="perf_benchmark-llm-usage-brief">Perf_Benchmark - LLM Usage Brief<a class="headerlink" href="#perf_benchmark-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.61.0<br />
+<strong>Purpose</strong>: Guide for LLMs and developers on using the type-safe performance benchmarking framework<br />
+<strong>Location</strong>: <code>osbot_utils.helpers.performance.benchmark</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="what-is-perf_benchmark">What is Perf_Benchmark?<a class="headerlink" href="#what-is-perf_benchmark" title="Permanent link">&para;</a></h2>
+<p><strong>Perf_Benchmark is a type-safe benchmarking framework that builds on Performance_Measure__Session to provide structured comparison, trend tracking, and multi-format reporting of benchmark results.</strong> While <code>Performance_Measure__Session</code> (Perf) gives you stable timing measurements, Perf_Benchmark adds the ability to compare sessions over time, detect regressions, and export results in multiple formats.</p>
+<h3 id="the-problem-it-solves">The Problem It Solves<a class="headerlink" href="#the-problem-it-solves" title="Permanent link">&para;</a></h3>
+<p>Raw timing measurements are useful, but real-world benchmarking needs more:</p>
+<pre><code class="language-python"># With Performance_Measure__Session - you get stable timings
+with Perf() as _:
+    _.measure(my_function).print()  # Output: my_function | score: 2,000 ns
+
+# But what about:
+# - Did performance regress since last release?
+# - How do different implementations compare?
+# - Is the improvement statistically significant?
+# - Can I export results for CI dashboards?
+</code></pre>
+<p><strong>With Perf_Benchmark:</strong></p>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Diff import Perf_Benchmark__Diff
+
+diff = Perf_Benchmark__Diff()
+diff.load_folder('/benchmarks/')
+
+# Compare two sessions
+comparison = diff.compare_two()
+print(comparison.status)  # Enum__Comparison__Status.SUCCESS
+
+# See evolution across all sessions
+evolution = diff.compare_all()
+for bench in evolution.evolutions:
+    print(f&quot;{bench.name}: {bench.trend}&quot;)  # &quot;dict_create: IMPROVEMENT&quot;
+
+# Get statistics
+stats = diff.statistics()
+print(f&quot;Regressions: {stats.regression_count}, Improvements: {stats.improvement_count}&quot;)
+</code></pre>
+<h3 id="design-philosophy">Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Schema-driven</strong> — All results are structured <code>Type_Safe</code> schemas, not formatted strings</li>
+<li><strong>Calculation separated from presentation</strong> — Get data, then choose how to display it</li>
+<li><strong>Status enums for error handling</strong> — Clear, type-safe error states</li>
+<li><strong>Multiple export formats</strong> — Text, HTML, JSON from the same data</li>
+<li><strong>Built on Performance_Measure__Session</strong> — Leverages proven measurement infrastructure</li>
+</ol>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="1-run-benchmarks-and-save-results">1. Run Benchmarks and Save Results<a class="headerlink" href="#1-run-benchmarks-and-save-results" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing import Perf_Benchmark__Timing
+
+config = Schema__Perf_Benchmark__Timing__Config(
+    title       = 'My Benchmark Suite',
+    output_path = '/benchmarks/'
+)
+
+with Perf_Benchmark__Timing(config=config) as timing:
+    timing.benchmark('A_01__dict_create'  , dict)
+    timing.benchmark('A_02__list_create'  , list)
+    timing.benchmark('B_01__set_create'   , set)
+
+    timing.reporter().save_all()  # Saves .txt, .json, .md, .html
+</code></pre>
+<h3 id="2-compare-sessions-over-time">2. Compare Sessions Over Time<a class="headerlink" href="#2-compare-sessions-over-time" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Diff import Perf_Benchmark__Diff
+
+diff = Perf_Benchmark__Diff()
+diff.load_folder('/benchmarks/')  # Loads all .json files
+
+# Get structured comparison
+comparison = diff.compare_two()
+if comparison.status == Enum__Comparison__Status.SUCCESS:
+    for comp in comparison.comparisons:
+        print(f&quot;{comp.name}: {comp.change_percent}% ({comp.trend})&quot;)
+</code></pre>
+<h3 id="3-export-in-multiple-formats">3. Export in Multiple Formats<a class="headerlink" href="#3-export-in-multiple-formats" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__Text import Perf_Benchmark__Export__Text
+from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__HTML import Perf_Benchmark__Export__HTML
+
+text_export = Perf_Benchmark__Export__Text()
+html_export = Perf_Benchmark__Export__HTML()
+
+# Same data, different formats
+print(text_export.export_comparison(comparison))
+file_create('report.html', html_export.export_evolution(evolution))
+</code></pre>
+<h3 id="4-thats-it">4. That's It<a class="headerlink" href="#4-thats-it" title="Permanent link">&para;</a></h3>
+<p>The framework handles all the complexity: type-safe schemas, trend detection, percentage calculations, and format-specific rendering.</p>
+<blockquote>
+<p><strong>Tip</strong>: Use <code>Perf_Benchmark__Hypothesis</code> for CI/CD integration with pass/fail assertions.</p>
+</blockquote>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Core timing engine
+from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing          import Perf_Benchmark__Timing
+
+# Multi-session comparison
+from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Diff            import Perf_Benchmark__Diff
+
+# Hypothesis testing for CI/CD
+from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Hypothesis      import Perf_Benchmark__Hypothesis
+
+# Report generation
+from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing__Reporter import Perf_Benchmark__Timing__Reporter
+
+# Export formats
+from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__Text import Perf_Benchmark__Export__Text
+from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__HTML import Perf_Benchmark__Export__HTML
+from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__JSON import Perf_Benchmark__Export__JSON
+
+# Key schemas
+from osbot_utils.helpers.performance.benchmark.schemas.Schema__Perf__Comparison__Two import Schema__Perf__Comparison__Two
+from osbot_utils.helpers.performance.benchmark.schemas.Schema__Perf__Evolution       import Schema__Perf__Evolution
+from osbot_utils.helpers.performance.benchmark.schemas.Schema__Perf__Statistics      import Schema__Perf__Statistics
+
+# Enums
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Comparison__Status import Enum__Comparison__Status
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Benchmark__Trend   import Enum__Benchmark__Trend
+
+# Config
+from osbot_utils.helpers.performance.benchmark.schemas.timing.Schema__Perf_Benchmark__Timing__Config import Schema__Perf_Benchmark__Timing__Config
+</code></pre>
+<p><strong>Recommended minimal import:</strong></p>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing import Perf_Benchmark__Timing
+from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Diff   import Perf_Benchmark__Diff
+</code></pre>
+<hr />
+<h2 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="schemas-vs-formatted-strings">Schemas vs Formatted Strings<a class="headerlink" href="#schemas-vs-formatted-strings" title="Permanent link">&para;</a></h3>
+<p>Previous approaches returned formatted strings:</p>
+<pre><code class="language-python"># ❌ Old approach - returns formatted string
+result = diff.compare_two()  # &quot;Session A vs Session B\n...&quot;
+# Can't inspect data programmatically
+</code></pre>
+<p>Perf_Benchmark returns schemas:</p>
+<pre><code class="language-python"># ✅ New approach - returns structured schema
+result = diff.compare_two()  # Schema__Perf__Comparison__Two
+
+result.status           # Enum__Comparison__Status.SUCCESS
+result.title_a          # &quot;Session 1&quot;
+result.title_b          # &quot;Session 2&quot;
+result.comparisons[0]   # Schema__Perf__Benchmark__Comparison
+result.comparisons[0].change_percent  # -10.5
+result.comparisons[0].trend           # Enum__Benchmark__Trend.IMPROVEMENT
+</code></pre>
+<h3 id="status-enums-for-error-handling">Status Enums for Error Handling<a class="headerlink" href="#status-enums-for-error-handling" title="Permanent link">&para;</a></h3>
+<p>Every comparison method returns a status:</p>
+<pre><code class="language-python">class Enum__Comparison__Status(Enum):
+    SUCCESS                     = 'success'
+    ERROR_NO_SESSIONS           = 'error_no_sessions'
+    ERROR_INSUFFICIENT_SESSIONS = 'error_insufficient_sessions'
+    ERROR_NO_COMMON_BENCHMARKS  = 'error_no_common_benchmarks'
+</code></pre>
+<p>Usage:</p>
+<pre><code class="language-python">result = diff.compare_two()
+
+if result.status == Enum__Comparison__Status.SUCCESS:
+    # Process comparisons
+    for comp in result.comparisons:
+        print(f&quot;{comp.name}: {comp.trend}&quot;)
+
+elif result.status == Enum__Comparison__Status.ERROR_INSUFFICIENT_SESSIONS:
+    print(f&quot;Error: {result.error}&quot;)  # Human-readable message
+</code></pre>
+<h3 id="trend-detection">Trend Detection<a class="headerlink" href="#trend-detection" title="Permanent link">&para;</a></h3>
+<p>Performance changes are classified into 5 levels:</p>
+<table>
+<thead>
+<tr>
+<th>Trend</th>
+<th>Symbol</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>STRONG_IMPROVEMENT</code></td>
+<td>▼▼▼</td>
+<td>&gt; 10% faster</td>
+</tr>
+<tr>
+<td><code>IMPROVEMENT</code></td>
+<td>▼</td>
+<td>0-10% faster</td>
+</tr>
+<tr>
+<td><code>UNCHANGED</code></td>
+<td>─</td>
+<td>0% change</td>
+</tr>
+<tr>
+<td><code>REGRESSION</code></td>
+<td>▲</td>
+<td>0-10% slower</td>
+</tr>
+<tr>
+<td><code>STRONG_REGRESSION</code></td>
+<td>▲▲▲</td>
+<td>&gt; 10% slower</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">for comp in comparison.comparisons:
+    if comp.trend == Enum__Benchmark__Trend.STRONG_REGRESSION:
+        print(f&quot;⚠️ ALERT: {comp.name} regressed {comp.change_percent}%&quot;)
+</code></pre>
+<h3 id="dual-storage-in-timing">Dual Storage in Timing<a class="headerlink" href="#dual-storage-in-timing" title="Permanent link">&para;</a></h3>
+<p><code>Perf_Benchmark__Timing</code> stores both summary results and full measurement data:</p>
+<pre><code class="language-python">with Perf_Benchmark__Timing(config=config) as timing:
+    timing.benchmark('A_01__test', my_function)
+
+    # Quick access to scores
+    timing.results['A_01__test'].final_score  # 2000
+
+    # Deep analysis - full measurement data
+    session = timing.sessions['A_01__test']
+    session.result.measurements[8].stddev_time   # Standard deviation for 8-iteration sample
+    session.result.measurements[610].raw_times   # All 610 raw measurements
+</code></pre>
+<hr />
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                         Perf_Benchmark__Timing                               │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  config   : Schema__Perf_Benchmark__Timing__Config                          │
+│  results  : Dict__Benchmark_Results        (lightweight summaries)          │
+│  sessions : Dict__Benchmark_Sessions       (full measurement data)          │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  benchmark(id, target, threshold) → Schema__Perf__Benchmark__Result         │
+│  reporter() → Perf_Benchmark__Timing__Reporter                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                    ┌───────────────┴───────────────┐
+                    ▼                               ▼
+┌───────────────────────────────┐   ┌───────────────────────────────────────┐
+│  Dict__Benchmark_Results       │   │  Dict__Benchmark_Sessions              │
+│  ───────────────────────────  │   │  ───────────────────────────────────  │
+│  'A_01__test' → Result         │   │  'A_01__test' → Performance_Measure    │
+│  'A_02__test' → Result         │   │  'A_02__test' → Performance_Measure    │
+│  'B_01__test' → Result         │   │  'B_01__test' → Performance_Measure    │
+└───────────────────────────────┘   └───────────────────────────────────────┘
+        │                                       │
+        │ final_score, raw_score                │ measurements, raw_times,
+        │ section, index, name                  │ stddev, min, max, median
+        ▼                                       ▼
+   Quick assertions               Deep statistical analysis
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Perf_Benchmark__Diff                                │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  sessions : List__Benchmark_Sessions                                        │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  load_session(filepath) → self                                              │
+│  load_folder(path) → self                                                   │
+│  compare_two(a, b) → Schema__Perf__Comparison__Two                          │
+│  compare_all() → Schema__Perf__Evolution                                    │
+│  statistics() → Schema__Perf__Statistics                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                    ┌───────────────┼───────────────┐
+                    ▼               ▼               ▼
+          Schema__Perf__    Schema__Perf__   Schema__Perf__
+          Comparison__Two    Evolution        Statistics
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Export System                                       │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│  Perf_Benchmark__Export (base)                                              │
+│      ├── export_comparison(Schema) → str                                    │
+│      ├── export_evolution(Schema) → str                                     │
+│      └── export_statistics(Schema) → str                                    │
+│                                                                             │
+│  Implementations:                                                           │
+│      ├── Perf_Benchmark__Export__Text  (Print_Table, ASCII)                 │
+│      ├── Perf_Benchmark__Export__HTML  (Chart.js visualizations)            │
+│      └── Perf_Benchmark__Export__JSON  (Serialized schemas)                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-basic-benchmark-suite">Pattern 1: Basic Benchmark Suite<a class="headerlink" href="#pattern-1-basic-benchmark-suite" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Timing import Perf_Benchmark__Timing
+from osbot_utils.helpers.performance.benchmark.schemas.timing.Schema__Perf_Benchmark__Timing__Config import Schema__Perf_Benchmark__Timing__Config
+
+config = Schema__Perf_Benchmark__Timing__Config(
+    title            = 'Type_Safe Performance Suite',
+    print_to_console = True
+)
+
+with Perf_Benchmark__Timing(config=config) as timing:
+    # Section A: Python baselines
+    timing.benchmark('A_01__dict_create' , dict)
+    timing.benchmark('A_02__list_create' , list)
+    timing.benchmark('A_03__set_create'  , set)
+
+    # Section B: Custom functions
+    timing.benchmark('B_01__my_function' , my_function)
+    timing.benchmark('B_02__my_class'    , MyClass)
+
+    # Print summary
+    timing.reporter().print_summary()
+</code></pre>
+<h3 id="pattern-2-threshold-assertions">Pattern 2: Threshold Assertions<a class="headerlink" href="#pattern-2-threshold-assertions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Define time constants
+time_500_ns  =     500
+time_1_kns   =   1_000
+time_10_kns  =  10_000
+time_100_kns = 100_000
+
+with Perf_Benchmark__Timing(config=config) as timing:
+    # Assert benchmarks stay under thresholds
+    timing.benchmark('A_01__fast_op', fast_function, assert_less_than=time_1_kns)
+    timing.benchmark('A_02__slow_op', slow_function, assert_less_than=time_100_kns)
+</code></pre>
+<h3 id="pattern-3-save-and-compare-sessions">Pattern 3: Save and Compare Sessions<a class="headerlink" href="#pattern-3-save-and-compare-sessions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Session 1: Save baseline
+config = Schema__Perf_Benchmark__Timing__Config(
+    title       = 'Baseline v1.0',
+    output_path = '/benchmarks/'
+)
+
+with Perf_Benchmark__Timing(config=config) as timing:
+    timing.benchmark('A_01__test', my_function)
+    timing.reporter().save_json('/benchmarks/baseline_v1.json')
+
+# Later: Session 2 after changes
+config.title = 'After Optimization v1.1'
+
+with Perf_Benchmark__Timing(config=config) as timing:
+    timing.benchmark('A_01__test', my_function)
+    timing.reporter().save_json('/benchmarks/optimized_v1.1.json')
+
+# Compare
+diff = Perf_Benchmark__Diff()
+diff.load_session('/benchmarks/baseline_v1.json')
+diff.load_session('/benchmarks/optimized_v1.1.json')
+
+comparison = diff.compare_two()
+for comp in comparison.comparisons:
+    print(f&quot;{comp.name}: {comp.change_percent:+.1f}% {comp.trend.value}&quot;)
+</code></pre>
+<h3 id="pattern-4-track-evolution-over-time">Pattern 4: Track Evolution Over Time<a class="headerlink" href="#pattern-4-track-evolution-over-time" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">diff = Perf_Benchmark__Diff()
+diff.load_folder('/benchmarks/')  # Loads all .json files chronologically
+
+evolution = diff.compare_all()
+
+print(f&quot;Tracking {evolution.session_count} sessions&quot;)
+for ev in evolution.evolutions:
+    scores = [int(s) for s in ev.scores]
+    print(f&quot;{ev.name}: {scores} → trend: {ev.trend.value}&quot;)
+</code></pre>
+<h3 id="pattern-5-get-summary-statistics">Pattern 5: Get Summary Statistics<a class="headerlink" href="#pattern-5-get-summary-statistics" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">diff = Perf_Benchmark__Diff()
+diff.load_folder('/benchmarks/')
+
+stats = diff.statistics()
+
+print(f&quot;Sessions analyzed: {stats.session_count}&quot;)
+print(f&quot;Benchmarks tracked: {stats.benchmark_count}&quot;)
+print(f&quot;Improvements: {stats.improvement_count} (avg {stats.avg_improvement:.1f}%)&quot;)
+print(f&quot;Regressions: {stats.regression_count} (avg {stats.avg_regression:.1f}%)&quot;)
+
+if stats.best_improvement:
+    print(f&quot;Best: {stats.best_improvement.name} ({stats.best_improvement.change_percent:+.1f}%)&quot;)
+if stats.worst_regression:
+    print(f&quot;Worst: {stats.worst_regression.name} ({stats.worst_regression.change_percent:+.1f}%)&quot;)
+</code></pre>
+<h3 id="pattern-6-hypothesis-testing-for-cicd">Pattern 6: Hypothesis Testing for CI/CD<a class="headerlink" href="#pattern-6-hypothesis-testing-for-cicd" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.Perf_Benchmark__Hypothesis import Perf_Benchmark__Hypothesis
+
+# Load baseline and run current benchmarks
+hypothesis = Perf_Benchmark__Hypothesis(tolerance=10.0)  # 10% tolerance
+hypothesis.load_baseline('/benchmarks/baseline.json')
+
+with Perf_Benchmark__Timing(config=config) as timing:
+    timing.benchmark('A_01__test', my_function)
+    hypothesis.timing = timing
+
+# Test for regressions
+result = hypothesis.test_no_regression()
+
+if result.status == Enum__Hypothesis__Status.FAILED:
+    print(f&quot;❌ Regression detected: {result.comments}&quot;)
+    exit(1)
+else:
+    print(f&quot;✅ No regressions (within {hypothesis.tolerance}% tolerance)&quot;)
+</code></pre>
+<h3 id="pattern-7-export-to-multiple-formats">Pattern 7: Export to Multiple Formats<a class="headerlink" href="#pattern-7-export-to-multiple-formats" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__Text import Perf_Benchmark__Export__Text
+from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__HTML import Perf_Benchmark__Export__HTML
+from osbot_utils.helpers.performance.benchmark.export.Perf_Benchmark__Export__JSON import Perf_Benchmark__Export__JSON
+
+diff = Perf_Benchmark__Diff()
+diff.load_folder('/benchmarks/')
+
+comparison = diff.compare_two()
+evolution  = diff.compare_all()
+stats      = diff.statistics()
+
+# Text export (for console/logs)
+text = Perf_Benchmark__Export__Text()
+print(text.export_comparison(comparison))
+print(text.export_statistics(stats))
+
+# HTML export (for dashboards)
+html = Perf_Benchmark__Export__HTML()
+file_create('evolution.html', html.export_evolution(evolution))
+
+# JSON export (for APIs/storage)
+json_export = Perf_Benchmark__Export__JSON()
+file_create('stats.json', json_export.export_statistics(stats))
+</code></pre>
+<h3 id="pattern-8-using-with-testcase">Pattern 8: Using with TestCase<a class="headerlink" href="#pattern-8-using-with-testcase" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.TestCase__Benchmark__Timing import TestCase__Benchmark__Timing
+
+class test_My_Performance(TestCase__Benchmark__Timing):
+
+    def test_dict_creation(self):
+        self.timing.benchmark('A_01__dict_create', dict)
+        self.timing.benchmark('A_02__list_create', list)
+
+        # Access results
+        assert self.timing.results['A_01__dict_create'].final_score &lt; 5000
+</code></pre>
+<hr />
+<h2 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
+<h3 id="perf_benchmark__timing">Perf_Benchmark__Timing<a class="headerlink" href="#perf_benchmark__timing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>benchmark(id, target, assert_less_than)</code></td>
+<td><code>Safe_Str__Benchmark_Id</code>, <code>Callable</code>, <code>Optional[int]</code></td>
+<td><code>Schema__Perf__Benchmark__Result</code></td>
+<td>Run benchmark and store result</td>
+</tr>
+<tr>
+<td><code>reporter()</code></td>
+<td>—</td>
+<td><code>Perf_Benchmark__Timing__Reporter</code></td>
+<td>Create reporter for output generation</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config</code></td>
+<td><code>Schema__Perf_Benchmark__Timing__Config</code></td>
+<td>Configuration options</td>
+</tr>
+<tr>
+<td><code>results</code></td>
+<td><code>Dict__Benchmark_Results</code></td>
+<td>Lightweight result summaries</td>
+</tr>
+<tr>
+<td><code>sessions</code></td>
+<td><code>Dict__Benchmark_Sessions</code></td>
+<td>Full measurement data</td>
+</tr>
+</tbody>
+</table>
+<h3 id="perf_benchmark__diff">Perf_Benchmark__Diff<a class="headerlink" href="#perf_benchmark__diff" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>load_session(filepath)</code></td>
+<td><code>Safe_Str__File__Path</code></td>
+<td><code>self</code></td>
+<td>Load single session JSON</td>
+</tr>
+<tr>
+<td><code>load_folder(path)</code></td>
+<td><code>Safe_Str__File__Path</code></td>
+<td><code>self</code></td>
+<td>Load all .json files in folder</td>
+</tr>
+<tr>
+<td><code>compare_two(a, b)</code></td>
+<td><code>Optional[int]</code>, <code>Optional[int]</code></td>
+<td><code>Schema__Perf__Comparison__Two</code></td>
+<td>Compare two sessions</td>
+</tr>
+<tr>
+<td><code>compare_all()</code></td>
+<td>—</td>
+<td><code>Schema__Perf__Evolution</code></td>
+<td>Track evolution across all sessions</td>
+</tr>
+<tr>
+<td><code>statistics()</code></td>
+<td>—</td>
+<td><code>Schema__Perf__Statistics</code></td>
+<td>Calculate summary statistics</td>
+</tr>
+</tbody>
+</table>
+<h3 id="perf_benchmark__export__">Perf_Benchmark__Export__*<a class="headerlink" href="#perf_benchmark__export__" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>export_comparison(schema)</code></td>
+<td><code>Schema__Perf__Comparison__Two</code></td>
+<td><code>str</code></td>
+<td>Format comparison result</td>
+</tr>
+<tr>
+<td><code>export_evolution(schema)</code></td>
+<td><code>Schema__Perf__Evolution</code></td>
+<td><code>str</code></td>
+<td>Format evolution data</td>
+</tr>
+<tr>
+<td><code>export_statistics(schema)</code></td>
+<td><code>Schema__Perf__Statistics</code></td>
+<td><code>str</code></td>
+<td>Format statistics</td>
+</tr>
+</tbody>
+</table>
+<h3 id="perf_benchmark__timing__reporter">Perf_Benchmark__Timing__Reporter<a class="headerlink" href="#perf_benchmark__timing__reporter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Parameters</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>build_text()</code></td>
+<td>—</td>
+<td><code>Safe_Str__Text</code></td>
+<td>Generate text report</td>
+</tr>
+<tr>
+<td><code>build_json()</code></td>
+<td>—</td>
+<td><code>dict</code></td>
+<td>Generate JSON-serializable dict</td>
+</tr>
+<tr>
+<td><code>build_markdown()</code></td>
+<td>—</td>
+<td><code>Safe_Str__Markdown</code></td>
+<td>Generate markdown report</td>
+</tr>
+<tr>
+<td><code>build_html()</code></td>
+<td>—</td>
+<td><code>Safe_Str__Html</code></td>
+<td>Generate HTML with Chart.js</td>
+</tr>
+<tr>
+<td><code>save_all()</code></td>
+<td>—</td>
+<td><code>None</code></td>
+<td>Save all formats to output_path</td>
+</tr>
+<tr>
+<td><code>save_text(filepath)</code></td>
+<td><code>Safe_Str__File__Path</code></td>
+<td><code>None</code></td>
+<td>Save text file</td>
+</tr>
+<tr>
+<td><code>save_json(filepath)</code></td>
+<td><code>Safe_Str__File__Path</code></td>
+<td><code>None</code></td>
+<td>Save JSON file</td>
+</tr>
+<tr>
+<td><code>save_markdown(filepath)</code></td>
+<td><code>Safe_Str__File__Path</code></td>
+<td><code>None</code></td>
+<td>Save markdown file</td>
+</tr>
+<tr>
+<td><code>save_html(filepath)</code></td>
+<td><code>Safe_Str__File__Path</code></td>
+<td><code>None</code></td>
+<td>Save HTML file</td>
+</tr>
+<tr>
+<td><code>print_summary()</code></td>
+<td>—</td>
+<td><code>None</code></td>
+<td>Print to console</td>
+</tr>
+<tr>
+<td><code>compare(other)</code></td>
+<td><code>Perf_Benchmark__Timing__Reporter</code></td>
+<td><code>Safe_Str__Text</code></td>
+<td>Compare with another reporter</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-use-consistent-benchmark-ids">DO: Use Consistent Benchmark IDs<a class="headerlink" href="#do-use-consistent-benchmark-ids" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - clear naming convention
+timing.benchmark('A_01__dict_create', dict)
+timing.benchmark('A_02__list_create', list)
+timing.benchmark('B_01__type_safe_init', Type_Safe)
+
+# Section letter (A, B, C...)
+# Index within section (01, 02, 03...)
+# Descriptive name (lowercase_with_underscores)
+</code></pre>
+<h3 id="do-save-sessions-for-historical-comparison">DO: Save Sessions for Historical Comparison<a class="headerlink" href="#do-save-sessions-for-historical-comparison" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - save after each benchmark run
+with Perf_Benchmark__Timing(config=config) as timing:
+    # ... run benchmarks ...
+    timing.reporter().save_json(f'/benchmarks/session_{date.today()}.json')
+</code></pre>
+<h3 id="do-check-status-before-processing-results">DO: Check Status Before Processing Results<a class="headerlink" href="#do-check-status-before-processing-results" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - handle errors gracefully
+comparison = diff.compare_two()
+
+if comparison.status == Enum__Comparison__Status.SUCCESS:
+    for comp in comparison.comparisons:
+        process(comp)
+else:
+    print(f&quot;Cannot compare: {comparison.error}&quot;)
+</code></pre>
+<h3 id="do-use-exporters-for-presentation">DO: Use Exporters for Presentation<a class="headerlink" href="#do-use-exporters-for-presentation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - separate data from presentation
+comparison = diff.compare_two()  # Get data
+text = Perf_Benchmark__Export__Text()
+print(text.export_comparison(comparison))  # Format for display
+</code></pre>
+<h3 id="do-define-time-thresholds-as-constants">DO: Define Time Thresholds as Constants<a class="headerlink" href="#do-define-time-thresholds-as-constants" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - readable thresholds
+time_100_ns  =     100
+time_500_ns  =     500
+time_1_kns   =   1_000
+time_5_kns   =   5_000
+time_10_kns  =  10_000
+time_100_kns = 100_000
+time_1_mns   = 1_000_000
+
+timing.benchmark('A_01__fast', fast_op, assert_less_than=time_1_kns)
+</code></pre>
+<h3 id="dont-mix-string-and-schema-approaches">DON'T: Mix String and Schema Approaches<a class="headerlink" href="#dont-mix-string-and-schema-approaches" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - treating schema like a string
+comparison = diff.compare_two()
+if 'error' in str(comparison):  # Don't do this
+    handle_error()
+
+# ✅ Good - use schema properties
+if comparison.status != Enum__Comparison__Status.SUCCESS:
+    print(comparison.error)
+</code></pre>
+<h3 id="dont-forget-to-load-sessions-before-comparing">DON'T: Forget to Load Sessions Before Comparing<a class="headerlink" href="#dont-forget-to-load-sessions-before-comparing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - no sessions loaded
+diff = Perf_Benchmark__Diff()
+comparison = diff.compare_two()  # ERROR_NO_SESSIONS
+
+# ✅ Good - load first
+diff = Perf_Benchmark__Diff()
+diff.load_folder('/benchmarks/')
+comparison = diff.compare_two()  # SUCCESS (if &gt;= 2 sessions)
+</code></pre>
+<h3 id="dont-ignore-trend-information">DON'T: Ignore Trend Information<a class="headerlink" href="#dont-ignore-trend-information" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - only checking percentage
+if comp.change_percent &gt; 10:
+    alert()
+
+# ✅ Good - use trend enum for clarity
+if comp.trend == Enum__Benchmark__Trend.STRONG_REGRESSION:
+    alert(f&quot;{comp.name} regressed {comp.change_percent}%&quot;)
+</code></pre>
+<h3 id="dont-create-new-timing-instance-per-benchmark">DON'T: Create New Timing Instance Per Benchmark<a class="headerlink" href="#dont-create-new-timing-instance-per-benchmark" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - overhead of creating new instances
+for func in functions:
+    with Perf_Benchmark__Timing(config=config) as timing:
+        timing.benchmark(f'test_{func.__name__}', func)
+
+# ✅ Good - single instance for all benchmarks
+with Perf_Benchmark__Timing(config=config) as timing:
+    for func in functions:
+        timing.benchmark(f'test_{func.__name__}', func)
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-compare_two-returns-error_no_sessions">Problem: compare_two() Returns ERROR_NO_SESSIONS<a class="headerlink" href="#problem-compare_two-returns-error_no_sessions" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: No sessions loaded</p>
+<p><strong>Solution</strong>: Load sessions first</p>
+<pre><code class="language-python">diff = Perf_Benchmark__Diff()
+diff.load_folder('/benchmarks/')  # Or load_session() for individual files
+
+# Verify sessions loaded
+print(f&quot;Sessions loaded: {len(diff.sessions)}&quot;)
+</code></pre>
+<h3 id="problem-compare_two-returns-error_insufficient_sessions">Problem: compare_two() Returns ERROR_INSUFFICIENT_SESSIONS<a class="headerlink" href="#problem-compare_two-returns-error_insufficient_sessions" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Only one session loaded (need at least 2)</p>
+<p><strong>Solution</strong>: Ensure multiple sessions exist</p>
+<pre><code class="language-python"># Check how many sessions
+print(f&quot;Sessions: {len(diff.sessions)}&quot;)
+
+# Load more if needed
+diff.load_session('/benchmarks/session2.json')
+</code></pre>
+<h3 id="problem-no-common-benchmarks-found">Problem: No Common Benchmarks Found<a class="headerlink" href="#problem-no-common-benchmarks-found" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Sessions have different benchmark IDs</p>
+<p><strong>Solution</strong>: Use consistent benchmark IDs across sessions</p>
+<pre><code class="language-python"># Session 1
+timing.benchmark('A_01__test', func)
+
+# Session 2 - use SAME ID
+timing.benchmark('A_01__test', func)  # ✅ Same ID
+timing.benchmark('A_01__test_v2', func)  # ❌ Different ID - won't compare
+</code></pre>
+<h3 id="problem-percentage-shows-repeating-decimals">Problem: Percentage Shows Repeating Decimals<a class="headerlink" href="#problem-percentage-shows-repeating-decimals" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Using raw float instead of Safe_Float__Percentage_Change</p>
+<p><strong>Solution</strong>: This is handled automatically by the schema</p>
+<pre><code class="language-python"># Schema uses Safe_Float__Percentage_Change which rounds to 2 decimal places
+comp.change_percent  # -11.11 (not -11.111111111111)
+</code></pre>
+<h3 id="problem-html-export-missing-chart">Problem: HTML Export Missing Chart<a class="headerlink" href="#problem-html-export-missing-chart" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Chart.js CDN not loading</p>
+<p><strong>Solution</strong>: Ensure network access, or use text/JSON export</p>
+<pre><code class="language-python"># HTML requires Chart.js from CDN
+html = Perf_Benchmark__Export__HTML()
+content = html.export_evolution(evolution)
+
+# Alternative: use text export
+text = Perf_Benchmark__Export__Text()
+print(text.export_evolution(evolution))
+</code></pre>
+<h3 id="problem-cant-access-individual-measurements">Problem: Can't Access Individual Measurements<a class="headerlink" href="#problem-cant-access-individual-measurements" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Using <code>results</code> (summaries) instead of <code>sessions</code> (full data)</p>
+<p><strong>Solution</strong>: Access the sessions dict for detailed measurements</p>
+<pre><code class="language-python"># Summary only
+timing.results['A_01__test'].final_score  # 2000
+
+# Full measurement data
+session = timing.sessions['A_01__test']
+session.result.measurements[610].stddev_time
+session.result.measurements[610].raw_times
+</code></pre>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When using Perf_Benchmark:</p>
+<p><strong>Setup:</strong>
+- [ ] Import <code>Perf_Benchmark__Timing</code> for running benchmarks
+- [ ] Import <code>Perf_Benchmark__Diff</code> for comparing sessions
+- [ ] Import exporters for output formatting
+- [ ] Define time threshold constants (<code>time_1_kns</code>, <code>time_10_kns</code>, etc.)</p>
+<p><strong>Running Benchmarks:</strong>
+- [ ] Use consistent ID format: <code>{Section}_{Index}__{name}</code> (e.g., <code>A_01__dict_create</code>)
+- [ ] Use context manager: <code>with Perf_Benchmark__Timing(config) as timing:</code>
+- [ ] Save sessions with <code>reporter().save_json()</code> for future comparison
+- [ ] Use <code>assert_less_than</code> for threshold enforcement</p>
+<p><strong>Comparing Sessions:</strong>
+- [ ] Load sessions with <code>load_folder()</code> or <code>load_session()</code>
+- [ ] Check status enum before processing results
+- [ ] Use <code>compare_two()</code> for two-session diff
+- [ ] Use <code>compare_all()</code> for evolution tracking
+- [ ] Use <code>statistics()</code> for summary metrics</p>
+<p><strong>Exporting Results:</strong>
+- [ ] Use <code>Perf_Benchmark__Export__Text</code> for console/logs
+- [ ] Use <code>Perf_Benchmark__Export__HTML</code> for dashboards (Chart.js)
+- [ ] Use <code>Perf_Benchmark__Export__JSON</code> for APIs/storage
+- [ ] Same schema works with all exporters</p>
+<p><strong>Error Handling:</strong>
+- [ ] Always check <code>result.status</code> before accessing data
+- [ ] Handle <code>ERROR_NO_SESSIONS</code>, <code>ERROR_INSUFFICIENT_SESSIONS</code>
+- [ ] Access <code>result.error</code> for human-readable messages</p>
+<p><strong>Key Types:</strong>
+- [ ] <code>Schema__Perf__Comparison__Two</code> — two-session comparison
+- [ ] <code>Schema__Perf__Evolution</code> — multi-session tracking
+- [ ] <code>Schema__Perf__Statistics</code> — summary statistics
+- [ ] <code>Enum__Comparison__Status</code> — error handling
+- [ ] <code>Enum__Benchmark__Trend</code> — performance trend (5 levels)</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

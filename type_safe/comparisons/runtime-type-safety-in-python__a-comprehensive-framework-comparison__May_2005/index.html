@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/comparisons/runtime-type-safety-in-python__a-comprehensive-framework-comparison__May_2005/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Runtime Type Safety in Python: A Comprehensive Framework Comparison - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Runtime Type Safety in Python: A Comprehensive Framework Comparison";
+        var mkdocs_page_input_path = "type_safe/comparisons/runtime-type-safety-in-python__a-comprehensive-framework-comparison__May_2005.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/comparisons/runtime-type-safety-in-python__a-comprehensive-framework-comparison__May_2005/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Runtime Type Safety in Python: A Comprehensive Framework Comparison</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="runtime-type-safety-in-python-a-comprehensive-framework-comparison">Runtime Type Safety in Python: A Comprehensive Framework Comparison<a class="headerlink" href="#runtime-type-safety-in-python-a-comprehensive-framework-comparison" title="Permanent link">&para;</a></h1>
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Python's dynamic typing provides flexibility but can lead to runtime errors that are difficult to debug. While several frameworks attempt to address this through runtime type checking, <strong>Type_Safe</strong> (part of OSBot-Utils) provides a uniquely comprehensive approach that goes beyond traditional validation to offer continuous type safety throughout an object's lifecycle.</p>
+<h2 id="the-runtime-type-safety-landscape">The Runtime Type Safety Landscape<a class="headerlink" href="#the-runtime-type-safety-landscape" title="Permanent link">&para;</a></h2>
+<h3 id="current-state-of-python-type-checking">Current State of Python Type Checking<a class="headerlink" href="#current-state-of-python-type-checking" title="Permanent link">&para;</a></h3>
+<p>Python's type hints (PEP 484) provide static type checking through tools like mypy, but these don't enforce types at runtime. This gap has led to several runtime type checking solutions, each with different philosophies and trade-offs.</p>
+<h3 id="framework-overview">Framework Overview<a class="headerlink" href="#framework-overview" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Philosophy</th>
+<th>Primary Use Case</th>
+<th>Checking Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Type_Safe</strong></td>
+<td>Continuous runtime type safety</td>
+<td>Secure data models with strict typing</td>
+<td>Every operation</td>
+</tr>
+<tr>
+<td><strong>Pydantic</strong></td>
+<td>Data validation and serialization</td>
+<td>API data validation</td>
+<td>Creation &amp; assignment</td>
+</tr>
+<tr>
+<td><strong>Typeguard</strong></td>
+<td>Runtime verification of type hints</td>
+<td>Testing and debugging</td>
+<td>Function boundaries</td>
+</tr>
+<tr>
+<td><strong>Beartype</strong></td>
+<td>Ultra-fast runtime type checking</td>
+<td>Performance-critical validation</td>
+<td>Function boundaries</td>
+</tr>
+<tr>
+<td><strong>attrs</strong></td>
+<td>Class building with optional validation</td>
+<td>Clean class definitions</td>
+<td>Assignment (optional)</td>
+</tr>
+<tr>
+<td><strong>enforce</strong></td>
+<td>Decorators for runtime contracts</td>
+<td>Function contracts</td>
+<td>Function boundaries</td>
+</tr>
+</tbody>
+</table>
+<h2 id="detailed-framework-analysis">Detailed Framework Analysis<a class="headerlink" href="#detailed-framework-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="type_safe-osbot-utils">Type_Safe (OSBot-Utils)<a class="headerlink" href="#type_safe-osbot-utils" title="Permanent link">&para;</a></h3>
+<p>Type_Safe provides comprehensive runtime type checking with a focus on continuous validation and type-safe operations.</p>
+<h4 id="key-features">Key Features:<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Continuous Type Validation</strong>
+   ```python
+   class UserSystem(Type_Safe):
+       users: List[User]
+       admins: Dict[str, Admin]</li>
+</ol>
+<p>system = UserSystem()
+   system.users.append("invalid")  # ❌ Raises TypeError immediately
+   system.admins["key"] = "value"  # ❌ Raises TypeError immediately
+   ```</p>
+<ol>
+<li><strong>Type-Safe Primitives</strong>
+   ```python
+   class UserId(Safe_Id): pass
+   class AdminId(Safe_Id): pass</li>
+</ol>
+<p>user_id = UserId("123")
+   admin_id = AdminId("123")
+   assert user_id != admin_id  # Different types, not equal!
+   ```</p>
+<ol>
+<li><strong>Automatic Type Conversion</strong>
+   ```python
+   class Config(Type_Safe):
+       paths: Dict[Safe_Id, Safe_Path]</li>
+</ol>
+<p>config = Config(paths={"home": "/home/user"})  # Auto-converts strings
+   assert config.paths["home"] == "/home/user"    # Natural access
+   ```</p>
+<ol>
+<li><strong>Deep Collection Integration</strong></li>
+<li>Every list append, dict assignment, set addition is type-checked</li>
+<li>Collections maintain type safety through all operations</li>
+<li>Type information preserved through serialization</li>
+</ol>
+<h4 id="strengths">Strengths:<a class="headerlink" href="#strengths" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Complete runtime type safety</li>
+<li>Type-safe primitive classes with identity</li>
+<li>Automatic conversions maintain developer ergonomics</li>
+<li>Comprehensive serialization support</li>
+<li>Collections remain type-safe throughout lifecycle</li>
+</ul>
+<h4 id="limitations">Limitations:<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Performance overhead on every operation</li>
+<li>Learning curve for type-safe primitives</li>
+<li>Not as widely adopted as Pydantic</li>
+</ul>
+<h3 id="pydantic">Pydantic<a class="headerlink" href="#pydantic" title="Permanent link">&para;</a></h3>
+<p>The most popular data validation library, focusing on parsing and validation of external data.</p>
+<h4 id="key-features_1">Key Features:<a class="headerlink" href="#key-features_1" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Data Validation &amp; Coercion</strong>
+   ```python
+   from pydantic import BaseModel</li>
+</ol>
+<p>class User(BaseModel):
+       name: str
+       age: int
+       active: bool = True</p>
+<p>user = User(name="John", age="25", active="yes")  # Coerces types
+   # Result: User(name='John', age=25, active=True)
+   ```</p>
+<ol>
+<li><strong>Validation on Assignment</strong> (v2+)
+   ```python
+   from pydantic import ConfigDict</li>
+</ol>
+<p>class User(BaseModel):
+       model_config = ConfigDict(validate_assignment=True)
+       age: int</p>
+<p>user = User(age=25)
+   user.age = "30"  # Validates and coerces to 30
+   ```</p>
+<ol>
+<li><strong>Complex Type Support</strong>
+   ```python
+   from pydantic import validator</li>
+</ol>
+<p>class Config(BaseModel):
+       ports: List[int]</p>
+<pre><code>   @validator('ports')
+   def validate_ports(cls, v):
+       for port in v:
+           if not 0 &lt;= port &lt;= 65535:
+               raise ValueError(f'Invalid port: {port}')
+       return v
+</code></pre>
+<p>```</p>
+<h4 id="strengths_1">Strengths:<a class="headerlink" href="#strengths_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Excellent data parsing and coercion</li>
+<li>Rich validation features</li>
+<li>Great documentation and community</li>
+<li>Fast performance</li>
+<li>Comprehensive serialization</li>
+</ul>
+<h4 id="limitations_1">Limitations:<a class="headerlink" href="#limitations_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>No continuous collection type checking</li>
+<li>No type-safe primitive classes</li>
+<li>Collections lose type safety after creation</li>
+<li>No strict type equality (coercion can hide bugs)</li>
+</ul>
+<h3 id="typeguard">Typeguard<a class="headerlink" href="#typeguard" title="Permanent link">&para;</a></h3>
+<p>Provides runtime type checking through decorators and import hooks.</p>
+<h4 id="key-features_2">Key Features:<a class="headerlink" href="#key-features_2" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Decorator-Based Checking</strong>
+   ```python
+   from typeguard import typechecked</li>
+</ol>
+<p>@typechecked
+   def process_data(items: List[str], count: int) -&gt; str:
+       return items[0] * count</p>
+<p>process_data(["hello"], "2")  # ❌ Raises TypeError
+   ```</p>
+<ol>
+<li>
+<p><strong>Class Type Checking</strong>
+   <code>python
+   @typechecked
+   class DataProcessor:
+       def process(self, data: Dict[str, Any]) -&gt; List[str]:
+           return list(data.keys())</code></p>
+</li>
+<li>
+<p><strong>Import Hook</strong> (checks entire modules)
+   <code>python
+   from typeguard import install_import_hook
+   install_import_hook('mypackage')
+   import mypackage  # All functions in mypackage are now type-checked</code></p>
+</li>
+</ol>
+<h4 id="strengths_2">Strengths:<a class="headerlink" href="#strengths_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Easy to add to existing code</li>
+<li>Comprehensive type hint support</li>
+<li>Good for testing and debugging</li>
+<li>Minimal code changes required</li>
+</ul>
+<h4 id="limitations_2">Limitations:<a class="headerlink" href="#limitations_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Only checks at function boundaries</li>
+<li>No attribute assignment checking</li>
+<li>No collection operation checking</li>
+<li>Performance overhead can be significant</li>
+</ul>
+<h3 id="beartype">Beartype<a class="headerlink" href="#beartype" title="Permanent link">&para;</a></h3>
+<p>Ultra-fast runtime type checker using code generation.</p>
+<h4 id="key-features_3">Key Features:<a class="headerlink" href="#key-features_3" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Minimal Overhead</strong>
+   ```python
+   from beartype import beartype</li>
+</ol>
+<p>@beartype
+   def fast_function(data: List[int]) -&gt; int:
+       return sum(data)</p>
+<p># Near-zero overhead for common cases
+   ```</p>
+<ol>
+<li><strong>Deep Type Checking</strong> (optional)
+   ```python
+   from beartype.vale import Is
+   from typing import Annotated</li>
+</ol>
+<p>@beartype
+   def process(data: Annotated[List[int], Is[lambda x: all(i &gt; 0 for i in x)]]):
+       return sum(data)
+   ```</p>
+<h4 id="strengths_3">Strengths:<a class="headerlink" href="#strengths_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Extremely fast (near-zero overhead)</li>
+<li>PEP-compliant</li>
+<li>Good for performance-critical code</li>
+<li>Supports complex type constraints</li>
+</ul>
+<h4 id="limitations_3">Limitations:<a class="headerlink" href="#limitations_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Function-boundary checking only</li>
+<li>No assignment validation</li>
+<li>No type conversion</li>
+<li>Limited to decorator usage</li>
+</ul>
+<h3 id="attrs">attrs<a class="headerlink" href="#attrs" title="Permanent link">&para;</a></h3>
+<p>Class-building library with optional validation support.</p>
+<h4 id="key-features_4">Key Features:<a class="headerlink" href="#key-features_4" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Declarative Classes</strong>
+   ```python
+   import attr
+   from attr.validators import instance_of</li>
+</ol>
+<p>@attr.s
+   class Point:
+       x = attr.ib(validator=instance_of(int))
+       y = attr.ib(validator=instance_of(int))</p>
+<p>p = Point(1, 2)  # ✓ Valid
+   p.x = "3"        # ❌ Raises TypeError (if slots=False)
+   ```</p>
+<ol>
+<li><strong>Converters</strong>
+   ```python
+   @attr.s
+   class Config:
+       value = attr.ib(converter=int)</li>
+</ol>
+<p>c = Config("42")  # Converts to int(42)
+   ```</p>
+<h4 id="strengths_4">Strengths:<a class="headerlink" href="#strengths_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Clean, declarative syntax</li>
+<li>Reduces boilerplate</li>
+<li>Optional validation</li>
+<li>Good performance</li>
+</ul>
+<h4 id="limitations_4">Limitations:<a class="headerlink" href="#limitations_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Validation not on by default</li>
+<li>No collection type checking</li>
+<li>Limited runtime type features</li>
+<li>Primary focus is class building, not type safety</li>
+</ul>
+<h2 id="feature-comparison-matrix">Feature Comparison Matrix<a class="headerlink" href="#feature-comparison-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Type_Safe</th>
+<th>Pydantic</th>
+<th>Typeguard</th>
+<th>Beartype</th>
+<th>attrs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Type Checking Scope</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Function parameters</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Return values</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Attribute assignment</td>
+<td>✅</td>
+<td>✅*</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅*</td>
+</tr>
+<tr>
+<td>Collection operations</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Type Features</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Type conversion</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Strict type equality</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Custom validators</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Type-safe primitives</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Validation overhead</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Very Low</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Memory overhead</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Low</td>
+<td>Very Low</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>Developer Experience</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Easy integration</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>IDE support</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Error messages</td>
+<td>Excellent</td>
+<td>Excellent</td>
+<td>Good</td>
+<td>Good</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>Documentation</td>
+<td>Good</td>
+<td>Excellent</td>
+<td>Good</td>
+<td>Good</td>
+<td>Excellent</td>
+</tr>
+</tbody>
+</table>
+<p>*With configuration enabled</p>
+<h2 id="use-case-recommendations">Use Case Recommendations<a class="headerlink" href="#use-case-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="choose-type_safe-when">Choose Type_Safe when:<a class="headerlink" href="#choose-type_safe-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Type safety is critical (security, financial applications)</li>
+<li>You need continuous validation throughout object lifecycle</li>
+<li>Working with domain-specific types (IDs, paths, tokens)</li>
+<li>Collection type safety is important</li>
+<li>Building complex data models with strict typing requirements</li>
+</ul>
+<h3 id="choose-pydantic-when">Choose Pydantic when:<a class="headerlink" href="#choose-pydantic-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Building APIs or working with external data</li>
+<li>Need robust data parsing and coercion</li>
+<li>Want the most popular, well-supported solution</li>
+<li>Performance is important but not critical</li>
+<li>Serialization/deserialization is a primary concern</li>
+</ul>
+<h3 id="choose-typeguard-when">Choose Typeguard when:<a class="headerlink" href="#choose-typeguard-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Adding type checking to existing codebase</li>
+<li>Want to verify type hints during testing</li>
+<li>Need comprehensive type hint support</li>
+<li>Don't want to change class definitions</li>
+</ul>
+<h3 id="choose-beartype-when">Choose Beartype when:<a class="headerlink" href="#choose-beartype-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Performance is absolutely critical</li>
+<li>Only need function boundary checking</li>
+<li>Working with computational-heavy code</li>
+<li>Want minimal overhead type checking</li>
+</ul>
+<h3 id="choose-attrs-when">Choose attrs when:<a class="headerlink" href="#choose-attrs-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Primary goal is reducing class boilerplate</li>
+<li>Want optional validation</li>
+<li>Building simple data classes</li>
+<li>Type checking is secondary concern</li>
+</ul>
+<h2 id="type_safes-unique-innovations">Type_Safe's Unique Innovations<a class="headerlink" href="#type_safes-unique-innovations" title="Permanent link">&para;</a></h2>
+<h3 id="1-type-safe-primitives-with-identity">1. Type-Safe Primitives with Identity<a class="headerlink" href="#1-type-safe-primitives-with-identity" title="Permanent link">&para;</a></h3>
+<p>Type_Safe introduces a novel concept where primitive subclasses maintain type identity:</p>
+<pre><code class="language-python">class UserId(Safe_Id): pass
+class ProductId(Safe_Id): pass
+
+# Prevents mixing different ID types
+user_id = UserId(&quot;123&quot;)
+product_id = ProductId(&quot;123&quot;)
+assert user_id != product_id  # Different types!
+
+# But allows comparison with base types
+assert user_id == &quot;123&quot;  # Convenient string comparison
+</code></pre>
+<h3 id="2-continuous-collection-validation">2. Continuous Collection Validation<a class="headerlink" href="#2-continuous-collection-validation" title="Permanent link">&para;</a></h3>
+<p>Unlike other frameworks, Type_Safe validates every collection operation:</p>
+<pre><code class="language-python">class System(Type_Safe):
+    users: List[User]
+    config: Dict[str, Setting]
+
+system = System()
+
+# Every operation is type-checked
+system.users.append(User())       # ✓ Valid
+system.users.extend([User()])     # ✓ Valid
+system.users[0] = &quot;not a user&quot;    # ❌ TypeError
+
+# Dict operations are also safe
+system.config[&quot;key&quot;] = Setting()  # ✓ Valid
+system.config.update({&quot;k&quot;: &quot;v&quot;})  # ❌ TypeError
+</code></pre>
+<h3 id="3-transparent-type-conversion">3. Transparent Type Conversion<a class="headerlink" href="#3-transparent-type-conversion" title="Permanent link">&para;</a></h3>
+<p>Type_Safe provides automatic conversion while maintaining type safety:</p>
+<pre><code class="language-python">class Config(Type_Safe):
+    paths: Dict[Safe_Id, Safe_Path]
+
+# Natural initialization
+config = Config(paths={&quot;home&quot;: &quot;/home/user&quot;})
+
+# Natural access (auto-converts key)
+home_path = config.paths[&quot;home&quot;]  # Works!
+
+# Type safety maintained
+assert type(config.paths[&quot;home&quot;]) is Safe_Path
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="overhead-comparison">Overhead Comparison<a class="headerlink" href="#overhead-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Type_Safe</th>
+<th>Pydantic</th>
+<th>Typeguard</th>
+<th>Beartype</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Object creation</td>
+<td>~10x</td>
+<td>~3x</td>
+<td>~5x</td>
+<td>~1.1x</td>
+</tr>
+<tr>
+<td>Attribute assignment</td>
+<td>~5x</td>
+<td>~2x*</td>
+<td>1x</td>
+<td>1x</td>
+</tr>
+<tr>
+<td>Collection append</td>
+<td>~3x</td>
+<td>1x</td>
+<td>1x</td>
+<td>1x</td>
+</tr>
+<tr>
+<td>Function call</td>
+<td>~2x</td>
+<td>1x</td>
+<td>~3x</td>
+<td>~1.2x</td>
+</tr>
+</tbody>
+</table>
+<p>*With validate_assignment enabled</p>
+<h3 id="when-performance-matters">When Performance Matters<a class="headerlink" href="#when-performance-matters" title="Permanent link">&para;</a></h3>
+<p>Type_Safe's overhead is generally acceptable for:
+- Business logic and data models
+- Security-critical operations
+- Configuration management
+- Domain modeling</p>
+<p>Consider alternatives for:
+- High-frequency trading systems
+- Real-time data processing
+- Numerical computations
+- Large-scale data transformations</p>
+<h2 id="migration-strategies">Migration Strategies<a class="headerlink" href="#migration-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="from-untyped-python-to-type_safe">From Untyped Python to Type_Safe<a class="headerlink" href="#from-untyped-python-to-type_safe" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Before
+class User:
+    def __init__(self, id, name, role):
+        self.id = id
+        self.name = name
+        self.role = role
+
+# After
+class User(Type_Safe):
+    id: UserId
+    name: Safe_Str
+    role: UserRole
+</code></pre>
+<h3 id="from-pydantic-to-type_safe">From Pydantic to Type_Safe<a class="headerlink" href="#from-pydantic-to-type_safe" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Pydantic
+from pydantic import BaseModel
+
+class User(BaseModel):
+    id: str
+    name: str
+    roles: List[str]
+
+# Type_Safe
+class User(Type_Safe):
+    id: UserId
+    name: Safe_Str
+    roles: List[UserRole]
+</code></pre>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>Type_Safe represents a unique approach to runtime type safety in Python, prioritizing comprehensive validation over performance. While frameworks like Pydantic excel at data parsing and validation at boundaries, Type_Safe provides continuous type safety throughout an object's lifecycle.</p>
+<p>The choice between frameworks depends on your specific needs:
+- For API development and data parsing: <strong>Pydantic</strong>
+- For comprehensive runtime safety: <strong>Type_Safe</strong>
+- For testing type annotations: <strong>Typeguard</strong>
+- For performance-critical checking: <strong>Beartype</strong>
+- For clean class definitions: <strong>attrs</strong></p>
+<p>Type_Safe's innovations in type-safe primitives and continuous collection validation make it particularly valuable for applications where type safety is paramount, such as financial systems, security-critical applications, and complex domain models where type confusion could lead to serious bugs.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://github.com/owasp-sbot/OSBot-Utils">Type_Safe Documentation</a></li>
+<li><a href="https://docs.pydantic.dev/">Pydantic Documentation</a></li>
+<li><a href="https://typeguard.readthedocs.io/">Typeguard Documentation</a></li>
+<li><a href="https://github.com/beartype/beartype">Beartype Documentation</a></li>
+<li><a href="https://www.attrs.org/">attrs Documentation</a></li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

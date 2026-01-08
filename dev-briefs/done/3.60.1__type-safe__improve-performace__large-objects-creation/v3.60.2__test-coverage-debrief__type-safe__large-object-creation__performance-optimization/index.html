@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/done/3.60.1__type-safe__improve-performace__large-objects-creation/v3.60.2__test-coverage-debrief__type-safe__large-object-creation__performance-optimization/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Type_Safe__On_Demand: Test Coverage Technical Debrief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe__On_Demand: Test Coverage Technical Debrief";
+        var mkdocs_page_input_path = "dev-briefs/done/3.60.1__type-safe__improve-performace__large-objects-creation/v3.60.2__test-coverage-debrief__type-safe__large-object-creation__performance-optimization.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/done/3.60.1__type-safe__improve-performace__large-objects-creation/v3.60.2__test-coverage-debrief__type-safe__large-object-creation__performance-optimization/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe__On_Demand: Test Coverage Technical Debrief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe__on_demand-test-coverage-technical-debrief">Type_Safe__On_Demand: Test Coverage Technical Debrief<a class="headerlink" href="#type_safe__on_demand-test-coverage-technical-debrief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.60.2<br />
+<strong>Date</strong>: December 2025<br />
+<strong>Test Files</strong>: <code>test_Type_Safe__On_Demand.py</code>, <code>test_perf_Type_Safe__On_Demand.py</code><br />
+<strong>Total Tests</strong>: 41 (29 functional + 12 performance)<br />
+<strong>Status</strong>: ✅ All passing</p>
+<hr />
+<h2 id="introduction-why-these-tests-are-critical">Introduction: Why These Tests Are Critical<a class="headerlink" href="#introduction-why-these-tests-are-critical" title="Permanent link">&para;</a></h2>
+<h3 id="the-challenge-of-testing-type_safe-extensions">The Challenge of Testing Type_Safe Extensions<a class="headerlink" href="#the-challenge-of-testing-type_safe-extensions" title="Permanent link">&para;</a></h3>
+<p><code>Type_Safe__On_Demand</code> is not a standalone feature—it's an extension to the foundational <code>Type_Safe</code> class that underpins the entire OSBot-Utils ecosystem. Any modification to Type_Safe's initialization or attribute access behavior has the potential to create subtle, far-reaching side effects across:</p>
+<ul>
+<li><strong>177 Type_Safe-related source files</strong> in the OSBot-Utils repository</li>
+<li><strong>Nested object hierarchies</strong> that depend on predictable creation timing</li>
+<li><strong>Collection wrappers</strong> (<code>Type_Safe__List</code>, <code>Type_Safe__Dict</code>, <code>Type_Safe__Set</code>) that transform native Python types</li>
+<li><strong>Type_Safe__Primitive types</strong> that provide domain-specific validation</li>
+<li><strong>JSON serialization/deserialization</strong> workflows that expect specific object states</li>
+<li><strong>MGraph indexing systems</strong> that create complex object graphs</li>
+</ul>
+<p>A comprehensive test suite is not optional—it's essential to ensure that the on-demand optimization doesn't break any of these interconnected systems.</p>
+<h3 id="the-nature-of-on-demand-initialization">The Nature of On-Demand Initialization<a class="headerlink" href="#the-nature-of-on-demand-initialization" title="Permanent link">&para;</a></h3>
+<p>On-demand initialization fundamentally changes <em>when</em> objects exist. This creates testing challenges:</p>
+<ol>
+<li><strong>Temporal Dependencies</strong>: Code that previously assumed objects existed immediately after construction may now encounter <code>None</code> or trigger unexpected creation</li>
+<li><strong>State Visibility</strong>: Internal state (<code>_on_demand__types</code>) must be correctly maintained across the object lifecycle</li>
+<li><strong>Inheritance Complexity</strong>: Mixed hierarchies of <code>Type_Safe</code> and <code>Type_Safe__On_Demand</code> must behave correctly</li>
+<li><strong>Serialization Timing</strong>: <code>json()</code> and <code>obj()</code> calls interact with on-demand state in non-obvious ways</li>
+</ol>
+<p>The test suite addresses each of these challenges systematically.</p>
+<hr />
+<h2 id="test-architecture-overview">Test Architecture Overview<a class="headerlink" href="#test-architecture-overview" title="Permanent link">&para;</a></h2>
+<h3 id="file-organization">File Organization<a class="headerlink" href="#file-organization" title="Permanent link">&para;</a></h3>
+<pre><code>tests/
+├── unit/
+│   └── type_safe/
+│       ├── test_Type_Safe__On_Demand.py      # Functional tests (29)
+│       └── _performance/
+│           └── test_perf_Type_Safe__On_Demand.py  # Performance tests (12)
+</code></pre>
+<h3 id="test-class-hierarchy">Test Class Hierarchy<a class="headerlink" href="#test-class-hierarchy" title="Permanent link">&para;</a></h3>
+<pre><code>test_Type_Safe__On_Demand.py
+├── test_Type_Safe__On_Demand                    # Core functionality (14 tests)
+├── test_Type_Safe__On_Demand__with_collections  # Collection integration (3 tests)
+├── test_Type_Safe__On_Demand__with_primitives   # Primitive handling (2 tests)
+├── test_Type_Safe__On_Demand__mixed_inheritance # Inheritance patterns (2 tests)
+├── test_Type_Safe__On_Demand__edge_cases        # Boundary conditions (5 tests)
+└── test_Type_Safe__On_Demand__regression        # Regression prevention (3 tests)
+
+test_perf_Type_Safe__On_Demand.py
+├── test_perf_Type_Safe__On_Demand               # Core performance (8 tests)
+├── test_perf_Type_Safe__On_Demand__with_access  # Access pattern performance (2 tests)
+└── test_perf_Type_Safe__On_Demand__memory       # Memory/state tests (2 tests)
+</code></pre>
+<hr />
+<h2 id="functional-test-coverage">Functional Test Coverage<a class="headerlink" href="#functional-test-coverage" title="Permanent link">&para;</a></h2>
+<h3 id="1-core-functionality-tests-test_type_safe__on_demand">1. Core Functionality Tests (<code>test_Type_Safe__On_Demand</code>)<a class="headerlink" href="#1-core-functionality-tests-test_type_safe__on_demand" title="Permanent link">&para;</a></h3>
+<p>These tests validate the fundamental mechanics of on-demand initialization.</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Purpose</th>
+<th>Key Assertions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test__init__</code></td>
+<td>Basic construction</td>
+<td>Inheritance chain, internal state initialized, primitives work</td>
+</tr>
+<tr>
+<td><code>test__init____with_provided_kwargs</code></td>
+<td>Caller-provided values</td>
+<td>Provided objects used directly, not deferred</td>
+</tr>
+<tr>
+<td><code>test__init____with_none_default</code></td>
+<td>Explicit <code>= None</code> defaults</td>
+<td>Default value handling behavior</td>
+</tr>
+<tr>
+<td><code>test__getattribute____on_demand_creation</code></td>
+<td>First access creates object</td>
+<td>Type correctness, pending state cleared</td>
+</tr>
+<tr>
+<td><code>test__getattribute____multiple_accesses</code></td>
+<td>Subsequent accesses</td>
+<td>Same instance returned (no re-creation)</td>
+</tr>
+<tr>
+<td><code>test__getattribute____nested_on_demand</code></td>
+<td>Deep hierarchies</td>
+<td>Each level defers independently</td>
+</tr>
+<tr>
+<td><code>test__on_demand__should_create</code></td>
+<td>Type filtering logic</td>
+<td>Type_Safe yes, primitives no</td>
+</tr>
+<tr>
+<td><code>test__on_demand__should_create__with_optional</code></td>
+<td>Optional/Union handling</td>
+<td>Unwraps Optional correctly</td>
+</tr>
+<tr>
+<td><code>test__repr__</code></td>
+<td>String representation</td>
+<td>Shows pending count accurately</td>
+</tr>
+<tr>
+<td><code>test_json</code></td>
+<td>JSON serialization</td>
+<td>Accessed attrs serialize correctly</td>
+</tr>
+<tr>
+<td><code>test_json__complex_hierarchy</code></td>
+<td>Nested JSON</td>
+<td>Deep structures serialize</td>
+</tr>
+<tr>
+<td><code>test_from_json</code></td>
+<td>Deserialization</td>
+<td>Round-trip preserves data</td>
+</tr>
+<tr>
+<td><code>test_reset</code></td>
+<td>Reset method</td>
+<td>Primitives reset, accessed objects remain</td>
+</tr>
+<tr>
+<td><code>test_obj</code></td>
+<td>Object comparison</td>
+<td><code>.obj()</code> works for testing</td>
+</tr>
+</tbody>
+</table>
+<h4 id="critical-test-test__getattribute____nested_on_demand">Critical Test: <code>test__getattribute____nested_on_demand</code><a class="headerlink" href="#critical-test-test__getattribute____nested_on_demand" title="Permanent link">&para;</a></h4>
+<p>This test validates the key architectural property—that on-demand creation cascades correctly through deeply nested hierarchies:</p>
+<pre><code class="language-python">def test__getattribute____nested_on_demand(self):
+    class Level3(Type_Safe__On_Demand):
+        value: str = &quot;level3&quot;
+
+    class Level2(Type_Safe__On_Demand):
+        level3: Level3
+        name  : str = &quot;level2&quot;
+
+    class Level1(Type_Safe__On_Demand):
+        level2: Level2
+        name  : str = &quot;level1&quot;
+
+    with Level1() as _:
+        assert 'level2' in _._on_demand__types          # Level2 pending
+        level2 = _.level2                                # Create Level2
+        assert 'level3' in level2._on_demand__types     # Level3 still pending
+        level3 = level2.level3                           # Create Level3
+        assert level3.value == &quot;level3&quot;
+</code></pre>
+<p>This directly validates the MGraph__Index use case where 10+ nested objects are only created when accessed.</p>
+<h3 id="2-collection-integration-tests-test_type_safe__on_demand__with_collections">2. Collection Integration Tests (<code>test_Type_Safe__On_Demand__with_collections</code>)<a class="headerlink" href="#2-collection-integration-tests-test_type_safe__on_demand__with_collections" title="Permanent link">&para;</a></h3>
+<p>Type_Safe automatically converts native Python collections to type-safe wrappers. These tests ensure on-demand doesn't interfere:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Purpose</th>
+<th>Key Assertions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test__dict_attribute</code></td>
+<td>Dict[K,V] handling</td>
+<td>Creates <code>Type_Safe__Dict</code> immediately (not deferred)</td>
+</tr>
+<tr>
+<td><code>test__list_attribute</code></td>
+<td>List[T] handling</td>
+<td>Creates <code>Type_Safe__List</code> immediately (not deferred)</td>
+</tr>
+<tr>
+<td><code>test__nested_type_safe_in_dict</code></td>
+<td>Type_Safe values in Dict</td>
+<td>Values can be On_Demand types</td>
+</tr>
+</tbody>
+</table>
+<h4 id="why-collections-are-not-deferred">Why Collections Are NOT Deferred<a class="headerlink" href="#why-collections-are-not-deferred" title="Permanent link">&para;</a></h4>
+<p>Collections are cheap to create (they're essentially empty containers) and are frequently accessed immediately after construction. Deferring them would add overhead without meaningful benefit:</p>
+<pre><code class="language-python">def test__dict_attribute(self):
+    class Schema(Type_Safe__On_Demand):
+        data: Dict[str, str]
+        name: str = &quot;&quot;
+
+    with Schema() as _:
+        assert type(_.data) is Type_Safe__Dict      # Created immediately
+        assert 'data' not in _._on_demand__types    # Not pending
+</code></pre>
+<h3 id="3-primitive-handling-tests-test_type_safe__on_demand__with_primitives">3. Primitive Handling Tests (<code>test_Type_Safe__On_Demand__with_primitives</code>)<a class="headerlink" href="#3-primitive-handling-tests-test_type_safe__on_demand__with_primitives" title="Permanent link">&para;</a></h3>
+<p>Type_Safe supports both native Python primitives and the powerful <code>Type_Safe__Primitive</code> types (Safe_Str, Safe_Int, Safe_Id, etc.). These tests ensure correct handling:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Purpose</th>
+<th>Key Assertions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test__primitive_attributes</code></td>
+<td>Native primitives (str, int, float, bool)</td>
+<td>Work normally, never deferred</td>
+</tr>
+<tr>
+<td><code>test__safe_primitive_attributes</code></td>
+<td>Safe_Str, Safe_Int, Safe_Id</td>
+<td>Created immediately, not deferred</td>
+</tr>
+</tbody>
+</table>
+<h4 id="why-safe-primitives-are-not-deferred">Why Safe Primitives Are NOT Deferred<a class="headerlink" href="#why-safe-primitives-are-not-deferred" title="Permanent link">&para;</a></h4>
+<p><code>Type_Safe__Primitive</code> types are immutable, single-value wrappers. They're even cheaper to create than collections and provide immediate validation. Deferring them would delay validation unnecessarily:</p>
+<pre><code class="language-python">def test__safe_primitive_attributes(self):
+    from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+    class Schema(Type_Safe__On_Demand):
+        safe_str: Safe_Str = 'default'
+        safe_int: Safe_Int = 42
+        safe_id : Safe_Id  = 'my-id'
+
+    with Schema() as _:
+        assert type(_.safe_str) is Safe_Str         # Created immediately
+        assert len(_._on_demand__types) == 0        # Nothing deferred
+</code></pre>
+<h3 id="4-mixed-inheritance-tests-test_type_safe__on_demand__mixed_inheritance">4. Mixed Inheritance Tests (<code>test_Type_Safe__On_Demand__mixed_inheritance</code>)<a class="headerlink" href="#4-mixed-inheritance-tests-test_type_safe__on_demand__mixed_inheritance" title="Permanent link">&para;</a></h3>
+<p>Real-world code may mix <code>Type_Safe</code> and <code>Type_Safe__On_Demand</code> in the same hierarchy. These tests validate interoperability:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Purpose</th>
+<th>Key Assertions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test__type_safe_child_of_on_demand</code></td>
+<td><code>Type_Safe</code> attr in <code>On_Demand</code> class</td>
+<td>Type_Safe children ARE deferred</td>
+</tr>
+<tr>
+<td><code>test__on_demand_child_of_type_safe</code></td>
+<td><code>On_Demand</code> attr in <code>Type_Safe</code> class</td>
+<td>Created immediately (eager parent)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="key-insight-direction-matters">Key Insight: Direction Matters<a class="headerlink" href="#key-insight-direction-matters" title="Permanent link">&para;</a></h4>
+<p>When an <code>On_Demand</code> class has a <code>Type_Safe</code> attribute, that attribute IS deferred (because the parent controls creation). But when a <code>Type_Safe</code> class has an <code>On_Demand</code> attribute, it's created immediately (because the eager parent doesn't defer):</p>
+<pre><code class="language-python">def test__type_safe_child_of_on_demand(self):
+    class EagerChild(Type_Safe):
+        value: str = &quot;eager&quot;
+
+    class OnDemandParent(Type_Safe__On_Demand):
+        child: EagerChild                           # EagerChild IS deferred
+
+    with OnDemandParent() as _:
+        assert 'child' in _._on_demand__types       # Deferred despite being Type_Safe
+</code></pre>
+<h3 id="5-edge-case-tests-test_type_safe__on_demand__edge_cases">5. Edge Case Tests (<code>test_Type_Safe__On_Demand__edge_cases</code>)<a class="headerlink" href="#5-edge-case-tests-test_type_safe__on_demand__edge_cases" title="Permanent link">&para;</a></h3>
+<p>These tests probe boundary conditions and unusual scenarios:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Purpose</th>
+<th>Key Assertions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test__empty_class</code></td>
+<td>Class with no attributes</td>
+<td>No crashes, empty pending dict</td>
+</tr>
+<tr>
+<td><code>test__only_primitives</code></td>
+<td>Class with only primitives</td>
+<td>Nothing to defer</td>
+</tr>
+<tr>
+<td><code>test__private_attributes</code></td>
+<td>Attributes starting with <code>_</code></td>
+<td>Private attrs not tracked</td>
+</tr>
+<tr>
+<td><code>test__attribute_assignment_after_init</code></td>
+<td>Assigning to pending attr</td>
+<td>Documents edge case behavior</td>
+</tr>
+<tr>
+<td><code>test__circular_reference_potential</code></td>
+<td>Self-referential patterns</td>
+<td>No infinite loops</td>
+</tr>
+</tbody>
+</table>
+<h4 id="important-edge-case-assignment-to-pending-attributes">Important Edge Case: Assignment to Pending Attributes<a class="headerlink" href="#important-edge-case-assignment-to-pending-attributes" title="Permanent link">&para;</a></h4>
+<p>The test <code>test__attribute_assignment_after_init</code> documents a subtle behavior—assigning to an attribute that's still in <code>_on_demand__types</code> may be overwritten on next access:</p>
+<pre><code class="language-python">def test__attribute_assignment_after_init(self):
+    # IMPORTANT: Assignment to pending on-demand attribute has edge case behavior
+    # To properly assign, first pop from _on_demand__types or access first
+    _._on_demand__types.pop('inner', None)          # Remove from pending
+    _.inner = new_inner                              # Now assign safely
+</code></pre>
+<h3 id="6-regression-prevention-tests-test_type_safe__on_demand__regression">6. Regression Prevention Tests (<code>test_Type_Safe__On_Demand__regression</code>)<a class="headerlink" href="#6-regression-prevention-tests-test_type_safe__on_demand__regression" title="Permanent link">&para;</a></h3>
+<p>These tests guard against specific bugs that could be reintroduced:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Purpose</th>
+<th>Key Assertions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test__init_complete_flag_timing</code></td>
+<td>Flag is False during init, True after</td>
+<td>Prevents premature creation</td>
+</tr>
+<tr>
+<td><code>test__multiple_instances_independent</code></td>
+<td>Instances don't share state</td>
+<td>No class-level pollution</td>
+</tr>
+<tr>
+<td><code>test__json_does_not_include_internal_attrs</code></td>
+<td>JSON works with internals</td>
+<td>Internal attrs don't break serialization</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="performance-test-coverage">Performance Test Coverage<a class="headerlink" href="#performance-test-coverage" title="Permanent link">&para;</a></h2>
+<h3 id="mgraph__index-simulation">MGraph__Index Simulation<a class="headerlink" href="#mgraph__index-simulation" title="Permanent link">&para;</a></h3>
+<p>The performance tests create a realistic simulation of the <code>MGraph__Index</code> hierarchy that motivated this optimization:</p>
+<pre><code>MGraph__Index__Eager / MGraph__Index__OnDemand
+├── index_data   : Schema__Data
+│   ├── edges : Schema__Edges (3 Dict attrs)
+│   ├── labels: Schema__Labels (6 Dict attrs)
+│   ├── paths : Schema__Paths (2 Dict attrs)
+│   └── types : Schema__Types (6 Dict attrs)
+├── edges_index  : Index__Edges
+├── edit_index   : Index__Edit (6 sub-indexes)
+├── labels_index : Index__Labels
+├── paths_index  : Index__Paths
+├── query_index  : Index__Query (4 sub-indexes)
+├── stats_index  : Index__Stats (4 sub-indexes)
+├── types_index  : Index__Types
+├── values_index : Index__Values
+└── resolver     : Type__Resolver
+</code></pre>
+<h3 id="performance-test-categories">Performance Test Categories<a class="headerlink" href="#performance-test-categories" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Purpose</th>
+<th>Key Metrics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test__object_creation_count__eager</code></td>
+<td>Count objects with Type_Safe</td>
+<td>≥40 objects</td>
+</tr>
+<tr>
+<td><code>test__object_creation_count__on_demand</code></td>
+<td>Count objects with On_Demand</td>
+<td>=1 object</td>
+</tr>
+<tr>
+<td><code>test__object_creation_count__comparison</code></td>
+<td>Compare counts</td>
+<td>≥95% reduction</td>
+</tr>
+<tr>
+<td><code>test__construction_time__eager</code></td>
+<td>Benchmark Type_Safe</td>
+<td>&gt;100µs</td>
+</tr>
+<tr>
+<td><code>test__construction_time__on_demand</code></td>
+<td>Benchmark On_Demand</td>
+<td>&lt;200µs target</td>
+</tr>
+<tr>
+<td><code>test__construction_time__comparison</code></td>
+<td>Compare times</td>
+<td>≥10x speedup</td>
+</tr>
+<tr>
+<td><code>test__html_mgraph_simulation__six_indexes</code></td>
+<td>Simulate Html_MGraph</td>
+<td>&lt;2ms for 6 indexes</td>
+</tr>
+<tr>
+<td><code>test__target_200_microseconds</code></td>
+<td>Explicit target validation</td>
+<td>≤200µs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="access-pattern-tests">Access Pattern Tests<a class="headerlink" href="#access-pattern-tests" title="Permanent link">&para;</a></h3>
+<p>These tests validate performance when attributes are actually accessed:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Purpose</th>
+<th>Key Assertions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test__construction_plus_partial_access</code></td>
+<td>Create + access 2 attrs</td>
+<td>Still ≥5x faster</td>
+</tr>
+<tr>
+<td><code>test__construction_plus_full_access</code></td>
+<td>Create + access all 10 attrs</td>
+<td>At least not slower</td>
+</tr>
+</tbody>
+</table>
+<h3 id="memorystate-tests">Memory/State Tests<a class="headerlink" href="#memorystate-tests" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Purpose</th>
+<th>Key Assertions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test__pending_attributes_count</code></td>
+<td>Verify correct pending count</td>
+<td>10 Type_Safe attrs pending</td>
+</tr>
+<tr>
+<td><code>test__pending_reduces_on_access</code></td>
+<td>Verify pending decrements</td>
+<td>10 → 9 → 8 on access</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="test-patterns-used">Test Patterns Used<a class="headerlink" href="#test-patterns-used" title="Permanent link">&para;</a></h2>
+<h3 id="context-manager-pattern">Context Manager Pattern<a class="headerlink" href="#context-manager-pattern" title="Permanent link">&para;</a></h3>
+<p>All functional tests use the Type_Safe context manager pattern with underscore:</p>
+<pre><code class="language-python">with Outer() as _:
+    assert _.inner.value == &quot;expected&quot;
+</code></pre>
+<h3 id="performance-measurement-pattern">Performance Measurement Pattern<a class="headerlink" href="#performance-measurement-pattern" title="Permanent link">&para;</a></h3>
+<p>Performance tests use OSBot-Utils' <code>Performance_Measure__Session</code>:</p>
+<pre><code class="language-python">with Performance_Measure__Session() as _:
+    _.measure__quick(MGraph__Index__OnDemand)
+    result = _.result
+</code></pre>
+<h3 id="object-counting-pattern">Object Counting Pattern<a class="headerlink" href="#object-counting-pattern" title="Permanent link">&para;</a></h3>
+<p>For object creation tests, we monkey-patch <code>Type_Safe.__init__</code>:</p>
+<pre><code class="language-python">creation_count = {'value': 0}
+original_init = Type_Safe.__init__
+
+def counting_init(self, **kwargs):
+    creation_count['value'] += 1
+    original_init(self, **kwargs)
+</code></pre>
+<hr />
+<h2 id="coverage-summary">Coverage Summary<a class="headerlink" href="#coverage-summary" title="Permanent link">&para;</a></h2>
+<h3 id="what-is-tested">What IS Tested<a class="headerlink" href="#what-is-tested" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Basic construction and inheritance</li>
+<li>✅ On-demand attribute creation</li>
+<li>✅ Nested hierarchy behavior</li>
+<li>✅ Collection type handling (Dict, List)</li>
+<li>✅ Primitive type handling (native and Safe)</li>
+<li>✅ Mixed Type_Safe / On_Demand inheritance</li>
+<li>✅ JSON serialization/deserialization</li>
+<li>✅ Object comparison (.obj())</li>
+<li>✅ Reset behavior</li>
+<li>✅ Edge cases (empty classes, private attrs)</li>
+<li>✅ Performance vs target (200µs)</li>
+<li>✅ Object count reduction (98%)</li>
+<li>✅ Html_MGraph 6-index scenario</li>
+</ul>
+<h3 id="what-could-be-added-future-work">What Could Be Added (Future Work)<a class="headerlink" href="#what-could-be-added-future-work" title="Permanent link">&para;</a></h3>
+<ul>
+<li>⬜ Thread safety tests</li>
+<li>⬜ Pickle serialization tests</li>
+<li>⬜ Deep copy behavior tests</li>
+<li>⬜ Integration with Type_Safe validators</li>
+<li>⬜ Memory usage benchmarks</li>
+<li>⬜ Stress tests with 100+ levels of nesting</li>
+</ul>
+<hr />
+<h2 id="running-the-tests">Running the Tests<a class="headerlink" href="#running-the-tests" title="Permanent link">&para;</a></h2>
+<pre><code class="language-bash"># Run all Type_Safe__On_Demand tests
+pytest tests/unit/type_safe/test_Type_Safe__On_Demand.py -v
+
+# Run performance tests (uses measure__quick for speed)
+pytest tests/unit/type_safe/_performance/test_perf_Type_Safe__On_Demand.py -v
+
+# Run with coverage
+pytest tests/unit/type_safe/test_Type_Safe__On_Demand.py --cov=osbot_utils.type_safe.Type_Safe__On_Demand
+</code></pre>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>The test suite provides comprehensive coverage of <code>Type_Safe__On_Demand</code> across:</p>
+<ol>
+<li><strong>Core mechanics</strong>: Init, getattribute, internal state management</li>
+<li><strong>Type ecosystem</strong>: Collections, primitives, Safe types</li>
+<li><strong>Inheritance patterns</strong>: Mixed hierarchies</li>
+<li><strong>Edge cases</strong>: Empty classes, assignment timing, circular references</li>
+<li><strong>Performance</strong>: Object counts, construction time, access patterns</li>
+</ol>
+<p>The 41 tests ensure that the 20x performance improvement doesn't come at the cost of correctness or compatibility with the broader Type_Safe ecosystem.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

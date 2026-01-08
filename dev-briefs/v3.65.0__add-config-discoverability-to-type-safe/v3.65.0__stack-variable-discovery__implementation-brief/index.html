@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.65.0__stack-variable-discovery__implementation-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Stack Variable Discovery - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Stack Variable Discovery - LLM Usage Brief";
+        var mkdocs_page_input_path = "dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.65.0__stack-variable-discovery__implementation-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.65.0__stack-variable-discovery__implementation-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Stack Variable Discovery - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="stack-variable-discovery-llm-usage-brief">Stack Variable Discovery - LLM Usage Brief<a class="headerlink" href="#stack-variable-discovery-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.65.0<br />
+<strong>Status</strong>: Pattern validated, production ready<br />
+<strong>Purpose</strong>: General-purpose technique for propagating context through call stacks without explicit parameter passing<br />
+<strong>Location</strong>: Reusable pattern (not a specific module)<br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils</p>
+<hr />
+<h2 id="what-is-stack-variable-discovery">What is Stack Variable Discovery?<a class="headerlink" href="#what-is-stack-variable-discovery" title="Permanent link">&para;</a></h2>
+<p><strong>Stack Variable Discovery is a technique for finding a specially-named variable in the call stack, with frame injection caching to make repeated lookups O(1).</strong></p>
+<p>This enables "ambient context" - configuration or state that is automatically available to all code within a certain scope, without passing it through every function call.</p>
+<hr />
+<h2 id="the-pattern">The Pattern<a class="headerlink" href="#the-pattern" title="Permanent link">&para;</a></h2>
+<h3 id="core-algorithm">Core Algorithm<a class="headerlink" href="#core-algorithm" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import inspect
+from typing import Optional, TypeVar, Type
+
+T = TypeVar('T')
+
+VARIABLE_NAME    = '_my_context_'                                                # Variable to search for
+CHECKED_VAR_NAME = '_my_context__checked_'                                       # Marker for &quot;already searched&quot;
+MAX_DEPTH        = 15                                                            # Maximum frames to walk
+
+
+def find_stack_variable(var_name   : str       ,
+                        checked_var: str       ,
+                        var_type   : Type[T]   ,
+                        max_depth  : int = 15  ) -&gt; Optional[T]:
+
+    frame           = inspect.currentframe()
+    previous_frames = []
+
+    for _ in range(max_depth):
+        frame = frame.f_back
+        if frame is None:
+            break
+
+        value = frame.f_locals.get(var_name)
+
+        if isinstance(value, var_type):                                          # Found it
+            for previous_frame in previous_frames:
+                previous_frame.f_locals[var_name] = value                        # Inject for future lookups
+            return value
+
+        if frame.f_locals.get(checked_var):                                      # Already checked this path
+            return None
+
+        previous_frames.append(frame)
+
+    for previous_frame in previous_frames:                                       # Not found - mark as checked
+        previous_frame.f_locals[checked_var] = True
+
+    return None
+</code></pre>
+<h3 id="usage-example">Usage Example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Define your context class
+class My_Context:
+    debug_mode: bool = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+# Create a finder function
+def find_my_context() -&gt; Optional[My_Context]:
+    return find_stack_variable('_my_context_'          ,
+                               '_my_context__checked_' ,
+                               My_Context              )
+
+# Use it
+def some_deep_function():
+    ctx = find_my_context()
+    if ctx and ctx.debug_mode:
+        print(&quot;Debug: doing something&quot;)
+
+def middle_function():
+    some_deep_function()
+
+def outer_function():
+    _my_context_ = My_Context(debug_mode=True)
+    with _my_context_:
+        middle_function()                                                        # Context available throughout
+</code></pre>
+<hr />
+<h2 id="how-frame-injection-works">How Frame Injection Works<a class="headerlink" href="#how-frame-injection-works" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem-repeated-stack-walks">The Problem: Repeated Stack Walks<a class="headerlink" href="#the-problem-repeated-stack-walks" title="Permanent link">&para;</a></h3>
+<p>Without optimization, nested calls repeatedly walk the same frames:</p>
+<pre><code>outer():           _my_context_ = Context()
+  middle():        # walks 1 frame to find context
+    inner():       # walks 2 frames to find context
+      deep():      # walks 3 frames to find context
+                   # Total: 6 frame walks
+</code></pre>
+<h3 id="the-solution-inject-into-walked-frames">The Solution: Inject Into Walked Frames<a class="headerlink" href="#the-solution-inject-into-walked-frames" title="Permanent link">&para;</a></h3>
+<p>When we find the variable, inject it into all frames we walked through:</p>
+<pre><code>outer():           _my_context_ = Context()
+  middle():        # walks 1 frame, finds context, injects into middle
+    inner():       # walks 1 frame, finds injected context in middle!
+      deep():      # walks 1 frame, finds injected context in inner!
+                   # Total: 3 frame walks (plus 3 O(1) injections)
+</code></pre>
+<h3 id="caching-not-found">Caching "Not Found"<a class="headerlink" href="#caching-not-found" title="Permanent link">&para;</a></h3>
+<p>When no context exists, cache this fact to avoid repeated full walks:</p>
+<pre><code>outer():           # no context
+  middle():        # walks to max_depth, marks all frames as &quot;checked&quot;
+    inner():       # walks 1 frame, sees &quot;checked&quot; marker, returns None
+      deep():      # walks 1 frame, sees &quot;checked&quot; marker, returns None
+                   # Total: max_depth + 2 (not max_depth × 3)
+</code></pre>
+<hr />
+<h2 id="performance-characteristics">Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h2>
+<h3 id="time-complexity">Time Complexity<a class="headerlink" href="#time-complexity" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>First Call</th>
+<th>Subsequent Calls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Context at depth d</td>
+<td>O(d)</td>
+<td>O(1-2)</td>
+</tr>
+<tr>
+<td>No context</td>
+<td>O(MAX_DEPTH)</td>
+<td>O(1-2)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="space-complexity">Space Complexity<a class="headerlink" href="#space-complexity" title="Permanent link">&para;</a></h3>
+<ul>
+<li>No global state</li>
+<li>No heap allocations for caching</li>
+<li>Only stack frame locals modified (auto-cleanup)</li>
+</ul>
+<h3 id="measured-performance">Measured Performance<a class="headerlink" href="#measured-performance" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Per-frame walk</td>
+<td>~200 ns</td>
+</tr>
+<tr>
+<td><code>isinstance()</code> check</td>
+<td>~50 ns</td>
+</tr>
+<tr>
+<td><code>f_locals</code> injection</td>
+<td>~100 ns</td>
+</tr>
+<tr>
+<td>Cache hit (1-2 frames)</td>
+<td>~300-500 ns</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="design-decisions">Design Decisions<a class="headerlink" href="#design-decisions" title="Permanent link">&para;</a></h2>
+<h3 id="why-stack-walk-over-thread-local">Why Stack Walk Over Thread-Local?<a class="headerlink" href="#why-stack-walk-over-thread-local" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Thread-Local</th>
+<th>Stack Walk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Global state</td>
+<td>No global state</td>
+</tr>
+<tr>
+<td>Requires cleanup</td>
+<td>Auto-cleanup when frame exits</td>
+</tr>
+<tr>
+<td>Can leak on exceptions</td>
+<td>Exception-safe</td>
+</tr>
+<tr>
+<td>All code sees same value</td>
+<td>Scoped to call tree</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-frame-injection-over-global-cache">Why Frame Injection Over Global Cache?<a class="headerlink" href="#why-frame-injection-over-global-cache" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Global Cache</th>
+<th>Frame Injection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dict[id(frame)]</code></td>
+<td><code>frame.f_locals[var]</code></td>
+</tr>
+<tr>
+<td>Must clear on context exit</td>
+<td>Auto-clears with frame</td>
+</tr>
+<tr>
+<td>Thread safety concerns</td>
+<td>Thread-safe by design</td>
+</tr>
+<tr>
+<td>Memory leak risk</td>
+<td>No leak possible</td>
+</tr>
+<tr>
+<td>External state</td>
+<td>Self-contained</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-magic-variable-name">Why Magic Variable Name?<a class="headerlink" href="#why-magic-variable-name" title="Permanent link">&para;</a></h3>
+<p>The specific naming pattern <code>_my_context_</code> (with underscores) provides:</p>
+<ol>
+<li><strong>Uniqueness</strong> - unlikely to collide with user variables</li>
+<li><strong>Discoverability</strong> - consistent pattern across uses</li>
+<li><strong>Convention</strong> - follows Python's internal variable style</li>
+<li><strong>Intentionality</strong> - clearly not an accident</li>
+</ol>
+<h3 id="why-separate-checked-variable">Why Separate "Checked" Variable?<a class="headerlink" href="#why-separate-checked-variable" title="Permanent link">&para;</a></h3>
+<p>Using a single variable with sentinel value (e.g., <code>False</code> for "not found") violates type consistency. Separate variables keep types clean:</p>
+<ul>
+<li><code>_my_context_</code> is always <code>MyContext | None | undefined</code></li>
+<li><code>_my_context__checked_</code> is always <code>bool | undefined</code></li>
+</ul>
+<hr />
+<h2 id="implementation-patterns">Implementation Patterns<a class="headerlink" href="#implementation-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-simple-context">Pattern 1: Simple Context<a class="headerlink" href="#pattern-1-simple-context" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Debug_Context:
+    enabled: bool = True
+
+    def __enter__(self): return self
+    def __exit__(self, *args): return False
+
+def find_debug_context():
+    return find_stack_variable('_debug_context_', '_debug_context__checked_', Debug_Context)
+
+# Usage
+_debug_context_ = Debug_Context(enabled=True)
+with _debug_context_:
+    ...
+</code></pre>
+<h3 id="pattern-2-configuration-object">Pattern 2: Configuration Object<a class="headerlink" href="#pattern-2-configuration-object" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe__Config(Type_Safe):
+    skip_validation  : bool = False
+    on_demand_nested : bool = False
+    immutable        : bool = False
+
+    def __enter__(self): return self
+    def __exit__(self, *args): return False
+
+TYPE_SAFE__CONFIG__VAR_NAME    = '_type_safe_config_'
+TYPE_SAFE__CONFIG__CHECKED_VAR = '_type_safe_config__checked_'
+
+def find_type_safe_config():
+    return find_stack_variable(TYPE_SAFE__CONFIG__VAR_NAME    ,
+                               TYPE_SAFE__CONFIG__CHECKED_VAR ,
+                               Type_Safe__Config              )
+</code></pre>
+<h3 id="pattern-3-timestamp-capture-potential-refactor">Pattern 3: Timestamp Capture (Potential Refactor)<a class="headerlink" href="#pattern-3-timestamp-capture-potential-refactor" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Timestamp_Context:
+    timestamp     : datetime
+    capture_mode  : str = 'start'                                                # 'start', 'end', 'both'
+
+    def __enter__(self): return self
+    def __exit__(self, *args): return False
+
+def find_timestamp_context():
+    return find_stack_variable('_timestamp_context_'          ,
+                               '_timestamp_context__checked_' ,
+                               Timestamp_Context              )
+
+# Usage in @timestamp decorator
+def timestamp_decorator(func):
+    def wrapper(*args, **kwargs):
+        ctx = find_timestamp_context()
+        if ctx:
+            # Use context's timestamp instead of datetime.now()
+            ...
+</code></pre>
+<h3 id="pattern-4-metrics-collection">Pattern 4: Metrics Collection<a class="headerlink" href="#pattern-4-metrics-collection" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Metrics_Context:
+    counters : Dict[str, int]
+    timings  : Dict[str, float]
+
+    def __enter__(self): return self
+    def __exit__(self, *args): return False
+
+    def increment(self, name): ...
+    def record_time(self, name, duration): ...
+
+def find_metrics_context():
+    return find_stack_variable('_metrics_context_', '_metrics_context__checked_', Metrics_Context)
+
+# Throughout codebase
+def some_operation():
+    ctx = find_metrics_context()
+    if ctx:
+        ctx.increment('some_operation_count')
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-use-descriptive-variable-names">DO: Use Descriptive Variable Names<a class="headerlink" href="#do-use-descriptive-variable-names" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Good
+_type_safe_config_ = Type_Safe__Config(...)
+_debug_context_    = Debug_Context(...)
+_metrics_context_  = Metrics_Context(...)
+
+# Bad
+_ctx_ = Config(...)                                                              # Too generic
+config = Config(...)                                                             # Likely to collide
+</code></pre>
+<h3 id="do-use-context-manager-pattern">DO: Use Context Manager Pattern<a class="headerlink" href="#do-use-context-manager-pattern" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Good - clear scope
+_my_context_ = My_Context()
+with _my_context_:
+    do_stuff()
+
+# Bad - unclear when context ends
+_my_context_ = My_Context()
+do_stuff()
+</code></pre>
+<h3 id="do-check-for-none">DO: Check for None<a class="headerlink" href="#do-check-for-none" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Good
+ctx = find_my_context()
+if ctx and ctx.some_flag:
+    ...
+
+# Bad - will raise if no context
+ctx = find_my_context()
+if ctx.some_flag:                                                                # AttributeError if ctx is None
+    ...
+</code></pre>
+<h3 id="dont-nest-different-contexts-with-same-name">DON'T: Nest Different Contexts with Same Name<a class="headerlink" href="#dont-nest-different-contexts-with-same-name" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Bad - inner shadows outer
+_my_context_ = Context(mode='outer')
+with _my_context_:
+    _my_context_ = Context(mode='inner')                                         # Shadows, confusing
+    with _my_context_:
+        ...
+</code></pre>
+<h3 id="dont-rely-on-context-outside-scope">DON'T: Rely on Context Outside Scope<a class="headerlink" href="#dont-rely-on-context-outside-scope" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Bad - context won't be found after 'with' exits
+def setup():
+    _my_context_ = My_Context()
+    with _my_context_:
+        pass                                                                     # Context only valid here
+
+def later():
+    ctx = find_my_context()                                                      # Returns None!
+</code></pre>
+<hr />
+<h2 id="testing-strategy">Testing Strategy<a class="headerlink" href="#testing-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="test-1-basic-discovery">Test 1: Basic Discovery<a class="headerlink" href="#test-1-basic-discovery" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__finds_context_in_stack(self):
+    _my_context_ = My_Context()
+    with _my_context_:
+        found = find_my_context()
+        assert found is _my_context_
+</code></pre>
+<h3 id="test-2-nested-discovery">Test 2: Nested Discovery<a class="headerlink" href="#test-2-nested-discovery" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__finds_context_from_nested_call(self):
+    def inner():
+        return find_my_context()
+
+    _my_context_ = My_Context()
+    with _my_context_:
+        found = inner()
+        assert found is _my_context_
+</code></pre>
+<h3 id="test-3-frame-injection">Test 3: Frame Injection<a class="headerlink" href="#test-3-frame-injection" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__injection_reduces_walks(self):
+    walk_counts = []
+
+    # Use instrumented find function that counts walks
+    ...
+
+    _my_context_ = My_Context()
+    with _my_context_:
+        level1()                                                                 # Should walk N frames
+        level2()                                                                 # Should walk fewer (cache hit)
+
+    assert walk_counts[1] &lt; walk_counts[0]
+</code></pre>
+<h3 id="test-4-not-found-caching">Test 4: Not Found Caching<a class="headerlink" href="#test-4-not-found-caching" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__caches_not_found(self):
+    # No context set
+
+    result1 = find_my_context()                                                  # Full walk
+    result2 = find_my_context()                                                  # Should hit &quot;checked&quot; marker
+
+    assert result1 is None
+    assert result2 is None
+    # Verify second call was faster (hit checked marker)
+</code></pre>
+<h3 id="test-5-scope-boundary">Test 5: Scope Boundary<a class="headerlink" href="#test-5-scope-boundary" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__context_not_found_outside_scope(self):
+    def with_context():
+        _my_context_ = My_Context()
+        with _my_context_:
+            return find_my_context()
+
+    inside  = with_context()
+    outside = find_my_context()
+
+    assert inside is not None
+    assert outside is None
+</code></pre>
+<hr />
+<h2 id="caveats-and-limitations">Caveats and Limitations<a class="headerlink" href="#caveats-and-limitations" title="Permanent link">&para;</a></h2>
+<h3 id="1-max_depth-limit">1. MAX_DEPTH Limit<a class="headerlink" href="#1-max_depth-limit" title="Permanent link">&para;</a></h3>
+<p>Stack walk stops at MAX_DEPTH frames. If context is deeper, it won't be found.</p>
+<p><strong>Mitigation</strong>: Set MAX_DEPTH appropriately (15-20 is usually sufficient).</p>
+<h3 id="2-frame-reuse-edge-case">2. Frame Reuse Edge Case<a class="headerlink" href="#2-frame-reuse-edge-case" title="Permanent link">&para;</a></h3>
+<p><code>id(frame)</code> can be reused after a frame is deallocated. This doesn't affect frame injection (we write to <code>f_locals</code>, not a separate cache), but worth knowing.</p>
+<h3 id="3-generatorasync-complexity">3. Generator/Async Complexity<a class="headerlink" href="#3-generatorasync-complexity" title="Permanent link">&para;</a></h3>
+<p>Generator and async frames have different lifecycles. The pattern works but may need care with long-lived generators.</p>
+<h3 id="4-debugging-complexity">4. Debugging Complexity<a class="headerlink" href="#4-debugging-complexity" title="Permanent link">&para;</a></h3>
+<p>Stack-based context can be harder to debug than explicit parameters. Use <code>trace_creation</code> flags if needed.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Stack Variable Discovery provides:</p>
+<ul>
+<li><strong>Ambient context</strong> without explicit parameter passing</li>
+<li><strong>O(1)</strong> lookups after first walk via frame injection</li>
+<li><strong>Zero global state</strong> - everything in stack frames</li>
+<li><strong>Automatic cleanup</strong> when frames exit</li>
+<li><strong>Thread safety</strong> by design</li>
+<li><strong>Composable</strong> with context managers</li>
+</ul>
+<p>Use it when you need configuration, metrics, or state to propagate through deep call stacks without polluting every function signature.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
