@@ -11,7 +11,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 from typing                                                                                         import Any, Dict, Set, Type
-from osbot_utils.type_safe.Type_Safe                                                                import Type_Safe
 from osbot_utils.type_safe.Type_Safe__Primitive                                                     import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict                               import Type_Safe__Dict
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                               import Type_Safe__List
@@ -133,6 +132,7 @@ class Type_Safe__Fast_Create__Cache:                                            
         return isinstance(value, (Type_Safe__List, Type_Safe__Dict, Type_Safe__Set, list, dict, set))
 
     def is_nested_type_safe(self, value: Any) -> bool:                            # Check if value is nested Type_Safe
+        from osbot_utils.type_safe.Type_Safe     import Type_Safe                 # needs to be done here due to circular dependency
         if not isinstance(value, Type_Safe):
             return False
         if isinstance(value, Type_Safe__Primitive):                               # Primitives are not nested
