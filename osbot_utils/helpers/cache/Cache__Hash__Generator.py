@@ -27,6 +27,7 @@ class Cache__Hash__Generator(Type_Safe):                                        
     def from_bytes(self, data: bytes) -> Safe_Str__Cache_Hash:                      # Hash from bytes
         return self.calculate(data)
 
+    # todo: review the performance implications of this, and when we need to actually use this (in a way that adds value)
     def from_json(self, data      : dict     ,                                      # Hash JSON with optional field exclusion
                         exclude_fields: List[str] = None
                    ) -> Safe_Str__Cache_Hash:

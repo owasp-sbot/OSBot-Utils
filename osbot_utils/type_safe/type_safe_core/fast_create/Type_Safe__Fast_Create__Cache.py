@@ -9,7 +9,7 @@
 #   - Schema describes how to build __dict__ directly without validation
 #
 # ═══════════════════════════════════════════════════════════════════════════════
-
+from enum import EnumType, Enum
 from typing                                                                                         import Any, Dict, Set, Type, get_type_hints, get_origin
 from osbot_utils.type_safe.Type_Safe__Primitive                                                     import Type_Safe__Primitive
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict                               import Type_Safe__Dict
@@ -87,8 +87,8 @@ class Type_Safe__Fast_Create__Cache:                                            
             nested_fields  = []
 
             for name, value in template_dict.items():
-                if name.startswith('_'):                                          # Skip private attributes
-                    continue
+                # if name.startswith('_'):                                          # Skip private attributes
+                #     continue
 
                 type_hint = type_hints.get(name)                                  # Get annotation for this field
                 field     = self.classify_field(name, value, type_hint)
@@ -210,6 +210,8 @@ class Type_Safe__Fast_Create__Cache:                                            
             captured_type = value                                                 # Capture for lambda
             return lambda: captured_type                                          # Return class itself (not instance)
 
+        if isinstance(value, Enum):
+            return lambda: value
 
         value_type = type(value)                                                  # Default: use type constructor
         return lambda: value_type()
