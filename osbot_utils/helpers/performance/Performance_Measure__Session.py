@@ -6,9 +6,10 @@ from osbot_utils.helpers.performance.schemas.Schema__Performance_Measure__Measur
 from osbot_utils.helpers.performance.schemas.Schema__Performance_Measure__Result      import Schema__Performance_Measure__Result
 from osbot_utils.type_safe.Type_Safe                                                  import Type_Safe
 
-MEASURE__INVOCATION__LOOPS        = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]     # Fibonacci sequence for measurement loops (1,597 total invocations)
-MEASURE__INVOCATION__LOOPS__QUICK = [1, 2, 3, 5, 8]                                             # Quick mode for slow functions (19 total invocations)
-MEASURE__INVOCATION__LOOPS__FAST  = [1, 2, 3, 5, 8, 13, 21, 34]                                 # Fast mode - balanced (87 total invocations)
+MEASURE__INVOCATION__LOOPS          = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]     # Fibonacci sequence for measurement loops (1,597 total invocations)
+MEASURE__INVOCATION__LOOPS__QUICK   = [1, 2, 3, 5, 8]                                             # Quick mode for slow functions (19 total invocations)
+MEASURE__INVOCATION__LOOPS__FAST    = [1, 2, 3, 5, 8, 13, 21, 34]                                   # Fast mode - balanced (87 total invocations)
+MEASURE__INVOCATION__LOOPS__ONLY__3 = [1, 2]                                                        # only run 3 times: 1 + 2
 
 class Performance_Measure__Session(Type_Safe):
     result        : Schema__Performance_Measure__Result = None                                   # Current measurement result
@@ -94,6 +95,11 @@ class Performance_Measure__Session(Type_Safe):
                    target : Callable
                   ) -> 'Performance_Measure__Session':
         return self.measure(target, loops=MEASURE__INVOCATION__LOOPS__FAST)
+
+    def measure__only_3(self,
+                   target : Callable
+                  ) -> 'Performance_Measure__Session':
+        return self.measure(target, loops=MEASURE__INVOCATION__LOOPS__ONLY__3)
 
     def print_measurement(self, measurement: Schema__Performance_Measure__Measurement):          # Format measurement details
         print(f"Samples : {measurement.sample_size}")

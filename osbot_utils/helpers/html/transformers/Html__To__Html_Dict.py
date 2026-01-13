@@ -19,6 +19,12 @@ class Html__To__Html_Dict(HTMLParser):
         self.void_elements   = HTML_SELF_CLOSING_TAGS             # List of void elements that are self-closing by nature
         self.strip_text_data = True
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
     def convert(self):
         self.feed(self.html)
         return self.root

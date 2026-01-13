@@ -14,7 +14,7 @@ from osbot_utils.testing.Graph__Deterministic__Ids                              
 from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                     import Obj_Id
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
-from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label import Safe_Str__Label
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label   import Safe_Str__Label
 
 
 class test_Schema__Semantic_Graph__Node(TestCase):                                   # Test semantic graph node schema

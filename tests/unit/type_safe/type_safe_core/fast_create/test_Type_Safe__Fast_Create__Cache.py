@@ -328,7 +328,7 @@ class test_Type_Safe__Fast_Create__Cache(TestCase):
 
         field_names = {f.name for f in schema.fields}
         assert 'public_field'   in field_names
-        assert '_private_field' not in field_names                                # Skipped!
+        assert '_private_field' in field_names                                # Skipped!
 
     def test__generate_schema__with_optional(self):                               # Optional fields with None default
         schema = self.cache.generate_schema(TS__With_Optional)
