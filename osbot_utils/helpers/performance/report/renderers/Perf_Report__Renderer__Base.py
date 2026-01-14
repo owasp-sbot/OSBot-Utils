@@ -19,15 +19,19 @@ class Perf_Report__Renderer__Base(Type_Safe):                       # Abstract b
     # ═══════════════════════════════════════════════════════════════════════════
 
     @type_safe
-    def format_ns(self, ns: int) -> str:                            # Format nanoseconds to human-readable
-        if ns < 1_000:
-            return f'{ns}ns'
-        elif ns < 1_000_000:
-            return f'{ns / 1_000:.2f}µs'
-        elif ns < 1_000_000_000:
-            return f'{ns / 1_000_000:.2f}ms'
+    def format_ns(self, ns: int) -> str:
+        abs_ns = abs(ns)                    # Use absolute value for thresholds
+        sign   = '-' if ns < 0 else ''      # Preserve sign for negative values
+
+        if abs_ns < 1_000:
+            return f'{sign}{abs_ns}ns'
+        elif abs_ns < 1_000_000:
+            return f'{sign}{abs_ns / 1_000:.2f}µs'
+        elif abs_ns < 1_000_000_000:
+            return f'{sign}{abs_ns / 1_000_000:.2f}ms'
         else:
-            return f'{ns / 1_000_000_000:.2f}s'
+            return f'{sign}{abs_ns / 1_000_000_000:.2f}s'
+
 
     @type_safe
     def format_pct(self, pct: float, width: int = 5) -> str:        # Format percentage with padding

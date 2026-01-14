@@ -1,13 +1,13 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# test_Perf_Report__Renderer__Text - Tests for text format renderer
+# test_Perf_Report__Renderer__Text - Tests for text format renderer with Print_Table
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from unittest                                                                                                    import TestCase
-from osbot_utils.helpers.performance.report.renderers.Perf_Report__Renderer__Base                                import Perf_Report__Renderer__Base
-from osbot_utils.helpers.performance.report.renderers.Perf_Report__Renderer__Text                                import Perf_Report__Renderer__Text
-from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report import Schema__Perf_Report
-from osbot_utils.helpers.performance.report.testing.QA__Perf_Report__Test_Data                                   import QA__Perf_Report__Test_Data
-from osbot_utils.type_safe.Type_Safe                                                                             import Type_Safe
+from unittest                                                                                 import TestCase
+from osbot_utils.helpers.performance.report.renderers.Perf_Report__Renderer__Base             import Perf_Report__Renderer__Base
+from osbot_utils.helpers.performance.report.renderers.Perf_Report__Renderer__Text             import Perf_Report__Renderer__Text
+from osbot_utils.helpers.performance.report.schemas.collections.List__Perf_Report__Categories import List__Perf_Report__Categories
+from osbot_utils.helpers.performance.testing.QA__Perf_Report__Test_Data                       import QA__Perf_Report__Test_Data
+from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
 
 
 class test_Perf_Report__Renderer__Text(TestCase):
@@ -29,10 +29,15 @@ class test_Perf_Report__Renderer__Text(TestCase):
 
     def test_format_ns(self):                                       # Test nanosecond formatting
         with self.renderer as _:
-            assert _.format_ns(500)         == '500ns'
-            assert _.format_ns(1_500)       == '1.50µs'
-            assert _.format_ns(1_500_000)   == '1.50ms'
+            assert _.format_ns(500)           == '500ns'
+            assert _.format_ns(1_500)         == '1.50µs'
+            assert _.format_ns(1_500_000)     == '1.50ms'
             assert _.format_ns(1_500_000_000) == '1.50s'
+
+    def test_format_ns_padded(self):                                # Test padded formatting
+        with self.renderer as _:
+            assert _.format_ns_padded(500, 10)   == '     500ns'
+            assert _.format_ns_padded(1_500, 10) == '    1.50µs'
 
     def test_format_pct(self):                                      # Test percentage formatting
         with self.renderer as _:
@@ -45,6 +50,28 @@ class test_Perf_Report__Renderer__Text(TestCase):
             result = _.format_timestamp(1704067200000)              # 2024-01-01 00:00:00 UTC
             assert '2024' in result
             assert '01' in result
+
+    def test__format_ns__negative_values(self):
+        with Perf_Report__Renderer__Base() as _:
+            assert _.format_ns(-500)           == '-500ns'
+            assert _.format_ns(-1_500)         == '-1.50µs'
+            assert _.format_ns(-1_500_000)     == '-1.50ms'
+            assert _.format_ns(-1_202_800)     == '-1.20ms'  # The specific bug case
+            assert _.format_ns(-1_500_000_000) == '-1.50s'
+
+    def test_calculate_overhead(self):                              # Test overhead calculation
+        with self.test_data as td:
+            categories = td.create_categories_list()
+
+            with self.renderer as _:
+                overhead = _.calculate_overhead(categories)
+
+                assert overhead is not None
+                assert type(overhead) is int
+
+    def test_calculate_overhead__no_data(self):                              # Test overhead calculation
+        with self.renderer as _:
+            assert _.calculate_overhead(List__Perf_Report__Categories()) == 0
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Render Tests
@@ -67,15 +94,25 @@ class test_Perf_Report__Renderer__Text(TestCase):
 
             assert 'MY TEST TITLE' in output                        # Uppercased
 
-    def test_render__contains_metadata(self):                       # Test metadata section
+    def test_render__contains_metadata(self):                       # Test metadata section (Print_Table)
         report = self.test_data.create_report()
 
         with self.renderer as _:
             output = _.render(report)
 
             assert 'BENCHMARK METADATA' in output
+            assert 'Property' in output                             # Print_Table header
+            assert 'Value' in output                                # Print_Table header
             assert 'Version' in output
-            assert 'Mode' in output
+
+    def test_render__contains_description(self):                    # Test description section
+        report = self.test_data.create_report()
+
+        with self.renderer as _:
+            output = _.render(report)
+
+            assert 'DESCRIPTION' in output
+            assert '─' in output                                    # Separator
 
     def test_render__contains_legend(self):                         # Test legend section
         report = self.test_data.create_report()
@@ -84,39 +121,44 @@ class test_Perf_Report__Renderer__Text(TestCase):
             output = _.render(report)
 
             assert 'LEGEND' in output
-            assert 'A =' in output
-            assert 'B =' in output
-            assert 'C =' in output
+            assert 'A_xx' in output
+            assert 'B_xx' in output
+            assert 'C_xx' in output
 
-    def test_render__contains_benchmarks(self):                     # Test benchmarks section
+    def test_render__contains_benchmarks_table(self):               # Test benchmarks table (Print_Table)
         report = self.test_data.create_report()
 
         with self.renderer as _:
             output = _.render(report)
 
-            assert 'INDIVIDUAL BENCHMARKS' in output
+            assert 'DETAILED CONVERSION BREAKDOWN' in output
+            assert 'Benchmark' in output                            # Print_Table header
+            assert 'Time' in output                                 # Print_Table header
+            assert 'Category' in output                             # Print_Table header
             assert 'A_01__' in output
 
-    def test_render__contains_categories(self):                     # Test categories section
+    def test_render__contains_category_summary(self):               # Test category summary
         report = self.test_data.create_report()
 
         with self.renderer as _:
             output = _.render(report)
 
-            assert 'CATEGORY TOTALS' in output
-            assert 'benchmarks]' in output
+            assert 'CATEGORY SUMMARY' in output
+            assert '_xx benchmarks' in output
+            assert 'Overhead:' in output
 
-    def test_render__contains_analysis(self):                       # Test analysis section
+    def test_render__contains_percentage_analysis(self):            # Test percentage analysis
         report = self.test_data.create_report()
 
         with self.renderer as _:
             output = _.render(report)
 
-            assert 'ANALYSIS' in output
-            assert 'Bottleneck' in output
-            assert 'Total' in output
+            assert 'PERCENTAGE ANALYSIS' in output
+            assert 'Converter Creation:' in output
+            assert 'Convert Only:' in output
+            assert 'Overhead:' in output
 
-    def test_render__stage_breakdown(self):                         # Test stage breakdown
+    def test_render__contains_stage_breakdown(self):                # Test stage breakdown
         report = self.test_data.create_report()
 
         with self.renderer as _:
@@ -125,52 +167,34 @@ class test_Perf_Report__Renderer__Text(TestCase):
             assert 'STAGE BREAKDOWN' in output
             assert '█' in output                                    # Visual bar
 
-    def test__improve_code_coverage(self):
+    def test_render__contains_bottleneck_analysis(self):            # Test bottleneck analysis
+        report = self.test_data.create_report()
+
         with self.renderer as _:
-            _.config.include_stage_breakdown     = False
-            _.config.include_percentage_analysis = False
+            output = _.render(report)
 
-            assert _.render_legend             (Schema__Perf_Report(legend= None)) == []
-            assert _.render_stage_breakdown    (Schema__Perf_Report(            )) == []
-            assert _.render_percentage_analysis(Schema__Perf_Report(            )) == []
+            assert 'BOTTLENECK ANALYSIS' in output
+            assert 'Primary Bottleneck:' in output
+            assert 'Time:' in output
+            assert 'Percentage:' in output
 
-            _.config.include_percentage_analysis = True
-            _.config.include_stage_breakdown     = True
+    def test_render__contains_key_insight(self):                    # Test key insight
+        report = self.test_data.create_report()
 
-    def test_render_percentage_analysis__full_total_zero(self):     # Test when full category total is zero
-        with self.test_data as _:
-            report = _.create_report()
+        with self.renderer as _:
+            output = _.render(report)
 
-            # Set category A's total_ns to 0
-            for category in report.categories:
-                if str(category.category_id) == 'A':
-                    category.total_ns = 0
+            assert 'KEY INSIGHT' in output
 
-            with self.renderer as renderer:
-                result = renderer.render_percentage_analysis(report)
+    def test_render__contains_footer(self):                         # Test footer
+        report = self.test_data.create_report()
 
-                assert result == []
+        with self.renderer as _:
+            output = _.render(report)
 
-    def test_render_percentage_analysis__disabled_in_config(self):  # Test when percentage analysis disabled
-        with self.test_data as _:
-            report = _.create_report()
-            config = _.create_builder_config()
-            config.include_percentage_analysis = False
-
-            renderer = Perf_Report__Renderer__Text(config=config)
-            result   = renderer.render_percentage_analysis(report)
-
-            assert result == []
-
-    def test_render_percentage_analysis__with_categories(self):     # Test percentage analysis renders B/C vs A
-        with self.test_data as _:
-            report = _.create_report()
-
-            with self.renderer as renderer:
-                result = renderer.render_percentage_analysis(report)
-
-                assert len(result) > 0
-                assert 'PERCENTAGE ANALYSIS' in result[0]
+            assert 'Report generated:' in output
+            assert 'Version:' in output
+            assert output.strip().endswith('═' * 80)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Integration Tests
@@ -183,21 +207,16 @@ class test_Perf_Report__Renderer__Text(TestCase):
             output = _.render(report)
             lines  = output.split('\n')
 
-            assert len(lines) > 20                                  # Reasonable output size
+            assert len(lines) > 40                                  # Print_Table adds more lines
             assert lines[0].startswith('═')                         # Header border
 
-    def test_render_percentage_analysis__only_create_category(self):
-        with self.test_data as _:
-            report = _.create_report()
+    def test_integration__print_table_format(self):                 # Test Print_Table formatting
+        report = self.test_data.create_report()
 
-            # Remove category C entirely
-            report.categories = [
-                c for c in report.categories if str(c.category_id) != 'C'
-            ]
+        with self.renderer as _:
+            output = _.render(report)
 
-            with self.renderer as renderer:
-                lines = renderer.render_percentage_analysis(report)
-
-                assert any('B / A =' in line for line in lines)
-                assert not any('C / A =' in line for line in lines)
-
+            assert '┌' in output                                    # Table top border
+            assert '├' in output                                    # Table separator
+            assert '└' in output                                    # Table bottom border
+            assert '│' in output                                    # Table columns

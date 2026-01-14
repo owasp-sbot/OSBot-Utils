@@ -9,7 +9,7 @@ import pytest
 from osbot_utils.helpers.performance.report.renderers.Perf_Report__Renderer__Base                                import Perf_Report__Renderer__Base
 from osbot_utils.helpers.performance.report.renderers.Perf_Report__Renderer__Markdown                            import Perf_Report__Renderer__Markdown
 from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report import Schema__Perf_Report
-from osbot_utils.helpers.performance.report.testing.QA__Perf_Report__Test_Data                                   import QA__Perf_Report__Test_Data
+from osbot_utils.helpers.performance.testing.QA__Perf_Report__Test_Data                                          import QA__Perf_Report__Test_Data
 from osbot_utils.type_safe.Type_Safe                                                                             import Type_Safe
 
 

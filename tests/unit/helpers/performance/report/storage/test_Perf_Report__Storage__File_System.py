@@ -2,20 +2,22 @@
 # test_Perf_Report__Storage__File_System - Tests for file system storage
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from unittest                                                                                                    import TestCase
-from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report                                          import Schema__Perf_Report
-from osbot_utils.helpers.performance.report.storage.Perf_Report__Storage__Base                                   import Perf_Report__Storage__Base
-from osbot_utils.helpers.performance.report.storage.Perf_Report__Storage__File_System                            import Perf_Report__Storage__File_System
-from osbot_utils.helpers.performance.report.testing.QA__Perf_Report__Test_Data                                   import QA__Perf_Report__Test_Data
-from osbot_utils.testing.Temp_Folder                                                                             import Temp_Folder
-from osbot_utils.type_safe.Type_Safe                                                                             import Type_Safe
-from osbot_utils.utils.Files import file_exists, path_combine, folder_exists
+from unittest                                                                           import TestCase
+from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report                 import Schema__Perf_Report
+from osbot_utils.helpers.performance.report.storage.Perf_Report__Storage__Base          import Perf_Report__Storage__Base
+from osbot_utils.helpers.performance.report.storage.Perf_Report__Storage__File_System   import Perf_Report__Storage__File_System
+from osbot_utils.helpers.performance.testing.QA__Perf_Report__Test_Data                 import QA__Perf_Report__Test_Data
+from osbot_utils.testing.Pytest                                                         import skip__if_not__in_github_actions
+from osbot_utils.testing.Temp_Folder                                                    import Temp_Folder
+from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
+from osbot_utils.utils.Files                                                            import file_exists, path_combine, folder_exists
 
 
 class test_Perf_Report__Storage__File_System(TestCase):
 
     @classmethod
     def setUpClass(cls):                                            # Shared test data
+        skip__if_not__in_github_actions()
         cls.test_data = QA__Perf_Report__Test_Data()
 
     def test__init__(self):                                         # Test initialization

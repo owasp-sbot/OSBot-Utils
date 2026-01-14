@@ -6,7 +6,8 @@ from unittest                                                                   
 from osbot_utils.helpers.performance.report.renderers.Perf_Report__Renderer__Base   import Perf_Report__Renderer__Base
 from osbot_utils.helpers.performance.report.renderers.Perf_Report__Renderer__Json   import Perf_Report__Renderer__Json
 from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report             import Schema__Perf_Report
-from osbot_utils.helpers.performance.report.testing.QA__Perf_Report__Test_Data      import QA__Perf_Report__Test_Data
+from osbot_utils.helpers.performance.testing.QA__Perf_Report__Test_Data             import QA__Perf_Report__Test_Data
+from osbot_utils.testing.Pytest                                                     import skip__if_not__in_github_actions
 from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
 from osbot_utils.utils.Json                                                         import json_loads
 
@@ -15,6 +16,7 @@ class test_Perf_Report__Renderer__Json(TestCase):
 
     @classmethod
     def setUpClass(cls):                                            # Shared test data
+        skip__if_not__in_github_actions()
         cls.test_data = QA__Perf_Report__Test_Data()
         cls.renderer  = Perf_Report__Renderer__Json()
 

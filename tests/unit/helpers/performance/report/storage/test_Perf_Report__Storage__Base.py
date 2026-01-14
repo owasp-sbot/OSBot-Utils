@@ -3,14 +3,18 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 
 import pytest
-from unittest                                                                                                    import TestCase
-from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report                                          import Schema__Perf_Report
-from osbot_utils.helpers.performance.report.storage.Perf_Report__Storage__Base                                   import Perf_Report__Storage__Base
-from osbot_utils.type_safe.Type_Safe                                                                             import Type_Safe
+from unittest                                                                     import TestCase
+from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report           import Schema__Perf_Report
+from osbot_utils.helpers.performance.report.storage.Perf_Report__Storage__Base    import Perf_Report__Storage__Base
+from osbot_utils.testing.Pytest                                                   import skip__if_not__in_github_actions
+from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
 
 
 class test_Perf_Report__Storage__Base(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        skip__if_not__in_github_actions()
     def test__init__(self):                                         # Test initialization
         with Perf_Report__Storage__Base() as _:
             assert type(_)            is Perf_Report__Storage__Base

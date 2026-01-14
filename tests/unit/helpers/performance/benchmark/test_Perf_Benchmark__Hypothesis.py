@@ -7,10 +7,10 @@ from unittest                                                                   
 from osbot_utils.helpers.performance.benchmark.schemas.benchmark.Schema__Perf__Benchmark__Result              import Schema__Perf__Benchmark__Result
 from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Measure_Mode                               import Enum__Measure_Mode
 from osbot_utils.helpers.performance.benchmark.schemas.hypothesis.Schema__Perf__Benchmark__Hypothesis__Config import Schema__Perf__Benchmark__Hypothesis__Config
-from osbot_utils.helpers.performance.benchmark.schemas.hypothesis.Schema__Perf__Hypothesis__Result import Schema__Perf__Hypothesis__Result
+from osbot_utils.helpers.performance.benchmark.schemas.hypothesis.Schema__Perf__Hypothesis__Result            import Schema__Perf__Hypothesis__Result
 from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Description              import Safe_Str__Benchmark__Description
 from osbot_utils.helpers.performance.benchmark.testing.QA__Benchmark__Test_Data                               import QA__Benchmark__Test_Data
-from osbot_utils.testing.Pytest                                                                               import skip_if_in_github_action
+from osbot_utils.testing.Pytest                                                                               import skip_if_in_github_action, skip__if_not__in_github_actions
 from osbot_utils.testing.Stdout                                                                               import Stdout
 from osbot_utils.testing.Temp_File                                                                            import Temp_File
 from osbot_utils.testing.__                                                                                   import __, __SKIP__
@@ -27,6 +27,7 @@ class test_Perf_Benchmark__Hypothesis(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                         # Shared test data
+        skip__if_not__in_github_actions()
         cls.test_data = QA__Benchmark__Test_Data()
 
     def test__init__(self):                                                      # Test initialization

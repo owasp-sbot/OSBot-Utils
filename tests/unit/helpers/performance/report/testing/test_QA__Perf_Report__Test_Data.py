@@ -12,7 +12,7 @@ from osbot_utils.helpers.performance.report.schemas.Schema__Perf_Report__Metadat
 from osbot_utils.helpers.performance.report.schemas.collections.Dict__Perf_Report__Legend      import Dict__Perf_Report__Legend
 from osbot_utils.helpers.performance.report.schemas.collections.List__Perf_Report__Benchmarks  import List__Perf_Report__Benchmarks
 from osbot_utils.helpers.performance.report.schemas.collections.List__Perf_Report__Categories  import List__Perf_Report__Categories
-from osbot_utils.helpers.performance.report.testing.QA__Perf_Report__Test_Data                 import QA__Perf_Report__Test_Data
+from osbot_utils.helpers.performance.testing.QA__Perf_Report__Test_Data                        import QA__Perf_Report__Test_Data
 from osbot_utils.type_safe.Type_Safe                                                           import Type_Safe
 
 
