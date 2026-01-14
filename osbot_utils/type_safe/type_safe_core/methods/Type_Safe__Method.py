@@ -195,6 +195,17 @@ class Type_Safe__Method:                                                        
                 if not callable(item):                                                                                              # Check item is callable
                     raise ValueError(f"List item at index {i} expected callable but got {type(item)}")                              # Raise error if not callable
                 # Note: Full signature validation would require is_callable_compatible method
+        elif item_origin is type:                                                                                               # Handle Type[T] items (e.g., List[Type[BaseClass]])
+            type_args = get_args(item_type)                                                                                     # Get T from Type[T]
+            for i, item in enumerate(param_value):                                                                              # Validate each type in list
+                if not isinstance(item, type):                                                                                  # Check item is actually a type/class
+                    raise ValueError(f"List item at index {i} expected a type/class but got {type(item).__name__}")
+                if type_args:                                                                                                   # If Type[T] has type argument (e.g., Type[BaseClass])
+                    required_base = type_args[0]                                                                                # Get the required base type
+                    if isinstance(required_base, type):                                                                         # Only validate if we have a concrete type
+                        if not issubclass(item, required_base):                                                                 # Check item is subclass of T
+                            raise ValueError(f"List item at index {i} expected subclass of {required_base.__name__}, "
+                                           f"but got {item.__name__}")
         elif item_origin is not None:                                                                                               # Handle other subscripted types
             raise NotImplementedError(f"Validation for list items with subscripted type"
                                       f" '{item_type}' is not yet supported "
