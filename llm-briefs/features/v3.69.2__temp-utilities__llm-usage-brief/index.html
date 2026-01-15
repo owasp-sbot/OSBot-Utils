@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.69.2__temp-utilities__llm-usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Temp Utilities - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Temp Utilities - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.69.2__temp-utilities__llm-usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.69.2__temp-utilities__llm-usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Temp Utilities - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="temp-utilities-llm-usage-brief">Temp Utilities - LLM Usage Brief<a class="headerlink" href="#temp-utilities-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.69.2<br />
+<strong>Purpose</strong>: Guide for LLMs and developers on using the temporary resource context managers for testing<br />
+<strong>Location</strong>: <code>osbot_utils.testing.*</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="what-are-the-temp-utilities">What are the Temp Utilities?<a class="headerlink" href="#what-are-the-temp-utilities" title="Permanent link">&para;</a></h2>
+<p><strong>The Temp utilities are a collection of context managers that create, manage, and automatically clean up temporary resources during testing and development.</strong> They wrap the tedious setup/teardown pattern into simple <code>with</code> statements, ensuring resources are properly cleaned up even when exceptions occur.</p>
+<p>Instead of manually creating temp files, remembering to delete them, handling cleanup in <code>finally</code> blocks, and debugging leftover artifacts, you get deterministic resource lifecycle management that just works.</p>
+<h3 id="the-problem-they-solve">The Problem They Solve<a class="headerlink" href="#the-problem-they-solve" title="Permanent link">&para;</a></h3>
+<p>Testing and development workflows constantly need temporary resources:</p>
+<pre><code class="language-python"># Standard approach - verbose and error-prone
+import tempfile
+import os
+import shutil
+
+# Create temp file
+fd, tmp_path = tempfile.mkstemp('.txt')
+os.close(fd)
+with open(tmp_path, 'w') as f:
+    f.write('test data')
+
+try:
+    # Your test code
+    result = process_file(tmp_path)
+    assert result == expected
+finally:
+    # Must remember to clean up
+    if os.path.exists(tmp_path):
+        os.remove(tmp_path)
+    # What if there's a temp folder too? More cleanup code...
+
+# Environment variables are even worse
+original_api_key = os.environ.get('API_KEY')
+os.environ['API_KEY'] = 'test-key'
+try:
+    run_test()
+finally:
+    if original_api_key:
+        os.environ['API_KEY'] = original_api_key
+    else:
+        del os.environ['API_KEY']
+</code></pre>
+<p><strong>With Temp utilities:</strong></p>
+<pre><code class="language-python">from osbot_utils.testing.Temp_File     import Temp_File
+from osbot_utils.testing.Temp_Env_Vars import Temp_Env_Vars
+
+# Temp file - created with content, auto-deleted on exit
+with Temp_File(contents='test data') as temp_file:
+    result = process_file(temp_file.path())
+    assert result == expected
+
+# Environment variables - set temporarily, auto-restored
+with Temp_Env_Vars(env_vars={'API_KEY': 'test-key'}):
+    run_test()
+# Original value automatically restored (or removed if it didn't exist)
+</code></pre>
+<h3 id="design-philosophy">Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Context manager pattern</strong> — Every Temp utility is a <code>with</code> statement. Enter creates, exit cleans.</li>
+<li><strong>Automatic cleanup</strong> — Resources are deleted/restored even if exceptions occur inside the block.</li>
+<li><strong>Rich defaults</strong> — <code>Temp_File()</code> creates a file with default content. Zero ceremony required.</li>
+<li><strong>Chainable/nestable</strong> — Combine multiple temps freely; cleanup happens in reverse order.</li>
+<li><strong>Test-first mindset</strong> — Built for the realities of testing: isolation, reproducibility, and no side effects.</li>
+</ol>
+<h3 id="the-power-of-temp-utilities">The Power of Temp Utilities<a class="headerlink" href="#the-power-of-temp-utilities" title="Permanent link">&para;</a></h3>
+<h4 id="1-zero-leakage-testing">1. Zero-Leakage Testing<a class="headerlink" href="#1-zero-leakage-testing" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Every resource created inside 'with' is guaranteed cleaned up
+with Temp_Folder(temp_files_to_add=10) as folder:
+    with Temp_Web_Server(root_folder=folder.path()) as server:
+        response = server.GET('/file_0.txt')
+        # Test assertions...
+
+# Folder gone, server stopped, port released - automatically
+</code></pre>
+<h4 id="2-isolated-environment-testing">2. Isolated Environment Testing<a class="headerlink" href="#2-isolated-environment-testing" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Test code that depends on environment variables
+with Temp_Env_Vars(env_vars={'DATABASE_URL': 'sqlite:///:memory:',
+                              'DEBUG'       : 'true'              }):
+    app = create_app()  # Uses test config
+    # Run tests...
+# Original environment restored exactly
+</code></pre>
+<h4 id="3-temporary-module-paths">3. Temporary Module Paths<a class="headerlink" href="#3-temporary-module-paths" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Test dynamic imports from custom locations
+with Temp_Folder() as folder:
+    folder.add_file('my_module.py', 'def hello(): return &quot;world&quot;')
+
+    with Temp_Sys_Path(folder.path()):
+        import my_module
+        assert my_module.hello() == &quot;world&quot;
+# Path removed from sys.path, no import pollution
+</code></pre>
+<h4 id="4-in-memory-zip-operations">4. In-Memory Zip Operations<a class="headerlink" href="#4-in-memory-zip-operations" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Create zip files without touching disk
+with Temp_Zip_In_Memory() as zip_mem:
+    zip_mem.add_file_from_content('config.json', '{&quot;key&quot;: &quot;value&quot;}')
+    zip_mem.add_file_from_content('data/file.txt', 'contents')
+
+    zip_bytes = zip_mem.zip_bytes()  # Use directly or save
+</code></pre>
+<h4 id="5-local-web-servers-for-integration-tests">5. Local Web Servers for Integration Tests<a class="headerlink" href="#5-local-web-servers-for-integration-tests" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Spin up a real HTTP server for testing
+with Temp_File(contents='{&quot;status&quot;: &quot;ok&quot;}') as json_file:
+    with Temp_Web_Server(root_folder=json_file.folder()) as server:
+        response = requests.get(server.url(json_file.file_name()))
+        assert response.json()['status'] == 'ok'
+# Server stopped, file deleted
+</code></pre>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="temp_file-temporary-files">Temp_File - Temporary Files<a class="headerlink" href="#temp_file-temporary-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_File import Temp_File
+
+# Basic usage - file with default content
+with Temp_File() as temp_file:
+    print(temp_file.path())       # /tmp/temp_folder_xxx/random_name.tmp
+    print(temp_file.contents())   # '...'
+    print(temp_file.exists())     # True
+
+# File is automatically deleted after the block
+
+# Custom content and extension
+with Temp_File(contents='{&quot;key&quot;: &quot;value&quot;}', extension='json') as tf:
+    data = json.loads(tf.contents())
+
+# Get just the path (convenient for APIs that need paths)
+with Temp_File(return_file_path=True) as path:
+    print(path)  # Returns string path directly, not Temp_File object
+</code></pre>
+<h3 id="temp_folder-temporary-directories">Temp_Folder - Temporary Directories<a class="headerlink" href="#temp_folder-temporary-directories" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Folder import Temp_Folder
+
+# Basic usage
+with Temp_Folder() as folder:
+    print(folder.path())    # /tmp/temp_folder_xxx
+    print(folder.exists())  # True
+
+# Create with auto-generated test files
+with Temp_Folder(temp_files_to_add=5) as folder:
+    print(folder.files())   # ['file1.txt', 'subdir/file2.txt', ...]
+
+# Add files programmatically
+with Temp_Folder() as folder:
+    path = folder.add_file('test.txt', 'content')
+    subfolder = folder.add_folder('subdir')
+</code></pre>
+<h3 id="temp_env_vars-temporary-environment-variables">Temp_Env_Vars - Temporary Environment Variables<a class="headerlink" href="#temp_env_vars-temporary-environment-variables" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Env_Vars import Temp_Env_Vars
+
+# Set environment variables temporarily
+with Temp_Env_Vars(env_vars={'API_KEY': 'test-123', 'DEBUG': 'true'}):
+    assert os.environ['API_KEY'] == 'test-123'
+    assert os.environ['DEBUG'] == 'true'
+
+# After block: original values restored (or vars removed if they didn't exist)
+</code></pre>
+<h3 id="temp_sys_path-temporary-python-path">Temp_Sys_Path - Temporary Python Path<a class="headerlink" href="#temp_sys_path-temporary-python-path" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Sys_Path import Temp_Sys_Path
+
+# Add path to sys.path temporarily
+with Temp_Sys_Path('/custom/module/path'):
+    import custom_module  # Can now import from /custom/module/path
+
+# Path automatically removed from sys.path
+</code></pre>
+<h3 id="temp_web_server-temporary-http-server">Temp_Web_Server - Temporary HTTP Server<a class="headerlink" href="#temp_web_server-temporary-http-server" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Web_Server import Temp_Web_Server
+
+# Serve files from a directory
+with Temp_Web_Server(root_folder='/path/to/files') as server:
+    html = server.GET('index.html')
+    assert server.GET_contains('&lt;title&gt;', path='index.html')
+    print(server.url('api/data'))  # http://127.0.0.1:xxxxx/api/data
+</code></pre>
+<h3 id="temp_zip-temporary-zip-files">Temp_Zip - Temporary Zip Files<a class="headerlink" href="#temp_zip-temporary-zip-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Zip import Temp_Zip
+
+# Zip a folder temporarily
+with Temp_Folder(temp_files_to_add=3) as folder:
+    with Temp_Zip(folder) as temp_zip:
+        print(temp_zip.path())   # /tmp/xxx.zip
+        print(temp_zip.files())  # ['file1.txt', 'file2.txt', 'file3.txt']
+# Zip file automatically deleted
+</code></pre>
+<h3 id="temp_zip_in_memory-in-memory-zip-creation">Temp_Zip_In_Memory - In-Memory Zip Creation<a class="headerlink" href="#temp_zip_in_memory-in-memory-zip-creation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Zip_In_Memory import Temp_Zip_In_Memory
+
+# Create zip entirely in memory
+with Temp_Zip_In_Memory() as zip_mem:
+    zip_mem.add_file_from_content('readme.txt', 'Hello World')
+    zip_mem.add_file_from_content('data/config.json', '{}')
+
+    # Get as bytes (for API uploads, etc.)
+    zip_bytes = zip_mem.zip_bytes()
+
+    # Or save to disk
+    zip_path = zip_mem.create_zip_file('/output/archive.zip')
+</code></pre>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<h3 id="all-temp-utilities">All Temp Utilities<a class="headerlink" href="#all-temp-utilities" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Individual imports
+from osbot_utils.testing.Temp_File          import Temp_File
+from osbot_utils.testing.Temp_Folder        import Temp_Folder
+from osbot_utils.testing.Temp_Env_Vars      import Temp_Env_Vars
+from osbot_utils.testing.Temp_Sys_Path      import Temp_Sys_Path
+from osbot_utils.testing.Temp_Web_Server    import Temp_Web_Server
+from osbot_utils.testing.Temp_Zip           import Temp_Zip
+from osbot_utils.testing.Temp_Zip_In_Memory import Temp_Zip_In_Memory
+</code></pre>
+<hr />
+<h2 id="api-reference-by-category">API Reference by Category<a class="headerlink" href="#api-reference-by-category" title="Permanent link">&para;</a></h2>
+<h3 id="temp_file">Temp_File<a class="headerlink" href="#temp_file" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method/Property</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Temp_File(contents, extension, file_name, return_file_path, create_file)</code></td>
+<td>Constructor</td>
+<td><code>Temp_File</code></td>
+</tr>
+<tr>
+<td><code>path()</code></td>
+<td>Get full file path</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>contents()</code></td>
+<td>Read file contents</td>
+<td><code>str</code> or <code>None</code></td>
+</tr>
+<tr>
+<td><code>exists()</code></td>
+<td>Check if file exists</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>file_name()</code></td>
+<td>Get just the filename</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>folder()</code></td>
+<td>Get parent folder path</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>files_in_folder()</code></td>
+<td>List all files in temp folder</td>
+<td><code>list[str]</code></td>
+</tr>
+<tr>
+<td><code>write(contents)</code></td>
+<td>Write new contents</td>
+<td><code>Temp_File</code></td>
+</tr>
+<tr>
+<td><code>delete()</code></td>
+<td>Manually delete file</td>
+<td><code>bool</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Constructor Parameters:</strong>
+- <code>contents</code> — Initial file content (default: <code>'...'</code>)
+- <code>extension</code> — File extension without dot (default: <code>'tmp'</code>)
+- <code>file_name</code> — Custom filename (default: random)
+- <code>return_file_path</code> — If True, <code>__enter__</code> returns path string instead of object
+- <code>create_file</code> — If False, don't create file on enter (default: <code>True</code>)</p>
+<h3 id="temp_folder">Temp_Folder<a class="headerlink" href="#temp_folder" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method/Property</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Temp_Folder(folder_name, parent_folder, delete_on_exit, temp_files_to_add)</code></td>
+<td>Constructor</td>
+<td><code>Temp_Folder</code></td>
+</tr>
+<tr>
+<td><code>path()</code></td>
+<td>Get folder path</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>exists()</code></td>
+<td>Check if folder exists</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>files(show_parent_folder, include_folders)</code></td>
+<td>List files in folder</td>
+<td><code>list[str]</code></td>
+</tr>
+<tr>
+<td><code>folders(show_parent_folder)</code></td>
+<td>List subfolders</td>
+<td><code>list[str]</code></td>
+</tr>
+<tr>
+<td><code>files_and_folders(show_parent_folder)</code></td>
+<td>List all contents</td>
+<td><code>list[str]</code></td>
+</tr>
+<tr>
+<td><code>add_file(file_name, contents)</code></td>
+<td>Create file in folder</td>
+<td><code>str</code> (path)</td>
+</tr>
+<tr>
+<td><code>add_folder(name)</code></td>
+<td>Create subfolder</td>
+<td><code>str</code> (path)</td>
+</tr>
+<tr>
+<td><code>add_temp_files(count)</code></td>
+<td>Add random temp files</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>file_contents(target_file)</code></td>
+<td>Read file by relative path</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>files_contents()</code></td>
+<td>Read all files as dict</td>
+<td><code>dict[str, str]</code></td>
+</tr>
+<tr>
+<td><code>zip()</code></td>
+<td>Create zip of folder</td>
+<td><code>str</code> (zip path)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Constructor Parameters:</strong>
+- <code>folder_name</code> — Custom folder name (default: random)
+- <code>parent_folder</code> — Parent directory (default: system temp)
+- <code>delete_on_exit</code> — Auto-delete on exit (default: <code>True</code>)
+- <code>temp_files_to_add</code> — Auto-generate N test files (default: <code>0</code>)</p>
+<h3 id="temp_env_vars">Temp_Env_Vars<a class="headerlink" href="#temp_env_vars" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method/Property</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Temp_Env_Vars(env_vars)</code></td>
+<td>Constructor</td>
+<td><code>Temp_Env_Vars</code></td>
+</tr>
+<tr>
+<td><code>set_vars()</code></td>
+<td>Apply env vars (called by <code>__enter__</code>)</td>
+<td><code>Temp_Env_Vars</code></td>
+</tr>
+<tr>
+<td><code>restore_vars()</code></td>
+<td>Restore original values (called by <code>__exit__</code>)</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Constructor Parameters:</strong>
+- <code>env_vars</code> — Dict of <code>{var_name: value}</code> to set temporarily</p>
+<h3 id="temp_sys_path">Temp_Sys_Path<a class="headerlink" href="#temp_sys_path" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method/Property</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Temp_Sys_Path(path)</code></td>
+<td>Constructor</td>
+<td><code>Temp_Sys_Path</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Constructor Parameters:</strong>
+- <code>path</code> — Directory path to add to <code>sys.path</code></p>
+<h3 id="temp_web_server">Temp_Web_Server<a class="headerlink" href="#temp_web_server" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method/Property</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Temp_Web_Server(host, port, root_folder, server_name, http_handler, wait_for_stop)</code></td>
+<td>Constructor</td>
+<td><code>Temp_Web_Server</code></td>
+</tr>
+<tr>
+<td><code>start()</code></td>
+<td>Start the server</td>
+<td><code>Temp_Web_Server</code></td>
+</tr>
+<tr>
+<td><code>stop()</code></td>
+<td>Stop the server</td>
+<td><code>Temp_Web_Server</code></td>
+</tr>
+<tr>
+<td><code>url(path)</code></td>
+<td>Build URL for path</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>GET(path)</code></td>
+<td>HTTP GET request</td>
+<td><code>str</code> or <code>None</code></td>
+</tr>
+<tr>
+<td><code>GET_contains(content, path)</code></td>
+<td>Check if response contains text</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>add_file(relative_file_path, file_contents)</code></td>
+<td>Add file to server root</td>
+<td><code>str</code> (path)</td>
+</tr>
+<tr>
+<td><code>server_port_open()</code></td>
+<td>Check if port is listening</td>
+<td><code>bool</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Constructor Parameters:</strong>
+- <code>host</code> — Bind address (default: <code>'127.0.0.1'</code>)
+- <code>port</code> — Port number (default: random available port)
+- <code>root_folder</code> — Directory to serve (default: <code>'.'</code>)
+- <code>server_name</code> — Thread name for debugging
+- <code>http_handler</code> — Custom handler class (default: <code>SimpleHTTPRequestHandler</code>)
+- <code>wait_for_stop</code> — Block on stop until port released (default: <code>False</code>)</p>
+<h3 id="temp_zip">Temp_Zip<a class="headerlink" href="#temp_zip" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method/Property</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Temp_Zip(target, target_zip_file, delete_zip_file)</code></td>
+<td>Constructor</td>
+<td><code>Temp_Zip</code></td>
+</tr>
+<tr>
+<td><code>path()</code></td>
+<td>Get zip file path</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>files()</code></td>
+<td>List files in zip</td>
+<td><code>list[str]</code></td>
+</tr>
+<tr>
+<td><code>file_name()</code></td>
+<td>Get zip filename</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>zip_file_exists()</code></td>
+<td>Check if zip exists</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>move_to(target_file)</code></td>
+<td>Move zip to new location</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Constructor Parameters:</strong>
+- <code>target</code> — Folder to zip (can be <code>Temp_Folder</code>)
+- <code>target_zip_file</code> — Custom output path (default: temp)
+- <code>delete_zip_file</code> — Auto-delete on exit (default: <code>True</code>)</p>
+<h3 id="temp_zip_in_memory">Temp_Zip_In_Memory<a class="headerlink" href="#temp_zip_in_memory" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method/Property</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Temp_Zip_In_Memory(targets, targets_as_bytes)</code></td>
+<td>Constructor</td>
+<td><code>Temp_Zip_In_Memory</code></td>
+</tr>
+<tr>
+<td><code>add_file(file, root_folder)</code></td>
+<td>Add existing file to zip</td>
+<td><code>Temp_Zip_In_Memory</code></td>
+</tr>
+<tr>
+<td><code>add_folder(folder, root_folder)</code></td>
+<td>Add folder contents to zip</td>
+<td><code>Temp_Zip_In_Memory</code></td>
+</tr>
+<tr>
+<td><code>add_file_from_content(file_path, file_contents)</code></td>
+<td>Add virtual file from string</td>
+<td><code>Temp_Zip_In_Memory</code></td>
+</tr>
+<tr>
+<td><code>set_root_folder(root_folder)</code></td>
+<td>Set base path for relative paths</td>
+<td><code>Temp_Zip_In_Memory</code></td>
+</tr>
+<tr>
+<td><code>zip_bytes()</code></td>
+<td>Get zip as bytes</td>
+<td><code>bytes</code></td>
+</tr>
+<tr>
+<td><code>zip_bytes_files()</code></td>
+<td>List files in zip</td>
+<td><code>list[str]</code></td>
+</tr>
+<tr>
+<td><code>zip_bytes_file_content(file_path)</code></td>
+<td>Read file from zip</td>
+<td><code>bytes</code></td>
+</tr>
+<tr>
+<td><code>create_zip_file(target_zip_file)</code></td>
+<td>Save zip to disk</td>
+<td><code>str</code> (path)</td>
+</tr>
+<tr>
+<td><code>target_files()</code></td>
+<td>List all source files</td>
+<td><code>list[str]</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-isolated-file-based-tests">Pattern 1: Isolated File-Based Tests<a class="headerlink" href="#pattern-1-isolated-file-based-tests" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_File import Temp_File
+
+def test_file_processor():
+    with Temp_File(contents='line1\nline2\nline3', extension='txt') as tf:
+        processor = FileProcessor()
+        result = processor.count_lines(tf.path())
+
+        assert result == 3
+        assert tf.exists()
+
+    # File automatically cleaned up - no assertions needed
+</code></pre>
+<h3 id="pattern-2-testing-with-directory-structures">Pattern 2: Testing with Directory Structures<a class="headerlink" href="#pattern-2-testing-with-directory-structures" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Folder import Temp_Folder
+
+def test_directory_scanner():
+    with Temp_Folder() as folder:
+        # Create test structure
+        folder.add_file('config.json', '{&quot;version&quot;: 1}')
+        folder.add_file('data/users.csv', 'id,name\n1,Alice')
+        folder.add_folder('empty_dir')
+
+        scanner = DirectoryScanner(folder.path())
+
+        assert scanner.count_files() == 2
+        assert 'config.json' in scanner.list_files()
+</code></pre>
+<h3 id="pattern-3-environment-dependent-code-testing">Pattern 3: Environment-Dependent Code Testing<a class="headerlink" href="#pattern-3-environment-dependent-code-testing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Env_Vars import Temp_Env_Vars
+
+def test_config_loading():
+    # Test with specific environment
+    with Temp_Env_Vars(env_vars={'APP_ENV'  : 'testing' ,
+                                  'LOG_LEVEL': 'DEBUG'   ,
+                                  'API_URL'  : 'http://test.local'}):
+        config = AppConfig.from_environment()
+
+        assert config.environment == 'testing'
+        assert config.log_level == 'DEBUG'
+
+    # Original environment restored - next test unaffected
+</code></pre>
+<h3 id="pattern-4-integration-tests-with-http">Pattern 4: Integration Tests with HTTP<a class="headerlink" href="#pattern-4-integration-tests-with-http" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Web_Server import Temp_Web_Server
+from osbot_utils.testing.Temp_Folder     import Temp_Folder
+
+def test_http_client():
+    with Temp_Folder() as folder:
+        folder.add_file('api/users.json', '[{&quot;id&quot;: 1, &quot;name&quot;: &quot;Alice&quot;}]')
+
+        with Temp_Web_Server(root_folder=folder.path()) as server:
+            client = HttpClient(base_url=server.url())
+            users = client.get_users()
+
+            assert len(users) == 1
+            assert users[0]['name'] == 'Alice'
+</code></pre>
+<h3 id="pattern-5-custom-http-handler-for-mocking">Pattern 5: Custom HTTP Handler for Mocking<a class="headerlink" href="#pattern-5-custom-http-handler-for-mocking" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from http.server import BaseHTTPRequestHandler
+from osbot_utils.testing.Temp_Web_Server import Temp_Web_Server
+
+class MockAPIHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(b'{&quot;status&quot;: &quot;mocked&quot;}')
+
+    def log_message(self, format, *args):
+        pass  # Suppress logging
+
+def test_with_mock_api():
+    with Temp_Web_Server(http_handler=MockAPIHandler) as server:
+        response = requests.get(server.url('/anything'))
+        assert response.json()['status'] == 'mocked'
+</code></pre>
+<h3 id="pattern-6-testing-import-behavior">Pattern 6: Testing Import Behavior<a class="headerlink" href="#pattern-6-testing-import-behavior" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Folder   import Temp_Folder
+from osbot_utils.testing.Temp_Sys_Path import Temp_Sys_Path
+
+def test_plugin_loading():
+    with Temp_Folder() as folder:
+        # Create a test plugin
+        plugin_code = '''
+class MyPlugin:
+    name = &quot;test_plugin&quot;
+    def run(self):
+        return &quot;executed&quot;
+'''
+        folder.add_file('my_plugin.py', plugin_code)
+
+        with Temp_Sys_Path(folder.path()):
+            from my_plugin import MyPlugin
+
+            plugin = MyPlugin()
+            assert plugin.name == &quot;test_plugin&quot;
+            assert plugin.run() == &quot;executed&quot;
+</code></pre>
+<h3 id="pattern-7-creating-test-archives">Pattern 7: Creating Test Archives<a class="headerlink" href="#pattern-7-creating-test-archives" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Folder        import Temp_Folder
+from osbot_utils.testing.Temp_Zip           import Temp_Zip
+from osbot_utils.testing.Temp_Zip_In_Memory import Temp_Zip_In_Memory
+
+# From existing folder
+def test_zip_extraction():
+    with Temp_Folder(temp_files_to_add=5) as folder:
+        with Temp_Zip(folder) as temp_zip:
+            extractor = ZipExtractor()
+            files = extractor.list_contents(temp_zip.path())
+
+            assert len(files) == 5
+
+# From scratch (in memory)
+def test_zip_upload():
+    with Temp_Zip_In_Memory() as zip_mem:
+        zip_mem.add_file_from_content('manifest.json', '{&quot;version&quot;: &quot;1.0&quot;}')
+        zip_mem.add_file_from_content('data/payload.bin', 'binary data here')
+
+        response = api_client.upload_archive(zip_mem.zip_bytes())
+        assert response.status_code == 200
+</code></pre>
+<h3 id="pattern-8-nested-temps-for-complex-scenarios">Pattern 8: Nested Temps for Complex Scenarios<a class="headerlink" href="#pattern-8-nested-temps-for-complex-scenarios" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_File     import Temp_File
+from osbot_utils.testing.Temp_Folder   import Temp_Folder
+from osbot_utils.testing.Temp_Env_Vars import Temp_Env_Vars
+
+def test_full_integration():
+    with Temp_Env_Vars(env_vars={'CONFIG_PATH': '/custom/path'}):
+        with Temp_Folder() as workspace:
+            config_path = workspace.add_file('config.yaml', 'debug: true')
+
+            with Temp_File(contents='input data') as input_file:
+                app = Application(workspace=workspace.path(),
+                                  config   =config_path      ,
+                                  input    =input_file.path())
+
+                result = app.process()
+                assert result.success
+
+    # All resources cleaned up in reverse order:
+    # 1. input_file deleted
+    # 2. workspace folder deleted
+    # 3. CONFIG_PATH env var restored
+</code></pre>
+<h3 id="pattern-9-temp_folder-with-nested-folders">Pattern 9: Temp_Folder with Nested Folders<a class="headerlink" href="#pattern-9-temp_folder-with-nested-folders" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Folder import Temp_Folder
+
+def test_nested_folder_handling():
+    with Temp_Folder() as root:
+        # Create nested structure via Temp_Folder chaining
+        with Temp_Folder(parent_folder=root) as level1:
+            level1.add_file('file_at_level1.txt', 'content')
+
+            with Temp_Folder(parent_folder=level1) as level2:
+                level2.add_file('file_at_level2.txt', 'deep content')
+
+                # Verify structure
+                all_files = root.files()
+                assert len(all_files) == 2
+
+        # Inner folders deleted when their context exits
+</code></pre>
+<h3 id="pattern-10-keeping-files-for-debugging">Pattern 10: Keeping Files for Debugging<a class="headerlink" href="#pattern-10-keeping-files-for-debugging" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.Temp_Folder import Temp_Folder
+from osbot_utils.testing.Temp_Zip    import Temp_Zip
+
+def test_with_debug_output():
+    # Don't delete on exit - useful for post-mortem debugging
+    with Temp_Folder(delete_on_exit=False) as folder:
+        folder.add_file('debug_data.json', debug_info)
+
+        # ... run test ...
+
+        print(f&quot;Debug files at: {folder.path()}&quot;)
+
+    # Folder still exists after context exit!
+
+    # Similarly for zip files
+    with Temp_Zip(folder, delete_zip_file=False) as temp_zip:
+        print(f&quot;Zip preserved at: {temp_zip.path()}&quot;)
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-use-context-managers-properly">DO: Use Context Managers Properly<a class="headerlink" href="#do-use-context-managers-properly" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - resources always cleaned up
+with Temp_File(contents='data') as tf:
+    process(tf.path())
+
+# ❌ Bad - manual cleanup is error-prone
+tf = Temp_File(contents='data')
+tf.__enter__()
+try:
+    process(tf.path())
+finally:
+    tf.__exit__(None, None, None)
+</code></pre>
+<h3 id="do-nest-contexts-for-complex-scenarios">DO: Nest Contexts for Complex Scenarios<a class="headerlink" href="#do-nest-contexts-for-complex-scenarios" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - clear lifecycle, automatic cleanup order
+with Temp_Folder() as folder:
+    with Temp_Web_Server(root_folder=folder.path()) as server:
+        with Temp_Env_Vars(env_vars={'API_URL': server.url()}):
+            run_tests()
+
+# ❌ Bad - manual coordination
+folder = Temp_Folder().__enter__()
+server = Temp_Web_Server(root_folder=folder.path()).__enter__()
+# ... lots of error-prone cleanup code
+</code></pre>
+<h3 id="do-use-return_file_path-for-path-only-apis">DO: Use return_file_path for Path-Only APIs<a class="headerlink" href="#do-use-return_file_path-for-path-only-apis" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - when you just need the path
+with Temp_File(contents='data', return_file_path=True) as path:
+    result = some_api_that_takes_path(path)
+
+# ✅ Also good - explicit path() call
+with Temp_File(contents='data') as tf:
+    result = some_api_that_takes_path(tf.path())
+</code></pre>
+<h3 id="do-use-temp_files_to_add-for-bulk-testing">DO: Use temp_files_to_add for Bulk Testing<a class="headerlink" href="#do-use-temp_files_to_add-for-bulk-testing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - generates realistic test structure
+with Temp_Folder(temp_files_to_add=20) as folder:
+    scanner = DirectoryScanner()
+    results = scanner.scan(folder.path())
+    assert len(results) == 20
+</code></pre>
+<h3 id="do-accept-both-temp_folder-and-string-paths">DO: Accept Both Temp_Folder and String Paths<a class="headerlink" href="#do-accept-both-temp_folder-and-string-paths" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - flexible APIs that accept both
+with Temp_Folder() as folder:
+    with Temp_Zip(folder) as zip:       # Works with Temp_Folder
+        pass
+    with Temp_Zip(folder.path()) as zip: # Also works with string
+        pass
+</code></pre>
+<h3 id="dont-store-references-beyond-context">DON'T: Store References Beyond Context<a class="headerlink" href="#dont-store-references-beyond-context" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - reference invalid after context exits
+temp_file_ref = None
+with Temp_File() as tf:
+    temp_file_ref = tf
+
+# temp_file_ref.path() points to deleted file!
+</code></pre>
+<h3 id="dont-forget-to-check-server-port-in-tests">DON'T: Forget to Check Server Port in Tests<a class="headerlink" href="#dont-forget-to-check-server-port-in-tests" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - may fail on port collision
+with Temp_Web_Server(port=8080) as server:  # What if 8080 is in use?
+    pass
+
+# ✅ Good - let it pick a random available port
+with Temp_Web_Server() as server:  # Random port, always works
+    print(server.url())  # http://127.0.0.1:xxxxx
+</code></pre>
+<h3 id="dont-use-temp-resources-in-production">DON'T: Use Temp Resources in Production<a class="headerlink" href="#dont-use-temp-resources-in-production" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - temp resources are for testing only
+def production_handler(request):
+    with Temp_File() as tf:  # Creates temp files on every request!
+        tf.write(request.body)
+        return process(tf.path())
+
+# ✅ Good - use proper file handling in production
+def production_handler(request):
+    path = get_upload_path(request)
+    with open(path, 'wb') as f:
+        f.write(request.body)
+    return process(path)
+</code></pre>
+<h3 id="dont-assume-cleanup-order-in-parallel-tests">DON'T: Assume Cleanup Order in Parallel Tests<a class="headerlink" href="#dont-assume-cleanup-order-in-parallel-tests" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Risky - parallel tests may interfere
+def test_a():
+    with Temp_Folder(folder_name='shared') as folder:  # Same name!
+        pass
+
+def test_b():
+    with Temp_Folder(folder_name='shared') as folder:  # Collision!
+        pass
+
+# ✅ Safe - unique names (default behavior)
+def test_a():
+    with Temp_Folder() as folder:  # Random unique name
+        pass
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-file-not-found-after-context">Problem: File Not Found After Context<a class="headerlink" href="#problem-file-not-found-after-context" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Accessing temp resource after <code>with</code> block exits</p>
+<pre><code class="language-python"># ❌ This won't work
+with Temp_File() as tf:
+    path = tf.path()
+
+content = open(path).read()  # File already deleted!
+
+# ✅ Do everything inside the context
+with Temp_File() as tf:
+    content = tf.contents()
+    process(content)
+</code></pre>
+<h3 id="problem-temp_web_server-port-not-releasing">Problem: Temp_Web_Server Port Not Releasing<a class="headerlink" href="#problem-temp_web_server-port-not-releasing" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Server threads not fully stopped</p>
+<pre><code class="language-python"># ✅ Solution: Use wait_for_stop=True
+with Temp_Web_Server(wait_for_stop=True) as server:
+    # ... tests ...
+# Port guaranteed released after block
+</code></pre>
+<p><strong>Note</strong>: <code>wait_for_stop=True</code> adds ~500ms delay but ensures port is fully released.</p>
+<h3 id="problem-environment-variables-still-set">Problem: Environment Variables Still Set<a class="headerlink" href="#problem-environment-variables-still-set" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Exception before <code>__exit__</code> ran</p>
+<pre><code class="language-python"># This should NOT happen with proper context manager usage
+# But if manually calling methods:
+
+env = Temp_Env_Vars(env_vars={'KEY': 'value'})
+env.set_vars()
+# ... exception here ...
+# env.restore_vars() never called!
+
+# ✅ Always use context manager
+with Temp_Env_Vars(env_vars={'KEY': 'value'}):
+    # Even if exception occurs here, restore_vars is called
+    raise Exception(&quot;test&quot;)
+</code></pre>
+<h3 id="problem-temp_zip-shows-wrong-files">Problem: Temp_Zip Shows Wrong Files<a class="headerlink" href="#problem-temp_zip-shows-wrong-files" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Not setting root_folder correctly</p>
+<pre><code class="language-python"># ❌ Full paths in zip
+with Temp_Folder() as folder:
+    folder.add_file('test.txt', 'content')
+    with Temp_Zip_In_Memory() as zip_mem:
+        zip_mem.add_folder(folder)
+        print(zip_mem.zip_bytes_files())  
+        # ['/tmp/temp_folder_xxx/test.txt'] - full path!
+
+# ✅ Set root_folder for relative paths
+with Temp_Folder() as folder:
+    folder.add_file('test.txt', 'content')
+    with Temp_Zip_In_Memory() as zip_mem:
+        zip_mem.add_folder(folder)
+        zip_mem.set_root_folder(folder)
+        print(zip_mem.zip_bytes_files())  
+        # ['test.txt'] - relative path!
+</code></pre>
+<h3 id="problem-temp_sys_path-import-caching">Problem: Temp_Sys_Path Import Caching<a class="headerlink" href="#problem-temp_sys_path-import-caching" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Python caches imports</p>
+<pre><code class="language-python"># First import works
+with Temp_Sys_Path('/path/v1'):
+    import my_module  # Imports from /path/v1
+
+# Second import uses cached version!
+with Temp_Sys_Path('/path/v2'):
+    import my_module  # Still the v1 version!
+
+# ✅ Solution: Reload or use importlib
+import importlib
+with Temp_Sys_Path('/path/v2'):
+    importlib.reload(my_module)  # Forces re-import
+</code></pre>
+<h3 id="problem-temp_folder-files-not-found">Problem: Temp_Folder Files Not Found<a class="headerlink" href="#problem-temp_folder-files-not-found" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Using wrong path format</p>
+<pre><code class="language-python">with Temp_Folder() as folder:
+    folder.add_file('sub/dir/file.txt', 'content')
+
+    # ❌ Wrong - files() returns relative paths
+    for f in folder.files():
+        open(f).read()  # FileNotFoundError!
+
+    # ✅ Correct - use show_parent_folder or combine paths
+    for f in folder.files(show_parent_folder=True):
+        open(f).read()  # Works!
+
+    # ✅ Or use file_contents
+    content = folder.file_contents('sub/dir/file.txt')
+</code></pre>
+<h3 id="problem-tests-fail-on-ci-but-pass-locally">Problem: Tests Fail on CI but Pass Locally<a class="headerlink" href="#problem-tests-fail-on-ci-but-pass-locally" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Different temp directory locations or permissions</p>
+<pre><code class="language-python"># ✅ Use Temp_Folder's default location (uses system temp)
+with Temp_Folder() as folder:
+    pass  # Uses /tmp on Linux, appropriate location on Windows
+
+# ❌ Avoid hardcoded paths
+with Temp_Folder(parent_folder='/my/local/path') as folder:
+    pass  # May not exist on CI
+</code></pre>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When using Temp utilities in tests:</p>
+<p><strong>General:</strong>
+- [ ] Always use <code>with</code> statement (context manager pattern)
+- [ ] Don't store references to temp resources outside their context
+- [ ] Nest contexts for complex scenarios (cleanup is automatic)
+- [ ] Use default random names for parallel test safety</p>
+<p><strong>Temp_File:</strong>
+- [ ] Use <code>contents</code> parameter for initial content
+- [ ] Use <code>extension</code> for file type (without dot: <code>'json'</code> not <code>'.json'</code>)
+- [ ] Use <code>return_file_path=True</code> when you only need the path string
+- [ ] Use <code>write()</code> to update contents, <code>contents()</code> to read</p>
+<p><strong>Temp_Folder:</strong>
+- [ ] Use <code>temp_files_to_add</code> for quick test data generation
+- [ ] Use <code>files()</code> for relative paths, <code>files(show_parent_folder=True)</code> for absolute
+- [ ] Use <code>add_file()</code> and <code>add_folder()</code> to build structure
+- [ ] Set <code>delete_on_exit=False</code> for debugging (remember to clean up!)</p>
+<p><strong>Temp_Env_Vars:</strong>
+- [ ] Pass <code>env_vars</code> as dict: <code>{'VAR_NAME': 'value'}</code>
+- [ ] Original values automatically restored (including deletion if didn't exist)
+- [ ] Works with Type_Safe classes</p>
+<p><strong>Temp_Web_Server:</strong>
+- [ ] Let port auto-assign (no port conflicts)
+- [ ] Use <code>wait_for_stop=True</code> if you need port released immediately
+- [ ] Use custom <code>http_handler</code> for mock APIs
+- [ ] Use <code>GET()</code> and <code>GET_contains()</code> for simple testing</p>
+<p><strong>Temp_Zip / Temp_Zip_In_Memory:</strong>
+- [ ] Use <code>set_root_folder()</code> to get relative paths in zip
+- [ ] Use <code>add_file_from_content()</code> for virtual files (no disk I/O)
+- [ ] Use <code>zip_bytes()</code> for in-memory operations
+- [ ] Use <code>create_zip_file()</code> when you need a file on disk</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.65.0__brief-3.8__complete-semantic-graph-foundation/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>(Brief 3.8) Complete Semantic Graph Foundation - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "(Brief 3.8) Complete Semantic Graph Foundation";
+        var mkdocs_page_input_path = "dev-briefs/v3.63.0__call-flow-analysis/v3.65.0__brief-3.8__complete-semantic-graph-foundation.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.65.0__brief-3.8__complete-semantic-graph-foundation/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">(Brief 3.8) Complete Semantic Graph Foundation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="brief-38-complete-semantic-graph-foundation">(Brief 3.8) Complete Semantic Graph Foundation<a class="headerlink" href="#brief-38-complete-semantic-graph-foundation" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> v3.65.0<br />
+<strong>Status:</strong> Extension to Brief 3.7<br />
+<strong>Target:</strong> OSBot-Utils (<code>osbot_utils.helpers.semantic_graphs</code>)<br />
+<strong>Created:</strong> January 2026<br />
+<strong>Prerequisites:</strong> Brief 3.7 (Projected Data Architecture) complete<br />
+<strong>Enables:</strong> Full RDF/OWL alignment, typed properties, taxonomy integration  </p>
+<hr />
+<h2 id="1-document-purpose">1. Document Purpose<a class="headerlink" href="#1-document-purpose" title="Permanent link">&para;</a></h2>
+<p>This brief completes the semantic graph foundation by addressing gaps identified during Brief 3.7 implementation:</p>
+<blockquote>
+<p><strong>Gap 1:</strong> Taxonomy exists but is disconnected — node types don't link to categories<br />
+<strong>Gap 2:</strong> Taxonomy uses refs internally instead of IDs (inconsistent with Brief 3.7)<br />
+<strong>Gap 3:</strong> Nodes and edges cannot hold properties (data values)<br />
+<strong>Gap 4:</strong> Projections include full ontology in references instead of only what's used  </p>
+<p><strong>The Solution:</strong> 
+- Wire taxonomy to ontology via <code>category_id</code> on node types
+- Convert taxonomy to ID-based internal references<br />
+- Add property system with <code>property_name_id</code> and optional <code>property_type_id</code>
+- Add properties to nodes and edges
+- Add taxonomy section to projections
+- Filter projection references to only include used refs</p>
+</blockquote>
+<p><strong>Outcome:</strong> A complete, standards-aligned foundation for semantic graphs that maps cleanly to RDF, RDFS, and OWL concepts.</p>
+<hr />
+<h2 id="2-standards-alignment">2. Standards Alignment<a class="headerlink" href="#2-standards-alignment" title="Permanent link">&para;</a></h2>
+<p>This design intentionally aligns with established semantic web standards:</p>
+<table>
+<thead>
+<tr>
+<th>Our Concept</th>
+<th>RDF/RDFS</th>
+<th>OWL</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node Type</td>
+<td><code>rdfs:Class</code></td>
+<td><code>owl:Class</code></td>
+<td>Type definition</td>
+</tr>
+<tr>
+<td>Node</td>
+<td><code>rdf:Resource</code></td>
+<td><code>owl:NamedIndividual</code></td>
+<td>Instance</td>
+</tr>
+<tr>
+<td>Predicate</td>
+<td><code>rdf:Property</code></td>
+<td><code>owl:ObjectProperty</code></td>
+<td>Relationship type</td>
+</tr>
+<tr>
+<td>Edge</td>
+<td>RDF Triple (s→p→o)</td>
+<td>Same</td>
+<td>Subject-Predicate-Object</td>
+</tr>
+<tr>
+<td>Edge Rule</td>
+<td><code>rdfs:domain</code> + <code>rdfs:range</code></td>
+<td>Same</td>
+<td>Valid connections</td>
+</tr>
+<tr>
+<td>inverse_id</td>
+<td>—</td>
+<td><code>owl:inverseOf</code></td>
+<td>Bidirectional relationships</td>
+</tr>
+<tr>
+<td>Category</td>
+<td><code>rdfs:Class</code> hierarchy</td>
+<td><code>owl:subClassOf</code></td>
+<td>Classification</td>
+</tr>
+<tr>
+<td>Property Name</td>
+<td><code>rdf:Property</code></td>
+<td><code>owl:DatatypeProperty</code></td>
+<td>Data properties</td>
+</tr>
+<tr>
+<td>Property Type</td>
+<td><code>xsd:*</code> datatypes</td>
+<td>Same</td>
+<td>Value types</td>
+</tr>
+</tbody>
+</table>
+<h3 id="edge-as-triple">Edge as Triple<a class="headerlink" href="#edge-as-triple" title="Permanent link">&para;</a></h3>
+<p>Our edge structure maps directly to RDF triples:</p>
+<pre><code>from_node_id  →  predicate_id  →  to_node_id
+   Subject         Predicate        Object
+</code></pre>
+<p>This enables straightforward export to N-Triples, Turtle, JSON-LD, and other RDF serializations.</p>
+<hr />
+<h2 id="3-design-principles">3. Design Principles<a class="headerlink" href="#3-design-principles" title="Permanent link">&para;</a></h2>
+<h3 id="principle-1-everything-uses-ids-internally">Principle 1: Everything Uses IDs Internally<a class="headerlink" href="#principle-1-everything-uses-ids-internally" title="Permanent link">&para;</a></h3>
+<p>All cross-references in Schema__ use IDs for referential integrity:
+- <code>parent_id</code> not <code>parent_ref</code>
+- <code>category_id</code> not <code>category_ref</code><br />
+- <code>property_name_id</code> not <code>property_name_ref</code>
+- <code>property_type_id</code> not <code>property_type_ref</code></p>
+<h3 id="principle-2-refs-are-human-labels-defined-once">Principle 2: Refs Are Human Labels Defined Once<a class="headerlink" href="#principle-2-refs-are-human-labels-defined-once" title="Permanent link">&para;</a></h3>
+<p>Each entity has a <code>*_ref</code> field that is the human-readable label:
+- Defined once on the entity itself
+- Looked up via registry or projection references
+- Never used as foreign keys</p>
+<h3 id="principle-3-properties-are-flexible">Principle 3: Properties Are Flexible<a class="headerlink" href="#principle-3-properties-are-flexible" title="Permanent link">&para;</a></h3>
+<p>Property values are stored as strings (<code>Safe_Str__Text</code>):
+- Simple and universal
+- Type validation is optional (via <code>property_type_id</code>)
+- Consumer decides how to interpret/validate
+- <code>property_type_id = None</code> implies string (no validation)</p>
+<h3 id="principle-4-ontology-defines-rules-constrain">Principle 4: Ontology Defines, Rules Constrain<a class="headerlink" href="#principle-4-ontology-defines-rules-constrain" title="Permanent link">&para;</a></h3>
+<p>Clear separation of concerns:
+- <strong>Ontology:</strong> What CAN exist (definitions)
+- <strong>Rules:</strong> What MUST exist (constraints)</p>
+<p>Example: "line_number property" is defined in ontology. "method nodes MUST have line_number" is a rule.</p>
+<h3 id="principle-5-projections-show-only-whats-used">Principle 5: Projections Show Only What's Used<a class="headerlink" href="#principle-5-projections-show-only-whats-used" title="Permanent link">&para;</a></h3>
+<p>Projection references include only:
+- Node types that appear in the graph's nodes
+- Predicates that appear in the graph's edges
+- Categories of those node types
+- Property names used in node/edge properties
+- Property types of those property names</p>
+<hr />
+<h2 id="4-taxonomy-changes">4. Taxonomy Changes<a class="headerlink" href="#4-taxonomy-changes" title="Permanent link">&para;</a></h2>
+<h3 id="41-before-brief-37">4.1 Before (Brief 3.7)<a class="headerlink" href="#41-before-brief-37" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Taxonomy__Category(Type_Safe):
+    category_ref : Category_Ref
+    name         : Safe_Str__Id
+    description  : Safe_Str__Text
+    parent_ref   : Category_Ref           # ← Ref-based (inconsistent)
+    child_refs   : List__Category_Refs    # ← Ref-based (inconsistent)
+</code></pre>
+<h3 id="42-after-brief-38">4.2 After (Brief 3.8)<a class="headerlink" href="#42-after-brief-38" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Taxonomy__Category(Type_Safe):
+    category_id  : Category_Id                        # Instance identifier
+    category_ref : Category_Ref                       # Human-readable label (display name derivable from this)
+    parent_id    : Category_Id      = None            # FK to parent (None = root)
+    child_ids    : List__Category_Ids                 # FKs to children
+    # NOTE: 'name' removed — derivable from category_ref via: ref.replace('_', ' ').title()
+</code></pre>
+<h3 id="43-schema__taxonomy-update">4.3 Schema__Taxonomy Update<a class="headerlink" href="#43-schema__taxonomy-update" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Taxonomy(Type_Safe):
+    taxonomy_id   : Taxonomy_Id
+    taxonomy_ref  : Taxonomy_Ref
+    version       : Safe_Str__Version
+    root_id       : Category_Id                       # CHANGED: was root_category (ref)
+    categories    : Dict__Categories__By_Id           # CHANGED: was By_Ref
+</code></pre>
+<h3 id="44-new-collection-types">4.4 New Collection Types<a class="headerlink" href="#44-new-collection-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Categories__By_Id(Type_Safe__Dict):
+    expected_key_type   = Category_Id
+    expected_value_type = Schema__Taxonomy__Category
+</code></pre>
+<hr />
+<h2 id="5-ontology-changes">5. Ontology Changes<a class="headerlink" href="#5-ontology-changes" title="Permanent link">&para;</a></h2>
+<h3 id="51-node-type-add-category_id">5.1 Node Type — Add category_id<a class="headerlink" href="#51-node-type-add-category_id" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Ontology__Node_Type(Type_Safe):
+    node_type_id   : Node_Type_Id
+    node_type_ref  : Node_Type_Ref
+    category_id    : Category_Id     = None           # NEW: FK to taxonomy category
+</code></pre>
+<h3 id="52-new-property-name-entity">5.2 New Property Name Entity<a class="headerlink" href="#52-new-property-name-entity" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Ontology__Property_Name(Type_Safe):
+    property_name_id  : Property_Name_Id              # Instance identifier
+    property_name_ref : Property_Name_Ref             # Human-readable label (&quot;line_number&quot;)
+    property_type_id  : Property_Type_Id = None       # FK to type (None = string)
+</code></pre>
+<h3 id="53-new-property-type-entity">5.3 New Property Type Entity<a class="headerlink" href="#53-new-property-type-entity" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Ontology__Property_Type(Type_Safe):
+    property_type_id  : Property_Type_Id              # Instance identifier
+    property_type_ref : Property_Type_Ref             # Human-readable label (&quot;integer&quot;, &quot;boolean&quot;)
+</code></pre>
+<h3 id="54-schema__ontology-update">5.4 Schema__Ontology Update<a class="headerlink" href="#54-schema__ontology-update" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Ontology(Type_Safe):
+    ontology_id     : Ontology_Id
+    ontology_ref    : Ontology_Ref
+    taxonomy_id     : Taxonomy_Id        = None
+
+    node_types      : Dict__Node_Types__By_Id
+    predicates      : Dict__Predicates__By_Id
+    property_names  : Dict__Property_Names__By_Id     # NEW
+    property_types  : Dict__Property_Types__By_Id     # NEW
+    edge_rules      : List__Edge_Rules
+</code></pre>
+<h3 id="55-new-identifier-types">5.5 New Identifier Types<a class="headerlink" href="#55-new-identifier-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Property_Name_Id(Semantic_Id):
+    pass
+
+class Property_Name_Ref(Semantic_Ref):
+    pass
+
+class Property_Type_Id(Semantic_Id):
+    pass
+
+class Property_Type_Ref(Semantic_Ref):
+    pass
+</code></pre>
+<h3 id="56-new-collection-types">5.6 New Collection Types<a class="headerlink" href="#56-new-collection-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Property_Names__By_Id(Type_Safe__Dict):
+    expected_key_type   = Property_Name_Id
+    expected_value_type = Schema__Ontology__Property_Name
+
+class Dict__Property_Types__By_Id(Type_Safe__Dict):
+    expected_key_type   = Property_Type_Id
+    expected_value_type = Schema__Ontology__Property_Type
+</code></pre>
+<hr />
+<h2 id="6-graph-changes">6. Graph Changes<a class="headerlink" href="#6-graph-changes" title="Permanent link">&para;</a></h2>
+<h3 id="61-node-properties">6.1 Node Properties<a class="headerlink" href="#61-node-properties" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Semantic_Graph__Node(Type_Safe):
+    node_id        : Node_Id
+    node_id_source : Schema__Id__Source = None
+    node_type_id   : Node_Type_Id
+    name           : Safe_Str__Id
+    properties     : Dict__Node_Properties  = None    # NEW: Property_Name_Id → Safe_Str__Text
+</code></pre>
+<h3 id="62-edge-properties">6.2 Edge Properties<a class="headerlink" href="#62-edge-properties" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Semantic_Graph__Edge(Type_Safe):
+    edge_id        : Edge_Id
+    edge_id_source : Schema__Id__Source = None
+    from_node_id   : Node_Id
+    to_node_id     : Node_Id
+    predicate_id   : Predicate_Id
+    properties     : Dict__Edge_Properties  = None    # NEW: Property_Name_Id → Safe_Str__Text
+</code></pre>
+<h3 id="63-property-collection-types">6.3 Property Collection Types<a class="headerlink" href="#63-property-collection-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Node_Properties(Type_Safe__Dict):
+    expected_key_type   = Property_Name_Id
+    expected_value_type = Safe_Str__Text
+
+class Dict__Edge_Properties(Type_Safe__Dict):
+    expected_key_type   = Property_Name_Id
+    expected_value_type = Safe_Str__Text
+</code></pre>
+<hr />
+<h2 id="7-rules-changes">7. Rules Changes<a class="headerlink" href="#7-rules-changes" title="Permanent link">&para;</a></h2>
+<h3 id="71-required-property-rules">7.1 Required Property Rules<a class="headerlink" href="#71-required-property-rules" title="Permanent link">&para;</a></h3>
+<p>New rule types for property constraints:</p>
+<pre><code class="language-python">class Schema__Rule__Required_Node_Property(Type_Safe):
+    node_type_id      : Node_Type_Id
+    property_name_id  : Property_Name_Id
+
+class Schema__Rule__Required_Edge_Property(Type_Safe):
+    predicate_id      : Predicate_Id
+    property_name_id  : Property_Name_Id
+</code></pre>
+<h3 id="72-schema__rule_set-update">7.2 Schema__Rule_Set Update<a class="headerlink" href="#72-schema__rule_set-update" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Rule_Set(Type_Safe):
+    rule_set_id              : Rule_Set_Id
+    rule_set_ref             : Rule_Set_Ref
+    ontology_ref             : Ontology_Ref
+    version                  : Safe_Str__Version
+    transitivity_rules       : List__Rules__Transitivity
+    cardinality_rules        : List__Rules__Cardinality
+    required_node_properties : List__Rules__Required_Node_Property    # NEW
+    required_edge_properties : List__Rules__Required_Edge_Property    # NEW
+</code></pre>
+<h3 id="73-new-collection-types">7.3 New Collection Types<a class="headerlink" href="#73-new-collection-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class List__Rules__Required_Node_Property(Type_Safe__List):
+    expected_type = Schema__Rule__Required_Node_Property
+
+class List__Rules__Required_Edge_Property(Type_Safe__List):
+    expected_type = Schema__Rule__Required_Edge_Property
+</code></pre>
+<hr />
+<h2 id="8-projection-changes">8. Projection Changes<a class="headerlink" href="#8-projection-changes" title="Permanent link">&para;</a></h2>
+<h3 id="81-projected-node-add-properties">8.1 Projected Node — Add Properties<a class="headerlink" href="#81-projected-node-add-properties" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Projected__Node(Type_Safe):
+    ref        : Node_Type_Ref
+    name       : Safe_Str__Id
+    properties : Dict__Projected_Properties = None    # NEW: Property_Name_Ref → Safe_Str__Text
+</code></pre>
+<h3 id="82-projected-edge-add-properties">8.2 Projected Edge — Add Properties<a class="headerlink" href="#82-projected-edge-add-properties" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Projected__Edge(Type_Safe):
+    from_name  : Safe_Str__Id
+    to_name    : Safe_Str__Id
+    ref        : Predicate_Ref
+    properties : Dict__Projected_Properties = None    # NEW: Property_Name_Ref → Safe_Str__Text
+</code></pre>
+<h3 id="83-projected-properties-collection">8.3 Projected Properties Collection<a class="headerlink" href="#83-projected-properties-collection" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Projected_Properties(Type_Safe__Dict):
+    expected_key_type   = Property_Name_Ref
+    expected_value_type = Safe_Str__Text
+</code></pre>
+<h3 id="84-projected-references-filter-expand">8.4 Projected References — Filter + Expand<a class="headerlink" href="#84-projected-references-filter-expand" title="Permanent link">&para;</a></h3>
+<p><strong>Bug fix:</strong> Only include refs actually used in the projection.</p>
+<p><strong>Addition:</strong> Add categories, property_names, property_types.</p>
+<pre><code class="language-python">class Schema__Projected__References(Type_Safe):
+    node_types     : Dict__Node_Type_Ids__By_Ref      # Only types in graph nodes
+    predicates     : Dict__Predicate_Ids__By_Ref      # Only predicates in graph edges
+    categories     : Dict__Category_Ids__By_Ref       # NEW: Only categories of node types in graph
+    property_names : Dict__Property_Name_Ids__By_Ref  # NEW: Only properties used in graph
+    property_types : Dict__Property_Type_Ids__By_Ref  # NEW: Only types of used properties
+</code></pre>
+<h3 id="85-new-reference-collection-types">8.5 New Reference Collection Types<a class="headerlink" href="#85-new-reference-collection-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Category_Ids__By_Ref(Type_Safe__Dict):
+    expected_key_type   = Category_Ref
+    expected_value_type = Category_Id
+
+class Dict__Property_Name_Ids__By_Ref(Type_Safe__Dict):
+    expected_key_type   = Property_Name_Ref
+    expected_value_type = Property_Name_Id
+
+class Dict__Property_Type_Ids__By_Ref(Type_Safe__Dict):
+    expected_key_type   = Property_Type_Ref
+    expected_value_type = Property_Type_Id
+</code></pre>
+<h3 id="86-projected-taxonomy-new-section">8.6 Projected Taxonomy — NEW Section<a class="headerlink" href="#86-projected-taxonomy-new-section" title="Permanent link">&para;</a></h3>
+<p>New section providing human-readable taxonomy information:</p>
+<pre><code class="language-python">class Schema__Projected__Taxonomy(Type_Safe):
+    node_type_categories : Dict__Category_Refs__By_Node_Type_Ref   # Which category each type belongs to
+    category_parents     : Dict__Category_Refs__By_Category_Ref    # Category hierarchy (None = root)
+</code></pre>
+<h3 id="87-taxonomy-collection-types">8.7 Taxonomy Collection Types<a class="headerlink" href="#87-taxonomy-collection-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Category_Refs__By_Node_Type_Ref(Type_Safe__Dict):
+    expected_key_type   = Node_Type_Ref
+    expected_value_type = Category_Ref                             # Can be None if no category
+
+class Dict__Category_Refs__By_Category_Ref(Type_Safe__Dict):
+    expected_key_type   = Category_Ref
+    expected_value_type = Category_Ref                             # Parent ref (None = root)
+</code></pre>
+<h3 id="88-schema__projected__semantic_graph-update">8.8 Schema__Projected__Semantic_Graph Update<a class="headerlink" href="#88-schema__projected__semantic_graph-update" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Projected__Semantic_Graph(Type_Safe):
+    projection : Schema__Projected__Data
+    references : Schema__Projected__References
+    taxonomy   : Schema__Projected__Taxonomy          # NEW: fourth section
+    sources    : Schema__Projected__Sources
+</code></pre>
+<hr />
+<h2 id="9-projector-changes">9. Projector Changes<a class="headerlink" href="#9-projector-changes" title="Permanent link">&para;</a></h2>
+<h3 id="91-updated-project-method">9.1 Updated project() Method<a class="headerlink" href="#91-updated-project-method" title="Permanent link">&para;</a></h3>
+<p>The projector now:
+1. Projects properties on nodes (ID → Ref)
+2. Projects properties on edges (ID → Ref)
+3. Builds filtered references (only used refs)
+4. Builds taxonomy section</p>
+<pre><code class="language-python">@type_safe
+def project(self, graph: Schema__Semantic_Graph) -&gt; Schema__Projected__Semantic_Graph:
+    ontology = self.ontology_registry.get_by_id(graph.ontology_id)
+    taxonomy = self.get_taxonomy(ontology)
+
+    # Build lookup maps
+    node_type_id_to_ref    = self.build_node_type_id_to_ref(ontology)
+    predicate_id_to_ref    = self.build_predicate_id_to_ref(ontology)
+    property_name_id_to_ref = self.build_property_name_id_to_ref(ontology)
+    node_id_to_name        = self.build_node_id_to_name(graph)
+
+    # Project data
+    projected_nodes = self.project_nodes(graph, node_type_id_to_ref, property_name_id_to_ref)
+    projected_edges = self.project_edges(graph, node_id_to_name, predicate_id_to_ref, property_name_id_to_ref)
+
+    # Build filtered references (only what's used)
+    references = self.build_references_filtered(graph, ontology, projected_nodes, projected_edges)
+
+    # Build taxonomy section
+    taxonomy_section = self.build_taxonomy_section(ontology, taxonomy, projected_nodes)
+
+    # Build sources
+    sources = self.build_sources(graph, ontology)
+
+    return Schema__Projected__Semantic_Graph(
+        projection = Schema__Projected__Data(nodes=projected_nodes, edges=projected_edges),
+        references = references,
+        taxonomy   = taxonomy_section,
+        sources    = sources
+    )
+</code></pre>
+<h3 id="92-project-node-properties">9.2 Project Node Properties<a class="headerlink" href="#92-project-node-properties" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def project_node_properties(self,
+                            properties          : Dict__Node_Properties,
+                            property_name_id_to_ref : dict) -&gt; Dict__Projected_Properties:
+    if properties is None:
+        return None
+    result = Dict__Projected_Properties()
+    for prop_id, value in properties.items():
+        prop_ref = property_name_id_to_ref.get(prop_id, Property_Name_Ref(''))
+        result[prop_ref] = value
+    return result
+</code></pre>
+<h3 id="93-build-filtered-references">9.3 Build Filtered References<a class="headerlink" href="#93-build-filtered-references" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def build_references_filtered(self,
+                              graph           : Schema__Semantic_Graph,
+                              ontology        : Schema__Ontology,
+                              projected_nodes : List__Projected__Nodes,
+                              projected_edges : List__Projected__Edges) -&gt; Schema__Projected__References:
+
+    # Collect used refs from projection
+    used_node_type_refs  = {n.ref for n in projected_nodes}
+    used_predicate_refs  = {e.ref for e in projected_edges}
+    used_property_refs   = set()
+
+    for node in projected_nodes:
+        if node.properties:
+            used_property_refs.update(node.properties.keys())
+    for edge in projected_edges:
+        if edge.properties:
+            used_property_refs.update(edge.properties.keys())
+
+    # Build filtered mappings (ref → id for only used refs)
+    node_types = Dict__Node_Type_Ids__By_Ref()
+    for nt in ontology.node_types.values():
+        if nt.node_type_ref in used_node_type_refs:
+            node_types[nt.node_type_ref] = nt.node_type_id
+
+    predicates = Dict__Predicate_Ids__By_Ref()
+    for p in ontology.predicates.values():
+        if p.predicate_ref in used_predicate_refs:
+            predicates[p.predicate_ref] = p.predicate_id
+
+    # ... similar for categories, property_names, property_types
+
+    return Schema__Projected__References(
+        node_types     = node_types,
+        predicates     = predicates,
+        categories     = categories,
+        property_names = property_names,
+        property_types = property_types
+    )
+</code></pre>
+<h3 id="94-build-taxonomy-section">9.4 Build Taxonomy Section<a class="headerlink" href="#94-build-taxonomy-section" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def build_taxonomy_section(self,
+                           ontology        : Schema__Ontology,
+                           taxonomy        : Schema__Taxonomy,
+                           projected_nodes : List__Projected__Nodes) -&gt; Schema__Projected__Taxonomy:
+
+    used_node_type_refs = {n.ref for n in projected_nodes}
+
+    # Map node types to their categories
+    node_type_categories = Dict__Category_Refs__By_Node_Type_Ref()
+    category_ids_used = set()
+
+    for nt in ontology.node_types.values():
+        if nt.node_type_ref in used_node_type_refs and nt.category_id:
+            category = taxonomy.categories.get(nt.category_id)
+            if category:
+                node_type_categories[nt.node_type_ref] = category.category_ref
+                category_ids_used.add(nt.category_id)
+
+    # Build category parent chain (for all used categories and their ancestors)
+    category_parents = Dict__Category_Refs__By_Category_Ref()
+    # ... walk up parent chain for each used category
+
+    return Schema__Projected__Taxonomy(
+        node_type_categories = node_type_categories,
+        category_parents     = category_parents
+    )
+</code></pre>
+<hr />
+<h2 id="10-example-complete-data-flow">10. Example: Complete Data Flow<a class="headerlink" href="#10-example-complete-data-flow" title="Permanent link">&para;</a></h2>
+<h3 id="101-taxonomy">10.1 Taxonomy<a class="headerlink" href="#101-taxonomy" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">taxonomy = Schema__Taxonomy(
+    taxonomy_id  = Taxonomy_Id('tax001'),
+    taxonomy_ref = Taxonomy_Ref('code_elements'),
+    root_id      = Category_Id('cat001'),
+    categories   = {
+        Category_Id('cat001'): Schema__Taxonomy__Category(
+            category_id  = Category_Id('cat001'),
+            category_ref = Category_Ref('code_element'),
+            parent_id    = None,
+            child_ids    = [Category_Id('cat002'), Category_Id('cat003')],
+        ),
+        Category_Id('cat002'): Schema__Taxonomy__Category(
+            category_id  = Category_Id('cat002'),
+            category_ref = Category_Ref('callable'),
+            parent_id    = Category_Id('cat001'),
+            child_ids    = [],
+        ),
+        # ...
+    }
+)
+</code></pre>
+<h3 id="102-ontology">10.2 Ontology<a class="headerlink" href="#102-ontology" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">ontology = Schema__Ontology(
+    ontology_id    = Ontology_Id('ont001'),
+    ontology_ref   = Ontology_Ref('code_structure'),
+    taxonomy_id    = Taxonomy_Id('tax001'),
+
+    node_types = {
+        Node_Type_Id('nt001'): Schema__Ontology__Node_Type(
+            node_type_id  = Node_Type_Id('nt001'),
+            node_type_ref = Node_Type_Ref('method'),
+            category_id   = Category_Id('cat002')           # Links to &quot;callable&quot;
+        ),
+        # ...
+    },
+
+    predicates = {
+        Predicate_Id('pred001'): Schema__Ontology__Predicate(
+            predicate_id  = Predicate_Id('pred001'),
+            predicate_ref = Predicate_Ref('calls'),
+            inverse_id    = Predicate_Id('pred002')
+        ),
+        # ...
+    },
+
+    property_names = {
+        Property_Name_Id('prop001'): Schema__Ontology__Property_Name(
+            property_name_id  = Property_Name_Id('prop001'),
+            property_name_ref = Property_Name_Ref('line_number'),
+            property_type_id  = Property_Type_Id('type001')
+        ),
+        Property_Name_Id('prop002'): Schema__Ontology__Property_Name(
+            property_name_id  = Property_Name_Id('prop002'),
+            property_name_ref = Property_Name_Ref('is_async'),
+            property_type_id  = Property_Type_Id('type002')
+        ),
+    },
+
+    property_types = {
+        Property_Type_Id('type001'): Schema__Ontology__Property_Type(
+            property_type_id  = Property_Type_Id('type001'),
+            property_type_ref = Property_Type_Ref('integer')
+        ),
+        Property_Type_Id('type002'): Schema__Ontology__Property_Type(
+            property_type_id  = Property_Type_Id('type002'),
+            property_type_ref = Property_Type_Ref('boolean')
+        ),
+    },
+
+    edge_rules = [...]
+)
+</code></pre>
+<h3 id="103-graph">10.3 Graph<a class="headerlink" href="#103-graph" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">graph = Schema__Semantic_Graph(
+    graph_id    = Graph_Id('graph001'),
+    ontology_id = Ontology_Id('ont001'),
+
+    nodes = {
+        Node_Id('n001'): Schema__Semantic_Graph__Node(
+            node_id      = Node_Id('n001'),
+            node_type_id = Node_Type_Id('nt001'),
+            name         = Safe_Str__Id('calculate_sum'),
+            properties   = {
+                Property_Name_Id('prop001'): Safe_Str__Text('42'),
+                Property_Name_Id('prop002'): Safe_Str__Text('false'),
+            }
+        ),
+        Node_Id('n002'): Schema__Semantic_Graph__Node(
+            node_id      = Node_Id('n002'),
+            node_type_id = Node_Type_Id('nt002'),
+            name         = Safe_Str__Id('helper'),
+            properties   = {
+                Property_Name_Id('prop001'): Safe_Str__Text('87'),
+            }
+        ),
+    },
+
+    edges = [
+        Schema__Semantic_Graph__Edge(
+            edge_id      = Edge_Id('e001'),
+            from_node_id = Node_Id('n001'),
+            to_node_id   = Node_Id('n002'),
+            predicate_id = Predicate_Id('pred001'),
+            properties   = {
+                Property_Name_Id('prop003'): Safe_Str__Text('3'),
+            }
+        ),
+    ]
+)
+</code></pre>
+<h3 id="104-projection-output">10.4 Projection Output<a class="headerlink" href="#104-projection-output" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">projection:
+  nodes:
+    - ref: &quot;method&quot;
+      name: &quot;calculate_sum&quot;
+      properties:
+        line_number: &quot;42&quot;
+        is_async: &quot;false&quot;
+    - ref: &quot;function&quot;
+      name: &quot;helper&quot;
+      properties:
+        line_number: &quot;87&quot;
+  edges:
+    - from_name: &quot;calculate_sum&quot;
+      to_name: &quot;helper&quot;
+      ref: &quot;calls&quot;
+      properties:
+        call_count: &quot;3&quot;
+
+references:
+  node_types:
+    method: &quot;nt001&quot;
+    function: &quot;nt002&quot;
+  predicates:
+    calls: &quot;pred001&quot;
+  categories:
+    callable: &quot;cat002&quot;
+    code_element: &quot;cat001&quot;
+  property_names:
+    line_number: &quot;prop001&quot;
+    is_async: &quot;prop002&quot;
+    call_count: &quot;prop003&quot;
+  property_types:
+    integer: &quot;type001&quot;
+    boolean: &quot;type002&quot;
+
+taxonomy:
+  node_type_categories:
+    method: &quot;callable&quot;
+    function: &quot;callable&quot;
+  category_parents:
+    callable: &quot;code_element&quot;
+    code_element: null
+
+sources:
+  source_graph_id: &quot;graph001&quot;
+  ontology_seed: null
+  generated_at: 1704412800000
+</code></pre>
+<hr />
+<h2 id="11-file-structure">11. File Structure<a class="headerlink" href="#11-file-structure" title="Permanent link">&para;</a></h2>
+<h3 id="111-new-files">11.1 New Files<a class="headerlink" href="#111-new-files" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/helpers/semantic_graphs/
+├── schemas/
+│   ├── identifier/
+│   │   ├── Property_Name_Id.py                     # NEW
+│   │   ├── Property_Name_Ref.py                    # NEW
+│   │   ├── Property_Type_Id.py                     # NEW
+│   │   └── Property_Type_Ref.py                    # NEW
+│   ├── ontology/
+│   │   ├── Schema__Ontology__Property_Name.py     # NEW
+│   │   └── Schema__Ontology__Property_Type.py     # NEW
+│   ├── rule/
+│   │   ├── Schema__Rule__Required_Node_Property.py # NEW
+│   │   └── Schema__Rule__Required_Edge_Property.py # NEW
+│   ├── collection/
+│   │   ├── Dict__Categories__By_Id.py             # NEW (was By_Ref)
+│   │   ├── Dict__Property_Names__By_Id.py         # NEW
+│   │   ├── Dict__Property_Types__By_Id.py         # NEW
+│   │   ├── Dict__Node_Properties.py               # NEW
+│   │   ├── Dict__Edge_Properties.py               # NEW
+│   │   ├── Dict__Projected_Properties.py          # NEW
+│   │   ├── Dict__Category_Ids__By_Ref.py          # NEW
+│   │   ├── Dict__Property_Name_Ids__By_Ref.py     # NEW
+│   │   ├── Dict__Property_Type_Ids__By_Ref.py     # NEW
+│   │   ├── Dict__Category_Refs__By_Node_Type_Ref.py  # NEW
+│   │   ├── Dict__Category_Refs__By_Category_Ref.py   # NEW
+│   │   ├── List__Rules__Required_Node_Property.py    # NEW
+│   │   └── List__Rules__Required_Edge_Property.py    # NEW
+│   └── projected/
+│       └── Schema__Projected__Taxonomy.py         # NEW
+</code></pre>
+<h3 id="112-modified-files">11.2 Modified Files<a class="headerlink" href="#112-modified-files" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/helpers/semantic_graphs/
+├── schemas/
+│   ├── taxonomy/
+│   │   ├── Schema__Taxonomy.py                    # MODIFIED: root_id, categories by ID
+│   │   └── Schema__Taxonomy__Category.py          # MODIFIED: ID-based
+│   ├── ontology/
+│   │   └── Schema__Ontology.py                    # MODIFIED: property_names, property_types
+│   │   └── Schema__Ontology__Node_Type.py         # MODIFIED: category_id
+│   ├── graph/
+│   │   ├── Schema__Semantic_Graph__Node.py        # MODIFIED: properties
+│   │   └── Schema__Semantic_Graph__Edge.py        # MODIFIED: properties
+│   ├── rule/
+│   │   └── Schema__Rule_Set.py                    # MODIFIED: required_*_properties
+│   └── projected/
+│       ├── Schema__Projected__Node.py             # MODIFIED: properties
+│       ├── Schema__Projected__Edge.py             # MODIFIED: properties
+│       ├── Schema__Projected__References.py       # MODIFIED: categories, property_names, property_types
+│       └── Schema__Projected__Semantic_Graph.py   # MODIFIED: taxonomy section
+├── projectors/
+│   └── Semantic_Graph__Projector.py               # MODIFIED: properties, filtering, taxonomy
+└── taxonomy/
+    └── Taxonomy__Utils.py                         # MODIFIED: ID-based operations
+</code></pre>
+<hr />
+<h2 id="12-implementation-checklist">12. Implementation Checklist<a class="headerlink" href="#12-implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-identifier-types">Phase 1: Identifier Types<a class="headerlink" href="#phase-1-identifier-types" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>Property_Name_Id</code> extending <code>Semantic_Id</code></li>
+<li>[ ] Create <code>Property_Name_Ref</code> extending <code>Semantic_Ref</code></li>
+<li>[ ] Create <code>Property_Type_Id</code> extending <code>Semantic_Id</code></li>
+<li>[ ] Create <code>Property_Type_Ref</code> extending <code>Semantic_Ref</code></li>
+</ul>
+<h3 id="phase-2-taxonomy-updates">Phase 2: Taxonomy Updates<a class="headerlink" href="#phase-2-taxonomy-updates" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Update <code>Schema__Taxonomy__Category</code> to ID-based (category_id, parent_id, child_ids)</li>
+<li>[ ] Update <code>Schema__Taxonomy</code> (root_id, Dict__Categories__By_Id)</li>
+<li>[ ] Create <code>Dict__Categories__By_Id</code> collection</li>
+<li>[ ] Update <code>List__Category_Ids</code> if needed</li>
+<li>[ ] Update <code>Taxonomy__Utils</code> for ID-based operations</li>
+<li>[ ] Update <code>Taxonomy__Registry</code> for ID-based lookups</li>
+</ul>
+<h3 id="phase-3-ontology-property-system">Phase 3: Ontology Property System<a class="headerlink" href="#phase-3-ontology-property-system" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>Schema__Ontology__Property_Name</code></li>
+<li>[ ] Create <code>Schema__Ontology__Property_Type</code></li>
+<li>[ ] Create <code>Dict__Property_Names__By_Id</code></li>
+<li>[ ] Create <code>Dict__Property_Types__By_Id</code></li>
+<li>[ ] Update <code>Schema__Ontology</code> to include property_names, property_types</li>
+<li>[ ] Update <code>Schema__Ontology__Node_Type</code> to include category_id</li>
+<li>[ ] Update <code>Ontology__Utils</code> for property lookups</li>
+</ul>
+<h3 id="phase-4-graph-properties">Phase 4: Graph Properties<a class="headerlink" href="#phase-4-graph-properties" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>Dict__Node_Properties</code> (Property_Name_Id → Safe_Str__Text)</li>
+<li>[ ] Create <code>Dict__Edge_Properties</code> (Property_Name_Id → Safe_Str__Text)</li>
+<li>[ ] Update <code>Schema__Semantic_Graph__Node</code> to include properties</li>
+<li>[ ] Update <code>Schema__Semantic_Graph__Edge</code> to include properties</li>
+<li>[ ] Update <code>Semantic_Graph__Utils</code> for property queries</li>
+<li>[ ] Update <code>Semantic_Graph__Builder</code> for property support</li>
+</ul>
+<h3 id="phase-5-rules-updates">Phase 5: Rules Updates<a class="headerlink" href="#phase-5-rules-updates" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>Schema__Rule__Required_Node_Property</code></li>
+<li>[ ] Create <code>Schema__Rule__Required_Edge_Property</code></li>
+<li>[ ] Create <code>List__Rules__Required_Node_Property</code></li>
+<li>[ ] Create <code>List__Rules__Required_Edge_Property</code></li>
+<li>[ ] Update <code>Schema__Rule_Set</code> to include new rule types</li>
+<li>[ ] Update <code>Rule_Set__Utils</code> for property validation</li>
+</ul>
+<h3 id="phase-6-projection-updates">Phase 6: Projection Updates<a class="headerlink" href="#phase-6-projection-updates" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>Dict__Projected_Properties</code> (Property_Name_Ref → Safe_Str__Text)</li>
+<li>[ ] Update <code>Schema__Projected__Node</code> to include properties</li>
+<li>[ ] Update <code>Schema__Projected__Edge</code> to include properties</li>
+<li>[ ] Create <code>Dict__Category_Ids__By_Ref</code></li>
+<li>[ ] Create <code>Dict__Property_Name_Ids__By_Ref</code></li>
+<li>[ ] Create <code>Dict__Property_Type_Ids__By_Ref</code></li>
+<li>[ ] Update <code>Schema__Projected__References</code> with new fields</li>
+<li>[ ] Create <code>Dict__Category_Refs__By_Node_Type_Ref</code></li>
+<li>[ ] Create <code>Dict__Category_Refs__By_Category_Ref</code></li>
+<li>[ ] Create <code>Schema__Projected__Taxonomy</code></li>
+<li>[ ] Update <code>Schema__Projected__Semantic_Graph</code> with taxonomy section</li>
+</ul>
+<h3 id="phase-7-projector-updates">Phase 7: Projector Updates<a class="headerlink" href="#phase-7-projector-updates" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add <code>build_property_name_id_to_ref()</code> method</li>
+<li>[ ] Update <code>project_nodes()</code> to project properties</li>
+<li>[ ] Update <code>project_edges()</code> to project properties</li>
+<li>[ ] Implement <code>build_references_filtered()</code> (bug fix)</li>
+<li>[ ] Implement <code>build_taxonomy_section()</code></li>
+<li>[ ] Update main <code>project()</code> method</li>
+</ul>
+<h3 id="phase-8-test-data-tests">Phase 8: Test Data &amp; Tests<a class="headerlink" href="#phase-8-test-data-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Update <code>QA__Semantic_Graphs__Test_Data</code> for new structures</li>
+<li>[ ] Add property test data</li>
+<li>[ ] Add taxonomy integration tests</li>
+<li>[ ] Add projection filtering tests</li>
+<li>[ ] Update expected output constants</li>
+</ul>
+<hr />
+<h2 id="13-success-criteria">13. Success Criteria<a class="headerlink" href="#13-success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="131-taxonomy-is-connected">13.1 Taxonomy Is Connected<a class="headerlink" href="#131-taxonomy-is-connected" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__node_type_links_to_category(self):
+    ontology = create_ontology()
+    taxonomy = create_taxonomy()
+
+    method_type = ontology.node_types.get(method_type_id)
+    category = taxonomy.categories.get(method_type.category_id)
+
+    assert category.category_ref == 'callable'
+</code></pre>
+<h3 id="132-properties-work-end-to-end">13.2 Properties Work End-to-End<a class="headerlink" href="#132-properties-work-end-to-end" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__properties_project_correctly(self):
+    # Schema node with properties
+    node = Schema__Semantic_Graph__Node(
+        node_id      = Node_Id('n001'),
+        node_type_id = method_type_id,
+        name         = Safe_Str__Id('my_method'),
+        properties   = {
+            Property_Name_Id('prop001'): Safe_Str__Text('42')
+        }
+    )
+
+    # Project
+    projected = projector.project(graph)
+
+    # Properties use refs, not IDs
+    projected_node = projected.projection.nodes[0]
+    assert projected_node.properties.get(Property_Name_Ref('line_number')) == '42'
+</code></pre>
+<h3 id="133-references-are-filtered">13.3 References Are Filtered<a class="headerlink" href="#133-references-are-filtered" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__references_only_contain_used_refs(self):
+    projected = projector.project(simple_graph)
+
+    # Only refs used in projection
+    assert len(projected.references.node_types) == 3    # Not full ontology
+    assert 'function' not in projected.references.node_types  # Not used in graph
+</code></pre>
+<h3 id="134-taxonomy-section-enables-grouping">13.4 Taxonomy Section Enables Grouping<a class="headerlink" href="#134-taxonomy-section-enables-grouping" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__taxonomy_section_maps_types_to_categories(self):
+    projected = projector.project(graph)
+
+    # Can look up category for any node type
+    method_category = projected.taxonomy.node_type_categories.get(Node_Type_Ref('method'))
+    assert method_category == Category_Ref('callable')
+
+    # Can walk category hierarchy
+    callable_parent = projected.taxonomy.category_parents.get(Category_Ref('callable'))
+    assert callable_parent == Category_Ref('code_element')
+</code></pre>
+<hr />
+<h2 id="14-summary">14. Summary<a class="headerlink" href="#14-summary" title="Permanent link">&para;</a></h2>
+<h3 id="141-what-this-achieves">14.1 What This Achieves<a class="headerlink" href="#141-what-this-achieves" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>How Addressed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RDF/OWL alignment</strong></td>
+<td>Node types, predicates, properties map to standards</td>
+</tr>
+<tr>
+<td><strong>Taxonomy integration</strong></td>
+<td>Node types link to categories via category_id</td>
+</tr>
+<tr>
+<td><strong>ID-based integrity</strong></td>
+<td>All cross-references use IDs</td>
+</tr>
+<tr>
+<td><strong>Typed properties</strong></td>
+<td>property_type_id with consumer-defined types</td>
+</tr>
+<tr>
+<td><strong>Flexible validation</strong></td>
+<td>Rules separate from definitions</td>
+</tr>
+<tr>
+<td><strong>Human-readable projection</strong></td>
+<td>Properties use refs, taxonomy section for grouping</td>
+</tr>
+<tr>
+<td><strong>Minimal projection</strong></td>
+<td>References filtered to only used refs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="142-the-complete-architecture">14.2 The Complete Architecture<a class="headerlink" href="#142-the-complete-architecture" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                              TAXONOMY                                        │
+│  category_id, category_ref, parent_id, child_ids                            │
+└───────────────────────────────────┬─────────────────────────────────────────┘
+                                    │ category_id (FK)
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              ONTOLOGY                                        │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │
+│  │ Node Types   │ │ Predicates   │ │ Prop Names   │ │ Prop Types   │       │
+│  │ +category_id │ │ +inverse_id  │ │ +type_id     │ │              │       │
+│  └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘       │
+│  ┌──────────────┐                                                           │
+│  │ Edge Rules   │                                                           │
+│  └──────────────┘                                                           │
+└───────────────────────────────────┬─────────────────────────────────────────┘
+                                    │ ontology_id (FK)
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              GRAPH                                           │
+│  ┌─────────────────────────────┐  ┌─────────────────────────────┐          │
+│  │ Nodes                       │  │ Edges                       │          │
+│  │ +node_type_id               │  │ +from_node_id               │          │
+│  │ +properties (name_id→text)  │  │ +to_node_id                 │          │
+│  └─────────────────────────────┘  │ +predicate_id               │          │
+│                                   │ +properties (name_id→text)  │          │
+│                                   └─────────────────────────────┘          │
+└───────────────────────────────────┬─────────────────────────────────────────┘
+                                    │ project()
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            PROJECTION                                        │
+│  ┌───────────────┐ ┌───────────────┐ ┌───────────────┐ ┌───────────────┐   │
+│  │ projection    │ │ references    │ │ taxonomy      │ │ sources       │   │
+│  │ nodes (ref)   │ │ (filtered)    │ │ type→category │ │ provenance    │   │
+│  │ edges (ref)   │ │ ref→id maps   │ │ cat→parent    │ │               │   │
+│  │ +properties   │ │               │ │               │ │               │   │
+│  └───────────────┘ └───────────────┘ └───────────────┘ └───────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<p><em>End of Implementation Brief</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

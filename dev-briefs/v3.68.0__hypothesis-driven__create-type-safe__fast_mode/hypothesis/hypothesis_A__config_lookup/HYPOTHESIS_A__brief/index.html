@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_A__config_lookup/HYPOTHESIS_A__brief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis A: Config Lookup Integration - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis A: Config Lookup Integration";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_A__config_lookup/HYPOTHESIS_A__brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_A__config_lookup/HYPOTHESIS_A__brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis A: Config Lookup Integration</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-a-config-lookup-integration">Hypothesis A: Config Lookup Integration<a class="headerlink" href="#hypothesis-a-config-lookup-integration" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 7, 2026<br />
+<strong>Status</strong>: In Progress<br />
+<strong>Baseline</strong>: <code>jan_7__before__type_safe_changes/benchmark.txt</code></p>
+<hr />
+<h2 id="the-change">The Change<a class="headerlink" href="#the-change" title="Permanent link">&para;</a></h2>
+<p>Add <code>find_type_safe_config()</code> call to <code>Type_Safe.__init__</code> to discover optimization config from calling stack frames.</p>
+<pre><code class="language-python"># Current Type_Safe.__init__ (simplified)
+def __init__(self, **kwargs):
+    # ... existing initialization logic ...
+
+# Hypothesis A: Add config lookup
+def __init__(self, **kwargs):
+    config = find_type_safe_config()      # ← THE CHANGE
+    # For now: just lookup, don't act on flags yet
+    # ... existing initialization logic ...
+</code></pre>
+<hr />
+<h2 id="expected-outcome">Expected Outcome<a class="headerlink" href="#expected-outcome" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Expected Overhead</th>
+<th>Acceptable?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No config in stack</td>
+<td>+200-500 ns</td>
+<td>✓ Yes</td>
+</tr>
+<tr>
+<td>Config present, no flags</td>
+<td>+200-500 ns</td>
+<td>✓ Yes</td>
+</tr>
+<tr>
+<td>Config present, with flags</td>
+<td>+200-500 ns (no action yet)</td>
+<td>✓ Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key constraint</strong>: The lookup overhead must be small enough that it doesn't negate the benefits of the optimizations it enables.</p>
+<hr />
+<h2 id="why-this-matters">Why This Matters<a class="headerlink" href="#why-this-matters" title="Permanent link">&para;</a></h2>
+<p>This is the <strong>foundation</strong> for all subsequent optimizations:</p>
+<pre><code>Hypothesis A (this)     → Config lookup works, overhead acceptable
+    ↓
+Hypothesis B            → skip_setattr flag honored
+    ↓
+Hypothesis C            → skip_validation flag honored
+    ↓
+Hypothesis D            → on_demand_nested flag honored (big win)
+    ↓
+Production integration  → Merge proven optimizations to Type_Safe
+</code></pre>
+<p>If Hypothesis A shows unacceptable overhead, we need to optimize the stack walker before proceeding.</p>
+<hr />
+<h2 id="success-criteria">Success Criteria<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Performance</strong>: Overhead &lt; 1,000 ns when no config present</li>
+<li><strong>Functional</strong>: All existing Type_Safe behavior unchanged</li>
+<li><strong>Tests</strong>: All existing unit tests pass</li>
+<li><strong>Measurable</strong>: Clear before/after comparison via Perf_Benchmark</li>
+</ol>
+<hr />
+<h2 id="test-strategy">Test Strategy<a class="headerlink" href="#test-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="section-c-baseline-current-type_safe">Section C: Baseline (current Type_Safe)<a class="headerlink" href="#section-c-baseline-current-type_safe" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class TS__Empty(Type_Safe):
+    pass
+</code></pre>
+<h3 id="section-d-hypothesis-type_safe__hypothesis_a">Section D: Hypothesis (Type_Safe__Hypothesis_A)<a class="headerlink" href="#section-d-hypothesis-type_safe__hypothesis_a" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class TS__Empty__Hyp_A(Type_Safe__Hypothesis_A):
+    pass
+</code></pre>
+<p><strong>Comparison</strong>: Section D timings vs Section C timings = overhead of config lookup</p>
+<hr />
+<h2 id="files-in-this-hypothesis">Files in This Hypothesis<a class="headerlink" href="#files-in-this-hypothesis" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HYPOTHESIS.md</code></td>
+<td>This document</td>
+</tr>
+<tr>
+<td><code>Type_Safe__Hypothesis_A.py</code></td>
+<td>Hypothesis class with config lookup</td>
+</tr>
+<tr>
+<td><code>test_perf__Hypothesis_A.py</code></td>
+<td>Benchmark tests</td>
+</tr>
+<tr>
+<td><code>benchmark.json</code></td>
+<td>Results (generated)</td>
+</tr>
+<tr>
+<td><code>benchmark.txt</code></td>
+<td>Human-readable results (generated)</td>
+</tr>
+<tr>
+<td><code>benchmark.html</code></td>
+<td>Visual dashboard (generated)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h2>
+<p><em>To be filled after running benchmarks</em></p>
+<h3 id="overhead-measurements">Overhead Measurements<a class="headerlink" href="#overhead-measurements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Baseline (C)</th>
+<th>Hypothesis (D)</th>
+<th>Overhead</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TS__Empty</td>
+<td>___ ns</td>
+<td>___ ns</td>
+<td>___ ns</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td>TS__With_Primitives</td>
+<td>___ ns</td>
+<td>___ ns</td>
+<td>___ ns</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td>TS__With_Nested</td>
+<td>___ ns</td>
+<td>___ ns</td>
+<td>___ ns</td>
+<td>⏳</td>
+</tr>
+</tbody>
+</table>
+<h3 id="verdict">Verdict<a class="headerlink" href="#verdict" title="Permanent link">&para;</a></h3>
+<p>⏳ <strong>Pending</strong> - Awaiting benchmark results</p>
+<hr />
+<h2 id="next-steps-if-successful">Next Steps (if successful)<a class="headerlink" href="#next-steps-if-successful" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Document overhead numbers in Results section above</li>
+<li>Mark hypothesis as ✓ Confirmed</li>
+<li>Proceed to Hypothesis B: <code>skip_setattr</code> flag integration</li>
+<li>Eventually merge to <code>Type_Safe.__init__</code> when full optimization chain proven</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

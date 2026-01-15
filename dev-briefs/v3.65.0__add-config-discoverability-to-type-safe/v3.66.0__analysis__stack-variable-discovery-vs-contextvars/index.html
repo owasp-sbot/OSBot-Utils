@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.66.0__analysis__stack-variable-discovery-vs-contextvars/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Stack Variable Discovery vs Python's contextvars - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Stack Variable Discovery vs Python\u0027s contextvars";
+        var mkdocs_page_input_path = "dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.66.0__analysis__stack-variable-discovery-vs-contextvars.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.66.0__analysis__stack-variable-discovery-vs-contextvars/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Stack Variable Discovery vs Python's contextvars</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="stack-variable-discovery-vs-pythons-contextvars">Stack Variable Discovery vs Python's contextvars<a class="headerlink" href="#stack-variable-discovery-vs-pythons-contextvars" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.66.0   <br />
+<strong>Status</strong>: Design rationale document<br />
+<strong>Purpose</strong>: Explain why Stack Variable Discovery was chosen over <code>contextvars</code> for Type_Safe performance optimization<br />
+<strong>Related</strong>: <code>v3_65_0__stack-variable-discovery__implementation-brief.md</code>, <code>v3_65_0__type-safe-performance-optimization__usage-brief.md</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils</p>
+<hr />
+<h2 id="design-principles">Design Principles<a class="headerlink" href="#design-principles" title="Permanent link">&para;</a></h2>
+<p>The following principles guided the choice of Stack Variable Discovery over <code>contextvars</code>:</p>
+<h3 id="1-explicit-over-implicit">1. Explicit Over Implicit<a class="headerlink" href="#1-explicit-over-implicit" title="Permanent link">&para;</a></h3>
+<p>Context should be explicitly created where it's used, not declared at module level and implicitly available everywhere. Code readability matters — anyone reading a function should be able to see where context comes from.</p>
+<h3 id="2-lexical-scoping">2. Lexical Scoping<a class="headerlink" href="#2-lexical-scoping" title="Permanent link">&para;</a></h3>
+<p>Python developers understand lexical scope intuitively. A variable exists from its declaration until its scope ends. Context propagation should follow the same model — not introduce new scoping rules that differ between sync and async contexts.</p>
+<h3 id="3-no-global-state">3. No Global State<a class="headerlink" href="#3-no-global-state" title="Permanent link">&para;</a></h3>
+<p>Global state creates hidden dependencies, makes testing harder, and enables spooky action at a distance. Even "thread-safe" or "task-isolated" global state is still global state — it exists at module level, is created at import time, and can be accessed by any code that imports it.</p>
+<h3 id="4-automatic-resource-cleanup">4. Automatic Resource Cleanup<a class="headerlink" href="#4-automatic-resource-cleanup" title="Permanent link">&para;</a></h3>
+<p>Resources should clean themselves up. Requiring manual cleanup (tokens, reset calls, try/finally) is error-prone. The best cleanup is no cleanup — when scope ends, resources disappear.</p>
+<h3 id="5-call-tree-scoping">5. Call-Tree Scoping<a class="headerlink" href="#5-call-tree-scoping" title="Permanent link">&para;</a></h3>
+<p>Context should flow downward through the call tree — to functions you call, not to unrelated code that happens to run in the same task or thread. If you set up context for an operation, only that operation and its sub-operations should see it.</p>
+<h3 id="6-minimal-coupling">6. Minimal Coupling<a class="headerlink" href="#6-minimal-coupling" title="Permanent link">&para;</a></h3>
+<p>Consuming code shouldn't need to import a specific singleton to access context. The less coupling between context provider and context consumer, the better.</p>
+<h3 id="7-no-import-time-side-effects">7. No Import-Time Side Effects<a class="headerlink" href="#7-no-import-time-side-effects" title="Permanent link">&para;</a></h3>
+<p>Module imports should not create stateful objects. Importing a module should be safe and side-effect free. State should be created explicitly when needed, not as a side effect of the import system loading source code.</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Python 3.7+ provides <code>contextvars</code> — a stdlib module designed for propagating context through async code. It's the "obvious" solution for ambient context. However, for OSBot-Utils' ambient context needs, <strong>Stack Variable Discovery (SVD)</strong> was chosen instead.</p>
+<p>This document explains the technical differences and why SVD is the better fit for synchronous, library-internal context propagation where zero global state is a design goal.</p>
+<p><strong>Note</strong>: While Type_Safe performance optimization was the catalyst for formalizing SVD with frame injection caching, the pattern originated from the <code>@timestamp</code> decorator system and has broad applicability across many use cases.</p>
+<hr />
+<h2 id="the-problem-being-solved">The Problem Being Solved<a class="headerlink" href="#the-problem-being-solved" title="Permanent link">&para;</a></h2>
+<p>Type_Safe's <code>__init__</code> method needs to detect whether it's being called inside a "fast mode" scope:</p>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(skip_validation=True)
+with _type_safe_config_:
+    index = MGraph__Index()  # Creates ~20 nested Type_Safe objects
+                             # ALL of them need to see the config
+</code></pre>
+<p><strong>Constraints:</strong></p>
+<ol>
+<li>Cannot modify Type_Safe constructor signatures (hundreds of subclasses)</li>
+<li>Must propagate automatically to arbitrarily nested object creation</li>
+<li>Must self-clean when scope exits</li>
+<li>Should introduce no module-level coupling</li>
+<li>Must be backward compatible (existing code unchanged)</li>
+</ol>
+<hr />
+<h2 id="origin-the-timestamp-decorator">Origin: The @timestamp Decorator<a class="headerlink" href="#origin-the-timestamp-decorator" title="Permanent link">&para;</a></h2>
+<p>Stack Variable Discovery originated from OSBot-Utils' <code>@timestamp</code> profiling system. The <code>@timestamp</code> decorator needs to find a <code>Timestamp_Collector</code> without requiring it to be passed through every function signature:</p>
+<pre><code class="language-python">from osbot_utils.helpers.timestamp_capture.decorators.timestamp import timestamp
+from osbot_utils.helpers.timestamp_capture.Timestamp_Collector import Timestamp_Collector
+
+class MyProcessor:
+
+    @timestamp
+    def process(self, data):
+        return self._transform(self._parse(data))
+
+    @timestamp
+    def _parse(self, data):
+        ...
+
+    @timestamp
+    def _transform(self, data):
+        ...
+
+# The variable MUST be named exactly '_timestamp_collector_'
+_timestamp_collector_ = Timestamp_Collector(name=&quot;profiling_session&quot;)
+
+with _timestamp_collector_:
+    processor = MyProcessor()
+    result = processor.process(data)
+
+_timestamp_collector_.print_report()
+</code></pre>
+<p>The <code>@timestamp</code> decorator walks the call stack looking for a local variable named <code>_timestamp_collector_</code>. If found, it records timing data. If not found, the method executes normally with ~3μs overhead.</p>
+<p><strong>This is the SVD pattern in action</strong> — but the current <code>@timestamp</code> implementation lacks the frame injection caching optimization. Each decorated method does a full stack walk. With frame injection caching, subsequent lookups would be O(1), significantly improving profiling overhead in deep call stacks.</p>
+<hr />
+<h2 id="broader-use-cases">Broader Use Cases<a class="headerlink" href="#broader-use-cases" title="Permanent link">&para;</a></h2>
+<p>Type_Safe optimization was the catalyst for formalizing SVD with frame injection caching, but the pattern has broad applicability.</p>
+<h3 id="use-case-1-profiling-and-instrumentation-timestamp">Use Case 1: Profiling and Instrumentation (@timestamp)<a class="headerlink" href="#use-case-1-profiling-and-instrumentation-timestamp" title="Permanent link">&para;</a></h3>
+<p>As described above, the <code>@timestamp</code> system uses stack walking to find collectors. Any instrumentation that needs to aggregate data across a call tree benefits from SVD:</p>
+<pre><code class="language-python">_metrics_context_ = Metrics_Collector()
+with _metrics_context_:
+    run_complex_workflow()  # All @instrumented methods find the collector
+</code></pre>
+<h3 id="use-case-2-adaptive-application-behavior-mvp-pattern">Use Case 2: Adaptive Application Behavior (MVP Pattern)<a class="headerlink" href="#use-case-2-adaptive-application-behavior-mvp-pattern" title="Permanent link">&para;</a></h3>
+<p>A "Minimum Viable Product/Application" pattern where application behavior adapts based on runtime constraints:</p>
+<pre><code class="language-python">class Application_Context:
+    resource_constrained : bool = False      # Running on limited hardware
+    under_attack         : bool = False      # DDoS or abuse detected
+    budget_exceeded      : bool = False      # API quota nearly exhausted
+    off_peak_hours       : bool = False      # Time-based feature availability
+    geographic_region    : str  = 'default'  # Caller location affects features
+
+    def __enter__(self): return self
+    def __exit__(self, *args): return False
+
+def find_app_context():
+    return find_stack_variable('_app_context_', '_app_context__checked_', Application_Context)
+
+# Feature implementations check context
+class ImageProcessor:
+
+    def process(self, image):
+        ctx = find_app_context()
+
+        if ctx and ctx.resource_constrained:
+            return self._process_fast(image)      # Reduced quality, faster
+        elif ctx and ctx.under_attack:
+            return self._process_minimal(image)   # Bare minimum processing
+        else:
+            return self._process_full(image)      # Full quality
+
+# Usage: Degrade gracefully under load
+_app_context_ = Application_Context(resource_constrained=True, under_attack=True)
+with _app_context_:
+    # All code in this call tree sees the constraints
+    # and automatically adapts behavior
+    handle_user_request(request)
+</code></pre>
+<p>This pattern enables:
+- <strong>Resource-aware processing</strong>: Reduce quality/features when CPU/memory is constrained
+- <strong>Attack mitigation</strong>: Disable expensive features during DDoS
+- <strong>Budget management</strong>: Throttle API calls when approaching quota limits
+- <strong>Time-based features</strong>: Premium features only during business hours
+- <strong>Geographic compliance</strong>: Different feature sets per region</p>
+<h3 id="use-case-3-debug-and-trace-contexts">Use Case 3: Debug and Trace Contexts<a class="headerlink" href="#use-case-3-debug-and-trace-contexts" title="Permanent link">&para;</a></h3>
+<p>Enable detailed logging/tracing for specific operations without global flags:</p>
+<pre><code class="language-python">class Debug_Context:
+    trace_sql      : bool = False
+    trace_http     : bool = False
+    trace_cache    : bool = False
+    log_level      : str  = 'INFO'
+    correlation_id : str  = None
+
+    def __enter__(self): return self
+    def __exit__(self, *args): return False
+
+# Deep in database layer
+def execute_query(sql):
+    ctx = find_debug_context()
+    if ctx and ctx.trace_sql:
+        logger.debug(f&quot;[{ctx.correlation_id}] SQL: {sql}&quot;)
+    ...
+
+# Enable tracing for one specific request
+_debug_context_ = Debug_Context(trace_sql=True, correlation_id=&quot;req-12345&quot;)
+with _debug_context_:
+    process_complex_request()  # All SQL in this call tree is traced
+</code></pre>
+<h3 id="use-case-4-transaction-and-unit-of-work-contexts">Use Case 4: Transaction and Unit of Work Contexts<a class="headerlink" href="#use-case-4-transaction-and-unit-of-work-contexts" title="Permanent link">&para;</a></h3>
+<p>Database transactions, API sessions, or other resources that should be implicitly available:</p>
+<pre><code class="language-python">class Transaction_Context:
+    connection  : Connection
+    read_only   : bool = False
+    isolation   : str  = 'READ_COMMITTED'
+
+    def __enter__(self): return self
+    def __exit__(self, *args): 
+        self.connection.commit()
+        return False
+
+# Repository methods find the transaction automatically
+class UserRepository:
+
+    def find_by_id(self, user_id):
+        ctx = find_transaction_context()
+        conn = ctx.connection if ctx else get_default_connection()
+        return conn.execute(&quot;SELECT * FROM users WHERE id = ?&quot;, user_id)
+
+# Usage
+_transaction_context_ = Transaction_Context(connection=db.begin())
+with _transaction_context_:
+    user = user_repo.find_by_id(123)
+    order = order_repo.find_by_user(user.id)
+    # Both queries use the same transaction, no explicit passing
+</code></pre>
+<h3 id="use-case-5-test-fixtures-and-mocking">Use Case 5: Test Fixtures and Mocking<a class="headerlink" href="#use-case-5-test-fixtures-and-mocking" title="Permanent link">&para;</a></h3>
+<p>Override behavior during tests without modifying production code:</p>
+<pre><code class="language-python">class Test_Context:
+    mock_time      : datetime = None     # Freeze time for deterministic tests
+    mock_random    : float    = None     # Deterministic &quot;random&quot; values
+    skip_external  : bool     = False    # Skip external API calls
+    capture_calls  : list     = None     # Record function calls for assertions
+
+    def __enter__(self): return self
+    def __exit__(self, *args): return False
+
+# Production code checks for test context
+def get_current_time():
+    ctx = find_test_context()
+    if ctx and ctx.mock_time:
+        return ctx.mock_time
+    return datetime.now()
+
+# Tests
+def test__order_expiry():
+    _test_context_ = Test_Context(mock_time=datetime(2025, 1, 1, 12, 0, 0))
+    with _test_context_:
+        order = create_order()
+        assert order.expires_at == datetime(2025, 1, 1, 13, 0, 0)  # 1 hour later
+</code></pre>
+<h3 id="use-case-6-security-and-authorization-contexts">Use Case 6: Security and Authorization Contexts<a class="headerlink" href="#use-case-6-security-and-authorization-contexts" title="Permanent link">&para;</a></h3>
+<p>Propagate security context through call stacks:</p>
+<pre><code class="language-python">class Security_Context:
+    user_id       : str
+    roles         : List[str]
+    permissions   : Set[str]
+    audit_enabled : bool = True
+
+    def __enter__(self): return self
+    def __exit__(self, *args): return False
+
+# Authorization checks deep in the stack
+def delete_document(doc_id):
+    ctx = find_security_context()
+    if not ctx or 'documents.delete' not in ctx.permissions:
+        raise PermissionDenied(&quot;Cannot delete documents&quot;)
+
+    if ctx.audit_enabled:
+        audit_log(f&quot;User {ctx.user_id} deleted document {doc_id}&quot;)
+
+    # Proceed with deletion
+    ...
+
+# Request handler establishes context
+_security_context_ = Security_Context(
+    user_id='user-123',
+    roles=['editor'],
+    permissions={'documents.read', 'documents.write', 'documents.delete'}
+)
+with _security_context_:
+    handle_api_request(request)  # All authorization checks find the context
+</code></pre>
+<h3 id="use-case-7-feature-flags-and-ab-testing">Use Case 7: Feature Flags and A/B Testing<a class="headerlink" href="#use-case-7-feature-flags-and-ab-testing" title="Permanent link">&para;</a></h3>
+<p>Runtime feature flag evaluation with call-tree scoping:</p>
+<pre><code class="language-python">class Feature_Context:
+    enabled_features : Set[str]
+    experiment_group : str = 'control'
+    user_segment     : str = 'default'
+
+    def __enter__(self): return self
+    def __exit__(self, *args): return False
+
+# Feature checks
+def render_checkout():
+    ctx = find_feature_context()
+
+    if ctx and 'new_checkout_flow' in ctx.enabled_features:
+        return render_new_checkout()
+    else:
+        return render_classic_checkout()
+
+# Different users get different features
+_feature_context_ = Feature_Context(
+    enabled_features={'new_checkout_flow', 'dark_mode'},
+    experiment_group='treatment_b'
+)
+with _feature_context_:
+    render_page_for_user()
+</code></pre>
+<hr />
+<h2 id="how-contextvars-works">How contextvars Works<a class="headerlink" href="#how-contextvars-works" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from contextvars import ContextVar
+
+# Module-level declaration (required)
+_config_var: ContextVar[Optional[Type_Safe__Config]] = ContextVar('type_safe_config', default=None)
+
+# Setting context
+def fast_mode():
+    token = _config_var.set(Type_Safe__Config(skip_validation=True))
+    try:
+        yield
+    finally:
+        _config_var.reset(token)
+
+# Reading context (anywhere in code)
+def some_init():
+    config = _config_var.get()
+    if config and config.skip_validation:
+        ...
+</code></pre>
+<p><strong>Key characteristics:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>contextvars</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Declaration</td>
+<td>Module-level <code>ContextVar</code> singleton</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>Per-task (copies on <code>asyncio.create_task</code>)</td>
+</tr>
+<tr>
+<td>Cleanup</td>
+<td>Manual via <code>token.reset()</code></td>
+</tr>
+<tr>
+<td>Propagation</td>
+<td>Automatic to async tasks</td>
+</tr>
+<tr>
+<td>State location</td>
+<td>Thread-local + task-local storage</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="how-stack-variable-discovery-works">How Stack Variable Discovery Works<a class="headerlink" href="#how-stack-variable-discovery-works" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># No module-level declaration needed
+
+# Setting context
+_type_safe_config_ = Type_Safe__Config(skip_validation=True)
+with _type_safe_config_:
+    do_stuff()  # Context available to all callees
+
+# Reading context (anywhere in call stack)
+def some_init():
+    config = find_type_safe_config()  # Walks stack frames
+    if config and config.skip_validation:
+        ...
+</code></pre>
+<p><strong>Key characteristics:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Stack Variable Discovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Declaration</td>
+<td>None (searches for magic variable name)</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>Call-tree only (literal stack frames)</td>
+</tr>
+<tr>
+<td>Cleanup</td>
+<td>Automatic (frame exit = gone)</td>
+</tr>
+<tr>
+<td>Propagation</td>
+<td>Automatic to callees, NOT to spawned tasks</td>
+</tr>
+<tr>
+<td>State location</td>
+<td><code>frame.f_locals</code> (the stack itself)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="critical-issues-with-contextvars">Critical Issues with contextvars<a class="headerlink" href="#critical-issues-with-contextvars" title="Permanent link">&para;</a></h2>
+<h3 id="issue-1-module-level-singleton-coupling">Issue 1: Module-Level Singleton Coupling<a class="headerlink" href="#issue-1-module-level-singleton-coupling" title="Permanent link">&para;</a></h3>
+<p>Every consumer must import the exact same <code>ContextVar</code> instance:</p>
+<pre><code class="language-python"># osbot_utils/config.py
+from contextvars import ContextVar
+
+# Module-level singleton - THIS is the coupling point
+type_safe_config_var: ContextVar = ContextVar('type_safe_config', default=None)
+</code></pre>
+<pre><code class="language-python"># osbot_utils/base_classes/Type_Safe.py
+from osbot_utils.config import type_safe_config_var  # MUST import this exact object
+
+class Type_Safe:
+    def __init__(self, **kwargs):
+        config = type_safe_config_var.get()  # Read from the imported singleton
+        ...
+</code></pre>
+<pre><code class="language-python"># User code - ALSO must import it
+from osbot_utils.config import type_safe_config_var
+
+token = type_safe_config_var.set(Type_Safe__Config(skip_validation=True))
+try:
+    index = MGraph__Index()
+finally:
+    type_safe_config_var.reset(token)  # Manual cleanup required
+</code></pre>
+<p><strong>With SVD, no imports are needed:</strong></p>
+<pre><code class="language-python"># User code - no imports from osbot_utils.config
+_type_safe_config_ = Type_Safe__Config(skip_validation=True)
+with _type_safe_config_:
+    index = MGraph__Index()
+# Automatic cleanup when scope exits
+</code></pre>
+<h3 id="issue-2-import-time-state-creation">Issue 2: Import-Time State Creation<a class="headerlink" href="#issue-2-import-time-state-creation" title="Permanent link">&para;</a></h3>
+<p>The <code>ContextVar</code> is created when the module is first imported:</p>
+<pre><code class="language-python"># osbot_utils/config.py
+from contextvars import ContextVar
+
+# This line EXECUTES at import time
+type_safe_config_var = ContextVar('type_safe_config', default=None)
+print(&quot;I run when anyone imports this module&quot;)  # Side effect!
+</code></pre>
+<pre><code class="language-python"># Somewhere else
+import osbot_utils.config  # &lt;- ContextVar is created NOW, at import time
+</code></pre>
+<p>The singleton exists the moment the module is imported and lives for the entire process lifetime. This violates the principle that imports should be side-effect free.</p>
+<p><strong>With SVD, state is created exactly when you write the assignment:</strong></p>
+<pre><code class="language-python">def my_operation():
+    _type_safe_config_ = Type_Safe__Config(...)  # Created HERE, not at import
+    with _type_safe_config_:
+        ...
+    # Destroyed when scope exits
+</code></pre>
+<h3 id="issue-3-global-mutation-by-any-importer">Issue 3: Global Mutation by Any Importer<a class="headerlink" href="#issue-3-global-mutation-by-any-importer" title="Permanent link">&para;</a></h3>
+<p>Any code that imports the <code>ContextVar</code> can mutate it:</p>
+<pre><code class="language-python"># Some random module, maybe a third-party dependency
+from osbot_utils.config import type_safe_config_var
+
+# Oops, someone changed it for the entire current task
+type_safe_config_var.set(Type_Safe__Config(skip_validation=True))
+
+# No &quot;with&quot; block, no cleanup, this persists for the rest of the task...
+</code></pre>
+<p>There's no protection. The variable is globally accessible to anyone who imports it.</p>
+<p><strong>With SVD, only code in your call stack can see the context:</strong></p>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(skip_validation=True)
+with _type_safe_config_:
+    foo()  # Can find it (you called it)
+
+bar()  # Cannot find it (outside the with block)
+
+# Some other module running in a different call tree? Cannot see it at all.
+</code></pre>
+<h3 id="issue-4-confusing-sync-vs-async-isolation">Issue 4: Confusing Sync vs Async Isolation<a class="headerlink" href="#issue-4-confusing-sync-vs-async-isolation" title="Permanent link">&para;</a></h3>
+<p><code>contextvars</code> behaves differently depending on whether you cross an async boundary:</p>
+<p><strong>Across async task boundary — isolated (copy-on-write):</strong></p>
+<pre><code class="language-python">config_var.set(Config(mode='parent'))
+
+async def child_task():
+    print(config_var.get())              # Sees 'parent' (inherited copy)
+    config_var.set(Config(mode='child'))
+    print(config_var.get())              # Sees 'child'
+
+async def main():
+    await asyncio.create_task(child_task())
+    print(config_var.get())              # Still 'parent' — child had its own copy
+
+asyncio.run(main())
+</code></pre>
+<p><strong>Within same task (sync calls) — NOT isolated:</strong></p>
+<pre><code class="language-python">config_var.set(Config(mode='parent'))
+
+def some_function():
+    config_var.set(Config(mode='oops'))  # Mutates the SAME context
+    # Forgot to reset...
+
+some_function()
+print(config_var.get())  # 'oops' — parent value is GONE!
+</code></pre>
+<p>This creates a confusing mental model:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Isolated?</th>
+<th>Parent value preserved?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parent → spawned async task</td>
+<td>✓</td>
+<td>✓ Copy-on-write</td>
+</tr>
+<tr>
+<td>Parent → sync function call</td>
+<td>✗</td>
+<td>✗ Must use tokens</td>
+</tr>
+<tr>
+<td>Sibling async tasks</td>
+<td>✓</td>
+<td>✓ Each has own copy</td>
+</tr>
+</tbody>
+</table>
+<p>You need the token dance for sync calls:</p>
+<pre><code class="language-python">def some_function():
+    token = config_var.set(Config(mode='temporary'))
+    try:
+        do_stuff()
+    finally:
+        config_var.reset(token)  # Restore previous value — easy to forget!
+</code></pre>
+<p><strong>With SVD, the model is consistent and intuitive:</strong></p>
+<pre><code class="language-python">_config_ = Config(mode='parent')
+with _config_:
+
+    def inner():
+        _config_ = Config(mode='child')  # Shadows parent in this scope
+        with _config_:
+            deep()  # Sees 'child'
+        # 'child' scope ends here
+
+    inner()
+    foo()  # Sees 'parent' — inner's shadow is gone, no token needed
+</code></pre>
+<p>Normal Python scoping rules. No tokens, no copies, no async special cases. The newest variable in the call stack wins, and it disappears when that frame exits.</p>
+<h3 id="issue-5-no-natural-with-block-support">Issue 5: No Natural "with" Block Support<a class="headerlink" href="#issue-5-no-natural-with-block-support" title="Permanent link">&para;</a></h3>
+<p><code>contextvars</code> doesn't provide a context manager. You have to build one:</p>
+<pre><code class="language-python">@contextmanager  
+def fast_mode():
+    token = type_safe_config_var.set(Type_Safe__Config(skip_validation=True))
+    try:
+        yield
+    finally:
+        type_safe_config_var.reset(token)
+</code></pre>
+<p><strong>With SVD, the "with" block is natural Python:</strong></p>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(skip_validation=True)
+with _type_safe_config_:  # Just a regular context manager
+    ...
+</code></pre>
+<p>The context object itself defines <code>__enter__</code> and <code>__exit__</code>. No wrapper needed.</p>
+<hr />
+<h2 id="direct-comparison">Direct Comparison<a class="headerlink" href="#direct-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="visibility-and-access-model">Visibility and Access Model<a class="headerlink" href="#visibility-and-access-model" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>contextvars</th>
+<th>SVD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Declaration</td>
+<td>Module-level singleton</td>
+<td>None (name convention)</td>
+</tr>
+<tr>
+<td>Created when</td>
+<td>Import time</td>
+<td>When you write the assignment</td>
+</tr>
+<tr>
+<td>Consumer must import</td>
+<td>Yes, the exact ContextVar</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Who can access</td>
+<td>Anyone who imports it</td>
+<td>Only your callees (call stack)</td>
+</tr>
+<tr>
+<td>Who can mutate</td>
+<td>Anyone who imports it</td>
+<td>Only code that has the variable in scope</td>
+</tr>
+<tr>
+<td>Visibility direction</td>
+<td>Global (horizontal)</td>
+<td>Downward only (vertical)</td>
+</tr>
+<tr>
+<td>When destroyed</td>
+<td>Never (process lifetime)</td>
+<td>When variable goes out of scope</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scope-and-cleanup-model">Scope and Cleanup Model<a class="headerlink" href="#scope-and-cleanup-model" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>contextvars</th>
+<th>SVD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scope control</td>
+<td>Manual (token/reset)</td>
+<td>Automatic (variable scope)</td>
+</tr>
+<tr>
+<td>"with" block</td>
+<td>You build it yourself</td>
+<td>Natural Python scoping</td>
+</tr>
+<tr>
+<td>Sync call isolation</td>
+<td>✗ Must use tokens</td>
+<td>✓ Automatic</td>
+</tr>
+<tr>
+<td>Async task isolation</td>
+<td>✓ Copy-on-write</td>
+<td>N/A (not designed for async)</td>
+</tr>
+<tr>
+<td>Cleanup on exception</td>
+<td>Must be in finally block</td>
+<td>Automatic (frame exits)</td>
+</tr>
+<tr>
+<td>Risk of forgetting cleanup</td>
+<td>High (token.reset)</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-type_safe-specific-argument">The Type_Safe-Specific Argument<a class="headerlink" href="#the-type_safe-specific-argument" title="Permanent link">&para;</a></h2>
+<h3 id="the-cascade-problem">The Cascade Problem<a class="headerlink" href="#the-cascade-problem" title="Permanent link">&para;</a></h3>
+<p>Creating <code>MGraph__Index</code> triggers a cascade:</p>
+<pre><code>MGraph__Index.__init__
+  ├─ Index__Nodes__By_Id.__init__
+  │    └─ Schema__Index__Data.__init__
+  │         ├─ Type_Safe__Dict.__init__
+  │         └─ Type_Safe__Dict.__init__
+  ├─ Index__Nodes__By_Type.__init__
+  │    └─ ...
+  └─ ... (20+ nested Type_Safe objects)
+</code></pre>
+<p>Each <code>__init__</code> independently needs to check: "Am I in fast mode?"</p>
+<p><strong>With contextvars:</strong></p>
+<pre><code class="language-python">class Type_Safe:
+    def __init__(self, **kwargs):
+        from osbot_utils.config import type_safe_config_var  # Import coupling
+        config = type_safe_config_var.get()                   # Read from global
+        ...
+</code></pre>
+<p>Every Type_Safe subclass now implicitly depends on that import. The coupling is hidden but real.</p>
+<p><strong>With Stack Variable Discovery:</strong></p>
+<pre><code class="language-python">class Type_Safe:
+    def __init__(self, **kwargs):
+        config = find_type_safe_config()  # No import, just searches stack
+        ...
+</code></pre>
+<p>The <code>find_type_safe_config()</code> function is self-contained. It doesn't reference any module-level state — it literally walks stack frames looking for a variable named <code>_type_safe_config_</code>.</p>
+<h3 id="frame-injection-bonus">Frame Injection Bonus<a class="headerlink" href="#frame-injection-bonus" title="Permanent link">&para;</a></h3>
+<p>SVD's frame injection provides a unique optimization for the cascade:</p>
+<pre><code>MGraph__Index.__init__         # Walks 3 frames, finds config, injects into all 3
+  └─ Index__Nodes__By_Id.__init__    # Walks 1 frame, finds injected reference!
+       └─ Schema__Index__Data.__init__   # Walks 1 frame, finds injected reference!
+            └─ Type_Safe__Dict.__init__      # Walks 1 frame, finds injected reference!
+</code></pre>
+<p>After the first discovery, every nested <code>__init__</code> finds the config in its immediate caller's frame. The injection acts as a "breadcrumb trail" through the call stack.</p>
+<p><code>contextvars</code> doesn't have this — but its O(1) lookup is already fast, so this is more of a "nice to have" than a deciding factor.</p>
+<hr />
+<h2 id="decision-matrix">Decision Matrix<a class="headerlink" href="#decision-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>contextvars</th>
+<th>SVD</th>
+<th>Winner for Type_Safe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No global state</td>
+<td>✗ (module-level ContextVar)</td>
+<td>✓</td>
+<td><strong>SVD</strong></td>
+</tr>
+<tr>
+<td>No import-time side effects</td>
+<td>✗ (created at import)</td>
+<td>✓</td>
+<td><strong>SVD</strong></td>
+</tr>
+<tr>
+<td>Protected from external mutation</td>
+<td>✗ (anyone can .set())</td>
+<td>✓</td>
+<td><strong>SVD</strong></td>
+</tr>
+<tr>
+<td>Consistent isolation model</td>
+<td>✗ (sync ≠ async)</td>
+<td>✓</td>
+<td><strong>SVD</strong></td>
+</tr>
+<tr>
+<td>Natural "with" block</td>
+<td>✗ (must wrap)</td>
+<td>✓</td>
+<td><strong>SVD</strong></td>
+</tr>
+<tr>
+<td>Auto-cleanup</td>
+<td>✗ (token-based)</td>
+<td>✓</td>
+<td><strong>SVD</strong></td>
+</tr>
+<tr>
+<td>Zero coupling</td>
+<td>✗ (import required)</td>
+<td>✓</td>
+<td><strong>SVD</strong></td>
+</tr>
+<tr>
+<td>Call-tree scoping</td>
+<td>✗ (task-scoped)</td>
+<td>✓</td>
+<td><strong>SVD</strong></td>
+</tr>
+<tr>
+<td>Async propagation</td>
+<td>✓</td>
+<td>✗</td>
+<td>N/A (not needed)</td>
+</tr>
+<tr>
+<td>Stdlib/supported</td>
+<td>✓</td>
+<td>✗ (custom)</td>
+<td>contextvars</td>
+</tr>
+<tr>
+<td>Lookup performance</td>
+<td>O(1) always</td>
+<td>O(1) after first</td>
+<td>Tie</td>
+</tr>
+</tbody>
+</table>
+<p><strong>For Type_Safe optimization specifically:</strong> SVD wins on the criteria that matter (no global state, call-tree scoping, auto-cleanup, no coupling) and ties or accepts minor tradeoffs on criteria that don't apply (async support not needed).</p>
+<hr />
+<h2 id="when-to-use-each">When to Use Each<a class="headerlink" href="#when-to-use-each" title="Permanent link">&para;</a></h2>
+<h3 id="use-contextvars-when">Use contextvars when:<a class="headerlink" href="#use-contextvars-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Building async-heavy applications</li>
+<li>Need context to propagate to spawned tasks</li>
+<li>Building public APIs where stdlib patterns are expected</li>
+<li>Working with frameworks that integrate with contextvars (e.g., Starlette, FastAPI)</li>
+<li>Need context to survive across <code>await</code> boundaries</li>
+<li>Willing to accept the global singleton and token management</li>
+</ul>
+<h3 id="use-stack-variable-discovery-when">Use Stack Variable Discovery when:<a class="headerlink" href="#use-stack-variable-discovery-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Zero global state</strong> is a design requirement</li>
+<li><strong>Import-time side effects</strong> are unacceptable</li>
+<li>Context should be <strong>strictly call-tree scoped</strong> (not task-scoped)</li>
+<li>Working in <strong>sync-heavy library internals</strong> you control</li>
+<li>Want <strong>automatic cleanup</strong> without token management</li>
+<li>Need <strong>protection from external code</strong> mutating your context</li>
+<li>Building <strong>framework internals</strong> where you control the call topology</li>
+<li>Need the context to <strong>NOT propagate</strong> to background tasks</li>
+<li>Want <strong>natural Python scoping</strong> semantics</li>
+</ul>
+<h3 id="specific-svd-use-cases">Specific SVD Use Cases<a class="headerlink" href="#specific-svd-use-cases" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Why SVD?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@timestamp</code> profiling</td>
+<td>Decorators can't have signatures modified; collector must be discoverable</td>
+</tr>
+<tr>
+<td>Type_Safe fast mode</td>
+<td>Hundreds of subclasses; can't add <code>config</code> param to every <code>__init__</code></td>
+</tr>
+<tr>
+<td>Adaptive MVP</td>
+<td>Constraints should apply to entire call tree, not leak to other requests</td>
+</tr>
+<tr>
+<td>Debug tracing</td>
+<td>Enable tracing for specific operation, auto-disable when done</td>
+</tr>
+<tr>
+<td>Transaction scope</td>
+<td>Connection should be available to all repository calls in scope</td>
+</tr>
+<tr>
+<td>Test mocking</td>
+<td>Override behavior during test, guarantee cleanup</td>
+</tr>
+<tr>
+<td>Security context</td>
+<td>Authorization must be scoped, not globally mutable</td>
+</tr>
+<tr>
+<td>Feature flags</td>
+<td>A/B test assignment must be consistent within a request</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="addressing-common-objections">Addressing Common Objections<a class="headerlink" href="#addressing-common-objections" title="Permanent link">&para;</a></h2>
+<h3 id="but-contextvars-is-in-the-stdlib">"But contextvars is in the stdlib"<a class="headerlink" href="#but-contextvars-is-in-the-stdlib" title="Permanent link">&para;</a></h3>
+<p>True. It's well-tested, maintained, and documented. SVD is a custom pattern.</p>
+<p><strong>Counter:</strong> The pattern is simple (~30 lines), well-understood (stack inspection is a known technique), and the tradeoffs are explicit. For a library that prioritizes "no global state", the custom solution is justified.</p>
+<h3 id="contextvars-doesnt-really-copy-your-objects">"contextvars doesn't really copy your objects"<a class="headerlink" href="#contextvars-doesnt-really-copy-your-objects" title="Permanent link">&para;</a></h3>
+<p>Correct. The context mapping is copied, not the values. Your complex <code>Type_Safe__Config</code> object is passed by reference in both approaches.</p>
+<p><strong>This isn't the concern.</strong> The concern is:
+1. Module-level <code>ContextVar</code> declaration (coupling)
+2. Task-scoped vs call-tree-scoped semantics
+3. Explicit vs automatic cleanup
+4. Global mutability by any importer</p>
+<h3 id="frame-inspection-is-hacky">"Frame inspection is hacky"<a class="headerlink" href="#frame-inspection-is-hacky" title="Permanent link">&para;</a></h3>
+<p>It uses <code>inspect.currentframe()</code> and <code>frame.f_locals</code>, which are documented CPython features. They're used by debuggers, profilers, and even the stdlib's <code>warnings</code> module.</p>
+<p><strong>Acknowledged risk:</strong> These are CPython implementation details. Alternative Python implementations (PyPy, etc.) may behave differently. For OSBot-Utils' use case (CPython-focused), this is acceptable.</p>
+<h3 id="what-about-performance">"What about performance?"<a class="headerlink" href="#what-about-performance" title="Permanent link">&para;</a></h3>
+<p>Measured overhead:
+- SVD first lookup: ~1-3 µs (depth-dependent)
+- SVD subsequent lookups: ~300-500 ns
+- contextvars lookup: ~50-100 ns</p>
+<p><strong>In context:</strong> Type_Safe validation overhead is ~10,000-15,000 ns per object. The lookup mechanism's overhead is noise compared to the savings from skipping validation.</p>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p><code>contextvars</code> is the right choice for most Python context propagation, especially in async codebases. It's stdlib, well-supported, and designed for exactly this purpose.</p>
+<p><strong>Stack Variable Discovery</strong> is the right choice for OSBot-Utils and similar libraries because:</p>
+<ol>
+<li><strong>No global state</strong> — no module-level <code>ContextVar</code> singleton</li>
+<li><strong>No import-time side effects</strong> — state is created when you write the assignment, not when modules load</li>
+<li><strong>Protected from external mutation</strong> — only code in your call stack can see or affect the context</li>
+<li><strong>Consistent isolation model</strong> — same behavior for sync and async, no special cases</li>
+<li><strong>Natural "with" block support</strong> — standard Python context managers, no wrapper needed</li>
+<li><strong>Automatic cleanup</strong> — no token management, exception-safe by design</li>
+<li><strong>Zero coupling</strong> — consumers search for a name, not an imported object</li>
+<li><strong>Call-tree scoping</strong> — context flows downward to callees only</li>
+</ol>
+<h3 id="beyond-type_safe">Beyond Type_Safe<a class="headerlink" href="#beyond-type_safe" title="Permanent link">&para;</a></h3>
+<p>While Type_Safe optimization was the catalyst for formalizing SVD with frame injection caching, the pattern originated from <code>@timestamp</code> and has broad applicability:</p>
+<table>
+<thead>
+<tr>
+<th>Use Case</th>
+<th>Context Object</th>
+<th>Benefit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Profiling</strong> (<code>@timestamp</code>)</td>
+<td><code>Timestamp_Collector</code></td>
+<td>Instrument methods without signature changes</td>
+</tr>
+<tr>
+<td><strong>Adaptive behavior</strong> (MVP)</td>
+<td><code>Application_Context</code></td>
+<td>Degrade gracefully under constraints</td>
+</tr>
+<tr>
+<td><strong>Debug/trace</strong></td>
+<td><code>Debug_Context</code></td>
+<td>Enable tracing for specific operations</td>
+</tr>
+<tr>
+<td><strong>Transactions</strong></td>
+<td><code>Transaction_Context</code></td>
+<td>Implicit connection propagation</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td><code>Test_Context</code></td>
+<td>Mock time, randomness, external calls</td>
+</tr>
+<tr>
+<td><strong>Security</strong></td>
+<td><code>Security_Context</code></td>
+<td>Authorization without explicit passing</td>
+</tr>
+<tr>
+<td><strong>Feature flags</strong></td>
+<td><code>Feature_Context</code></td>
+<td>A/B testing with call-tree scoping</td>
+</tr>
+<tr>
+<td><strong>Configuration</strong></td>
+<td><code>Type_Safe__Config</code></td>
+<td>Skip validation in trusted contexts</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-frame-injection-optimization">The Frame Injection Optimization<a class="headerlink" href="#the-frame-injection-optimization" title="Permanent link">&para;</a></h3>
+<p>The key innovation in SVD is frame injection caching. The existing <code>@timestamp</code> implementation does a full stack walk on every decorated method call. With frame injection:</p>
+<ul>
+<li>First lookup: O(d) where d = stack depth to context</li>
+<li>Subsequent lookups: O(1-2) — injected reference found in caller's frame</li>
+</ul>
+<p>For <code>@timestamp</code> profiling deep call stacks, this reduces overhead significantly. The same optimization applies to all SVD use cases.</p>
+<p>The pattern trades stdlib support and async compatibility for stronger isolation guarantees, cleaner architecture, and alignment with Python's natural scoping model. For library internals where you control the call topology, that's the right tradeoff.</p>
+<hr />
+<h2 id="related-work-existing-python-packages">Related Work: Existing Python Packages<a class="headerlink" href="#related-work-existing-python-packages" title="Permanent link">&para;</a></h2>
+<p>A survey of PyPI and GitHub reveals several packages attempting to solve similar problems. None implement the exact combination of features that Stack Variable Discovery provides.</p>
+<h3 id="comparison-table-dynamic-scoping-packages">Comparison Table: Dynamic Scoping Packages<a class="headerlink" href="#comparison-table-dynamic-scoping-packages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Stars</th>
+<th>Last Update</th>
+<th>Approach</th>
+<th>Production Ready?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>stackful</code></strong></td>
+<td>9</td>
+<td>2011</td>
+<td>Converts globals to stack-scoped via Proxy objects</td>
+<td>Unmaintained</td>
+</tr>
+<tr>
+<td><strong><code>dynamicscope</code></strong></td>
+<td>—</td>
+<td>2022</td>
+<td>Reads/writes caller's <code>f_locals</code> directly</td>
+<td>Author says "no"</td>
+</tr>
+<tr>
+<td><strong><code>dynascope</code></strong></td>
+<td>0</td>
+<td>Recent</td>
+<td>Thread-safe dynamic scope with dataclass support</td>
+<td>Incomplete docs</td>
+</tr>
+<tr>
+<td><strong><code>Dysco</code></strong></td>
+<td>—</td>
+<td>—</td>
+<td>Configurable dynamic scope</td>
+<td>Missing docs</td>
+</tr>
+<tr>
+<td><strong><code>VarScope</code></strong></td>
+<td>—</td>
+<td>—</td>
+<td><code>with</code> blocks only</td>
+<td>Limited</td>
+</tr>
+<tr>
+<td><strong><code>block-scopes</code></strong></td>
+<td>—</td>
+<td>—</td>
+<td><code>with</code> blocks only</td>
+<td>Limited</td>
+</tr>
+<tr>
+<td><strong><code>scoping</code></strong></td>
+<td>—</td>
+<td>Active</td>
+<td>Block scoping for garbage collection</td>
+<td>Different goal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="feature-comparison">Feature Comparison<a class="headerlink" href="#feature-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>SVD</th>
+<th><code>stackful</code></th>
+<th><code>dynamicscope</code></th>
+<th><code>dynascope</code></th>
+<th><code>contextvars</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No global state</td>
+<td>✓</td>
+<td>✗ (Proxy)</td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>No module-level declaration</td>
+<td>✓</td>
+<td>✗</td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Frame injection caching</td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>O(1) repeated lookups</td>
+<td>✓</td>
+<td>✓</td>
+<td>✗</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Type checking on discovery</td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>"Not found" caching</td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Natural <code>with</code> block</td>
+<td>✓</td>
+<td>✓</td>
+<td>✗</td>
+<td>✓</td>
+<td>✗ (manual)</td>
+</tr>
+<tr>
+<td>Thread-safe</td>
+<td>✓</td>
+<td>✓</td>
+<td>?</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Async-safe</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Production recommended</td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+<td>?</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<h3 id="package-details">Package Details<a class="headerlink" href="#package-details" title="Permanent link">&para;</a></h3>
+<h4 id="stackful-erikrosestackful"><code>stackful</code> (erikrose/stackful)<a class="headerlink" href="#stackful-erikrosestackful" title="Permanent link">&para;</a></h4>
+<p>The closest conceptual match. Transforms existing global variables into stack-scoped variables using Proxy objects that intercept all operations.</p>
+<pre><code class="language-python">from stackful import stackful
+
+with stackful('some_global', 8):
+    foo()  # sees some_global as 8
+</code></pre>
+<p><strong>Key differences from SVD:</strong>
+- Requires an existing global variable to transform
+- Uses Proxy objects (operator interception) rather than frame inspection
+- No caching mechanism
+- Unmaintained since 2011</p>
+<h4 id="dynamicscope-mentalisttraceur"><code>dynamicscope</code> (mentalisttraceur)<a class="headerlink" href="#dynamicscope-mentalisttraceur" title="Permanent link">&para;</a></h4>
+<p>Implements true dynamic scoping by directly reading and writing caller's <code>f_locals</code>.</p>
+<pre><code class="language-python">from dynamicscope import DYNAMIC_SCOPE
+
+def inner():
+    print(DYNAMIC_SCOPE.x)  # searches call stack for 'x'
+
+def outer():
+    x = 42
+    inner()  # prints 42
+</code></pre>
+<p><strong>Key differences from SVD:</strong>
+- Accesses/modifies caller's actual local variables (dangerous)
+- No caching — full stack walk every time
+- Author explicitly warns against production use
+- Can delete variables in caller's scope (!)</p>
+<h4 id="dynascope-mikaelhodynascope"><code>dynascope</code> (mikaelho/dynascope)<a class="headerlink" href="#dynascope-mikaelhodynascope" title="Permanent link">&para;</a></h4>
+<p>A more recent attempt with dataclass support and async safety.</p>
+<pre><code class="language-python">from dynascope import scope
+
+scope.x = 42
+
+def inner():
+    print(scope.x)
+</code></pre>
+<p><strong>Key differences from SVD:</strong>
+- Uses <code>contextvars</code> under the hood (inherits its issues)
+- Requires module-level scope object
+- More feature-rich (dataclasses, async) but more complex</p>
+<h4 id="standard-library-contextvars">Standard Library: <code>contextvars</code><a class="headerlink" href="#standard-library-contextvars" title="Permanent link">&para;</a></h4>
+<p>The official solution for async context propagation. See main document sections above for detailed comparison.</p>
+<h3 id="why-svd-is-unique">Why SVD is Unique<a class="headerlink" href="#why-svd-is-unique" title="Permanent link">&para;</a></h3>
+<p>No existing package combines all of:</p>
+<ol>
+<li><strong>Magic variable name discovery</strong> — no global declaration, no imports needed by consumers</li>
+<li><strong>Frame injection caching</strong> — O(1) repeated lookups via breadcrumb trail</li>
+<li><strong>"Not found" caching</strong> — prevents repeated full walks when no context exists</li>
+<li><strong>Type checking</strong> — <code>isinstance()</code> verification during discovery</li>
+<li><strong>Zero global state</strong> — everything lives in stack frames</li>
+<li><strong>Production-ready design</strong> — not a "party trick" or educational tool</li>
+</ol>
+<p>The frame injection caching is particularly novel. When context is found, SVD injects references into all traversed frames, creating a shortcut for subsequent lookups from the same call subtree. No other package implements this optimization.</p>
+<h3 id="conclusion-on-related-work">Conclusion on Related Work<a class="headerlink" href="#conclusion-on-related-work" title="Permanent link">&para;</a></h3>
+<p>The dynamic scoping problem space in Python is underserved:</p>
+<ul>
+<li><strong><code>contextvars</code></strong> solves async context but requires global singletons</li>
+<li><strong><code>stackful</code></strong> is unmaintained and uses a different mechanism</li>
+<li><strong><code>dynamicscope</code></strong> is explicitly not for production</li>
+<li><strong><code>dynascope</code></strong> builds on <code>contextvars</code>, inheriting its limitations</li>
+</ul>
+<p>Stack Variable Discovery fills a gap: a production-ready, zero-global-state, cached stack-walking approach for synchronous context propagation.</p>
+<p><strong>Immediate impact</strong>: The existing <code>@timestamp</code> profiling system in OSBot-Utils can be upgraded with frame injection caching, reducing profiling overhead in deep call stacks from O(d) per call to O(1) for repeated lookups.</p>
+<p><strong>Broader applicability</strong>: The pattern enables a whole class of "ambient context" use cases — adaptive application behavior, debug contexts, transaction scoping, test fixtures, security contexts, and feature flags — all with natural Python scoping semantics and zero global state.</p>
+<p>The pattern may warrant publication as a standalone package (e.g., <code>stack-context</code> or <code>ambient-scope</code>).</p>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://peps.python.org/pep-0567/">PEP 567 — Context Variables</a></li>
+<li><a href="https://docs.python.org/3/library/contextvars.html">contextvars documentation</a></li>
+<li><a href="https://github.com/erikrose/stackful">erikrose/stackful</a> — Dynamically-scoped variables for Python</li>
+<li><a href="https://pypi.org/project/dynamicscope/">mentalisttraceur/dynamicscope</a> — Emulate dynamic scope in Python</li>
+<li><a href="https://github.com/mikaelho/dynascope">mikaelho/dynascope</a> — Dynamic scope for Python</li>
+<li><code>v3_65_0__stack-variable-discovery__implementation-brief.md</code></li>
+<li><code>v3_65_0__type-safe-performance-optimization__usage-brief.md</code></li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

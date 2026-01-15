@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.59.2__timestamp-capture__llm-usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Timestamp Capture - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Timestamp Capture - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.59.2__timestamp-capture__llm-usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.59.2__timestamp-capture__llm-usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Timestamp Capture - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="timestamp-capture-llm-usage-brief">Timestamp Capture - LLM Usage Brief<a class="headerlink" href="#timestamp-capture-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.59.1<br />
+<strong>Purpose</strong>: Guide for LLMs and developers on using the timestamp_capture instrumentation system<br />
+<strong>Location</strong>: <code>osbot_utils.helpers.timestamp_capture</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="1-add-timestamp-to-methods-you-want-to-profile">1. Add @timestamp to Methods You Want to Profile<a class="headerlink" href="#1-add-timestamp-to-methods-you-want-to-profile" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.timestamp_capture.decorators.timestamp import timestamp
+
+class MyProcessor(Type_Safe):
+
+    @timestamp
+    def process(self, data):
+        parsed = self._parse(data)
+        result = self._transform(parsed)
+        return self._output(result)
+
+    @timestamp
+    def _parse(self, data):
+        # parsing logic
+        return parsed_data
+
+    @timestamp
+    def _transform(self, data):
+        # transformation logic
+        return transformed_data
+
+    @timestamp
+    def _output(self, data):
+        # output logic
+        return final_result
+</code></pre>
+<h3 id="2-capture-timing-data">2. Capture Timing Data<a class="headerlink" href="#2-capture-timing-data" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.timestamp_capture.Timestamp_Collector import Timestamp_Collector
+
+# The variable MUST be named exactly '_timestamp_collector_'
+_timestamp_collector_ = Timestamp_Collector(name=&quot;my_profiling_session&quot;)
+
+with _timestamp_collector_:
+    processor = MyProcessor()
+    result = processor.process(data)
+
+# Print results
+_timestamp_collector_.print_report()
+</code></pre>
+<h3 id="3-thats-it">3. That's It<a class="headerlink" href="#3-thats-it" title="Permanent link">&para;</a></h3>
+<p>The <code>@timestamp</code> decorator automatically finds the collector via stack-walking. No need to pass it through function signatures.</p>
+<blockquote>
+<p><strong>Tip</strong>: Use <code>@timestamp(name="custom.metric.name")</code> to override the default method name with a custom, hierarchical name for better report organization. See <a href="#pattern-4-custom-metric-names">Pattern 4: Custom Metric Names</a> for details.</p>
+</blockquote>
+<hr />
+<h2 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="the-magic-variable-name">The Magic Variable Name<a class="headerlink" href="#the-magic-variable-name" title="Permanent link">&para;</a></h3>
+<p>The collector is found by walking the call stack and looking for a local variable named exactly <code>_timestamp_collector_</code>. This is intentional:</p>
+<pre><code class="language-python"># ✅ CORRECT - Will be found
+_timestamp_collector_ = Timestamp_Collector()
+
+# ❌ WRONG - Will NOT be found
+collector = Timestamp_Collector()
+my_collector = Timestamp_Collector()
+timestamp_collector = Timestamp_Collector()
+</code></pre>
+<h3 id="when-no-collector-present">When No Collector Present<a class="headerlink" href="#when-no-collector-present" title="Permanent link">&para;</a></h3>
+<p>If no <code>_timestamp_collector_</code> exists in the call stack, decorated methods execute normally with ~3μs overhead (negligible). This means decorators can safely remain in production code.</p>
+<pre><code class="language-python">@timestamp
+def my_method(self):
+    return 42
+
+# No collector in scope - runs normally, ~3μs overhead
+result = my_method()
+</code></pre>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Core collector
+from osbot_utils.helpers.timestamp_capture.Timestamp_Collector          import Timestamp_Collector
+
+# Decorator
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp         import timestamp
+
+# Decorator for dynamic names from function arguments
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp_args    import timestamp_args
+
+# Context manager for code blocks
+from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block import timestamp_block
+
+# Analysis (optional - for programmatic access)
+from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Analysis import Timestamp_Collector__Analysis
+
+# Reporting (optional - for custom reports)  
+from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Report   import Timestamp_Collector__Report
+</code></pre>
+<hr />
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-simple-method-profiling">Pattern 1: Simple Method Profiling<a class="headerlink" href="#pattern-1-simple-method-profiling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.timestamp_capture.Timestamp_Collector  import Timestamp_Collector
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp import timestamp
+
+class DataProcessor:
+
+    @timestamp
+    def process(self, items):
+        for item in items:
+            self._process_item(item)
+
+    @timestamp
+    def _process_item(self, item):
+        # process single item
+        pass
+
+# Profile it
+_timestamp_collector_ = Timestamp_Collector(name=&quot;data_processing&quot;)
+
+with _timestamp_collector_:
+    processor = DataProcessor()
+    processor.process(my_items)
+
+_timestamp_collector_.print_report()
+</code></pre>
+<h3 id="pattern-2-profiling-code-blocks">Pattern 2: Profiling Code Blocks<a class="headerlink" href="#pattern-2-profiling-code-blocks" title="Permanent link">&para;</a></h3>
+<p>Use <code>timestamp_block</code> for code that isn't in a method:</p>
+<pre><code class="language-python">from osbot_utils.helpers.timestamp_capture.context_managers.timestamp_block import timestamp_block
+
+_timestamp_collector_ = Timestamp_Collector(name=&quot;pipeline&quot;)
+
+with _timestamp_collector_:
+
+    with timestamp_block(&quot;phase_1_loading&quot;):
+        data = load_data()
+
+    with timestamp_block(&quot;phase_2_processing&quot;):
+        result = process(data)
+
+    with timestamp_block(&quot;phase_3_saving&quot;):
+        save(result)
+
+_timestamp_collector_.print_report()
+</code></pre>
+<h3 id="pattern-3-multiple-iterations">Pattern 3: Multiple Iterations<a class="headerlink" href="#pattern-3-multiple-iterations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">_timestamp_collector_ = Timestamp_Collector(name=&quot;batch_processing&quot;)
+
+with _timestamp_collector_:
+    for i, item in enumerate(items):
+        with timestamp_block(f&quot;iteration_{i}&quot;):
+            processor.process(item)
+
+# Report shows aggregated timings per method
+# Plus individual iteration blocks
+_timestamp_collector_.print_report()
+</code></pre>
+<h3 id="pattern-4-custom-metric-names">Pattern 4: Custom Metric Names<a class="headerlink" href="#pattern-4-custom-metric-names" title="Permanent link">&para;</a></h3>
+<p>By default, <code>@timestamp</code> uses the method's qualified name (<code>__qualname__</code>). Use <code>name=</code> to override with custom, meaningful names:</p>
+<pre><code class="language-python">@timestamp(name=&quot;custom.parse.json&quot;)
+def parse_json(self, data):
+    ...
+
+@timestamp(name=&quot;custom.parse.xml&quot;)
+def parse_xml(self, data):
+    ...
+
+# Shows as &quot;custom.parse.json&quot; and &quot;custom.parse.xml&quot; in reports
+# instead of &quot;MyClass.parse_json&quot; and &quot;MyClass.parse_xml&quot;
+</code></pre>
+<p><strong>Use cases for custom names:</strong></p>
+<h4 id="hierarchical-naming-for-pipeline-stages">Hierarchical Naming for Pipeline Stages<a class="headerlink" href="#hierarchical-naming-for-pipeline-stages" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">class DataPipeline:
+
+    @timestamp(name=&quot;pipeline.stage1.extract&quot;)
+    def extract(self, source):
+        ...
+
+    @timestamp(name=&quot;pipeline.stage2.transform&quot;)
+    def transform(self, data):
+        ...
+
+    @timestamp(name=&quot;pipeline.stage3.load&quot;)
+    def load(self, data, destination):
+        ...
+</code></pre>
+<h4 id="grouping-related-operations">Grouping Related Operations<a class="headerlink" href="#grouping-related-operations" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">class FileProcessor:
+
+    @timestamp(name=&quot;io.read.open_file&quot;)
+    def open_file(self, path):
+        ...
+
+    @timestamp(name=&quot;io.read.parse_content&quot;)
+    def parse_content(self, content):
+        ...
+
+    @timestamp(name=&quot;io.write.save_file&quot;)
+    def save_file(self, path, data):
+        ...
+
+# In reports, all io.read.* and io.write.* operations group visually
+</code></pre>
+<h4 id="versioning-or-ab-testing">Versioning or A/B Testing<a class="headerlink" href="#versioning-or-ab-testing" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">@timestamp(name=&quot;algorithm.sort.v1_quicksort&quot;)
+def sort_v1(self, data):
+    # Original implementation
+    ...
+
+@timestamp(name=&quot;algorithm.sort.v2_mergesort&quot;)
+def sort_v2(self, data):
+    # New implementation
+    ...
+
+# Easy to compare performance between versions
+</code></pre>
+<h4 id="consistent-naming-across-classes">Consistent Naming Across Classes<a class="headerlink" href="#consistent-naming-across-classes" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">class JsonParser:
+    @timestamp(name=&quot;parser.parse&quot;)          # Same logical operation
+    def parse(self, content):
+        ...
+
+class XmlParser:
+    @timestamp(name=&quot;parser.parse&quot;)          # Same metric name
+    def parse(self, content):
+        ...
+
+# Both aggregate under &quot;parser.parse&quot; in reports
+# Useful when comparing implementations of same interface
+</code></pre>
+<h4 id="dynamic-looking-names-defined-at-decoration-time">Dynamic-Looking Names (defined at decoration time)<a class="headerlink" href="#dynamic-looking-names-defined-at-decoration-time" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Names are fixed at decoration time, but you can use naming conventions
+@timestamp(name=&quot;handler.request.GET&quot;)
+def handle_get(self):
+    ...
+
+@timestamp(name=&quot;handler.request.POST&quot;)
+def handle_post(self):
+    ...
+
+@timestamp(name=&quot;handler.request.DELETE&quot;)
+def handle_delete(self):
+    ...
+</code></pre>
+<p><strong>Naming best practices:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Example</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>domain.operation</code></td>
+<td><code>parser.parse</code></td>
+<td>Simple categorization</td>
+</tr>
+<tr>
+<td><code>domain.category.operation</code></td>
+<td><code>io.read.open_file</code></td>
+<td>Hierarchical grouping</td>
+</tr>
+<tr>
+<td><code>component.stage.action</code></td>
+<td><code>pipeline.stage1.extract</code></td>
+<td>Pipeline stages</td>
+</tr>
+<tr>
+<td><code>feature.version.method</code></td>
+<td><code>algorithm.v2.sort</code></td>
+<td>A/B testing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pattern-5-dynamic-names-from-function-arguments">Pattern 5: Dynamic Names from Function Arguments<a class="headerlink" href="#pattern-5-dynamic-names-from-function-arguments" title="Permanent link">&para;</a></h3>
+<p>When a method is called multiple times with different arguments and you need to distinguish each call in reports, use <code>@timestamp_args</code>. This interpolates function argument values into the metric name at runtime.</p>
+<pre><code class="language-python">from osbot_utils.helpers.timestamp_capture.decorators.timestamp_args import timestamp_args
+
+class DocumentBuilder:
+
+    @timestamp_args(name=&quot;link_component({name})&quot;)
+    def _link_component(self, name: str, root_id: int):
+        # Link a component graph to the document
+        ...
+
+# Each call is tracked separately:
+builder._link_component(&quot;head&quot;, 1)
+builder._link_component(&quot;body&quot;, 2)
+builder._link_component(&quot;attrs&quot;, 3)
+</code></pre>
+<p><strong>Timeline shows each call distinctly:</strong></p>
+<pre><code>20.879ms           ▶ link_component(head)
+21.846ms           ◀ link_component(head)
+21.860ms           ▶ link_component(body)
+22.659ms           ◀ link_component(body)
+22.671ms           ▶ link_component(attrs)
+23.433ms           ◀ link_component(attrs)
+</code></pre>
+<p><strong>Hotspots show individual breakdowns:</strong></p>
+<pre><code>link_component(head)     0.97ms [1 call]
+link_component(body)     0.80ms [1 call]
+link_component(attrs)    0.76ms [1 call]
+</code></pre>
+<h4 id="when-to-use-timestamp_args-vs-timestamp">When to use <code>@timestamp_args</code> vs <code>@timestamp</code><a class="headerlink" href="#when-to-use-timestamp_args-vs-timestamp" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Decorator</th>
+<th>Name Resolution</th>
+<th>Use When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@timestamp</code></td>
+<td>At decoration time (static)</td>
+<td>Same name for all calls</td>
+</tr>
+<tr>
+<td><code>@timestamp_args</code></td>
+<td>At call time (dynamic)</td>
+<td>Need to distinguish calls by argument values</td>
+</tr>
+</tbody>
+</table>
+<h4 id="supported-argument-patterns">Supported Argument Patterns<a class="headerlink" href="#supported-argument-patterns" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Positional arguments
+@timestamp_args(name=&quot;process.{item_type}&quot;)
+def process(item_type: str, data: dict):
+    ...
+
+# Multiple arguments
+@timestamp_args(name=&quot;handler.{method}.{path}&quot;)
+def handle_request(method: str, path: str):
+    ...
+
+# Keyword-only arguments (after *)
+@timestamp_args(name=&quot;config.{env}.{region}&quot;)
+def configure(*, env: str, region: str = &quot;us-east-1&quot;):
+    ...
+
+# Mixed positional and keyword-only
+@timestamp_args(name=&quot;request.{method}&quot;)
+def make_request(method: str, *, timeout: int = 30):
+    ...
+
+# Using default values (defaults are interpolated too)
+@timestamp_args(name=&quot;cache.{strategy}&quot;)
+def cache_data(data: dict, *, strategy: str = &quot;lru&quot;):
+    ...
+# cache_data({&quot;a&quot;: 1}) → &quot;cache.lru&quot;
+# cache_data({&quot;a&quot;: 1}, strategy=&quot;fifo&quot;) → &quot;cache.fifo&quot;
+</code></pre>
+<h4 id="real-world-example">Real-World Example<a class="headerlink" href="#real-world-example" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">class Html_MGraph__Document:
+
+    @timestamp(name=&quot;html_mgraph.document.setup&quot;)
+    def setup(self):
+        self.head_graph  = Html_MGraph__Head().setup()
+        self.body_graph  = Html_MGraph__Body().setup()
+        self.attrs_graph = Html_MGraph__Attributes().setup()
+
+        # Each link is tracked separately
+        self._link_component_graph('head', self.head_graph.root_id)
+        self._link_component_graph('body', self.body_graph.root_id)
+        self._link_component_graph('attrs', self.attrs_graph.root_id)
+        return self
+
+    @timestamp_args(name=&quot;html_mgraph.document._link_component_graph({name})&quot;)
+    def _link_component_graph(self, name: str, component_root_id: Node_Id):
+        # Now each call shows which component in timeline/reports
+        ...
+</code></pre>
+<p><strong>Important:</strong> <code>@timestamp_args</code> requires at least one <code>{placeholder}</code> in the name. For static names, use <code>@timestamp</code> instead (lower overhead).</p>
+<h4 id="advanced-format-patterns">Advanced Format Patterns<a class="headerlink" href="#advanced-format-patterns" title="Permanent link">&para;</a></h4>
+<p>Since <code>@timestamp_args</code> uses Python's standard <code>.format()</code> under the hood, you get access to powerful formatting features for free:</p>
+<p><strong>Accessing <code>self</code> and Instance Attributes</strong></p>
+<pre><code class="language-python">class Html_MGraph__Base(Type_Safe):
+
+    @timestamp_args(name=&quot;html_mgraph.{self.__class__.__name__}.setup&quot;)
+    def setup(self):
+        ...
+
+# When called on subclasses:
+# Html_MGraph__Head().setup()   → &quot;html_mgraph.Html_MGraph__Head.setup&quot;
+# Html_MGraph__Body().setup()   → &quot;html_mgraph.Html_MGraph__Body.setup&quot;
+# Html_MGraph__Styles().setup() → &quot;html_mgraph.Html_MGraph__Styles.setup&quot;
+</code></pre>
+<p>This is powerful for base classes where multiple subclasses inherit the same method - each shows its actual runtime type in reports.</p>
+<p><strong>Accessing Instance Properties</strong></p>
+<pre><code class="language-python">class Processor(Type_Safe):
+    name: str = ''
+
+    @timestamp_args(name=&quot;processor.{self.name}.execute&quot;)
+    def execute(self, data):
+        ...
+
+processor = Processor(name=&quot;image_converter&quot;)
+processor.execute(data)  # → &quot;processor.image_converter.execute&quot;
+</code></pre>
+<p><strong>Format Specifications for Alignment</strong></p>
+<p>Use format specs to ensure consistent column alignment in reports:</p>
+<pre><code class="language-python">@timestamp_args(name=&quot;link_component({name:7})&quot;)
+def _link_component(self, name: str, root_id: int):
+    ...
+
+# Results in aligned output:
+# link_component(head   )
+# link_component(body   )
+# link_component(attrs  )
+# link_component(scripts)
+# link_component(styles )
+</code></pre>
+<p><strong>Available Format Specs</strong></p>
+<table>
+<thead>
+<tr>
+<th>Spec</th>
+<th>Input</th>
+<th>Result</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{name}</code></td>
+<td><code>"head"</code></td>
+<td><code>"head"</code></td>
+<td>Default</td>
+</tr>
+<tr>
+<td><code>{name:10}</code></td>
+<td><code>"head"</code></td>
+<td><code>"head      "</code></td>
+<td>Fixed width</td>
+</tr>
+<tr>
+<td><code>{name:&lt;10}</code></td>
+<td><code>"head"</code></td>
+<td><code>"head      "</code></td>
+<td>Left align</td>
+</tr>
+<tr>
+<td><code>{name:&gt;10}</code></td>
+<td><code>"head"</code></td>
+<td><code>"      head"</code></td>
+<td>Right align</td>
+</tr>
+<tr>
+<td><code>{name:^10}</code></td>
+<td><code>"head"</code></td>
+<td><code>"   head   "</code></td>
+<td>Center</td>
+</tr>
+<tr>
+<td><code>{id:04d}</code></td>
+<td><code>42</code></td>
+<td><code>"0042"</code></td>
+<td>Zero-padded numbers</td>
+</tr>
+<tr>
+<td><code>{val:.2f}</code></td>
+<td><code>3.14159</code></td>
+<td><code>"3.14"</code></td>
+<td>Decimal places</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Combining Patterns</strong></p>
+<pre><code class="language-python">class DataPipeline(Type_Safe):
+    pipeline_id: str = ''
+
+    @timestamp_args(name=&quot;pipeline.{self.pipeline_id}.stage.{stage_name:12}&quot;)
+    def run_stage(self, stage_name: str, data: dict):
+        ...
+
+pipeline = DataPipeline(pipeline_id=&quot;etl_001&quot;)
+pipeline.run_stage(&quot;extract&quot;, data)    # → &quot;pipeline.etl_001.stage.extract     &quot;
+pipeline.run_stage(&quot;transform&quot;, data)  # → &quot;pipeline.etl_001.stage.transform   &quot;
+pipeline.run_stage(&quot;load&quot;, data)       # → &quot;pipeline.etl_001.stage.load        &quot;
+</code></pre>
+<p><strong>Common Patterns Summary</strong></p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Example</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{self.__class__.__name__}</code></td>
+<td><code>MyClass</code></td>
+<td>Polymorphic methods in base classes</td>
+</tr>
+<tr>
+<td><code>{self.name}</code></td>
+<td><code>my_instance</code></td>
+<td>Instance identification</td>
+</tr>
+<tr>
+<td><code>{arg:N}</code></td>
+<td><code>value</code></td>
+<td>Column alignment in reports</td>
+</tr>
+<tr>
+<td><code>{self.id}.{operation}</code></td>
+<td><code>proc_1.execute</code></td>
+<td>Namespaced operations</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pattern-6-programmatic-analysis">Pattern 6: Programmatic Analysis<a class="headerlink" href="#pattern-6-programmatic-analysis" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Analysis import Timestamp_Collector__Analysis
+
+_timestamp_collector_ = Timestamp_Collector()
+
+with _timestamp_collector_:
+    do_work()
+
+# Get analysis object
+analysis = Timestamp_Collector__Analysis(collector=_timestamp_collector_)
+
+# Get method timings as dict
+timings = analysis.get_method_timings()
+for name, timing in timings.items():
+    print(f&quot;{name}: {timing.total_ns / 1_000_000:.2f}ms ({timing.call_count} calls)&quot;)
+
+# Get hotspots (sorted by self-time)
+hotspots = analysis.get_hotspots(top_n=5)
+for timing in hotspots:
+    print(f&quot;Hotspot: {timing.name} - {timing.self_ns / 1_000_000:.2f}ms self-time&quot;)
+
+# Get timings sorted by total time
+by_total = analysis.get_timings_by_total()
+
+# Get timings sorted by call count
+by_calls = analysis.get_timings_by_call_count()
+</code></pre>
+<h3 id="pattern-7-test-performance-assertions">Pattern 7: Test Performance Assertions<a class="headerlink" href="#pattern-7-test-performance-assertions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_process_performance(self):
+    _timestamp_collector_ = Timestamp_Collector(name=&quot;perf_test&quot;)
+
+    with _timestamp_collector_:
+        processor.process(test_data)
+
+    analysis = Timestamp_Collector__Analysis(collector=_timestamp_collector_)
+    timings = analysis.get_method_timings()
+
+    # Assert specific methods complete within time budget
+    assert timings['_parse'].total_ns &lt; 10_000_000      # &lt; 10ms
+    assert timings['_transform'].total_ns &lt; 50_000_000  # &lt; 50ms
+
+    # Assert total time
+    assert _timestamp_collector_.total_duration_ms() &lt; 100  # &lt; 100ms
+</code></pre>
+<hr />
+<h2 id="report-types">Report Types<a class="headerlink" href="#report-types" title="Permanent link">&para;</a></h2>
+<h3 id="print_report-comprehensive-timing-report">print_report() - Comprehensive Timing Report<a class="headerlink" href="#print_report-comprehensive-timing-report" title="Permanent link">&para;</a></h3>
+<pre><code>====================================================================================================
+Timestamp Report: my_workflow
+====================================================================================================
+
+  Total Duration : 156.78 ms
+  Entry Count    : 324
+  Methods Traced : 6
+
+Method Timings (sorted by total time):
+----------------------------------------------------------------------------------------------------
+Method                                             Calls      Total       Self      Avg    %Total
+----------------------------------------------------------------------------------------------------
+MyProcessor.process                                    1   145.23ms   12.34ms 145.230ms   92.6%
+MyProcessor._transform                                 1    89.45ms   89.45ms  89.450ms   57.0%
+MyProcessor._parse                                     1    32.12ms   32.12ms  32.120ms   20.5%
+MyProcessor._output                                    1    11.32ms   11.32ms  11.320ms    7.2%
+----------------------------------------------------------------------------------------------------
+
+====================================================================================================
+</code></pre>
+<p><strong>Key columns:</strong>
+- <strong>Total</strong>: Time including all child method calls
+- <strong>Self</strong>: Time excluding child method calls (actual work in this method)
+- <strong>Avg</strong>: Average time per call
+- <strong>%Total</strong>: Percentage of total captured time</p>
+<h3 id="print_hotspots-top-methods-by-self-time">print_hotspots() - Top Methods by Self-Time<a class="headerlink" href="#print_hotspots-top-methods-by-self-time" title="Permanent link">&para;</a></h3>
+<pre><code>================================================================================
+Top 10 Hotspots (by self-time)
+================================================================================
+   1. _transform                               89.45ms (57.0%) [1 calls]
+   2. _parse                                   32.12ms (20.5%) [1 calls]
+   3. MyProcessor.process                      12.34ms ( 7.9%) [1 calls]
+   4. _output                                  11.32ms ( 7.2%) [1 calls]
+================================================================================
+</code></pre>
+<p><strong>Use this to find where time is actually spent</strong>, not just which methods take longest (which may be due to calling slow children).</p>
+<h3 id="print_timeline-chronological-execution-view">print_timeline() - Chronological Execution View<a class="headerlink" href="#print_timeline-chronological-execution-view" title="Permanent link">&para;</a></h3>
+<pre><code>================================================================================
+Execution Timeline
+================================================================================
+     0.000ms ▶ Pipeline.run
+     0.015ms   ▶ Pipeline._load_data
+     5.234ms     ▶ FileReader.read
+     8.891ms       ▶ FileReader._open_file
+    12.456ms       ◀ FileReader._open_file
+    12.478ms       ▶ FileReader._parse_content
+    45.123ms         ▶ Parser.parse_json
+    67.890ms         ◀ Parser.parse_json
+    67.912ms       ◀ FileReader._parse_content
+    67.934ms     ◀ FileReader.read
+    67.956ms   ◀ Pipeline._load_data
+    67.978ms   ▶ Pipeline._transform
+    68.001ms     ▶ Transformer.apply
+    68.023ms       ▶ Transformer._validate
+    72.345ms       ◀ Transformer._validate
+    72.367ms       ▶ Transformer._process
+   145.678ms         ▶ Transformer._process_batch
+   189.234ms         ◀ Transformer._process_batch
+   189.256ms       ◀ Transformer._process
+   189.278ms     ◀ Transformer.apply
+   189.300ms   ◀ Pipeline._transform
+   189.322ms   ▶ Pipeline._save_output
+   195.456ms   ◀ Pipeline._save_output
+   195.478ms ◀ Pipeline.run
+================================================================================
+</code></pre>
+<p><strong>Key features:</strong>
+- <strong>Visual nesting</strong>: Indentation shows call depth at a glance
+- <strong>Entry/exit markers</strong>: <code>▶</code> for enter, <code>◀</code> for exit
+- <strong>Timestamp alignment</strong>: Easy to calculate duration by scanning vertically
+- <strong>Unlimited depth</strong>: Supports arbitrary nesting levels</p>
+<p><strong>Use this to:</strong>
+- Understand execution flow and method call hierarchy
+- Identify unexpected call sequences
+- Spot methods that are called more times than expected
+- Visualize where time is spent in nested operations</p>
+<hr />
+<h2 id="understanding-self-time-vs-total-time">Understanding Self-Time vs Total-Time<a class="headerlink" href="#understanding-self-time-vs-total-time" title="Permanent link">&para;</a></h2>
+<pre><code>process() ─────────────────────────────────────────────────────── Total: 100ms
+    │
+    ├── _parse() ─────────────────── Total: 30ms, Self: 30ms (leaf)
+    │
+    ├── _transform() ─────────────── Total: 50ms, Self: 20ms
+    │       │
+    │       └── _helper() ────────── Total: 30ms, Self: 30ms (leaf)
+    │
+    └── _output() ────────────────── Total: 15ms, Self: 15ms (leaf)
+
+    process self-time = 100 - 30 - 50 - 15 = 5ms (orchestration overhead)
+</code></pre>
+<p><strong>Self-time</strong> is the actual time spent in that method's code, excluding time in child calls. This is what you want to optimize.</p>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-decorate-entry-points-and-key-methods">DO: Decorate Entry Points and Key Methods<a class="headerlink" href="#do-decorate-entry-points-and-key-methods" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Pipeline:
+
+    @timestamp                    # ✅ Entry point
+    def run(self, data):
+        ...
+
+    @timestamp                    # ✅ Key processing step
+    def _major_transform(self, data):
+        ...
+
+    def _tiny_helper(self, x):    # ✅ Skip tiny helpers
+        return x + 1
+</code></pre>
+<h3 id="do-use-descriptive-collector-names">DO: Use Descriptive Collector Names<a class="headerlink" href="#do-use-descriptive-collector-names" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - descriptive
+_timestamp_collector_ = Timestamp_Collector(name=&quot;html_to_mgraph_conversion&quot;)
+_timestamp_collector_ = Timestamp_Collector(name=&quot;api_request_handling&quot;)
+
+# ❌ Bad - not descriptive
+_timestamp_collector_ = Timestamp_Collector(name=&quot;test&quot;)
+_timestamp_collector_ = Timestamp_Collector()  # defaults to &quot;default&quot;
+</code></pre>
+<h3 id="do-use-timestamp_block-for-phases">DO: Use timestamp_block for Phases<a class="headerlink" href="#do-use-timestamp_block-for-phases" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with _timestamp_collector_:
+    with timestamp_block(&quot;initialization&quot;):
+        setup()
+
+    with timestamp_block(&quot;main_processing&quot;):
+        process()
+
+    with timestamp_block(&quot;cleanup&quot;):
+        teardown()
+</code></pre>
+<h3 id="dont-decorate-micro-functions-in-hot-loops">DON'T: Decorate Micro-Functions in Hot Loops<a class="headerlink" href="#dont-decorate-micro-functions-in-hot-loops" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Calculator:
+
+    @timestamp                    # ✅ Decorate outer method
+    def sum_all(self, items):
+        total = 0
+        for item in items:
+            total = self._add(item, total)  # Called 1M times
+        return total
+
+    def _add(self, a, b):         # ❌ DON'T decorate - called too frequently
+        return a + b
+</code></pre>
+<h3 id="dont-forget-the-magic-variable-name">DON'T: Forget the Magic Variable Name<a class="headerlink" href="#dont-forget-the-magic-variable-name" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ WRONG - collector won't be found
+collector = Timestamp_Collector()
+with collector:
+    my_decorated_method()  # @timestamp won't find it!
+
+# ✅ CORRECT
+_timestamp_collector_ = Timestamp_Collector()
+with _timestamp_collector_:
+    my_decorated_method()  # @timestamp finds it via stack walk
+</code></pre>
+<hr />
+<h2 id="performance-characteristics">Performance Characteristics<a class="headerlink" href="#performance-characteristics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Overhead</th>
+<th>Production Safe?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@timestamp, no collector</td>
+<td>~3 μs</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>@timestamp, with collector</td>
+<td>~8 μs</td>
+<td>✅ Yes (for methods &gt;100μs)</td>
+</tr>
+<tr>
+<td>Nested decorators (N levels)</td>
+<td>N × overhead</td>
+<td>✅ Scales linearly</td>
+</tr>
+<tr>
+<td>@timestamp_args, with collector</td>
+<td>~10 μs</td>
+<td>✅ Yes (slight overhead for arg binding)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rule of thumb</strong>: If your method takes &gt;100μs, the 8μs capture overhead is &lt;8% - acceptable for most scenarios including production profiling.</p>
+<hr />
+<h2 id="common-integration-scenarios">Common Integration Scenarios<a class="headerlink" href="#common-integration-scenarios" title="Permanent link">&para;</a></h2>
+<h3 id="scenario-profiling-a-conversion-pipeline">Scenario: Profiling a Conversion Pipeline<a class="headerlink" href="#scenario-profiling-a-conversion-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.timestamp_capture.Timestamp_Collector          import Timestamp_Collector
+from osbot_utils.helpers.timestamp_capture.Timestamp_Collector__Report  import Timestamp_Collector__Report
+from osbot_utils.helpers.timestamp_capture.decorators.timestamp         import timestamp
+
+class Html_To_MGraph_Converter:
+
+    @timestamp
+    def convert(self, html: str):
+        doc = self._create_document()
+        self._parse_html(html)
+        self._build_body_graph(doc)
+        self._build_attrs_graph(doc)
+        return doc
+
+    @timestamp
+    def _create_document(self):
+        ...
+
+    @timestamp
+    def _parse_html(self, html):
+        ...
+
+    @timestamp
+    def _build_body_graph(self, doc):
+        for element in self.soup.find_all():
+            self._process_element(element)
+
+    @timestamp
+    def _process_element(self, element):
+        # Called many times - will show aggregate stats
+        ...
+
+    @timestamp
+    def _build_attrs_graph(self, doc):
+        ...
+
+# Usage
+def profile_conversion(html_content):
+    _timestamp_collector_ = Timestamp_Collector(name=&quot;html_conversion&quot;)
+
+    with _timestamp_collector_:
+        converter = Html_To_MGraph_Converter()
+        doc = converter.convert(html_content)
+
+    report = Timestamp_Collector__Report(collector=_timestamp_collector_)
+    report.print_report()
+    report.print_hotspots()
+
+    return doc
+</code></pre>
+<h3 id="scenario-comparing-two-implementations">Scenario: Comparing Two Implementations<a class="headerlink" href="#scenario-comparing-two-implementations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def compare_implementations(data):
+    # Profile implementation A
+    _timestamp_collector_ = Timestamp_Collector(name=&quot;impl_A&quot;)
+    with _timestamp_collector_:
+        result_a = implementation_a(data)
+    time_a = _timestamp_collector_.total_duration_ms()
+
+    # Profile implementation B
+    _timestamp_collector_ = Timestamp_Collector(name=&quot;impl_B&quot;)
+    with _timestamp_collector_:
+        result_b = implementation_b(data)
+    time_b = _timestamp_collector_.total_duration_ms()
+
+    print(f&quot;Implementation A: {time_a:.2f}ms&quot;)
+    print(f&quot;Implementation B: {time_b:.2f}ms&quot;)
+    print(f&quot;Speedup: {time_a/time_b:.2f}x&quot;)
+</code></pre>
+<h3 id="scenario-continuous-performance-monitoring">Scenario: Continuous Performance Monitoring<a class="headerlink" href="#scenario-continuous-performance-monitoring" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class PerformanceMonitor:
+
+    def __init__(self):
+        self.history = []
+
+    def profile_operation(self, operation_func, *args, **kwargs):
+        _timestamp_collector_ = Timestamp_Collector(name=&quot;monitored_op&quot;)
+
+        with _timestamp_collector_:
+            result = operation_func(*args, **kwargs)
+
+        self.history.append({
+            'timestamp'   : time.time(),
+            'duration_ms' : _timestamp_collector_.total_duration_ms(),
+            'entry_count' : _timestamp_collector_.entry_count(),
+        })
+
+        return result
+
+    def get_average_duration(self):
+        if not self.history:
+            return 0
+        return sum(h['duration_ms'] for h in self.history) / len(self.history)
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-decorator-not-capturing-anything">Problem: Decorator Not Capturing Anything<a class="headerlink" href="#problem-decorator-not-capturing-anything" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Collector variable not named <code>_timestamp_collector_</code></p>
+<pre><code class="language-python"># ❌ Won't work
+my_collector = Timestamp_Collector()
+
+# ✅ Will work
+_timestamp_collector_ = Timestamp_Collector()
+</code></pre>
+<h3 id="problem-methods-show-0ms-self-time">Problem: Methods Show 0ms Self-Time<a class="headerlink" href="#problem-methods-show-0ms-self-time" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Method only calls other decorated methods, does no work itself</p>
+<pre><code class="language-python">@timestamp
+def orchestrator(self):
+    self._step1()  # All time spent in children
+    self._step2()
+    self._step3()
+    # self-time ≈ 0ms is correct - this method just orchestrates
+</code></pre>
+<h3 id="problem-too-many-entries-in-report">Problem: Too Many Entries in Report<a class="headerlink" href="#problem-too-many-entries-in-report" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Decorating methods called in loops</p>
+<p><strong>Solution</strong>: Only decorate higher-level methods, or use <code>timestamp_block</code> for the loop</p>
+<pre><code class="language-python"># Instead of decorating _process_item called 1000x
+with timestamp_block(&quot;process_all_items&quot;):
+    for item in items:
+        self._process_item(item)  # Don't decorate this
+</code></pre>
+<h3 id="problem-cant-find-collector-in-deeply-nested-code">Problem: Can't Find Collector in Deeply Nested Code<a class="headerlink" href="#problem-cant-find-collector-in-deeply-nested-code" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Stack depth exceeds <code>MAX_STACK_DEPTH</code> (default: 50)</p>
+<p><strong>Solution</strong>: Increase max_depth or restructure code</p>
+<pre><code class="language-python"># In timestamp_collector__config.py
+MAX_STACK_DEPTH = 100  # Increase if needed
+</code></pre>
+<h3 id="problem-cant-distinguish-multiple-calls-to-same-method">Problem: Can't Distinguish Multiple Calls to Same Method<a class="headerlink" href="#problem-cant-distinguish-multiple-calls-to-same-method" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Using <code>@timestamp</code> on a method called with different arguments</p>
+<pre><code class="language-python"># ❌ All 5 calls show as same name
+@timestamp(name=&quot;link_component&quot;)
+def _link_component(self, name: str, root_id: int):
+    ...
+</code></pre>
+<p><strong>Solution</strong>: Use <code>@timestamp_args</code> to include argument values in the name</p>
+<pre><code class="language-python"># ✅ Each call shows distinct name
+@timestamp_args(name=&quot;link_component({name})&quot;)
+def _link_component(self, name: str, root_id: int):
+    ...
+</code></pre>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When adding timestamp capture to a codebase:</p>
+<ul>
+<li>[ ] Import <code>@timestamp</code> decorator and <code>Timestamp_Collector</code></li>
+<li>[ ] Add <code>@timestamp</code> to key methods (entry points, major processing steps)</li>
+<li>[ ] Use <code>@timestamp(name="...")</code> for hierarchical/grouped naming when helpful</li>
+<li>[ ] Use <code>@timestamp_args(name="method({arg})")</code> when you need to distinguish calls by argument values</li>
+<li>[ ] Skip tiny utility functions and hot-loop internals</li>
+<li>[ ] Use <code>timestamp_block</code> for code phases not in methods</li>
+<li>[ ] Name collector variable exactly <code>_timestamp_collector_</code></li>
+<li>[ ] Give collector a descriptive name</li>
+<li>[ ] Use <code>print_hotspots()</code> to find actual bottlenecks (self-time)</li>
+<li>[ ] Use <code>print_timeline()</code> to understand execution flow</li>
+<li>[ ] Use <code>get_method_timings()</code> for programmatic analysis</li>
+<li>[ ] Remember: decorators can stay in production (~3μs overhead when inactive)</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

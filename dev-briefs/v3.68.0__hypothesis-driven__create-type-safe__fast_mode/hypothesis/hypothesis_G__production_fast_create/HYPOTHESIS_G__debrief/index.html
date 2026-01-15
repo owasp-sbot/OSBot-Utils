@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_G__production_fast_create/HYPOTHESIS_G__debrief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis G: Production-Ready Fast Creation - Debrief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis G: Production-Ready Fast Creation - Debrief";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_G__production_fast_create/HYPOTHESIS_G__debrief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_G__production_fast_create/HYPOTHESIS_G__debrief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis G: Production-Ready Fast Creation - Debrief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-g-production-ready-fast-creation-debrief">Hypothesis G: Production-Ready Fast Creation - Debrief<a class="headerlink" href="#hypothesis-g-production-ready-fast-creation-debrief" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 8, 2026<br />
+<strong>Status</strong>: ✅ MAJOR SUCCESS<br />
+<strong>Result</strong>: 87.8% average improvement (up to 97.1% for complex classes)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Hypothesis G delivers the schema-based fast creation approach from Hypothesis F in a <strong>production-ready architecture</strong> that can be integrated into the main <code>Type_Safe</code> codebase with <strong>minimal changes</strong> (~10 lines to <code>Type_Safe</code> itself).</p>
+<p>The implementation achieves <strong>22-34x speedups</strong> for complex nested objects while maintaining full backward compatibility and passing all 30 tests.</p>
+<hr />
+<h2 id="performance-results">Performance Results<a class="headerlink" href="#performance-results" title="Permanent link">&para;</a></h2>
+<h3 id="benchmark-summary">Benchmark Summary<a class="headerlink" href="#benchmark-summary" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Before</th>
+<th>After</th>
+<th>Savings</th>
+<th>Speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A_01__empty</td>
+<td>860 ns</td>
+<td>782 ns</td>
+<td>-78 ns</td>
+<td>1.1x</td>
+</tr>
+<tr>
+<td>A_02__primitives_only</td>
+<td>7,915 ns</td>
+<td>747 ns</td>
+<td><strong>-7,168 ns</strong></td>
+<td><strong>10.6x</strong></td>
+</tr>
+<tr>
+<td>A_03__with_collections</td>
+<td>29,984 ns</td>
+<td>1,626 ns</td>
+<td><strong>-28,358 ns</strong></td>
+<td><strong>18.4x</strong></td>
+</tr>
+<tr>
+<td>A_04__many_fields</td>
+<td>21,848 ns</td>
+<td>757 ns</td>
+<td><strong>-21,091 ns</strong></td>
+<td><strong>28.9x</strong></td>
+</tr>
+<tr>
+<td>A_05__one_nested</td>
+<td>20,134 ns</td>
+<td>1,220 ns</td>
+<td><strong>-18,914 ns</strong></td>
+<td><strong>16.5x</strong></td>
+</tr>
+<tr>
+<td>A_06__three_nested</td>
+<td>43,203 ns</td>
+<td>2,015 ns</td>
+<td><strong>-41,188 ns</strong></td>
+<td><strong>21.4x</strong></td>
+</tr>
+<tr>
+<td>A_07__deep_nested</td>
+<td>49,051 ns</td>
+<td>1,977 ns</td>
+<td><strong>-47,074 ns</strong></td>
+<td><strong>24.8x</strong></td>
+</tr>
+<tr>
+<td>A_08__mgraph_like</td>
+<td>100,547 ns</td>
+<td>4,410 ns</td>
+<td><strong>-96,137 ns</strong></td>
+<td><strong>22.8x</strong></td>
+</tr>
+<tr>
+<td>B_02__many_fields_x10</td>
+<td>218,745 ns</td>
+<td>6,421 ns</td>
+<td><strong>-212,324 ns</strong></td>
+<td><strong>34.1x</strong></td>
+</tr>
+<tr>
+<td>B_04__mgraph_like_x10</td>
+<td>968,364 ns</td>
+<td>42,626 ns</td>
+<td><strong>-925,738 ns</strong></td>
+<td><strong>22.7x</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="overall-result">Overall Result<a class="headerlink" href="#overall-result" title="Permanent link">&para;</a></h3>
+<pre><code>✓ SUCCESS (87.8% &gt;= 50.0% target)
+</code></pre>
+<hr />
+<h2 id="architecture-clean-separation-of-concerns">Architecture: Clean Separation of Concerns<a class="headerlink" href="#architecture-clean-separation-of-concerns" title="Permanent link">&para;</a></h2>
+<h3 id="file-structure">File Structure<a class="headerlink" href="#file-structure" title="Permanent link">&para;</a></h3>
+<pre><code>hypothesis_G__production_fast_create/
+├── schemas/
+│   ├── Field__Schema.py           # Single field: static/factory/nested
+│   └── Class__Schema.py           # Full class description + print_schema()
+│
+├── Type_Safe__Config.py           # Simplified: 2 flags only
+├── Type_Safe__Fast_Create__Cache.py   # Schema generation + caching (singleton)
+├── Type_Safe__Step__Fast_Create.py    # Creation step (singleton)
+├── Type_Safe__Hypothesis_G.py     # Type_Safe subclass (~15 lines of changes)
+│
+├── test_Fast_Create__Cache.py     # 11 tests
+├── test_Type_Safe__Hypothesis_G.py    # 15 tests  
+├── test_perf__Hypothesis_G.py     # 4 tests (inc. benchmarks)
+└── Total: 30 tests passing
+</code></pre>
+<h3 id="key-design-decisions">Key Design Decisions<a class="headerlink" href="#key-design-decisions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Regular dict for cache</strong></td>
+<td>Classes never get GC'd at runtime; WeakKeyDictionary adds overhead</td>
+</tr>
+<tr>
+<td><strong>No <code>__new__</code> override</strong></td>
+<td>Cleaner approach - everything in <code>__init__</code>, matches existing pattern</td>
+</tr>
+<tr>
+<td><strong>Module singletons</strong></td>
+<td><code>type_safe_fast_create_cache</code>, <code>type_safe_step_fast_create</code> follow existing patterns</td>
+</tr>
+<tr>
+<td><strong>Separate schema classes</strong></td>
+<td><code>Field__Schema</code> and <code>Class__Schema</code> in dedicated files for clarity and testability</td>
+</tr>
+<tr>
+<td><strong>2 config flags only</strong></td>
+<td><code>fast_create</code> + <code>skip_validation</code> - removed 4 unused flags from earlier hypotheses</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-changes-minimal-footprint">The Changes: Minimal Footprint<a class="headerlink" href="#the-changes-minimal-footprint" title="Permanent link">&para;</a></h2>
+<h3 id="type_safe__hypothesis_g-15-lines-total">Type_Safe__Hypothesis_G (15 lines total)<a class="headerlink" href="#type_safe__hypothesis_g-15-lines-total" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe__Hypothesis_G(Type_Safe):
+
+    def __init__(self, **kwargs):
+        config = get_active_config()
+
+        if config and config.fast_create:
+            if type_safe_fast_create_cache.is_generating(type(self)) is False:
+                type_safe_step_fast_create.create(self, **kwargs)
+                return
+
+        super().__init__(**kwargs)
+
+    def __setattr__(self, name, value):
+        config = get_active_config()
+
+        if config and config.skip_validation:
+            object.__setattr__(self, name, value)
+        else:
+            type_safe_step_set_attr.setattr(super(), self, name, value)
+</code></pre>
+<h3 id="simplified-type_safe__config">Simplified Type_Safe__Config<a class="headerlink" href="#simplified-type_safe__config" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe__Config:
+    __slots__ = ('fast_create', 'skip_validation', '_previous_config')
+
+    # Removed: skip_setattr, skip_conversion, skip_mro_walk, 
+    #          on_demand_nested, fast_collections
+    # All subsumed by fast_create!
+</code></pre>
+<hr />
+<h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
+<h3 id="schema-generation-once-per-class">Schema Generation (Once Per Class)<a class="headerlink" href="#schema-generation-once-per-class" title="Permanent link">&para;</a></h3>
+<pre><code>First instantiation of MyClass:
+    │
+    ├─► generate_schema(MyClass)
+    │   ├─► Create template instance (normal Type_Safe path)
+    │   ├─► Classify each field:
+    │   │   ├─► static  (str, int, bool, None) → share reference
+    │   │   ├─► factory (List, Dict, Set) → lambda creates fresh
+    │   │   └─► nested  (Type_Safe subclass) → recursive fast_create
+    │   └─► Cache schema in dict[class] = schema
+    │
+    └─► Schema cached forever (classes don't change at runtime)
+</code></pre>
+<h3 id="fast-creation-every-subsequent-instantiation">Fast Creation (Every Subsequent Instantiation)<a class="headerlink" href="#fast-creation-every-subsequent-instantiation" title="Permanent link">&para;</a></h3>
+<pre><code>MyClass() with fast_create=True:
+    │
+    ├─► get_schema(MyClass)           # ~50 ns dict lookup
+    ├─► static_dict.copy()            # ~100 ns for all static fields
+    ├─► factory_func() for mutables   # ~200 ns per collection
+    ├─► recursive fast_create nested  # ~800 ns per nested object
+    ├─► kwargs.update()               # ~50 ns
+    └─► object.__setattr__(__dict__)  # ~50 ns direct assignment
+
+    Total: ~750-4,000 ns vs 20,000-100,000 ns normal path
+</code></pre>
+<hr />
+<h2 id="what-gets-bypassed">What Gets Bypassed<a class="headerlink" href="#what-gets-bypassed" title="Permanent link">&para;</a></h2>
+<p>When <code>fast_create=True</code>, the entire normal <code>Type_Safe.__init__</code> flow is skipped:</p>
+<pre><code>BYPASSED (saves 15,000-95,000 ns):
+├── __cls_kwargs__()
+│   ├── MRO walk (inspect.getmro)
+│   ├── Annotation collection
+│   └── Default value computation
+├── type_safe_step_init.init()
+│   ├── convert_value_to_type_safe_objects() per kwarg
+│   │   ├── Enum conversion
+│   │   ├── Collection wrapping
+│   │   └── Type resolution
+│   └── __setattr__() per field
+│       ├── resolve_value()
+│       ├── validate_type_compatibility()
+│       ├── validate_literal_value()
+│       └── handle_get_class()
+└── All validation overhead
+</code></pre>
+<hr />
+<h2 id="test-suite-validation">Test Suite Validation<a class="headerlink" href="#test-suite-validation" title="Permanent link">&para;</a></h2>
+<h3 id="all-tests-pass">All Tests Pass<a class="headerlink" href="#all-tests-pass" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Test File</th>
+<th>Tests</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>test_Fast_Create__Cache.py</td>
+<td>11</td>
+<td>✅ Pass</td>
+</tr>
+<tr>
+<td>test_Type_Safe__Hypothesis_G.py</td>
+<td>15</td>
+<td>✅ Pass</td>
+</tr>
+<tr>
+<td>test_perf__Hypothesis_G.py</td>
+<td>4</td>
+<td>✅ Pass</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>30</strong></td>
+<td><strong>✅ All Pass</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="behavioral-verification">Behavioral Verification<a class="headerlink" href="#behavioral-verification" title="Permanent link">&para;</a></h3>
+<p>The performance test includes comprehensive behavioral checks:</p>
+<ol>
+<li>✅ Object type is correct (<code>type(obj) is MyClass</code>)</li>
+<li>✅ Default values are set correctly</li>
+<li>✅ kwargs are applied properly</li>
+<li>✅ Collections are fresh instances (not shared)</li>
+<li>✅ Nested objects are created recursively</li>
+<li>✅ Deep nesting works (3+ levels)</li>
+<li>✅ <code>json()</code> works on fast-created objects</li>
+<li>✅ <code>__setattr__</code> validation still works after creation</li>
+</ol>
+<hr />
+<h2 id="comparison-hypothesis-f-vs-g">Comparison: Hypothesis F vs G<a class="headerlink" href="#comparison-hypothesis-f-vs-g" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Hypothesis F</th>
+<th>Hypothesis G</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Performance</td>
+<td>~90% improvement</td>
+<td>~88% improvement</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>Single file, prototype</td>
+<td>Multi-file, production-ready</td>
+</tr>
+<tr>
+<td>Schema location</td>
+<td>Same file</td>
+<td>Separate <code>schemas/</code> folder</td>
+</tr>
+<tr>
+<td>Cache</td>
+<td>Module-level dict</td>
+<td>Singleton class attribute</td>
+</tr>
+<tr>
+<td>Config flags</td>
+<td>7 flags</td>
+<td>2 flags (simplified)</td>
+</tr>
+<tr>
+<td>Test coverage</td>
+<td>Basic</td>
+<td>Comprehensive (30 tests)</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td>Standalone</td>
+<td>Ready for Type_Safe merge</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from hypothesis_G__production_fast_create import Type_Safe__Config, Type_Safe__Hypothesis_G
+
+class MyNode(Type_Safe__Hypothesis_G):
+    node_id : str = ''
+    value   : int = 0
+    children: List[str]
+
+# Normal creation (full validation)
+node = MyNode(node_id='abc', value=42)
+
+# Fast creation (~25x faster)
+with Type_Safe__Config(fast_create=True):
+    node = MyNode(node_id='abc', value=42)
+</code></pre>
+<h3 id="bulk-loading-maximum-speed">Bulk Loading (Maximum Speed)<a class="headerlink" href="#bulk-loading-maximum-speed" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Type_Safe__Config(fast_create=True, skip_validation=True):
+    nodes = []
+    for row in database_rows:          # 25-34x faster per object!
+        node = MyNode(**row)
+        nodes.append(node)
+</code></pre>
+<h3 id="pre-warming-cache-startup-optimization">Pre-Warming Cache (Startup Optimization)<a class="headerlink" href="#pre-warming-cache-startup-optimization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># During application startup
+type_safe_fast_create_cache.warm_cache(MyNode)
+type_safe_fast_create_cache.warm_cache(MyEdge)
+type_safe_fast_create_cache.warm_cache(MyGraph)
+
+# All schemas pre-generated, first create is also fast
+</code></pre>
+<hr />
+<h2 id="production-integration-plan">Production Integration Plan<a class="headerlink" href="#production-integration-plan" title="Permanent link">&para;</a></h2>
+<h3 id="changes-required-to-main-type_safe">Changes Required to Main Type_Safe<a class="headerlink" href="#changes-required-to-main-type_safe" title="Permanent link">&para;</a></h3>
+<p><strong>File: <code>Type_Safe.py</code></strong> (~10 lines added)</p>
+<pre><code class="language-python">def __init__(self, **kwargs):
+    config = get_active_config()
+    if config and config.fast_create:
+        if not type_safe_fast_create_cache.is_generating(type(self)):
+            type_safe_step_fast_create.create(self, **kwargs)
+            return
+    # ... existing code unchanged ...
+
+def __setattr__(self, name, value):
+    config = get_active_config()
+    if config and config.skip_validation:
+        object.__setattr__(self, name, value)
+    else:
+        # ... existing code unchanged ...
+</code></pre>
+<h3 id="new-files-to-add">New Files to Add<a class="headerlink" href="#new-files-to-add" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/type_safe/type_safe_core/
+├── config/
+│   └── Type_Safe__Config.py           # Simplified version
+├── fast_create/
+│   ├── __init__.py
+│   ├── schemas/
+│   │   ├── Field__Schema.py
+│   │   └── Class__Schema.py
+│   ├── Type_Safe__Fast_Create__Cache.py
+│   └── Type_Safe__Step__Fast_Create.py
+</code></pre>
+<hr />
+<h2 id="lessons-learned">Lessons Learned<a class="headerlink" href="#lessons-learned" title="Permanent link">&para;</a></h2>
+<h3 id="1-schema-based-approach-is-the-winner">1. Schema-Based Approach is the Winner<a class="headerlink" href="#1-schema-based-approach-is-the-winner" title="Permanent link">&para;</a></h3>
+<p>The schema approach from Hypothesis F proved to be the most effective:
+- <strong>One-time cost</strong>: Generate schema on first use
+- <strong>Amortized benefit</strong>: Every subsequent create is ~25x faster
+- <strong>No code duplication</strong>: Schema describes class, doesn't recreate logic</p>
+<h3 id="2-simplified-config-is-better">2. Simplified Config is Better<a class="headerlink" href="#2-simplified-config-is-better" title="Permanent link">&para;</a></h3>
+<p>Reducing from 7 flags to 2 flags:
+- Easier to understand and document
+- <code>fast_create</code> subsumes most other optimizations
+- <code>skip_validation</code> handles post-creation mutations</p>
+<h3 id="3-clean-architecture-pays-off">3. Clean Architecture Pays Off<a class="headerlink" href="#3-clean-architecture-pays-off" title="Permanent link">&para;</a></h3>
+<p>Separating concerns into distinct files:
+- Easier to test each component in isolation
+- Cache behavior tested separately from creation logic
+- Schema classes can be extended independently</p>
+<h3 id="4-regular-dict-weakkeydictionary-for-classes">4. Regular Dict &gt; WeakKeyDictionary for Classes<a class="headerlink" href="#4-regular-dict-weakkeydictionary-for-classes" title="Permanent link">&para;</a></h3>
+<p>Classes are never garbage collected during normal execution:
+- No need for weak references
+- Regular dict is faster for lookup
+- Simpler implementation</p>
+<hr />
+<h2 id="summary-the-hypothesis-journey">Summary: The Hypothesis Journey<a class="headerlink" href="#summary-the-hypothesis-journey" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Hypothesis</th>
+<th>Approach</th>
+<th>Result</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Thread-local config</td>
+<td>~350 ns overhead</td>
+<td>✅ Foundation</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Config presence check</td>
+<td>~0 ns</td>
+<td>✅ Validated</td>
+</tr>
+<tr>
+<td>C</td>
+<td><code>skip_validation</code> in <code>__setattr__</code></td>
+<td>50-83% faster</td>
+<td>✅ Merged</td>
+</tr>
+<tr>
+<td>D</td>
+<td><code>skip_conversion</code> in <code>__init__</code></td>
+<td>20-30% faster</td>
+<td>✅ Merged</td>
+</tr>
+<tr>
+<td>E</td>
+<td>On-demand nested</td>
+<td>Mixed results</td>
+<td>⚠️ Complex</td>
+</tr>
+<tr>
+<td>F</td>
+<td>Schema-based fast create</td>
+<td>~90% faster</td>
+<td>✅ Prototype</td>
+</tr>
+<tr>
+<td><strong>G</strong></td>
+<td><strong>Production-ready fast create</strong></td>
+<td><strong>~88% faster</strong></td>
+<td><strong>✅ Production Ready</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="final-metrics">Final Metrics<a class="headerlink" href="#final-metrics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Average improvement</td>
+<td>87.8%</td>
+</tr>
+<tr>
+<td>Best case (many_fields_x10)</td>
+<td>97.1% (34x faster)</td>
+</tr>
+<tr>
+<td>Tests passing</td>
+<td>30/30</td>
+</tr>
+<tr>
+<td>Lines added to Type_Safe</td>
+<td>~10</td>
+</tr>
+<tr>
+<td>New files</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Config flags</td>
+<td>2 (down from 7)</td>
+</tr>
+<tr>
+<td>Production ready</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="appendix-full-benchmark-results">Appendix: Full Benchmark Results<a class="headerlink" href="#appendix-full-benchmark-results" title="Permanent link">&para;</a></h2>
+<pre><code>┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ HYPOTHESIS: Hypothesis G: fast_create (production-ready)                                          │
+├───────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark              │ Before     │ After     │ Overhead    │ Change   │ Per-Call               │
+├───────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ A_01__empty            │ 860 ns     │ 782 ns    │ -78 ns      │ -9.1% ▼  │ -78 ns                 │
+│ A_02__primitives_only  │ 7,915 ns   │ 747 ns    │ -7,168 ns   │ -90.6% ▼ │ -7,168 ns              │
+│ A_03__with_collections │ 29,984 ns  │ 1,626 ns  │ -28,358 ns  │ -94.6% ▼ │ -28,358 ns             │
+│ A_04__many_fields      │ 21,848 ns  │ 757 ns    │ -21,091 ns  │ -96.5% ▼ │ -21,091 ns             │
+│ A_05__one_nested       │ 20,134 ns  │ 1,220 ns  │ -18,914 ns  │ -93.9% ▼ │ -18,914 ns             │
+│ A_06__three_nested     │ 43,203 ns  │ 2,015 ns  │ -41,188 ns  │ -95.3% ▼ │ -41,188 ns             │
+│ A_07__deep_nested      │ 49,051 ns  │ 1,977 ns  │ -47,074 ns  │ -96.0% ▼ │ -47,074 ns             │
+│ A_08__mgraph_like      │ 100,547 ns │ 4,410 ns  │ -96,137 ns  │ -95.6% ▼ │ -96,137 ns             │
+│ B_01__primitives_x10   │ 95,830 ns  │ 6,322 ns  │ -89,508 ns  │ -93.4% ▼ │ -8,951 ns              │
+│ B_02__many_fields_x10  │ 218,745 ns │ 6,421 ns  │ -212,324 ns │ -97.1% ▼ │ -21,232 ns             │
+│ B_03__three_nested_x10 │ 428,031 ns │ 18,510 ns │ -409,521 ns │ -95.7% ▼ │ -40,952 ns             │
+│ B_04__mgraph_like_x10  │ 968,364 ns │ 42,626 ns │ -925,738 ns │ -95.6% ▼ │ -92,574 ns             │
+├───────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ ✓ SUCCESS (87.8% &gt;= 50.0% target) | Per-call: &lt;500ns ✅ | 500-1000ns ⚠️ | &gt;1000ns ❌              │
+└───────────────────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<p><strong>Hypothesis G demonstrates that careful architectural design can deliver Hypothesis F's breakthrough performance gains in a production-ready package that integrates cleanly with the existing Type_Safe codebase.</strong></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

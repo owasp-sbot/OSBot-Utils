@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/schemas/Schema__Html_Node__Data/" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>Schema__Html_Node__Data - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Schema__Html_Node__Data";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/schemas/Schema__Html_Node__Data.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/schemas/Schema__Html_Node__Data/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Schema__Html_Node__Data</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="schema__html_node__data">Schema__Html_Node__Data<a class="headerlink" href="#schema__html_node__data" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Schema__Html_Node__Data</code> represents text content within HTML elements. It's a type-safe wrapper for text nodes that includes position tracking for maintaining order within mixed content.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Schema__Html_Node__Data(Type_Safe):
+    data     : str                                           # Text content
+    type     : Schema__Html_Node__Data__Type = Schema__Html_Node__Data__Type.TEXT
+    position : int = 0                                       # Position in parent
+</code></pre>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>This class serves to:
+1. <strong>Type Safety</strong>: Provides a strongly-typed text node representation
+2. <strong>Position Tracking</strong>: Maintains text position among sibling nodes
+3. <strong>Clear Semantics</strong>: Explicitly identifies text vs element nodes
+4. <strong>Serialization</strong>: Enables clean JSON serialization of text content</p>
+<h2 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h2>
+<h3 id="data"><code>data</code><a class="headerlink" href="#data" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>str</code></li>
+<li><strong>Purpose</strong>: The actual text content</li>
+<li><strong>Default</strong>: <code>""</code></li>
+<li><strong>Examples</strong>: <code>"Hello World"</code>, <code>"Click here"</code>, <code>"\n    "</code></li>
+</ul>
+<h3 id="type"><code>type</code><a class="headerlink" href="#type" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>Schema__Html_Node__Data__Type</code></li>
+<li><strong>Purpose</strong>: Identifies this as a text node</li>
+<li><strong>Default</strong>: <code>Schema__Html_Node__Data__Type.TEXT</code></li>
+<li><strong>Value</strong>: Always <code>'TEXT'</code> in serialized form</li>
+</ul>
+<h3 id="position"><code>position</code><a class="headerlink" href="#position" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: <code>int</code></li>
+<li><strong>Purpose</strong>: Position within parent's children</li>
+<li><strong>Default</strong>: <code>0</code></li>
+<li><strong>Range</strong>: 0 to n-1 for n total children</li>
+</ul>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-text-node">Basic Text Node<a class="headerlink" href="#basic-text-node" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data import Schema__Html_Node__Data
+
+# Simple text node
+text_node = Schema__Html_Node__Data(
+    data=&quot;Hello World&quot;,
+    position=0
+)
+
+# Accessing properties
+print(text_node.data)       # &quot;Hello World&quot;
+print(text_node.position)   # 0
+print(text_node.type.value) # &quot;TEXT&quot;
+</code></pre>
+<h3 id="within-html-structure">Within HTML Structure<a class="headerlink" href="#within-html-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Creating a paragraph with text
+# &lt;p&gt;This is a paragraph.&lt;/p&gt;
+
+text = Schema__Html_Node__Data(
+    data=&quot;This is a paragraph.&quot;,
+    position=0
+)
+
+p_node = Schema__Html_Node(
+    tag='p',
+    text_nodes=[text],
+    child_nodes=[],
+    position=0
+)
+</code></pre>
+<h3 id="mixed-content">Mixed Content<a class="headerlink" href="#mixed-content" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># HTML: &lt;p&gt;Hello &lt;em&gt;beautiful&lt;/em&gt; world!&lt;/p&gt;
+
+# Text nodes
+text1 = Schema__Html_Node__Data(data=&quot;Hello &quot;, position=0)
+text2 = Schema__Html_Node__Data(data=&quot; world!&quot;, position=2)
+
+# Em node with its own text
+em_text = Schema__Html_Node__Data(data=&quot;beautiful&quot;, position=0)
+em_node = Schema__Html_Node(
+    tag='em',
+    text_nodes=[em_text],
+    child_nodes=[],
+    position=1
+)
+
+# Paragraph containing mixed content
+p_node = Schema__Html_Node(
+    tag='p',
+    text_nodes=[text1, text2],
+    child_nodes=[em_node],
+    position=0
+)
+</code></pre>
+<h2 id="special-cases">Special Cases<a class="headerlink" href="#special-cases" title="Permanent link">&para;</a></h2>
+<h3 id="whitespace-preservation">Whitespace Preservation<a class="headerlink" href="#whitespace-preservation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Preserving formatting whitespace
+formatted_text = Schema__Html_Node__Data(
+    data=&quot;\n    Indented text\n    &quot;,
+    position=0
+)
+
+# Empty text nodes (sometimes needed for formatting)
+empty_text = Schema__Html_Node__Data(
+    data=&quot;&quot;,
+    position=1
+)
+</code></pre>
+<h3 id="special-characters">Special Characters<a class="headerlink" href="#special-characters" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># HTML entities and special characters
+entity_text = Schema__Html_Node__Data(
+    data=&quot;Price: $19.99 &amp; tax&quot;,
+    position=0
+)
+
+# Unicode content
+unicode_text = Schema__Html_Node__Data(
+    data=&quot;Hello 世界 🌍&quot;,
+    position=0
+)
+
+# Line breaks and tabs
+formatted = Schema__Html_Node__Data(
+    data=&quot;Line 1\nLine 2\tTabbed&quot;,
+    position=0
+)
+</code></pre>
+<h2 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">&para;</a></h2>
+<h3 id="json-format">JSON Format<a class="headerlink" href="#json-format" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">text_node = Schema__Html_Node__Data(
+    data=&quot;Sample text&quot;,
+    position=3
+)
+
+# Serialize to JSON
+json_data = text_node.json()
+# {
+#     &quot;data&quot;: &quot;Sample text&quot;,
+#     &quot;type&quot;: &quot;TEXT&quot;,
+#     &quot;position&quot;: 3
+# }
+
+# Deserialize from JSON
+restored = Schema__Html_Node__Data.from_json(json_data)
+assert restored.data == &quot;Sample text&quot;
+assert restored.position == 3
+</code></pre>
+<h3 id="in-document-context">In Document Context<a class="headerlink" href="#in-document-context" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># As part of a larger structure
+document_json = {
+    &quot;root_node&quot;: {
+        &quot;tag&quot;: &quot;p&quot;,
+        &quot;attrs&quot;: {},
+        &quot;child_nodes&quot;: [],
+        &quot;text_nodes&quot;: [
+            {
+                &quot;data&quot;: &quot;Paragraph text&quot;,
+                &quot;type&quot;: &quot;TEXT&quot;,
+                &quot;position&quot;: 0
+            }
+        ],
+        &quot;position&quot;: 0
+    },
+    &quot;timestamp&quot;: &quot;2024-01-01T00:00:00&quot;
+}
+</code></pre>
+<h2 id="common-operations">Common Operations<a class="headerlink" href="#common-operations" title="Permanent link">&para;</a></h2>
+<h3 id="text-manipulation">Text Manipulation<a class="headerlink" href="#text-manipulation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def clean_text(text_node):
+    &quot;&quot;&quot;Clean and normalize text content.&quot;&quot;&quot;
+    # Remove extra whitespace
+    cleaned = ' '.join(text_node.data.split())
+
+    # Create new node with cleaned text
+    return Schema__Html_Node__Data(
+        data=cleaned,
+        position=text_node.position
+    )
+
+def truncate_text(text_node, max_length):
+    &quot;&quot;&quot;Truncate text to maximum length.&quot;&quot;&quot;
+    if len(text_node.data) &lt;= max_length:
+        return text_node
+
+    truncated = text_node.data[:max_length-3] + &quot;...&quot;
+    return Schema__Html_Node__Data(
+        data=truncated,
+        position=text_node.position
+    )
+</code></pre>
+<h3 id="text-analysis">Text Analysis<a class="headerlink" href="#text-analysis" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def analyze_text_node(text_node):
+    &quot;&quot;&quot;Analyze text node properties.&quot;&quot;&quot;
+    return {
+        'length': len(text_node.data),
+        'word_count': len(text_node.data.split()),
+        'has_whitespace': text_node.data != text_node.data.strip(),
+        'is_empty': text_node.data == '',
+        'position': text_node.position
+    }
+
+def contains_pattern(text_node, pattern):
+    &quot;&quot;&quot;Check if text contains a pattern.&quot;&quot;&quot;
+    import re
+    return bool(re.search(pattern, text_node.data))
+</code></pre>
+<h3 id="position-management">Position Management<a class="headerlink" href="#position-management" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def insert_text_node(parent, new_text, position):
+    &quot;&quot;&quot;Insert a text node at specific position.&quot;&quot;&quot;
+    # Create new text node
+    new_node = Schema__Html_Node__Data(
+        data=new_text,
+        position=position
+    )
+
+    # Adjust positions of existing nodes
+    for text in parent.text_nodes:
+        if text.position &gt;= position:
+            text.position += 1
+
+    for child in parent.child_nodes:
+        if child.position &gt;= position:
+            child.position += 1
+
+    # Add new node
+    parent.text_nodes.append(new_node)
+
+    # Sort by position
+    parent.text_nodes.sort(key=lambda x: x.position)
+</code></pre>
+<h2 id="integration-with-parent-nodes">Integration with Parent Nodes<a class="headerlink" href="#integration-with-parent-nodes" title="Permanent link">&para;</a></h2>
+<h3 id="building-complete-structures">Building Complete Structures<a class="headerlink" href="#building-complete-structures" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def create_paragraph_with_formatting(text_parts):
+    &quot;&quot;&quot;Create paragraph with multiple text nodes.&quot;&quot;&quot;
+    p_node = Schema__Html_Node(
+        tag='p',
+        attrs={},
+        child_nodes=[],
+        text_nodes=[],
+        position=0
+    )
+
+    for i, text in enumerate(text_parts):
+        text_node = Schema__Html_Node__Data(
+            data=text,
+            position=i
+        )
+        p_node.text_nodes.append(text_node)
+
+    return p_node
+</code></pre>
+<h3 id="extracting-all-text">Extracting All Text<a class="headerlink" href="#extracting-all-text" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def extract_all_text(node):
+    &quot;&quot;&quot;Extract all text from a node hierarchy.&quot;&quot;&quot;
+    texts = []
+
+    # Combine text and child nodes by position
+    all_content = []
+    for text in node.text_nodes:
+        all_content.append((text.position, text.data))
+
+    for child in node.child_nodes:
+        child_text = extract_all_text(child)
+        all_content.append((child.position, child_text))
+
+    # Sort by position and join
+    all_content.sort(key=lambda x: x[0])
+    return ''.join(str(content[1]) for content in all_content)
+</code></pre>
+<h2 id="type-safety-benefits">Type Safety Benefits<a class="headerlink" href="#type-safety-benefits" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from typing import List
+
+def process_text_nodes(text_nodes: List[Schema__Html_Node__Data]) -&gt; str:
+    &quot;&quot;&quot;Type-safe text processing.&quot;&quot;&quot;
+    # IDE knows these are text nodes
+    combined = &quot;&quot;
+    for node in text_nodes:
+        # Type checker ensures 'data' exists
+        combined += node.data
+
+    return combined
+
+# Type checking prevents errors
+def invalid_usage(node: Schema__Html_Node__Data):
+    # This would be caught by type checker
+    # node.tag  # Error: 'Schema__Html_Node__Data' has no attribute 'tag'
+    pass
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Always Set Position</strong>: Even for single text nodes</li>
+<li><strong>Preserve Whitespace</strong>: Don't strip unless intentional</li>
+<li><strong>Handle Empty Text</strong>: Empty strings are valid</li>
+<li><strong>Use Type Enum</strong>: Always use the enum for type field</li>
+<li><strong>Validate Positions</strong>: Ensure no position conflicts</li>
+</ol>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="text-replacement">Text Replacement<a class="headerlink" href="#text-replacement" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def replace_text_content(node, old_text, new_text):
+    &quot;&quot;&quot;Replace text in all text nodes.&quot;&quot;&quot;
+    for text_node in node.text_nodes:
+        if old_text in text_node.data:
+            text_node.data = text_node.data.replace(old_text, new_text)
+</code></pre>
+<h3 id="text-formatting">Text Formatting<a class="headerlink" href="#text-formatting" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def format_as_title(text_node):
+    &quot;&quot;&quot;Convert text to title case.&quot;&quot;&quot;
+    return Schema__Html_Node__Data(
+        data=text_node.data.title(),
+        position=text_node.position
+    )
+</code></pre>
+<h2 id="performance-notes">Performance Notes<a class="headerlink" href="#performance-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>String Immutability</strong>: Text changes create new strings</li>
+<li><strong>Memory Usage</strong>: Each node has overhead beyond the text</li>
+<li><strong>Large Texts</strong>: Consider chunking very large text content</li>
+<li><strong>Position Sorting</strong>: O(n log n) when reordering</li>
+</ul>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>No Formatting</strong>: Just plain text, no built-in formatting</li>
+<li><strong>No Validation</strong>: Doesn't validate HTML entities</li>
+<li><strong>Memory Overhead</strong>: Wrapper adds memory beyond raw string</li>
+<li><strong>No Streaming</strong>: Entire text must be in memory</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

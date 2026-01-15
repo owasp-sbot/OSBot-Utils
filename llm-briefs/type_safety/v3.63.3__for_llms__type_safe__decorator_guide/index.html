@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/type_safety/v3.63.3__for_llms__type_safe__decorator_guide/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>@type_safe Decorator: Comprehensive Guide for LLMs - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "@type_safe Decorator: Comprehensive Guide for LLMs";
+        var mkdocs_page_input_path = "llm-briefs/type_safety/v3.63.3__for_llms__type_safe__decorator_guide.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/type_safety/v3.63.3__for_llms__type_safe__decorator_guide/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">@type_safe Decorator: Comprehensive Guide for LLMs</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-decorator-comprehensive-guide-for-llms">@type_safe Decorator: Comprehensive Guide for LLMs<a class="headerlink" href="#type_safe-decorator-comprehensive-guide-for-llms" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>version</strong>: v3.63.3</li>
+<li><strong>updated</strong>: January 2026</li>
+<li><strong>prerequisite</strong>: Familiarity with the main Type_Safe &amp; Python Formatting Guide</li>
+</ul>
+<hr />
+<h2 id="why-the-type_safe-decorator-exists">Why the @type_safe Decorator Exists<a class="headerlink" href="#why-the-type_safe-decorator-exists" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem-python-methods-have-no-runtime-type-checking">The Problem: Python Methods Have No Runtime Type Checking<a class="headerlink" href="#the-problem-python-methods-have-no-runtime-type-checking" title="Permanent link">&para;</a></h3>
+<p>Python's type hints for function parameters and return values are <strong>completely ignored at runtime</strong>. They're just documentation for static analyzers like mypy or PyCharm—Python itself never checks them:</p>
+<pre><code class="language-python">from typing import List, Dict
+
+def process_user(user_id: str, age: int, tags: List[str]) -&gt; Dict[str, int]:
+    # Python allows ALL of these - type hints are IGNORED
+    pass
+
+# These all execute without error - Python doesn't care about types!
+process_user(12345, &quot;not an int&quot;, [1, 2, 3])     # ✗ Wrong types everywhere
+process_user(None, None, None)                   # ✗ All None
+process_user({&quot;wrong&quot;: &quot;type&quot;}, [], &quot;string&quot;)   # ✗ Completely wrong
+
+# Even the return type is ignored
+def get_count() -&gt; int:
+    return &quot;not an int&quot;                          # ✗ No error! Returns wrong type
+
+result = get_count()
+print(result + 1)                                # ✗ TypeError HERE, far from source
+</code></pre>
+<p>This leads to:
+- <strong>Silent failures</strong>: Wrong types flow through your system undetected
+- <strong>Delayed errors</strong>: Crashes occur far from where bad data entered
+- <strong>Debugging nightmares</strong>: "Where did this None come from?"
+- <strong>Security vulnerabilities</strong>: Unchecked input reaches sensitive operations
+- <strong>Contract violations</strong>: Functions return wrong types, breaking callers
+- <strong>False confidence</strong>: Type hints suggest safety that doesn't exist</p>
+<h3 id="the-real-world-impact">The Real-World Impact<a class="headerlink" href="#the-real-world-impact" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># A typical bug cascade without runtime checking
+
+def fetch_user(user_id: str) -&gt; User:
+    # Someone passes int instead of str
+    return db.query(f&quot;SELECT * FROM users WHERE id = {user_id}&quot;)
+
+def get_user_name(user: User) -&gt; str:
+    return user.name                             # AttributeError: 'NoneType' has no attribute 'name'
+
+def format_greeting(name: str) -&gt; str:
+    return f&quot;Hello, {name}!&quot;
+
+# The call chain
+user_id = 12345                                  # ✗ Should be &quot;12345&quot; 
+user = fetch_user(user_id)                       # SQL injection AND wrong type
+name = get_user_name(user)                       # Crashes HERE
+greeting = format_greeting(name)                 # Never reached
+
+# The error message says &quot;NoneType has no attribute 'name'&quot;
+# But the actual bug was passing int instead of str THREE calls earlier!
+</code></pre>
+<h3 id="the-solution-type_safe-decorator">The Solution: @type_safe Decorator<a class="headerlink" href="#the-solution-type_safe-decorator" title="Permanent link">&para;</a></h3>
+<p>The <code>@type_safe</code> decorator provides <strong>runtime type enforcement</strong> for both <strong>parameters</strong> and <strong>return values</strong>:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+
+@type_safe
+def process_user(user_id: Safe_Id, age: int, active: bool) -&gt; str:
+    return f&quot;User {user_id}, age {age}, active={active}&quot;
+
+# Runtime validation catches errors IMMEDIATELY
+process_user(Safe_Id(&quot;usr-123&quot;), 25, True)       # ✓ Valid
+process_user(&quot;usr-123&quot;, 25, True)                # ✓ Auto-converts to Safe_Id
+process_user(12345, 25, True)                    # ✗ ValueError: Expected 'Safe_Id', but got 'int'
+process_user(Safe_Id(&quot;usr-123&quot;), &quot;25&quot;, True)     # ✗ ValueError: Expected 'int', but got 'str'
+
+# Return type is also validated
+@type_safe
+def get_status() -&gt; int:
+    return &quot;not an int&quot;                          # ✗ TypeError: return type validation failed
+</code></pre>
+<h3 id="key-capabilities">Key Capabilities<a class="headerlink" href="#key-capabilities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Python Default</th>
+<th>@type_safe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parameter type checking</td>
+<td>❌ None</td>
+<td>✓ Every call</td>
+</tr>
+<tr>
+<td>Return type checking</td>
+<td>❌ None</td>
+<td>✓ Every non-None return</td>
+</tr>
+<tr>
+<td>Auto-conversion to Safe_*</td>
+<td>❌ None</td>
+<td>✓ Parameters &amp; returns</td>
+</tr>
+<tr>
+<td>List/Dict element validation</td>
+<td>❌ None</td>
+<td>✓ Validates each element</td>
+</tr>
+<tr>
+<td>Optional via <code>= None</code> default</td>
+<td>❌ None</td>
+<td>✓ Full support</td>
+</tr>
+<tr>
+<td>Clear error messages</td>
+<td>❌ Generic errors</td>
+<td>✓ Names parameter, expected vs got</td>
+</tr>
+<tr>
+<td>Callable validation</td>
+<td>❌ None</td>
+<td>✓ Checks List[Callable]</td>
+</tr>
+<tr>
+<td>Collection auto-conversion</td>
+<td>❌ None</td>
+<td>✓ list→Type_Safe__List on return</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-two-phase-validation">The Two-Phase Validation<a class="headerlink" href="#the-two-phase-validation" title="Permanent link">&para;</a></h3>
+<p>The <code>@type_safe</code> decorator validates at <strong>two critical points</strong>:</p>
+<pre><code class="language-python">@type_safe
+def transform(data: List[str]) -&gt; Dict[str, int]:
+    #         ↑                    ↑
+    #    PHASE 1: Call-time    PHASE 2: Return-time
+    #    - All parameters      - Return value matches annotation
+    #    - Each list element   - Auto-converts if needed
+    #    - Union matching      - Validates constraints
+
+    result = {}
+    for item in data:
+        result[item] = len(item)
+    return result                                # Validated here!
+</code></pre>
+<hr />
+<h2 id="call-time-validation">Call-Time Validation<a class="headerlink" href="#call-time-validation" title="Permanent link">&para;</a></h2>
+<h3 id="basic-type-validation">Basic Type Validation<a class="headerlink" href="#basic-type-validation" title="Permanent link">&para;</a></h3>
+<p>Every parameter is checked against its annotation:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+
+@type_safe
+def basic_method(param: Safe_Id, number: int) -&gt; str:
+    return f&quot;{param}-{number}&quot;
+
+# Valid calls
+basic_method(Safe_Id(&quot;test&quot;), 42)                # ✓ Exact types
+basic_method(&quot;test_id&quot;, 42)                      # ✓ Auto-converts str to Safe_Id
+
+# Invalid calls - caught immediately
+basic_method(b&quot;bytes&quot;, 42)                       
+# ✗ ValueError: Parameter 'param' expected type &lt;class 'Safe_Id'&gt;, but got &lt;class 'bytes'&gt;
+
+basic_method(Safe_Id(&quot;test&quot;), &quot;not_int&quot;)
+# ✗ ValueError: Parameter 'number' expected type &lt;class 'int'&gt;, but got &lt;class 'str'&gt;
+</code></pre>
+<h3 id="union-types">Union Types<a class="headerlink" href="#union-types" title="Permanent link">&para;</a></h3>
+<p>Parameters accepting multiple types use <code>Union</code>:</p>
+<pre><code class="language-python">from typing import Union
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid import Random_Guid
+
+@type_safe
+def handle_identifier(param: Union[Safe_Id, Random_Guid]) -&gt; str:
+    if isinstance(param, Safe_Id):
+        return f&quot;Safe_Id: {param}&quot;
+    return f&quot;Random_Guid: {param}&quot;
+
+# Either type is valid
+handle_identifier(Safe_Id(&quot;test&quot;))               # ✓ &quot;Safe_Id: test&quot;
+handle_identifier(Random_Guid())                 # ✓ &quot;Random_Guid: a4f3c2b1-...&quot;
+
+# Other types rejected
+handle_identifier(42)
+# ✗ ValueError: Parameter 'param' expected one of types (Safe_Id, Random_Guid), but got &lt;class 'int'&gt;
+</code></pre>
+<h3 id="optional-parameters-using-default-none">Optional Parameters (Using Default = None)<a class="headerlink" href="#optional-parameters-using-default-none" title="Permanent link">&para;</a></h3>
+<p>A parameter becomes optional by setting <code>= None</code> as its default value - <strong>no need for <code>Optional[T]</code></strong>:</p>
+<pre><code class="language-python">@type_safe
+def required_param(value: str) -&gt; str:
+    return value
+
+@type_safe
+def optional_param(value: str = None) -&gt; str:   # = None makes it optional
+    return value
+
+# Required parameter rejects None
+required_param(None)
+# ✗ ValueError: Parameter 'value' is not optional but got None
+
+# Optional parameter accepts None
+optional_param(None)                             # ✓ Returns None
+optional_param(&quot;test&quot;)                           # ✓ Returns &quot;test&quot;
+</code></pre>
+<p><strong>Design Philosophy: Don't Use <code>Optional[T]</code></strong></p>
+<p>While <code>Optional[T]</code> is supported, the recommended pattern is simply <code>param: T = None</code>:</p>
+<pre><code class="language-python"># ✓ RECOMMENDED: Use = None default
+@type_safe
+def find_user(user_id: Safe_Id = None) -&gt; User:
+    if user_id is None:
+        return None                              # Not found
+    return self.repository.get(user_id)
+
+# ✗ AVOID: Optional[T] is unnecessary verbosity
+@type_safe
+def find_user(user_id: Optional[Safe_Id] = None) -&gt; Optional[User]:
+    # Same behavior, more typing
+    pass
+</code></pre>
+<p><strong>Why avoid <code>Optional</code>?</strong>
+- <code>None</code> is a valid response meaning "not found" or "not set"
+- It's the <strong>caller's responsibility</strong> to handle <code>None</code> appropriately
+- The <code>= None</code> default clearly signals optionality
+- Less verbose, same behavior</p>
+<h3 id="typet-parameters-class-types">Type[T] Parameters (Class Types)<a class="headerlink" href="#typet-parameters-class-types" title="Permanent link">&para;</a></h3>
+<p>When a parameter expects a <strong>class</strong> (not an instance), use <code>Type[T]</code>:</p>
+<pre><code class="language-python">from typing import Type, Optional
+
+@type_safe
+def accept_class(string_class: Optional[Type[str]] = None,
+                 int_class   : Optional[Type[int]] = None) -&gt; dict:
+    return {'string_class': string_class, 'int_class': int_class}
+
+# Pass actual classes
+accept_class(string_class=str)                   # ✓ str is Type[str]
+accept_class(string_class=Safe_Id)               # ✓ Safe_Id is subclass of str
+accept_class(int_class=int)                      # ✓ int is Type[int]
+accept_class(int_class=Timestamp_Now)            # ✓ Timestamp_Now is subclass of int
+
+# Wrong class hierarchies rejected
+accept_class(string_class=int)
+# ✗ ValueError: Parameter 'string_class' expected Type[str], but int is not a subclass of str
+
+accept_class(int_class=Safe_Id)
+# ✗ ValueError: Parameter 'int_class' expected Type[int], but Safe_Id is not a subclass of int
+</code></pre>
+<h3 id="list-element-validation">List Element Validation<a class="headerlink" href="#list-element-validation" title="Permanent link">&para;</a></h3>
+<p><code>List[T]</code> validates <strong>every element</strong>, not just the list itself:</p>
+<pre><code class="language-python">from typing import List
+
+@type_safe
+def process_items(items: List[str]) -&gt; int:
+    return len(items)
+
+process_items(['a', 'b', 'c'])                   # ✓ All strings
+
+process_items(['a', 'b', 123])
+# ✗ ValueError: List item at index 2 expected type &lt;class 'str'&gt;, but got &lt;class 'int'&gt;
+#                                  ↑ Identifies WHICH element failed
+</code></pre>
+<p>This is <strong>critical</strong> - Python's type hints don't catch this:</p>
+<pre><code class="language-python"># Without @type_safe - bugs slip through
+def unsafe_process(items: List[str]) -&gt; int:
+    return len(items)
+
+unsafe_process(['a', 'b', 123])                  # ✗ No error! Bug continues...
+
+# With @type_safe - caught immediately
+@type_safe
+def safe_process(items: List[str]) -&gt; int:
+    return len(items)
+
+safe_process(['a', 'b', 123])                    # ✗ Caught at index 2!
+</code></pre>
+<h3 id="listcallable-validation">List[Callable] Validation<a class="headerlink" href="#listcallable-validation" title="Permanent link">&para;</a></h3>
+<p>Special handling for lists of functions:</p>
+<pre><code class="language-python">from typing import List, Callable, Any
+
+@type_safe
+def apply_transforms(transformations: List[Callable[[Any], Any]]) -&gt; None:
+    pass
+
+# Valid callables
+def func1(x): return x
+def func2(x): return x * 2
+
+apply_transforms([func1, func2])                 # ✓ Functions
+apply_transforms([lambda x: x + 1])              # ✓ Lambdas
+apply_transforms([str.upper, str.lower])         # ✓ Built-in methods
+apply_transforms([len, abs, round])              # ✓ Built-in functions
+apply_transforms([])                             # ✓ Empty list
+
+# Invalid items caught with index
+apply_transforms([&quot;not_a_function&quot;])
+# ✗ ValueError: List item at index 0 expected callable but got &lt;class 'str'&gt;
+
+apply_transforms([func1, 123])
+# ✗ ValueError: List item at index 1 expected callable but got &lt;class 'int'&gt;
+
+apply_transforms([func1, func2, None])
+# ✗ ValueError: List item at index 2 expected callable but got &lt;class 'NoneType'&gt;
+
+# Callable class instances work too
+class CallableClass:
+    def __call__(self, x):
+        return x * 2
+
+apply_transforms([CallableClass()])              # ✓ Has __call__
+
+class NonCallable:
+    pass
+
+apply_transforms([NonCallable()])
+# ✗ ValueError: List item at index 0 expected callable but got &lt;class 'NonCallable'&gt;
+</code></pre>
+<h3 id="complex-type_safe-types">Complex Type_Safe Types<a class="headerlink" href="#complex-type_safe-types" title="Permanent link">&para;</a></h3>
+<p>Type_Safe classes as parameters get full validation:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class ComplexType(Type_Safe):
+    id   : str
+    value: int
+
+@type_safe
+def process_complex(data: ComplexType) -&gt; str:
+    return f&quot;{data.id}-{data.value}&quot;
+
+# Must be actual ComplexType instance
+obj = ComplexType(id=&quot;test&quot;, value=42)
+process_complex(obj)                             # ✓ &quot;test-42&quot;
+
+# Dict won't auto-convert for parameters (unlike Type_Safe class fields)
+process_complex({&quot;id&quot;: &quot;test&quot;, &quot;value&quot;: 42})
+# ✗ ValueError: Parameter 'data' expected type &lt;class 'ComplexType'&gt;, but got &lt;class 'dict'&gt;
+</code></pre>
+<h3 id="multiple-parameters">Multiple Parameters<a class="headerlink" href="#multiple-parameters" title="Permanent link">&para;</a></h3>
+<p>All parameters validated in order:</p>
+<pre><code class="language-python">@type_safe
+def multi_param(id    : Safe_Id,
+                number: int,
+                guid  : Random_Guid,
+                text  : str) -&gt; str:
+    return &quot;success&quot;
+
+# All must be valid
+multi_param(Safe_Id(&quot;test&quot;), 42, Random_Guid(), &quot;string&quot;)  # ✓
+
+# First invalid parameter triggers error
+multi_param(Safe_Id(&quot;test&quot;), &quot;not_int&quot;, Random_Guid(), &quot;string&quot;)
+# ✗ ValueError: Parameter 'number' expected type &lt;class 'int'&gt;, but got &lt;class 'str'&gt;
+</code></pre>
+<h3 id="default-values">Default Values<a class="headerlink" href="#default-values" title="Permanent link">&para;</a></h3>
+<p>Default values work normally:</p>
+<pre><code class="language-python">@type_safe
+def with_defaults(param: Safe_Id = Safe_Id(&quot;default&quot;)) -&gt; str:
+    return str(param)
+
+with_defaults()                                  # ✓ &quot;default&quot;
+with_defaults(Safe_Id(&quot;custom&quot;))                 # ✓ &quot;custom&quot;
+</code></pre>
+<hr />
+<h2 id="return-time-validation">Return-Time Validation<a class="headerlink" href="#return-time-validation" title="Permanent link">&para;</a></h2>
+<h3 id="basic-return-type-validation">Basic Return Type Validation<a class="headerlink" href="#basic-return-type-validation" title="Permanent link">&para;</a></h3>
+<p>Return values are checked against the annotation:</p>
+<pre><code class="language-python">@type_safe
+def return_int() -&gt; int:
+    return 42                                    # ✓ Valid
+
+@type_safe
+def return_wrong() -&gt; int:
+    return &quot;not an int&quot;                          # ✗ Checked here!
+
+return_wrong()
+# ✗ TypeError: Function 'return_wrong' return type validation failed: 
+#              Expected type &lt;class 'int'&gt;, but got &lt;class 'str'&gt;
+</code></pre>
+<h3 id="type_safe-primitive-returns">Type_Safe Primitive Returns<a class="headerlink" href="#type_safe-primitive-returns" title="Permanent link">&para;</a></h3>
+<p>Primitives are validated AND auto-converted:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+
+@type_safe
+def return_safe_id() -&gt; Safe_Id:
+    return Safe_Id(&quot;test&quot;)                       # ✓ Already correct type
+
+result = return_safe_id()
+assert type(result) is Safe_Id
+
+# String return with Safe_Id annotation - auto-converts!
+@type_safe
+def return_converted() -&gt; Safe_Id:
+    return &quot;will_be_converted&quot;                   # Auto-converts to Safe_Id
+
+result = return_converted()
+assert type(result) is Safe_Id                   # ✓ Converted!
+assert result == &quot;will_be_converted&quot;
+</code></pre>
+<h3 id="return-auto-conversion-with-validation">Return Auto-Conversion with Validation<a class="headerlink" href="#return-auto-conversion-with-validation" title="Permanent link">&para;</a></h3>
+<p>When returning a primitive that should be a Safe_<em> type, the decorator:
+1. Converts to the Safe_</em> type
+2. <strong>Validates constraints</strong> during conversion</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.Safe_UInt import Safe_UInt
+
+@type_safe
+def returns_safe_uint() -&gt; Safe_UInt:
+    return 42                                    # int → Safe_UInt
+
+result = returns_safe_uint()
+assert isinstance(result, Safe_UInt)             # ✓ Converted
+assert result == 42
+
+# Constraint validation happens during conversion!
+@type_safe
+def returns_negative() -&gt; Safe_UInt:
+    return -1                                    # int → Safe_UInt (fails!)
+
+returns_negative()
+# ✗ ValueError: Safe_UInt must be &gt;= 0, got -1
+#   The Safe_UInt constraint is enforced even though we returned plain int
+</code></pre>
+<h3 id="optional-return-types">Optional Return Types<a class="headerlink" href="#optional-return-types" title="Permanent link">&para;</a></h3>
+<p>Returning <code>None</code> is <strong>always allowed</strong>, regardless of whether the return type includes <code>Optional</code>:</p>
+<pre><code class="language-python">@type_safe
+def might_return_none(value: str) -&gt; str:
+    return None                                  # ✓ Allowed! None bypasses validation
+
+result = might_return_none(&quot;test&quot;)
+assert result is None                            # ✓ Works
+
+# This is by design: None means &quot;not found&quot; or &quot;no result&quot;
+# The caller is responsible for handling None appropriately
+</code></pre>
+<p><strong>Design Philosophy</strong>: Return type validation only applies to <strong>non-None</strong> values. When a function returns <code>None</code>, it signals "no result" and the caller must handle it. This avoids forcing unnecessary <code>Optional[T]</code> declarations everywhere.</p>
+<h3 id="union-return-types">Union Return Types<a class="headerlink" href="#union-return-types" title="Permanent link">&para;</a></h3>
+<p><code>Union</code> allows returning multiple types:</p>
+<pre><code class="language-python">from typing import Union
+
+@type_safe
+def return_union(which: str) -&gt; Union[int, str]:
+    return 42 if which == &quot;int&quot; else &quot;hello&quot;
+
+return_union(&quot;int&quot;)                              # ✓ 42
+return_union(&quot;str&quot;)                              # ✓ &quot;hello&quot;
+
+@type_safe
+def return_union_wrong() -&gt; Union[int, str]:
+    return []                                    # Neither int nor str
+
+return_union_wrong()
+# ✗ TypeError: return type validation failed
+</code></pre>
+<h3 id="list-return-validation">List Return Validation<a class="headerlink" href="#list-return-validation" title="Permanent link">&para;</a></h3>
+<p><code>List[T]</code> validates every returned element:</p>
+<pre><code class="language-python">from typing import List
+
+@type_safe
+def return_list() -&gt; List[int]:
+    return [1, 2, 3]                             # ✓ All ints
+
+@type_safe
+def return_list_wrong() -&gt; List[int]:
+    return [1, &quot;two&quot;, 3]                         # ✗ Index 1 is str
+
+return_list_wrong()
+# ✗ TypeError: In Type_Safe__List: Invalid type for item: Expected 'int', but got 'str'
+</code></pre>
+<h3 id="dict-return-validation">Dict Return Validation<a class="headerlink" href="#dict-return-validation" title="Permanent link">&para;</a></h3>
+<p><code>Dict[K, V]</code> validates all keys AND values:</p>
+<pre><code class="language-python">from typing import Dict
+
+@type_safe
+def return_dict() -&gt; Dict[str, int]:
+    return {&quot;a&quot;: 1, &quot;b&quot;: 2}                      # ✓ Valid
+
+@type_safe
+def return_dict_wrong_key() -&gt; Dict[str, int]:
+    return {1: 1, 2: 2}                          # ✗ Keys should be str
+
+return_dict_wrong_key()
+# ✗ TypeError: Expected 'str', but got 'int'
+
+@type_safe
+def return_dict_wrong_value() -&gt; Dict[str, int]:
+    return {&quot;a&quot;: &quot;one&quot;, &quot;b&quot;: &quot;two&quot;}              # ✗ Values should be int
+
+return_dict_wrong_value()
+# ✗ TypeError: Expected 'int', but got 'str'
+</code></pre>
+<h3 id="inheritance-support">Inheritance Support<a class="headerlink" href="#inheritance-support" title="Permanent link">&para;</a></h3>
+<p>Subclasses are valid when base class is declared:</p>
+<pre><code class="language-python">class Base(Type_Safe):
+    name: str
+
+class Derived(Base):
+    value: int
+
+@type_safe
+def return_base() -&gt; Base:
+    return Derived()                             # ✓ Derived IS-A Base
+
+result = return_base()
+assert isinstance(result, Base)                  # ✓
+assert isinstance(result, Derived)               # ✓ Actual type preserved
+</code></pre>
+<h3 id="type_safe-object-returns">Type_Safe Object Returns<a class="headerlink" href="#type_safe-object-returns" title="Permanent link">&para;</a></h3>
+<p>Full validation for Type_Safe class returns:</p>
+<pre><code class="language-python">class MyClass(Type_Safe):
+    value: str
+
+class OtherClass(Type_Safe):
+    number: int
+
+@type_safe
+def return_type_safe() -&gt; MyClass:
+    return MyClass(value=&quot;test&quot;)                 # ✓
+
+@type_safe
+def return_wrong_class() -&gt; MyClass:
+    return OtherClass(number=42)                 # ✗ Wrong class
+
+return_wrong_class()
+# ✗ TypeError: return type validation failed
+</code></pre>
+<hr />
+<h2 id="return-value-auto-conversion">Return Value Auto-Conversion<a class="headerlink" href="#return-value-auto-conversion" title="Permanent link">&para;</a></h2>
+<p>The decorator automatically converts return values to Type_Safe collections when the return type annotation specifies them. This ensures type safety is maintained throughout the call chain.</p>
+<h3 id="list-type_safe__list-conversion">List → Type_Safe__List Conversion<a class="headerlink" href="#list-type_safe__list-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing import List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+
+@type_safe
+def get_items() -&gt; List[str]:
+    return [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]                       # Plain list
+
+result = get_items()
+assert type(result) is Type_Safe__List           # ✓ Auto-converted!
+assert result.expected_type is str               # ✓ Type preserved
+result.append(123)                               # ✗ TypeError! Now type-safe
+</code></pre>
+<h3 id="set-type_safe__set-conversion">Set → Type_Safe__Set Conversion<a class="headerlink" href="#set-type_safe__set-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing import Set
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set import Type_Safe__Set
+
+@type_safe
+def get_unique() -&gt; Set[str]:
+    return {&quot;a&quot;, &quot;b&quot;, &quot;c&quot;}                       # Plain set
+
+result = get_unique()
+assert type(result) is Type_Safe__Set            # ✓ Auto-converted!
+assert result.expected_type is str
+result.add(123)                                  # ✗ TypeError! Now type-safe
+</code></pre>
+<h3 id="dict-type_safe__dict-conversion">Dict → Type_Safe__Dict Conversion<a class="headerlink" href="#dict-type_safe__dict-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing import Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+
+@type_safe
+def get_mapping() -&gt; Dict[str, int]:
+    return {&quot;a&quot;: 1, &quot;b&quot;: 2}                      # Plain dict
+
+result = get_mapping()
+assert type(result) is Type_Safe__Dict           # ✓ Auto-converted!
+assert result.expected_key_type is str
+assert result.expected_value_type is int
+result[&quot;c&quot;] = &quot;not int&quot;                          # ✗ TypeError! Now type-safe
+</code></pre>
+<h3 id="collection-subclass-returns">Collection Subclass Returns<a class="headerlink" href="#collection-subclass-returns" title="Permanent link">&para;</a></h3>
+<p>When returning a Type_Safe collection subclass, plain collections auto-convert:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+
+class Id_List(Type_Safe__List):
+    expected_type = Safe_Id
+
+@type_safe
+def get_ids() -&gt; Id_List:
+    return [&quot;id-1&quot;, &quot;id-2&quot;, &quot;id-3&quot;]              # Plain list with strings
+
+result = get_ids()
+assert type(result) is Id_List                   # ✓ Converted to Id_List!
+assert all(isinstance(x, Safe_Id) for x in result)  # ✓ Elements converted!
+</code></pre>
+<p>Same for Dict and Set subclasses:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash import Safe_Str__Hash
+
+class Hash_Mapping(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Hash
+    expected_value_type = str
+
+@type_safe
+def get_hashes() -&gt; Hash_Mapping:
+    return {&quot;abc1234567&quot;: &quot;value1&quot;, &quot;def1234567&quot;: &quot;value2&quot;}
+
+result = get_hashes()
+assert type(result) is Hash_Mapping              # ✓ Correct subclass
+assert all(isinstance(k, Safe_Str__Hash) for k in result.keys())  # ✓ Keys converted
+</code></pre>
+<hr />
+<h2 id="performance-optimizations">Performance Optimizations<a class="headerlink" href="#performance-optimizations" title="Permanent link">&para;</a></h2>
+<h3 id="direct-execution-for-simple-methods">Direct Execution for Simple Methods<a class="headerlink" href="#direct-execution-for-simple-methods" title="Permanent link">&para;</a></h3>
+<p>The decorator detects methods with no parameters (or only <code>self</code>) and bypasses most validation overhead:</p>
+<pre><code class="language-python">@type_safe
+def no_params() -&gt; str:
+    return &quot;fast&quot;                                # ~5x overhead vs undecorated
+
+@type_safe
+def only_self(self) -&gt; str:
+    return &quot;fast&quot;                                # ~5x overhead
+
+@type_safe  
+def with_params(a: int, b: str) -&gt; str:
+    return f&quot;{a}-{b}&quot;                            # Full validation (~overhead varies)
+</code></pre>
+<p>The decorator pre-calculates:
+- <code>has_no_params</code> - No parameters at all
+- <code>has_only_self</code> - Only <code>self</code> parameter
+- <code>direct_execution</code> - Can skip argument binding</p>
+<h3 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># From the decorator source:
+has_only_self    = len(type_checker.params) == 1 and type_checker.params[0] == 'self'
+has_no_params    = len(type_checker.params) == 0
+direct_execution = has_no_params or has_only_self
+
+# In the wrapper:
+if direct_execution:
+    result = func(*args, **kwargs)               # Skip validation overhead
+else:
+    bound_args = type_checker.handle_type_safety(args, kwargs)
+    # ... full validation path
+</code></pre>
+<hr />
+<h2 id="error-messages">Error Messages<a class="headerlink" href="#error-messages" title="Permanent link">&para;</a></h2>
+<p>The decorator provides <strong>clear, actionable error messages</strong>:</p>
+<h3 id="parameter-errors">Parameter Errors<a class="headerlink" href="#parameter-errors" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@type_safe
+def example(user_id: Safe_Id, count: int) -&gt; str:
+    return f&quot;{user_id}-{count}&quot;
+
+example(12345, 10)
+# ValueError: Parameter 'user_id' expected type &lt;class 'Safe_Id'&gt;, but got &lt;class 'int'&gt;
+#             ↑ Names the parameter
+#                              ↑ Shows expected type
+#                                                       ↑ Shows actual type
+</code></pre>
+<h3 id="list-element-errors">List Element Errors<a class="headerlink" href="#list-element-errors" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@type_safe
+def process(items: List[str]) -&gt; int:
+    return len(items)
+
+process(['a', 'b', 123, 'd'])
+# ValueError: List item at index 2 expected type &lt;class 'str'&gt;, but got &lt;class 'int'&gt;
+#                        ↑ Identifies which element
+</code></pre>
+<h3 id="return-type-errors">Return Type Errors<a class="headerlink" href="#return-type-errors" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@type_safe
+def get_value() -&gt; int:
+    return &quot;string&quot;
+
+get_value()
+# TypeError: Function 'get_value' return type validation failed: 
+#            Expected type &lt;class 'int'&gt;, but got &lt;class 'str'&gt;
+#                    ↑ Names the function
+</code></pre>
+<h3 id="optionalnone-errors">Optional/None Errors<a class="headerlink" href="#optionalnone-errors" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@type_safe
+def required(param: Safe_Id) -&gt; str:
+    return str(param)
+
+required(None)
+# ValueError: Parameter 'param' is not optional but got None
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-use-type_safe-on-public-api-methods">1. Use @type_safe on Public API Methods<a class="headerlink" href="#1-use-type_safe-on-public-api-methods" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class UserService(Type_Safe):
+    @type_safe                                   # ✓ Public API - validate
+    def create_user(self, name: Safe_Str__Username, 
+                          email: Safe_Str__Email) -&gt; User:
+        return self._internal_create(name, email)
+
+    def _internal_create(self, name, email):     # Private - can skip
+        # ... implementation
+        pass
+</code></pre>
+<h3 id="2-always-annotate-return-types">2. Always Annotate Return Types<a class="headerlink" href="#2-always-annotate-return-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ GOOD: Return type enables validation
+@type_safe
+def get_count() -&gt; int:
+    return self.items.count()
+
+# ✗ AVOID: No return validation
+@type_safe
+def get_count(self):                             # Missing -&gt; int
+    return self.items.count()
+</code></pre>
+<h3 id="3-use-safe_-types-for-parameters">3. Use Safe_* Types for Parameters<a class="headerlink" href="#3-use-safe_-types-for-parameters" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ GOOD: Domain-specific validation
+@type_safe
+def process_order(order_id: Safe_Id, 
+                  amount: Safe_Float__Money) -&gt; Receipt:
+    pass
+
+# ✗ AVOID: Raw types bypass validation benefits
+@type_safe
+def process_order(order_id: str, 
+                  amount: float) -&gt; Receipt:
+    pass
+</code></pre>
+<h3 id="4-let-auto-conversion-work-for-you">4. Let Auto-Conversion Work For You<a class="headerlink" href="#4-let-auto-conversion-work-for-you" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ GOOD: Return plain list, get Type_Safe__List
+@type_safe
+def get_items() -&gt; List[Safe_Id]:
+    return [&quot;id-1&quot;, &quot;id-2&quot;, &quot;id-3&quot;]              # Auto-converts!
+
+# ✗ UNNECESSARY: Manual conversion
+@type_safe
+def get_items() -&gt; List[Safe_Id]:
+    result = Type_Safe__List(expected_type=Safe_Id)
+    for id in [&quot;id-1&quot;, &quot;id-2&quot;, &quot;id-3&quot;]:
+        result.append(Safe_Id(id))
+    return result                                # Redundant!
+</code></pre>
+<h3 id="5-use-typet-for-factory-methods">5. Use Type[T] for Factory Methods<a class="headerlink" href="#5-use-typet-for-factory-methods" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing import Type, TypeVar
+
+T = TypeVar('T', bound=Type_Safe)
+
+class Factory(Type_Safe):
+    @type_safe
+    def create(self, cls: Type[T], **kwargs) -&gt; T:
+        return cls(**kwargs)
+</code></pre>
+<h3 id="6-preserve-function-metadata">6. Preserve Function Metadata<a class="headerlink" href="#6-preserve-function-metadata" title="Permanent link">&para;</a></h3>
+<p>The decorator uses <code>@functools.wraps</code> to preserve docstrings and signatures:</p>
+<pre><code class="language-python">@type_safe
+def documented_method(param: Safe_Id) -&gt; str:
+    &quot;&quot;&quot;A test method with documentation.&quot;&quot;&quot;
+    return str(param)
+
+# Preserved!
+assert &quot;test method&quot; in documented_method.__doc__
+
+import inspect
+sig = inspect.signature(documented_method)
+assert 'param' in sig.parameters
+</code></pre>
+<hr />
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-validated-service-methods">Pattern: Validated Service Methods<a class="headerlink" href="#pattern-validated-service-methods" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class OrderService(Type_Safe):
+    repository: Order_Repository
+
+    @type_safe
+    def create_order(self, customer_id : Safe_Id,
+                           items       : List[OrderItem],
+                           total       : Safe_Float__Money) -&gt; Order:
+        # All parameters validated before we get here
+        order = Order(customer_id=customer_id, items=items, total=total)
+        return self.repository.save(order)
+
+    @type_safe
+    def get_order(self, order_id: Safe_Id) -&gt; Optional[Order]:
+        return self.repository.find(order_id)
+
+    @type_safe
+    def list_orders(self, customer_id: Safe_Id,
+                          status     : Optional[OrderStatus] = None) -&gt; List[Order]:
+        # Returns Type_Safe__List automatically
+        return self.repository.find_by_customer(customer_id, status)
+</code></pre>
+<h3 id="pattern-validated-data-transformation">Pattern: Validated Data Transformation<a class="headerlink" href="#pattern-validated-data-transformation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@type_safe
+def transform_data(raw_input  : Dict[str, Any],
+                   validators : List[Callable[[Any], bool]],
+                   output_type: Type[Type_Safe]) -&gt; Type_Safe:
+    &quot;&quot;&quot;Transform raw data with validation.&quot;&quot;&quot;
+    # raw_input: validated as dict
+    # validators: each element validated as callable
+    # output_type: validated as Type_Safe subclass
+
+    for validator in validators:
+        if not validator(raw_input):
+            raise ValueError(&quot;Validation failed&quot;)
+
+    return output_type.from_json(raw_input)
+</code></pre>
+<h3 id="pattern-optional-chaining-with-validation">Pattern: Optional Chaining with Validation<a class="headerlink" href="#pattern-optional-chaining-with-validation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@type_safe
+def get_user_email(user_id: Safe_Id) -&gt; Safe_Str__Email:
+    user = self.find_user(user_id)
+    if user is None:
+        return None                              # ✓ None always allowed on return
+    return user.email                            # ✓ Validated as Safe_Str__Email
+</code></pre>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># The decorator
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe import type_safe
+
+# Common parameter types
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id      import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid  import Random_Guid
+from osbot_utils.type_safe.primitives.core.Safe_Str                    import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Int                    import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_UInt                   import Safe_UInt
+from osbot_utils.type_safe.primitives.core.Safe_Float                  import Safe_Float
+
+# For return type auto-conversion
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List  import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict  import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set   import Type_Safe__Set
+
+# Typing imports for annotations
+from typing import List, Dict, Set, Union, Type, Callable, Any
+# Note: Optional is supported but not recommended - use `param: T = None` instead
+</code></pre>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When using <code>@type_safe</code>:</p>
+<ul>
+<li>[ ] Import decorator from <code>osbot_utils.type_safe.type_safe_core.decorators.type_safe</code></li>
+<li>[ ] Add <code>@type_safe</code> above method definition</li>
+<li>[ ] Annotate ALL parameters with types</li>
+<li>[ ] Annotate return type with <code>-&gt; Type</code></li>
+<li>[ ] Use <code>param: T = None</code> for optional parameters (NOT <code>Optional[T]</code>)</li>
+<li>[ ] Don't use <code>Optional[T]</code> in return types - None is always allowed</li>
+<li>[ ] Use <code>Union[A, B]</code> for multiple acceptable types</li>
+<li>[ ] Use <code>List[T]</code> to validate all elements</li>
+<li>[ ] Use <code>Type[T]</code> for class/type parameters</li>
+<li>[ ] Use Safe_* types for domain validation</li>
+<li>[ ] Trust auto-conversion for return values</li>
+<li>[ ] Expect clear error messages with parameter names</li>
+<li>[ ] Remember: ~5x overhead for no-param methods, more for validated params</li>
+<li>[ ] Use on public API methods, skip for private helpers if performance critical</li>
+<li>[ ] Caller handles None - it means "not found" or "no result"</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

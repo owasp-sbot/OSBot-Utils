@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_F__schema_based_fast_creation/HYPOTHESIS_F__brief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis F: Schema-Based Fast Create Implementation - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis F: Schema-Based Fast Create Implementation";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_F__schema_based_fast_creation/HYPOTHESIS_F__brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_F__schema_based_fast_creation/HYPOTHESIS_F__brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis F: Schema-Based Fast Create Implementation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-f-schema-based-fast-create-implementation">Hypothesis F: Schema-Based Fast Create Implementation<a class="headerlink" href="#hypothesis-f-schema-based-fast-create-implementation" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 7, 2026<br />
+<strong>Status</strong>: In Progress<br />
+<strong>Baseline</strong>: Standard Type_Safe (full <strong>init</strong> process)</p>
+<hr />
+<h2 id="context-where-we-are">Context: Where We Are<a class="headerlink" href="#context-where-we-are" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Hypothesis</th>
+<th>Finding</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Thread-local config lookup costs ~350 ns</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Config presence vs None adds ~0 ns</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>C</td>
+<td><code>skip_validation</code> in <code>__setattr__</code> → 50-83% faster</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>D</td>
+<td><code>skip_conversion</code> in init → 20-30% faster</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>E</td>
+<td><code>on_demand_nested</code> → 52-84% faster</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><strong>F</strong></td>
+<td><strong>Schema-based fast_create</strong></td>
+<td>🔄 This one</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
+<p>Type_Safe's <code>__init__</code> does a lot of work every single time:</p>
+<pre><code class="language-python">def __init__(self, **kwargs):
+    class_kwargs = self.__cls_kwargs__(provided_kwargs=kwargs)  # Walk MRO, compute defaults
+    type_safe_step_init.init(self, class_kwargs, **kwargs)       # Loop fields, validate each
+</code></pre>
+<p>Even with Hypothesis C/D/E optimizations, we still:
+- Walk the MRO to find annotations
+- Compute default values
+- Loop through fields
+- Apply kwargs</p>
+<p><strong>But the class structure never changes at runtime!</strong></p>
+<hr />
+<h2 id="the-solution-pre-computed-schema">The Solution: Pre-Computed Schema<a class="headerlink" href="#the-solution-pre-computed-schema" title="Permanent link">&para;</a></h2>
+<h3 id="key-insight">Key Insight<a class="headerlink" href="#key-insight" title="Permanent link">&para;</a></h3>
+<p>For each Type_Safe class, pre-compute a "creation schema" that describes:
+- Which fields exist
+- What their default values are
+- Which values can be shared (immutable) vs need fresh copies (mutable)</p>
+<p>Then use <code>object.__new__()</code> + direct <code>__dict__</code> assignment to bypass <code>__init__</code> entirely.</p>
+<h3 id="field-classification">Field Classification<a class="headerlink" href="#field-classification" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field Type</th>
+<th>Mode</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>str = ''</code></td>
+<td><strong>static</strong></td>
+<td>Share reference (immutable)</td>
+</tr>
+<tr>
+<td><code>int = 0</code></td>
+<td><strong>static</strong></td>
+<td>Share reference (immutable)</td>
+</tr>
+<tr>
+<td><code>bool = False</code></td>
+<td><strong>static</strong></td>
+<td>Share reference (immutable)</td>
+</tr>
+<tr>
+<td><code>node_id: Obj_Id</code></td>
+<td><strong>factory</strong></td>
+<td>Call <code>Obj_Id()</code> each time</td>
+</tr>
+<tr>
+<td><code>items: List[str]</code></td>
+<td><strong>factory</strong></td>
+<td>Call <code>Type_Safe__List()</code> each time</td>
+</tr>
+<tr>
+<td><code>data: Dict[str, int]</code></td>
+<td><strong>factory</strong></td>
+<td>Call <code>Type_Safe__Dict()</code> each time</td>
+</tr>
+<tr>
+<td><code>child: Child_Type_Safe</code></td>
+<td><strong>nested</strong></td>
+<td>Recursive fast_create</td>
+</tr>
+<tr>
+<td><code>child: Child_Type_Safe</code></td>
+<td><strong>on_demand</strong></td>
+<td>Set to <code>None</code>, create on access</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="schema-structure">Schema Structure<a class="headerlink" href="#schema-structure" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Field__Schema(Type_Safe):
+    name           : str                           # Field name
+    mode           : str                           # 'static' | 'factory' | 'nested' | 'on_demand'
+    static_value   : Any           = None          # For 'static' mode
+    factory_type   : type          = None          # For 'factory' mode
+    nested_schema  : type          = None          # For 'nested'/'on_demand' mode (target class)
+
+class Class__Creation__Schema(Type_Safe):
+    target_class   : type                          # The Type_Safe class this schema is for
+    fields         : List[Field__Schema]           # All fields
+    static_dict    : Dict[str, Any]                # Pre-built dict of static values
+</code></pre>
+<hr />
+<h2 id="fast-create-flow">Fast Create Flow<a class="headerlink" href="#fast-create-flow" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Cache schemas per class
+_schema_cache: Dict[type, Class__Creation__Schema] = {}
+
+def fast_create(cls, **kwargs):
+    schema = get_or_create_schema(cls)
+
+    # 1. Create empty shell
+    obj = object.__new__(cls)
+
+    # 2. Start with static values (single dict.copy)
+    new_dict = schema.static_dict.copy()
+
+    # 3. Add factory-created values
+    for field in schema.fields:
+        if field.name in kwargs:
+            continue  # User provided
+
+        if field.mode == 'factory':
+            new_dict[field.name] = field.factory_type()
+
+        elif field.mode == 'nested':
+            new_dict[field.name] = fast_create(field.nested_schema)
+
+        elif field.mode == 'on_demand':
+            new_dict[field.name] = None
+
+    # 4. Apply user kwargs
+    new_dict.update(kwargs)
+
+    # 5. Set dict directly (bypasses __init__ entirely!)
+    object.__setattr__(obj, '__dict__', new_dict)
+
+    return obj
+</code></pre>
+<hr />
+<h2 id="cost-comparison">Cost Comparison<a class="headerlink" href="#cost-comparison" title="Permanent link">&para;</a></h2>
+<h3 id="normal-type_safeinit">Normal Type_Safe.<strong>init</strong><a class="headerlink" href="#normal-type_safeinit" title="Permanent link">&para;</a></h3>
+<pre><code>__cls_kwargs__()              # Walk MRO, build defaults      ~2,000 ns
+type_safe_step_init.init()    # Loop through fields           
+  └─► hasattr() check         # Per field                     ~200 ns
+  └─► __setattr__()           # Validate                      ~1,500 ns
+      └─► convert_value()     # Type conversion               ~500 ns
+
+Total (5 fields): ~15,000 ns
+Total (10 fields): ~30,000 ns
+</code></pre>
+<h3 id="schema-based-fast_create">Schema-Based fast_create<a class="headerlink" href="#schema-based-fast_create" title="Permanent link">&para;</a></h3>
+<pre><code>schema.static_dict.copy()     # Single dict copy              ~100-200 ns
+factory_type()                # Per factory field             ~200-500 ns each
+new_dict.update(kwargs)       # Apply overrides               ~50-100 ns
+object.__setattr__(__dict__)  # Single assignment             ~50 ns
+
+Total (5 fields, 2 factory): ~500-800 ns
+Total (10 fields, 3 factory): ~700-1,200 ns
+</code></pre>
+<h3 id="expected-speedup">Expected Speedup<a class="headerlink" href="#expected-speedup" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Normal</th>
+<th>Fast Create</th>
+<th>Speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simple (5 fields)</td>
+<td>~15,000 ns</td>
+<td>~600 ns</td>
+<td><strong>25x</strong></td>
+</tr>
+<tr>
+<td>Complex (10 fields)</td>
+<td>~30,000 ns</td>
+<td>~900 ns</td>
+<td><strong>33x</strong></td>
+</tr>
+<tr>
+<td>With nested</td>
+<td>~50,000 ns</td>
+<td>~1,200 ns</td>
+<td><strong>40x</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="schema-generation">Schema Generation<a class="headerlink" href="#schema-generation" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def generate_schema(cls: type) -&gt; Class__Creation__Schema:
+    &quot;&quot;&quot;Generate creation schema for a Type_Safe class (called once per class)&quot;&quot;&quot;
+
+    # Create one instance normally to get defaults
+    template = cls()
+    template_dict = template.__dict__.copy()
+
+    fields = []
+    static_dict = {}
+
+    for name, value in template_dict.items():
+        if name.startswith('_'):
+            continue
+
+        field = Field__Schema(name=name)
+
+        if is_immutable(value):
+            field.mode = 'static'
+            field.static_value = value
+            static_dict[name] = value
+
+        elif is_type_safe_subclass(type(value)):
+            field.mode = 'nested'  # or 'on_demand' based on config
+            field.nested_schema = type(value)
+
+        else:  # Mutable (list, dict, etc.)
+            field.mode = 'factory'
+            field.factory_type = type(value)
+
+        fields.append(field)
+
+    return Class__Creation__Schema(
+        target_class = cls,
+        fields       = fields,
+        static_dict  = static_dict
+    )
+</code></pre>
+<hr />
+<h2 id="integration-with-type_safe__config">Integration with Type_Safe__Config<a class="headerlink" href="#integration-with-type_safe__config" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">with Type_Safe__Config(fast_create=True):
+    node = Schema__MGraph__Node(node_id=id)  # Uses fast path
+
+with Type_Safe__Config(fast_create=True, on_demand_nested=True):
+    node = Schema__MGraph__Node()            # Fast + deferred nested
+</code></pre>
+<hr />
+<h2 id="what-still-works">What Still Works<a class="headerlink" href="#what-still-works" title="Permanent link">&para;</a></h2>
+<p>After fast_create, the object is fully functional:</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Works?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>isinstance(obj, Type_Safe)</code></td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><code>isinstance(obj, Schema__MGraph__Node)</code></td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><code>obj.json()</code></td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><code>obj.from_json(data)</code></td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><code>obj.__setattr__()</code> validation</td>
+<td>✅ Yes (on subsequent sets)</td>
+</tr>
+<tr>
+<td>All inherited methods</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>We only bypass the initial construction, not runtime safety!</strong></p>
+<hr />
+<h2 id="files-to-create">Files to Create<a class="headerlink" href="#files-to-create" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HYPOTHESIS_F__brief.md</code></td>
+<td>This document</td>
+</tr>
+<tr>
+<td><code>Type_Safe__Fast_Create__Schema.py</code></td>
+<td>Schema classes</td>
+</tr>
+<tr>
+<td><code>Type_Safe__Hypothesis_F.py</code></td>
+<td>fast_create implementation</td>
+</tr>
+<tr>
+<td><code>test_perf__Hypothesis_F.py</code></td>
+<td>Benchmark tests</td>
+</tr>
+<tr>
+<td><code>HYPOTHESIS_F__debrief.md</code></td>
+<td>Post-analysis (after running)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="success-criteria">Success Criteria<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Performance</strong>: 25-50x faster than normal Type_Safe for complex classes</li>
+<li><strong>Functional</strong>: Created objects work identically to normal Type_Safe objects</li>
+<li><strong>Compatibility</strong>: Can be enabled via Type_Safe__Config</li>
+</ol>
+<hr />
+<h2 id="potential-issues-to-watch">Potential Issues to Watch<a class="headerlink" href="#potential-issues-to-watch" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Schema generation cost</strong>: First instantiation per class is expensive (but amortized)</li>
+<li><strong>Inheritance</strong>: Need to handle class hierarchies correctly</li>
+<li><strong>Edge cases</strong>: Optional fields, Union types, custom defaults</li>
+<li><strong>Thread safety</strong>: Schema cache access from multiple threads</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
