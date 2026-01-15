@@ -8,6 +8,7 @@ from unittest                                                                   
 from osbot_utils.helpers.performance.benchmark.schemas.benchmark.Schema__Perf__Benchmark__Session         import Schema__Perf__Benchmark__Session
 from osbot_utils.helpers.performance.benchmark.schemas.benchmark.Schema__Perf__Comparison__Two            import Schema__Perf__Comparison__Two
 from osbot_utils.helpers.performance.benchmark.testing.QA__Benchmark__Test_Data                           import QA__Benchmark__Test_Data
+from osbot_utils.testing.Pytest                                                                           import skip__if_not__in_github_actions
 from osbot_utils.testing.__                                                                               import __, __SKIP__
 from osbot_utils.type_safe.Type_Safe                                                                      import Type_Safe
 from osbot_utils.utils.Files                                                                              import file_create, folder_delete_all, file_exists
@@ -27,6 +28,7 @@ class test_Perf_Benchmark__Diff(TestCase):
 
     @classmethod
     def setUpClass(cls):                                                         # Shared test data
+        skip__if_not__in_github_actions()
         cls.test_data    = QA__Benchmark__Test_Data()
         cls.text_export  = Perf_Benchmark__Export__Text()
         cls.html_export  = Perf_Benchmark__Export__HTML()

@@ -571,3 +571,84 @@ class test_decorator__type_safe__regression(TestCase):
         # assert result == current   # BUG: This is what we get
         assert result == expected
         assert result != with_bug
+
+    def test__regression__list_of_type_T__not_supported(self):      # Document bug where List[Type[SomeClass]] fails validation in @type_safe decorator
+
+        # Define a base class that we want to use in Type[T]
+        class Base_Handler(Type_Safe):
+            name: str = "base"
+
+        class Handler_A(Base_Handler):
+            name: str = "handler_a"
+
+        class Handler_B(Base_Handler):
+            name: str = "handler_b"
+
+        # Define a class with a @type_safe decorated method that takes List[Type[Base_Handler]]
+        class Executor(Type_Safe):
+
+            @type_safe
+            def execute(self,
+                        handler_classes: List[Type[Base_Handler]],  # This is the problematic type
+                        name: str = "test"
+                   ) -> int:
+                return len(handler_classes)
+
+        # BUG: This should work but raises NotImplementedError
+        with Executor() as executor:
+            # Empty list should work
+            #with pytest.raises(NotImplementedError, match="Validation for list items with subscripted type"):
+            #    executor.execute(handler_classes=[])  # BUG: fails even with empty list
+            assert executor.execute(handler_classes=[]) == 0                    # FIXED
+
+            # List with valid classes should work
+            # with pytest.raises(NotImplementedError, match="Validation for list items with subscripted type"):
+            #     executor.execute(handler_classes=[Handler_A, Handler_B])  # BUG: fails
+            assert executor.execute(handler_classes=[Handler_A, Handler_B]) == 2        # FIXED
+
+    def test__regression__list_of_type_T__expected_behavior(self):      # Document what SHOULD happen when bug is fixed
+
+        class Base_Handler(Type_Safe):
+            name: str = "base"
+
+        class Handler_A(Base_Handler):
+            name: str = "handler_a"
+
+        class Handler_B(Base_Handler):
+            name: str = "handler_b"
+
+        class Unrelated_Class(Type_Safe):
+            value: int = 0
+
+        class Executor(Type_Safe):
+
+            @type_safe
+            def execute(self,
+                        handler_classes: List[Type[Base_Handler]],
+                        name: str = "test"
+                   ) -> int:
+                return len(handler_classes)
+
+        executor = Executor()
+
+        # When fixed, these should be the expected behaviors:
+        #
+        # 1. Empty list should work:
+        assert executor.execute(handler_classes=[]) == 0 # Should return 0
+        #
+        # 2. List with valid subclasses should work:
+        assert executor.execute(handler_classes=[Handler_A, Handler_B]) == 2  # Should return 2
+
+        # 3. List with base class itself should work:
+        assert executor.execute(handler_classes=[Base_Handler]) == 1 # Should return 1
+
+        #
+        # 4. List with non-subclass should raise ValueError:
+        error_message_1 =  "List item at index 0 expected subclass of Base_Handler, but got Unrelated_Class"
+        with pytest.raises(ValueError,match=error_message_1):
+            executor.execute(handler_classes=[Unrelated_Class])
+
+        # 5. List with non-type should raise ValueError:
+        error_message_2 =  "List item at index 0 expected a type/class but got Handler_A"
+        with pytest.raises(ValueError,match=error_message_2):
+            executor.execute(handler_classes=[Handler_A()])  # instance, not class

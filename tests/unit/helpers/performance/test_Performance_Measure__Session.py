@@ -7,6 +7,7 @@ from osbot_utils.helpers.performance.Performance_Measure__Session               
 from osbot_utils.helpers.performance.Performance_Measure__Session                       import MEASURE__INVOCATION__LOOPS__QUICK
 from osbot_utils.helpers.performance.Performance_Measure__Session                       import MEASURE__INVOCATION__LOOPS__FAST
 from osbot_utils.helpers.performance.schemas.Schema__Performance_Measure__Measurement   import Schema__Performance_Measure__Measurement
+from osbot_utils.testing.Pytest                                                         import skip__if_not__in_github_actions
 from osbot_utils.type_safe.Type_Safe                                                    import Type_Safe
 
 
@@ -445,6 +446,7 @@ class test_Performance_Measure__Session(TestCase):
             assert _.result.raw_score   > 0
 
     def test_integration__slow_function_quick_mode(self):                                       # Test quick mode for slow functions
+        skip__if_not__in_github_actions()
         import time
         def slow_function():
             time.sleep(0.001)                                                                   # 1ms delay

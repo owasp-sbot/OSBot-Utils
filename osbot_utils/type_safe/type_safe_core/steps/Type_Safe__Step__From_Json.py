@@ -157,6 +157,9 @@ class Type_Safe__Step__From_Json:
             else:
                 return expected_type(**item)
         else:
+            if isinstance(type_safe_cache.get_origin(expected_type), type):
+                resolved_type = self.deserialize_type__using_value(item)
+                return resolved_type
             return expected_type(item)
 
     def handle_special_types(self, _self, key, annotation, value):                          # Handle special types like enums and Type_Safe__Primitive subclasses."""
