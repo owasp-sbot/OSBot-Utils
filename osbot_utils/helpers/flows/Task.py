@@ -88,6 +88,10 @@ class Task(Type_Safe):
         dependency_manager.add_dependency('this_flow', self.task_flow     )
         dependency_manager.add_dependency('task_data', self.data          )
         dependency_manager.add_dependency('flow_data', self.task_flow.data)
+
+        for name, value in self.task_flow.task_dependencies().items():                      # Add flow-defined task dependencies
+            dependency_manager.add_dependency(name, value)
+
         self.resolved_args, self.resolved_kwargs = dependency_manager.resolve_dependencies(self.task_target, *self.task_args, **self.task_kwargs)
 
     def execute__task_target__sync(self):

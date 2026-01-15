@@ -283,6 +283,9 @@ class Flow(Type_Safe):
             if not _.flow_id:
                 _.flow_id = self.random_flow_id()
 
+    def task_dependencies(self) -> dict:    # Override in subclasses to provide additional dependencies for task injection
+        return {}                           # Returns a dict mapping parameter names to values that will be auto-injected into @task() decorated functions when they request these parameters.
+
     def add_event_listener(self):
         flow_events.event_listeners.append(self.event_listener)
 
