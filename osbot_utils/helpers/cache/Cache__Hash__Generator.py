@@ -3,9 +3,11 @@ import json
 from typing                                                                                   import List
 from osbot_utils.helpers.cache.schemas.Schema__Cache__Hash__Config                            import Schema__Cache__Hash__Config
 from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
+from osbot_utils.type_safe.primitives.domains.common.raw_str.Raw_Str__Non_Empty               import Raw_Str__Non_Empty
 from osbot_utils.type_safe.primitives.domains.cryptography.enums.Enum__Hash__Algorithm        import Enum__Hash__Algorithm
 from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash      import Safe_Str__Cache_Hash
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Json__Field_Path import Safe_Str__Json__Field_Path
+from osbot_utils.type_safe.type_safe_core.decorators.type_safe                                import type_safe
 
 
 class Cache__Hash__Generator(Type_Safe):                                           # Generate consistent hashes from various input types
@@ -21,7 +23,8 @@ class Cache__Hash__Generator(Type_Safe):                                        
 
         return Safe_Str__Cache_Hash(hash_full[:self.config.length])
 
-    def from_string(self, data: str) -> Safe_Str__Cache_Hash:                       # Hash from string
+    @type_safe
+    def from_string(self, data: Raw_Str__Non_Empty) -> Safe_Str__Cache_Hash:                       # Hash from string
         return self.calculate(data.encode('utf-8'))
 
     def from_bytes(self, data: bytes) -> Safe_Str__Cache_Hash:                      # Hash from bytes

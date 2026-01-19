@@ -1,9 +1,9 @@
 import inspect
 import traceback
 import typing
-
 from osbot_utils.helpers.flows.actions.Task__Stats__Collector import Task__Stats__Collector
 from osbot_utils.helpers.flows.models.Flow_Run__Event_Data    import Flow_Run__Event_Data
+from osbot_utils.type_safe.primitives.core.Safe_UInt          import Safe_UInt
 from osbot_utils.utils.Misc                                   import random_id, lower
 from osbot_utils.helpers.Dependency_Manager                   import Dependency_Manager
 from osbot_utils.helpers.flows.actions.Flow__Events           import flow_events
@@ -68,7 +68,7 @@ class Task(Type_Safe):
         execution_order = self.task_flow.flow_stats.get_next_execution_order()
         self.task_stats.start(flow_id=self.task_flow.flow_id, task_id=self.task_id, task_name=self.task_name, execution_order=execution_order)
 
-        self.on_task_start()
+        self.on_task_start(execution_order=execution_order)
         flow_events.on__task__start(self.task_event_data())
 
         self.task_flow.executed_tasks.append(self)
@@ -88,6 +88,10 @@ class Task(Type_Safe):
         dependency_manager.add_dependency('this_flow', self.task_flow     )
         dependency_manager.add_dependency('task_data', self.data          )
         dependency_manager.add_dependency('flow_data', self.task_flow.data)
+
+        for name, value in self.task_flow.task_dependencies().items():                      # Add flow-defined task dependencies
+            dependency_manager.add_dependency(name, value)
+
         self.resolved_args, self.resolved_kwargs = dependency_manager.resolve_dependencies(self.task_target, *self.task_args, **self.task_kwargs)
 
     def execute__task_target__sync(self):
@@ -152,8 +156,10 @@ class Task(Type_Safe):
         return lower(random_id(prefix=TASK__RANDOM_ID__PREFIX))
 
 
-    def on_task_start(self):                                             # Handle task start event
-        self.task_flow.flow_data.add_task(self.task_id, self.task_name)
+    def on_task_start(self, execution_order:Safe_UInt):                                             # Handle task start event
+        self.task_flow.flow_data.add_task(task_id         = self.task_id    ,
+                                          task_name       = self.task_name  ,
+                                          execution_order = execution_order )
 
     def on_task_end(self):                                               # Handle task end event
         status = 'failed' if self.task_error else 'completed'

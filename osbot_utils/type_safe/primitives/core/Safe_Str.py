@@ -1,7 +1,9 @@
 import re
-from typing                                                                 import Optional
-from osbot_utils.type_safe.Type_Safe__Primitive                             import Type_Safe__Primitive
-from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
+from typing                                                                  import Optional
+from osbot_utils.type_safe.Type_Safe__Primitive                              import Type_Safe__Primitive
+from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode  import Enum__Safe_Str__Regex_Mode
+from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config           import type_safe__show_detailed_errors
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Exception_Detail import type_safe_exception_detail
 
 TYPE_SAFE__STR__REGEX__SAFE_STR = re.compile(r'[^a-zA-Z0-9]')    # Only allow alphanumerics and numbers
 TYPE_SAFE__STR__MAX_LENGTH      = 512
@@ -57,7 +59,10 @@ class Safe_Str(Type_Safe__Primitive, str):
         if cls.strict_validation:
             if cls.regex_mode == Enum__Safe_Str__Regex_Mode.MATCH:               # For 'match' mode, regex defines the valid pattern (like version numbers)
                 if not cls.regex.match(value):
-                    raise ValueError(f"in {cls.__name__}, value does not match required pattern: {cls.regex.pattern}")
+                    if type_safe__show_detailed_errors():
+                        raise type_safe_exception_detail.regex_validation_error(cls, value, cls.regex.pattern, 'sanitize') from None
+                    else:
+                        raise ValueError(f"in {cls.__name__}, value does not match required pattern: {cls.regex.pattern}")
                 return value
             elif cls.regex_mode == Enum__Safe_Str__Regex_Mode.REPLACE:           # For 'replace' mode, regex defines invalid characters to replace
                 if cls.regex.search(value) is not None:

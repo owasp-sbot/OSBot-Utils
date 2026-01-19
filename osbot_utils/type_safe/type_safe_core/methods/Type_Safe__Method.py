@@ -5,7 +5,9 @@ from enum                                                                     im
 from typing                                                                   import get_args, get_origin, Union, List, Any, Dict    # For type hinting utilities
 from osbot_utils.type_safe.Type_Safe__Base                                    import Type_Safe__Base
 from osbot_utils.type_safe.Type_Safe__Primitive                               import Type_Safe__Primitive
+from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config            import type_safe__show_detailed_errors
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations       import type_safe_annotations
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Exception_Detail  import type_safe_exception_detail
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables import IMMUTABLE_TYPES
 
 
@@ -344,6 +346,10 @@ class Type_Safe__Method:                                                        
                              f"            where a type was expected. This is always a bug and usually indicates    \n"
                              f"            an incorrect import (imported a module instead of a class).              \n"
                              f"            Expected type: {expected_type}"                                          ) from None
+
         if isinstance(base_type, type) and not isinstance(param_value, base_type):
-            raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}") from None
+            if type_safe__show_detailed_errors():
+                raise type_safe_exception_detail.parameter_type_error(param_name, expected_type, type(param_value), param_value) from None
+            else:
+                raise ValueError(f"Parameter '{param_name}' expected type {expected_type}, but got {type(param_value)}") from None
         return True

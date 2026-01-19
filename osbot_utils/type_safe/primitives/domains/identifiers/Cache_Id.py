@@ -7,3 +7,7 @@ class Cache_Id(Random_Guid):            # helper class so that we don't use Rand
             return str.__new__(cls, '')
         else:
             return super().__new__(cls, value)
+
+    @staticmethod
+    def new() -> 'Cache_Id':
+        return Cache_Id(Random_Guid())
