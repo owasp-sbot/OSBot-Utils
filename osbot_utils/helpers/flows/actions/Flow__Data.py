@@ -1,4 +1,6 @@
 from typing                                                                         import Optional, Dict, Any
+
+from osbot_utils.type_safe.primitives.core.Safe_UInt import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now    import Timestamp_Now
 from osbot_utils.helpers.flows.models.Flow_Run__Event                               import Flow_Run__Event
 from osbot_utils.helpers.flows.models.Schema__Flow__Artifact                        import Schema__Flow__Artifact
@@ -31,16 +33,20 @@ class Flow__Data(Type_Safe):
     def set_return_value(self, value: Any):                                     # Set flow return value
         self.flow_data.return_value = value
 
-    def add_task(self, task_id: str, task_name: str):                          # Record start of task execution
-        self.flow_data.tasks[task_id] = Schema__Flow__Task__Data(task_id      = task_id         ,
-                                                                 task_name    = task_name       ,
-                                                                 start_time   = Timestamp_Now() ,
-                                                                 end_time     = None            ,
-                                                                 status       = ""              ,
-                                                                 error_message= None            ,
-                                                                 return_value = None            ,
-                                                                 input_args   = ()              ,
-                                                                 input_kwargs = {}              )
+    def add_task(self,
+                 task_id        : str      ,
+                 task_name      : str      ,
+                 execution_order: Safe_UInt):                               # Record start of task execution
+        self.flow_data.tasks[task_id] = Schema__Flow__Task__Data(task_id         = task_id         ,
+                                                                 task_name       = task_name       ,
+                                                                 start_time      = Timestamp_Now() ,
+                                                                 end_time        = None            ,
+                                                                 status          = ""              ,
+                                                                 error_message   = None            ,
+                                                                 execution_order = execution_order ,
+                                                                 return_value    = None            ,
+                                                                 input_args      = ()              ,
+                                                                 input_kwargs    = {}              )
 
     def update_task(self, task_id: str, status: str,                            # Update task execution status
                     error: Optional[Exception] = None,

@@ -1,5 +1,6 @@
 from typing                                                                       import Optional, Any
 from osbot_utils.type_safe.Type_Safe                                              import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_UInt                              import Safe_UInt
 from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now  import Timestamp_Now
 
 
@@ -12,5 +13,6 @@ class Schema__Flow__Task__Data(Type_Safe):                      # Represents the
     status           : str                                      # 'completed', 'failed', 'running'
     error_message    : Optional[str]
     return_value     : Any
+    execution_order  : Safe_UInt
     input_args       : tuple
     input_kwargs     : dict

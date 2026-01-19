@@ -1,13 +1,16 @@
 import collections
 import inspect
+import traceback
 import types
 import typing
 from enum                                                                     import EnumMeta
 from typing                                                                   import Any, List, Set, Tuple, Annotated, Optional, get_args, get_origin, ForwardRef, Type, Dict, _GenericAlias  # noqa (_GenericAlias does exist)
 from osbot_utils.type_safe.Type_Safe__Base                                    import EXACT_TYPE_MATCH
 from osbot_utils.type_safe.Type_Safe__Primitive                               import Type_Safe__Primitive
+from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config            import type_safe__show_detailed_errors
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations       import type_safe_annotations
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Cache             import type_safe_cache
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Exception_Detail  import type_safe_exception_detail
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Raise_Exception   import type_safe_raise_exception
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Shared__Variables import IMMUTABLE_TYPES
 
@@ -332,7 +335,10 @@ class Type_Safe__Validation:
                 actual_type = value
             else:
                 actual_type = type(value)
-            raise ValueError(f"On {target.__class__.__name__}, invalid type for attribute '{name}'. Expected '{expected_type}' but got '{actual_type}'") from None
+            if type_safe__show_detailed_errors():
+                raise type_safe_exception_detail.attribute_type_error(target, name, expected_type, actual_type, value) from None
+            else:
+                raise ValueError(f"On {target.__class__.__name__}, invalid type for attribute '{name}'. Expected '{expected_type}' but got '{actual_type}'") from None
 
     # todo: see if need to add cache support to this method     (it looks like this method is not called very often)
     def validate_type_immutability(self, var_name: str, var_type: Any) -> None:                         # Validates that type is immutable or in supported format
@@ -369,5 +375,6 @@ class Type_Safe__Validation:
             else:
                 if not isinstance(var_value, var_type):
                     type_safe_raise_exception.type_mismatch_error__on_type(base_cls, var_name, var_type, type(var_value))       # Use isinstance for other types
+
 
 type_safe_validation = Type_Safe__Validation()

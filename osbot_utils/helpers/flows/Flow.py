@@ -122,6 +122,7 @@ class Flow(Type_Safe):
     def captured_logs(self):
         return ansis_to_texts(self.captured_exec_logs)
 
+    # todo: this should return a Type_Safe class
     def durations(self):
         return self.flow_stats.durations()
 

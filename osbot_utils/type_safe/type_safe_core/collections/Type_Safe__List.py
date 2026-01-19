@@ -168,3 +168,17 @@ class Type_Safe__List(Type_Safe__Base, list):
             for item in items:
                 self.append(item)
         return self
+
+    def contains(self, items) -> bool:
+        """
+        Supports:
+          - single item        -> True / False
+          - iterable of items -> True if ALL items are contained
+        """
+        if isinstance(items, (list, tuple, set, frozenset)):
+            for item in items:
+                if item not in self:        # delegates to __contains__
+                    return False
+            return True
+
+        return items in self                # delegates to __contains__

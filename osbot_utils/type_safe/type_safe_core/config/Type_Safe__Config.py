@@ -30,6 +30,11 @@ def get_active_config() -> Optional['Type_Safe__Config']:                       
 def set_active_config(config: Optional['Type_Safe__Config']) -> None:             # Set active config
     _thread_local.config = config
 
+def type_safe__show_detailed_errors() -> bool:
+    active_config = get_active_config()
+    if active_config:
+        return active_config.detailed_errors
+    return False
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Type_Safe__Config
@@ -39,13 +44,17 @@ class Type_Safe__Config:                                                        
 
     __slots__ = ('fast_create'     ,                                              # Use schema-based creation
                  'skip_validation' ,                                              # Bypass __setattr__ validation
-                 '_previous_config')                                              # For nested context restoration
+                 '_previous_config',                                               # For nested context restoration
+                 'detailed_errors'
+                 )
 
     def __init__(self                         ,
                  fast_create     : bool = False,
-                 skip_validation : bool = False):
+                 skip_validation : bool = False,
+                 detailed_errors : bool = False,):
         self.fast_create      = fast_create
         self.skip_validation  = skip_validation
+        self.detailed_errors  = detailed_errors
         self._previous_config = None                                              # Stores previous config for nesting
 
     def __enter__(self):                                                          # Context manager entry
