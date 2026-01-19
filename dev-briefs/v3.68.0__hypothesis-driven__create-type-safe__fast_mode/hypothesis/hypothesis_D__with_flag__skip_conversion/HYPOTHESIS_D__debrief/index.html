@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_D__with_flag__skip_conversion/HYPOTHESIS_D__debrief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis D: skip_conversion Flag Implementation - Debrief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis D: skip_conversion Flag Implementation - Debrief";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_D__with_flag__skip_conversion/HYPOTHESIS_D__debrief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_D__with_flag__skip_conversion/HYPOTHESIS_D__debrief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis D: skip_conversion Flag Implementation - Debrief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-d-skip_conversion-flag-implementation-debrief">Hypothesis D: skip_conversion Flag Implementation - Debrief<a class="headerlink" href="#hypothesis-d-skip_conversion-flag-implementation-debrief" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 7, 2026<br />
+<strong>Status</strong>: ✅ SUCCESS<br />
+<strong>Result</strong>: 20-30% improvement from skip_conversion alone, 60%+ combined with skip_validation</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Hypothesis D proved that skipping type conversion for kwargs delivers <strong>significant performance gains</strong> (~1,500 ns per kwarg). Combined with Hypothesis C's <code>skip_validation</code>, the two flags together achieve <strong>up to 84% speedup</strong> (6.3x faster) for objects created with kwargs.</p>
+<p>We also discovered a valuable technique: <strong>running baseline twice for warmup</strong> eliminates ordering effects in benchmarks.</p>
+<hr />
+<h2 id="the-change">The Change<a class="headerlink" href="#the-change" title="Permanent link">&para;</a></h2>
+<h3 id="surgical-point-in-type_safe__step__initinit">Surgical Point in <code>Type_Safe__Step__Init.init()</code><a class="headerlink" href="#surgical-point-in-type_safe__step__initinit" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def init(self, __self, __class_kwargs, **kwargs):
+    config = get_active_config()
+    skip_conversion = config and config.skip_conversion
+
+    for (key, value) in __class_kwargs.items():
+        # ... unchanged ...
+        setattr(__self, key, value)
+
+    for (key, value) in kwargs.items():
+        if hasattr(__self, key):
+            if value is not None:
+                if not skip_conversion:                                    # NEW: one-line check
+                    value = self.convert_value_to_type_safe_objects(__self, key, value)
+                setattr(__self, key, value)
+</code></pre>
+<hr />
+<h2 id="benchmark-methodology">Benchmark Methodology<a class="headerlink" href="#benchmark-methodology" title="Permanent link">&para;</a></h2>
+<h3 id="warmup-technique-validated">Warmup Technique Validated<a class="headerlink" href="#warmup-technique-validated" title="Permanent link">&para;</a></h3>
+<p>Running the baseline twice eliminates ordering/warmup effects:</p>
+<pre><code class="language-python">hypothesis.run_before(run_baseline_benchmarks)    # Warmup (discarded)
+hypothesis.run_before(run_baseline_benchmarks)    # Actual baseline
+hypothesis.run_after(run_hypothesis_benchmarks)   # Hypothesis
+</code></pre>
+<p><strong>Proof</strong>: With identical configs (both False/False), results showed ~0% change:</p>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Before</th>
+<th>After</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A_01__empty</td>
+<td>916 ns</td>
+<td>902 ns</td>
+<td>-1.5%</td>
+</tr>
+<tr>
+<td>A_05__primitives_w_kwargs</td>
+<td>15,743 ns</td>
+<td>15,869 ns</td>
+<td>+0.8%</td>
+</tr>
+</tbody>
+</table>
+<p>This confirms the warmup technique works.</p>
+<hr />
+<h2 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h2>
+<h3 id="test-1-skip_conversion-only-skip_validationfalse">Test 1: skip_conversion Only (skip_validation=False)<a class="headerlink" href="#test-1-skip_conversion-only-skip_validationfalse" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Before</th>
+<th>After</th>
+<th>Savings</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A_01__empty</td>
+<td>912 ns</td>
+<td>823 ns</td>
+<td>-89 ns</td>
+<td>-9.8%</td>
+</tr>
+<tr>
+<td>A_02__with_primitives</td>
+<td>6,484 ns</td>
+<td>6,273 ns</td>
+<td>-211 ns</td>
+<td>-3.3%</td>
+</tr>
+<tr>
+<td>A_03__with_nested</td>
+<td>22,056 ns</td>
+<td>17,945 ns</td>
+<td>-4,111 ns</td>
+<td><strong>-18.6%</strong></td>
+</tr>
+<tr>
+<td>A_04__with_collections</td>
+<td>32,503 ns</td>
+<td>23,031 ns</td>
+<td>-9,472 ns</td>
+<td><strong>-29.1%</strong></td>
+</tr>
+<tr>
+<td>A_05__primitives_w_kwargs</td>
+<td>16,864 ns</td>
+<td>11,693 ns</td>
+<td>-5,171 ns</td>
+<td><strong>-30.7%</strong></td>
+</tr>
+<tr>
+<td>A_06__many_prims_w_kwargs</td>
+<td>70,966 ns</td>
+<td>51,521 ns</td>
+<td>-19,445 ns</td>
+<td><strong>-27.4%</strong></td>
+</tr>
+<tr>
+<td>B_01__primitives_w_kwargs_x10</td>
+<td>178,206 ns</td>
+<td>111,436 ns</td>
+<td>-66,770 ns</td>
+<td><strong>-37.5%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overall: 19.6% improvement</strong> ✅</p>
+<h3 id="test-2-skip_conversion-skip_validation-both-true">Test 2: skip_conversion + skip_validation (Both True)<a class="headerlink" href="#test-2-skip_conversion-skip_validation-both-true" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Before</th>
+<th>After</th>
+<th>Savings</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A_01__empty</td>
+<td>987 ns</td>
+<td>911 ns</td>
+<td>-76 ns</td>
+<td>-7.7%</td>
+</tr>
+<tr>
+<td>A_02__with_primitives</td>
+<td>1,749 ns</td>
+<td>1,587 ns</td>
+<td>-162 ns</td>
+<td>-9.3%</td>
+</tr>
+<tr>
+<td>A_05__primitives_w_kwargs</td>
+<td>6,777 ns</td>
+<td>2,664 ns</td>
+<td>-4,113 ns</td>
+<td><strong>-60.7%</strong></td>
+</tr>
+<tr>
+<td>A_06__many_prims_w_kwargs</td>
+<td>34,972 ns</td>
+<td>21,667 ns</td>
+<td>-13,305 ns</td>
+<td><strong>-38.0%</strong></td>
+</tr>
+<tr>
+<td>B_01__primitives_w_kwargs_x10</td>
+<td>65,380 ns</td>
+<td>24,593 ns</td>
+<td>-40,787 ns</td>
+<td><strong>-62.4%</strong></td>
+</tr>
+<tr>
+<td>B_02__many_prims_w_kwargs_x10</td>
+<td>233,372 ns</td>
+<td>199,077 ns</td>
+<td>-34,295 ns</td>
+<td><strong>-14.7%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overall: 23.4% improvement</strong> ✅</p>
+<hr />
+<h2 id="per-kwarg-conversion-cost">Per-Kwarg Conversion Cost<a class="headerlink" href="#per-kwarg-conversion-cost" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Kwargs</th>
+<th>Total Savings</th>
+<th>Per-Kwarg Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A_05 (skip_conversion only)</td>
+<td>3</td>
+<td>5,171 ns</td>
+<td><strong>~1,724 ns</strong></td>
+</tr>
+<tr>
+<td>A_06 (skip_conversion only)</td>
+<td>10</td>
+<td>19,445 ns</td>
+<td><strong>~1,945 ns</strong></td>
+</tr>
+<tr>
+<td>A_05 (both flags)</td>
+<td>3</td>
+<td>4,113 ns</td>
+<td><strong>~1,371 ns</strong></td>
+</tr>
+<tr>
+<td>A_06 (both flags)</td>
+<td>10</td>
+<td>13,305 ns</td>
+<td><strong>~1,330 ns</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Average: ~1,500 ns per kwarg</strong> for type conversion</p>
+<p>This is <strong>much higher</strong> than the initial estimate of 200-500 ns, making <code>skip_conversion</code> more valuable than expected.</p>
+<hr />
+<h2 id="cumulative-effect-of-both-flags">Cumulative Effect of Both Flags<a class="headerlink" href="#cumulative-effect-of-both-flags" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>A_05 Time</th>
+<th>vs Baseline</th>
+<th>Speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Both False (baseline)</td>
+<td>~16,864 ns</td>
+<td>-</td>
+<td>1.0x</td>
+</tr>
+<tr>
+<td>skip_conversion only</td>
+<td>~11,693 ns</td>
+<td>-31%</td>
+<td>1.4x</td>
+</tr>
+<tr>
+<td>skip_validation only</td>
+<td>~6,777 ns</td>
+<td>-60%</td>
+<td>2.5x</td>
+</tr>
+<tr>
+<td><strong>Both True</strong></td>
+<td><strong>~2,664 ns</strong></td>
+<td><strong>-84%</strong></td>
+<td><strong>6.3x</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The flags are multiplicative</strong> - combining them yields massive speedups.</p>
+<hr />
+<h2 id="what-gets-skipped">What Gets Skipped<a class="headerlink" href="#what-gets-skipped" title="Permanent link">&para;</a></h2>
+<p>When <code>skip_conversion=True</code>, the following is bypassed for each kwarg:</p>
+<pre><code class="language-python">def convert_value_to_type_safe_objects(self, __self, key, value):
+    annotation = type_safe_annotations.obj_attribute_annotation(__self, key)  # ~200 ns
+    if annotation:
+        enum_type = type_safe_annotations.extract_enum_from_annotation(...)   # ~100 ns
+        origin = type_safe_annotations.get_origin(annotation)                  # ~100 ns
+
+        # Multiple isinstance checks and potential conversions:
+        # - list → Type_Safe__List (~500 ns + iteration)
+        # - dict → Type_Safe__Dict (~500 ns + iteration)
+        # - set → Type_Safe__Set (~500 ns + iteration)
+        # - str → Enum (~200 ns)
+        # - dict → nested Type_Safe (~1000+ ns)
+</code></pre>
+<p>Total per kwarg: <strong>~1,500 ns</strong> (validated by benchmarks)</p>
+<hr />
+<h2 id="what-still-works">What Still Works<a class="headerlink" href="#what-still-works" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>With <code>skip_conversion=True</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Default nested Type_Safe</td>
+<td>✅ Still created (via <code>default_value()</code>)</td>
+</tr>
+<tr>
+<td>Default collections</td>
+<td>✅ Still <code>Type_Safe__List/Dict/Set</code></td>
+</tr>
+<tr>
+<td>Kwargs with exact types</td>
+<td>✅ Works perfectly</td>
+</tr>
+<tr>
+<td>Objects with no kwargs</td>
+<td>✅ Unaffected</td>
+</tr>
+</tbody>
+</table>
+<h3 id="verified-by-tests">Verified by Tests<a class="headerlink" href="#verified-by-tests" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Nested Type_Safe still created
+with Type_Safe__Config(skip_validation=True, skip_conversion=True):
+    obj_nested = TS__With_Nested()
+    assert obj_nested.inner is not None                    # ✅ Created
+    assert isinstance(obj_nested.inner, TS__Inner)         # ✅ Correct type
+
+# Collections still created  
+with Type_Safe__Config(skip_validation=True, skip_conversion=True):
+    obj_collections = TS__With_Collections()
+    assert obj_collections.items is not None               # ✅ Created
+    assert obj_collections.data is not None                # ✅ Created
+</code></pre>
+<hr />
+<h2 id="lessons-learned">Lessons Learned<a class="headerlink" href="#lessons-learned" title="Permanent link">&para;</a></h2>
+<h3 id="1-conversion-cost-is-higher-than-expected">1. Conversion Cost is Higher Than Expected<a class="headerlink" href="#1-conversion-cost-is-higher-than-expected" title="Permanent link">&para;</a></h3>
+<p>Initial estimate: 200-500 ns per kwarg<br />
+Actual measurement: <strong>~1,500 ns per kwarg</strong></p>
+<p>This makes <code>skip_conversion</code> more valuable than anticipated.</p>
+<h3 id="2-warmup-technique-works">2. Warmup Technique Works<a class="headerlink" href="#2-warmup-technique-works" title="Permanent link">&para;</a></h3>
+<p>Running baseline twice:</p>
+<pre><code class="language-python">hypothesis.run_before(run_baseline_benchmarks)    # Warmup
+hypothesis.run_before(run_baseline_benchmarks)    # Actual
+</code></pre>
+<p>Eliminates ordering effects completely - control test showed ~0% change.</p>
+<h3 id="3-flags-are-multiplicative">3. Flags are Multiplicative<a class="headerlink" href="#3-flags-are-multiplicative" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Individual Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>skip_validation</td>
+<td>~60-80% faster</td>
+</tr>
+<tr>
+<td>skip_conversion</td>
+<td>~20-30% faster</td>
+</tr>
+<tr>
+<td><strong>Combined</strong></td>
+<td><strong>~84% faster (6.3x)</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-kwargs-heavy-code-benefits-most">4. Kwargs-Heavy Code Benefits Most<a class="headerlink" href="#4-kwargs-heavy-code-benefits-most" title="Permanent link">&para;</a></h3>
+<p>Classes instantiated with many kwargs see the largest improvement:
+- A_05 (3 kwargs): 60% faster
+- A_06 (10 kwargs): 38% faster
+- B_01 (30 kwargs total): 62% faster</p>
+<hr />
+<h2 id="production-implementation">Production Implementation<a class="headerlink" href="#production-implementation" title="Permanent link">&para;</a></h2>
+<p>The change to <code>Type_Safe__Step__Init.init()</code> is minimal (3 lines):</p>
+<pre><code class="language-python">def init(self, __self, __class_kwargs, **kwargs):
+    from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config import get_active_config
+    config = get_active_config()
+    skip_conversion = config and config.skip_conversion                    # NEW
+
+    for (key, value) in __class_kwargs.items():
+        # ... unchanged ...
+
+    for (key, value) in kwargs.items():
+        if hasattr(__self, key):
+            if value is not None:
+                if not skip_conversion:                                    # NEW
+                    value = self.convert_value_to_type_safe_objects(__self, key, value)
+                setattr(__self, key, value)
+        else:
+            raise ValueError(...)
+</code></pre>
+<hr />
+<h2 id="summary-hypothesis-journey-so-far">Summary: Hypothesis Journey So Far<a class="headerlink" href="#summary-hypothesis-journey-so-far" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Hypothesis</th>
+<th>Flag</th>
+<th>Impact</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Thread-local config</td>
+<td>~350 ns overhead</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Config presence</td>
+<td>~0 ns</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>C</td>
+<td><code>skip_validation</code></td>
+<td>50-83% faster</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td><strong><code>skip_conversion</code></strong></td>
+<td><strong>20-30% faster</strong></td>
+<td>✅ Done</td>
+</tr>
+</tbody>
+</table>
+<h3 id="combined-effect">Combined Effect<a class="headerlink" href="#combined-effect" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────┐
+│ Configuration                          │ A_05 Time  │ Speedup      │
+├─────────────────────────────────────────────────────────────────────┤
+│ Normal Type_Safe (no config)           │ ~16,864 ns │ 1.0x         │
+│ skip_validation=True                   │ ~6,777 ns  │ 2.5x         │
+│ skip_conversion=True                   │ ~11,693 ns │ 1.4x         │
+│ BOTH True                              │ ~2,664 ns  │ 6.3x         │
+└─────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="usage-pattern">Usage Pattern<a class="headerlink" href="#usage-pattern" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Normal usage - full safety (default)
+node = MGraph__Node(id='abc', data={...})
+
+# Bulk loading from trusted source - maximum speed
+with Type_Safe__Config(skip_validation=True, skip_conversion=True):
+    for row in database_rows:                    # 6.3x faster!
+        node = MGraph__Node(**row)
+</code></pre>
+<hr />
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<h3 id="potential-future-hypotheses">Potential Future Hypotheses<a class="headerlink" href="#potential-future-hypotheses" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Hypothesis</th>
+<th>Target</th>
+<th>Expected Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E</td>
+<td><code>on_demand_nested</code> - defer nested Type_Safe creation</td>
+<td>Very High</td>
+</tr>
+<tr>
+<td>F</td>
+<td><code>skip_mro_walk</code> - use cached class metadata</td>
+<td>High</td>
+</tr>
+<tr>
+<td>G</td>
+<td><code>fast_collections</code> - shallow copy vs create</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<p>The biggest remaining opportunity is <strong><code>on_demand_nested</code></strong> - avoiding creation of nested Type_Safe objects that may never be accessed.</p>
+<hr />
+<h2 id="appendix-raw-data">Appendix: Raw Data<a class="headerlink" href="#appendix-raw-data" title="Permanent link">&para;</a></h2>
+<h3 id="test-1-control-both-falsefalse-pic-1">Test 1: Control (Both False/False) - Pic 1<a class="headerlink" href="#test-1-control-both-falsefalse-pic-1" title="Permanent link">&para;</a></h3>
+<pre><code>A_01__empty               │ 916 ns     │ 902 ns    │ -14 ns      │ -1.5% ▼
+A_05__primitives_w_kwargs │ 15,743 ns  │ 15,869 ns │ +126 ns     │ +0.8% ▲
+A_06__many_prims_w_kwargs │ 63,156 ns  │ 64,197 ns │ +1,041 ns   │ +1.6% ▲
+× FAILURE (0.0% &lt; 10.0% target) - Expected, this is the control!
+</code></pre>
+<h3 id="test-2-skip_conversion-only-pic-2">Test 2: skip_conversion Only - Pic 2<a class="headerlink" href="#test-2-skip_conversion-only-pic-2" title="Permanent link">&para;</a></h3>
+<pre><code>A_01__empty               │ 912 ns     │ 823 ns    │ -89 ns      │ -9.8% ▼
+A_04__with_collections    │ 32,503 ns  │ 23,031 ns │ -9,472 ns   │ -29.1% ▼
+A_05__primitives_w_kwargs │ 16,864 ns  │ 11,693 ns │ -5,171 ns   │ -30.7% ▼
+A_06__many_prims_w_kwargs │ 70,966 ns  │ 51,521 ns │ -19,445 ns  │ -27.4% ▼
+B_01__primitives_w_kwargs_x10 │ 178,206 ns │ 111,436 ns │ -66,770 ns │ -37.5% ▼
+✓ SUCCESS (19.6% &gt;= 10.0% target)
+</code></pre>
+<h3 id="test-3-both-flags-true-pic-3">Test 3: Both Flags True - Pic 3<a class="headerlink" href="#test-3-both-flags-true-pic-3" title="Permanent link">&para;</a></h3>
+<pre><code>A_02__with_primitives     │ 1,749 ns   │ 1,587 ns  │ -162 ns     │ -9.3% ▼
+A_05__primitives_w_kwargs │ 6,777 ns   │ 2,664 ns  │ -4,113 ns   │ -60.7% ▼
+A_06__many_prims_w_kwargs │ 34,972 ns  │ 21,667 ns │ -13,305 ns  │ -38.0% ▼
+B_01__primitives_w_kwargs_x10 │ 65,380 ns │ 24,593 ns │ -40,787 ns │ -62.4% ▼
+✓ SUCCESS (23.4% &gt;= 10.0% target)
+</code></pre>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

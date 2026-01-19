@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/primitives/safe_str/safe_str__overview_and_architecture/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Safe_Str - Overview and Architecture - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Safe_Str - Overview and Architecture";
+        var mkdocs_page_input_path = "type_safe/primitives/safe_str/safe_str__overview_and_architecture.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/primitives/safe_str/safe_str__overview_and_architecture/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Safe_Str - Overview and Architecture</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="safe_str-overview-and-architecture">Safe_Str - Overview and Architecture<a class="headerlink" href="#safe_str-overview-and-architecture" title="Permanent link">&para;</a></h1>
+<p><em>Type-Safe String Primitives with Built-in Validation</em></p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Safe_Str is a powerful string validation and sanitization system that extends Python's built-in <code>str</code> type with domain-specific constraints and automatic sanitization. It's part of OSBot-Utils' Type_Safe primitive system and provides a foundation for creating secure, validated string types that prevent common security vulnerabilities like injection attacks, path traversal, and XSS.</p>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<pre><code class="language-mermaid">classDiagram
+    class Type_Safe__Primitive {
+        &lt;&lt;abstract&gt;&gt;
+        +__primitive_base__
+        +__add__()
+        +__eq__()
+        +__hash__()
+    }
+
+    class Safe_Str {
+        +max_length: int
+        +regex: Pattern
+        +regex_mode: Enum
+        +replacement_char: str
+        +allow_empty: bool
+        +trim_whitespace: bool
+        +strict_validation: bool
+        +exact_length: bool
+        +__new__()
+        +validate_and_sanitize()
+    }
+
+    class Safe_Str__File__Name {
+        +regex: specific_pattern
+        +allow_empty: False
+    }
+
+    class Safe_Str__Url {
+        +max_length: 2048
+        +regex: url_pattern
+    }
+
+    class Safe_Str__Hash {
+        +exact_length: True
+        +strict_validation: True
+    }
+
+    class Safe_Str__IP_Address {
+        +uses ipaddress module
+        +canonical representation
+    }
+
+    Type_Safe__Primitive &lt;|-- Safe_Str
+    Safe_Str &lt;|-- Safe_Str__File__Name
+    Safe_Str &lt;|-- Safe_Str__Url
+    Safe_Str &lt;|-- Safe_Str__Hash
+    Safe_Str &lt;|-- Safe_Str__IP_Address
+    Safe_Str &lt;|-- Safe_Str__Html
+    Safe_Str &lt;|-- Safe_Str__Version
+</code></pre>
+<h2 id="core-features">Core Features<a class="headerlink" href="#core-features" title="Permanent link">&para;</a></h2>
+<h3 id="1-automatic-validation-and-sanitization">1. Automatic Validation and Sanitization<a class="headerlink" href="#1-automatic-validation-and-sanitization" title="Permanent link">&para;</a></h3>
+<p>Safe_Str provides two modes of operation:</p>
+<p><strong>Strict Mode</strong> - Validates and rejects invalid input:</p>
+<pre><code class="language-python">class StrictEmail(Safe_Str):
+    regex = re.compile(r'^[\w\.-]+@[\w\.-]+\.\w+$')
+    regex_mode = Enum__Safe_Str__Regex_Mode.MATCH
+    strict_validation = True
+
+email = StrictEmail(&quot;user@example.com&quot;)  # ✓ Valid
+email = StrictEmail(&quot;invalid.email&quot;)     # ✗ Raises ValueError
+</code></pre>
+<p><strong>Sanitization Mode</strong> - Automatically cleans invalid characters:</p>
+<pre><code class="language-python">class SafeUsername(Safe_Str):
+    regex = re.compile(r'[^a-zA-Z0-9_]')  # Invalid chars
+    regex_mode = Enum__Safe_Str__Regex_Mode.REPLACE
+    replacement_char = '_'
+
+username = SafeUsername(&quot;user@name!&quot;)  # Returns: &quot;user_name_&quot;
+</code></pre>
+<h3 id="2-regex-modes">2. Regex Modes<a class="headerlink" href="#2-regex-modes" title="Permanent link">&para;</a></h3>
+<p>Safe_Str supports two regex interpretation modes:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Purpose</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>REPLACE</strong></td>
+<td>Define invalid characters</td>
+<td>Replaces matches with replacement_char</td>
+</tr>
+<tr>
+<td><strong>MATCH</strong></td>
+<td>Define valid pattern</td>
+<td>Validates entire string matches pattern</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python"># REPLACE mode - regex defines what to remove/replace
+class SafeText(Safe_Str):
+    regex = re.compile(r'[^a-zA-Z0-9 ]')  # Remove non-alphanumeric
+    regex_mode = Enum__Safe_Str__Regex_Mode.REPLACE
+
+text = SafeText(&quot;Hello@World!&quot;)  # Returns: &quot;Hello_World_&quot;
+
+# MATCH mode - regex defines valid pattern
+class Version(Safe_Str):
+    regex = re.compile(r'^v\d+\.\d+\.\d+$')  # Must match version format
+    regex_mode = Enum__Safe_Str__Regex_Mode.MATCH
+    strict_validation = True
+
+version = Version(&quot;v1.2.3&quot;)  # ✓ Valid
+version = Version(&quot;1.2.3&quot;)   # ✗ Invalid - missing 'v'
+</code></pre>
+<h3 id="3-length-constraints">3. Length Constraints<a class="headerlink" href="#3-length-constraints" title="Permanent link">&para;</a></h3>
+<p>Multiple options for controlling string length:</p>
+<pre><code class="language-python">class FixedLengthCode(Safe_Str):
+    max_length = 10
+    exact_length = True  # Must be exactly 10 chars
+
+code = FixedLengthCode(&quot;ABC1234567&quot;)  # ✓ Exactly 10 chars
+code = FixedLengthCode(&quot;ABC123&quot;)      # ✗ ValueError - not 10 chars
+
+class BoundedText(Safe_Str):
+    max_length = 100     # Up to 100 chars
+    exact_length = False  # Default
+
+text = BoundedText(&quot;Short text&quot;)      # ✓ Under limit
+text = BoundedText(&quot;x&quot; * 101)         # ✗ ValueError - exceeds max
+</code></pre>
+<h3 id="4-whitespace-handling">4. Whitespace Handling<a class="headerlink" href="#4-whitespace-handling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class TrimmedInput(Safe_Str):
+    trim_whitespace = True  # Remove leading/trailing spaces
+
+input = TrimmedInput(&quot;  hello world  &quot;)  # Returns: &quot;hello world&quot;
+
+class PreserveSpaces(Safe_Str):
+    trim_whitespace = False  # Keep all whitespace
+
+input = PreserveSpaces(&quot;  hello world  &quot;)  # Returns: &quot;  hello world  &quot;
+</code></pre>
+<h3 id="5-empty-string-handling">5. Empty String Handling<a class="headerlink" href="#5-empty-string-handling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class RequiredField(Safe_Str):
+    allow_empty = False  # Cannot be empty
+
+field = RequiredField(&quot;&quot;)     # ✗ ValueError
+field = RequiredField(None)   # ✗ ValueError
+field = RequiredField(&quot;data&quot;) # ✓ Valid
+
+class OptionalField(Safe_Str):
+    allow_empty = True  # Can be empty
+
+field = OptionalField(&quot;&quot;)     # ✓ Returns &quot;&quot;
+field = OptionalField(None)   # ✓ Returns &quot;&quot;
+</code></pre>
+<h2 id="built-in-safe-string-types">Built-in Safe String Types<a class="headerlink" href="#built-in-safe-string-types" title="Permanent link">&para;</a></h2>
+<h3 id="file-system-types">File System Types<a class="headerlink" href="#file-system-types" title="Permanent link">&para;</a></h3>
+<p><strong>Safe_Str__File__Name</strong> - Safe filenames preventing path traversal:</p>
+<pre><code class="language-python">filename = Safe_Str__File__Name(&quot;my-file.txt&quot;)     # ✓ Valid
+filename = Safe_Str__File__Name(&quot;../etc/passwd&quot;)   # Sanitized to &quot;___etc_passwd&quot;
+filename = Safe_Str__File__Name(&quot;&quot;)                # ✗ ValueError - empty not allowed
+</code></pre>
+<p><strong>Safe_Str__File__Path</strong> - Safe file paths:</p>
+<pre><code class="language-python">path = Safe_Str__File__Path(&quot;/home/user/docs/file.txt&quot;)  # ✓ Valid
+path = Safe_Str__File__Path(&quot;C:\\Users\\Docs\\file.txt&quot;) # ✓ Valid
+path = Safe_Str__File__Path(&quot;../../etc/passwd&quot;)          # Allowed (but should be validated elsewhere)
+</code></pre>
+<h3 id="webnetwork-types">Web/Network Types<a class="headerlink" href="#webnetwork-types" title="Permanent link">&para;</a></h3>
+<p><strong>Safe_Str__Url</strong> - URL validation and sanitization:</p>
+<pre><code class="language-python">url = Safe_Str__Url(&quot;https://example.com/page?q=test&quot;)    # ✓ Valid
+url = Safe_Str__Url(&quot;javascript:alert('xss')&quot;)            # Sanitized
+url = Safe_Str__Url(&quot;https://example.com/&lt;script&gt;&quot;)       # Sanitized to remove &lt;script&gt;
+</code></pre>
+<p><strong>Safe_Str__IP_Address</strong> - Valid IP addresses only:</p>
+<pre><code class="language-python">ip = Safe_Str__IP_Address(&quot;192.168.1.1&quot;)      # ✓ Valid IPv4
+ip = Safe_Str__IP_Address(&quot;::1&quot;)              # ✓ Valid IPv6
+ip = Safe_Str__IP_Address(&quot;  10.0.0.1  &quot;)     # ✓ Trimmed and valid
+ip = Safe_Str__IP_Address(&quot;999.999.999.999&quot;)  # ✗ ValueError - invalid IP
+</code></pre>
+<h3 id="http-types">HTTP Types<a class="headerlink" href="#http-types" title="Permanent link">&para;</a></h3>
+<p><strong>Safe_Str__Http__Content_Type</strong> - HTTP Content-Type headers:</p>
+<pre><code class="language-python">ct = Safe_Str__Http__Content_Type(&quot;application/json&quot;)           # ✓ Valid
+ct = Safe_Str__Http__Content_Type(&quot;text/html; charset=utf-8&quot;)   # ✓ Valid
+ct = Safe_Str__Http__Content_Type(&quot;text/html\r\n&quot;)             # Sanitized - no CRLF
+</code></pre>
+<p><strong>Safe_Str__Http__ETag</strong> - HTTP ETag headers:</p>
+<pre><code class="language-python">etag = Safe_Str__Http__ETag('&quot;33a64df551&quot;')          # ✓ Valid
+etag = Safe_Str__Http__ETag('W/&quot;weak-etag-123&quot;')     # ✓ Valid weak ETag
+</code></pre>
+<p><strong>Safe_Str__Html</strong> - HTML content with minimal filtering:</p>
+<pre><code class="language-python">html = Safe_Str__Html(&quot;&lt;div&gt;Hello &lt;b&gt;World&lt;/b&gt;&lt;/div&gt;&quot;)  # ✓ Allows HTML
+html = Safe_Str__Html(&quot;Text with \x00 null byte&quot;)       # Null byte removed
+</code></pre>
+<h3 id="cryptographic-types">Cryptographic Types<a class="headerlink" href="#cryptographic-types" title="Permanent link">&para;</a></h3>
+<p><strong>Safe_Str__Hash</strong> - Fixed-length hash values:</p>
+<pre><code class="language-python">hash = Safe_Str__Hash(&quot;a1b2c3d4e5&quot;)  # ✓ Valid 10-char hex
+hash = Safe_Str__Hash(&quot;xyz&quot;)         # ✗ ValueError - not hex
+hash = Safe_Str__Hash(&quot;a1b2c3d4e5f&quot;) # ✗ ValueError - wrong length
+
+# Helper function for creating hashes
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str__Hash import safe_str_hash
+hash_value = safe_str_hash(&quot;my data&quot;)  # Creates 10-char MD5 hash
+</code></pre>
+<h3 id="version-string">Version String<a class="headerlink" href="#version-string" title="Permanent link">&para;</a></h3>
+<p><strong>Safe_Str__Version</strong> - Semantic version validation:</p>
+<pre><code class="language-python">version = Safe_Str__Version(&quot;v1.2.3&quot;)    # ✓ Valid
+version = Safe_Str__Version(&quot;v999.0.1&quot;)  # ✓ Valid
+version = Safe_Str__Version(&quot;1.2.3&quot;)     # ✗ Missing 'v' prefix
+version = Safe_Str__Version(&quot;v1.2&quot;)      # ✗ Missing patch number
+</code></pre>
+<h2 id="security-benefits">Security Benefits<a class="headerlink" href="#security-benefits" title="Permanent link">&para;</a></h2>
+<h3 id="1-injection-prevention">1. Injection Prevention<a class="headerlink" href="#1-injection-prevention" title="Permanent link">&para;</a></h3>
+<p>Safe_Str types automatically prevent various injection attacks:</p>
+<pre><code class="language-python"># SQL Injection Prevention
+class SafeSQLIdentifier(Safe_Str):
+    regex = re.compile(r'[^a-zA-Z0-9_]')
+
+table = SafeSQLIdentifier(&quot;users; DROP TABLE users--&quot;)
+# Returns: &quot;users__DROP_TABLE_users__&quot;
+
+# Command Injection Prevention  
+class SafeCommand(Safe_Str):
+    regex = re.compile(r'[^a-zA-Z0-9\-]')
+
+cmd = SafeCommand(&quot;ls -la &amp;&amp; rm -rf /&quot;)
+# Returns: &quot;ls_-la___rm_-rf__&quot;
+</code></pre>
+<h3 id="2-path-traversal-prevention">2. Path Traversal Prevention<a class="headerlink" href="#2-path-traversal-prevention" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">upload_name = Safe_Str__File__Name(&quot;../../etc/passwd&quot;)
+# Returns: &quot;___etc_passwd&quot; - dots and slashes removed
+
+safe_path = Safe_Str__File__Path(&quot;/uploads/&quot; + upload_name)
+# Safe combination prevents directory escape
+</code></pre>
+<h3 id="3-xss-prevention">3. XSS Prevention<a class="headerlink" href="#3-xss-prevention" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># For user input that might contain HTML
+user_input = Safe_Str__Text(&quot;&lt;script&gt;alert('xss')&lt;/script&gt;&quot;)
+# Returns: &quot;_script_alert__xss___script_&quot;
+
+# For HTML content (more permissive but still filtered)
+content = Safe_Str__Html(&quot;&lt;div onclick='alert(1)'&gt;Click&lt;/div&gt;&quot;)
+# Allows HTML but removes null bytes and control chars
+</code></pre>
+<h3 id="4-header-injection-prevention">4. Header Injection Prevention<a class="headerlink" href="#4-header-injection-prevention" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># HTTP header injection prevention
+header_value = Safe_Str__Http__Content_Type(&quot;text/html\r\nX-Injected: true&quot;)
+# CRLF characters removed, preventing header injection
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<p>Safe_Str validation happens at object creation time:</p>
+<pre><code class="language-python"># Validation cost is one-time at creation
+safe_name = Safe_Str__File__Name(&quot;my-file.txt&quot;)  # Validated here
+
+# Subsequent operations are normal string operations
+if safe_name.startswith(&quot;my&quot;):    # No extra validation
+    result = safe_name.upper()     # No extra validation
+</code></pre>
+<h3 id="best-practices-for-performance">Best Practices for Performance<a class="headerlink" href="#best-practices-for-performance" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Cache Safe_Str instances</strong> when possible</li>
+<li><strong>Use strict_validation</strong> when you want to fail fast</li>
+<li><strong>Choose appropriate max_length</strong> to prevent DoS</li>
+<li><strong>Consider regex complexity</strong> - simpler patterns are faster</li>
+</ol>
+<h2 id="creating-custom-safe_str-types">Creating Custom Safe_Str Types<a class="headerlink" href="#creating-custom-safe_str-types" title="Permanent link">&para;</a></h2>
+<h3 id="basic-custom-type">Basic Custom Type<a class="headerlink" href="#basic-custom-type" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import re
+from osbot_utils.type_safe.primitives.safe_str.Safe_Str import Safe_Str
+
+class Safe_Str__Username(Safe_Str):
+    regex = re.compile(r'[^a-z0-9_]')  # Only lowercase, numbers, underscore
+    max_length = 20
+    allow_empty = False
+    trim_whitespace = True
+
+username = Safe_Str__Username(&quot;John_Doe123&quot;)  # Returns: &quot;john_doe123&quot;
+</code></pre>
+<h3 id="advanced-custom-type-with-validation">Advanced Custom Type with Validation<a class="headerlink" href="#advanced-custom-type-with-validation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Safe_Str__Email(Safe_Str):
+    regex = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+    regex_mode = Enum__Safe_Str__Regex_Mode.MATCH
+    max_length = 254  # RFC 5321
+    allow_empty = False
+    trim_whitespace = True
+    strict_validation = True  # Reject invalid emails
+
+    def __new__(cls, value):
+        # Additional custom validation
+        if value and '@' in value:
+            local, domain = value.rsplit('@', 1)
+            if len(local) &gt; 64:  # RFC 5321 local part limit
+                raise ValueError(&quot;Email local part exceeds 64 characters&quot;)
+
+        return super().__new__(cls, value)
+</code></pre>
+<h3 id="domain-specific-type">Domain-Specific Type<a class="headerlink" href="#domain-specific-type" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Safe_Str__ProductCode(Safe_Str):
+    regex = re.compile(r'^[A-Z]{3}-\d{4}-[A-Z]\d$')
+    regex_mode = Enum__Safe_Str__Regex_Mode.MATCH
+    exact_length = True
+    max_length = 11  # XXX-0000-X0
+    strict_validation = True
+
+# Usage
+code = Safe_Str__ProductCode(&quot;ABC-1234-X5&quot;)  # ✓ Valid
+code = Safe_Str__ProductCode(&quot;abc-1234-x5&quot;)  # ✗ Invalid - must be uppercase
+</code></pre>
+<h2 id="integration-with-type_safe">Integration with Type_Safe<a class="headerlink" href="#integration-with-type_safe" title="Permanent link">&para;</a></h2>
+<p>Safe_Str types integrate seamlessly with Type_Safe classes:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class UserAccount(Type_Safe):
+    username: Safe_Str__Username
+    email: Safe_Str__Email
+    homepage: Safe_Str__Url
+    avatar_path: Safe_Str__File__Path
+    ip_address: Safe_Str__IP_Address
+
+# Automatic validation on assignment
+user = UserAccount()
+user.username = &quot;john_doe&quot;           # Converted to Safe_Str__Username
+user.email = &quot;john@example.com&quot;      # Validated as email
+user.homepage = &quot;https://example.com&quot; # Validated as URL
+user.ip_address = &quot;192.168.1.1&quot;      # Validated as IP
+
+# Serialization preserves string values
+data = user.json()
+# Returns plain strings in JSON, not objects
+
+# Deserialization recreates Safe_Str types
+user2 = UserAccount.from_json(data)
+assert isinstance(user2.username, Safe_Str__Username)
+</code></pre>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Safe_Str provides a robust foundation for string validation and sanitization with:</p>
+<ul>
+<li><strong>Automatic sanitization</strong> or strict validation modes</li>
+<li><strong>Regex-based</strong> character filtering or pattern matching</li>
+<li><strong>Length constraints</strong> including exact length requirements</li>
+<li><strong>Whitespace handling</strong> with optional trimming</li>
+<li><strong>Security-focused</strong> built-in types for common use cases</li>
+<li><strong>Extensible design</strong> for custom domain types</li>
+<li><strong>Type_Safe integration</strong> for complete type safety</li>
+<li><strong>Performance optimized</strong> with validation at creation time</li>
+</ul>
+<p>Use Safe_Str types whenever you need to ensure string data conforms to specific patterns or constraints, especially when handling user input or external data.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

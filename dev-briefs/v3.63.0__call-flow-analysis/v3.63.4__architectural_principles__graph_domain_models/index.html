@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.63.4__architectural_principles__graph_domain_models/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Architectural Principles: Graph Domain Models &amp; Data Projections - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Architectural Principles: Graph Domain Models \u0026amp; Data Projections";
+        var mkdocs_page_input_path = "dev-briefs/v3.63.0__call-flow-analysis/v3.63.4__architectural_principles__graph_domain_models.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.63.4__architectural_principles__graph_domain_models/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Architectural Principles: Graph Domain Models &amp; Data Projections</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="architectural-principles-graph-domain-models-data-projections">Architectural Principles: Graph Domain Models &amp; Data Projections<a class="headerlink" href="#architectural-principles-graph-domain-models-data-projections" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Version</strong>: v3.64.2</li>
+<li><strong>Date</strong>: January 2026</li>
+<li><strong>Purpose</strong>: Architectural guidance for graph-based systems using Semantic Graphs framework</li>
+<li><strong>Related</strong>: v3_64_2__llm_brief__type_safe_guidance_updates.md</li>
+</ul>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>These principles provide broader architectural guidance for building graph-based systems. They emerged from the Semantic Graphs framework implementation and apply to any system that converts data to graph databases.</p>
+<p><strong>Core Principles</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Key Insight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Domain Models First</strong></td>
+<td>Graph structure exists in typed domain model before any database</td>
+</tr>
+<tr>
+<td><strong>DBs as Projections</strong></td>
+<td>Databases are query-optimized views, not source of truth</td>
+</tr>
+<tr>
+<td><strong>Early ID Allocation</strong></td>
+<td>IDs assigned at source/discovery, not at persistence</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-graph-domain-models-as-the-first-step-in-data-to-graph-conversion">1. Graph Domain Models as the First Step in Data-to-Graph Conversion<a class="headerlink" href="#1-graph-domain-models-as-the-first-step-in-data-to-graph-conversion" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem-direct-database-coupling">The Problem: Direct Database Coupling<a class="headerlink" href="#the-problem-direct-database-coupling" title="Permanent link">&para;</a></h3>
+<p>A common anti-pattern is converting source data directly to graph database format:</p>
+<pre><code class="language-python"># ✗ WRONG - Direct coupling to graph database
+def import_code_structure(module):
+    neo4j_driver = GraphDatabase.driver(uri, auth=(user, password))
+    with neo4j_driver.session() as session:
+        # Creating nodes directly in the database
+        session.run(&quot;CREATE (m:Module {name: $name})&quot;, name=module.__name__)
+        for cls in get_classes(module):
+            session.run(&quot;CREATE (c:Class {name: $name})&quot;, name=cls.__name__)
+            session.run(&quot;&quot;&quot;
+                MATCH (m:Module {name: $module_name})
+                MATCH (c:Class {name: $class_name})
+                CREATE (m)-[:DEFINES]-&gt;(c)
+            &quot;&quot;&quot;, module_name=module.__name__, class_name=cls.__name__)
+</code></pre>
+<p><strong>Problems with this approach</strong>:
+- No validation before persistence
+- Database-specific code throughout your application
+- Difficult to test (requires running database)
+- No type safety on node/edge properties
+- Hard to reason about the graph structure
+- Tight coupling makes database migration painful</p>
+<h3 id="the-solution-domain-model-first">The Solution: Domain Model First<a class="headerlink" href="#the-solution-domain-model-first" title="Permanent link">&para;</a></h3>
+<p>Build a typed, validated domain model that represents your graph structure <strong>before</strong> any database interaction:</p>
+<pre><code class="language-python"># ✓ CORRECT - Domain model first
+from osbot_utils.helpers.semantic_graphs.graph.schemas.Schema__Semantic_Graph import Schema__Semantic_Graph
+from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Builder        import Semantic_Graph__Builder
+
+def analyze_code_structure(module) -&gt; Schema__Semantic_Graph:                        # Returns domain model, not DB result
+    with Semantic_Graph__Builder() as builder:
+        builder.with_ontology(code_structure_ontology)
+
+        module_id = builder.add_node(node_type = Node_Type_Id('module')  ,
+                                     name      = module.__name__         ,
+                                     source    = inspect.getfile(module) )
+
+        for cls in get_classes(module):
+            class_id = builder.add_node(node_type = Node_Type_Id('class'),
+                                        name      = cls.__name__         ,
+                                        source    = inspect.getfile(cls) )
+            builder.add_edge(module_id, 'defines', class_id)
+
+        return builder.build()                                                       # Type-safe domain model
+
+# Separate concern: persistence
+def persist_to_neo4j(graph: Schema__Semantic_Graph, driver: Driver) -&gt; None:
+    # Convert domain model to database operations
+    # This is the ONLY place with database-specific code
+    ...
+</code></pre>
+<h3 id="benefits-of-domain-model-first">Benefits of Domain Model First<a class="headerlink" href="#benefits-of-domain-model-first" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Direct DB</th>
+<th>Domain Model First</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Validation</strong></td>
+<td>At DB insertion (late, expensive)</td>
+<td>Before persistence (early, cheap)</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td>Requires running DB</td>
+<td>Pure unit tests</td>
+</tr>
+<tr>
+<td><strong>Type Safety</strong></td>
+<td>None (strings/dicts)</td>
+<td>Full Type_Safe enforcement</td>
+</tr>
+<tr>
+<td><strong>Portability</strong></td>
+<td>Locked to one DB</td>
+<td>Switch DBs by changing projection layer</td>
+</tr>
+<tr>
+<td><strong>Debugging</strong></td>
+<td>Query DB to see state</td>
+<td>Inspect in-memory model</td>
+</tr>
+<tr>
+<td><strong>Ontology Enforcement</strong></td>
+<td>Manual or none</td>
+<td>Automatic via <code>Semantic_Graph__Validator</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-conversion-pipeline">The Conversion Pipeline<a class="headerlink" href="#the-conversion-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────┐     ┌─────────────────────┐     ┌─────────────────┐
+│   Source Data   │     │  Graph Domain Model │     │   Graph DB(s)   │
+│                 │     │                     │     │                 │
+│  - Code files   │────▶│  Schema__Semantic_  │────▶│  - Neo4j        │
+│  - JSON docs    │     │       Graph         │     │  - MGraph       │
+│  - API responses│     │                     │     │  - Neptune      │
+│  - Events       │     │  - Type-safe nodes  │     │                 │
+│                 │     │  - Validated edges  │     │  (Projections)  │
+└─────────────────┘     │  - Ontology-checked │     └─────────────────┘
+                        └─────────────────────┘
+                                  │
+                                  ▼
+                        ┌─────────────────────┐
+                        │   Business Logic    │
+                        │                     │
+                        │  - Queries          │
+                        │  - Transformations  │
+                        │  - Analysis         │
+                        └─────────────────────┘
+</code></pre>
+<hr />
+<h2 id="2-databases-as-data-projections-not-data-stores">2. Databases as Data Projections, Not Data Stores<a class="headerlink" href="#2-databases-as-data-projections-not-data-stores" title="Permanent link">&para;</a></h2>
+<h3 id="the-insight-source-of-truth-vs-query-optimization">The Insight: Source of Truth vs Query Optimization<a class="headerlink" href="#the-insight-source-of-truth-vs-query-optimization" title="Permanent link">&para;</a></h3>
+<p>A fundamental architectural mistake is treating graph databases (or any specialized database) as the <strong>source of truth</strong>. Instead, they should be <strong>materialized projections</strong> optimized for specific query patterns.</p>
+<h3 id="the-anti-pattern-database-as-source-of-truth">The Anti-Pattern: Database as Source of Truth<a class="headerlink" href="#the-anti-pattern-database-as-source-of-truth" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✗ WRONG - Graph DB as source of truth
+class CodeAnalysisService:
+    def __init__(self, neo4j_driver):
+        self.driver = neo4j_driver
+
+    def add_class(self, module_name: str, class_name: str):
+        # Writing directly to DB - this IS the data
+        self.driver.session().run(&quot;&quot;&quot;
+            MATCH (m:Module {name: $module})
+            CREATE (c:Class {name: $class})
+            CREATE (m)-[:DEFINES]-&gt;(c)
+        &quot;&quot;&quot;, module=module_name, class=class_name)
+
+    def get_classes(self, module_name: str) -&gt; List[str]:
+        # Reading from DB - only place data exists
+        result = self.driver.session().run(&quot;&quot;&quot;
+            MATCH (m:Module {name: $module})-[:DEFINES]-&gt;(c:Class)
+            RETURN c.name
+        &quot;&quot;&quot;, module=module_name)
+        return [r['c.name'] for r in result]
+</code></pre>
+<p><strong>Problems</strong>:
+- Data locked in one database format
+- Schema migrations are painful
+- Can't easily rebuild if corrupted
+- Testing requires database
+- No separation between "what happened" and "how we query it"</p>
+<h3 id="the-pattern-domain-model-as-source-dbs-as-projections">The Pattern: Domain Model as Source, DBs as Projections<a class="headerlink" href="#the-pattern-domain-model-as-source-dbs-as-projections" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ CORRECT - Domain model is source of truth, DBs are projections
+
+# 1. Source of Truth: Domain Events / Domain Models
+class Code_Analysis__Event_Store(Type_Safe):
+    events : List__Code_Analysis_Events                                              # Immutable event log
+
+    def record_class_discovered(self, module: str, class_name: str, metadata: dict):
+        event = Event__Class_Discovered(module     = module    ,
+                                        class_name = class_name,
+                                        metadata   = metadata  ,
+                                        timestamp  = utc_now() )
+        self.events.append(event)
+
+# 2. Build Domain Model from Events
+class Code_Structure__Projector(Type_Safe):
+
+    @type_safe
+    def project_to_graph(self, events: List__Code_Analysis_Events) -&gt; Schema__Semantic_Graph:
+        with Semantic_Graph__Builder() as builder:
+            for event in events:
+                match event:
+                    case Event__Class_Discovered():
+                        self._handle_class_discovered(builder, event)
+                    case Event__Method_Discovered():
+                        self._handle_method_discovered(builder, event)
+            return builder.build()
+
+# 3. Project to Various Databases (Read-Optimized)
+class Graph_DB__Projector(Type_Safe):
+
+    @type_safe
+    def project_to_neo4j(self, graph: Schema__Semantic_Graph, driver: Driver) -&gt; None:
+        # Projection: optimized for traversal queries
+        ...
+
+    @type_safe
+    def project_to_mgraph(self, graph: Schema__Semantic_Graph) -&gt; MGraph:
+        # Projection: optimized for in-memory analysis
+        ...
+
+    @type_safe
+    def project_to_elasticsearch(self, graph: Schema__Semantic_Graph, client: ES) -&gt; None:
+        # Projection: optimized for full-text search on node properties
+        ...
+</code></pre>
+<h3 id="the-architecture">The Architecture<a class="headerlink" href="#the-architecture" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                         SOURCE OF TRUTH                                  │
+│                                                                          │
+│   ┌──────────────────┐         ┌──────────────────────┐                 │
+│   │   Event Store    │────────▶│  Graph Domain Model  │                 │
+│   │                  │         │                      │                 │
+│   │  - Immutable     │         │  Schema__Semantic_   │                 │
+│   │  - Append-only   │         │       Graph          │                 │
+│   │  - Auditable     │         │                      │                 │
+│   └──────────────────┘         │  - Complete state    │                 │
+│                                │  - Type-safe         │                 │
+│                                │  - Validated         │                 │
+│                                └──────────┬───────────┘                 │
+└───────────────────────────────────────────┼─────────────────────────────┘
+                                            │
+                    ┌───────────────────────┼───────────────────────┐
+                    │                       │                       │
+                    ▼                       ▼                       ▼
+┌─────────────────────────┐  ┌─────────────────────────┐  ┌─────────────────────────┐
+│   PROJECTION: Neo4j     │  │   PROJECTION: MGraph    │  │  PROJECTION: Search     │
+│                         │  │                         │  │                         │
+│  Optimized for:         │  │  Optimized for:         │  │  Optimized for:         │
+│  - Path traversal       │  │  - In-memory analysis   │  │  - Full-text search     │
+│  - Pattern matching     │  │  - Fast iteration       │  │  - Faceted queries      │
+│  - Cypher queries       │  │  - Python integration   │  │  - Aggregations         │
+│                         │  │                         │  │                         │
+│  Can be:                │  │  Can be:                │  │  Can be:                │
+│  - Rebuilt anytime      │  │  - Rebuilt anytime      │  │  - Rebuilt anytime      │
+│  - Deleted and recreated│  │  - Deleted and recreated│  │  - Deleted and recreated│
+└─────────────────────────┘  └─────────────────────────┘  └─────────────────────────┘
+</code></pre>
+<h3 id="why-projections-matter">Why Projections Matter<a class="headerlink" href="#why-projections-matter" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>DB as Source</th>
+<th>DB as Projection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Corruption Recovery</strong></td>
+<td>Restore from backup (data loss risk)</td>
+<td>Rebuild from source (no data loss)</td>
+</tr>
+<tr>
+<td><strong>Schema Evolution</strong></td>
+<td>Complex migrations</td>
+<td>Delete and rebuild with new schema</td>
+</tr>
+<tr>
+<td><strong>Multiple Query Patterns</strong></td>
+<td>One DB must serve all needs</td>
+<td>Different DBs for different queries</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td>Need DB for integration tests</td>
+<td>Test domain model in isolation</td>
+</tr>
+<tr>
+<td><strong>Audit Trail</strong></td>
+<td>Must query DB history</td>
+<td>Events ARE the history</td>
+</tr>
+<tr>
+<td><strong>Debugging</strong></td>
+<td>Query DB state</td>
+<td>Replay events to reproduce</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-insight">Key Insight<a class="headerlink" href="#key-insight" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>The graph database doesn't store your data. It stores a query-optimized VIEW of your data.</strong></p>
+</blockquote>
+<p>This means:
+- You can delete and rebuild the graph DB anytime
+- You can have multiple graph DBs with different schemas for different query patterns
+- Schema changes are trivial: rebuild the projection
+- Testing doesn't require the database</p>
+<hr />
+<h2 id="3-allocate-ids-as-early-as-possible">3. Allocate IDs as Early as Possible<a class="headerlink" href="#3-allocate-ids-as-early-as-possible" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem-late-id-allocation">The Problem: Late ID Allocation<a class="headerlink" href="#the-problem-late-id-allocation" title="Permanent link">&para;</a></h3>
+<p>When IDs are generated at persistence time, you lose traceability and create serialization issues:</p>
+<pre><code class="language-python"># ✗ WRONG - IDs generated at database insertion
+def persist_node(self, node_data: dict) -&gt; str:
+    node_id = self.database.insert(node_data)                                        # DB generates ID
+    return node_id                                                                   # Caller only now knows the ID
+
+# ✗ WRONG - IDs generated during deserialization (Safe_Id problem)
+class Schema__Node(Type_Safe):
+    node_id : Safe_Id                                                                # Auto-generates if empty!
+    name    : str
+
+# Serialization round-trip creates NEW IDs
+original = Schema__Node(name='MyClass')
+json_str = original.json()
+restored = Schema__Node.from_json(json_str)                                          # Different node_id!
+assert original.node_id != restored.node_id                                          # FAILS - IDs don't match
+</code></pre>
+<p><strong>Problems with late ID allocation</strong>:
+- Can't reference entities before persistence
+- Serialization/deserialization creates duplicate entities
+- Can't deduplicate across systems
+- Can't correlate entities across projections
+- Testing becomes non-deterministic</p>
+<h3 id="the-solution-allocate-ids-at-the-source">The Solution: Allocate IDs at the Source<a class="headerlink" href="#the-solution-allocate-ids-at-the-source" title="Permanent link">&para;</a></h3>
+<p>IDs should be allocated at the earliest possible point - ideally in the source document or immediately upon entity discovery:</p>
+<pre><code class="language-python"># ✓ CORRECT - ID allocated in source document
+{
+    &quot;ontology_id&quot;: &quot;code_structure&quot;,                                                 # ID in source JSON
+    &quot;node_types&quot;: {
+        &quot;class&quot;: { ... },                                                            # type_id is the key itself
+        &quot;method&quot;: { ... }
+    }
+}
+
+# ✓ CORRECT - ID allocated immediately on discovery
+class Code_Structure__Analyzer(Type_Safe):
+    node_registry : Dict__Nodes__By_Qualified_Name                                   # Track by stable identifier
+
+    @type_safe
+    def analyze_class(self, cls: type) -&gt; Node_Id:
+        qualified_name = f&quot;{cls.__module__}.{cls.__qualname__}&quot;                      # Stable, deterministic
+
+        existing_id = self.node_registry.get(qualified_name)                         # Check if already discovered
+        if existing_id:
+            return existing_id                                                       # Return SAME ID
+
+        node_id = Node_Id()                                                          # Allocate ID NOW
+        self.node_registry[qualified_name] = node_id                                 # Register immediately
+
+        # Now build the node with the pre-allocated ID
+        node = Schema__Semantic_Graph__Node(node_id     = node_id                  ,
+                                            node_type   = Node_Type_Id('class')    ,
+                                            name        = cls.__name__             ,
+                                            line_number = get_line_number(cls)     )
+        self.graph.add_node(node)
+        return node_id
+</code></pre>
+<h3 id="id-allocation-strategy-by-layer">ID Allocation Strategy by Layer<a class="headerlink" href="#id-allocation-strategy-by-layer" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                        ID ALLOCATION POINTS                              │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  LAYER 1: Source Documents (BEST)                                        │
+│  ─────────────────────────────────                                       │
+│  IDs embedded in source data itself                                      │
+│                                                                          │
+│    {                                                                     │
+│      &quot;ontology_id&quot;: &quot;code_structure&quot;,        ◄── ID in document          │
+│      &quot;nodes&quot;: {                                                          │
+│        &quot;node_001&quot;: { &quot;type&quot;: &quot;class&quot;, ... }, ◄── ID is the key           │
+│        &quot;node_002&quot;: { &quot;type&quot;: &quot;method&quot;, ... }                             │
+│      }                                                                   │
+│    }                                                                     │
+│                                                                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  LAYER 2: Domain Model Construction (GOOD)                               │
+│  ─────────────────────────────────────────                               │
+│  IDs allocated when entity is first discovered                           │
+│                                                                          │
+│    def discover_class(self, cls) -&gt; Node_Id:                             │
+│        node_id = Node_Id()                   ◄── Allocate immediately    │
+│        self.registry[qualified_name] = node_id                           │
+│        # ID is now stable for this entity                                │
+│        return node_id                                                    │
+│                                                                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  LAYER 3: Persistence (AVOID)                                            │
+│  ────────────────────────────                                            │
+│  Database generates ID on insert                                         │
+│                                                                          │
+│    # ✗ Too late - can't reference entity before this                     │
+│    node_id = database.insert(node_data)                                  │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="semantic_id-designed-for-early-allocation">Semantic_Id: Designed for Early Allocation<a class="headerlink" href="#semantic_id-designed-for-early-allocation" title="Permanent link">&para;</a></h3>
+<p>This is exactly why we created <code>Semantic_Id</code> instead of using <code>Safe_Id</code>:</p>
+<pre><code class="language-python"># Semantic_Id: Allows empty, NEVER auto-generates
+class Semantic_Id(Safe_Str):
+    regex           = re.compile(r'[^a-zA-Z0-9_\-.]')
+    max_length      = 128
+    allow_empty     = True                                                           # Can be empty initially
+    trim_whitespace = True
+    # NO auto-generation!
+
+# Usage: ID comes from source document
+ontology_id = Ontology_Id(data.get('ontology_id', ''))                               # From JSON
+node_type_id = Node_Type_Id('class')                                                 # From key in dict
+
+# Serialization is stable
+original = Schema__Ontology(ontology_id = Ontology_Id('code_structure'))
+restored = Schema__Ontology.from_json(original.json())
+assert original.ontology_id == restored.ontology_id                                  # ✓ PASSES - same ID
+</code></pre>
+<h3 id="benefits-of-early-id-allocation">Benefits of Early ID Allocation<a class="headerlink" href="#benefits-of-early-id-allocation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Late Allocation</th>
+<th>Early Allocation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Referential Integrity</strong></td>
+<td>Build graph, then fix references</td>
+<td>References valid from start</td>
+</tr>
+<tr>
+<td><strong>Deduplication</strong></td>
+<td>Check DB before insert</td>
+<td>Check registry immediately</td>
+</tr>
+<tr>
+<td><strong>Serialization</strong></td>
+<td>IDs change on round-trip</td>
+<td>IDs stable across serialization</td>
+</tr>
+<tr>
+<td><strong>Cross-System Correlation</strong></td>
+<td>Need mapping tables</td>
+<td>Same ID everywhere</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td>Non-deterministic IDs</td>
+<td>Deterministic with <code>graph_ids_for_tests()</code></td>
+</tr>
+<tr>
+<td><strong>Debugging</strong></td>
+<td>"Which node is this?"</td>
+<td>ID traces back to source</td>
+</tr>
+</tbody>
+</table>
+<h3 id="practical-pattern-registry-for-id-stability">Practical Pattern: Registry for ID Stability<a class="headerlink" href="#practical-pattern-registry-for-id-stability" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Node_Ids__By_Qualified_Name(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Python__Qualified_Name
+    expected_value_type = Node_Id
+
+
+class Code_Structure__Analyzer(Type_Safe):
+    graph         : Schema__Semantic_Graph
+    node_registry : Dict__Node_Ids__By_Qualified_Name                                # Ensures ID stability
+
+    @type_safe
+    def get_or_create_node_id(self, qualified_name: Safe_Str__Python__Qualified_Name) -&gt; Node_Id:
+        existing = self.node_registry.get(qualified_name)
+        if existing:
+            return existing                                                          # Same entity = same ID
+
+        new_id = Node_Id()                                                           # Allocate once
+        self.node_registry[qualified_name] = new_id                                  # Register immediately
+        return new_id
+
+    @type_safe
+    def analyze_class(self, cls: type) -&gt; Node_Id:
+        qualified_name = Safe_Str__Python__Qualified_Name(f&quot;{cls.__module__}.{cls.__qualname__}&quot;)
+        node_id = self.get_or_create_node_id(qualified_name)                         # Stable ID
+
+        # Check if already fully analyzed
+        if self.graph.get_node(node_id):
+            return node_id                                                           # Already done
+
+        # Build node with pre-allocated ID
+        node = Schema__Semantic_Graph__Node(node_id   = node_id                    ,
+                                            node_type = Node_Type_Id('class')      ,
+                                            name      = cls.__name__               )
+        self.graph.add_node(node)
+        return node_id
+</code></pre>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>These three principles work together to create robust, testable, and maintainable graph-based systems:</p>
+<table>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Key Insight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Domain Models First</strong></td>
+<td>Graph structure exists in typed domain model before any database</td>
+</tr>
+<tr>
+<td><strong>DBs as Projections</strong></td>
+<td>Databases are query-optimized views, not source of truth</td>
+</tr>
+<tr>
+<td><strong>Early ID Allocation</strong></td>
+<td>IDs assigned at source/discovery, not at persistence</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Benefits</strong>:
+- <strong>Testability</strong>: Domain models can be tested without databases
+- <strong>Portability</strong>: Switch databases by changing projection layer
+- <strong>Reliability</strong>: Rebuild any projection from source of truth
+- <strong>Traceability</strong>: IDs correlate entities across all systems
+- <strong>Type Safety</strong>: Full validation before any persistence</p>
+<hr />
+<h2 id="document-history">Document History<a class="headerlink" href="#document-history" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v3.64.2</td>
+<td>January 2026</td>
+<td>Initial document from Semantic Graphs implementation review</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

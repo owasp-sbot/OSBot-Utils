@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.65.0__type-safe-config__implementation-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Type_Safe__Config - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe__Config - LLM Usage Brief";
+        var mkdocs_page_input_path = "dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.65.0__type-safe-config__implementation-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.65.0__type-safe-config__implementation-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe__Config - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe__config-llm-usage-brief">Type_Safe__Config - LLM Usage Brief<a class="headerlink" href="#type_safe__config-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.65.0<br />
+<strong>Status</strong>: Design validated, ready for implementation<br />
+<strong>Purpose</strong>: Unified configuration object for controlling Type_Safe behavior via stack context<br />
+<strong>Location</strong>: <code>osbot_utils.type_safe.Type_Safe__Config</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="what-is-type_safe__config">What is Type_Safe__Config?<a class="headerlink" href="#what-is-type_safe__config" title="Permanent link">&para;</a></h2>
+<p><strong>Type_Safe__Config is a unified configuration object that controls Type_Safe behavior through stack context, eliminating the need for per-feature magic variables and instance attribute pollution.</strong></p>
+<h3 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h3>
+<p>Each Type_Safe feature currently requires its own plumbing:</p>
+<pre><code class="language-python"># Fast mode: magic stack variable
+_type_safe_fast_mode_ = type_safe_fast_mode()
+with _type_safe_fast_mode_:
+    ...
+
+# On-demand: pollutes every instance with internal attributes
+class Type_Safe__On_Demand(Type_Safe):
+    def __init__(self, **kwargs):
+        object.__setattr__(self, '_on_demand__init_complete', False)
+        object.__setattr__(self, '_on_demand__types', {})
+        ...
+
+# Immutability: would need more instance variables
+_immutable__locked = True
+
+# Each feature adds its own complexity!
+</code></pre>
+<h3 id="the-solution">The Solution<a class="headerlink" href="#the-solution" title="Permanent link">&para;</a></h3>
+<p>One config object, one stack variable, controls everything:</p>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(skip_validation = True ,
+                                       on_demand_nested = True ,
+                                       immutable        = False)
+with _type_safe_config_:
+    graph = MGraph(...)                                                          # All nested objects inherit config
+</code></pre>
+<hr />
+<h2 id="type_safe__config-class">Type_Safe__Config Class<a class="headerlink" href="#type_safe__config-class" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Type_Safe__Config(Type_Safe):
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Init Step Controls - Granular control over __init__ code paths
+    # ═══════════════════════════════════════════════════════════════════════════
+    skip_mro_walk      : bool = False                                            # Skip MRO annotation walking (use cached)
+    skip_defaults      : bool = False                                            # Skip default value creation
+    skip_conversion    : bool = False                                            # Skip type coercion (str → Safe_Id)
+    skip_validation    : bool = False                                            # Skip type checking on assignment
+    skip_setattr       : bool = False                                            # Use object.__setattr__ directly
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # On-Demand Creation - Defer nested object creation until access
+    # ═══════════════════════════════════════════════════════════════════════════
+    on_demand_nested   : bool = False                                            # Create nested Type_Safe on first access
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Immutability - Prevent modification after creation
+    # ═══════════════════════════════════════════════════════════════════════════
+    immutable          : bool = False                                            # Block all __setattr__ after init
+    freeze_after_init  : bool = False                                            # Become immutable after __init__ completes
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Validation Strictness
+    # ═══════════════════════════════════════════════════════════════════════════
+    strict_types       : bool = True                                             # Require exact type matches
+    allow_extra_attrs  : bool = False                                            # Allow attributes not in annotations
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Debugging / Metrics
+    # ═══════════════════════════════════════════════════════════════════════════
+    trace_creation     : bool = False                                            # Log object creation
+    collect_metrics    : bool = False                                            # Track creation counts/times
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Context Manager Support
+    # ═══════════════════════════════════════════════════════════════════════════
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return False
+</code></pre>
+<hr />
+<h2 id="stack-discovery">Stack Discovery<a class="headerlink" href="#stack-discovery" title="Permanent link">&para;</a></h2>
+<p>Type_Safe__Config uses the <strong>Stack Variable Discovery</strong> pattern (see separate brief) to propagate configuration through the call stack:</p>
+<pre><code class="language-python">TYPE_SAFE__CONFIG__VAR_NAME    = '_type_safe_config_'
+TYPE_SAFE__CONFIG__CHECKED_VAR = '_type_safe_config__checked_'
+
+def find_type_safe_config() -&gt; Optional[Type_Safe__Config]:
+    frame           = inspect.currentframe()
+    previous_frames = []
+
+    for _ in range(MAX_DEPTH):
+        frame = frame.f_back
+        if frame is None:
+            break
+
+        config = frame.f_locals.get(TYPE_SAFE__CONFIG__VAR_NAME)
+
+        if isinstance(config, Type_Safe__Config):                                # Found config
+            for previous_frame in previous_frames:
+                previous_frame.f_locals[TYPE_SAFE__CONFIG__VAR_NAME] = config
+            return config
+
+        if frame.f_locals.get(TYPE_SAFE__CONFIG__CHECKED_VAR):                   # Already checked, no config
+            return None
+
+        previous_frames.append(frame)
+
+    for previous_frame in previous_frames:
+        previous_frame.f_locals[TYPE_SAFE__CONFIG__CHECKED_VAR] = True
+
+    return None
+</code></pre>
+<h3 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Call</th>
+<th>Frames Walked</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First call in stack</td>
+<td>O(depth to config)</td>
+</tr>
+<tr>
+<td>All subsequent calls</td>
+<td><strong>O(1-2)</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The frame injection ensures <code>find_type_safe_config()</code> can be called liberally throughout Type_Safe code with minimal overhead.</p>
+<hr />
+<h2 id="incremental-init-optimization">Incremental <strong>init</strong> Optimization<a class="headerlink" href="#incremental-init-optimization" title="Permanent link">&para;</a></h2>
+<p>The key insight: Type_Safe <code>__init__</code> has distinct steps, each with measurable cost. Config flags let us disable them one by one:</p>
+<h3 id="current-init-steps">Current <strong>init</strong> Steps<a class="headerlink" href="#current-init-steps" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│  Type_Safe.__init__(self, **kwargs)                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Step 1: MRO Walk            ~2-3 μs    → get_cls_kwargs()                  │
+│  Step 2: Default Creation    ~1-5 μs    → create nested Type_Safe, colls   │
+│  Step 3: Type Conversion     ~1-2 μs    → str → Safe_Id, etc.               │
+│  Step 4: Validation          ~1-2 μs    → isinstance checks                 │
+│  Step 5: __setattr__         ~2-3 μs    → per-attribute validation          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Total:                      ~10-15 μs  (simple object)                     │
+│                              ~40-100 μs (complex with nesting)              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="config-controlled-init">Config-Controlled <strong>init</strong><a class="headerlink" href="#config-controlled-init" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe:
+    def __init__(self, **kwargs):
+        config = find_type_safe_config()                                         # ~300ns (cached)
+
+        # ───────────────────────────────────────────────────────────────────────
+        # Step 1: MRO Walk - collect class annotations
+        # ───────────────────────────────────────────────────────────────────────
+        if config and config.skip_mro_walk:
+            cls_kwargs = self.__cls_kwargs__cached__()                            # Use class-level cache
+        else:
+            cls_kwargs = self.__cls_kwargs__(kwargs)                              # Full MRO walk
+
+        # ───────────────────────────────────────────────────────────────────────
+        # Step 2: Default Value Creation
+        # ───────────────────────────────────────────────────────────────────────
+        if config and config.skip_defaults:
+            pass                                                                  # Caller must provide all values
+        elif config and config.on_demand_nested:
+            self.__setup_on_demand__(cls_kwargs)                                  # Defer nested Type_Safe
+        else:
+            self.__create_defaults__(cls_kwargs)                                  # Create all defaults now
+
+        # ───────────────────────────────────────────────────────────────────────
+        # Step 3: Type Conversion
+        # ───────────────────────────────────────────────────────────────────────
+        if config and config.skip_conversion:
+            converted = kwargs                                                    # Use values as-is
+        else:
+            converted = self.__convert_types__(kwargs, cls_kwargs)                # str → Safe_Id, etc.
+
+        # ───────────────────────────────────────────────────────────────────────
+        # Step 4 &amp; 5: Validation and Assignment
+        # ───────────────────────────────────────────────────────────────────────
+        if config and config.skip_setattr:
+            for name, value in converted.items():
+                object.__setattr__(self, name, value)                             # Direct, no validation
+        elif config and config.skip_validation:
+            for name, value in converted.items():
+                object.__setattr__(self, name, value)                             # Direct, no validation
+        else:
+            for name, value in converted.items():
+                setattr(self, name, value)                                        # Full __setattr__ path
+
+        # ───────────────────────────────────────────────────────────────────────
+        # Post-init: Freeze if configured
+        # ───────────────────────────────────────────────────────────────────────
+        if config and config.freeze_after_init:
+            object.__setattr__(self, '_type_safe__frozen', True)
+</code></pre>
+<h3 id="incremental-profiling-strategy">Incremental Profiling Strategy<a class="headerlink" href="#incremental-profiling-strategy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Config Flag</th>
+<th>Disable &amp; Measure</th>
+<th>Expected Savings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>skip_mro_walk</code></td>
+<td>Profile with/without</td>
+<td>~2-3 μs</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>skip_defaults</code></td>
+<td>Profile with/without</td>
+<td>~1-5 μs</td>
+</tr>
+<tr>
+<td>2b</td>
+<td><code>on_demand_nested</code></td>
+<td>Profile with/without</td>
+<td>~1-5 μs (deferred)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>skip_conversion</code></td>
+<td>Profile with/without</td>
+<td>~1-2 μs</td>
+</tr>
+<tr>
+<td>4+5</td>
+<td><code>skip_validation</code> / <code>skip_setattr</code></td>
+<td>Profile with/without</td>
+<td>~3-5 μs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="benchmarking-each-step">Benchmarking Each Step<a class="headerlink" href="#benchmarking-each-step" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_Init_Step_Profiling(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.session = Perf(assert_enabled=False)
+
+    def test__step_1__mro_walk_cost(self):
+        # Baseline: full init
+        _type_safe_config_ = Type_Safe__Config()
+        with _type_safe_config_:
+            with self.session as _:
+                _.measure(lambda: Schema__Test(name=&quot;test&quot;)).print()
+                baseline = _.result.raw_score
+
+        # With skip_mro_walk
+        _type_safe_config_ = Type_Safe__Config(skip_mro_walk=True)
+        with _type_safe_config_:
+            with self.session as _:
+                _.measure(lambda: Schema__Test(name=&quot;test&quot;)).print()
+                optimized = _.result.raw_score
+
+        savings = baseline - optimized
+        print(f&quot;    → MRO walk cost: {savings:,.0f} ns&quot;)
+
+    def test__step_2__defaults_cost(self):
+        # Similar pattern for skip_defaults
+        ...
+
+    def test__step_3__conversion_cost(self):
+        # Similar pattern for skip_conversion
+        ...
+
+    def test__step_4_5__validation_cost(self):
+        # Similar pattern for skip_validation
+        ...
+</code></pre>
+<h3 id="progressive-optimization-levels">Progressive Optimization Levels<a class="headerlink" href="#progressive-optimization-levels" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Level 0: Full validation (current behavior)
+_type_safe_config_ = Type_Safe__Config()
+
+# Level 1: Skip expensive setattr validation
+_type_safe_config_ = Type_Safe__Config(skip_setattr=True)
+
+# Level 2: Skip type conversion too
+_type_safe_config_ = Type_Safe__Config(skip_setattr    = True ,
+                                       skip_conversion = True )
+
+# Level 3: Skip default creation (caller provides all)
+_type_safe_config_ = Type_Safe__Config(skip_setattr    = True ,
+                                       skip_conversion = True ,
+                                       skip_defaults   = True )
+
+# Level 4: Maximum speed (use cached MRO)
+_type_safe_config_ = Type_Safe__Config(skip_setattr    = True ,
+                                       skip_conversion = True ,
+                                       skip_defaults   = True ,
+                                       skip_mro_walk   = True )
+
+# Alternative: On-demand for nested objects
+_type_safe_config_ = Type_Safe__Config(skip_setattr     = True ,
+                                       skip_conversion  = True ,
+                                       on_demand_nested = True )
+</code></pre>
+<h3 id="expected-performance-after-full-optimization">Expected Performance After Full Optimization<a class="headerlink" href="#expected-performance-after-full-optimization" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Config Level</th>
+<th>Time per Object</th>
+<th>vs Baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Level 0 (baseline)</td>
+<td>~12,000 ns</td>
+<td>1x</td>
+</tr>
+<tr>
+<td>Level 1 (skip_setattr)</td>
+<td>~8,000 ns</td>
+<td>1.5x</td>
+</tr>
+<tr>
+<td>Level 2 (+skip_conversion)</td>
+<td>~6,000 ns</td>
+<td>2x</td>
+</tr>
+<tr>
+<td>Level 3 (+skip_defaults)</td>
+<td>~3,000 ns</td>
+<td>4x</td>
+</tr>
+<tr>
+<td>Level 4 (+skip_mro_walk)</td>
+<td>~1,000 ns</td>
+<td><strong>12x</strong></td>
+</tr>
+<tr>
+<td>With on_demand_nested</td>
+<td>~500 ns</td>
+<td><strong>24x</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Target: <strong>~500-1,000 ns per object</strong> (within 2-3x of plain Python class)</p>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="basic-fast-mode">Basic Fast Mode<a class="headerlink" href="#basic-fast-mode" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe__Config import Type_Safe__Config
+
+_type_safe_config_ = Type_Safe__Config(skip_validation=True)
+with _type_safe_config_:
+    nodes = [Schema__Node(**d) for d in data_list]                               # ~20x faster
+</code></pre>
+<h3 id="combined-modes">Combined Modes<a class="headerlink" href="#combined-modes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(skip_validation = True ,
+                                       on_demand_nested = True )
+with _type_safe_config_:
+    graph = MGraph__Index()                                                      # Fast + on-demand
+</code></pre>
+<h3 id="immutable-objects">Immutable Objects<a class="headerlink" href="#immutable-objects" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(freeze_after_init=True)
+with _type_safe_config_:
+    config = App__Config(host=&quot;localhost&quot;, port=8080)
+    config.port = 9090                                                           # Raises TypeError!
+</code></pre>
+<hr />
+<h2 id="integration-points">Integration Points<a class="headerlink" href="#integration-points" title="Permanent link">&para;</a></h2>
+<h3 id="type_safeinit">Type_Safe.<strong>init</strong><a class="headerlink" href="#type_safeinit" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe:
+    def __init__(self, **kwargs):
+        config = find_type_safe_config()
+
+        if config and config.skip_validation:
+            self.__init_fast__(kwargs)
+        elif config and config.on_demand_nested:
+            self.__init_on_demand__(kwargs)
+        else:
+            self.__init_normal__(kwargs)
+
+        if config and config.freeze_after_init:
+            object.__setattr__(self, '_type_safe__frozen', True)
+</code></pre>
+<h3 id="type_safesetattr">Type_Safe.<strong>setattr</strong><a class="headerlink" href="#type_safesetattr" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe:
+    def __setattr__(self, name, value):
+        config = find_type_safe_config()
+
+        # Check immutability
+        if getattr(self, '_type_safe__frozen', False):
+            raise TypeError(f&quot;Cannot modify frozen {type(self).__name__}&quot;)
+
+        if config and config.immutable:
+            raise TypeError(f&quot;Cannot modify immutable {type(self).__name__}&quot;)
+
+        # Fast path - skip validation
+        if config and config.skip_validation:
+            object.__setattr__(self, name, value)
+            return
+
+        # Normal validation path
+        ...
+</code></pre>
+<h3 id="type_safe__list-operations">Type_Safe__List Operations<a class="headerlink" href="#type_safe__list-operations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe__List:
+    def append(self, item):
+        config = find_type_safe_config()
+
+        if config and config.skip_validation:
+            self.data.append(item)                                               # Direct append
+        else:
+            self._validate_and_append(item)                                      # Normal path
+</code></pre>
+<hr />
+<h2 id="feature-behaviors">Feature Behaviors<a class="headerlink" href="#feature-behaviors" title="Permanent link">&para;</a></h2>
+<h3 id="skip_mro_walk-true">skip_mro_walk = True<a class="headerlink" href="#skip_mro_walk-true" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Normal</th>
+<th>With skip_mro_walk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__init__</code></td>
+<td>Walk MRO for annotations</td>
+<td>Use class-level cache</td>
+</tr>
+<tr>
+<td>First object</td>
+<td>Full walk</td>
+<td>Full walk (populates cache)</td>
+</tr>
+<tr>
+<td>Subsequent</td>
+<td>Full walk</td>
+<td>Cache hit</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requirement</strong>: Class-level cache must be populated (first object or explicit call).</p>
+<h3 id="skip_defaults-true">skip_defaults = True<a class="headerlink" href="#skip_defaults-true" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Normal</th>
+<th>With skip_defaults</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unset attributes</td>
+<td>Create default value</td>
+<td>Left as None</td>
+</tr>
+<tr>
+<td>Nested Type_Safe</td>
+<td>Created recursively</td>
+<td>Not created</td>
+</tr>
+<tr>
+<td>Collections</td>
+<td>Created (Type_Safe__List)</td>
+<td>Not created</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requirement</strong>: Caller must provide all attribute values explicitly.</p>
+<h3 id="skip_conversion-true">skip_conversion = True<a class="headerlink" href="#skip_conversion-true" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Normal</th>
+<th>With skip_conversion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>node_id = "abc"</code></td>
+<td><code>Safe_Id("abc")</code></td>
+<td><code>"abc"</code> (stays str)</td>
+</tr>
+<tr>
+<td><code>count = "5"</code></td>
+<td><code>int("5")</code></td>
+<td><code>"5"</code> (stays str)</td>
+</tr>
+<tr>
+<td><code>items = [1,2]</code></td>
+<td><code>Type_Safe__List([1,2])</code></td>
+<td><code>[1,2]</code> (stays list)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requirement</strong>: Caller provides correctly-typed values.</p>
+<h3 id="skip_validation-true">skip_validation = True<a class="headerlink" href="#skip_validation-true" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Normal</th>
+<th>With skip_validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>obj.attr = value</code></td>
+<td><code>isinstance()</code> check</td>
+<td>No check</td>
+</tr>
+<tr>
+<td>Wrong type</td>
+<td>Raises TypeError</td>
+<td>Silently accepts</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requirement</strong>: Caller ensures type correctness.</p>
+<h3 id="skip_setattr-true">skip_setattr = True<a class="headerlink" href="#skip_setattr-true" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Normal</th>
+<th>With skip_setattr</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>obj.attr = value</code></td>
+<td>Through <code>__setattr__</code></td>
+<td><code>object.__setattr__</code></td>
+</tr>
+<tr>
+<td>Custom <strong>setattr</strong> logic</td>
+<td>Executed</td>
+<td>Bypassed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requirement</strong>: No custom <code>__setattr__</code> logic needed.</p>
+<h3 id="on_demand_nested-true">on_demand_nested = True<a class="headerlink" href="#on_demand_nested-true" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Normal</th>
+<th>With on_demand_nested</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__init__</code></td>
+<td>Creates all nested Type_Safe</td>
+<td>Defers creation</td>
+</tr>
+<tr>
+<td>First access</td>
+<td>Already created</td>
+<td>Creates on access</td>
+</tr>
+<tr>
+<td>Unused attrs</td>
+<td>Memory allocated</td>
+<td>No memory until used</td>
+</tr>
+</tbody>
+</table>
+<h3 id="immutable-true-freeze_after_init-true">immutable = True / freeze_after_init = True<a class="headerlink" href="#immutable-true-freeze_after_init-true" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Normal</th>
+<th>With immutable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__init__</code></td>
+<td>Normal</td>
+<td>Normal</td>
+</tr>
+<tr>
+<td><code>obj.attr = x</code> after init</td>
+<td>Allowed</td>
+<td>Raises TypeError</td>
+</tr>
+<tr>
+<td><code>del obj.attr</code></td>
+<td>Allowed</td>
+<td>Raises TypeError</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-bulk-graph-loading">Pattern 1: Bulk Graph Loading<a class="headerlink" href="#pattern-1-bulk-graph-loading" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def load_graph(data: dict) -&gt; MGraph:
+    _type_safe_config_ = Type_Safe__Config(skip_validation=True)
+    with _type_safe_config_:
+        nodes = [Schema__Node(**n) for n in data['nodes']]
+        edges = [Schema__Edge(**e) for e in data['edges']]
+    return MGraph(nodes=nodes, edges=edges)
+</code></pre>
+<h3 id="pattern-2-high-performance-index">Pattern 2: High-Performance Index<a class="headerlink" href="#pattern-2-high-performance-index" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def create_index() -&gt; MGraph__Index:
+    _type_safe_config_ = Type_Safe__Config(skip_validation  = True ,
+                                           on_demand_nested = True )
+    with _type_safe_config_:
+        return MGraph__Index()                                                   # ~90μs vs ~1800μs
+</code></pre>
+<h3 id="pattern-3-immutable-configuration">Pattern 3: Immutable Configuration<a class="headerlink" href="#pattern-3-immutable-configuration" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def load_config() -&gt; App__Config:
+    _type_safe_config_ = Type_Safe__Config(freeze_after_init=True)
+    with _type_safe_config_:
+        return App__Config.from_json(config_data)                                # Frozen after creation
+</code></pre>
+<h3 id="pattern-4-debug-mode">Pattern 4: Debug Mode<a class="headerlink" href="#pattern-4-debug-mode" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def debug_creation():
+    _type_safe_config_ = Type_Safe__Config(trace_creation  = True ,
+                                           collect_metrics = True )
+    with _type_safe_config_:
+        graph = MGraph(...)
+
+    print(f&quot;Objects created: {_type_safe_config_.metrics.object_count}&quot;)
+</code></pre>
+<hr />
+<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="from-type_safe__on_demand">From Type_Safe__On_Demand<a class="headerlink" href="#from-type_safe__on_demand" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<pre><code class="language-python">class Schema__Data(Type_Safe__On_Demand):                                        # Special subclass
+    edges : Dict[str, str]
+
+class MGraph__Index(Type_Safe__On_Demand):                                       # Special subclass
+    data: Schema__Data
+</code></pre>
+<p><strong>After:</strong></p>
+<pre><code class="language-python">class Schema__Data(Type_Safe):                                                   # Normal Type_Safe
+    edges : Dict[str, str]
+
+class MGraph__Index(Type_Safe):                                                  # Normal Type_Safe
+    data: Schema__Data
+
+# On-demand via config context
+_type_safe_config_ = Type_Safe__Config(on_demand_nested=True)
+with _type_safe_config_:
+    index = MGraph__Index()
+</code></pre>
+<h3 id="from-fast-mode-marker">From Fast Mode Marker<a class="headerlink" href="#from-fast-mode-marker" title="Permanent link">&para;</a></h3>
+<p><strong>Before:</strong></p>
+<pre><code class="language-python">_type_safe_fast_mode_ = type_safe_fast_mode()
+with _type_safe_fast_mode_:
+    nodes = [Schema__Node(**d) for d in data]
+</code></pre>
+<p><strong>After:</strong></p>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(skip_validation=True)
+with _type_safe_config_:
+    nodes = [Schema__Node(**d) for d in data]
+</code></pre>
+<hr />
+<h2 id="implementation-phases">Implementation Phases<a class="headerlink" href="#implementation-phases" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-core-infrastructure">Phase 1: Core Infrastructure<a class="headerlink" href="#phase-1-core-infrastructure" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>Type_Safe__Config</code> class with all flags</li>
+<li>[ ] Implement <code>find_type_safe_config()</code> with frame injection</li>
+<li>[ ] Add <code>config = find_type_safe_config()</code> to <code>Type_Safe.__init__</code></li>
+<li>[ ] Add <code>config = find_type_safe_config()</code> to <code>Type_Safe.__setattr__</code></li>
+<li>[ ] Verify no regression (config=None behaves like current code)</li>
+</ul>
+<h3 id="phase-2-baseline-measurement">Phase 2: Baseline Measurement<a class="headerlink" href="#phase-2-baseline-measurement" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create benchmark suite for each <strong>init</strong> step</li>
+<li>[ ] Measure current Type_Safe costs:</li>
+<li>[ ] MRO walk time</li>
+<li>[ ] Default creation time</li>
+<li>[ ] Type conversion time</li>
+<li>[ ] Validation time</li>
+<li>[ ] <strong>setattr</strong> time</li>
+<li>[ ] Document baseline in tests</li>
+</ul>
+<h3 id="phase-3-incremental-optimization-one-flag-at-a-time">Phase 3: Incremental Optimization (One Flag at a Time)<a class="headerlink" href="#phase-3-incremental-optimization-one-flag-at-a-time" title="Permanent link">&para;</a></h3>
+<p><strong>Step 3a: skip_setattr</strong>
+- [ ] Implement <code>skip_setattr</code> flag
+- [ ] Benchmark: measure savings
+- [ ] Test: verify objects created correctly
+- [ ] Document: actual savings vs expected</p>
+<p><strong>Step 3b: skip_validation</strong>
+- [ ] Implement <code>skip_validation</code> flag
+- [ ] Benchmark: measure savings
+- [ ] Test: verify objects created correctly
+- [ ] Document: actual savings vs expected</p>
+<p><strong>Step 3c: skip_conversion</strong>
+- [ ] Implement <code>skip_conversion</code> flag
+- [ ] Benchmark: measure savings
+- [ ] Test: verify objects created correctly
+- [ ] Document: actual savings vs expected</p>
+<p><strong>Step 3d: skip_defaults</strong>
+- [ ] Implement <code>skip_defaults</code> flag
+- [ ] Benchmark: measure savings
+- [ ] Test: verify objects created correctly
+- [ ] Document: actual savings vs expected</p>
+<p><strong>Step 3e: skip_mro_walk</strong>
+- [ ] Implement class-level MRO cache
+- [ ] Implement <code>skip_mro_walk</code> flag
+- [ ] Benchmark: measure savings
+- [ ] Test: verify objects created correctly
+- [ ] Document: actual savings vs expected</p>
+<h3 id="phase-4-on-demand-creation">Phase 4: On-Demand Creation<a class="headerlink" href="#phase-4-on-demand-creation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>on_demand_nested</code> in <code>__init__</code></li>
+<li>[ ] Implement lazy <code>__getattribute__</code></li>
+<li>[ ] Benchmark vs <code>skip_defaults</code></li>
+<li>[ ] Deprecate <code>Type_Safe__On_Demand</code> class</li>
+</ul>
+<h3 id="phase-5-immutability">Phase 5: Immutability<a class="headerlink" href="#phase-5-immutability" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>immutable</code> flag in <code>__setattr__</code></li>
+<li>[ ] Implement <code>freeze_after_init</code> flag</li>
+<li>[ ] Add <code>__delattr__</code> protection</li>
+<li>[ ] Test exception messages</li>
+</ul>
+<h3 id="phase-6-polish-documentation">Phase 6: Polish &amp; Documentation<a class="headerlink" href="#phase-6-polish-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>trace_creation</code> for debugging</li>
+<li>[ ] Implement <code>collect_metrics</code> for profiling</li>
+<li>[ ] Create migration guide</li>
+<li>[ ] Update all LLM briefs</li>
+<li>[ ] Add to osbot-utils documentation</li>
+</ul>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="infrastructure">Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Single config class: <code>Type_Safe__Config</code></li>
+<li>[ ] Single magic variable: <code>_type_safe_config_</code></li>
+<li>[ ] Separate checked variable: <code>_type_safe_config__checked_</code></li>
+<li>[ ] Stack discovery with frame injection</li>
+<li>[ ] O(1-2) frame walks after first call</li>
+</ul>
+<h3 id="init-step-flags">Init Step Flags<a class="headerlink" href="#init-step-flags" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>skip_mro_walk</code> - use cached class annotations</li>
+<li>[ ] <code>skip_defaults</code> - caller provides all values</li>
+<li>[ ] <code>skip_conversion</code> - no type coercion</li>
+<li>[ ] <code>skip_validation</code> - no isinstance checks</li>
+<li>[ ] <code>skip_setattr</code> - use object.<strong>setattr</strong> directly</li>
+</ul>
+<h3 id="feature-flags">Feature Flags<a class="headerlink" href="#feature-flags" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>on_demand_nested</code> - defer nested Type_Safe creation</li>
+<li>[ ] <code>immutable</code> - block modification</li>
+<li>[ ] <code>freeze_after_init</code> - become immutable after init</li>
+<li>[ ] <code>strict_types</code> - require exact type matches</li>
+<li>[ ] <code>allow_extra_attrs</code> - allow unannounced attributes</li>
+</ul>
+<h3 id="quality">Quality<a class="headerlink" href="#quality" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Backward compatible (no config = current behavior)</li>
+<li>[ ] Each flag independently testable</li>
+<li>[ ] Benchmarks for each flag</li>
+<li>[ ] Migration guide from Type_Safe__On_Demand</li>
+<li>[ ] No instance attribute pollution</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

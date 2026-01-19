@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev/docs-creation-guidelines/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Docs creation guidelines - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Docs creation guidelines";
+        var mkdocs_page_input_path = "dev/docs-creation-guidelines.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev/docs-creation-guidelines/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Docs creation guidelines</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="briefing-documentation-architecture-strategy">📘 Briefing: Documentation Architecture &amp; Strategy<a class="headerlink" href="#briefing-documentation-architecture-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="purpose">🎯 Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h3>
+<p>This documentation structure is designed to <strong>thoroughly document both internal technical components and public-facing usage patterns</strong> of a complex Python codebase. It balances deep-dive explainers with user-level examples, and enforces <strong>organization by code structure</strong>, feature domain, and file relevance.</p>
+<hr />
+<h3 id="1-folder-structure">🧱 1. Folder Structure<a class="headerlink" href="#1-folder-structure" title="Permanent link">&para;</a></h3>
+<p>At the top level:</p>
+<pre><code>docs/
+├── index.md                      &lt;- Landing page / overview
+├── type_safe/                    &lt;- Feature/module-level documentation
+├── code/&lt;package path&gt;/         &lt;- File-specific technical documentation
+│   └── (mirrors source tree)       (e.g. docs/code/osbot_utils/helpers/...)
+</code></pre>
+<p>This structure supports:</p>
+<ul>
+<li><strong>Logical grouping by module path</strong></li>
+<li>One-to-one mapping between <code>.py</code> files and <code>.md</code> explanations</li>
+<li>Clear separation of feature domains (e.g., type safety, decorators, flows)</li>
+</ul>
+<hr />
+<h3 id="2-file-naming-patterns">🧩 2. File Naming Patterns<a class="headerlink" href="#2-file-naming-patterns" title="Permanent link">&para;</a></h3>
+<p>Files are named using this pattern:</p>
+<pre><code>&lt;module_path&gt;--&lt;purpose&gt;.md
+</code></pre>
+<p>Examples:</p>
+<ul>
+<li><code>cache_on_self--tech_debrief.md</code></li>
+<li><code>osbot-utils-flow-system-documentation.md</code></li>
+</ul>
+<p>Common suffixes:</p>
+<ul>
+<li><code>--tech_debrief.md</code>: Deep technical internal analysis</li>
+<li><code>--flow-system-documentation.md</code>: Public-facing feature overview</li>
+<li><code>README.md</code>: Root-level module docs</li>
+<li><code>&lt;ClassName&gt;.md</code>: Class-focused explainers</li>
+<li><code>&lt;Comparison&gt;.md</code>: Comparative guides (e.g. with other libraries)</li>
+</ul>
+<hr />
+<h3 id="3-content-style-guidelines">🪄 3. Content Style Guidelines<a class="headerlink" href="#3-content-style-guidelines" title="Permanent link">&para;</a></h3>
+<p>Each <code>.md</code> file follows consistent formatting:</p>
+<h4 id="technical-deep-dives">✅ Technical Deep Dives:<a class="headerlink" href="#technical-deep-dives" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Overview</strong>: Purpose and status (e.g., production ready)</li>
+<li><strong>Architecture Diagrams</strong>: Mermaid flowcharts (graph + sequence + class diagrams)</li>
+<li><strong>Component Breakdown</strong>: Modular class/function explainers</li>
+<li><strong>Data Flow</strong>: SequenceDiagram + key paths</li>
+<li><strong>Performance Metrics</strong>: Quantified ops/costs</li>
+<li><strong>Usage Examples</strong>: From minimal to complex</li>
+<li><strong>Edge Cases</strong>: Handled scenarios</li>
+<li><strong>Best Practices</strong>: Prescriptive advice</li>
+</ul>
+<h4 id="feature-documentation">✅ Feature Documentation:<a class="headerlink" href="#feature-documentation" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Quick Start</strong>: Minimal working example</li>
+<li><strong>Compatibility</strong>: Mention external libraries (e.g., Prefect)</li>
+<li><strong>Patterns &amp; Idioms</strong>: Reusable structure demos</li>
+<li><strong>Implementation Guidelines</strong>: How to extend or adapt</li>
+<li><strong>Testing/Debugging Strategies</strong>: Real-world fault isolation</li>
+</ul>
+<h4 id="comparison-docs">✅ Comparison Docs:<a class="headerlink" href="#comparison-docs" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Comparison Table</strong>: Frameworks side by side</li>
+<li><strong>Code Examples</strong>: Same input/problem in multiple frameworks</li>
+<li><strong>Security/Performance/Ergonomics</strong> breakdowns</li>
+</ul>
+<hr />
+<h3 id="4-authoring-philosophy">🧠 4. Authoring Philosophy<a class="headerlink" href="#4-authoring-philosophy" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Documentation is code-adjacent</strong>: docs match the structure and intent of the repo's implementation</li>
+<li><strong>Each component gets its own doc</strong>: no "god pages"; each decorator, flow, or type gets a separate file</li>
+<li><strong>All source files are covered eventually</strong> (or marked TODO)</li>
+<li><strong>Security, performance, and DX are always considered</strong></li>
+</ul>
+<hr />
+<h3 id="5-tooling-rendering">🛠️ 5. Tooling &amp; Rendering<a class="headerlink" href="#5-tooling-rendering" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Markdown + Mermaid (for live previews)</li>
+<li>
+<p>Heavy use of <code>mermaid</code> diagrams for:</p>
+</li>
+<li>
+<p><strong>Flow logic</strong></p>
+</li>
+<li><strong>Architecture boundaries</strong></li>
+<li><strong>Class relationships</strong></li>
+<li><strong>Execution timelines</strong></li>
+</ul>
+<hr />
+<h3 id="6-main-readme-as-a-portal">📂 6. Main README as a Portal<a class="headerlink" href="#6-main-readme-as-a-portal" title="Permanent link">&para;</a></h3>
+<p>The <code>README.md</code> serves as a:</p>
+<ul>
+<li><strong>High-level overview of architecture</strong></li>
+<li><strong>Gateway to docs/</strong> subpages</li>
+<li><strong>Quick access to major components</strong></li>
+<li>Often includes diagrams and categorized links</li>
+</ul>
+<hr />
+<h3 id="7-progressive-learning-levels">🪜 7. Progressive Learning Levels<a class="headerlink" href="#7-progressive-learning-levels" title="Permanent link">&para;</a></h3>
+<p>Docs are designed to scale from:</p>
+<ul>
+<li><strong>New user</strong> → Quick examples, walkthroughs</li>
+<li><strong>Experienced dev</strong> → Internals, performance, extensions</li>
+<li><strong>Auditor/reviewer</strong> → Security, error cases, benchmarks</li>
+</ul>
+<hr />
+<h3 id="8-suggested-generation-flow-for-new-repo">🧭 8. Suggested Generation Flow for New Repo<a class="headerlink" href="#8-suggested-generation-flow-for-new-repo" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Generate a main <code>docs/README.md</code></strong></p>
+</li>
+<li>
+<p>Overall system diagram</p>
+</li>
+<li>Links to subcomponents</li>
+<li>
+<p>Key usage patterns</p>
+</li>
+<li>
+<p><strong>For each module / subpackage:</strong></p>
+</li>
+<li>
+<p>Mirror its structure in <code>docs/code/...</code></p>
+</li>
+<li>
+<p>Create <code>--tech_debrief.md</code> or <code>README.md</code> per module</p>
+</li>
+<li>
+<p><strong>For decorators/utilities:</strong></p>
+</li>
+<li>
+<p>Create dedicated <code>.md</code> files with mermaid flow + usage patterns</p>
+</li>
+<li>
+<p><strong>For architectural patterns:</strong></p>
+</li>
+<li>
+<p>Create general <code>.md</code> files like <code>flow-system-documentation.md</code> or <code>type-safety-framework-comparison.md</code></p>
+</li>
+<li>
+<p><strong>Use <code>mermaid</code> + code + explanation</strong> for every file</p>
+</li>
+<li>
+<p>Explain what it does</p>
+</li>
+<li>How it works</li>
+<li>Why it’s structured that way</li>
+</ol>
+<hr />
+<h3 id="summary">✅ Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h3>
+<p>This docs system is:</p>
+<ul>
+<li>Structured to mirror code</li>
+<li>Rich in context, examples, and visuals</li>
+<li>Suitable for both internal engineering and external contributors</li>
+<li>Easily machine-parseable and LLM-digestible</li>
+</ul>
+<p>It's ideal for:</p>
+<ul>
+<li><strong>LLM-based code analysis</strong></li>
+<li><strong>Audit-ready documentation</strong></li>
+<li><strong>Refactor-safe and test-oriented systems</strong></li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

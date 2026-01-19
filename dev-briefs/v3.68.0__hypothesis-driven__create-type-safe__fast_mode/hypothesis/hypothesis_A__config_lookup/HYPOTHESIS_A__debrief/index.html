@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_A__config_lookup/HYPOTHESIS_A__debrief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis A: Config Lookup Integration - Debrief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis A: Config Lookup Integration - Debrief";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_A__config_lookup/HYPOTHESIS_A__debrief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_A__config_lookup/HYPOTHESIS_A__debrief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis A: Config Lookup Integration - Debrief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-a-config-lookup-integration-debrief">Hypothesis A: Config Lookup Integration - Debrief<a class="headerlink" href="#hypothesis-a-config-lookup-integration-debrief" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 7, 2026<br />
+<strong>Status</strong>: ✅ SUCCESS<br />
+<strong>Final Overhead</strong>: ~300-450 ns per object (acceptable)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Hypothesis A set out to measure the overhead of adding config lookup to <code>Type_Safe.__init__</code>. The original stack-walking approach proved <strong>unacceptably slow</strong> (~1,700-2,200 ns per call). Through systematic benchmarking, we identified the bottleneck (<code>frame.f_locals</code> dict materialization) and pivoted to a <strong>thread-local storage</strong> approach that reduced overhead to <strong>~300-450 ns</strong> - a <strong>5x improvement</strong>.</p>
+<hr />
+<h2 id="original-approach-stack-walking">Original Approach: Stack Walking<a class="headerlink" href="#original-approach-stack-walking" title="Permanent link">&para;</a></h2>
+<h3 id="the-design">The Design<a class="headerlink" href="#the-design" title="Permanent link">&para;</a></h3>
+<p>The initial implementation walked the Python call stack looking for a <code>_type_safe_config_</code> variable:</p>
+<pre><code class="language-python">def find_type_safe_config(max_depth=15):
+    frame = sys._getframe(1)
+    for _ in range(max_depth):
+        if frame is None:
+            break
+        value = frame.f_locals.get('_type_safe_config_')
+        if value.__class__ is Type_Safe__Config:
+            return value
+        frame = frame.f_back
+    return None
+</code></pre>
+<h3 id="why-stack-walking-seemed-attractive">Why Stack Walking Seemed Attractive<a class="headerlink" href="#why-stack-walking-seemed-attractive" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Implicit propagation</strong> - Config automatically visible to all nested calls</li>
+<li><strong>No API changes</strong> - Just use <code>with Type_Safe__Config(): ...</code></li>
+<li><strong>Familiar pattern</strong> - Similar to how some debuggers/profilers work</li>
+</ol>
+<hr />
+<h2 id="the-performance-problem">The Performance Problem<a class="headerlink" href="#the-performance-problem" title="Permanent link">&para;</a></h2>
+<h3 id="initial-benchmark-results-stack-walking">Initial Benchmark Results (Stack Walking)<a class="headerlink" href="#initial-benchmark-results-stack-walking" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>MAX_DEPTH</th>
+<th>A_01__empty Per-Call</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>+594 ns</td>
+<td>❌ Above 500ns target</td>
+</tr>
+<tr>
+<td>3</td>
+<td>+663 ns</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>6</td>
+<td>+804 ns</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>9</td>
+<td>+905 ns</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>12</td>
+<td>+913 ns</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>15</td>
+<td>+915 ns</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<p>Even with <code>MAX_DEPTH=1</code>, we exceeded our 500ns target!</p>
+<h3 id="isolating-the-bottleneck">Isolating the Bottleneck<a class="headerlink" href="#isolating-the-bottleneck" title="Permanent link">&para;</a></h3>
+<p>We ran micro-benchmarks to identify the cost of each operation:</p>
+<pre><code>══════════════════════════════════════════════════════════════════════
+ Thread-Local vs Stack Walking Benchmark
+══════════════════════════════════════════════════════════════════════
+
+Test                                │         Time │ vs Thread-Local
+──────────────────────────────────────────────────────────────────────
+Baseline (empty function)           │       27.0 ns │            0.3x
+sys._getframe(1)                    │       50.8 ns │            0.7x
+frame + f_locals                    │      281.1 ns │            3.6x  ← THE PROBLEM
+frame + f_locals + .get()           │      302.1 ns │            3.9x
+Thread-local (None)                 │       75.1 ns │            1.0x
+Thread-local (config set)           │       77.5 ns │            1.0x
+Stack walk depth=1 (no config)      │      326.7 ns │            4.2x
+Stack walk depth=5 (no config)      │     1502.1 ns │           19.4x
+Stack walk depth=15 (no config)     │     2215.2 ns │           28.6x
+──────────────────────────────────────────────────────────────────────
+
+Key Findings:
+  • f_locals access cost: ~230 ns PER FRAME
+  • Thread-local lookup:  ~78 ns TOTAL
+  • Stack walk (depth=15): ~2215 ns
+  • Speedup potential: 29x faster with thread-local
+</code></pre>
+<h3 id="the-culprit-framef_locals">The Culprit: <code>frame.f_locals</code><a class="headerlink" href="#the-culprit-framef_locals" title="Permanent link">&para;</a></h3>
+<p>In CPython, <code>frame.f_locals</code> is <strong>not a live view</strong> - it <strong>materializes a fresh dictionary</strong> every time you access it:</p>
+<pre><code class="language-python">frame.f_locals  # ~230 ns - creates new dict
+frame.f_locals  # ~230 ns - creates ANOTHER new dict
+</code></pre>
+<p>This is an implementation detail of CPython. The frame's local variables are stored in an optimized internal format, and <code>f_locals</code> must convert them to a Python dict on every access.</p>
+<p><strong>Cost breakdown:</strong>
+- <code>sys._getframe(1)</code>: ~50 ns (cheap)
+- <code>frame.f_back</code>: ~20-30 ns per hop (cheap)
+- <code>frame.f_locals</code>: <strong>~230 ns per frame</strong> (EXPENSIVE!)
+- <code>.get()</code>: ~20 ns (cheap)</p>
+<p>At 15 frames: <code>15 × 230 ns = 3,450 ns</code> just for dict materialization!</p>
+<hr />
+<h2 id="additional-discovery-selfattr-value-overhead">Additional Discovery: <code>self.attr = value</code> Overhead<a class="headerlink" href="#additional-discovery-selfattr-value-overhead" title="Permanent link">&para;</a></h2>
+<p>During debugging, we discovered another bottleneck. The line:</p>
+<pre><code class="language-python">self.__hypothesis_config__ = config
+</code></pre>
+<p>Was adding ~1,000+ ns because it triggered <code>Type_Safe.__setattr__</code>, which performs validation, type checking, etc.</p>
+<p><strong>Solution</strong>: Use <code>object.__setattr__()</code> to bypass Type_Safe machinery:</p>
+<pre><code class="language-python">object.__setattr__(self, &quot;__hypothesis_config__&quot;, config)
+</code></pre>
+<p>This reduced that specific operation from ~1,000 ns to nearly zero.</p>
+<hr />
+<h2 id="the-solution-thread-local-storage">The Solution: Thread-Local Storage<a class="headerlink" href="#the-solution-thread-local-storage" title="Permanent link">&para;</a></h2>
+<h3 id="design">Design<a class="headerlink" href="#design" title="Permanent link">&para;</a></h3>
+<p>Instead of walking the stack, store the active config in thread-local storage:</p>
+<pre><code class="language-python">import threading
+
+_thread_local = threading.local()
+
+def get_active_config():
+    return getattr(_thread_local, 'config', None)  # ~75 ns
+
+def set_active_config(config):
+    _thread_local.config = config
+</code></pre>
+<h3 id="how-thread-local-works">How Thread-Local Works<a class="headerlink" href="#how-thread-local-works" title="Permanent link">&para;</a></h3>
+<p><code>threading.local()</code> creates a container where <strong>each thread has its own isolated namespace</strong>:</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│  _thread_local (single container object)                        │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │ Thread-Main: .config = Config_A                             ││
+│  ├─────────────────────────────────────────────────────────────┤│
+│  │ Thread-1:    .config = Config_B                             ││
+│  ├─────────────────────────────────────────────────────────────┤│
+│  │ Thread-2:    .config = None                                 ││
+│  └─────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="implementation">Implementation<a class="headerlink" href="#implementation" title="Permanent link">&para;</a></h3>
+<p><strong>Type_Safe__Config.py:</strong></p>
+<pre><code class="language-python">import threading
+
+_thread_local = threading.local()
+
+def get_active_config():
+    return getattr(_thread_local, 'config', None)
+
+def set_active_config(config):
+    _thread_local.config = config
+
+class Type_Safe__Config:
+    __slots__ = (..., '_previous_config')  # For nested contexts
+
+    def __enter__(self):
+        self._previous_config = get_active_config()  # Save current
+        set_active_config(self)                       # Set ourselves
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        set_active_config(self._previous_config)     # Restore previous
+        return False
+</code></pre>
+<p><strong>find_type_safe_config.py:</strong></p>
+<pre><code class="language-python">from .Type_Safe__Config import get_active_config
+
+def find_type_safe_config():
+    return get_active_config()  # ~75 ns!
+</code></pre>
+<h3 id="why-thread-local-is-better">Why Thread-Local is Better<a class="headerlink" href="#why-thread-local-is-better" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Stack Walking</th>
+<th>Thread-Local</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Time complexity</td>
+<td>O(stack_depth)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>Cost per lookup</td>
+<td>~230 ns × frames</td>
+<td>~75 ns total</td>
+</tr>
+<tr>
+<td>Nested objects</td>
+<td>Each re-walks stack</td>
+<td>All share same lookup</td>
+</tr>
+<tr>
+<td>Thread safety</td>
+<td>✅ (each thread has own stack)</td>
+<td>✅ (each thread has own storage)</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>Creates temp dicts</td>
+<td>Single attribute access</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="final-results">Final Results<a class="headerlink" href="#final-results" title="Permanent link">&para;</a></h2>
+<h3 id="before-stack-walking-depth15">Before (Stack Walking, depth=15)<a class="headerlink" href="#before-stack-walking-depth15" title="Permanent link">&para;</a></h3>
+<pre><code>A_01__empty:           +1,700 ns  ❌
+A_02__with_primitives: +1,600 ns  ❌
+B_01__empty_x10:       +1,700 ns/call  ❌
+</code></pre>
+<h3 id="after-thread-local">After (Thread-Local)<a class="headerlink" href="#after-thread-local" title="Permanent link">&para;</a></h3>
+<pre><code>A_01__empty:           +345 ns   ✅
+A_02__with_primitives: +310 ns   ✅
+B_01__empty_x10:       +452 ns   ✅
+B_02__empty_x100:      +446 ns   ✅
+</code></pre>
+<h3 id="improvement-5x-faster">Improvement: ~5x faster<a class="headerlink" href="#improvement-5x-faster" title="Permanent link">&para;</a></h3>
+<hr />
+<h2 id="lessons-learned">Lessons Learned<a class="headerlink" href="#lessons-learned" title="Permanent link">&para;</a></h2>
+<h3 id="1-micro-benchmark-before-committing">1. Micro-benchmark Before Committing<a class="headerlink" href="#1-micro-benchmark-before-committing" title="Permanent link">&para;</a></h3>
+<p>The stack-walking approach "felt" right but was fundamentally flawed. Running micro-benchmarks early would have revealed the <code>f_locals</code> cost immediately.</p>
+<h3 id="2-cpython-internals-matter">2. CPython Internals Matter<a class="headerlink" href="#2-cpython-internals-matter" title="Permanent link">&para;</a></h3>
+<p><code>frame.f_locals</code> creating a new dict on every access is non-obvious. Understanding CPython's implementation details is crucial for performance-critical code.</p>
+<h3 id="3-thread-local-is-the-standard-pattern">3. Thread-Local is the Standard Pattern<a class="headerlink" href="#3-thread-local-is-the-standard-pattern" title="Permanent link">&para;</a></h3>
+<p>This is how most Python frameworks handle context propagation:
+- Flask: <code>flask.request</code>, <code>flask.g</code>
+- Django: <code>django.db.connection</code>
+- SQLAlchemy: Session management
+- Contextvars (Python 3.7+): Even more explicit</p>
+<h3 id="4-bypass-type_safe-for-internal-attributes">4. Bypass Type_Safe for Internal Attributes<a class="headerlink" href="#4-bypass-type_safe-for-internal-attributes" title="Permanent link">&para;</a></h3>
+<p>When setting internal attributes that don't need validation, use <code>object.__setattr__()</code> directly:</p>
+<pre><code class="language-python"># Slow (~1,000 ns) - triggers Type_Safe.__setattr__
+self._internal = value
+
+# Fast (~0 ns) - bypasses Type_Safe
+object.__setattr__(self, '_internal', value)
+</code></pre>
+<h3 id="5-test-infrastructure-pays-off">5. Test Infrastructure Pays Off<a class="headerlink" href="#5-test-infrastructure-pays-off" title="Permanent link">&para;</a></h3>
+<p>The <code>Perf_Benchmark__Hypothesis</code> framework made it easy to:
+- Run before/after comparisons
+- Iterate quickly on different approaches
+- Generate clear reports showing the impact</p>
+<hr />
+<h2 id="files-changed">Files Changed<a class="headerlink" href="#files-changed" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Type_Safe__Config.py</code></td>
+<td>Added <code>_thread_local</code>, <code>get_active_config()</code>, <code>set_active_config()</code>, updated <code>__enter__</code>/<code>__exit__</code></td>
+</tr>
+<tr>
+<td><code>find_type_safe_config.py</code></td>
+<td>Replaced ~50 lines of stack walking with 3-line thread-local lookup</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="next-steps-hypothesis-b">Next Steps: Hypothesis B<a class="headerlink" href="#next-steps-hypothesis-b" title="Permanent link">&para;</a></h2>
+<p>With config lookup now viable (~300-450 ns overhead), we can proceed to <strong>actually using the config flags</strong> to skip expensive operations:</p>
+<ol>
+<li><code>skip_validation</code> - Skip type checking in <code>__setattr__</code></li>
+<li><code>skip_setattr</code> - Use <code>object.__setattr__</code> directly  </li>
+<li><code>skip_conversion</code> - Skip type coercion</li>
+<li>etc.</li>
+</ol>
+<p>The overhead we just measured will be <strong>paid back many times over</strong> by skipping validation that costs 1,000+ ns per attribute.</p>
+<hr />
+<h2 id="appendix-benchmark-data">Appendix: Benchmark Data<a class="headerlink" href="#appendix-benchmark-data" title="Permanent link">&para;</a></h2>
+<h3 id="stack-walking-vs-thread-local-micro-benchmark">Stack Walking vs Thread-Local (Micro-benchmark)<a class="headerlink" href="#stack-walking-vs-thread-local-micro-benchmark" title="Permanent link">&para;</a></h3>
+<pre><code>Test                                │         Time │ vs Thread-Local
+──────────────────────────────────────────────────────────────────────
+Baseline (empty function)           │       27.0 ns │            0.3x
+sys._getframe(1)                    │       50.8 ns │            0.7x
+frame + f_locals                    │      281.1 ns │            3.6x
+frame + f_locals + .get()           │      302.1 ns │            3.9x
+Thread-local (None)                 │       75.1 ns │            1.0x
+Thread-local (config set)           │       77.5 ns │            1.0x
+Stack walk depth=1 (no config)      │      326.7 ns │            4.2x
+Stack walk depth=5 (no config)      │     1502.1 ns │           19.4x
+Stack walk depth=15 (no config)     │     2215.2 ns │           28.6x
+</code></pre>
+<h3 id="final-hypothesis-a-results-thread-local">Final Hypothesis A Results (Thread-Local)<a class="headerlink" href="#final-hypothesis-a-results-thread-local" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│ HYPOTHESIS: Hypothesis A: Config lookup overhead in Type_Safe.__init__          │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark                 │ Before     │ After      │ Overhead   │ Per-Call     │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ A_01__empty               │ 782 ns     │ 1,127 ns   │ +345 ns    │ +345 ns  ✅  │
+│ A_02__with_primitives     │ 3,493 ns   │ 3,803 ns   │ +310 ns    │ +310 ns  ✅  │
+│ A_03__with_nested         │ 11,274 ns  │ 13,096 ns  │ +1,822 ns  │ +911 ns  ⚠️  │
+│ A_04__with_collections    │ 14,476 ns  │ 15,712 ns  │ +1,236 ns  │ +618 ns  ⚠️  │
+│ B_01__empty_x10           │ 6,185 ns   │ 10,704 ns  │ +4,519 ns  │ +452 ns  ✅  │
+│ B_02__empty_x100          │ 58,798 ns  │ 103,419 ns │ +44,621 ns │ +446 ns  ✅  │
+│ B_03__with_primitives_x10 │ 32,853 ns  │ 39,024 ns  │ +6,171 ns  │ +617 ns  ⚠️  │
+│ B_04__with_nested_x10     │ 111,834 ns │ 131,546 ns │ +19,712 ns │ +986 ns  ⚠️  │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ ✓ SUCCESS (-32.9% &gt;= -50.0% target)                                             │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

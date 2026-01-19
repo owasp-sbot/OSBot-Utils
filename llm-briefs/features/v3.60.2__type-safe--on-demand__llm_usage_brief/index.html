@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.60.2__type-safe--on-demand__llm_usage_brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Type_Safe__On_Demand - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe__On_Demand - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.60.2__type-safe--on-demand__llm_usage_brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.60.2__type-safe--on-demand__llm_usage_brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe__On_Demand - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe__on_demand-llm-usage-brief">Type_Safe__On_Demand - LLM Usage Brief<a class="headerlink" href="#type_safe__on_demand-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.60.2<br />
+<strong>Date</strong>: December 2025<br />
+<strong>Module</strong>: <code>osbot_utils.type_safe.Type_Safe__On_Demand</code><br />
+<strong>Purpose</strong>: High-performance drop-in replacement for Type_Safe with on-demand nested object creation</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p><code>Type_Safe__On_Demand</code> is a performance-optimized variant of <code>Type_Safe</code> that defers the creation of nested Type_Safe objects until they are first accessed. This provides <strong>20x faster construction</strong> for deeply nested object hierarchies while maintaining full compatibility with the Type_Safe API.</p>
+<h3 id="key-benefits">Key Benefits<a class="headerlink" href="#key-benefits" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Type_Safe (Eager)</th>
+<th>Type_Safe__On_Demand</th>
+<th>Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Construction time (MGraph__Index)</td>
+<td>~1,800 µs</td>
+<td>~90 µs</td>
+<td><strong>20x faster</strong></td>
+</tr>
+<tr>
+<td>Objects created</td>
+<td>47</td>
+<td>1</td>
+<td><strong>98% reduction</strong></td>
+</tr>
+<tr>
+<td>Memory allocation</td>
+<td>All upfront</td>
+<td>On-demand</td>
+<td><strong>Deferred</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="when-to-use">When to Use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h3>
+<p>Use <code>Type_Safe__On_Demand</code> when:
+- Your class has <strong>multiple nested Type_Safe attributes</strong>
+- Many of those attributes are <strong>not accessed in typical workflows</strong>
+- Construction performance is a <strong>bottleneck</strong> (measurable with <code>Performance_Measure__Session</code>)</p>
+<p>Do NOT use when:
+- Your class has few or no nested Type_Safe attributes
+- All attributes are accessed immediately after construction
+- The class primarily contains primitives or collections</p>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe__On_Demand import Type_Safe__On_Demand
+
+# Simply inherit from Type_Safe__On_Demand instead of Type_Safe
+class Schema__Data(Type_Safe__On_Demand):
+    edges : Dict[str, str]
+    labels: Dict[str, str]
+
+class Index__Edges(Type_Safe__On_Demand):
+    data   : Schema__Data      # NOT created until first access
+    enabled: bool = True
+
+class MGraph__Index(Type_Safe__On_Demand):
+    edges_index : Index__Edges  # Created on demand
+    labels_index: Index__Labels # Created on demand
+    query_index : Index__Query  # Created on demand
+    count       : int = 0       # Primitives work normally
+
+# Construction is now ~20x faster
+index = MGraph__Index()         # Only creates 1 object, not 47
+
+# Attributes are created when accessed
+edges = index.edges_index       # Index__Edges created now
+data = edges.data               # Schema__Data created now
+</code></pre>
+<h3 id="migration-from-type_safe">Migration from Type_Safe<a class="headerlink" href="#migration-from-type_safe" title="Permanent link">&para;</a></h3>
+<p>Migration is a single-line change:</p>
+<pre><code class="language-python"># Before (eager initialization)
+class MGraph__Index(Type_Safe):
+    edges_index: Index__Edges
+    # ... many nested Type_Safe attributes
+
+# After (on-demand initialization)  
+class MGraph__Index(Type_Safe__On_Demand):
+    edges_index: Index__Edges
+    # ... same attributes, 20x faster construction
+</code></pre>
+<hr />
+<h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
+<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                    Type_Safe__On_Demand                         │
+├─────────────────────────────────────────────────────────────────┤
+│  Inherits from: Type_Safe                                       │
+│                                                                 │
+│  Additional State:                                              │
+│    _on_demand__types        : dict   # {attr_name: type}        │
+│    _on_demand__init_complete: bool   # False during __init__    │
+├─────────────────────────────────────────────────────────────────┤
+│  __init__():                                                    │
+│    1. Set _on_demand__init_complete = False                     │
+│    2. Walk MRO, find Type_Safe-typed attributes                 │
+│    3. For each: store type, set kwargs[name] = None             │
+│    4. Call super().__init__(**kwargs)                           │
+│    5. Set _on_demand__init_complete = True                      │
+├─────────────────────────────────────────────────────────────────┤
+│  __getattribute__(name):                                        │
+│    1. If name starts with '_': return directly                  │
+│    2. If not _on_demand__init_complete: return directly         │
+│    3. If name in _on_demand__types:                             │
+│       - Pop type, create instance, store, return                │
+│    4. Normal attribute access                                   │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="what-gets-deferred">What Gets Deferred<a class="headerlink" href="#what-gets-deferred" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Deferred?</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Type_Safe</code> subclasses</td>
+<td>✅ Yes</td>
+<td>These are expensive to create</td>
+</tr>
+<tr>
+<td><code>Type_Safe__On_Demand</code> subclasses</td>
+<td>✅ Yes</td>
+<td>Same reason</td>
+</tr>
+<tr>
+<td><code>Dict[K, V]</code> (Type_Safe__Dict)</td>
+<td>❌ No</td>
+<td>Cheap empty containers</td>
+</tr>
+<tr>
+<td><code>List[T]</code> (Type_Safe__List)</td>
+<td>❌ No</td>
+<td>Cheap empty containers</td>
+</tr>
+<tr>
+<td><code>Set[T]</code> (Type_Safe__Set)</td>
+<td>❌ No</td>
+<td>Cheap empty containers</td>
+</tr>
+<tr>
+<td><code>Type_Safe__Primitive</code> (Safe_Str, etc.)</td>
+<td>❌ No</td>
+<td>Immutable, validation needed</td>
+</tr>
+<tr>
+<td>Native primitives (str, int, etc.)</td>
+<td>❌ No</td>
+<td>Zero overhead</td>
+</tr>
+</tbody>
+</table>
+<h3 id="internal-state">Internal State<a class="headerlink" href="#internal-state" title="Permanent link">&para;</a></h3>
+<p>After construction, you can inspect the on-demand state:</p>
+<pre><code class="language-python">index = MGraph__Index()
+
+# See what's pending
+print(index._on_demand__types)
+# {'edges_index': &lt;class 'Index__Edges'&gt;, 'labels_index': ...}
+
+# After accessing
+_ = index.edges_index
+print(index._on_demand__types)
+# {'labels_index': ...}  # edges_index removed
+</code></pre>
+<hr />
+<h2 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
+<h3 id="class-type_safe__on_demand">Class: <code>Type_Safe__On_Demand</code><a class="headerlink" href="#class-type_safe__on_demand" title="Permanent link">&para;</a></h3>
+<p>Inherits all methods from <code>Type_Safe</code> plus:</p>
+<h4 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_on_demand__types</code></td>
+<td><code>dict[str, type]</code></td>
+<td>Pending attribute names → types</td>
+</tr>
+<tr>
+<td><code>_on_demand__init_complete</code></td>
+<td><code>bool</code></td>
+<td>True after <code>__init__</code> completes</td>
+</tr>
+</tbody>
+</table>
+<h4 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_on_demand__should_create(var_type)</code></td>
+<td>Static method. Returns True if type should be deferred</td>
+</tr>
+<tr>
+<td><code>__repr__()</code></td>
+<td>Shows pending count: <code>&lt;MGraph__Index (10 attrs pending)&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="inherited-from-type_safe">Inherited from Type_Safe<a class="headerlink" href="#inherited-from-type_safe" title="Permanent link">&para;</a></h4>
+<p>All standard Type_Safe methods work:
+- <code>json()</code> - Serialize to dict (accessed attrs only have real data)
+- <code>from_json(data)</code> - Deserialize from dict
+- <code>obj()</code> - Convert to <code>__</code> for testing
+- <code>reset()</code> - Reset to defaults
+- <code>__locals__()</code> - Get current attribute values
+- <code>__cls_kwargs__()</code> - Get class-level defaults</p>
+<hr />
+<h2 id="performance-benchmarking">Performance Benchmarking<a class="headerlink" href="#performance-benchmarking" title="Permanent link">&para;</a></h2>
+<h3 id="measuring-construction-time">Measuring Construction Time<a class="headerlink" href="#measuring-construction-time" title="Permanent link">&para;</a></h3>
+<p>Use <code>Performance_Measure__Session</code> to benchmark:</p>
+<pre><code class="language-python">from osbot_utils.testing.performance.Performance_Measure__Session import Performance_Measure__Session
+
+# Compare eager vs on-demand
+with Performance_Measure__Session() as _:
+    _.measure__quick(MGraph__Index__Eager)
+    eager_time = _.result.final_score
+
+with Performance_Measure__Session() as _:
+    _.measure__quick(MGraph__Index__OnDemand)
+    on_demand_time = _.result.final_score
+
+speedup = eager_time / on_demand_time
+print(f&quot;Speedup: {speedup:.1f}x&quot;)  # Typically 10-20x
+</code></pre>
+<h3 id="counting-object-creation">Counting Object Creation<a class="headerlink" href="#counting-object-creation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Monkey-patch to count creations
+creation_count = 0
+original_init = Type_Safe.__init__
+
+def counting_init(self, **kwargs):
+    global creation_count
+    creation_count += 1
+    original_init(self, **kwargs)
+
+Type_Safe.__init__ = counting_init
+
+# Test
+_ = MGraph__Index__Eager()
+print(f&quot;Eager: {creation_count} objects&quot;)     # ~47
+
+creation_count = 0
+_ = MGraph__Index__OnDemand()
+print(f&quot;On-demand: {creation_count} objects&quot;) # 1
+
+Type_Safe.__init__ = original_init
+</code></pre>
+<hr />
+<h2 id="integration-patterns">Integration Patterns<a class="headerlink" href="#integration-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-index-classes-mgraph-use-case">Pattern 1: Index Classes (MGraph Use Case)<a class="headerlink" href="#pattern-1-index-classes-mgraph-use-case" title="Permanent link">&para;</a></h3>
+<p>The primary use case—index classes with multiple sub-indexes:</p>
+<pre><code class="language-python">class MGraph__Index(Type_Safe__On_Demand):
+    index_data  : Schema__Data
+    edges_index : Index__Edges
+    edit_index  : Index__Edit
+    labels_index: Index__Labels
+    paths_index : Index__Paths
+    query_index : Index__Query
+    stats_index : Index__Stats
+    types_index : Index__Types
+    values_index: Index__Values
+    resolver    : Type__Resolver
+
+# Construction: ~90µs instead of ~1,800µs
+# Access edges only: creates edges_index + its children
+# Other indexes remain uncreated until needed
+</code></pre>
+<h3 id="pattern-2-mixed-hierarchies">Pattern 2: Mixed Hierarchies<a class="headerlink" href="#pattern-2-mixed-hierarchies" title="Permanent link">&para;</a></h3>
+<p>Combine with regular Type_Safe where appropriate:</p>
+<pre><code class="language-python">class Schema__Data(Type_Safe):           # Eager - always fully accessed
+    edges : Dict[str, str]
+    labels: Dict[str, str]
+
+class MGraph__Index(Type_Safe__On_Demand):  # On-demand - selective access
+    data       : Schema__Data            # Deferred
+    edges_index: Index__Edges            # Deferred
+    labels_index: Index__Labels          # Deferred
+</code></pre>
+<h3 id="pattern-3-factory-classes">Pattern 3: Factory Classes<a class="headerlink" href="#pattern-3-factory-classes" title="Permanent link">&para;</a></h3>
+<p>Create wrapper factories for complex object graphs:</p>
+<pre><code class="language-python">class MGraph__Factory(Type_Safe__On_Demand):
+    index : MGraph__Index
+    graph : MGraph__Graph
+    config: MGraph__Config
+
+    def create_editor(self):
+        # Only index is accessed - others remain uncreated
+        return MGraph__Editor(index=self.index)
+</code></pre>
+<hr />
+<h2 id="common-pitfalls">Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Permanent link">&para;</a></h2>
+<h3 id="pitfall-1-expecting-json-to-trigger-creation">Pitfall 1: Expecting JSON to Trigger Creation<a class="headerlink" href="#pitfall-1-expecting-json-to-trigger-creation" title="Permanent link">&para;</a></h3>
+<p><code>json()</code> does NOT trigger on-demand creation for pending attributes:</p>
+<pre><code class="language-python">index = MGraph__Index()
+json_data = index.json()
+# json_data['edges_index'] will be None, not the serialized object
+
+# Fix: Access attributes first
+_ = index.edges_index           # Create it
+json_data = index.json()        # Now it serializes
+</code></pre>
+<h3 id="pitfall-2-assignment-to-pending-attributes">Pitfall 2: Assignment to Pending Attributes<a class="headerlink" href="#pitfall-2-assignment-to-pending-attributes" title="Permanent link">&para;</a></h3>
+<p>Assigning to a pending attribute may be overwritten:</p>
+<pre><code class="language-python">index = MGraph__Index()
+index.edges_index = custom_edges  # Sets value
+_ = index.edges_index             # OVERWRITES with new Index__Edges!
+
+# Fix: Remove from pending first
+index._on_demand__types.pop('edges_index', None)
+index.edges_index = custom_edges  # Now it sticks
+</code></pre>
+<h3 id="pitfall-3-assuming-all-type_safe-attrs-are-deferred">Pitfall 3: Assuming All Type_Safe Attrs Are Deferred<a class="headerlink" href="#pitfall-3-assuming-all-type_safe-attrs-are-deferred" title="Permanent link">&para;</a></h3>
+<p>Collections and primitives are NOT deferred:</p>
+<pre><code class="language-python">class Schema(Type_Safe__On_Demand):
+    data  : Dict[str, str]     # Created immediately
+    items : List[str]          # Created immediately
+    name  : str = &quot;&quot;           # Created immediately
+    nested: Another_Schema     # ONLY this is deferred
+</code></pre>
+<hr />
+<h2 id="use-case-html_mgraph-performance-optimization">Use Case: Html_MGraph Performance Optimization<a class="headerlink" href="#use-case-html_mgraph-performance-optimization" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h3>
+<p>Html_MGraph creates 6 MGraph__Index instances during document conversion:</p>
+<pre><code class="language-python">class Html_MGraph:
+    def convert(self, html):
+        # Each index construction was ~1.8ms
+        self.index_1 = MGraph__Index()  # 1.8ms
+        self.index_2 = MGraph__Index()  # 1.8ms
+        self.index_3 = MGraph__Index()  # 1.8ms
+        self.index_4 = MGraph__Index()  # 1.8ms
+        self.index_5 = MGraph__Index()  # 1.8ms
+        self.index_6 = MGraph__Index()  # 1.8ms
+        # Total: ~11ms just for empty index construction
+</code></pre>
+<h3 id="the-solution">The Solution<a class="headerlink" href="#the-solution" title="Permanent link">&para;</a></h3>
+<p>Migrate MGraph__Index to Type_Safe__On_Demand:</p>
+<pre><code class="language-python">class MGraph__Index(Type_Safe__On_Demand):  # Changed from Type_Safe
+    # ... same attributes ...
+
+# Now:
+self.index_1 = MGraph__Index()  # ~90µs
+# Total for 6: ~0.5ms (saved ~10.5ms)
+</code></pre>
+<h3 id="expected-impact">Expected Impact<a class="headerlink" href="#expected-impact" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Before</th>
+<th>After</th>
+<th>Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single MGraph__Index</td>
+<td>1.8ms</td>
+<td>0.09ms</td>
+<td>20x</td>
+</tr>
+<tr>
+<td>Html_MGraph (6 indexes)</td>
+<td>11ms</td>
+<td>0.5ms</td>
+<td>22x</td>
+</tr>
+<tr>
+<td>100 document batch</td>
+<td>1,100ms</td>
+<td>50ms</td>
+<td>22x</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="testing-type_safe__on_demand-classes">Testing Type_Safe__On_Demand Classes<a class="headerlink" href="#testing-type_safe__on_demand-classes" title="Permanent link">&para;</a></h2>
+<h3 id="functional-testing">Functional Testing<a class="headerlink" href="#functional-testing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.__ import __, __SKIP__
+
+def test__init__(self):
+    with MGraph__Index() as _:
+        assert type(_) is MGraph__Index
+        assert len(_._on_demand__types) == 10       # 10 attrs pending
+
+def test__on_demand_creation(self):
+    with MGraph__Index() as _:
+        edges = _.edges_index                        # Trigger creation
+        assert type(edges) is Index__Edges
+        assert 'edges_index' not in _._on_demand__types
+
+def test_json__after_access(self):
+    with MGraph__Index() as _:
+        _ = _.edges_index                            # Must access first
+        json_data = _.json()
+        assert 'edges_index' in json_data
+        assert json_data['edges_index'] is not None
+</code></pre>
+<h3 id="performance-testing">Performance Testing<a class="headerlink" href="#performance-testing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__construction_performance(self):
+    with Performance_Measure__Session() as _:
+        _.measure__quick(MGraph__Index)
+
+    target_ns = 200_000  # 200µs
+    assert _.result.final_score &lt;= target_ns
+</code></pre>
+<hr />
+<h2 id="compatibility-matrix">Compatibility Matrix<a class="headerlink" href="#compatibility-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Compatible</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type_Safe inheritance</td>
+<td>✅</td>
+<td>Direct subclass</td>
+</tr>
+<tr>
+<td>JSON serialization</td>
+<td>✅</td>
+<td>Access attrs first</td>
+</tr>
+<tr>
+<td>from_json()</td>
+<td>✅</td>
+<td>Works normally</td>
+</tr>
+<tr>
+<td>.obj() comparison</td>
+<td>✅</td>
+<td>Access attrs first</td>
+</tr>
+<tr>
+<td>Type_Safe__Dict</td>
+<td>✅</td>
+<td>Not deferred</td>
+</tr>
+<tr>
+<td>Type_Safe__List</td>
+<td>✅</td>
+<td>Not deferred</td>
+</tr>
+<tr>
+<td>Type_Safe__Primitive</td>
+<td>✅</td>
+<td>Not deferred</td>
+</tr>
+<tr>
+<td>Mixed inheritance</td>
+<td>✅</td>
+<td>See patterns above</td>
+</tr>
+<tr>
+<td>Context managers</td>
+<td>✅</td>
+<td>Works normally</td>
+</tr>
+<tr>
+<td>reset()</td>
+<td>✅</td>
+<td>Works normally</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p><code>Type_Safe__On_Demand</code> provides a targeted optimization for the specific problem of deeply nested Type_Safe hierarchies. By deferring object creation until access:</p>
+<ol>
+<li><strong>Construction is 20x faster</strong> for complex hierarchies</li>
+<li><strong>Memory is allocated incrementally</strong> as needed</li>
+<li><strong>Full API compatibility</strong> with Type_Safe is maintained</li>
+<li><strong>Migration is trivial</strong> (single inheritance change)</li>
+</ol>
+<p>The feature is particularly valuable for:
+- Index classes with many sub-indexes (MGraph__Index)
+- Factory classes that may not use all components
+- Batch processing where construction overhead accumulates</p>
+<p>For the Html_MGraph project specifically, migrating to <code>Type_Safe__On_Demand</code> is expected to save <strong>~10ms per document</strong> in index construction overhead.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

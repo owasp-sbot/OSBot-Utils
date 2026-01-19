@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.70.3__flow-system__llm-usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Flow System - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Flow System - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.70.3__flow-system__llm-usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.70.3__flow-system__llm-usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Flow System - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="flow-system-llm-usage-brief">Flow System - LLM Usage Brief<a class="headerlink" href="#flow-system-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.70.3<br />
+<strong>Purpose</strong>: Guide for LLMs and developers on workflow orchestration with Flows and Tasks<br />
+<strong>Location</strong>: <code>osbot_utils.helpers.flows</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="what-is-the-flow-system">What is the Flow System?<a class="headerlink" href="#what-is-the-flow-system" title="Permanent link">&para;</a></h2>
+<p><strong>The Flow System is a lightweight workflow orchestration framework that brings structure, observability, and error handling to Python function execution.</strong> It wraps your code in a rich execution context that provides automatic logging, event emission, statistics collection, dependency injection, and artifact tracking—without requiring external services or infrastructure.</p>
+<p>Instead of scattering logging calls, try/except blocks, and timing code throughout your functions, you get a clean separation between business logic and execution concerns.</p>
+<h3 id="the-problem-it-solves">The Problem It Solves<a class="headerlink" href="#the-problem-it-solves" title="Permanent link">&para;</a></h3>
+<p>When building complex applications, you often need to:
+- Track execution across multiple functions
+- Share data between processing steps
+- Handle errors gracefully without stopping everything
+- Measure performance and collect statistics
+- Log what's happening in a structured way
+- Capture artifacts and results for later analysis</p>
+<p>Without a framework, this leads to verbose, tangled code:</p>
+<pre><code class="language-python"># Without Flow System - verbose and scattered
+import logging
+import time
+
+logger = logging.getLogger(__name__)
+
+def process_data(input_data):
+    start_time = time.time()
+    results = {}
+
+    try:
+        logger.info(&quot;Starting data fetch&quot;)
+        fetch_start = time.time()
+        raw_data = fetch_data(input_data)
+        results['fetch_duration'] = time.time() - fetch_start
+        logger.info(f&quot;Fetch completed in {results['fetch_duration']:.2f}s&quot;)
+    except Exception as e:
+        logger.error(f&quot;Fetch failed: {e}&quot;)
+        raise
+
+    try:
+        logger.info(&quot;Starting transformation&quot;)
+        transform_start = time.time()
+        transformed = transform_data(raw_data)
+        results['transform_duration'] = time.time() - transform_start
+        logger.info(f&quot;Transform completed in {results['transform_duration']:.2f}s&quot;)
+    except Exception as e:
+        logger.error(f&quot;Transform failed: {e}&quot;)
+        raise
+
+    results['total_duration'] = time.time() - start_time
+    return transformed, results
+</code></pre>
+<p><strong>With the Flow System:</strong></p>
+<pre><code class="language-python">from osbot_utils.helpers.flows.decorators.flow import flow
+from osbot_utils.helpers.flows.decorators.task import task
+
+@task()
+def fetch_data(input_data):
+    return api.get(input_data)
+
+@task()
+def transform_data(raw_data):
+    return processor.transform(raw_data)
+
+@flow()
+def process_data(input_data):
+    raw_data = fetch_data(input_data)
+    return transform_data(raw_data)
+
+# Execute and get full observability
+result = process_data(input_data).execute()
+print(result.durations())           # All timing data
+print(result.captured_logs())       # All log messages
+print(result.flow_return_value)     # The actual result
+</code></pre>
+<h3 id="design-philosophy">Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Pythonic and intuitive</strong> — Use decorators for simple cases, classes for complex ones</li>
+<li><strong>Zero infrastructure</strong> — No external services, databases, or message queues required</li>
+<li><strong>Built on Type_Safe</strong> — Full runtime type checking and serialization support</li>
+<li><strong>Automatic context discovery</strong> — Tasks automatically find their parent Flow via stack inspection</li>
+<li><strong>Dependency injection</strong> — Request <code>this_flow</code>, <code>flow_data</code>, etc. as function parameters</li>
+<li><strong>Graceful error handling</strong> — Configure whether errors stop execution or get logged and continue</li>
+<li><strong>Rich observability</strong> — Events, statistics, artifacts, and structured logging built-in</li>
+</ol>
+<h3 id="key-capabilities">Key Capabilities<a class="headerlink" href="#key-capabilities" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Flow orchestration</strong> — Coordinate multiple tasks with shared context</li>
+<li><strong>Automatic logging</strong> — All print statements and log calls captured</li>
+<li><strong>Event system</strong> — Subscribe to flow/task lifecycle events</li>
+<li><strong>Statistics collection</strong> — Timing and status for every flow and task</li>
+<li><strong>Dependency injection</strong> — Automatic parameter resolution</li>
+<li><strong>Error isolation</strong> — Tasks can fail without stopping the flow</li>
+<li><strong>Artifact tracking</strong> — Store and retrieve data products</li>
+<li><strong>Async support</strong> — Full support for async/await patterns</li>
+<li><strong>JSON serialization</strong> — Export complete flow execution data</li>
+</ul>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="decorator-style-recommended-for-simple-cases">Decorator Style (Recommended for Simple Cases)<a class="headerlink" href="#decorator-style-recommended-for-simple-cases" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.flows.decorators.flow import flow
+from osbot_utils.helpers.flows.decorators.task import task
+
+@task()
+def add_numbers(x, y):
+    return x + y
+
+@task()
+def multiply_result(value, factor):
+    return value * factor
+
+@flow()
+def calculate(a, b, factor):
+    sum_result = add_numbers(a, b)
+    return multiply_result(sum_result, factor)
+
+# Execute the flow
+flow_instance = calculate(10, 20, 2).execute()
+
+print(flow_instance.flow_return_value)  # 60
+print(flow_instance.durations())        # {'flow_name': 'calculate', 'flow_duration': 0.001, ...}
+</code></pre>
+<h3 id="context-manager-style">Context Manager Style<a class="headerlink" href="#context-manager-style" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.flows.Flow import Flow
+from osbot_utils.helpers.flows.Task import Task
+
+def my_workflow():
+    with Flow() as flow:
+        flow.setup(lambda: None)  # Setup required before execute
+
+        with Task() as task:
+            task.task_target = lambda: &quot;task completed&quot;
+            result = task.execute__sync()
+
+        return result
+
+# Or more explicitly
+with Flow() as flow:
+    flow.flow_id = 'my-custom-id'
+    flow.setup(process_function, arg1, arg2)
+    flow.execute()
+    print(flow.flow_return_value)
+</code></pre>
+<h3 id="class-based-style-recommended-for-complex-flows">Class-Based Style (Recommended for Complex Flows)<a class="headerlink" href="#class-based-style-recommended-for-complex-flows" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.helpers.flows.decorators.flow import flow
+from osbot_utils.helpers.flows.decorators.task import task
+
+class DataPipeline(Type_Safe):
+    source_url : str
+    batch_size : int = 100
+
+    @task()
+    def fetch_data(self, flow_data=None):
+        data = api.fetch(self.source_url)
+        flow_data['raw_data'] = data
+        return len(data)
+
+    @task()
+    def process_batch(self, flow_data=None):
+        raw_data = flow_data['raw_data']
+        processed = [transform(item) for item in raw_data[:self.batch_size]]
+        flow_data['processed'] = processed
+        return len(processed)
+
+    @flow()
+    def run_pipeline(self):
+        count = self.fetch_data()
+        processed = self.process_batch()
+        return f&quot;Fetched {count}, processed {processed}&quot;
+
+# Usage
+pipeline = DataPipeline(source_url='https://api.example.com/data')
+result = pipeline.run_pipeline().execute()
+print(result.flow_return_value)
+</code></pre>
+<hr />
+<h2 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="flow-lifecycle">Flow Lifecycle<a class="headerlink" href="#flow-lifecycle" title="Permanent link">&para;</a></h3>
+<p>A Flow goes through distinct phases:</p>
+<pre><code>1. Creation     → Flow() instantiated
+2. Setup        → .setup(target, *args, **kwargs) configures the flow
+3. Execution    → .execute() runs the target function
+4. Completion   → Statistics collected, events fired, results available
+</code></pre>
+<p><strong>Critical</strong>: You must call <code>setup()</code> before <code>execute()</code>:</p>
+<pre><code class="language-python"># ✓ Correct
+flow = Flow()
+flow.setup(my_function, arg1, arg2)
+flow.execute()
+
+# ✓ Correct - decorator handles setup automatically
+@flow()
+def my_function():
+    pass
+my_function().execute()
+
+# ✗ Wrong - will raise ValueError
+flow = Flow()
+flow.execute()  # Error: setup has not been called
+</code></pre>
+<h3 id="task-execution-context">Task Execution Context<a class="headerlink" href="#task-execution-context" title="Permanent link">&para;</a></h3>
+<p>Tasks automatically discover their parent Flow by inspecting the call stack:</p>
+<pre><code class="language-python">@flow()
+def parent_flow():
+    # Task automatically finds this flow
+    result = child_task()
+    return result
+
+@task()
+def child_task(this_flow=None):
+    # this_flow is automatically injected
+    this_flow.log_info(&quot;Task is running&quot;)
+    return &quot;done&quot;
+</code></pre>
+<p>The <code>find_flow()</code> method walks the stack frames looking for a <code>Flow</code> instance:</p>
+<pre><code class="language-python">def find_flow(self):
+    stack = inspect.stack()
+    for frame_info in stack:
+        frame = frame_info.frame
+        for var_name, var_value in frame.f_locals.items():
+            if isinstance(var_value, Flow):
+                return var_value
+    return None
+</code></pre>
+<h3 id="sync-vs-async-execution">Sync vs Async Execution<a class="headerlink" href="#sync-vs-async-execution" title="Permanent link">&para;</a></h3>
+<p>The Flow System fully supports async operations:</p>
+<pre><code class="language-python">@task()
+async def async_fetch(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            return await response.json()
+
+@task()
+def sync_transform(data):
+    return [item.upper() for item in data]
+
+@flow()
+async def mixed_flow():
+    data = await async_fetch('https://api.example.com')
+    return sync_transform(data)
+
+# Async flows are executed in a new event loop
+result = mixed_flow().execute()
+</code></pre>
+<h3 id="dependency-injection">Dependency Injection<a class="headerlink" href="#dependency-injection" title="Permanent link">&para;</a></h3>
+<p>The Flow System automatically injects special parameters into your functions:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>this_flow</code></td>
+<td><code>Flow</code></td>
+<td>The current Flow instance</td>
+</tr>
+<tr>
+<td><code>this_task</code></td>
+<td><code>Task</code></td>
+<td>The current Task instance (tasks only)</td>
+</tr>
+<tr>
+<td><code>flow_data</code></td>
+<td><code>dict</code></td>
+<td>Shared dictionary across all tasks in the flow</td>
+</tr>
+<tr>
+<td><code>task_data</code></td>
+<td><code>dict</code></td>
+<td>Dictionary scoped to the current task</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">@task()
+def my_task(x, y, this_flow=None, flow_data=None, task_data=None):
+    # x, y are your regular parameters
+    # this_flow, flow_data, task_data are auto-injected
+
+    this_flow.log_info(f&quot;Processing {x} + {y}&quot;)
+    flow_data['result'] = x + y      # Shared with other tasks
+    task_data['local'] = 'private'   # Only this task sees this
+
+    return x + y
+</code></pre>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<h3 id="core-classes">Core Classes<a class="headerlink" href="#core-classes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Flow and Task
+from osbot_utils.helpers.flows.Flow import Flow
+from osbot_utils.helpers.flows.Task import Task
+
+# Decorators
+from osbot_utils.helpers.flows.decorators.flow import flow
+from osbot_utils.helpers.flows.decorators.task import task
+</code></pre>
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Flow configuration
+from osbot_utils.helpers.flows.models.Flow_Run__Config import Flow_Run__Config
+</code></pre>
+<h3 id="events">Events<a class="headerlink" href="#events" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Event system
+from osbot_utils.helpers.flows.actions.Flow__Events import Flow_Events, flow_events
+from osbot_utils.helpers.flows.models.Flow_Run__Event import Flow_Run__Event
+from osbot_utils.helpers.flows.models.Flow_Run__Event_Data import Flow_Run__Event_Data
+from osbot_utils.helpers.flows.models.Flow_Run__Event_Type import Flow_Run__Event_Type
+</code></pre>
+<h3 id="data-and-statistics">Data and Statistics<a class="headerlink" href="#data-and-statistics" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Flow data management
+from osbot_utils.helpers.flows.actions.Flow__Data import Flow__Data
+from osbot_utils.helpers.flows.actions.Flow__Stats__Collector import Flow__Stats__Collector
+from osbot_utils.helpers.flows.actions.Task__Stats__Collector import Task__Stats__Collector
+
+# Schemas
+from osbot_utils.helpers.flows.schemas.Schema__Flow import Schema__Flow
+from osbot_utils.helpers.flows.schemas.Schema__Flow__Data import Schema__Flow__Data
+from osbot_utils.helpers.flows.schemas.Schema__Flow__Stats import Schema__Flow__Stats
+from osbot_utils.helpers.flows.schemas.Schema__Flow__Status import Schema__Flow__Status
+from osbot_utils.helpers.flows.schemas.Schema__Task__Stats import Schema__Task__Stats
+
+# Models
+from osbot_utils.helpers.flows.models.Schema__Flow__Artifact import Schema__Flow__Artifact
+from osbot_utils.helpers.flows.models.Schema__Flow__Result import Schema__Flow__Result
+</code></pre>
+<hr />
+<h2 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
+<h3 id="flow-class">Flow Class<a class="headerlink" href="#flow-class" title="Permanent link">&para;</a></h3>
+<h4 id="setup-and-execution">Setup and Execution<a class="headerlink" href="#setup-and-execution" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>setup(target, *args, **kwargs)</code></td>
+<td>Configure flow with target function and arguments</td>
+<td><code>self</code></td>
+</tr>
+<tr>
+<td><code>execute()</code></td>
+<td>Execute the configured flow</td>
+<td><code>self</code></td>
+</tr>
+<tr>
+<td><code>execute_flow(flow_run_params=None)</code></td>
+<td>Execute with optional runtime parameters</td>
+<td><code>self</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>log_debug(message)</code></td>
+<td>Log debug-level message</td>
+</tr>
+<tr>
+<td><code>log_info(message)</code></td>
+<td>Log info-level message</td>
+</tr>
+<tr>
+<td><code>log_error(message)</code></td>
+<td>Log error-level message</td>
+</tr>
+<tr>
+<td><code>log_messages()</code></td>
+<td>Get all log messages (without ANSI colors)</td>
+</tr>
+<tr>
+<td><code>captured_logs()</code></td>
+<td>Get captured execution logs</td>
+</tr>
+<tr>
+<td><code>print_log_messages(use_colors=True)</code></td>
+<td>Print all log messages</td>
+</tr>
+</tbody>
+</table>
+<h4 id="artifacts-and-results">Artifacts and Results<a class="headerlink" href="#artifacts-and-results" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add_flow_artifact(description, key, data, artifact_type)</code></td>
+<td>Store an artifact</td>
+</tr>
+<tr>
+<td><code>add_flow_result(key, description)</code></td>
+<td>Record a result</td>
+</tr>
+</tbody>
+</table>
+<h4 id="statistics-and-output">Statistics and Output<a class="headerlink" href="#statistics-and-output" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>durations()</code></td>
+<td>Get timing data for flow and tasks</td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td><code>durations__with_tasks_status()</code></td>
+<td>Get timing with status info</td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td><code>flow_output()</code></td>
+<td>Get return value and durations</td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td><code>json()</code></td>
+<td>Serialize flow data to dict</td>
+<td><code>dict</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="key-attributes">Key Attributes<a class="headerlink" href="#key-attributes" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flow_id</code></td>
+<td><code>str</code></td>
+<td>Unique identifier for this flow run</td>
+</tr>
+<tr>
+<td><code>flow_name</code></td>
+<td><code>str</code></td>
+<td>Name of the flow</td>
+</tr>
+<tr>
+<td><code>flow_return_value</code></td>
+<td><code>Any</code></td>
+<td>Return value from the target function</td>
+</tr>
+<tr>
+<td><code>flow_error</code></td>
+<td><code>Exception</code></td>
+<td>Exception if flow failed, else None</td>
+</tr>
+<tr>
+<td><code>flow_config</code></td>
+<td><code>Flow_Run__Config</code></td>
+<td>Configuration options</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td><code>dict</code></td>
+<td>Shared data dictionary</td>
+</tr>
+<tr>
+<td><code>executed_tasks</code></td>
+<td><code>List[Task]</code></td>
+<td>Tasks executed in this flow</td>
+</tr>
+</tbody>
+</table>
+<h3 id="task-class">Task Class<a class="headerlink" href="#task-class" title="Permanent link">&para;</a></h3>
+<h4 id="execution">Execution<a class="headerlink" href="#execution" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>execute__sync()</code></td>
+<td>Execute task synchronously</td>
+<td>Return value</td>
+</tr>
+<tr>
+<td><code>execute__async()</code></td>
+<td>Execute task asynchronously</td>
+<td>Return value</td>
+</tr>
+<tr>
+<td><code>find_flow()</code></td>
+<td>Find parent Flow in call stack</td>
+<td><code>Flow</code> or <code>None</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="logging_1">Logging<a class="headerlink" href="#logging_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>log_debug(message)</code></td>
+<td>Log debug-level message</td>
+</tr>
+<tr>
+<td><code>log_info(message)</code></td>
+<td>Log info-level message</td>
+</tr>
+<tr>
+<td><code>log_error(message)</code></td>
+<td>Log error-level message</td>
+</tr>
+</tbody>
+</table>
+<h4 id="key-attributes_1">Key Attributes<a class="headerlink" href="#key-attributes_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>task_id</code></td>
+<td><code>str</code></td>
+<td>Unique identifier for this task run</td>
+</tr>
+<tr>
+<td><code>task_name</code></td>
+<td><code>str</code></td>
+<td>Name of the task</td>
+</tr>
+<tr>
+<td><code>task_target</code></td>
+<td><code>callable</code></td>
+<td>Function to execute</td>
+</tr>
+<tr>
+<td><code>task_return_value</code></td>
+<td><code>Any</code></td>
+<td>Return value from the task</td>
+</tr>
+<tr>
+<td><code>task_error</code></td>
+<td><code>Exception</code></td>
+<td>Exception if task failed, else None</td>
+</tr>
+<tr>
+<td><code>raise_on_error</code></td>
+<td><code>bool</code></td>
+<td>Whether to raise on error (default: True)</td>
+</tr>
+<tr>
+<td><code>task_flow</code></td>
+<td><code>Flow</code></td>
+<td>Parent flow instance</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td><code>dict</code></td>
+<td>Task-scoped data dictionary</td>
+</tr>
+</tbody>
+</table>
+<h3 id="decorator-parameters">Decorator Parameters<a class="headerlink" href="#decorator-parameters" title="Permanent link">&para;</a></h3>
+<h4 id="flow-decorator">@flow() Decorator<a class="headerlink" href="#flow-decorator" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">@flow(flow_config=None, flow_id=None, flow_name=None, **kwargs)
+def my_flow():
+    pass
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flow_config</code></td>
+<td><code>Flow_Run__Config</code></td>
+<td>Configuration options</td>
+</tr>
+<tr>
+<td><code>flow_id</code></td>
+<td><code>str</code></td>
+<td>Custom flow ID (auto-generated if not set)</td>
+</tr>
+<tr>
+<td><code>flow_name</code></td>
+<td><code>str</code></td>
+<td>Custom flow name (uses function name if not set)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="task-decorator">@task() Decorator<a class="headerlink" href="#task-decorator" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">@task(task_name=None, raise_on_error=True, **kwargs)
+def my_task():
+    pass
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>task_name</code></td>
+<td><code>str</code></td>
+<td>Function name</td>
+<td>Custom task name</td>
+</tr>
+<tr>
+<td><code>raise_on_error</code></td>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>Raise exception on task failure</td>
+</tr>
+</tbody>
+</table>
+<h3 id="flow_run__config-options">Flow_Run__Config Options<a class="headerlink" href="#flow_run__config-options" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.flows.models.Flow_Run__Config import Flow_Run__Config
+
+config = Flow_Run__Config(
+    add_task_to_self          = True,   # Add executed tasks to flow.executed_tasks
+    log_to_console            = False,  # Print logs to console
+    log_to_memory             = True,   # Store logs in memory for later retrieval
+    logging_enabled           = True,   # Enable/disable all logging
+    print_logs                = False,  # Print logs after execution
+    print_none_return_value   = False,  # Log when return value is None
+    print_finished_message    = False,  # Log &quot;Finished flow run&quot; message
+    print_error_stack_trace   = False,  # Print full stack trace on error
+    raise_flow_error          = True,   # Raise exception if flow fails
+    flow_data__capture_events = False,  # Store events in flow_data
+)
+</code></pre>
+<hr />
+<h2 id="events-observability">Events &amp; Observability<a class="headerlink" href="#events-observability" title="Permanent link">&para;</a></h2>
+<h3 id="event-types">Event Types<a class="headerlink" href="#event-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.flows.models.Flow_Run__Event_Type import Flow_Run__Event_Type
+
+# Available event types
+Flow_Run__Event_Type.FLOW_START    # Flow execution started
+Flow_Run__Event_Type.FLOW_STOP     # Flow execution completed
+Flow_Run__Event_Type.FLOW_MESSAGE  # Log message emitted
+Flow_Run__Event_Type.TASK_START    # Task execution started
+Flow_Run__Event_Type.TASK_STOP     # Task execution completed
+Flow_Run__Event_Type.NEW_ARTIFACT  # Artifact added
+Flow_Run__Event_Type.NEW_RESULT    # Result recorded
+</code></pre>
+<h3 id="registering-event-listeners">Registering Event Listeners<a class="headerlink" href="#registering-event-listeners" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.flows.actions.Flow__Events import flow_events
+from osbot_utils.helpers.flows.models.Flow_Run__Event import Flow_Run__Event
+from osbot_utils.helpers.flows.models.Flow_Run__Event_Type import Flow_Run__Event_Type
+
+def my_listener(event: Flow_Run__Event):
+    if event.event_type == Flow_Run__Event_Type.TASK_START:
+        print(f&quot;Task started: {event.event_data.task_name}&quot;)
+    elif event.event_type == Flow_Run__Event_Type.TASK_STOP:
+        print(f&quot;Task completed: {event.event_data.task_name}&quot;)
+    elif event.event_type == Flow_Run__Event_Type.FLOW_MESSAGE:
+        message = event.event_data.data['message_data']['message']
+        print(f&quot;Log: {message}&quot;)
+
+# Register listener
+flow_events.event_listeners.append(my_listener)
+
+# Execute flow - events will be emitted
+result = my_flow().execute()
+
+# Clean up
+flow_events.event_listeners.remove(my_listener)
+</code></pre>
+<h3 id="event-data-structure">Event Data Structure<a class="headerlink" href="#event-data-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Flow_Run__Event contains:
+event.event_id    # Random_Guid - unique event identifier
+event.event_type  # Flow_Run__Event_Type enum
+event.event_data  # Flow_Run__Event_Data with details
+event.timestamp   # Timestamp_Now - when event occurred
+
+# Flow_Run__Event_Data contains:
+event_data.flow_name    # Name of the flow
+event_data.flow_run_id  # Flow execution ID
+event_data.task_name    # Task name (if task event)
+event_data.task_run_id  # Task execution ID (if task event)
+event_data.log_level    # Log level (for message events)
+event_data.data         # Event-specific payload dict
+</code></pre>
+<h3 id="statistics-collection">Statistics Collection<a class="headerlink" href="#statistics-collection" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@flow()
+def my_flow():
+    task_one()
+    task_two()
+    return &quot;done&quot;
+
+result = my_flow().execute()
+
+# Get timing information
+print(result.durations())
+# {
+#     'flow_name': 'my_flow',
+#     'flow_duration': 0.0234,
+#     'flow_status': 'completed',
+#     'flow_tasks': {
+#         'task_one': 0.0102,
+#         'task_two': 0.0128
+#     }
+# }
+
+# Get timing with status
+print(result.durations__with_tasks_status())
+# {
+#     'flow_name': 'my_flow',
+#     'flow_duration': 0.0234,
+#     'flow_status': 'completed',
+#     'flow_tasks': {
+#         1: {'task_name': 'task_one', 'task_duration': 0.0102, 'task_status': 'completed'},
+#         2: {'task_name': 'task_two', 'task_duration': 0.0128, 'task_status': 'completed'}
+#     }
+# }
+</code></pre>
+<hr />
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<h3 id="task-level-error-control">Task-Level Error Control<a class="headerlink" href="#task-level-error-control" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Task raises exception - stops flow (default)
+@task(raise_on_error=True)
+def critical_task():
+    raise ValueError(&quot;Critical failure&quot;)
+
+# Task catches exception - flow continues
+@task(raise_on_error=False)
+def optional_task():
+    raise ValueError(&quot;Non-critical failure&quot;)
+    # Returns None, error logged, flow continues
+</code></pre>
+<h3 id="flow-level-error-control">Flow-Level Error Control<a class="headerlink" href="#flow-level-error-control" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.flows.models.Flow_Run__Config import Flow_Run__Config
+
+# Flow raises exception on any error (default)
+config = Flow_Run__Config(raise_flow_error=True)
+
+@flow(flow_config=config)
+def strict_flow():
+    critical_task()  # Exception propagates
+
+# Flow catches exception - returns with error info
+config = Flow_Run__Config(raise_flow_error=False)
+
+@flow(flow_config=config)
+def resilient_flow():
+    optional_task()  # Error logged, flow completes
+
+result = resilient_flow().execute()
+if result.flow_error:
+    print(f&quot;Flow had error: {result.flow_error}&quot;)
+</code></pre>
+<h3 id="error-recovery-pattern">Error Recovery Pattern<a class="headerlink" href="#error-recovery-pattern" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@task(raise_on_error=False)
+def fetch_with_fallback(this_flow=None):
+    try:
+        return primary_api.fetch()
+    except Exception as error:
+        this_flow.log_error(f&quot;Primary API failed: {error}&quot;)
+        this_flow.add_flow_artifact(
+            key=&quot;error_details&quot;,
+            data=str(error),
+            artifact_type=&quot;error&quot;,
+            description=&quot;Primary API failure&quot;
+        )
+        return fallback_api.fetch()
+
+@flow(flow_config=Flow_Run__Config(raise_flow_error=False))
+def resilient_pipeline():
+    data = fetch_with_fallback()
+    if data:
+        return process_data(data)
+    return None
+</code></pre>
+<h3 id="checking-taskflow-status">Checking Task/Flow Status<a class="headerlink" href="#checking-taskflow-status" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">result = my_flow().execute()
+
+# Check flow status
+if result.flow_error:
+    print(f&quot;Flow failed: {result.flow_error}&quot;)
+else:
+    print(f&quot;Flow succeeded: {result.flow_return_value}&quot;)
+
+# Check individual task status via stats
+stats = result.durations__with_tasks_status()
+for order, task_info in stats['flow_tasks'].items():
+    if task_info['task_status'] == 'failed':
+        print(f&quot;Task {task_info['task_name']} failed&quot;)
+</code></pre>
+<hr />
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="data-sharing-between-tasks">Data Sharing Between Tasks<a class="headerlink" href="#data-sharing-between-tasks" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@task()
+def fetch_users(flow_data=None):
+    users = api.get_users()
+    flow_data['users'] = users        # Store for later tasks
+    return len(users)
+
+@task()
+def process_users(flow_data=None):
+    users = flow_data['users']        # Retrieve from earlier task
+    processed = [transform(u) for u in users]
+    flow_data['processed'] = processed
+    return len(processed)
+
+@task()
+def save_results(flow_data=None):
+    processed = flow_data['processed']
+    return database.save_all(processed)
+
+@flow()
+def user_pipeline():
+    fetch_count = fetch_users()
+    process_count = process_users()
+    saved = save_results()
+    return {'fetched': fetch_count, 'processed': process_count, 'saved': saved}
+</code></pre>
+<h3 id="nested-tasks">Nested Tasks<a class="headerlink" href="#nested-tasks" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@task()
+def inner_task():
+    return 42
+
+@task()
+def outer_task():
+    # Tasks can call other tasks
+    result = inner_task()
+    return result + 1
+
+@flow()
+def nested_flow():
+    return outer_task()  # Returns 43
+
+result = nested_flow().execute()
+# Both inner_task and outer_task are tracked
+print(len(result.executed_tasks))  # 2
+</code></pre>
+<h3 id="adding-artifacts-and-results">Adding Artifacts and Results<a class="headerlink" href="#adding-artifacts-and-results" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@flow()
+def analysis_flow(this_flow=None):
+    # Process data
+    data = fetch_and_process()
+
+    # Store artifact (structured data)
+    this_flow.add_flow_artifact(
+        description=&quot;Analysis output data&quot;,
+        key=&quot;analysis-output&quot;,
+        data={&quot;records&quot;: len(data), &quot;summary&quot;: summarize(data)},
+        artifact_type=&quot;json&quot;
+    )
+
+    # Store result (simple key-value)
+    this_flow.add_flow_result(
+        key=&quot;record-count&quot;,
+        description=f&quot;Processed {len(data)} records&quot;
+    )
+
+    return data
+
+# Access artifacts via flow data
+result = analysis_flow().execute()
+flow_json = result.json()
+print(flow_json['flow_data']['artifacts'])
+print(flow_json['flow_data']['results'])
+</code></pre>
+<h3 id="class-based-flow-with-inheritance">Class-Based Flow with Inheritance<a class="headerlink" href="#class-based-flow-with-inheritance" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class BaseDataFlow(Type_Safe):
+    source : str
+
+    @task()
+    def validate_source(self):
+        if not self.source:
+            raise ValueError(&quot;Source required&quot;)
+        return True
+
+class CSVDataFlow(BaseDataFlow):
+    delimiter : str = ','
+
+    @task()
+    def read_csv(self, flow_data=None):
+        import csv
+        with open(self.source) as f:
+            reader = csv.reader(f, delimiter=self.delimiter)
+            flow_data['rows'] = list(reader)
+        return len(flow_data['rows'])
+
+    @flow()
+    def process(self):
+        self.validate_source()
+        count = self.read_csv()
+        return f&quot;Read {count} rows&quot;
+
+# Usage
+csv_flow = CSVDataFlow(source='/data/input.csv')
+result = csv_flow.process().execute()
+</code></pre>
+<h3 id="using-flow-id-for-correlation">Using Flow ID for Correlation<a class="headerlink" href="#using-flow-id-for-correlation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@flow(flow_id='batch-2024-01-15-001')
+def batch_job():
+    # All tasks and events use this flow_id
+    process_batch()
+    return &quot;complete&quot;
+
+# Or set dynamically
+@flow()
+def dynamic_batch():
+    pass
+
+flow_instance = dynamic_batch()
+flow_instance.flow_id = f&quot;batch-{datetime.now().strftime('%Y%m%d-%H%M%S')}&quot;
+flow_instance.execute()
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-always-call-setup-before-execute">DO: Always Call setup() Before execute()<a class="headerlink" href="#do-always-call-setup-before-execute" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ Correct - decorator handles setup
+@flow()
+def my_flow():
+    return &quot;done&quot;
+my_flow().execute()
+
+# ✓ Correct - explicit setup
+flow = Flow()
+flow.setup(my_function, arg1, arg2)
+flow.execute()
+
+# ✗ Wrong - missing setup
+flow = Flow()
+flow.execute()  # Raises ValueError
+</code></pre>
+<h3 id="do-use-decorators-for-simple-cases">DO: Use Decorators for Simple Cases<a class="headerlink" href="#do-use-decorators-for-simple-cases" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ Clean and readable
+@task()
+def process(data):
+    return transform(data)
+
+@flow()
+def pipeline(input_data):
+    return process(input_data)
+
+# ✗ Verbose for simple cases
+def pipeline(input_data):
+    with Flow() as flow:
+        flow.setup(lambda: None)
+        with Task() as task:
+            task.task_target = lambda: transform(input_data)
+            return task.execute__sync()
+</code></pre>
+<h3 id="do-use-flow_data-for-cross-task-communication">DO: Use flow_data for Cross-Task Communication<a class="headerlink" href="#do-use-flow_data-for-cross-task-communication" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ Correct - use flow_data
+@task()
+def step_one(flow_data=None):
+    flow_data['result'] = compute()
+
+@task()  
+def step_two(flow_data=None):
+    return flow_data['result'] * 2
+
+# ✗ Wrong - global variables
+result = None
+
+@task()
+def step_one():
+    global result
+    result = compute()
+</code></pre>
+<h3 id="do-configure-error-handling-appropriately">DO: Configure Error Handling Appropriately<a class="headerlink" href="#do-configure-error-handling-appropriately" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ Critical tasks should raise
+@task(raise_on_error=True)
+def must_succeed():
+    return critical_operation()
+
+# ✓ Optional tasks can continue on failure
+@task(raise_on_error=False)
+def nice_to_have():
+    return optional_operation()
+</code></pre>
+<h3 id="dont-forget-to-clean-up-event-listeners">DON'T: Forget to Clean Up Event Listeners<a class="headerlink" href="#dont-forget-to-clean-up-event-listeners" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✗ Memory leak - listener never removed
+flow_events.event_listeners.append(my_listener)
+run_many_flows()
+
+# ✓ Clean up after use
+flow_events.event_listeners.append(my_listener)
+try:
+    run_many_flows()
+finally:
+    flow_events.event_listeners.remove(my_listener)
+</code></pre>
+<h3 id="dont-use-task_data-for-cross-task-communication">DON'T: Use task_data for Cross-Task Communication<a class="headerlink" href="#dont-use-task_data-for-cross-task-communication" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✗ Wrong - task_data is scoped to single task
+@task()
+def step_one(task_data=None):
+    task_data['value'] = 42  # Lost after task completes
+
+@task()
+def step_two(task_data=None):
+    return task_data.get('value')  # Returns None!
+
+# ✓ Correct - use flow_data
+@task()
+def step_one(flow_data=None):
+    flow_data['value'] = 42  # Persists across tasks
+</code></pre>
+<h3 id="dont-disable-logging-in-production-without-reason">DON'T: Disable Logging in Production Without Reason<a class="headerlink" href="#dont-disable-logging-in-production-without-reason" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✗ Loses valuable debugging information
+config = Flow_Run__Config(logging_enabled=False)
+
+# ✓ Keep logging, control output
+config = Flow_Run__Config(
+    logging_enabled=True,
+    log_to_memory=True,    # Capture for later
+    log_to_console=False,  # Don't print during execution
+    print_logs=False       # Don't print after execution
+)
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-setup-has-not-been-called-error">Problem: "Setup has not been called" Error<a class="headerlink" href="#problem-setup-has-not-been-called-error" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Calling <code>execute()</code> without first calling <code>setup()</code>.</p>
+<pre><code class="language-python"># ✗ This fails
+flow = Flow()
+flow.execute()  # ValueError: setup has not been called
+
+# ✓ Solution
+flow = Flow()
+flow.setup(my_function)
+flow.execute()
+
+# ✓ Or use decorator (handles setup automatically)
+@flow()
+def my_function():
+    pass
+my_function().execute()
+</code></pre>
+<h3 id="problem-task-cannot-find-flow-context">Problem: Task Cannot Find Flow Context<a class="headerlink" href="#problem-task-cannot-find-flow-context" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Task executed outside a Flow context.</p>
+<pre><code class="language-python"># ✗ This fails - no Flow in call stack
+@task()
+def my_task():
+    return &quot;done&quot;
+
+my_task()  # Exception: No Flow found for Task
+
+# ✓ Solution - execute within a flow
+@flow()
+def my_flow():
+    return my_task()
+
+my_flow().execute()
+</code></pre>
+<h3 id="problem-events-not-firing">Problem: Events Not Firing<a class="headerlink" href="#problem-events-not-firing" title="Permanent link">&para;</a></h3>
+<p><strong>Cause 1</strong>: Listener not registered before flow execution.</p>
+<pre><code class="language-python"># ✗ Wrong order
+result = my_flow().execute()
+flow_events.event_listeners.append(my_listener)  # Too late!
+
+# ✓ Correct order
+flow_events.event_listeners.append(my_listener)
+result = my_flow().execute()
+</code></pre>
+<p><strong>Cause 2</strong>: Logging disabled.</p>
+<pre><code class="language-python"># With logging disabled, FLOW_MESSAGE events won't fire
+config = Flow_Run__Config(logging_enabled=False)
+</code></pre>
+<h3 id="problem-async-flow-not-executing-properly">Problem: Async Flow Not Executing Properly<a class="headerlink" href="#problem-async-flow-not-executing-properly" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Not awaiting async tasks within async flow.</p>
+<pre><code class="language-python"># ✗ Wrong - forgot await
+@flow()
+async def bad_async_flow():
+    async_task()  # Returns coroutine, doesn't execute!
+    return &quot;done&quot;
+
+# ✓ Correct
+@flow()
+async def good_async_flow():
+    result = await async_task()
+    return result
+</code></pre>
+<h3 id="problem-flow_data-empty-in-later-tasks">Problem: flow_data Empty in Later Tasks<a class="headerlink" href="#problem-flow_data-empty-in-later-tasks" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Using <code>task_data</code> instead of <code>flow_data</code>.</p>
+<pre><code class="language-python"># ✗ Wrong - task_data doesn't persist
+@task()
+def task_one(task_data=None):
+    task_data['key'] = 'value'
+
+# ✓ Correct - flow_data persists
+@task()
+def task_one(flow_data=None):
+    flow_data['key'] = 'value'
+</code></pre>
+<h3 id="problem-return-value-is-none">Problem: Return Value is None<a class="headerlink" href="#problem-return-value-is-none" title="Permanent link">&para;</a></h3>
+<p><strong>Cause 1</strong>: Task has <code>raise_on_error=False</code> and threw exception.</p>
+<pre><code class="language-python">@task(raise_on_error=False)
+def failing_task():
+    raise ValueError(&quot;oops&quot;)
+    return &quot;never reached&quot;
+
+# Returns None because exception was caught
+</code></pre>
+<p><strong>Cause 2</strong>: Flow function doesn't return anything.</p>
+<pre><code class="language-python"># ✗ No return
+@flow()
+def my_flow():
+    do_stuff()
+    # Missing return!
+
+# ✓ Explicit return
+@flow()
+def my_flow():
+    do_stuff()
+    return &quot;completed&quot;
+</code></pre>
+<h3 id="problem-logs-not-captured">Problem: Logs Not Captured<a class="headerlink" href="#problem-logs-not-captured" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: <code>log_to_memory</code> is disabled.</p>
+<pre><code class="language-python"># ✗ Logs not captured
+config = Flow_Run__Config(log_to_memory=False)
+
+# ✓ Enable memory logging
+config = Flow_Run__Config(log_to_memory=True)
+
+result = my_flow().execute()
+print(result.captured_logs())  # Now contains logs
+</code></pre>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When working with the Flow System:</p>
+<ul>
+<li>[ ] Import from <code>osbot_utils.helpers.flows</code></li>
+<li>[ ] Use <code>@flow()</code> decorator for flow functions</li>
+<li>[ ] Use <code>@task()</code> decorator for task functions</li>
+<li>[ ] Always call <code>setup()</code> before <code>execute()</code> (decorators handle this)</li>
+<li>[ ] Tasks must execute within a Flow context</li>
+<li>[ ] Use <code>flow_data</code> for cross-task data sharing</li>
+<li>[ ] Use <code>task_data</code> for task-local data only</li>
+<li>[ ] Configure <code>raise_on_error=False</code> for non-critical tasks</li>
+<li>[ ] Configure <code>raise_flow_error=False</code> for resilient flows</li>
+<li>[ ] Register event listeners before executing flows</li>
+<li>[ ] Clean up event listeners after use</li>
+<li>[ ] Use <code>durations()</code> to get timing statistics</li>
+<li>[ ] Use <code>captured_logs()</code> to retrieve log messages</li>
+<li>[ ] Use <code>json()</code> to serialize complete flow data</li>
+<li>[ ] Access return value via <code>flow_return_value</code> attribute</li>
+<li>[ ] Check <code>flow_error</code> attribute for exceptions</li>
+<li>[ ] Use <code>add_flow_artifact()</code> to store structured data</li>
+<li>[ ] Use <code>add_flow_result()</code> to record simple results</li>
+<li>[ ] Remember: <code>flow_data</code> persists, <code>task_data</code> doesn't</li>
+<li>[ ] Remember: async flows execute in a new event loop</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

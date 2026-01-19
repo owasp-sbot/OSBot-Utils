@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/comparisons/python-type-safety-frameworks-compared/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Python Type Safety Frameworks Compared: A Deep Dive into Type_Safe and Alternatives - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Python Type Safety Frameworks Compared: A Deep Dive into Type_Safe and Alternatives";
+        var mkdocs_page_input_path = "type_safe/comparisons/python-type-safety-frameworks-compared.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/comparisons/python-type-safety-frameworks-compared/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Python Type Safety Frameworks Compared: A Deep Dive into Type_Safe and Alternatives</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="python-type-safety-frameworks-compared-a-deep-dive-into-type_safe-and-alternatives">Python Type Safety Frameworks Compared: A Deep Dive into Type_Safe and Alternatives<a class="headerlink" href="#python-type-safety-frameworks-compared-a-deep-dive-into-type_safe-and-alternatives" title="Permanent link">&para;</a></h1>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>The Python ecosystem offers various approaches to type safety, each with its own strengths and tradeoffs. While Python's dynamic typing provides flexibility, it can lead to runtime errors that are difficult to catch and debug. This has led to the development of multiple type checking solutions, ranging from static type checkers to runtime validation frameworks.</p>
+<p>This documentation provides a comprehensive comparison between Type_Safe, a component of the OSBot_Utils package, and other popular Python type checking frameworks. Through detailed examples and analysis, we'll explore how different approaches handle runtime type checking, when they catch violations, and what level of protection they provide. This comparison will help you understand the unique features of each framework and choose the right tool for your specific needs.</p>
+<p>Whether you're building a large-scale application requiring strict type safety, or looking to add targeted type checking to specific components, understanding the differences between these frameworks is crucial for making an informed decision.</p>
+<h2 id="package-information">Package Information<a class="headerlink" href="#package-information" title="Permanent link">&para;</a></h2>
+<p>Type_Safe is part of the OSBot_Utils package:
+- GitHub: https://github.com/owasp-sbot/OSBot-Utils/
+- PyPI: https://pypi.org/project/osbot-utils/</p>
+<h2 id="runtime-type-safety-in-python-a-comprehensive-comparison">Runtime Type Safety in Python: A Comprehensive Comparison<a class="headerlink" href="#runtime-type-safety-in-python-a-comprehensive-comparison" title="Permanent link">&para;</a></h2>
+<p>The Python ecosystem offers several approaches to type checking. Here's how Type_Safe compares to other solutions:</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Runtime Checking Level</th>
+<th>Collection Operation Checks</th>
+<th>When Violations Are Caught</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type_Safe</td>
+<td>✓ Every operation</td>
+<td>✓ Every action</td>
+<td>Immediately during operation</td>
+</tr>
+<tr>
+<td>Typeguard</td>
+<td>✓ Function/method calls</td>
+<td>✓ Collection ops</td>
+<td>During function execution</td>
+</tr>
+<tr>
+<td>enforce</td>
+<td>✓ Function/method calls</td>
+<td>✓ Basic collection ops</td>
+<td>During function execution</td>
+</tr>
+<tr>
+<td>pytypes</td>
+<td>✓ Function/method calls</td>
+<td>✓ Collection ops</td>
+<td>During function execution</td>
+</tr>
+<tr>
+<td>Pydantic v2</td>
+<td>✓ Creation, validation, some mutations</td>
+<td>⚠️ Limited</td>
+<td>During validation/mutation</td>
+</tr>
+<tr>
+<td>attrs</td>
+<td>✗ No runtime checking</td>
+<td>✗ No checks</td>
+<td>Never (static typing only)</td>
+</tr>
+<tr>
+<td>dataclasses</td>
+<td>✗ No runtime checking</td>
+<td>✗ No checks</td>
+<td>Never (static typing only)</td>
+</tr>
+<tr>
+<td>Marshmallow</td>
+<td>⚠️ Only during serialization</td>
+<td>✗ No operation checks</td>
+<td>Only during serialization</td>
+</tr>
+<tr>
+<td>TypedDict</td>
+<td>✗ No runtime checking</td>
+<td>✗ No checks</td>
+<td>Never (static typing only)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="framework-comparison-examples">Framework Comparison Examples<a class="headerlink" href="#framework-comparison-examples" title="Permanent link">&para;</a></h2>
+<h3 id="1-type_safe">1. Type_Safe<a class="headerlink" href="#1-type_safe" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class TypeSafeSystem(Type_Safe):
+    names: List[str]
+    scores: Dict[str, int]
+
+ts = TypeSafeSystem()
+ts.names.append(&quot;Alice&quot;)      # ✓ Valid
+ts.names.append(42)          # ✗ Raises TypeError immediately!
+ts.scores[&quot;Bob&quot;] = &quot;95&quot;      # ✗ Raises TypeError immediately!
+# Type violations caught instantly during operation
+</code></pre>
+<h3 id="2-pydantic">2. Pydantic<a class="headerlink" href="#2-pydantic" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Simple Pydantic Example
+from pydantic import BaseModel
+class PydanticSystem(BaseModel):
+    names: List[str]
+    scores: Dict[str, int]
+
+pyd = PydanticSystem(names=[], scores={})
+pyd.names.append(&quot;Alice&quot;)     # ✓ Works
+pyd.names.append(42)         # ✓ Works (but shouldn't)
+pyd.scores[&quot;Bob&quot;] = &quot;95&quot;     # ✓ Works (but shouldn't)
+# Issues only found during validation/serialization
+
+# Pydantic v2 with Custom Validation
+from pydantic import BaseModel, field_validator
+from typing import Dict, List
+
+class UserRegistry(BaseModel):
+    users: Dict[str, List[str]] = {}
+
+    @field_validator('users')
+    def validate_users(cls, v):
+        # Custom validation to check types during mutations
+        for team, members in v.items():
+            if not all(isinstance(m, str) for m in members):
+                raise ValueError(&quot;All team members must be strings&quot;)
+        return v
+
+registry = UserRegistry()
+registry.users[&quot;team_1&quot;] = []           # ✓ Valid
+registry.users[&quot;team_1&quot;].append(&quot;Alice&quot;) # ✓ Valid
+# Type violations only caught during validation
+registry.users[&quot;team_1&quot;].append(123)     # Only caught when model is validated
+</code></pre>
+<h3 id="3-attrs">3. attrs<a class="headerlink" href="#3-attrs" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from attrs import define, field
+@define
+class AttrsSystem:
+    names: List[str] = field(factory=list)
+    scores: Dict[str, int] = field(factory=dict)
+
+att = AttrsSystem()
+att.names.append(42)         # ✓ Works (but shouldn't)
+att.scores[&quot;Bob&quot;] = &quot;95&quot;     # ✓ Works (but shouldn't)
+# No runtime type checking
+</code></pre>
+<h3 id="4-dataclasses">4. dataclasses<a class="headerlink" href="#4-dataclasses" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from dataclasses import dataclass, field
+@dataclass
+class DataclassSystem:
+    names: List[str] = field(default_factory=list)
+    scores: Dict[str, int] = field(default_factory=dict)
+
+dc = DataclassSystem()
+dc.names.append(42)          # ✓ Works (but shouldn't)
+dc.scores[&quot;Bob&quot;] = &quot;95&quot;      # ✓ Works (but shouldn't)
+# No runtime type checking
+</code></pre>
+<h3 id="5-typeddict">5. TypedDict<a class="headerlink" href="#5-typeddict" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing import TypedDict
+class DictSystem(TypedDict):
+    names: List[str]
+    scores: Dict[str, int]
+
+td: DictSystem = {'names': [], 'scores': {}}
+td['names'].append(42)       # ✓ Works (but shouldn't)
+td['scores']['Bob'] = &quot;95&quot;   # ✓ Works (but shouldn't)
+# No runtime type checking
+</code></pre>
+<h3 id="6-typeguard">6. Typeguard<a class="headerlink" href="#6-typeguard" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typeguard import typechecked
+from typing import Dict, List
+
+@typechecked
+class UserRegistry:
+    def __init__(self):
+        self.users: Dict[str, List[str]] = {}
+
+    def add_user(self, team: str, user: str):
+        if team not in self.users:
+            self.users[team] = []
+        self.users[team].append(user)  # Type checked
+
+registry = UserRegistry()
+registry.add_user(&quot;team_1&quot;, &quot;Alice&quot;)   # ✓ Valid
+registry.add_user(&quot;team_1&quot;, 123)       # ✗ Raises TypeError
+</code></pre>
+<h3 id="7-enforce">7. enforce<a class="headerlink" href="#7-enforce" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import enforce
+
+@enforce.runtime_validation
+class UserRegistry:
+    def __init__(self):
+        self.users: Dict[str, List[str]] = {}
+
+    def add_user(self, team: str, user: str) -&gt; None:
+        if team not in self.users:
+            self.users[team] = []
+        self.users[team].append(user)
+
+registry = UserRegistry()
+registry.add_user(&quot;team_1&quot;, &quot;Alice&quot;)   # ✓ Valid
+registry.add_user(&quot;team_1&quot;, 123)       # ✗ Raises RuntimeTypeError
+</code></pre>
+<h2 id="key-features-of-type_safe">Key Features of Type_Safe<a class="headerlink" href="#key-features-of-type_safe" title="Permanent link">&para;</a></h2>
+<h3 id="1-complete-runtime-type-safety">1. Complete Runtime Type Safety<a class="headerlink" href="#1-complete-runtime-type-safety" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class SafeContainer(Type_Safe):
+    numbers: List[int]
+    metadata: Dict[str, str]
+
+container = SafeContainer()
+
+# Every operation is type-checked:
+container.numbers.append(42)        # ✓ Valid
+container.numbers.append(&quot;42&quot;)      # ✗ Raises TypeError
+container.metadata[&quot;count&quot;] = &quot;42&quot;  # ✓ Valid
+container.metadata[&quot;count&quot;] = 42    # ✗ Raises TypeError
+</code></pre>
+<h3 id="2-deep-collection-type-checking">2. Deep Collection Type Checking<a class="headerlink" href="#2-deep-collection-type-checking" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class NestedContainer(Type_Safe):
+    matrix: List[List[int]]
+    settings: Dict[str, Dict[str, int]]
+
+nested = NestedContainer()
+nested.matrix.append([1, 2, 3])         # ✓ Valid
+nested.matrix.append([1, &quot;2&quot;, 3])       # ✗ Raises TypeError
+nested.settings[&quot;db&quot;] = {&quot;port&quot;: 5432}  # ✓ Valid
+nested.settings[&quot;db&quot;] = {&quot;port&quot;: &quot;5432&quot;}# ✗ Raises TypeError
+</code></pre>
+<h3 id="3-safe-graph-structures">3. Safe Graph Structures<a class="headerlink" href="#3-safe-graph-structures" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Node(Type_Safe):
+    value: str
+    children: List['Node']
+    metadata: Dict[str, Any]
+
+root = Node()
+root.children.append(Node())        # ✓ Valid
+root.children.append(&quot;not a node&quot;)  # ✗ Raises TypeError
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<p>Type_Safe's complete runtime checking does come with overhead:
+- Each collection operation includes type validation
+- Each attribute assignment is checked
+- Nested structures involve multiple checks</p>
+<p>For most applications, this overhead is negligible compared to the benefits:
+- Immediate error detection
+- Prevention of data corruption
+- Easier debugging
+- Reduced technical debt</p>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<p>When using Type_Safe, consider these best practices:
+1. Define clear type annotations for all attributes
+2. Use nested types when appropriate for complex data structures
+3. Consider the performance impact in performance-critical sections
+4. Implement custom validation when needed
+5. Use Type_Safe in conjunction with static type checkers for maximum safety</p>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>Type_Safe is part of a robust ecosystem of Python type checking tools. 
+While other frameworks like Typeguard, enforce, and pytypes also provide runtime type checking, 
+Type_Safe offers a comprehensive approach with automatic collection wrapping and deep type checking. </p>
+<p>Each tool has its place in the Python type checking ecosystem, and 
+they can be used together to provide multiple layers of type safety.</p>
+<p>The key differentiator of Type_Safe is its comprehensive approach to runtime type checking, 
+particularly its ability to wrap collections and maintain type safety at every level of 
+operation. While other tools may offer similar features in specific contexts, 
+Type_Safe provides a consistent and thorough approach to type safety across your entire application.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

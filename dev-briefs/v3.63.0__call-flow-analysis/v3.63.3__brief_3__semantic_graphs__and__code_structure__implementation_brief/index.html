@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.63.3__brief_3__semantic_graphs__and__code_structure__implementation_brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>(Brief 3) Semantic Graphs &amp; Code Structure - Implementation Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "(Brief 3) Semantic Graphs \u0026amp; Code Structure - Implementation Brief";
+        var mkdocs_page_input_path = "dev-briefs/v3.63.0__call-flow-analysis/v3.63.3__brief_3__semantic_graphs__and__code_structure__implementation_brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.63.3__brief_3__semantic_graphs__and__code_structure__implementation_brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">(Brief 3) Semantic Graphs &amp; Code Structure - Implementation Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="brief-3-semantic-graphs-code-structure-implementation-brief">(Brief 3) Semantic Graphs &amp; Code Structure - Implementation Brief<a class="headerlink" href="#brief-3-semantic-graphs-code-structure-implementation-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> v3.64.3<br />
+<strong>Status:</strong> New Implementation<br />
+<strong>Target:</strong> OSBot-Utils (<code>osbot_utils.helpers.semantic_graphs</code> and <code>osbot_utils.helpers.python_call_flow.code_structure</code>)<br />
+<strong>Created:</strong> December 2024<br />
+<strong>Prerequisites:</strong> Brief 2 (Call Flow Analyzer) - Phase 1 Complete  </p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This document specifies the implementation of a <strong>generic semantic graph framework</strong> and its first concrete application: a <strong>Python code structure graph</strong>. This work extends the Call Flow Analyzer (Brief 2) by introducing proper graph-based representation of code structure, replacing the current approach of storing structural metadata as flat attributes on call flow nodes.</p>
+<p><strong>The Core Insight:</strong> The current Call Flow Analyzer stores module names, file paths, and qualified names as string attributes on every node. This is redundant, inflexible, and misses the opportunity to model code structure as a first-class graph. By separating concerns into:</p>
+<ol>
+<li><strong>Semantic Graphs</strong> — A generic, reusable framework for typed graphs with formal ontologies</li>
+<li><strong>Code Structure</strong> — A specific application modeling Python package/module/class/method relationships</li>
+</ol>
+<p>We achieve both a powerful reusable abstraction AND a cleaner call flow implementation where behavioral nodes simply reference structural nodes.</p>
+<p><strong>Key Deliverables:</strong></p>
+<ol>
+<li><code>osbot_utils.helpers.semantic_graphs</code> — Generic framework (ontology, taxonomy, rules, graph)</li>
+<li><code>osbot_utils.helpers.python_call_flow.code_structure</code> — Python code structure using semantic graphs</li>
+<li>Refactored <code>Schema__Call_Flow__Node</code> — Lightweight nodes referencing structure</li>
+</ol>
+<hr />
+<h2 id="part-1-problem-analysis">Part 1: Problem Analysis<a class="headerlink" href="#part-1-problem-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="11-current-state-post-brief-2">1.1 Current State (Post Brief 2)<a class="headerlink" href="#11-current-state-post-brief-2" title="Permanent link">&para;</a></h3>
+<p>The Call Flow Analyzer produces graphs with nodes like:</p>
+<pre><code class="language-python">Schema__Call_Graph__Node(
+    node_id      = 'c0000001',
+    name         = 'sample_function',
+    full_name    = 'test_Call_Flow__Analyzer.sample_function',    # Redundant
+    node_type    = 'function',
+    module       = 'test_Call_Flow__Analyzer',                    # Repeated everywhere
+    file_path    = '/path/to/test_Call_Flow__Analyzer.py',        # Repeated everywhere
+    depth        = 0,
+    calls        = ['c0000002'],
+    called_by    = [],
+    line_number  = 57,
+    ...
+)
+</code></pre>
+<p><strong>Problems with this approach:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Redundancy</strong></td>
+<td>Module name repeated on every node in that module</td>
+</tr>
+<tr>
+<td><strong>No relationships</strong></td>
+<td>"Module contains class" is implicit, not queryable</td>
+</tr>
+<tr>
+<td><strong>Mixed concerns</strong></td>
+<td>Behavioral (calls) and structural (module) on same node</td>
+</tr>
+<tr>
+<td><strong>No hierarchy</strong></td>
+<td>Package→Module→Class→Method not captured</td>
+</tr>
+<tr>
+<td><strong>String matching</strong></td>
+<td>Finding "all classes in package X" requires string parsing</td>
+</tr>
+<tr>
+<td><strong>No reusability</strong></td>
+<td>Structure is specific to call flow, can't use elsewhere</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-the-insight-two-distinct-graphs">1.2 The Insight: Two Distinct Graphs<a class="headerlink" href="#12-the-insight-two-distinct-graphs" title="Permanent link">&para;</a></h3>
+<p>Code analysis actually involves TWO orthogonal concerns:</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                  │
+│   CODE STRUCTURE GRAPH                      CALL FLOW GRAPH                      │
+│   (Static: What exists, where)              (Dynamic: Who calls whom)            │
+│                                                                                  │
+│   ┌─────────┐                               ┌─────────────────┐                  │
+│   │ package │                               │ Call_Flow_Node  │                  │
+│   └────┬────┘                               │ structure_ref ──┼───┐              │
+│        │ has                                │ depth: 0        │   │              │
+│        ▼                                    │ is_entry: true  │   │              │
+│   ┌─────────┐                               └────────┬────────┘   │              │
+│   │ module  │                                        │            │              │
+│   └────┬────┘                                    calls│            │ references  │
+│        │ defines                                     ▼            │              │
+│        ▼                                    ┌─────────────────┐   │              │
+│   ┌─────────┐                               │ Call_Flow_Node  │   │              │
+│   │  class  │◄──────────────────────────────┼─structure_ref   │   │              │
+│   └────┬────┘                               │ depth: 1        │   │              │
+│        │ has                                └─────────────────┘   │              │
+│        ▼                                                          │              │
+│   ┌─────────┐◄────────────────────────────────────────────────────┘              │
+│   │ method  │                                                                    │
+│   └─────────┘                                                                    │
+│                                                                                  │
+│   &quot;Where does this code live?&quot;              &quot;What does it call?&quot;                 │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="13-the-deeper-insight-generic-semantic-graphs">1.3 The Deeper Insight: Generic Semantic Graphs<a class="headerlink" href="#13-the-deeper-insight-generic-semantic-graphs" title="Permanent link">&para;</a></h3>
+<p>The code structure graph is just ONE instance of a more general pattern. Many domains need:</p>
+<ul>
+<li><strong>Typed nodes</strong> — Different kinds of entities</li>
+<li><strong>Typed edges</strong> — Different kinds of relationships  </li>
+<li><strong>Formal ontology</strong> — What types exist, how they can connect</li>
+<li><strong>Bidirectional navigation</strong> — "Class has method" AND "method in class"</li>
+<li><strong>Validation</strong> — Ensure edges connect valid source→target types</li>
+<li><strong>Rules</strong> — Domain-specific constraints (transitivity, cardinality)</li>
+</ul>
+<p>This pattern applies to:</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Node Types</th>
+<th>Edge Types</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code Structure</td>
+<td>Package, Module, Class, Method</td>
+<td>has, defines, inherits_from</td>
+</tr>
+<tr>
+<td>Organization</td>
+<td>Team, Person, Role</td>
+<td>manages, reports_to, member_of</td>
+</tr>
+<tr>
+<td>Knowledge Base</td>
+<td>Concept, Fact, Source</td>
+<td>relates_to, supports, contradicts</td>
+</tr>
+<tr>
+<td>File System</td>
+<td>Directory, File, Symlink</td>
+<td>contains, links_to</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Solution:</strong> Build a generic <strong>Semantic Graphs</strong> framework, then use it for Code Structure.</p>
+<hr />
+<h2 id="part-2-architecture-overview">Part 2: Architecture Overview<a class="headerlink" href="#part-2-architecture-overview" title="Permanent link">&para;</a></h2>
+<h3 id="21-two-project-structure">2.1 Two-Project Structure<a class="headerlink" href="#21-two-project-structure" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              IMPLEMENTATION STRUCTURE                            │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  osbot_utils/helpers/                                                            │
+│  │                                                                               │
+│  ├── semantic_graphs/              ◄─── GENERIC FRAMEWORK (New)                  │
+│  │   ├── ontology/                      Reusable across ANY domain               │
+│  │   ├── taxonomy/                      No Python-specific knowledge             │
+│  │   ├── rules/                         Pure graph structure + typing            │
+│  │   └── graph/                                                                  │
+│  │                                                                               │
+│  └── python_call_flow/             ◄─── PYTHON-SPECIFIC (Existing + Extended)    │
+│      ├── code_structure/                Uses semantic_graphs framework           │
+│      │   └── data/                      Contains code_structure ontology         │
+│      │       └── ontology__code_structure.json                                   │
+│      │                                                                           │
+│      └── call_flow/                     Existing analyzer (refactored)           │
+│          └── (existing files)           Nodes now reference structure_ref        │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="22-dependency-flow">2.2 Dependency Flow<a class="headerlink" href="#22-dependency-flow" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              DEPENDENCY HIERARCHY                                │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│                        ┌──────────────────────────┐                              │
+│                        │   osbot_utils.type_safe  │                              │
+│                        │   (Foundation Layer)     │                              │
+│                        └────────────┬─────────────┘                              │
+│                                     │                                            │
+│                                     │ provides Type_Safe, Safe_* primitives      │
+│                                     ▼                                            │
+│                        ┌──────────────────────────┐                              │
+│                        │    semantic_graphs       │                              │
+│                        │   (Generic Framework)    │                              │
+│                        │                          │                              │
+│                        │  • Ontology schemas      │                              │
+│                        │  • Taxonomy schemas      │                              │
+│                        │  • Rule schemas          │                              │
+│                        │  • Graph schemas         │                              │
+│                        └────────────┬─────────────┘                              │
+│                                     │                                            │
+│                                     │ provides graph infrastructure              │
+│                                     ▼                                            │
+│            ┌────────────────────────┴────────────────────────┐                   │
+│            │                                                 │                   │
+│            ▼                                                 ▼                   │
+│  ┌───────────────────────┐                     ┌───────────────────────┐         │
+│  │ python_call_flow/     │                     │ (future domains)      │         │
+│  │ code_structure        │                     │                       │         │
+│  │                       │                     │ • organization_graph  │         │
+│  │ • Code structure      │                     │ • knowledge_base      │         │
+│  │   ontology (JSON)     │                     │ • dependency_graph    │         │
+│  │ • Python-specific     │                     │ • ...                 │         │
+│  │   rules (JSON)        │                     │                       │         │
+│  └───────────┬───────────┘                     └───────────────────────┘         │
+│              │                                                                   │
+│              │ uses structure nodes                                              │
+│              ▼                                                                   │
+│  ┌───────────────────────┐                                                       │
+│  │ python_call_flow/     │                                                       │
+│  │ call_flow             │                                                       │
+│  │                       │                                                       │
+│  │ • Behavioral edges    │                                                       │
+│  │ • Lightweight nodes   │                                                       │
+│  │ • References to       │                                                       │
+│  │   structure_ref       │                                                       │
+│  └───────────────────────┘                                                       │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="23-semantic-graphs-internal-architecture">2.3 Semantic Graphs Internal Architecture<a class="headerlink" href="#23-semantic-graphs-internal-architecture" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         SEMANTIC GRAPHS FRAMEWORK                                │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                           ONTOLOGY                                       │    │
+│  │                    &quot;What types exist?&quot;                                   │    │
+│  │                    &quot;How can they connect?&quot;                               │    │
+│  │                                                                          │    │
+│  │  ┌──────────────────────────────────────────────────────────────────┐   │    │
+│  │  │  Node Types                     Relationships (per node type)     │   │    │
+│  │  │  ═══════════                    ═════════════════════════════     │   │    │
+│  │  │                                                                   │   │    │
+│  │  │  &quot;package&quot; ─────────────────►   has ──────► [package, module]     │   │    │
+│  │  │  &quot;module&quot;  ─────────────────►   defines ──► [class, function]     │   │    │
+│  │  │                                 imports ──► [module]              │   │    │
+│  │  │  &quot;class&quot;   ─────────────────►   has ──────► [method]              │   │    │
+│  │  │                                 inherits_from ► [class]           │   │    │
+│  │  │  &quot;method&quot;  ─────────────────►   calls ────► [method, function]    │   │    │
+│  │  │  &quot;function&quot;─────────────────►   calls ────► [method, function]    │   │    │
+│  │  │                                                                   │   │    │
+│  │  └──────────────────────────────────────────────────────────────────┘   │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                          │                                       │
+│                                          │ references                            │
+│                                          ▼                                       │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                           TAXONOMY                                       │    │
+│  │                    &quot;How to classify types?&quot;                              │    │
+│  │                                                                          │    │
+│  │                        code_element                                      │    │
+│  │                             │                                            │    │
+│  │              ┌──────────────┼──────────────┐                             │    │
+│  │              ▼              ▼              ▼                             │    │
+│  │         container       code_unit      physical                         │    │
+│  │         (package,       (class,        (file)                           │    │
+│  │          module)         method,                                        │    │
+│  │                          function)                                      │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                          │                                       │
+│                                          │ applies to                            │
+│                                          ▼                                       │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                            RULES                                         │    │
+│  │                    &quot;What constraints apply?&quot;                             │    │
+│  │                    (Domain-specific, separate from ontology)             │    │
+│  │                                                                          │    │
+│  │  Transitivity:  class ──inherits_from──► class  (chains)                │    │
+│  │  Cardinality:   method can be &quot;in&quot; only ONE class                       │    │
+│  │  Validation:    custom constraint functions                              │    │
+│  │                                                                          │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                          │                                       │
+│                                          │ validates                             │
+│                                          ▼                                       │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │                       SEMANTIC GRAPH                                     │    │
+│  │                    (Instance Data)                                       │    │
+│  │                                                                          │    │
+│  │  ontology_ref: &quot;code_structure&quot;                                         │    │
+│  │  rule_set_ref: &quot;python_rules&quot;                                           │    │
+│  │                                                                          │    │
+│  │  nodes: {                                                                │    │
+│  │    &quot;n001&quot;: { node_type: &quot;module&quot;, name: &quot;my_module&quot; },                  │    │
+│  │    &quot;n002&quot;: { node_type: &quot;class&quot;,  name: &quot;MyClass&quot; },                    │    │
+│  │    ...                                                                   │    │
+│  │  }                                                                       │    │
+│  │                                                                          │    │
+│  │  edges: [                                                                │    │
+│  │    { from: &quot;n001&quot;, verb: &quot;defines&quot;, to: &quot;n002&quot; },                       │    │
+│  │    ...                                                                   │    │
+│  │  ]                                                                       │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="part-3-design-principles">Part 3: Design Principles<a class="headerlink" href="#part-3-design-principles" title="Permanent link">&para;</a></h2>
+<h3 id="31-bidirectional-relationships-with-explicit-names">3.1 Bidirectional Relationships with Explicit Names<a class="headerlink" href="#31-bidirectional-relationships-with-explicit-names" title="Permanent link">&para;</a></h3>
+<p><strong>Principle:</strong> Every edge has both a forward and inverse name. No ambiguous terms like "contains" or "has_parent".</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                       BIDIRECTIONAL EDGE NAMING                                  │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│   STORED (minimal):                                                              │
+│   ─────────────────                                                              │
+│                                                                                  │
+│   source_type: &quot;module&quot;                                                          │
+│   verb:        &quot;defines&quot;                                                         │
+│   inverse:     &quot;defined_in&quot;                                                      │
+│   targets:     [&quot;class&quot;, &quot;function&quot;]                                             │
+│                                                                                  │
+│   COMPUTED (full names):                                                         │
+│   ──────────────────────                                                         │
+│                                                                                  │
+│   Forward: {source}_{verb}_{target}     →  &quot;module_defines_class&quot;               │
+│   Inverse: {target}_{inverse}_{source}  →  &quot;class_defined_in_module&quot;            │
+│                                                                                  │
+│   NAVIGATION:                                                                    │
+│   ───────────                                                                    │
+│                                                                                  │
+│   ┌────────┐    module_defines_class    ┌────────┐                              │
+│   │ module │ ─────────────────────────► │ class  │                              │
+│   │        │ ◄───────────────────────── │        │                              │
+│   └────────┘   class_defined_in_module  └────────┘                              │
+│                                                                                  │
+│   Both directions are ALWAYS available for graph traversal.                     │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="32-relationships-as-verbs">3.2 Relationships as Verbs<a class="headerlink" href="#32-relationships-as-verbs" title="Permanent link">&para;</a></h3>
+<p><strong>Principle:</strong> Edge types are verbs describing the relationship, stored on the source node type.</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                       NODE-CENTRIC RELATIONSHIP MODEL                            │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│   Instead of flat edge list:           Use node-centric verbs:                  │
+│   ──────────────────────────           ───────────────────────                  │
+│                                                                                  │
+│   edges: [                              node_types:                              │
+│     { id: &quot;e1&quot;,                           &quot;module&quot;:                              │
+│       source: &quot;module&quot;,                      relationships:                      │
+│       verb: &quot;defines&quot;,        ───►            &quot;defines&quot;:                         │
+│       target: &quot;class&quot; },                         inverse: &quot;defined_in&quot;           │
+│     { id: &quot;e2&quot;,                                  targets: [class, function]      │
+│       source: &quot;module&quot;,                   &quot;imports&quot;:                             │
+│       verb: &quot;imports&quot;,                       inverse: &quot;imported_by&quot;              │
+│       target: &quot;module&quot; },                    targets: [module]                   │
+│     ...                                                                          │
+│   ]                                                                              │
+│                                                                                  │
+│   Benefits:                                                                      │
+│   • Source type inferred from parent key                                        │
+│   • No redundant storage of source type                                         │
+│   • Clear &quot;what can this type do?&quot; view                                         │
+│   • Easy to extend with new targets                                             │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="33-separation-of-structure-and-rules">3.3 Separation of Structure and Rules<a class="headerlink" href="#33-separation-of-structure-and-rules" title="Permanent link">&para;</a></h3>
+<p><strong>Principle:</strong> Ontology defines structure (what CAN exist). Rules define behavior (constraints on instances).</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                       ONTOLOGY vs RULES SEPARATION                               │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│   ONTOLOGY (Generic Structure)              RULES (Domain-Specific Behavior)    │
+│   ════════════════════════════              ════════════════════════════════    │
+│                                                                                  │
+│   &quot;A class CAN have methods&quot;                &quot;In Python, inheritance is          │
+│   &quot;A class CAN inherit from class&quot;           transitive&quot;                        │
+│                                                                                  │
+│   • What node types exist                   • Transitivity constraints           │
+│   • What verbs are valid                    • Cardinality limits                 │
+│   • What source→target pairs allowed        • Domain validation rules            │
+│                                                                                  │
+│   SAME ontology, DIFFERENT rules:                                               │
+│   ───────────────────────────────                                               │
+│                                                                                  │
+│   ontology: &quot;code_structure&quot;                ontology: &quot;code_structure&quot;          │
+│   rules: &quot;python_rules&quot;                     rules: &quot;java_rules&quot;                 │
+│                                                                                  │
+│   • Single inheritance                      • Single class inheritance          │
+│   • Multiple via mixins                     • Multiple interface inheritance    │
+│   • Duck typing                             • Strict typing                     │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="34-domain-specific-primitives">3.4 Domain-Specific Primitives<a class="headerlink" href="#34-domain-specific-primitives" title="Permanent link">&para;</a></h3>
+<p><strong>Principle:</strong> Use precise Safe_* types, never generic strings.</p>
+<pre><code class="language-python"># ✗ BAD - Generic primitives
+module_allowlist : List[Safe_Str__Label]                 # What IS a label?
+class_blocklist  : List[Safe_Str__Label]                 # No validation
+
+# ✓ GOOD - Domain-specific primitives  
+module_allowlist : List[Safe_Str__Python__Module]        # Validated module name
+class_blocklist  : List[Safe_Str__Python__Class]         # Validated class name
+</code></pre>
+<p><strong>Required new primitives:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Primitive</th>
+<th>Purpose</th>
+<th>Validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Str__Python__Class</code></td>
+<td>Python class name</td>
+<td>PascalCase, valid identifier</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Python__Method</code></td>
+<td>Python method name</td>
+<td>Valid identifier, allows dunder</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Python__Function</code></td>
+<td>Python function name</td>
+<td>Valid identifier</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Python__Package</code></td>
+<td>Python package name</td>
+<td>Lowercase, valid identifier</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Python__Qualified_Name</code></td>
+<td>Full path <code>a.b.C.method</code></td>
+<td>Dot-separated identifiers</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Ontology__Verb</code></td>
+<td>Relationship verb</td>
+<td>Lowercase with underscores</td>
+</tr>
+<tr>
+<td><code>Node_Type_Id</code></td>
+<td>Ontology node type ID</td>
+<td>Safe identifier</td>
+</tr>
+<tr>
+<td><code>Ontology_Id</code></td>
+<td>Ontology identifier</td>
+<td>Safe identifier</td>
+</tr>
+<tr>
+<td><code>Taxonomy_Id</code></td>
+<td>Taxonomy identifier</td>
+<td>Safe identifier</td>
+</tr>
+<tr>
+<td><code>Category_Id</code></td>
+<td>Taxonomy category ID</td>
+<td>Safe identifier</td>
+</tr>
+<tr>
+<td><code>Rule_Set_Id</code></td>
+<td>Rule set identifier</td>
+<td>Safe identifier</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-4-schema-specifications">Part 4: Schema Specifications<a class="headerlink" href="#part-4-schema-specifications" title="Permanent link">&para;</a></h2>
+<h3 id="41-ontology-schemas">4.1 Ontology Schemas<a class="headerlink" href="#41-ontology-schemas" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/ontology/schemas/Schema__Ontology__Relationship.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import List
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.helpers.semantic_graphs.primitives.Node_Type_Id                     import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.primitives.safe_str.Safe_Str__Ontology__Verb import Safe_Str__Ontology__Verb
+
+
+class Schema__Ontology__Relationship(Type_Safe):                                     # Defines a verb with targets
+    inverse : Safe_Str__Ontology__Verb                                               # Inverse verb (e.g., &quot;in&quot;)
+    targets : List[Node_Type_Id]                                                     # Valid target node types
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/ontology/schemas/Schema__Ontology__Node_Type.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import Dict
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text         import Safe_Str__Text
+from osbot_utils.helpers.semantic_graphs.primitives.Category_Id                      import Category_Id
+from osbot_utils.helpers.semantic_graphs.primitives.safe_str.Safe_Str__Ontology__Verb import Safe_Str__Ontology__Verb
+from osbot_utils.helpers.semantic_graphs.ontology.schemas.Schema__Ontology__Relationship import Schema__Ontology__Relationship
+
+
+class Schema__Ontology__Node_Type(Type_Safe):                                        # Defines a node type
+    description   : Safe_Str__Text                                                   # Human-readable description
+    relationships : Dict[Safe_Str__Ontology__Verb, Schema__Ontology__Relationship]   # verb → relationship
+    taxonomy_ref  : Category_Id                  = Category_Id('')                   # Optional taxonomy link
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/ontology/schemas/Schema__Ontology.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import Dict, List, Tuple
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text         import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version      import Safe_Str__Version
+from osbot_utils.helpers.semantic_graphs.primitives.Ontology_Id                      import Ontology_Id
+from osbot_utils.helpers.semantic_graphs.primitives.Taxonomy_Id                      import Taxonomy_Id
+from osbot_utils.helpers.semantic_graphs.primitives.Node_Type_Id                     import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.primitives.safe_str.Safe_Str__Ontology__Verb import Safe_Str__Ontology__Verb
+from osbot_utils.helpers.semantic_graphs.ontology.schemas.Schema__Ontology__Node_Type import Schema__Ontology__Node_Type
+
+
+class Schema__Ontology(Type_Safe):                                                   # Complete ontology definition
+    ontology_id  : Ontology_Id                                                       # Unique identifier
+    version      : Safe_Str__Version                                                 # Semantic version
+    description  : Safe_Str__Text                                                    # What this ontology models
+    taxonomy_ref : Taxonomy_Id                    = Taxonomy_Id('')                  # Optional taxonomy reference
+    node_types   : Dict[Node_Type_Id, Schema__Ontology__Node_Type]                   # type_id → definition
+
+    def valid_edge(self, source_type : Node_Type_Id,                                 # Check if edge is valid
+                   verb        : Safe_Str__Ontology__Verb,
+                   target_type : Node_Type_Id) -&gt; bool:
+        node_type = self.node_types.get(source_type)
+        if not node_type:
+            return False
+        relationship = node_type.relationships.get(verb)
+        if not relationship:
+            return False
+        return target_type in relationship.targets
+
+    def edge_forward_name(self, source_type : Node_Type_Id,                          # Compute forward name
+                          verb        : Safe_Str__Ontology__Verb,
+                          target_type : Node_Type_Id) -&gt; str:
+        return f&quot;{source_type}_{verb}_{target_type}&quot;
+
+    def edge_inverse_name(self, source_type : Node_Type_Id,                          # Compute inverse name
+                          verb        : Safe_Str__Ontology__Verb,
+                          target_type : Node_Type_Id) -&gt; str:
+        inverse_verb = self.node_types[source_type].relationships[verb].inverse
+        return f&quot;{target_type}_{inverse_verb}_{source_type}&quot;
+
+    def all_valid_edges(self) -&gt; List[Tuple[Node_Type_Id, str, Node_Type_Id]]:       # Enumerate all valid edges
+        edges = []
+        for source_id, node_type in self.node_types.items():
+            for verb, rel in node_type.relationships.items():
+                for target_id in rel.targets:
+                    edges.append((source_id, str(verb), target_id))
+        return edges
+</code></pre>
+<h3 id="42-taxonomy-schemas">4.2 Taxonomy Schemas<a class="headerlink" href="#42-taxonomy-schemas" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/taxonomy/schemas/Schema__Taxonomy__Category.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import List
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text         import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
+from osbot_utils.helpers.semantic_graphs.primitives.Category_Id                      import Category_Id
+
+
+class Schema__Taxonomy__Category(Type_Safe):                                         # Category in hierarchy
+    category_id : Category_Id                                                        # Unique identifier
+    name        : Safe_Str__Id                                                       # Category name
+    description : Safe_Str__Text                                                     # What this category represents
+    parent_ref  : Category_Id                     = Category_Id('')                  # Parent (empty if root)
+    child_refs  : List[Category_Id]                                                  # Child categories
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/taxonomy/schemas/Schema__Taxonomy.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import Dict
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text         import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version      import Safe_Str__Version
+from osbot_utils.helpers.semantic_graphs.primitives.Taxonomy_Id                      import Taxonomy_Id
+from osbot_utils.helpers.semantic_graphs.primitives.Category_Id                      import Category_Id
+from osbot_utils.helpers.semantic_graphs.taxonomy.schemas.Schema__Taxonomy__Category import Schema__Taxonomy__Category
+
+
+class Schema__Taxonomy(Type_Safe):                                                   # Complete taxonomy
+    taxonomy_id   : Taxonomy_Id                                                      # Unique identifier
+    version       : Safe_Str__Version                                                # Semantic version
+    description   : Safe_Str__Text                                                   # What this taxonomy classifies
+    root_category : Category_Id                                                      # Top-level category
+    categories    : Dict[Category_Id, Schema__Taxonomy__Category]                    # id → category
+</code></pre>
+<h3 id="43-rules-schemas">4.3 Rules Schemas<a class="headerlink" href="#43-rules-schemas" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/rules/schemas/Schema__Rule__Transitivity.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.helpers.semantic_graphs.primitives.Node_Type_Id                     import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.primitives.safe_str.Safe_Str__Ontology__Verb import Safe_Str__Ontology__Verb
+
+
+class Schema__Rule__Transitivity(Type_Safe):                                         # Transitivity rule
+    source_type : Node_Type_Id                                                       # e.g., &quot;class&quot;
+    verb        : Safe_Str__Ontology__Verb                                           # e.g., &quot;inherits_from&quot;
+    target_type : Node_Type_Id                                                       # e.g., &quot;class&quot;
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/rules/schemas/Schema__Rule__Cardinality.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import Optional
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text         import Safe_Str__Text
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+from osbot_utils.helpers.semantic_graphs.primitives.Node_Type_Id                     import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.primitives.safe_str.Safe_Str__Ontology__Verb import Safe_Str__Ontology__Verb
+
+
+class Schema__Rule__Cardinality(Type_Safe):                                          # Cardinality constraint
+    source_type : Node_Type_Id                                                       # e.g., &quot;method&quot;
+    verb        : Safe_Str__Ontology__Verb                                           # e.g., &quot;in&quot;
+    target_type : Node_Type_Id                                                       # e.g., &quot;class&quot;
+    min_targets : Safe_UInt                       = Safe_UInt(0)                     # Minimum required
+    max_targets : Optional[Safe_UInt]             = None                             # Maximum allowed (None = unlimited)
+    description : Safe_Str__Text                  = Safe_Str__Text('')               # Human explanation
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/rules/schemas/Schema__Rule_Set.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import List
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text         import Safe_Str__Text
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version      import Safe_Str__Version
+from osbot_utils.helpers.semantic_graphs.primitives.Rule_Set_Id                      import Rule_Set_Id
+from osbot_utils.helpers.semantic_graphs.primitives.Ontology_Id                      import Ontology_Id
+from osbot_utils.helpers.semantic_graphs.rules.schemas.Schema__Rule__Transitivity    import Schema__Rule__Transitivity
+from osbot_utils.helpers.semantic_graphs.rules.schemas.Schema__Rule__Cardinality     import Schema__Rule__Cardinality
+
+
+class Schema__Rule_Set(Type_Safe):                                                   # Collection of rules
+    rule_set_id        : Rule_Set_Id                                                 # Unique identifier
+    ontology_ref       : Ontology_Id                                                 # Which ontology this applies to
+    version            : Safe_Str__Version                                           # Semantic version
+    description        : Safe_Str__Text                                              # What rules this contains
+    transitivity_rules : List[Schema__Rule__Transitivity]                            # Transitive relationships
+    cardinality_rules  : List[Schema__Rule__Cardinality]                             # Cardinality constraints
+</code></pre>
+<h3 id="44-semantic-graph-instance-schemas">4.4 Semantic Graph Instance Schemas<a class="headerlink" href="#44-semantic-graph-instance-schemas" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/graph/schemas/Schema__Semantic_Graph__Node.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+from osbot_utils.helpers.semantic_graphs.primitives.Node_Type_Id                     import Node_Type_Id
+
+
+class Schema__Semantic_Graph__Node(Type_Safe):                                       # Instance node
+    node_id     : Node_Id                                                            # Unique identifier
+    node_type   : Node_Type_Id                                                       # Reference to ontology type
+    name        : Safe_Str__Id                                                       # Display name
+    line_number : Safe_UInt                       = Safe_UInt(0)                     # Optional source location
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/graph/schemas/Schema__Semantic_Graph__Edge.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Edge_Id                    import Edge_Id
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+from osbot_utils.helpers.semantic_graphs.primitives.safe_str.Safe_Str__Ontology__Verb import Safe_Str__Ontology__Verb
+
+
+class Schema__Semantic_Graph__Edge(Type_Safe):                                       # Instance edge
+    edge_id     : Edge_Id                                                            # Unique identifier
+    from_node   : Node_Id                                                            # Source node
+    verb        : Safe_Str__Ontology__Verb                                           # Relationship verb
+    to_node     : Node_Id                                                            # Target node
+    line_number : Safe_UInt                       = Safe_UInt(0)                     # Optional source location
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/graph/schemas/Schema__Semantic_Graph.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import Dict, List
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                   import Graph_Id
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version      import Safe_Str__Version
+from osbot_utils.helpers.semantic_graphs.primitives.Ontology_Id                      import Ontology_Id
+from osbot_utils.helpers.semantic_graphs.primitives.Rule_Set_Id                      import Rule_Set_Id
+from osbot_utils.helpers.semantic_graphs.graph.schemas.Schema__Semantic_Graph__Node  import Schema__Semantic_Graph__Node
+from osbot_utils.helpers.semantic_graphs.graph.schemas.Schema__Semantic_Graph__Edge  import Schema__Semantic_Graph__Edge
+
+
+class Schema__Semantic_Graph(Type_Safe):                                             # Complete instance graph
+    graph_id     : Graph_Id                                                          # Unique identifier
+    version      : Safe_Str__Version              = Safe_Str__Version('1.0.0')       # Graph version
+    ontology_ref : Ontology_Id                                                       # Which ontology defines types
+    rule_set_ref : Rule_Set_Id                    = Rule_Set_Id('')                  # Optional rule set
+    nodes        : Dict[str, Schema__Semantic_Graph__Node]                           # node_id → node
+    edges        : List[Schema__Semantic_Graph__Edge]                                # All edges
+
+    def add_node(self, node: Schema__Semantic_Graph__Node) -&gt; 'Schema__Semantic_Graph':
+        self.nodes[str(node.node_id)] = node
+        return self
+
+    def add_edge(self, edge: Schema__Semantic_Graph__Edge) -&gt; 'Schema__Semantic_Graph':
+        self.edges.append(edge)
+        return self
+
+    def node_count(self) -&gt; int:
+        return len(self.nodes)
+
+    def edge_count(self) -&gt; int:
+        return len(self.edges)
+</code></pre>
+<hr />
+<h2 id="part-5-ontology-data-files">Part 5: Ontology Data Files<a class="headerlink" href="#part-5-ontology-data-files" title="Permanent link">&para;</a></h2>
+<h3 id="51-code-structure-ontology-json">5.1 Code Structure Ontology (JSON)<a class="headerlink" href="#51-code-structure-ontology-json" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+  &quot;ontology_id&quot;: &quot;code_structure&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;Ontology for Python code structure elements&quot;,
+  &quot;taxonomy_ref&quot;: &quot;code_elements&quot;,
+
+  &quot;node_types&quot;: {
+    &quot;package&quot;: {
+      &quot;description&quot;: &quot;Python package (directory with __init__.py)&quot;,
+      &quot;taxonomy_ref&quot;: &quot;container&quot;,
+      &quot;relationships&quot;: {
+        &quot;has&quot;: {
+          &quot;inverse&quot;: &quot;in&quot;,
+          &quot;targets&quot;: [&quot;package&quot;, &quot;module&quot;]
+        }
+      }
+    },
+
+    &quot;module&quot;: {
+      &quot;description&quot;: &quot;Python module (.py file)&quot;,
+      &quot;taxonomy_ref&quot;: &quot;container&quot;,
+      &quot;relationships&quot;: {
+        &quot;defines&quot;: {
+          &quot;inverse&quot;: &quot;defined_in&quot;,
+          &quot;targets&quot;: [&quot;class&quot;, &quot;function&quot;]
+        },
+        &quot;imports&quot;: {
+          &quot;inverse&quot;: &quot;imported_by&quot;,
+          &quot;targets&quot;: [&quot;module&quot;]
+        }
+      }
+    },
+
+    &quot;class&quot;: {
+      &quot;description&quot;: &quot;Python class definition&quot;,
+      &quot;taxonomy_ref&quot;: &quot;code_unit&quot;,
+      &quot;relationships&quot;: {
+        &quot;has&quot;: {
+          &quot;inverse&quot;: &quot;in&quot;,
+          &quot;targets&quot;: [&quot;method&quot;]
+        },
+        &quot;inherits_from&quot;: {
+          &quot;inverse&quot;: &quot;inherited_by&quot;,
+          &quot;targets&quot;: [&quot;class&quot;]
+        }
+      }
+    },
+
+    &quot;method&quot;: {
+      &quot;description&quot;: &quot;Method within a class&quot;,
+      &quot;taxonomy_ref&quot;: &quot;code_unit&quot;,
+      &quot;relationships&quot;: {
+        &quot;calls&quot;: {
+          &quot;inverse&quot;: &quot;called_by&quot;,
+          &quot;targets&quot;: [&quot;method&quot;, &quot;function&quot;]
+        }
+      }
+    },
+
+    &quot;function&quot;: {
+      &quot;description&quot;: &quot;Standalone function&quot;,
+      &quot;taxonomy_ref&quot;: &quot;code_unit&quot;,
+      &quot;relationships&quot;: {
+        &quot;calls&quot;: {
+          &quot;inverse&quot;: &quot;called_by&quot;,
+          &quot;targets&quot;: [&quot;method&quot;, &quot;function&quot;]
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<h3 id="52-python-rules-json">5.2 Python Rules (JSON)<a class="headerlink" href="#52-python-rules-json" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+  &quot;rule_set_id&quot;: &quot;python_rules&quot;,
+  &quot;ontology_ref&quot;: &quot;code_structure&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;Python-specific structural rules&quot;,
+
+  &quot;transitivity_rules&quot;: [
+    {
+      &quot;source_type&quot;: &quot;class&quot;,
+      &quot;verb&quot;: &quot;inherits_from&quot;,
+      &quot;target_type&quot;: &quot;class&quot;
+    },
+    {
+      &quot;source_type&quot;: &quot;package&quot;,
+      &quot;verb&quot;: &quot;has&quot;,
+      &quot;target_type&quot;: &quot;package&quot;
+    }
+  ],
+
+  &quot;cardinality_rules&quot;: [
+    {
+      &quot;source_type&quot;: &quot;method&quot;,
+      &quot;verb&quot;: &quot;in&quot;,
+      &quot;target_type&quot;: &quot;class&quot;,
+      &quot;min_targets&quot;: 1,
+      &quot;max_targets&quot;: 1,
+      &quot;description&quot;: &quot;A method belongs to exactly one class&quot;
+    },
+    {
+      &quot;source_type&quot;: &quot;function&quot;,
+      &quot;verb&quot;: &quot;defined_in&quot;,
+      &quot;target_type&quot;: &quot;module&quot;,
+      &quot;min_targets&quot;: 1,
+      &quot;max_targets&quot;: 1,
+      &quot;description&quot;: &quot;A function is defined in exactly one module&quot;
+    }
+  ]
+}
+</code></pre>
+<h3 id="53-code-elements-taxonomy-json">5.3 Code Elements Taxonomy (JSON)<a class="headerlink" href="#53-code-elements-taxonomy-json" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+  &quot;taxonomy_id&quot;: &quot;code_elements&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;Classification hierarchy for Python code elements&quot;,
+  &quot;root_category&quot;: &quot;code_element&quot;,
+
+  &quot;categories&quot;: {
+    &quot;code_element&quot;: {
+      &quot;category_id&quot;: &quot;code_element&quot;,
+      &quot;name&quot;: &quot;code_element&quot;,
+      &quot;description&quot;: &quot;Root category for all code elements&quot;,
+      &quot;parent_ref&quot;: &quot;&quot;,
+      &quot;child_refs&quot;: [&quot;container&quot;, &quot;code_unit&quot;]
+    },
+    &quot;container&quot;: {
+      &quot;category_id&quot;: &quot;container&quot;,
+      &quot;name&quot;: &quot;container&quot;,
+      &quot;description&quot;: &quot;Elements that contain other elements (package, module)&quot;,
+      &quot;parent_ref&quot;: &quot;code_element&quot;,
+      &quot;child_refs&quot;: []
+    },
+    &quot;code_unit&quot;: {
+      &quot;category_id&quot;: &quot;code_unit&quot;,
+      &quot;name&quot;: &quot;code_unit&quot;,
+      &quot;description&quot;: &quot;Executable code units (class, method, function)&quot;,
+      &quot;parent_ref&quot;: &quot;code_element&quot;,
+      &quot;child_refs&quot;: []
+    }
+  }
+}
+</code></pre>
+<hr />
+<h2 id="part-6-primitive-types">Part 6: Primitive Types<a class="headerlink" href="#part-6-primitive-types" title="Permanent link">&para;</a></h2>
+<h3 id="61-semantic-graph-primitives">6.1 Semantic Graph Primitives<a class="headerlink" href="#61-semantic-graph-primitives" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/primitives/Ontology_Id.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+
+class Ontology_Id(Safe_Id):                                                          # Ontology identifier
+    pass
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/primitives/Taxonomy_Id.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+
+class Taxonomy_Id(Safe_Id):                                                          # Taxonomy identifier
+    pass
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/primitives/Category_Id.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+
+class Category_Id(Safe_Id):                                                          # Taxonomy category identifier
+    pass
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/primitives/Node_Type_Id.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+
+class Node_Type_Id(Safe_Id):                                                         # Ontology node type identifier
+    pass
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/primitives/Rule_Set_Id.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id
+
+class Rule_Set_Id(Safe_Id):                                                          # Rule set identifier
+    pass
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/semantic_graphs/primitives/safe_str/Safe_Str__Ontology__Verb.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Ontology__Verb(Safe_Str):                                            # Relationship verb
+    max_length = 64                                                                  # e.g., &quot;inherits_from&quot;
+    regex      = re.compile(r'[^a-z_]')                                              # Lowercase + underscores only
+</code></pre>
+<h3 id="62-python-domain-primitives">6.2 Python Domain Primitives<a class="headerlink" href="#62-python-domain-primitives" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/type_safe/primitives/domains/python/safe_str/Safe_Str__Python__Class.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Python__Class(Safe_Str):                                             # Python class name
+    max_length = 128                                                                 # Reasonable limit
+    regex      = re.compile(r'[^a-zA-Z0-9_]')                                        # Valid identifier chars
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/type_safe/primitives/domains/python/safe_str/Safe_Str__Python__Method.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Python__Method(Safe_Str):                                            # Python method name
+    max_length = 128
+    regex      = re.compile(r'[^a-zA-Z0-9_]')                                        # Allows __dunder__
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/type_safe/primitives/domains/python/safe_str/Safe_Str__Python__Function.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Python__Function(Safe_Str):                                          # Python function name
+    max_length = 128
+    regex      = re.compile(r'[^a-zA-Z0-9_]')
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/type_safe/primitives/domains/python/safe_str/Safe_Str__Python__Package.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Python__Package(Safe_Str):                                           # Python package name
+    max_length = 256
+    regex      = re.compile(r'[^a-z0-9_]')                                           # Lowercase by convention
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/type_safe/primitives/domains/python/safe_str/Safe_Str__Python__Qualified_Name.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Python__Qualified_Name(Safe_Str):                                    # Full path: module.Class.method
+    max_length = 512
+    regex      = re.compile(r'[^a-zA-Z0-9_.]')                                       # Allows dots
+</code></pre>
+<hr />
+<h2 id="part-7-integration-with-call-flow">Part 7: Integration with Call Flow<a class="headerlink" href="#part-7-integration-with-call-flow" title="Permanent link">&para;</a></h2>
+<h3 id="71-refactored-call-flow-node">7.1 Refactored Call Flow Node<a class="headerlink" href="#71-refactored-call-flow-node" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/python_call_flow/call_flow/schemas/Schema__Call_Flow__Node.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import List
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+
+
+class Schema__Call_Flow__Node(Type_Safe):                                            # Lightweight behavioral node
+    node_id       : Node_Id                                                          # Unique identifier
+    structure_ref : Node_Id                                                          # Reference to Code Structure node
+    depth         : Safe_UInt                                                        # Distance from entry point
+    calls         : List[Node_Id]                                                    # Outgoing call targets
+    called_by     : List[Node_Id]                                                    # Incoming callers
+    is_entry      : bool                          = False                            # Is this the entry point?
+    is_recursive  : bool                          = False                            # Calls itself?
+
+    # REMOVED: name, full_name, module, file_path, node_type
+    # These are now accessed via structure_ref → Code Structure Graph
+</code></pre>
+<h3 id="72-updated-call-flow-graph">7.2 Updated Call Flow Graph<a class="headerlink" href="#72-updated-call-flow-graph" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# File: osbot_utils/helpers/python_call_flow/call_flow/schemas/Schema__Call_Flow.py
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                                                          import Dict, List
+from osbot_utils.type_safe.Type_Safe                                                 import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Graph_Id                   import Graph_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Node_Id                    import Node_Id
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                 import Safe_UInt
+from osbot_utils.helpers.python_call_flow.call_flow.schemas.Schema__Call_Flow__Node  import Schema__Call_Flow__Node
+from osbot_utils.helpers.python_call_flow.call_flow.schemas.Schema__Call_Flow__Edge  import Schema__Call_Flow__Edge
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Graph__Config         import Schema__Call_Graph__Config
+
+
+class Schema__Call_Flow(Type_Safe):                                                  # Call flow graph (behavioral)
+    graph_id            : Graph_Id                                                   # Unique identifier
+    code_structure_ref  : Graph_Id                                                   # Reference to structure graph
+    entry_point         : Node_Id                                                    # Starting node
+    config              : Schema__Call_Graph__Config                                 # Analysis configuration
+    nodes               : Dict[str, Schema__Call_Flow__Node]                         # node_id → node
+    edges               : List[Schema__Call_Flow__Edge]                              # Behavioral edges only
+    max_depth_found     : Safe_UInt              = Safe_UInt(0)                      # Deepest level reached
+</code></pre>
+<h3 id="73-data-flow-between-graphs">7.3 Data Flow Between Graphs<a class="headerlink" href="#73-data-flow-between-graphs" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         DATA FLOW BETWEEN GRAPHS                                 │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│   ANALYSIS INPUT:                                                                │
+│   ═══════════════                                                                │
+│                                                                                  │
+│   analyzer.analyze(Call_Flow__Analyzer)                                          │
+│                    │                                                             │
+│                    ▼                                                             │
+│   ┌────────────────────────────────────────────────────────────────────────┐    │
+│   │                     Code_Structure__Analyzer                            │    │
+│   │                                                                         │    │
+│   │  1. Parse class/module/package hierarchy                               │    │
+│   │  2. Create structure nodes (package, module, class, method)            │    │
+│   │  3. Create structure edges (has, defines, inherits_from)               │    │
+│   │  4. Validate against ontology                                          │    │
+│   │                                                                         │    │
+│   │  Output: Schema__Semantic_Graph (code structure)                       │    │
+│   │          graph_id = &quot;cs_001&quot;                                           │    │
+│   └────────────────────────────────────────────────────────────────────────┘    │
+│                    │                                                             │
+│                    │ structure nodes created                                     │
+│                    ▼                                                             │
+│   ┌────────────────────────────────────────────────────────────────────────┐    │
+│   │                     Call_Flow__Analyzer                                 │    │
+│   │                                                                         │    │
+│   │  1. Walk methods/functions (from structure graph)                      │    │
+│   │  2. Extract calls from AST                                             │    │
+│   │  3. Create lightweight call flow nodes (structure_ref points to        │    │
+│   │     corresponding structure node)                                      │    │
+│   │  4. Create behavioral edges (calls, self, chain)                       │    │
+│   │                                                                         │    │
+│   │  Output: Schema__Call_Flow                                             │    │
+│   │          code_structure_ref = &quot;cs_001&quot;                                 │    │
+│   └────────────────────────────────────────────────────────────────────────┘    │
+│                    │                                                             │
+│                    ▼                                                             │
+│   QUERY EXAMPLES:                                                                │
+│   ═══════════════                                                                │
+│                                                                                  │
+│   # Get module for a call flow node:                                            │
+│   call_node = call_flow.nodes[&quot;cf_001&quot;]                                         │
+│   structure_node = code_structure.nodes[call_node.structure_ref]                │
+│   module_edge = find_edge(structure_node, verb=&quot;defined_in&quot;)                    │
+│   module_node = code_structure.nodes[module_edge.to_node]                       │
+│                                                                                  │
+│   # Find all methods in a class:                                                │
+│   class_node = find_node(code_structure, name=&quot;MyClass&quot;)                        │
+│   method_edges = find_edges(code_structure, from=class_node, verb=&quot;has&quot;)        │
+│   methods = [code_structure.nodes[e.to_node] for e in method_edges]            │
+│                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="part-8-file-structure">Part 8: File Structure<a class="headerlink" href="#part-8-file-structure" title="Permanent link">&para;</a></h2>
+<pre><code>osbot_utils/
+├── helpers/
+│   │
+│   ├── semantic_graphs/                           # GENERIC FRAMEWORK
+│   │   │
+│   │   ├── __init__.py
+│   │   │
+│   │   ├── primitives/                            # Domain identifiers
+│   │   │   ├── __init__.py
+│   │   │   ├── Ontology_Id.py
+│   │   │   ├── Taxonomy_Id.py
+│   │   │   ├── Category_Id.py
+│   │   │   ├── Node_Type_Id.py
+│   │   │   ├── Rule_Set_Id.py
+│   │   │   └── safe_str/
+│   │   │       ├── __init__.py
+│   │   │       └── Safe_Str__Ontology__Verb.py
+│   │   │
+│   │   ├── ontology/                              # Ontology system
+│   │   │   ├── __init__.py
+│   │   │   ├── schemas/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── Schema__Ontology.py
+│   │   │   │   ├── Schema__Ontology__Node_Type.py
+│   │   │   │   └── Schema__Ontology__Relationship.py
+│   │   │   └── Ontology__Registry.py              # Load/cache ontologies
+│   │   │
+│   │   ├── taxonomy/                              # Taxonomy system
+│   │   │   ├── __init__.py
+│   │   │   ├── schemas/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── Schema__Taxonomy.py
+│   │   │   │   └── Schema__Taxonomy__Category.py
+│   │   │   └── Taxonomy__Registry.py
+│   │   │
+│   │   ├── rules/                                 # Rules system
+│   │   │   ├── __init__.py
+│   │   │   ├── schemas/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── Schema__Rule_Set.py
+│   │   │   │   ├── Schema__Rule__Transitivity.py
+│   │   │   │   └── Schema__Rule__Cardinality.py
+│   │   │   └── Rule__Engine.py                    # Apply rules to graphs
+│   │   │
+│   │   └── graph/                                 # Instance graphs
+│   │       ├── __init__.py
+│   │       ├── schemas/
+│   │       │   ├── __init__.py
+│   │       │   ├── Schema__Semantic_Graph.py
+│   │       │   ├── Schema__Semantic_Graph__Node.py
+│   │       │   └── Schema__Semantic_Graph__Edge.py
+│   │       ├── Semantic_Graph__Builder.py         # Fluent API
+│   │       └── Semantic_Graph__Validator.py       # Validate against ontology
+│   │
+│   └── python_call_flow/                          # PYTHON-SPECIFIC
+│       │
+│       ├── __init__.py
+│       │
+│       ├── code_structure/                        # Code structure graph
+│       │   ├── __init__.py
+│       │   ├── Code_Structure__Analyzer.py        # Build structure graph
+│       │   ├── Code_Structure__Builder.py         # Fluent API
+│       │   └── data/
+│       │       ├── ontology__code_structure.json
+│       │       ├── taxonomy__code_elements.json
+│       │       └── rules__python.json
+│       │
+│       ├── call_flow/                             # Behavioral graph (refactored)
+│       │   ├── __init__.py
+│       │   ├── schemas/
+│       │   │   ├── __init__.py
+│       │   │   ├── Schema__Call_Flow.py           # Renamed, references structure
+│       │   │   ├── Schema__Call_Flow__Node.py     # Lightweight
+│       │   │   └── Schema__Call_Flow__Edge.py
+│       │   └── Call_Flow__Analyzer.py             # Updated
+│       │
+│       └── (existing files - updated)
+│           ├── Call_Flow__AST__Extractor.py
+│           ├── Call_Flow__Call__Filter.py
+│           ├── Call_Flow__Call__Resolver.py
+│           ├── Call_Flow__Edge__Factory.py
+│           ├── Call_Flow__Node__Factory.py
+│           ├── Call_Flow__Node__Registry.py
+│           └── Call_Flow__Exporter__Mermaid.py
+│
+└── type_safe/primitives/domains/
+    └── python/                                    # NEW: Python primitives
+        ├── __init__.py
+        └── safe_str/
+            ├── __init__.py
+            ├── Safe_Str__Python__Class.py
+            ├── Safe_Str__Python__Method.py
+            ├── Safe_Str__Python__Function.py
+            ├── Safe_Str__Python__Package.py
+            └── Safe_Str__Python__Qualified_Name.py
+</code></pre>
+<hr />
+<h2 id="part-9-implementation-checklist">Part 9: Implementation Checklist<a class="headerlink" href="#part-9-implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-semantic-graphs-framework">Phase 1: Semantic Graphs Framework<a class="headerlink" href="#phase-1-semantic-graphs-framework" title="Permanent link">&para;</a></h3>
+<h4 id="11-primitives">1.1 Primitives<a class="headerlink" href="#11-primitives" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Create <code>osbot_utils/helpers/semantic_graphs/primitives/</code> directory</li>
+<li>[ ] Implement <code>Ontology_Id</code></li>
+<li>[ ] Implement <code>Taxonomy_Id</code></li>
+<li>[ ] Implement <code>Category_Id</code></li>
+<li>[ ] Implement <code>Node_Type_Id</code></li>
+<li>[ ] Implement <code>Rule_Set_Id</code></li>
+<li>[ ] Implement <code>Safe_Str__Ontology__Verb</code></li>
+</ul>
+<h4 id="12-ontology-schemas">1.2 Ontology Schemas<a class="headerlink" href="#12-ontology-schemas" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Implement <code>Schema__Ontology__Relationship</code></li>
+<li>[ ] Implement <code>Schema__Ontology__Node_Type</code></li>
+<li>[ ] Implement <code>Schema__Ontology</code></li>
+<li>[ ] Add helper methods (<code>valid_edge</code>, <code>edge_forward_name</code>, <code>edge_inverse_name</code>)</li>
+</ul>
+<h4 id="13-taxonomy-schemas">1.3 Taxonomy Schemas<a class="headerlink" href="#13-taxonomy-schemas" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Implement <code>Schema__Taxonomy__Category</code></li>
+<li>[ ] Implement <code>Schema__Taxonomy</code></li>
+</ul>
+<h4 id="14-rules-schemas">1.4 Rules Schemas<a class="headerlink" href="#14-rules-schemas" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Implement <code>Schema__Rule__Transitivity</code></li>
+<li>[ ] Implement <code>Schema__Rule__Cardinality</code></li>
+<li>[ ] Implement <code>Schema__Rule_Set</code></li>
+</ul>
+<h4 id="15-graph-schemas">1.5 Graph Schemas<a class="headerlink" href="#15-graph-schemas" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Implement <code>Schema__Semantic_Graph__Node</code></li>
+<li>[ ] Implement <code>Schema__Semantic_Graph__Edge</code></li>
+<li>[ ] Implement <code>Schema__Semantic_Graph</code></li>
+</ul>
+<h4 id="16-registries-and-utilities">1.6 Registries and Utilities<a class="headerlink" href="#16-registries-and-utilities" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Implement <code>Ontology__Registry</code> (load from JSON)</li>
+<li>[ ] Implement <code>Taxonomy__Registry</code></li>
+<li>[ ] Implement <code>Semantic_Graph__Validator</code></li>
+<li>[ ] Implement <code>Semantic_Graph__Builder</code></li>
+</ul>
+<h3 id="phase-2-python-primitives">Phase 2: Python Primitives<a class="headerlink" href="#phase-2-python-primitives" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>osbot_utils/type_safe/primitives/domains/python/</code> directory</li>
+<li>[ ] Implement <code>Safe_Str__Python__Class</code></li>
+<li>[ ] Implement <code>Safe_Str__Python__Method</code></li>
+<li>[ ] Implement <code>Safe_Str__Python__Function</code></li>
+<li>[ ] Implement <code>Safe_Str__Python__Package</code></li>
+<li>[ ] Implement <code>Safe_Str__Python__Qualified_Name</code></li>
+</ul>
+<h3 id="phase-3-code-structure">Phase 3: Code Structure<a class="headerlink" href="#phase-3-code-structure" title="Permanent link">&para;</a></h3>
+<h4 id="31-data-files">3.1 Data Files<a class="headerlink" href="#31-data-files" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Create <code>ontology__code_structure.json</code></li>
+<li>[ ] Create <code>taxonomy__code_elements.json</code></li>
+<li>[ ] Create <code>rules__python.json</code></li>
+</ul>
+<h4 id="32-analyzer">3.2 Analyzer<a class="headerlink" href="#32-analyzer" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Implement <code>Code_Structure__Analyzer</code></li>
+<li>[ ] Implement <code>Code_Structure__Builder</code></li>
+<li>[ ] Write tests with deterministic IDs</li>
+</ul>
+<h3 id="phase-4-call-flow-refactoring">Phase 4: Call Flow Refactoring<a class="headerlink" href="#phase-4-call-flow-refactoring" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create new <code>Schema__Call_Flow__Node</code> (lightweight)</li>
+<li>[ ] Create new <code>Schema__Call_Flow</code> (with <code>code_structure_ref</code>)</li>
+<li>[ ] Update <code>Call_Flow__Analyzer</code> to:</li>
+<li>[ ] Create code structure graph first</li>
+<li>[ ] Create call flow nodes with <code>structure_ref</code></li>
+<li>[ ] Remove redundant fields from nodes</li>
+<li>[ ] Update <code>Call_Flow__Exporter__Mermaid</code> to resolve structure refs</li>
+<li>[ ] Update tests</li>
+</ul>
+<h3 id="phase-5-testing">Phase 5: Testing<a class="headerlink" href="#phase-5-testing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Unit tests for all ontology schemas</li>
+<li>[ ] Unit tests for all taxonomy schemas</li>
+<li>[ ] Unit tests for all rule schemas</li>
+<li>[ ] Unit tests for semantic graph schemas</li>
+<li>[ ] Integration tests for code structure analyzer</li>
+<li>[ ] Integration tests for updated call flow analyzer</li>
+<li>[ ] Meta-test: analyzer analyzing itself with new structure</li>
+</ul>
+<hr />
+<h2 id="part-10-success-criteria">Part 10: Success Criteria<a class="headerlink" href="#part-10-success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="minimum-viable-product-mvp">Minimum Viable Product (MVP)<a class="headerlink" href="#minimum-viable-product-mvp" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Semantic Graphs framework fully functional</li>
+<li>[ ] Code structure ontology defined in JSON</li>
+<li>[ ] Code structure analyzer produces valid semantic graph</li>
+<li>[ ] Call flow nodes reference structure nodes</li>
+<li>[ ] All existing call flow tests pass (with updates)</li>
+</ul>
+<h3 id="full-implementation">Full Implementation<a class="headerlink" href="#full-implementation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Ontology validation working</li>
+<li>[ ] Rule engine applying transitivity/cardinality</li>
+<li>[ ] Taxonomy classification working</li>
+<li>[ ] Registries caching loaded definitions</li>
+<li>[ ] Documentation complete</li>
+<li>[ ] Ready for other domain ontologies</li>
+</ul>
+<hr />
+<h2 id="part-11-reference">Part 11: Reference<a class="headerlink" href="#part-11-reference" title="Permanent link">&para;</a></h2>
+<h3 id="related-documents">Related Documents<a class="headerlink" href="#related-documents" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Brief 2</strong> - Call Flow Analyzer Implementation Brief (prerequisite)</li>
+<li><strong>Implementation Debrief Phase 1</strong> - Current state documentation</li>
+<li><strong>Type_Safe &amp; Python Formatting Guide</strong> - Coding standards</li>
+<li><strong>OSBot-Utils Safe Primitives Reference Guide</strong> - Available primitives</li>
+</ol>
+<h3 id="key-concepts">Key Concepts<a class="headerlink" href="#key-concepts" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ontology</strong></td>
+<td>Formal definition of what types exist and how they can connect</td>
+</tr>
+<tr>
+<td><strong>Taxonomy</strong></td>
+<td>Hierarchical classification of types into categories</td>
+</tr>
+<tr>
+<td><strong>Rules</strong></td>
+<td>Domain-specific constraints (transitivity, cardinality)</td>
+</tr>
+<tr>
+<td><strong>Semantic Graph</strong></td>
+<td>Instance graph validated against an ontology</td>
+</tr>
+<tr>
+<td><strong>Structure Graph</strong></td>
+<td>What code exists and where (static)</td>
+</tr>
+<tr>
+<td><strong>Call Flow Graph</strong></td>
+<td>Who calls whom (behavioral)</td>
+</tr>
+<tr>
+<td><strong>Verb</strong></td>
+<td>Relationship type between nodes (e.g., "has", "defines")</td>
+</tr>
+<tr>
+<td><strong>Forward/Inverse</strong></td>
+<td>Bidirectional edge naming ("has"/"in")</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>End of Implementation Brief</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

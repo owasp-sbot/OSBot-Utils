@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/type_safety/v3.28.0__for_llms__osbot-utils-safe-primitives/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>OSBot-Utils Safe Primitives Complete Reference Guide - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "OSBot-Utils Safe Primitives Complete Reference Guide";
+        var mkdocs_page_input_path = "llm-briefs/type_safety/v3.28.0__for_llms__osbot-utils-safe-primitives.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/type_safety/v3.28.0__for_llms__osbot-utils-safe-primitives/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">OSBot-Utils Safe Primitives Complete Reference Guide</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="osbot-utils-safe-primitives-complete-reference-guide">OSBot-Utils Safe Primitives Complete Reference Guide<a class="headerlink" href="#osbot-utils-safe-primitives-complete-reference-guide" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> v3.28.0  <br />
+<strong>Created:</strong> 11/Nov/2025</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>OSBot-Utils provides a comprehensive collection of type-safe primitive classes that enforce validation rules at instantiation time. These primitives prevent invalid data from entering your system and provide clear error messages when validation fails.</p>
+<p><strong>Key Benefits:</strong>
+- <strong>Compile-time safety</strong>: Catch invalid data at creation time, not runtime
+- <strong>Self-documenting</strong>: Type annotations clearly communicate constraints
+- <strong>Zero performance overhead</strong>: Validation happens once at instantiation
+- <strong>Composable</strong>: Use in Type_Safe classes for complete type safety</p>
+<h2 id="quick-reference-all-available-primitives">Quick Reference: All Available Primitives<a class="headerlink" href="#quick-reference-all-available-primitives" title="Permanent link">&para;</a></h2>
+<h3 id="core-base-classes">Core Base Classes<a class="headerlink" href="#core-base-classes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Key Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Int</code></td>
+<td><code>int</code></td>
+<td>Type-safe integer with validation</td>
+<td>min/max values, allow_str, clamp_to_range</td>
+</tr>
+<tr>
+<td><code>Safe_UInt</code></td>
+<td><code>Safe_Int</code></td>
+<td>Unsigned integer (≥0)</td>
+<td>Inherits Safe_Int, min_value=0</td>
+</tr>
+<tr>
+<td><code>Safe_Float</code></td>
+<td><code>float</code></td>
+<td>Type-safe float with exact arithmetic</td>
+<td>Decimal support, precision control, min/max</td>
+</tr>
+<tr>
+<td><code>Safe_Str</code></td>
+<td><code>str</code></td>
+<td>Type-safe string with regex validation</td>
+<td>Regex sanitization, length limits, case control</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-domain-types">Common Domain Types<a class="headerlink" href="#common-domain-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Str__Code__Snippet</code></td>
+<td><code>Safe_Str</code></td>
+<td>Code snippets with programming chars</td>
+<td>Max 1024 chars, preserves indentation</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Text</code></td>
+<td><code>Safe_Str</code></td>
+<td>General text with punctuation</td>
+<td>Max 4096 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Text__Dangerous</code></td>
+<td><code>Safe_Str</code></td>
+<td>Text with wide character support</td>
+<td>Max 65536 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Version</code></td>
+<td><code>Safe_Str</code></td>
+<td>Semantic version strings</td>
+<td>Format: v{major}.{minor}.{patch}</td>
+</tr>
+<tr>
+<td><code>Safe_UInt__Byte</code></td>
+<td><code>Safe_UInt</code></td>
+<td>Single byte value</td>
+<td>Range: 0-255</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cryptography-types">Cryptography Types<a class="headerlink" href="#cryptography-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Str__Hash</code></td>
+<td><code>Safe_Str</code></td>
+<td>Fixed-length hash</td>
+<td>Exactly 10 hex chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Cache_Hash</code></td>
+<td><code>Safe_Str</code></td>
+<td>Variable-length cache hash</td>
+<td>10-96 hex chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__SHA1</code></td>
+<td><code>Safe_Str</code></td>
+<td>Full Git commit SHA</td>
+<td>Exactly 40 hex chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__SHA1__Short</code></td>
+<td><code>Safe_Str</code></td>
+<td>Short Git commit SHA</td>
+<td>Exactly 7 hex chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__NaCl__Private_Key</code></td>
+<td><code>Safe_Str</code></td>
+<td>NaCl/Curve25519 private key</td>
+<td>Exactly 64 hex chars (32 bytes)</td>
+</tr>
+<tr>
+<td><code>Safe_Str__NaCl__Public_Key</code></td>
+<td><code>Safe_Str</code></td>
+<td>NaCl/Curve25519 public key</td>
+<td>Exactly 64 hex chars (32 bytes)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-system-types">File System Types<a class="headerlink" href="#file-system-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Str__File__Name</code></td>
+<td><code>Safe_Str</code></td>
+<td>Safe filename</td>
+<td>Alphanumerics, underscores, hyphens, dots, spaces</td>
+</tr>
+<tr>
+<td><code>Safe_Str__File__Path</code></td>
+<td><code>Safe_Str</code></td>
+<td>Safe file path</td>
+<td>Max 1024 chars, cross-platform separators</td>
+</tr>
+<tr>
+<td><code>Safe_UInt__FileSize</code></td>
+<td><code>Safe_UInt</code></td>
+<td>File size in bytes</td>
+<td>to_kb(), to_mb(), to_gb() methods</td>
+</tr>
+</tbody>
+</table>
+<h3 id="gitgithub-types">Git/GitHub Types<a class="headerlink" href="#gitgithub-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Str__Git__Branch</code></td>
+<td><code>Safe_Str</code></td>
+<td>Git branch name</td>
+<td>git-check-ref-format rules</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Git__Tag</code></td>
+<td><code>Safe_Str</code></td>
+<td>Git tag name</td>
+<td>git-check-ref-format rules</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Git__Ref</code></td>
+<td><code>Safe_Str</code></td>
+<td>Generic Git reference</td>
+<td>Branch, tag, or SHA</td>
+</tr>
+<tr>
+<td><code>Safe_Str__GitHub__Repo_Owner</code></td>
+<td><code>Safe_Str</code></td>
+<td>GitHub username/org</td>
+<td>Max 39 chars, no consecutive hyphens</td>
+</tr>
+<tr>
+<td><code>Safe_Str__GitHub__Repo_Name</code></td>
+<td><code>Safe_Str</code></td>
+<td>GitHub repository name</td>
+<td>Max 100 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__GitHub__Repo</code></td>
+<td><code>Safe_Str</code></td>
+<td>Full repo identifier</td>
+<td>Format: owner/repo</td>
+</tr>
+</tbody>
+</table>
+<h3 id="http-types">HTTP Types<a class="headerlink" href="#http-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Max Length</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enum__Http__Method</code></td>
+<td><code>Enum</code></td>
+<td>HTTP method enumeration</td>
+<td>GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Header__Name</code></td>
+<td><code>Safe_Str</code></td>
+<td>HTTP header names</td>
+<td>128 chars, lowercase</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Header__Value</code></td>
+<td><code>Safe_Str</code></td>
+<td>HTTP header values</td>
+<td>8192 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Content_Type</code></td>
+<td><code>Safe_Str</code></td>
+<td>Content-Type header</td>
+<td>256 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Accept</code></td>
+<td><code>Safe_Str</code></td>
+<td>Accept header</td>
+<td>512 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Authorization</code></td>
+<td><code>Safe_Str</code></td>
+<td>Authorization header</td>
+<td>2048 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Cookie</code></td>
+<td><code>Safe_Str</code></td>
+<td>Cookie header</td>
+<td>32768 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__User_Agent</code></td>
+<td><code>Safe_Str</code></td>
+<td>User-Agent header</td>
+<td>512 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Text</code></td>
+<td><code>Safe_Str</code></td>
+<td>HTTP body text</td>
+<td>1 MB</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__ETag</code></td>
+<td><code>Safe_Str</code></td>
+<td>ETag header</td>
+<td>128 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Cache_Control</code></td>
+<td><code>Safe_Str</code></td>
+<td>Cache-Control header</td>
+<td>256 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Location</code></td>
+<td><code>Safe_Str</code></td>
+<td>Location header (redirects)</td>
+<td>2048 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Http__Last_Modified</code></td>
+<td><code>Safe_Str</code></td>
+<td>Last-Modified header</td>
+<td>64 chars</td>
+</tr>
+</tbody>
+</table>
+<h3 id="identifier-types">Identifier Types<a class="headerlink" href="#identifier-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Format/Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Guid</code></td>
+<td><code>str</code></td>
+<td>UUID5-based identifier</td>
+<td>Deterministic from input</td>
+</tr>
+<tr>
+<td><code>Random_Guid</code></td>
+<td><code>str</code></td>
+<td>Random UUID4 identifier</td>
+<td>Random generation</td>
+</tr>
+<tr>
+<td><code>Obj_Id</code></td>
+<td><code>str</code></td>
+<td>8-char hex object ID</td>
+<td>Auto-generates if not provided</td>
+</tr>
+<tr>
+<td><code>Random_Guid_Short</code></td>
+<td><code>str</code></td>
+<td>Short random identifier</td>
+<td>Compact format</td>
+</tr>
+<tr>
+<td><code>Random_Hash</code></td>
+<td><code>Safe_Str__Cache_Hash</code></td>
+<td>Random 16-char hash</td>
+<td>From random bytes</td>
+</tr>
+<tr>
+<td><code>Safe_Id</code></td>
+<td><code>str</code></td>
+<td>General safe identifier</td>
+<td>Max 512 chars, alphanumerics + - _</td>
+</tr>
+<tr>
+<td><code>Timestamp_Now</code></td>
+<td><code>Safe_Int</code></td>
+<td>Timestamp in milliseconds</td>
+<td>UTC, ISO format parsing</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Id</code></td>
+<td><code>Safe_Str</code></td>
+<td>Base identifier string</td>
+<td>Max 128 chars, alphanumerics + - _</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Key</code></td>
+<td><code>Safe_Str__Id</code></td>
+<td>Dictionary/map key</td>
+<td>Allows dots for hierarchy</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Label</code></td>
+<td><code>Safe_Str__Topic</code></td>
+<td>Display label</td>
+<td>Allows dots, colons, spaces</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Topic</code></td>
+<td><code>Safe_Str</code></td>
+<td>Topic name</td>
+<td>Max 512 chars, allows spaces</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Slug</code></td>
+<td><code>Safe_Str__Id</code></td>
+<td>URL-friendly slug</td>
+<td>Lowercase, hyphens only</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Namespace</code></td>
+<td><code>Safe_Str__Id</code></td>
+<td>Namespace identifier</td>
+<td>Dot notation support</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Display_Name</code></td>
+<td><code>Safe_Str__Id</code></td>
+<td>User-facing names</td>
+<td>Allows parentheses, apostrophes</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Python__Identifier</code></td>
+<td><code>Safe_Str</code></td>
+<td>Valid Python identifier</td>
+<td>Handles keywords, fixes invalid starts</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Python__Module</code></td>
+<td><code>Safe_Str</code></td>
+<td>Python module name</td>
+<td>Max 64 chars, lowercase</td>
+</tr>
+</tbody>
+</table>
+<h3 id="llm-language-model-types">LLM (Language Model) Types<a class="headerlink" href="#llm-language-model-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enum__LLM__Role</code></td>
+<td><code>Enum</code></td>
+<td>Message role</td>
+<td>SYSTEM, USER, ASSISTANT, TOOL</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Message__System</code></td>
+<td><code>Safe_Str</code></td>
+<td>System prompt</td>
+<td>Max 4096 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Message__User</code></td>
+<td><code>Safe_Str</code></td>
+<td>User message</td>
+<td>Max 32768 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Message__Assistant</code></td>
+<td><code>Safe_Str</code></td>
+<td>Assistant response</td>
+<td>Max 32768 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Message__Tool</code></td>
+<td><code>Safe_Str</code></td>
+<td>Tool/function response</td>
+<td>Max 16384 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Prompt</code></td>
+<td><code>Safe_Str</code></td>
+<td>General LLM prompt</td>
+<td>Max 32768 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Model_Id</code></td>
+<td><code>Safe_Str</code></td>
+<td>Model identifier</td>
+<td>Max 256 chars, supports provider/model</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Model_Name</code></td>
+<td><code>Safe_Str</code></td>
+<td>Human-readable model name</td>
+<td>Max 256 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Model_Slug</code></td>
+<td><code>Safe_Str</code></td>
+<td>URL-safe model slug</td>
+<td>Max 256 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Description</code></td>
+<td><code>Safe_Str</code></td>
+<td>Model/feature description</td>
+<td>Max 4096 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Modality</code></td>
+<td><code>Safe_Str</code></td>
+<td>Model modality</td>
+<td>e.g., "text-&gt;image"</td>
+</tr>
+<tr>
+<td><code>Safe_Str__LLM__Tokenizer</code></td>
+<td><code>Safe_Str</code></td>
+<td>Tokenizer type</td>
+<td>Max 64 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Float__LLM__Temperature</code></td>
+<td><code>Safe_Float</code></td>
+<td>Temperature parameter</td>
+<td>Range: 0.0-2.0, 2 decimals</td>
+</tr>
+<tr>
+<td><code>Safe_Float__LLM__Top_P</code></td>
+<td><code>Safe_Float</code></td>
+<td>Top-p/nucleus sampling</td>
+<td>Range: 0.0-1.0, default 0.9</td>
+</tr>
+<tr>
+<td><code>Safe_UInt__LLM__Max_Tokens</code></td>
+<td><code>Safe_UInt</code></td>
+<td>Max tokens parameter</td>
+<td>Range: 1-200000, default 5000</td>
+</tr>
+</tbody>
+</table>
+<h3 id="network-types">Network Types<a class="headerlink" href="#network-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Str__IP_Address</code></td>
+<td><code>str</code></td>
+<td>IP address validation</td>
+<td>IPv4 and IPv6 support</td>
+</tr>
+<tr>
+<td><code>Safe_UInt__Port</code></td>
+<td><code>Safe_UInt</code></td>
+<td>Network port number</td>
+<td>Range: 0-65535</td>
+</tr>
+</tbody>
+</table>
+<h3 id="numerical-types">Numerical Types<a class="headerlink" href="#numerical-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Float__Money</code></td>
+<td><code>Safe_Float</code></td>
+<td>Money calculations</td>
+<td>2 decimals, exact arithmetic, min 0.0</td>
+</tr>
+<tr>
+<td><code>Safe_Float__Financial</code></td>
+<td><code>Safe_Float</code></td>
+<td>Financial calculations</td>
+<td>2 decimals, exact arithmetic</td>
+</tr>
+<tr>
+<td><code>Safe_Float__Percentage_Exact</code></td>
+<td><code>Safe_Float</code></td>
+<td>Exact percentage</td>
+<td>Range: 0.0-100.0, 2 decimals</td>
+</tr>
+<tr>
+<td><code>Safe_UInt__Percentage</code></td>
+<td><code>Safe_UInt</code></td>
+<td>Integer percentage</td>
+<td>Range: 0-100</td>
+</tr>
+<tr>
+<td><code>Safe_Float__Engineering</code></td>
+<td><code>Safe_Float</code></td>
+<td>Engineering calculations</td>
+<td>6 decimals, epsilon 1e-6</td>
+</tr>
+<tr>
+<td><code>Safe_Float__Scientific</code></td>
+<td><code>Safe_Float</code></td>
+<td>Scientific calculations</td>
+<td>15 decimals, allows inf/nan</td>
+</tr>
+</tbody>
+</table>
+<h3 id="web-types">Web Types<a class="headerlink" href="#web-types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Base</th>
+<th>Description</th>
+<th>Constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Str__Email</code></td>
+<td><code>Safe_Str</code></td>
+<td>Email address</td>
+<td>Max 256 chars, requires @</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Username</code></td>
+<td><code>Safe_Str</code></td>
+<td>Username</td>
+<td>Max 32 chars, alphanumerics + _</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Password</code></td>
+<td><code>Safe_Str</code></td>
+<td>Password</td>
+<td>Min 8 chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Url</code></td>
+<td><code>Safe_Str</code></td>
+<td>URL</td>
+<td>Max 2048 chars, requires http(s)://</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Html</code></td>
+<td><code>Safe_Str</code></td>
+<td>HTML content</td>
+<td>Max 10 MB</td>
+</tr>
+<tr>
+<td><code>Safe_Str__API__Parameter</code></td>
+<td><code>Safe_Str</code></td>
+<td>API parameter name</td>
+<td>Max 64 chars, alphanumerics + _</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total: 100+ specialized primitives</strong> covering all common use cases for type-safe data validation.</p>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">pip install osbot-utils
+</code></pre>
+<h2 id="core-primitive-types">Core Primitive Types<a class="headerlink" href="#core-primitive-types" title="Permanent link">&para;</a></h2>
+<h3 id="safe_int">Safe_Int<a class="headerlink" href="#safe_int" title="Permanent link">&para;</a></h3>
+<p>Base class for type-safe integers with validation rules.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.Safe_Int import Safe_Int
+
+class Age(Safe_Int):
+    min_value = 0
+    max_value = 150
+
+age = Age(25)           # ✓ Valid
+age = Age(-5)           # ✗ Raises ValueError
+age = Age(200)          # ✗ Raises ValueError
+</code></pre>
+<p><strong>Configuration Options:</strong>
+- <code>min_value</code>: Minimum allowed value (inclusive)
+- <code>max_value</code>: Maximum allowed value (inclusive)
+- <code>allow_none</code>: Whether None is allowed (default: True)
+- <code>allow_bool</code>: Whether bool values are allowed (default: False)
+- <code>allow_str</code>: Whether string conversion is allowed (default: True)
+- <code>strict_type</code>: If True, only accept int type (default: False)
+- <code>clamp_to_range</code>: Clamp to min/max instead of raising error (default: False)</p>
+<p><strong>Arithmetic Operations:</strong>
+All arithmetic operations maintain type safety and return instances of the same class:</p>
+<pre><code class="language-python">result = Age(25) + 5    # Returns Age(30)
+result = Age(100) * 2   # Returns Age(200) or raises if &gt; max_value
+</code></pre>
+<h3 id="safe_uint">Safe_UInt<a class="headerlink" href="#safe_uint" title="Permanent link">&para;</a></h3>
+<p>Unsigned integer - only accepts non-negative values.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.Safe_UInt import Safe_UInt
+
+class Count(Safe_UInt):
+    max_value = 1000
+
+count = Count(50)       # ✓ Valid
+count = Count(-1)       # ✗ Raises ValueError (min_value is 0)
+</code></pre>
+<p><strong>Configuration:</strong>
+- Inherits all <code>Safe_Int</code> options
+- <code>min_value</code> automatically set to 0</p>
+<h3 id="safe_float">Safe_Float<a class="headerlink" href="#safe_float" title="Permanent link">&para;</a></h3>
+<p>Base class for type-safe floats with precise decimal handling.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.Safe_Float import Safe_Float
+
+class Price(Safe_Float):
+    min_value = 0.0
+    decimal_places = 2
+    use_decimal = True    # Use Decimal for exact arithmetic
+
+price = Price(19.99)
+price = Price(&quot;19.99&quot;)   # String conversion supported
+</code></pre>
+<p><strong>Configuration Options:</strong>
+- <code>min_value</code>: Minimum allowed value
+- <code>max_value</code>: Maximum allowed value
+- <code>allow_none</code>: Whether None is allowed (default: True)
+- <code>allow_bool</code>: Whether bool values allowed (default: False)
+- <code>allow_str</code>: Whether string conversion allowed (default: True)
+- <code>allow_int</code>: Whether int conversion allowed (default: True)
+- <code>allow_inf</code>: Whether infinite values allowed (default: False)
+- <code>strict_type</code>: If True, only accept float type (default: False)
+- <code>decimal_places</code>: Number of decimal places (default: None)
+- <code>use_decimal</code>: Use Python Decimal for exact arithmetic (default: True)
+- <code>epsilon</code>: Tolerance for equality comparisons (default: 1e-9)
+- <code>round_output</code>: Round to decimal_places (default: True)
+- <code>clamp_to_range</code>: Clamp to min/max range (default: False)</p>
+<p><strong>Why use_decimal=True?</strong></p>
+<pre><code class="language-python"># Standard Python float issues:
+0.1 + 0.2 == 0.3  # False! (floating point error)
+
+# With Safe_Float and use_decimal=True:
+class Money(Safe_Float):
+    decimal_places = 2
+    use_decimal = True
+
+Money(0.1) + Money(0.2) == Money(0.3)  # True!
+</code></pre>
+<p><strong>Arithmetic Operations:</strong>
+All operations preserve type safety:</p>
+<pre><code class="language-python">price1 = Price(10.50)
+price2 = Price(5.25)
+total = price1 + price2    # Returns Price(15.75)
+</code></pre>
+<h3 id="safe_str">Safe_Str<a class="headerlink" href="#safe_str" title="Permanent link">&para;</a></h3>
+<p>Base class for type-safe strings with regex validation and sanitization.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+import re
+
+class Username(Safe_Str):
+    regex = re.compile(r'[^a-zA-Z0-9_]')  # Remove non-alphanumeric
+    max_length = 32
+    replacement_char = '_'
+    to_lower_case = True
+
+username = Username(&quot;John_Doe123&quot;)      # ✓ Valid
+username = Username(&quot;john@doe!&quot;)        # Converts to &quot;john_doe_&quot;
+</code></pre>
+<p><strong>Configuration Options:</strong>
+- <code>allow_all_replacement_char</code>: Allow strings of only replacement chars (default: True)
+- <code>allow_empty</code>: Whether empty strings allowed (default: True)
+- <code>exact_length</code>: Require exact length match (default: False)
+- <code>max_length</code>: Maximum string length (default: 512)
+- <code>regex</code>: Pattern for validation/replacement
+- <code>regex_mode</code>: REPLACE or MATCH mode
+- <code>replacement_char</code>: Character to replace invalid chars (default: '_')
+- <code>strict_validation</code>: Raise error instead of replacing (default: False)
+- <code>to_lower_case</code>: Convert to lowercase (default: False)
+- <code>trim_whitespace</code>: Trim leading/trailing whitespace (default: False)</p>
+<p><strong>Regex Modes:</strong></p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
+
+# REPLACE mode: regex defines INVALID characters to replace
+class SafeName(Safe_Str):
+    regex = re.compile(r'[^a-zA-Z0-9]')  # Replace anything not alphanumeric
+    regex_mode = Enum__Safe_Str__Regex_Mode.REPLACE
+
+# MATCH mode: regex defines VALID pattern
+class Version(Safe_Str):
+    regex = re.compile(r'^v\d+\.\d+\.\d+$')  # Must match version pattern
+    regex_mode = Enum__Safe_Str__Regex_Mode.MATCH
+    strict_validation = True  # Required with MATCH mode
+</code></pre>
+<h2 id="domain-specific-primitives">Domain-Specific Primitives<a class="headerlink" href="#domain-specific-primitives" title="Permanent link">&para;</a></h2>
+<h3 id="common-types">Common Types<a class="headerlink" href="#common-types" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__code__snippet">Safe_Str__Code__Snippet<a class="headerlink" href="#safe_str__code__snippet" title="Permanent link">&para;</a></h4>
+<p>For code snippets with programming characters.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Code__Snippet import Safe_Str__Code__Snippet
+
+code = Safe_Str__Code__Snippet('def hello():\n    print(&quot;world&quot;)')
+</code></pre>
+<p><strong>Features:</strong>
+- Max length: 1024 characters
+- Allows: alphanumerics, underscores, hyphens, dots, spaces, common programming symbols
+- Preserves indentation (no trim_whitespace)</p>
+<h4 id="safe_str__text">Safe_Str__Text<a class="headerlink" href="#safe_str__text" title="Permanent link">&para;</a></h4>
+<p>For general text content with punctuation.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text import Safe_Str__Text
+
+text = Safe_Str__Text(&quot;Hello, world! How are you?&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max length: 4096 characters
+- Allows: alphanumerics, spaces, common punctuation
+- Sanitizes special characters</p>
+<h4 id="safe_str__text__dangerous">Safe_Str__Text__Dangerous<a class="headerlink" href="#safe_str__text__dangerous" title="Permanent link">&para;</a></h4>
+<p>For text that may contain a wider range of characters (use cautiously).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text__Dangerous import Safe_Str__Text__Dangerous
+
+text = Safe_Str__Text__Dangerous(&quot;Text with &lt;special&gt; &amp; unusual characters!&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max length: 65536 characters
+- Allows: most printable characters including special symbols
+- Use when you need to preserve more characters</p>
+<h4 id="safe_str__version">Safe_Str__Version<a class="headerlink" href="#safe_str__version" title="Permanent link">&para;</a></h4>
+<p>For semantic version strings.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version import Safe_Str__Version
+
+version = Safe_Str__Version(&quot;v1.2.3&quot;)    # ✓ Valid
+version = Safe_Str__Version(&quot;v999.999.999&quot;)  # ✓ Valid
+version = Safe_Str__Version(&quot;1.2.3&quot;)     # ✗ Must start with 'v'
+</code></pre>
+<p><strong>Features:</strong>
+- Format: <code>v{major}.{minor}.{patch}</code>
+- Each component: 1-3 digits
+- Strict validation with MATCH mode</p>
+<h4 id="safe_uint__byte">Safe_UInt__Byte<a class="headerlink" href="#safe_uint__byte" title="Permanent link">&para;</a></h4>
+<p>Single byte value (0-255).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.common.safe_uint.Safe_UInt__Byte import Safe_UInt__Byte
+
+byte = Safe_UInt__Byte(255)    # ✓ Valid
+byte = Safe_UInt__Byte(256)    # ✗ Exceeds max
+</code></pre>
+<h3 id="cryptography-types_1">Cryptography Types<a class="headerlink" href="#cryptography-types_1" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__hash">Safe_Str__Hash<a class="headerlink" href="#safe_str__hash" title="Permanent link">&para;</a></h4>
+<p>Fixed-length hash (10 hex characters).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash import Safe_Str__Hash, safe_str_hash
+
+# Create hash from data
+hash_obj = safe_str_hash(&quot;my data&quot;)
+hash_obj = safe_str_hash(b&quot;my bytes&quot;)
+
+# Direct creation
+hash_obj = Safe_Str__Hash(&quot;a1b2c3d4e5&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Exactly 10 hexadecimal characters
+- Strict validation
+- Helper function for hash generation</p>
+<h4 id="safe_str__cache_hash">Safe_Str__Cache_Hash<a class="headerlink" href="#safe_str__cache_hash" title="Permanent link">&para;</a></h4>
+<p>Variable-length cache hash (10-96 hex characters).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Cache_Hash import Safe_Str__Cache_Hash
+
+cache_key = Safe_Str__Cache_Hash(&quot;a1b2c3d4e5f6&quot;)  # 12 chars
+cache_key = Safe_Str__Cache_Hash(&quot;a&quot; * 96)       # Max length
+</code></pre>
+<h4 id="safe_str__sha1">Safe_Str__SHA1<a class="headerlink" href="#safe_str__sha1" title="Permanent link">&para;</a></h4>
+<p>Full 40-character Git commit SHA.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__SHA1 import Safe_Str__SHA1
+
+sha = Safe_Str__SHA1(&quot;7fd1a60b01f91b314f59955a4e4d4e80d8edf11d&quot;)
+</code></pre>
+<h4 id="safe_str__sha1__short">Safe_Str__SHA1__Short<a class="headerlink" href="#safe_str__sha1__short" title="Permanent link">&para;</a></h4>
+<p>Short 7-character Git commit SHA.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__SHA1__Short import Safe_Str__SHA1__Short
+
+short_sha = Safe_Str__SHA1__Short(&quot;7fd1a60&quot;)
+</code></pre>
+<h4 id="safe_str__nacl__private_key-safe_str__nacl__public_key">Safe_Str__NaCl__Private_Key / Safe_Str__NaCl__Public_Key<a class="headerlink" href="#safe_str__nacl__private_key-safe_str__nacl__public_key" title="Permanent link">&para;</a></h4>
+<p>NaCl (Curve25519) cryptographic keys in hexadecimal.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__NaCl__Private_Key import Safe_Str__NaCl__Private_Key
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__NaCl__Public_Key import Safe_Str__NaCl__Public_Key
+
+private_key = Safe_Str__NaCl__Private_Key(&quot;d4c8f7e3a2b1c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3&quot;)
+public_key = Safe_Str__NaCl__Public_Key(&quot;a1b2c3d4e5f6789012345678901234567890abcdefabcdefabcdefabcdefabcd&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Exactly 64 hexadecimal characters (32 bytes)
+- Used with libsodium/PyNaCl</p>
+<h3 id="file-system-types_1">File System Types<a class="headerlink" href="#file-system-types_1" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__file__name">Safe_Str__File__Name<a class="headerlink" href="#safe_str__file__name" title="Permanent link">&para;</a></h4>
+<p>Safe filename with restricted characters.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Name import Safe_Str__File__Name
+
+filename = Safe_Str__File__Name(&quot;document.txt&quot;)
+filename = Safe_Str__File__Name(&quot;my file (2023).pdf&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Allows: alphanumerics, underscores, hyphens, dots, spaces
+- Sanitizes invalid characters
+- Prevents all-replacement-char names</p>
+<h4 id="safe_str__file__path">Safe_Str__File__Path<a class="headerlink" href="#safe_str__file__path" title="Permanent link">&para;</a></h4>
+<p>Safe file path with platform-compatible characters.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+
+path = Safe_Str__File__Path(&quot;/home/user/documents/file.txt&quot;)
+path = Safe_Str__File__Path(&quot;C:\\Users\\User\\Documents\\file.txt&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max length: 1024 characters
+- Allows: path separators (/, ), alphanumerics, spaces
+- Cross-platform compatible</p>
+<h4 id="safe_uint__filesize">Safe_UInt__FileSize<a class="headerlink" href="#safe_uint__filesize" title="Permanent link">&para;</a></h4>
+<p>File size in bytes with utility methods.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.files.safe_uint.Safe_UInt__FileSize import Safe_UInt__FileSize
+
+size = Safe_UInt__FileSize(1048576)  # 1 MB in bytes
+
+# Utility methods
+print(size.to_kb())  # 1024.0
+print(size.to_mb())  # 1.0
+print(size.to_gb())  # 0.0009765625
+</code></pre>
+<p><strong>Features:</strong>
+- Max value: 2^63 - 1 (largest file size on most systems)
+- Conversion methods for KB, MB, GB</p>
+<h3 id="gitgithub-types_1">Git/GitHub Types<a class="headerlink" href="#gitgithub-types_1" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__git__branch">Safe_Str__Git__Branch<a class="headerlink" href="#safe_str__git__branch" title="Permanent link">&para;</a></h4>
+<p>Git branch name following git-check-ref-format rules.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.git.safe_str.Safe_Str__Git__Branch import Safe_Str__Git__Branch
+
+branch = Safe_Str__Git__Branch(&quot;feature/oauth-login&quot;)
+branch = Safe_Str__Git__Branch(&quot;bugfix/issue-123&quot;)
+</code></pre>
+<p><strong>Validation Rules:</strong>
+- Cannot start with dash
+- No consecutive dots (..)
+- No sequence @{
+- Cannot be single character @
+- No consecutive slashes
+- Path components cannot start with dot</p>
+<h4 id="safe_str__git__tag">Safe_Str__Git__Tag<a class="headerlink" href="#safe_str__git__tag" title="Permanent link">&para;</a></h4>
+<p>Git tag name.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.git.safe_str.Safe_Str__Git__Tag import Safe_Str__Git__Tag
+
+tag = Safe_Str__Git__Tag(&quot;v1.0.0&quot;)
+tag = Safe_Str__Git__Tag(&quot;release-2024.01.15&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Follows git-check-ref-format rules
+- Same rules as branches (without dash restriction)</p>
+<h4 id="safe_str__git__ref">Safe_Str__Git__Ref<a class="headerlink" href="#safe_str__git__ref" title="Permanent link">&para;</a></h4>
+<p>Generic Git reference (branch, tag, or SHA).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.git.safe_str.Safe_Str__Git__Ref import Safe_Str__Git__Ref
+
+ref = Safe_Str__Git__Ref(&quot;main&quot;)                     # Branch
+ref = Safe_Str__Git__Ref(&quot;v1.0.0&quot;)                   # Tag
+ref = Safe_Str__Git__Ref(&quot;7fd1a60&quot;)                  # Short SHA
+ref = Safe_Str__Git__Ref(&quot;7fd1a60b01f91b314...&quot;)     # Full SHA
+</code></pre>
+<p><strong>Features:</strong>
+- Accepts any valid Git reference type
+- Validates against multiple reference types</p>
+<h4 id="safe_str__github__repo_owner">Safe_Str__GitHub__Repo_Owner<a class="headerlink" href="#safe_str__github__repo_owner" title="Permanent link">&para;</a></h4>
+<p>GitHub username or organization name.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.git.github.safe_str.Safe_Str__GitHub__Repo_Owner import Safe_Str__GitHub__Repo_Owner
+
+owner = Safe_Str__GitHub__Repo_Owner(&quot;octocat&quot;)
+owner = Safe_Str__GitHub__Repo_Owner(&quot;my-org&quot;)
+</code></pre>
+<p><strong>Validation Rules:</strong>
+- Max 39 characters
+- Alphanumerics and hyphens only
+- Cannot start or end with hyphen
+- No consecutive hyphens</p>
+<h4 id="safe_str__github__repo_name">Safe_Str__GitHub__Repo_Name<a class="headerlink" href="#safe_str__github__repo_name" title="Permanent link">&para;</a></h4>
+<p>GitHub repository name.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.git.github.safe_str.Safe_Str__GitHub__Repo_Name import Safe_Str__GitHub__Repo_Name
+
+repo = Safe_Str__GitHub__Repo_Name(&quot;Hello-World&quot;)
+repo = Safe_Str__GitHub__Repo_Name(&quot;my.repo_v2&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 100 characters
+- Allows: alphanumerics, hyphens, underscores, dots
+- Cannot be just dots (. or ..)</p>
+<h4 id="safe_str__github__repo">Safe_Str__GitHub__Repo<a class="headerlink" href="#safe_str__github__repo" title="Permanent link">&para;</a></h4>
+<p>Full GitHub repository identifier (owner/repo).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.git.github.safe_str.Safe_Str__GitHub__Repo import Safe_Str__GitHub__Repo
+
+repo = Safe_Str__GitHub__Repo(&quot;octocat/Hello-World&quot;)
+repo = Safe_Str__GitHub__Repo(&quot;microsoft/vscode&quot;)
+
+# Access components
+print(repo.repo_owner)  # Safe_Str__GitHub__Repo_Owner instance
+print(repo.repo_name)   # Safe_Str__GitHub__Repo_Name instance
+</code></pre>
+<p><strong>Features:</strong>
+- Validates both owner and repo components
+- Provides typed access to components
+- Max 140 characters total</p>
+<h3 id="http-types_1">HTTP Types<a class="headerlink" href="#http-types_1" title="Permanent link">&para;</a></h3>
+<h4 id="enum__http__method">Enum__Http__Method<a class="headerlink" href="#enum__http__method" title="Permanent link">&para;</a></h4>
+<p>HTTP method enumeration.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.http.enums.Enum__Http__Method import Enum__Http__Method
+
+method = Enum__Http__Method.GET
+method = Enum__Http__Method.POST
+</code></pre>
+<p><strong>Available Methods:</strong>
+- GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS</p>
+<h4 id="safe_str__http__header__name">Safe_Str__Http__Header__Name<a class="headerlink" href="#safe_str__http__header__name" title="Permanent link">&para;</a></h4>
+<p>HTTP header names (lowercase as per HTTP/2 and HTTP/3).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Header__Name import Safe_Str__Http__Header__Name
+
+header = Safe_Str__Http__Header__Name(&quot;Content-Type&quot;)    # Converts to &quot;content-type&quot;
+header = Safe_Str__Http__Header__Name(&quot;X-Custom-Header&quot;) # Converts to &quot;x-custom-header&quot;
+</code></pre>
+<p><strong>Features:</strong>
+- Automatically converts to lowercase
+- Allows: alphanumerics and hyphens
+- Max 128 characters</p>
+<h4 id="safe_str__http__header__value">Safe_Str__Http__Header__Value<a class="headerlink" href="#safe_str__http__header__value" title="Permanent link">&para;</a></h4>
+<p>HTTP header values.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Header__Value import Safe_Str__Http__Header__Value
+
+value = Safe_Str__Http__Header__Value(&quot;application/json; charset=utf-8&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 8192 characters
+- Filters control characters (except tab)
+- Allows visible ASCII and spaces</p>
+<h4 id="safe_str__http__content_type">Safe_Str__Http__Content_Type<a class="headerlink" href="#safe_str__http__content_type" title="Permanent link">&para;</a></h4>
+<p>Content-Type header values.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Content_Type import Safe_Str__Http__Content_Type
+
+content_type = Safe_Str__Http__Content_Type(&quot;application/json&quot;)
+content_type = Safe_Str__Http__Content_Type(&quot;text/html; charset=utf-8&quot;)
+</code></pre>
+<h4 id="safe_str__http__accept">Safe_Str__Http__Accept<a class="headerlink" href="#safe_str__http__accept" title="Permanent link">&para;</a></h4>
+<p>Accept header values.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Accept import Safe_Str__Http__Accept
+
+accept = Safe_Str__Http__Accept(&quot;text/html,application/json;q=0.9&quot;)
+accept = Safe_Str__Http__Accept(&quot;application/*&quot;)
+</code></pre>
+<h4 id="safe_str__http__authorization">Safe_Str__Http__Authorization<a class="headerlink" href="#safe_str__http__authorization" title="Permanent link">&para;</a></h4>
+<p>Authorization header values.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Authorization import Safe_Str__Http__Authorization
+
+auth = Safe_Str__Http__Authorization(&quot;Bearer eyJ...&quot;)
+auth = Safe_Str__Http__Authorization(&quot;Basic dXNlcjpwYXNz&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 2048 characters
+- Filters control characters
+- Supports Bearer, Basic, and other auth schemes</p>
+<h4 id="safe_str__http__cookie">Safe_Str__Http__Cookie<a class="headerlink" href="#safe_str__http__cookie" title="Permanent link">&para;</a></h4>
+<p>Cookie header values.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Cookie import Safe_Str__Http__Cookie
+
+cookie = Safe_Str__Http__Cookie(&quot;session=abc123; user_id=456&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 32768 characters (flexible for multiple cookies)
+- Filters control characters</p>
+<h4 id="safe_str__http__user_agent">Safe_Str__Http__User_Agent<a class="headerlink" href="#safe_str__http__user_agent" title="Permanent link">&para;</a></h4>
+<p>User-Agent header values.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__User_Agent import Safe_Str__Http__User_Agent
+
+ua = Safe_Str__Http__User_Agent(&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64)&quot;)
+</code></pre>
+<h4 id="safe_str__http__text">Safe_Str__Http__Text<a class="headerlink" href="#safe_str__http__text" title="Permanent link">&para;</a></h4>
+<p>Large text content for HTTP bodies.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.http.safe_str.Safe_Str__Http__Text import Safe_Str__Http__Text
+
+body = Safe_Str__Http__Text(&quot;Large text content...&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 1 MB (1,048,576 characters)
+- Normalizes newlines
+- Filters control characters
+- Preserves tabs, line feeds, carriage returns</p>
+<h4 id="safe_str__http__etag-safe_str__http__cache_control-safe_str__http__location-safe_str__http__last_modified">Safe_Str__Http__ETag, Safe_Str__Http__Cache_Control, Safe_Str__Http__Location, Safe_Str__Http__Last_Modified<a class="headerlink" href="#safe_str__http__etag-safe_str__http__cache_control-safe_str__http__location-safe_str__http__last_modified" title="Permanent link">&para;</a></h4>
+<p>Additional HTTP header value types with appropriate validation.</p>
+<h3 id="identifier-types_1">Identifier Types<a class="headerlink" href="#identifier-types_1" title="Permanent link">&para;</a></h3>
+<h4 id="guid">Guid<a class="headerlink" href="#guid" title="Permanent link">&para;</a></h4>
+<p>UUID5-based globally unique identifier.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.Guid import Guid
+
+guid = Guid(&quot;my-unique-string&quot;)  # Generates UUID5
+# Always produces same GUID for same input
+</code></pre>
+<h4 id="random_guid">Random_Guid<a class="headerlink" href="#random_guid" title="Permanent link">&para;</a></h4>
+<p>Random UUID4 identifier.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid import Random_Guid
+
+guid = Random_Guid()  # Generates new random UUID4
+</code></pre>
+<h4 id="obj_id">Obj_Id<a class="headerlink" href="#obj_id" title="Permanent link">&para;</a></h4>
+<p>8-character hexadecimal object identifier.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id import Obj_Id, new_obj_id
+
+obj_id = Obj_Id()                    # Auto-generates
+obj_id = Obj_Id(&quot;a1b2c3d4&quot;)         # From existing
+new_id = new_obj_id()                # Generate without class
+</code></pre>
+<h4 id="random_guid_short">Random_Guid_Short<a class="headerlink" href="#random_guid_short" title="Permanent link">&para;</a></h4>
+<p>Short random identifier.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid_Short import Random_Guid_Short
+
+short_id = Random_Guid_Short()  # Auto-generates short ID
+</code></pre>
+<h4 id="random_hash">Random_Hash<a class="headerlink" href="#random_hash" title="Permanent link">&para;</a></h4>
+<p>Random 16-character hash.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.Random_Hash import Random_Hash
+
+hash_id = Random_Hash()  # Auto-generates from random bytes
+</code></pre>
+<h4 id="safe_id">Safe_Id<a class="headerlink" href="#safe_id" title="Permanent link">&para;</a></h4>
+<p>General-purpose safe identifier.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id import Safe_Id, safe_id
+
+id_obj = Safe_Id()                     # Auto-generates
+id_obj = Safe_Id(&quot;my-identifier&quot;)      # From string
+id_str = safe_id(&quot;unsafe!@#string&quot;)    # Returns sanitized string
+</code></pre>
+<p><strong>Features:</strong>
+- Max 512 characters (configurable)
+- Sanitizes to alphanumerics, underscores, hyphens
+- Auto-generation with prefix</p>
+<h4 id="timestamp_now">Timestamp_Now<a class="headerlink" href="#timestamp_now" title="Permanent link">&para;</a></h4>
+<p>Current timestamp in milliseconds.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now import Timestamp_Now
+
+ts = Timestamp_Now()                           # Current time
+ts = Timestamp_Now(1640000000000)             # From milliseconds
+ts = Timestamp_Now(&quot;2024-01-15T10:30:00Z&quot;)    # From ISO format
+</code></pre>
+<p><strong>Features:</strong>
+- Stores milliseconds (not fractional seconds)
+- Parses ISO date strings
+- UTC timezone handling</p>
+<h4 id="safe_str__id">Safe_Str__Id<a class="headerlink" href="#safe_str__id" title="Permanent link">&para;</a></h4>
+<p>Base identifier string type.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
+
+id_str = Safe_Str__Id(&quot;my-identifier-123&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 128 characters
+- Alphanumerics, underscores, hyphens</p>
+<h4 id="safe_str__key">Safe_Str__Key<a class="headerlink" href="#safe_str__key" title="Permanent link">&para;</a></h4>
+<p>Dictionary/map key identifier.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Key import Safe_Str__Key
+
+key = Safe_Str__Key(&quot;config.database.host&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Allows dots for hierarchical keys
+- Alphanumerics, underscores, hyphens, dots</p>
+<h4 id="safe_str__label">Safe_Str__Label<a class="headerlink" href="#safe_str__label" title="Permanent link">&para;</a></h4>
+<p>Display label with hierarchical support.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Label import Safe_Str__Label
+
+label = Safe_Str__Label(&quot;System: Database Connection&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Allows: alphanumerics, underscores, hyphens, dots, colons, spaces
+- For user-facing hierarchical labels</p>
+<h4 id="safe_str__topic">Safe_Str__Topic<a class="headerlink" href="#safe_str__topic" title="Permanent link">&para;</a></h4>
+<p>Topic name with spaces allowed.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Topic import Safe_Str__Topic
+
+topic = Safe_Str__Topic(&quot;User Authentication Flow&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 512 characters
+- Allows: alphanumerics, underscores, hyphens, spaces</p>
+<h4 id="safe_str__slug">Safe_Str__Slug<a class="headerlink" href="#safe_str__slug" title="Permanent link">&para;</a></h4>
+<p>URL-friendly slug.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Slug import Safe_Str__Slug
+
+slug = Safe_Str__Slug(&quot;my-blog-post-title&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Lowercase only
+- Alphanumerics and hyphens only</p>
+<h4 id="safe_str__namespace">Safe_Str__Namespace<a class="headerlink" href="#safe_str__namespace" title="Permanent link">&para;</a></h4>
+<p>Namespace identifier with dot notation.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Namespace import Safe_Str__Namespace
+
+namespace = Safe_Str__Namespace(&quot;com.example.module&quot;)
+</code></pre>
+<h4 id="safe_str__display_name">Safe_Str__Display_Name<a class="headerlink" href="#safe_str__display_name" title="Permanent link">&para;</a></h4>
+<p>User-facing display names.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Display_Name import Safe_Str__Display_Name
+
+name = Safe_Str__Display_Name(&quot;John Doe (Admin)&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Allows: alphanumerics, underscores, hyphens, spaces, parentheses, dots, apostrophes, hash</p>
+<h4 id="safe_str__python__identifier">Safe_Str__Python__Identifier<a class="headerlink" href="#safe_str__python__identifier" title="Permanent link">&para;</a></h4>
+<p>Valid Python identifier.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Python__Identifier import Safe_Str__Python__Identifier
+
+ident = Safe_Str__Python__Identifier(&quot;my_variable&quot;)
+ident = Safe_Str__Python__Identifier(&quot;8invalid&quot;)   # Converts to &quot;_8invalid&quot;
+ident = Safe_Str__Python__Identifier(&quot;class&quot;)      # Converts to &quot;_class&quot;
+</code></pre>
+<p><strong>Features:</strong>
+- Ensures valid Python identifier
+- Handles keywords by prefixing with underscore
+- Fixes invalid starting characters</p>
+<h4 id="safe_str__python__module">Safe_Str__Python__Module<a class="headerlink" href="#safe_str__python__module" title="Permanent link">&para;</a></h4>
+<p>Python module/package name.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Python__Module import Safe_Str__Python__Module
+
+module = Safe_Str__Python__Module(&quot;my_module&quot;)
+module = Safe_Str__Python__Module(&quot;api_v1&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Lowercase only
+- Valid as Python identifier and file system path
+- Max 64 characters</p>
+<h3 id="llm-language-model-types_1">LLM (Language Model) Types<a class="headerlink" href="#llm-language-model-types_1" title="Permanent link">&para;</a></h3>
+<h4 id="enum__llm__role">Enum__LLM__Role<a class="headerlink" href="#enum__llm__role" title="Permanent link">&para;</a></h4>
+<p>LLM message role enumeration.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.enums.Enum__LLM__Role import Enum__LLM__Role
+
+role = Enum__LLM__Role.SYSTEM
+role = Enum__LLM__Role.USER
+role = Enum__LLM__Role.ASSISTANT
+role = Enum__LLM__Role.TOOL
+</code></pre>
+<h4 id="safe_str__llm__message__system">Safe_Str__LLM__Message__System<a class="headerlink" href="#safe_str__llm__message__system" title="Permanent link">&para;</a></h4>
+<p>System prompt messages.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Message__System import Safe_Str__LLM__Message__System
+
+system = Safe_Str__LLM__Message__System(&quot;You are a helpful assistant.&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 4096 characters
+- Filters control characters (preserves tab, newline, CR)</p>
+<h4 id="safe_str__llm__message__user">Safe_Str__LLM__Message__User<a class="headerlink" href="#safe_str__llm__message__user" title="Permanent link">&para;</a></h4>
+<p>User messages.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Message__User import Safe_Str__LLM__Message__User
+
+user_msg = Safe_Str__LLM__Message__User(&quot;What is the weather today?&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 32768 characters (full context window)</p>
+<h4 id="safe_str__llm__message__assistant">Safe_Str__LLM__Message__Assistant<a class="headerlink" href="#safe_str__llm__message__assistant" title="Permanent link">&para;</a></h4>
+<p>Assistant/AI response messages.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Message__Assistant import Safe_Str__LLM__Message__Assistant
+
+assistant_msg = Safe_Str__LLM__Message__Assistant(&quot;The weather today is sunny.&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 32768 characters</p>
+<h4 id="safe_str__llm__message__tool">Safe_Str__LLM__Message__Tool<a class="headerlink" href="#safe_str__llm__message__tool" title="Permanent link">&para;</a></h4>
+<p>Tool/function response messages.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Message__Tool import Safe_Str__LLM__Message__Tool
+
+tool_msg = Safe_Str__LLM__Message__Tool('{&quot;result&quot;: &quot;success&quot;}')
+</code></pre>
+<p><strong>Features:</strong>
+- Max 16384 characters
+- Permissive for JSON/structured data</p>
+<h4 id="safe_str__llm__prompt">Safe_Str__LLM__Prompt<a class="headerlink" href="#safe_str__llm__prompt" title="Permanent link">&para;</a></h4>
+<p>General LLM prompt.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Prompt import Safe_Str__LLM__Prompt
+
+prompt = Safe_Str__LLM__Prompt(&quot;Explain quantum computing in simple terms.&quot;)
+</code></pre>
+<h4 id="safe_str__llm__model_id">Safe_Str__LLM__Model_Id<a class="headerlink" href="#safe_str__llm__model_id" title="Permanent link">&para;</a></h4>
+<p>LLM model identifier.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Model_Id import Safe_Str__LLM__Model_Id
+
+model = Safe_Str__LLM__Model_Id(&quot;openai/gpt-4&quot;)
+model = Safe_Str__LLM__Model_Id(&quot;anthropic/claude-3-opus&quot;)
+model = Safe_Str__LLM__Model_Id(&quot;gpt-3.5-turbo&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 256 characters
+- Supports various formats: provider/model, model-only
+- Allows: alphanumerics, /, -, ., :, _, @</p>
+<h4 id="safe_str__llm__model_name">Safe_Str__LLM__Model_Name<a class="headerlink" href="#safe_str__llm__model_name" title="Permanent link">&para;</a></h4>
+<p>Human-readable model name.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Model_Name import Safe_Str__LLM__Model_Name
+
+name = Safe_Str__LLM__Model_Name(&quot;GPT-4 Turbo&quot;)
+name = Safe_Str__LLM__Model_Name(&quot;Claude 3 Opus (Latest)&quot;)
+</code></pre>
+<h4 id="safe_str__llm__model_slug">Safe_Str__LLM__Model_Slug<a class="headerlink" href="#safe_str__llm__model_slug" title="Permanent link">&para;</a></h4>
+<p>URL-safe model slug.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Model_Slug import Safe_Str__LLM__Model_Slug
+
+slug = Safe_Str__LLM__Model_Slug(&quot;gpt-4-turbo&quot;)
+slug = Safe_Str__LLM__Model_Slug(&quot;claude-3-opus&quot;)
+</code></pre>
+<h4 id="safe_str__llm__description">Safe_Str__LLM__Description<a class="headerlink" href="#safe_str__llm__description" title="Permanent link">&para;</a></h4>
+<p>Model or feature description.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Description import Safe_Str__LLM__Description
+
+desc = Safe_Str__LLM__Description(&quot;Advanced language model with multimodal capabilities&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 4096 characters
+- Allows rich descriptions with formatting characters</p>
+<h4 id="safe_str__llm__modality">Safe_Str__LLM__Modality<a class="headerlink" href="#safe_str__llm__modality" title="Permanent link">&para;</a></h4>
+<p>Model modality descriptor.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Modality import Safe_Str__LLM__Modality
+
+modality = Safe_Str__LLM__Modality(&quot;text&quot;)
+modality = Safe_Str__LLM__Modality(&quot;text-&gt;image&quot;)
+modality = Safe_Str__LLM__Modality(&quot;image+text-&gt;text&quot;)
+</code></pre>
+<h4 id="safe_str__llm__tokenizer">Safe_Str__LLM__Tokenizer<a class="headerlink" href="#safe_str__llm__tokenizer" title="Permanent link">&para;</a></h4>
+<p>Tokenizer type identifier.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Tokenizer import Safe_Str__LLM__Tokenizer
+
+tokenizer = Safe_Str__LLM__Tokenizer(&quot;cl100k_base&quot;)
+tokenizer = Safe_Str__LLM__Tokenizer(&quot;tiktoken&quot;)
+</code></pre>
+<h4 id="safe_float__llm__temperature">Safe_Float__LLM__Temperature<a class="headerlink" href="#safe_float__llm__temperature" title="Permanent link">&para;</a></h4>
+<p>LLM temperature parameter.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_float.Safe_Float__LLM__Temperature import Safe_Float__LLM__Temperature
+
+temp = Safe_Float__LLM__Temperature(0.7)
+temp = Safe_Float__LLM__Temperature(0.0)   # Deterministic
+temp = Safe_Float__LLM__Temperature(2.0)   # Maximum creativity
+</code></pre>
+<p><strong>Features:</strong>
+- Range: 0.0 to 2.0
+- 2 decimal places
+- Auto-clamps to valid range</p>
+<h4 id="safe_float__llm__top_p">Safe_Float__LLM__Top_P<a class="headerlink" href="#safe_float__llm__top_p" title="Permanent link">&para;</a></h4>
+<p>LLM nucleus sampling parameter.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_float.Safe_Float__LLM__Top_P import Safe_Float__LLM__Top_P
+
+top_p = Safe_Float__LLM__Top_P(0.9)  # Default
+top_p = Safe_Float__LLM__Top_P(1.0)  # Consider all tokens
+</code></pre>
+<p><strong>Features:</strong>
+- Range: 0.0 to 1.0
+- Default value: 0.9
+- Auto-clamps to valid range</p>
+<h4 id="safe_uint__llm__max_tokens">Safe_UInt__LLM__Max_Tokens<a class="headerlink" href="#safe_uint__llm__max_tokens" title="Permanent link">&para;</a></h4>
+<p>LLM max tokens parameter.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.safe_uint.Safe_UInt__LLM__Max_Tokens import Safe_UInt__LLM__Max_Tokens
+
+max_tokens = Safe_UInt__LLM__Max_Tokens(5000)   # Default
+max_tokens = Safe_UInt__LLM__Max_Tokens(200000) # Maximum (Claude's limit)
+</code></pre>
+<p><strong>Features:</strong>
+- Range: 1 to 200,000
+- Default: 5000</p>
+<h3 id="network-types_1">Network Types<a class="headerlink" href="#network-types_1" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__ip_address">Safe_Str__IP_Address<a class="headerlink" href="#safe_str__ip_address" title="Permanent link">&para;</a></h4>
+<p>IP address (IPv4 or IPv6).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.network.safe_str.Safe_Str__IP_Address import Safe_Str__IP_Address
+
+ip = Safe_Str__IP_Address(&quot;192.168.1.1&quot;)
+ip = Safe_Str__IP_Address(&quot;2001:0db8::1&quot;)
+ip = Safe_Str__IP_Address(&quot;  10.0.0.1  &quot;)  # Trims whitespace
+</code></pre>
+<p><strong>Features:</strong>
+- Validates using Python's ipaddress module
+- Supports IPv4 and IPv6
+- Trims whitespace</p>
+<h4 id="safe_uint__port">Safe_UInt__Port<a class="headerlink" href="#safe_uint__port" title="Permanent link">&para;</a></h4>
+<p>Network port number.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.network.safe_uint.Safe_UInt__Port import Safe_UInt__Port
+
+port = Safe_UInt__Port(8080)
+port = Safe_UInt__Port(443)
+</code></pre>
+<p><strong>Features:</strong>
+- Range: 0 to 65535
+- Does not allow None (port 0 is technically valid but unusual)</p>
+<h3 id="numerical-types_1">Numerical Types<a class="headerlink" href="#numerical-types_1" title="Permanent link">&para;</a></h3>
+<h4 id="safe_float__money">Safe_Float__Money<a class="headerlink" href="#safe_float__money" title="Permanent link">&para;</a></h4>
+<p>Money with exact decimal arithmetic.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Money import Safe_Float__Money
+
+price = Safe_Float__Money(19.99)
+total = price + Safe_Float__Money(5.00)  # Exact: 24.99
+</code></pre>
+<p><strong>Features:</strong>
+- 2 decimal places
+- Uses Decimal for exact arithmetic
+- Min value: 0.0
+- No infinity or NaN</p>
+<h4 id="safe_float__financial">Safe_Float__Financial<a class="headerlink" href="#safe_float__financial" title="Permanent link">&para;</a></h4>
+<p>Financial calculations (2 decimal places).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Financial import Safe_Float__Financial
+
+amount = Safe_Float__Financial(1234.56)
+</code></pre>
+<p><strong>Features:</strong>
+- 2 decimal places
+- Exact Decimal arithmetic
+- No infinity or NaN</p>
+<h4 id="safe_float__percentage_exact">Safe_Float__Percentage_Exact<a class="headerlink" href="#safe_float__percentage_exact" title="Permanent link">&para;</a></h4>
+<p>Exact percentage (0-100).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Percentage_Exact import Safe_Float__Percentage_Exact
+
+percent = Safe_Float__Percentage_Exact(75.50)
+</code></pre>
+<p><strong>Features:</strong>
+- Range: 0.0 to 100.0
+- 2 decimal places
+- Exact Decimal arithmetic</p>
+<h4 id="safe_uint__percentage">Safe_UInt__Percentage<a class="headerlink" href="#safe_uint__percentage" title="Permanent link">&para;</a></h4>
+<p>Integer percentage (0-100).</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.numerical.safe_uint.Safe_UInt__Percentage import Safe_UInt__Percentage
+
+percent = Safe_UInt__Percentage(75)
+</code></pre>
+<p><strong>Features:</strong>
+- Range: 0 to 100
+- Integer values only</p>
+<h4 id="safe_float__engineering">Safe_Float__Engineering<a class="headerlink" href="#safe_float__engineering" title="Permanent link">&para;</a></h4>
+<p>Engineering calculations with controlled precision.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Engineering import Safe_Float__Engineering
+
+value = Safe_Float__Engineering(123.456789)
+</code></pre>
+<p><strong>Features:</strong>
+- 6 decimal places (configurable)
+- Epsilon: 1e-6
+- Performance-optimized (no Decimal)</p>
+<h4 id="safe_float__scientific">Safe_Float__Scientific<a class="headerlink" href="#safe_float__scientific" title="Permanent link">&para;</a></h4>
+<p>Scientific calculations with high precision.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Scientific import Safe_Float__Scientific
+
+value = Safe_Float__Scientific(1.23456789012345)
+</code></pre>
+<p><strong>Features:</strong>
+- 15 decimal places
+- Allows infinity and NaN
+- No Decimal (for performance)</p>
+<h3 id="web-types_1">Web Types<a class="headerlink" href="#web-types_1" title="Permanent link">&para;</a></h3>
+<h4 id="safe_str__email">Safe_Str__Email<a class="headerlink" href="#safe_str__email" title="Permanent link">&para;</a></h4>
+<p>Email address.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Email import Safe_Str__Email
+
+email = Safe_Str__Email(&quot;user@example.com&quot;)
+email = Safe_Str__Email(&quot;john.doe+tag@domain.co.uk&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 256 characters
+- Requires @ symbol
+- Sanitizes invalid characters</p>
+<h4 id="safe_str__username">Safe_Str__Username<a class="headerlink" href="#safe_str__username" title="Permanent link">&para;</a></h4>
+<p>Username with restricted characters.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Username import Safe_Str__Username
+
+username = Safe_Str__Username(&quot;john_doe_123&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 32 characters
+- Alphanumerics and underscores only</p>
+<h4 id="safe_str__password">Safe_Str__Password<a class="headerlink" href="#safe_str__password" title="Permanent link">&para;</a></h4>
+<p>Password with minimum requirements.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Password import Safe_Str__Password
+
+password = Safe_Str__Password(&quot;MyP@ssw0rd!&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Min 8 characters
+- Allows: alphanumerics, underscores, hyphens, dots, spaces, common symbols</p>
+<h4 id="safe_str__url">Safe_Str__Url<a class="headerlink" href="#safe_str__url" title="Permanent link">&para;</a></h4>
+<p>URL with validation.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Url import Safe_Str__Url
+
+url = Safe_Str__Url(&quot;https://example.com/path?query=value&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 2048 characters
+- Requires http:// or https://
+- Allows URL-safe characters</p>
+<h4 id="safe_str__html">Safe_Str__Html<a class="headerlink" href="#safe_str__html" title="Permanent link">&para;</a></h4>
+<p>HTML content.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__Html import Safe_Str__Html
+
+html = Safe_Str__Html(&quot;&lt;div&gt;Hello &lt;strong&gt;World&lt;/strong&gt;&lt;/div&gt;&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 10 MB
+- Preserves HTML tags and attributes
+- Normalizes newlines
+- Filters control characters</p>
+<h4 id="safe_str__api__parameter">Safe_Str__API__Parameter<a class="headerlink" href="#safe_str__api__parameter" title="Permanent link">&para;</a></h4>
+<p>API parameter name.</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.web.safe_str.Safe_Str__API__Parameter import Safe_Str__API__Parameter
+
+param = Safe_Str__API__Parameter(&quot;max_tokens&quot;)
+param = Safe_Str__API__Parameter(&quot;temperature&quot;)
+</code></pre>
+<p><strong>Features:</strong>
+- Max 64 characters
+- Alphanumerics and underscores only</p>
+<h2 id="using-primitives-in-type_safe-classes">Using Primitives in Type_Safe Classes<a class="headerlink" href="#using-primitives-in-type_safe-classes" title="Permanent link">&para;</a></h2>
+<p>Primitives integrate seamlessly with Type_Safe classes:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Money import Safe_Float__Money
+from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now import Timestamp_Now
+
+class Order(Type_Safe):
+    order_id: Safe_Str__Id
+    amount: Safe_Float__Money
+    created_at: Timestamp_Now
+
+# Automatic validation on creation
+order = Order(
+    order_id=&quot;order-123&quot;,
+    amount=99.99,
+    created_at=Timestamp_Now()
+)
+
+# JSON serialization preserves types
+json_data = order.json()
+# {&quot;order_id&quot;: &quot;order-123&quot;, &quot;amount&quot;: 99.99, &quot;created_at&quot;: 1640000000000}
+
+# Deserialization recreates typed objects
+order2 = Order.from_json(json_data)
+assert isinstance(order2.order_id, Safe_Str__Id)
+assert isinstance(order2.amount, Safe_Float__Money)
+</code></pre>
+<h2 id="creating-custom-primitives">Creating Custom Primitives<a class="headerlink" href="#creating-custom-primitives" title="Permanent link">&para;</a></h2>
+<h3 id="custom-safe_str">Custom Safe_Str<a class="headerlink" href="#custom-safe_str" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Phone_Number(Safe_Str):
+    regex = re.compile(r'[^0-9\-\+\(\) ]')  # Only phone chars
+    max_length = 20
+    trim_whitespace = True
+
+phone = Phone_Number(&quot;+1 (555) 123-4567&quot;)
+</code></pre>
+<h3 id="custom-safe_int">Custom Safe_Int<a class="headerlink" href="#custom-safe_int" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.Safe_Int import Safe_Int
+
+class Age(Safe_Int):
+    min_value = 0
+    max_value = 150
+    allow_str = True  # Allow &quot;25&quot; -&gt; 25
+
+age = Age(25)
+age = Age(&quot;30&quot;)  # Automatic conversion
+</code></pre>
+<h3 id="custom-safe_float">Custom Safe_Float<a class="headerlink" href="#custom-safe_float" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.Safe_Float import Safe_Float
+
+class Temperature_Celsius(Safe_Float):
+    min_value = -273.15  # Absolute zero
+    max_value = 1000.0
+    decimal_places = 1
+    use_decimal = True
+
+temp = Temperature_Celsius(20.5)
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Choose the right primitive</strong>: Use domain-specific types (Safe_Str__Email, Safe_UInt__Port) over generic ones</li>
+<li><strong>Leverage type annotations</strong>: Use primitives in Type_Safe classes for full validation</li>
+<li><strong>Handle errors gracefully</strong>: Primitives raise ValueError with descriptive messages</li>
+<li><strong>Use strict_validation wisely</strong>: Enable for critical data, disable for flexible input</li>
+<li><strong>Consider performance</strong>: use_decimal=False for high-performance float operations</li>
+<li><strong>Document constraints</strong>: Custom primitive classes are self-documenting</li>
+</ol>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Primitive instantiation</strong>: One-time cost at object creation</li>
+<li><strong>use_decimal=True</strong>: ~2-3x slower than native float, but exact</li>
+<li><strong>Regex validation</strong>: Cost depends on pattern complexity</li>
+<li><strong>String sanitization</strong>: Replace mode faster than match mode</li>
+<li><strong>Type_Safe integration</strong>: Minimal overhead with caching</li>
+</ul>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="configuration-objects">Configuration Objects<a class="headerlink" href="#configuration-objects" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.type_safe.primitives.domains.network.safe_str.Safe_Str__IP_Address import Safe_Str__IP_Address
+from osbot_utils.type_safe.primitives.domains.network.safe_uint.Safe_UInt__Port import Safe_UInt__Port
+
+class Database_Config(Type_Safe):
+    host: Safe_Str__IP_Address
+    port: Safe_UInt__Port = Safe_UInt__Port(5432)
+
+config = Database_Config(host=&quot;192.168.1.100&quot;)
+</code></pre>
+<h3 id="api-requests">API Requests<a class="headerlink" href="#api-requests" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.llm.enums.Enum__LLM__Role import Enum__LLM__Role
+from osbot_utils.type_safe.primitives.domains.llm.safe_str.Safe_Str__LLM__Message__User import Safe_Str__LLM__Message__User
+from osbot_utils.type_safe.primitives.domains.llm.safe_float.Safe_Float__LLM__Temperature import Safe_Float__LLM__Temperature
+
+class LLM_Request(Type_Safe):
+    role: Enum__LLM__Role
+    content: Safe_Str__LLM__Message__User
+    temperature: Safe_Float__LLM__Temperature = Safe_Float__LLM__Temperature(0.7)
+</code></pre>
+<h3 id="file-operations">File Operations<a class="headerlink" href="#file-operations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.files.safe_uint.Safe_UInt__FileSize import Safe_UInt__FileSize
+
+class File_Info(Type_Safe):
+    path: Safe_Str__File__Path
+    size: Safe_UInt__FileSize
+
+    def size_mb(self):
+        return self.size.to_mb()
+</code></pre>
+<h2 id="version-history">Version History<a class="headerlink" href="#version-history" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>v3.28.0</strong>: Current version with comprehensive primitive coverage</li>
+<li>Enhanced LLM primitives</li>
+<li>Improved HTTP header validation</li>
+<li>Extended identifier types</li>
+</ul>
+<hr />
+<p><strong>For more information</strong>: https://github.com/owasp-sbot/OSBot-Utils</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

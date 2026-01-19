@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>OSBot_Utils HTML Parser Documentation - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "OSBot_Utils HTML Parser Documentation";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/README.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">OSBot_Utils HTML Parser Documentation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="osbot_utils-html-parser-documentation">OSBot_Utils HTML Parser Documentation<a class="headerlink" href="#osbot_utils-html-parser-documentation" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The OSBot_Utils HTML parser provides a robust system for parsing, manipulating, and serializing HTML documents. It features a type-safe schema system that enables reliable roundtrip conversion between HTML strings and Python objects, with full support for mixed content, attributes preservation, and complex nested structures.</p>
+<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Full HTML Parsing</strong>: Converts HTML strings to dictionary representations</li>
+<li><strong>Type-Safe Schema</strong>: Structured data models with serialization support</li>
+<li><strong>Roundtrip Conversion</strong>: HTML → Dict → Schema → Dict → HTML with perfect fidelity</li>
+<li><strong>Mixed Content Support</strong>: Handles intermixed text and element nodes</li>
+<li><strong>Position Tracking</strong>: Maintains element order through explicit positioning</li>
+<li><strong>CSS Support</strong>: Includes CSS dictionary to string conversion</li>
+<li><strong>Tag Classes</strong>: Object-oriented representation of HTML elements</li>
+</ul>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<pre><code>HTML String
+    ↓
+Html__To__Html_Dict (Parser)
+    ↓
+Dictionary Representation
+    ↓
+Html_Dict__To__Html_Document (Converter)
+    ↓
+Schema Objects (Type-Safe)
+    ↓
+Html_Document__To__Html_Dict (Converter)
+    ↓
+Dictionary Representation
+    ↓
+Html_Dict__To__Html (Renderer)
+    ↓
+HTML String
+</code></pre>
+<h2 id="core-components">Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h2>
+<h3 id="parsers-and-converters">Parsers and Converters<a class="headerlink" href="#parsers-and-converters" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="Html__To__Html_Dict/">Html__To__Html_Dict</a> - Parses HTML strings to dictionary format</li>
+<li><a href="Html_Dict__To__Html/">Html_Dict__To__Html</a> - Converts dictionaries back to HTML strings</li>
+<li><a href="Html_Dict__To__Html_Document/">Html_Dict__To__Html_Document</a> - Converts dictionaries to schema objects</li>
+<li><a href="Html_Document__To__Html_Dict/">Html_Document__To__Html_Dict</a> - Converts schema objects back to dictionaries</li>
+<li><a href="Html__To__Html_Document/">Html__To__Html_Document</a> - Direct HTML to schema document conversion</li>
+<li><a href="Html_Dict__To__Html_Tags/">Html_Dict__To__Html_Tags</a> - Converts dictionaries to tag objects</li>
+<li><a href="Html__To__Html_Tag/">Html__To__Html_Tag</a> - Direct HTML to tag object conversion</li>
+</ul>
+<h3 id="schema-classes">Schema Classes<a class="headerlink" href="#schema-classes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="Schema__Html_Document.md">Schema__Html_Document</a> - Root document schema with timestamp</li>
+<li><a href="Schema__Html_Node.md">Schema__Html_Node</a> - Element node representation</li>
+<li><a href="Schema__Html_Node__Data.md">Schema__Html_Node__Data</a> - Text node representation</li>
+<li><a href="Schema__Html_Node__Data__Type.md">Schema__Html_Node__Data__Type</a> - Enumeration for node types</li>
+</ul>
+<h3 id="tag-classes">Tag Classes<a class="headerlink" href="#tag-classes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="Tag__Base/">Tag__Base</a> - Base class for all HTML tags</li>
+<li><a href="Tag__Html.md">Tag__Html</a> - HTML root element</li>
+<li><a href="Tag__Head.md">Tag__Head</a> - Head element with metadata support</li>
+<li><a href="Tag__Body.md">Tag__Body</a> - Body element</li>
+<li><a href="Tag__Div.md">Tag__Div</a> - Div element</li>
+<li><a href="Tag__Link.md">Tag__Link</a> - Link element for stylesheets</li>
+<li><a href="Tag__Style.md">Tag__Style</a> - Style element with CSS support</li>
+<li><a href="Tag__Text.md">Tag__Text</a> - Text node representation</li>
+<li><a href="Tag__H.md">Tag__H</a> - Heading elements (h1-h6)</li>
+<li><a href="Tag__HR.md">Tag__HR</a> - Horizontal rule element</li>
+</ul>
+<h3 id="css-support">CSS Support<a class="headerlink" href="#css-support" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="CSS_Dict__To__Css/">CSS_Dict__To__Css</a> - Converts CSS dictionaries to string format</li>
+</ul>
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="basic-html-parsing">Basic HTML Parsing<a class="headerlink" href="#basic-html-parsing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+
+html = &quot;&lt;div&gt;&lt;p&gt;Hello World&lt;/p&gt;&lt;/div&gt;&quot;
+parser = Html__To__Html_Dict(html)
+html_dict = parser.convert()
+</code></pre>
+<h3 id="full-roundtrip-conversion">Full Roundtrip Conversion<a class="headerlink" href="#full-roundtrip-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
+from osbot_utils.helpers.html.transformers.Html_Document__To__Html_Dict import Html_Document__To__Html_Dict
+from osbot_utils.helpers.html.transformers.Html_Dict__To__Html import Html_Dict__To__Html
+
+# Parse HTML to dictionary
+html_dict = Html__To__Html_Dict(html).convert()
+
+# Convert to type-safe schema
+document = Html_Dict__To__Html_Document(html__dict=html_dict).convert()
+
+# Serialize and deserialize
+json_data = document.json()
+restored = Schema__Html_Document.from_json(json_data)
+
+# Convert back to HTML
+dict_back = Html_Document__To__Html_Dict(html__document=restored).convert()
+html_back = Html_Dict__To__Html(dict_back).convert()
+</code></pre>
+<h3 id="creating-html-with-tag-classes">Creating HTML with Tag Classes<a class="headerlink" href="#creating-html-with-tag-classes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.tags.Tag__Html import Tag__Html
+from osbot_utils.helpers.html.tags.Tag__Div import Tag__Div
+
+html = Tag__Html()
+html.head.title = &quot;My Page&quot;
+div = Tag__Div()
+div.inner_html = &quot;Hello World&quot;
+html.body.append(div)
+
+rendered_html = html.render()
+</code></pre>
+<h2 id="dictionary-format">Dictionary Format<a class="headerlink" href="#dictionary-format" title="Permanent link">&para;</a></h2>
+<p>The dictionary representation uses this structure:</p>
+<pre><code class="language-python">{
+    'tag': 'element_name',
+    'attrs': {'attribute': 'value'},
+    'nodes': [
+        {'type': 'TEXT', 'data': 'text content'},
+        {'tag': 'child', 'attrs': {}, 'nodes': []}
+    ]
+}
+</code></pre>
+<h2 id="schema-format">Schema Format<a class="headerlink" href="#schema-format" title="Permanent link">&para;</a></h2>
+<p>The schema format separates text and element nodes:</p>
+<pre><code class="language-python">Schema__Html_Node(
+    tag='div',
+    attrs={'class': 'container'},
+    child_nodes=[...],  # Element nodes only
+    text_nodes=[...],   # Text nodes only
+    position=0          # Position in parent
+)
+</code></pre>
+<h2 id="design-decisions">Design Decisions<a class="headerlink" href="#design-decisions" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Position-Based Ordering</strong>: Uses explicit position fields to maintain node order during serialization</li>
+<li><strong>Separated Node Types</strong>: Avoids Union type issues by separating text and element nodes</li>
+<li><strong>Type Safety</strong>: Full type annotations and Type_Safe base class for reliable serialization</li>
+<li><strong>Attribute Preservation</strong>: Maintains attribute order and all values through roundtrip</li>
+<li><strong>Mixed Content Handling</strong>: Special handling for elements containing both text and child elements</li>
+</ol>
+<h2 id="common-use-cases">Common Use Cases<a class="headerlink" href="#common-use-cases" title="Permanent link">&para;</a></h2>
+<ul>
+<li>HTML parsing and manipulation</li>
+<li>Web scraping with structure preservation</li>
+<li>HTML generation from data</li>
+<li>Template processing</li>
+<li>HTML validation and cleanup</li>
+<li>Converting between HTML and structured data formats</li>
+</ul>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<p>The library includes comprehensive tests for:
+- Basic HTML parsing
+- Complex nested structures
+- Mixed content handling
+- Attribute preservation
+- Roundtrip fidelity
+- Edge cases (empty elements, self-closing tags, etc.)</p>
+<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
+<p>When contributing to the HTML parser:
+1. Maintain backward compatibility
+2. Add tests for new features
+3. Follow the existing code style
+4. Update documentation
+5. Ensure roundtrip tests pass</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

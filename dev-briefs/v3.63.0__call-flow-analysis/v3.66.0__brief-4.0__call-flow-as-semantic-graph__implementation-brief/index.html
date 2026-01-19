@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.66.0__brief-4.0__call-flow-as-semantic-graph__implementation-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>(Brief 4.0) Call Flow as Semantic Graph - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "(Brief 4.0) Call Flow as Semantic Graph";
+        var mkdocs_page_input_path = "dev-briefs/v3.63.0__call-flow-analysis/v3.66.0__brief-4.0__call-flow-as-semantic-graph__implementation-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.66.0__brief-4.0__call-flow-as-semantic-graph__implementation-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">(Brief 4.0) Call Flow as Semantic Graph</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="brief-40-call-flow-as-semantic-graph">(Brief 4.0) Call Flow as Semantic Graph<a class="headerlink" href="#brief-40-call-flow-as-semantic-graph" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> v3.66.0<br />
+<strong>Status:</strong> Refactoring Implementation<br />
+<strong>Target:</strong> OSBot-Utils (<code>osbot_utils.helpers.python_call_flow</code>)<br />
+<strong>Created:</strong> January 2026<br />
+<strong>Prerequisites:</strong> Brief 3.8 (Complete Semantic Graph Foundation) complete<br />
+<strong>Enables:</strong> Unified graph architecture, enhanced visualization, validation, taxonomy-based grouping</p>
+<hr />
+<h2 id="1-document-purpose">1. Document Purpose<a class="headerlink" href="#1-document-purpose" title="Permanent link">&para;</a></h2>
+<p>This brief specifies the refactoring of <code>python_call_flow</code> to leverage the <code>semantic_graphs</code> framework. The refactoring transforms a standalone call flow analyzer into a domain-specific application built on a robust, standards-aligned semantic graph foundation.</p>
+<p><strong>What This Document Covers:</strong></p>
+<ol>
+<li>Historical context and evolution of the architecture</li>
+<li>Mapping of semantic_graphs capabilities to call flow requirements</li>
+<li>Detailed technical specification for the refactoring</li>
+<li>Migration strategy and implementation checklist</li>
+</ol>
+<p><strong>Outcome:</strong> A call flow analyzer that inherits all semantic_graphs capabilities: ontology-based validation, typed properties, taxonomy grouping, human-readable projections, and standards alignment.</p>
+<hr />
+<h2 id="2-historical-context-and-evolution">2. Historical Context and Evolution<a class="headerlink" href="#2-historical-context-and-evolution" title="Permanent link">&para;</a></h2>
+<h3 id="21-the-journey">2.1 The Journey<a class="headerlink" href="#21-the-journey" title="Permanent link">&para;</a></h3>
+<p>The call flow analyzer evolved through six major phases, each building on lessons learned:</p>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────────┐
+│                              ARCHITECTURAL EVOLUTION                              │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                   │
+│  Brief 1.0 (v3.63.0)                                                              │
+│  ══════════════════                                                               │
+│  &quot;Call Flow Analysis - Project Brief&quot;                                             │
+│                                                                                   │
+│  • Original vision: Static call flow analysis &amp; visualization                     │
+│  • Goal: Parse Python → Build graph → Visualize in browser                        │
+│  • Key insight: &quot;Hybrid strategy&quot; - deterministic extraction + LLM analysis       │
+│                                                                                   │
+│                                    │                                              │
+│                                    ▼                                              │
+│                                                                                   │
+│  Brief 2.0 (v3.63.0)                                                              │
+│  ══════════════════                                                               │
+│  &quot;Call Flow Analyzer - Implementation Brief&quot;                                      │
+│                                                                                   │
+│  • First implementation with custom schemas                                       │
+│  • Schema__Call_Graph__Node with flat attributes (module, file_path on every node)│
+│  • Problems identified:                                                           │
+│    - Redundancy: module name repeated on every node                               │
+│    - Mixed concerns: behavioral (calls) + structural (module) together            │
+│    - No queryable relationships: &quot;module contains class&quot; is implicit              │
+│                                                                                   │
+│                                    │                                              │
+│                                    ▼                                              │
+│                                                                                   │
+│  Brief 3.0 (v3.64.3)                                                              │
+│  ══════════════════                                                               │
+│  &quot;Semantic Graphs &amp; Code Structure&quot;                                               │
+│                                                                                   │
+│  • KEY INSIGHT: Call flow is just ONE instance of a generic pattern               │
+│  • Decision: Build reusable semantic_graphs framework FIRST                       │
+│  • Introduced: Ontology, Taxonomy, Rules, Graph separation                        │
+│  • Planned: Code structure graph + lightweight call flow referencing it           │
+│                                                                                   │
+│                                    │                                              │
+│                                    ▼                                              │
+│                                                                                   │
+│  Brief 3.5 (v3.64.0)                                                              │
+│  ═══════════════════                                                              │
+│  &quot;ID/Ref Architecture Clarification&quot;                                              │
+│                                                                                   │
+│  • Clarified naming: *_Id for instances, *_Ref for labels                         │
+│  • Added deterministic ID creation: Obj_Id.from_seed()                            │
+│  • Established: IDs for integrity, Refs for human readability                     │
+│                                                                                   │
+│                                    │                                              │
+│                                    ▼                                              │
+│                                                                                   │
+│  Brief 3.7 (v3.64.0)                                                              │
+│  ═══════════════════                                                              │
+│  &quot;Projected Data Architecture&quot;                                                    │
+│                                                                                   │
+│  • Introduced Schema__ (master) → Projected__ (derived) pattern                   │
+│  • Three-section projections: projection, references, sources                     │
+│  • Key principle: &quot;Projections are generated, not edited&quot;                         │
+│                                                                                   │
+│                                    │                                              │
+│                                    ▼                                              │
+│                                                                                   │
+│  Brief 3.8 (v3.65.0)                                                              │
+│  ═══════════════════                                                              │
+│  &quot;Complete Semantic Graph Foundation&quot;                                             │
+│                                                                                   │
+│  • Added property system (Property_Name_Id, Property_Type_Id)                     │
+│  • Connected taxonomy to ontology (category_id on node types)                     │
+│  • Filtered projections (only include used refs)                                  │
+│  • RDF/OWL alignment complete                                                     │
+│                                                                                   │
+│                                    │                                              │
+│                                    ▼                                              │
+│                                                                                   │
+│  Brief 4.0 (v3.66.0) ← THIS DOCUMENT                                              │
+│  ═══════════════════                                                              │
+│  &quot;Call Flow as Semantic Graph&quot;                                                    │
+│                                                                                   │
+│  • Apply semantic_graphs to call flow (the original goal!)                        │
+│  • Replace custom schemas with semantic graph schemas                             │
+│  • Gain: validation, properties, taxonomy, projections                            │
+│                                                                                   │
+└──────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="22-why-the-detour-was-worth-it">2.2 Why the "Detour" Was Worth It<a class="headerlink" href="#22-why-the-detour-was-worth-it" title="Permanent link">&para;</a></h3>
+<p>The semantic_graphs framework development (Briefs 3.0-3.8) was not scope creep — it was essential foundation work:</p>
+<table>
+<thead>
+<tr>
+<th>Without semantic_graphs</th>
+<th>With semantic_graphs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Custom node/edge schemas per domain</td>
+<td>Reusable Schema__Semantic_Graph__Node/Edge</td>
+</tr>
+<tr>
+<td>No validation</td>
+<td>Ontology-based edge rule validation</td>
+</tr>
+<tr>
+<td>Flat string attributes</td>
+<td>Typed properties with optional validation</td>
+</tr>
+<tr>
+<td>Enum-based types</td>
+<td>Ontology-defined types (extensible)</td>
+</tr>
+<tr>
+<td>No categorization</td>
+<td>Taxonomy-based grouping</td>
+</tr>
+<tr>
+<td>Custom export logic</td>
+<td>Projector generates human-readable output</td>
+</tr>
+<tr>
+<td>Ad-hoc ID handling</td>
+<td>Consistent ID/Ref separation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-the-original-problems-brief-2-now-solved">2.3 The Original Problems (Brief 2) - Now Solved<a class="headerlink" href="#23-the-original-problems-brief-2-now-solved" title="Permanent link">&para;</a></h3>
+<p>Brief 2's implementation had these problems, all addressed by semantic_graphs:</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>How semantic_graphs Solves It</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Redundancy</strong> (module repeated on every node)</td>
+<td>Store as property, or create module nodes with CONTAINS edges</td>
+</tr>
+<tr>
+<td><strong>Mixed concerns</strong> (behavioral + structural)</td>
+<td>Properties separate from graph structure</td>
+</tr>
+<tr>
+<td><strong>No relationships</strong> ("module contains class" implicit)</td>
+<td>Explicit edges with predicates</td>
+</tr>
+<tr>
+<td><strong>No hierarchy</strong> (package→module→class→method)</td>
+<td>Taxonomy categories + ontology node types</td>
+</tr>
+<tr>
+<td><strong>String matching</strong> for queries</td>
+<td>ID-based lookups + predicate filtering</td>
+</tr>
+<tr>
+<td><strong>No reusability</strong></td>
+<td>Generic framework, domain-specific ontology</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-capability-mapping">3. Capability Mapping<a class="headerlink" href="#3-capability-mapping" title="Permanent link">&para;</a></h2>
+<h3 id="31-what-semantic_graphs-provides">3.1 What semantic_graphs Provides<a class="headerlink" href="#31-what-semantic_graphs-provides" title="Permanent link">&para;</a></h3>
+<p>The framework provides these capabilities that call flow will leverage:</p>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────────┐
+│                         SEMANTIC_GRAPHS CAPABILITIES                              │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                   │
+│  ONTOLOGY LAYER                                                                   │
+│  ══════════════                                                                   │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐  │
+│  │ Node Types     │  │ Predicates     │  │ Property Names │  │ Property Types │  │
+│  │                │  │                │  │                │  │                │  │
+│  │ node_type_id   │  │ predicate_id   │  │ prop_name_id   │  │ prop_type_id   │  │
+│  │ node_type_ref  │  │ predicate_ref  │  │ prop_name_ref  │  │ prop_type_ref  │  │
+│  │ category_id ───┼──│ inverse_id     │  │ prop_type_id   │  │                │  │
+│  └────────────────┘  └────────────────┘  └────────────────┘  └────────────────┘  │
+│          │                                                                        │
+│          │ category_id (FK)                                                       │
+│          ▼                                                                        │
+│  TAXONOMY LAYER                                                                   │
+│  ══════════════                                                                   │
+│  ┌────────────────────────────────────────────────────────────────────────────┐  │
+│  │ Categories: code_element → container, callable, reference                   │  │
+│  │             Hierarchical classification of node types                       │  │
+│  └────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                   │
+│  GRAPH LAYER                                                                      │
+│  ═══════════                                                                      │
+│  ┌────────────────────────────────────────────────────────────────────────────┐  │
+│  │ Schema__Semantic_Graph                                                      │  │
+│  │ ├── nodes: Dict__Nodes__By_Id                                               │  │
+│  │ │   └── Schema__Semantic_Graph__Node                                        │  │
+│  │ │       ├── node_id, node_type_id, name                                     │  │
+│  │ │       └── properties: Dict__Node_Properties (name_id → text)              │  │
+│  │ └── edges: List__Semantic_Graph__Edges                                      │  │
+│  │     └── Schema__Semantic_Graph__Edge                                        │  │
+│  │         ├── edge_id, from_node_id, to_node_id, predicate_id                 │  │
+│  │         └── properties: Dict__Edge_Properties (name_id → text)              │  │
+│  └────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                   │
+│  RULES LAYER                                                                      │
+│  ═══════════                                                                      │
+│  ┌────────────────────────────────────────────────────────────────────────────┐  │
+│  │ Edge Rules: source_type_id --predicate_id--&gt; target_type_id                 │  │
+│  │ Required Properties: node_type_id MUST have property_name_id                │  │
+│  │ Cardinality: method can have 0..1 class (optional containment)              │  │
+│  └────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                   │
+│  PROJECTION LAYER                                                                 │
+│  ════════════════                                                                 │
+│  ┌────────────────────────────────────────────────────────────────────────────┐  │
+│  │ Schema__ (IDs) ──Projector──► Projected__ (Refs)                            │  │
+│  │                                                                              │  │
+│  │ Three sections:                                                              │  │
+│  │ • projection: Human-readable nodes/edges with refs and names                │  │
+│  │ • references: Filtered ref→id mappings for correlation                      │  │
+│  │ • sources: Provenance (source_graph_id, generated_at)                       │  │
+│  └────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                   │
+│  BUILDER &amp; VALIDATOR                                                              │
+│  ═══════════════════                                                              │
+│  ┌────────────────────────────────────────────────────────────────────────────┐  │
+│  │ Semantic_Graph__Builder: Fluent API for graph construction                  │  │
+│  │ Semantic_Graph__Validator: Validates against ontology edge rules            │  │
+│  │ Ontology__Registry / Taxonomy__Registry: Load and cache definitions         │  │
+│  └────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                   │
+└──────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="32-current-python_call_flow-semantic_graphs-mapping">3.2 Current python_call_flow → semantic_graphs Mapping<a class="headerlink" href="#32-current-python_call_flow-semantic_graphs-mapping" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>python_call_flow Current</th>
+<th>semantic_graphs Target</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enum__Call_Graph__Node_Type.CLASS</code></td>
+<td><code>Node_Type_Ref("class")</code> + <code>Node_Type_Id</code></td>
+<td>Defined in ontology</td>
+</tr>
+<tr>
+<td><code>Enum__Call_Graph__Node_Type.METHOD</code></td>
+<td><code>Node_Type_Ref("method")</code> + <code>Node_Type_Id</code></td>
+<td>Defined in ontology</td>
+</tr>
+<tr>
+<td><code>Enum__Call_Graph__Node_Type.FUNCTION</code></td>
+<td><code>Node_Type_Ref("function")</code> + <code>Node_Type_Id</code></td>
+<td>Defined in ontology</td>
+</tr>
+<tr>
+<td><code>Enum__Call_Graph__Node_Type.MODULE</code></td>
+<td><code>Node_Type_Ref("module")</code> + <code>Node_Type_Id</code></td>
+<td>Defined in ontology</td>
+</tr>
+<tr>
+<td><code>Enum__Call_Graph__Edge_Type.CONTAINS</code></td>
+<td><code>Predicate_Ref("contains")</code> + <code>Predicate_Id</code></td>
+<td>Inverse: "contained_by"</td>
+</tr>
+<tr>
+<td><code>Enum__Call_Graph__Edge_Type.CALLS</code></td>
+<td><code>Predicate_Ref("calls")</code> + <code>Predicate_Id</code></td>
+<td>Inverse: "called_by"</td>
+</tr>
+<tr>
+<td><code>Enum__Call_Graph__Edge_Type.SELF</code></td>
+<td><code>Predicate_Ref("calls_self")</code> + <code>Predicate_Id</code></td>
+<td>self.method() calls</td>
+</tr>
+<tr>
+<td><code>Enum__Call_Graph__Edge_Type.CHAIN</code></td>
+<td><code>Predicate_Ref("calls_chain")</code> + <code>Predicate_Id</code></td>
+<td>obj.attr.method() calls</td>
+</tr>
+<tr>
+<td><code>Schema__Call_Graph__Node</code></td>
+<td><code>Schema__Semantic_Graph__Node</code></td>
+<td>With properties</td>
+</tr>
+<tr>
+<td><code>Schema__Call_Graph__Edge</code></td>
+<td><code>Schema__Semantic_Graph__Edge</code></td>
+<td>With properties</td>
+</tr>
+<tr>
+<td><code>node.module</code></td>
+<td>Property: <code>module_name</code></td>
+<td>Or: module node + contains edge</td>
+</tr>
+<tr>
+<td><code>node.file_path</code></td>
+<td>Property: <code>file_path</code></td>
+<td>String property</td>
+</tr>
+<tr>
+<td><code>node.line_number</code></td>
+<td>Property: <code>line_number</code></td>
+<td>Integer property</td>
+</tr>
+<tr>
+<td><code>node.depth</code></td>
+<td>Property: <code>call_depth</code></td>
+<td>Integer property</td>
+</tr>
+<tr>
+<td><code>node.is_entry</code></td>
+<td>Property: <code>is_entry</code></td>
+<td>Boolean property</td>
+</tr>
+<tr>
+<td><code>node.is_external</code></td>
+<td>Property: <code>is_external</code></td>
+<td>Boolean property</td>
+</tr>
+<tr>
+<td><code>node.is_recursive</code></td>
+<td>Property: <code>is_recursive</code></td>
+<td>Boolean property</td>
+</tr>
+<tr>
+<td><code>node.source_code</code></td>
+<td>Property: <code>source_code</code></td>
+<td>Text property</td>
+</tr>
+<tr>
+<td><code>edge.is_conditional</code></td>
+<td>Property: <code>is_conditional</code></td>
+<td>Boolean property</td>
+</tr>
+<tr>
+<td><code>Call_Flow__Node__Factory</code></td>
+<td><code>Semantic_Graph__Builder</code></td>
+<td>Fluent API</td>
+</tr>
+<tr>
+<td><code>Call_Flow__Edge__Factory</code></td>
+<td><code>Semantic_Graph__Builder</code></td>
+<td>Fluent API</td>
+</tr>
+<tr>
+<td><code>Call_Flow__Node__Registry</code></td>
+<td><code>Dict__Nodes__By_Id</code> + helper</td>
+<td>Built-in to graph</td>
+</tr>
+<tr>
+<td><code>Call_Flow__Exporter__Mermaid</code></td>
+<td><code>Semantic_Graph__Projector</code> + Mermaid adapter</td>
+<td>Project then export</td>
+</tr>
+<tr>
+<td>(none)</td>
+<td><code>Semantic_Graph__Validator</code></td>
+<td>Validates edge rules</td>
+</tr>
+<tr>
+<td>(none)</td>
+<td>Taxonomy categories</td>
+<td>Group node types</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-what-gets-simplified">3.3 What Gets Simplified<a class="headerlink" href="#33-what-gets-simplified" title="Permanent link">&para;</a></h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────────┐
+│                              SIMPLIFICATION GAINS                                 │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                   │
+│  BEFORE (Custom Implementation)           AFTER (Using semantic_graphs)           │
+│  ══════════════════════════════           ═════════════════════════════           │
+│                                                                                   │
+│  Enum__Call_Graph__Node_Type              ─────► Ontology node types              │
+│  Enum__Call_Graph__Edge_Type              ─────► Ontology predicates              │
+│  Schema__Call_Graph                       ─────► Schema__Semantic_Graph           │
+│  Schema__Call_Graph__Node                 ─────► Schema__Semantic_Graph__Node     │
+│  Schema__Call_Graph__Edge                 ─────► Schema__Semantic_Graph__Edge     │
+│  Schema__Call_Graph__Config               ─────► Keep (analysis config)           │
+│  Call_Flow__Node__Factory                 ─────► Semantic_Graph__Builder          │
+│  Call_Flow__Edge__Factory                 ─────► Semantic_Graph__Builder          │
+│  Call_Flow__Node__Registry                ─────► Helper on builder/graph          │
+│                                                                                   │
+│  KEPT (Domain-Specific Logic)                                                     │
+│  ═════════════════════════════                                                    │
+│                                                                                   │
+│  Call_Flow__Analyzer                      ─────► Keep (orchestration)             │
+│  Call_Flow__AST__Extractor                ─────► Keep (AST extraction)            │
+│  Call_Flow__Call__Resolver                ─────► Keep (call resolution)           │
+│  Call_Flow__Call__Filter                  ─────► Keep (scope control)             │
+│  Call_Flow__Exporter__Mermaid             ─────► Adapt (use projection)           │
+│                                                                                   │
+│  NEW (From semantic_graphs)                                                       │
+│  ══════════════════════════                                                       │
+│                                                                                   │
+│  (none)                                   ◄───── Ontology validation              │
+│  (none)                                   ◄───── Typed properties                 │
+│  (none)                                   ◄───── Taxonomy grouping                │
+│  (none)                                   ◄───── Human-readable projections       │
+│  (none)                                   ◄───── Filtered references              │
+│                                                                                   │
+└──────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="4-call-flow-ontology-definition">4. Call Flow Ontology Definition<a class="headerlink" href="#4-call-flow-ontology-definition" title="Permanent link">&para;</a></h2>
+<h3 id="41-node-types">4.1 Node Types<a class="headerlink" href="#41-node-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Ontology: call_flow
+# Node types define what kinds of entities exist in a call flow graph
+
+node_types = {
+    &quot;class&quot;: {
+        &quot;node_type_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;node_type_ref&quot; : &quot;class&quot;,
+        &quot;category_id&quot;   : &quot;&lt;container category&gt;&quot;,
+    },
+    &quot;method&quot;: {
+        &quot;node_type_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;node_type_ref&quot; : &quot;method&quot;,
+        &quot;category_id&quot;   : &quot;&lt;callable category&gt;&quot;,
+    },
+    &quot;function&quot;: {
+        &quot;node_type_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;node_type_ref&quot; : &quot;function&quot;,
+        &quot;category_id&quot;   : &quot;&lt;callable category&gt;&quot;,
+    },
+    &quot;module&quot;: {
+        &quot;node_type_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;node_type_ref&quot; : &quot;module&quot;,
+        &quot;category_id&quot;   : &quot;&lt;container category&gt;&quot;,
+    },
+    &quot;external&quot;: {
+        &quot;node_type_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;node_type_ref&quot; : &quot;external&quot;,
+        &quot;category_id&quot;   : &quot;&lt;reference category&gt;&quot;,
+    },
+}
+</code></pre>
+<h3 id="42-predicates-edge-types">4.2 Predicates (Edge Types)<a class="headerlink" href="#42-predicates-edge-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Predicates define relationship types between nodes
+
+predicates = {
+    &quot;contains&quot;: {
+        &quot;predicate_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;predicate_ref&quot; : &quot;contains&quot;,
+        &quot;inverse_id&quot;    : &quot;&lt;contained_by predicate_id&gt;&quot;,
+    },
+    &quot;contained_by&quot;: {
+        &quot;predicate_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;predicate_ref&quot; : &quot;contained_by&quot;,
+        &quot;inverse_id&quot;    : &quot;&lt;contains predicate_id&gt;&quot;,
+    },
+    &quot;calls&quot;: {
+        &quot;predicate_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;predicate_ref&quot; : &quot;calls&quot;,
+        &quot;inverse_id&quot;    : &quot;&lt;called_by predicate_id&gt;&quot;,
+    },
+    &quot;called_by&quot;: {
+        &quot;predicate_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;predicate_ref&quot; : &quot;called_by&quot;,
+        &quot;inverse_id&quot;    : &quot;&lt;calls predicate_id&gt;&quot;,
+    },
+    &quot;calls_self&quot;: {
+        &quot;predicate_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;predicate_ref&quot; : &quot;calls_self&quot;,
+        &quot;inverse_id&quot;    : None,  # Self-referential within class
+    },
+    &quot;calls_chain&quot;: {
+        &quot;predicate_id&quot;  : &quot;&lt;deterministic from seed&gt;&quot;,
+        &quot;predicate_ref&quot; : &quot;calls_chain&quot;,
+        &quot;inverse_id&quot;    : None,  # Chain calls (obj.attr.method())
+    },
+}
+</code></pre>
+<h3 id="43-edge-rules">4.3 Edge Rules<a class="headerlink" href="#43-edge-rules" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Edge rules define valid connections (source_type --predicate--&gt; target_type)
+
+edge_rules = [
+    # Containment rules
+    {&quot;source_type_ref&quot;: &quot;module&quot;,   &quot;predicate_ref&quot;: &quot;contains&quot;, &quot;target_type_ref&quot;: &quot;class&quot;},
+    {&quot;source_type_ref&quot;: &quot;module&quot;,   &quot;predicate_ref&quot;: &quot;contains&quot;, &quot;target_type_ref&quot;: &quot;function&quot;},
+    {&quot;source_type_ref&quot;: &quot;class&quot;,    &quot;predicate_ref&quot;: &quot;contains&quot;, &quot;target_type_ref&quot;: &quot;method&quot;},
+
+    # Call rules (any callable can call any callable or external)
+    {&quot;source_type_ref&quot;: &quot;method&quot;,   &quot;predicate_ref&quot;: &quot;calls&quot;,      &quot;target_type_ref&quot;: &quot;method&quot;},
+    {&quot;source_type_ref&quot;: &quot;method&quot;,   &quot;predicate_ref&quot;: &quot;calls&quot;,      &quot;target_type_ref&quot;: &quot;function&quot;},
+    {&quot;source_type_ref&quot;: &quot;method&quot;,   &quot;predicate_ref&quot;: &quot;calls&quot;,      &quot;target_type_ref&quot;: &quot;external&quot;},
+    {&quot;source_type_ref&quot;: &quot;function&quot;, &quot;predicate_ref&quot;: &quot;calls&quot;,      &quot;target_type_ref&quot;: &quot;method&quot;},
+    {&quot;source_type_ref&quot;: &quot;function&quot;, &quot;predicate_ref&quot;: &quot;calls&quot;,      &quot;target_type_ref&quot;: &quot;function&quot;},
+    {&quot;source_type_ref&quot;: &quot;function&quot;, &quot;predicate_ref&quot;: &quot;calls&quot;,      &quot;target_type_ref&quot;: &quot;external&quot;},
+
+    # Self calls (method calling another method in same class)
+    {&quot;source_type_ref&quot;: &quot;method&quot;,   &quot;predicate_ref&quot;: &quot;calls_self&quot;, &quot;target_type_ref&quot;: &quot;method&quot;},
+
+    # Chain calls (method calling through attribute chain)
+    {&quot;source_type_ref&quot;: &quot;method&quot;,   &quot;predicate_ref&quot;: &quot;calls_chain&quot;, &quot;target_type_ref&quot;: &quot;method&quot;},
+    {&quot;source_type_ref&quot;: &quot;method&quot;,   &quot;predicate_ref&quot;: &quot;calls_chain&quot;, &quot;target_type_ref&quot;: &quot;external&quot;},
+    {&quot;source_type_ref&quot;: &quot;function&quot;, &quot;predicate_ref&quot;: &quot;calls_chain&quot;, &quot;target_type_ref&quot;: &quot;method&quot;},
+    {&quot;source_type_ref&quot;: &quot;function&quot;, &quot;predicate_ref&quot;: &quot;calls_chain&quot;, &quot;target_type_ref&quot;: &quot;external&quot;},
+]
+</code></pre>
+<h3 id="44-property-names">4.4 Property Names<a class="headerlink" href="#44-property-names" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Property names define what data can be attached to nodes and edges
+
+property_names = {
+    # Node properties
+    &quot;qualified_name&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;qualified_name&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;string type&gt;&quot;,
+    },
+    &quot;module_name&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;module_name&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;string type&gt;&quot;,
+    },
+    &quot;file_path&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;file_path&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;string type&gt;&quot;,
+    },
+    &quot;line_number&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;line_number&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;integer type&gt;&quot;,
+    },
+    &quot;call_depth&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;call_depth&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;integer type&gt;&quot;,
+    },
+    &quot;source_code&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;source_code&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;text type&gt;&quot;,
+    },
+    &quot;is_entry&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;is_entry&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;boolean type&gt;&quot;,
+    },
+    &quot;is_external&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;is_external&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;boolean type&gt;&quot;,
+    },
+    &quot;is_recursive&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;is_recursive&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;boolean type&gt;&quot;,
+    },
+
+    # Edge properties
+    &quot;is_conditional&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;is_conditional&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;boolean type&gt;&quot;,
+    },
+    &quot;call_line_number&quot;: {
+        &quot;property_name_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_name_ref&quot; : &quot;call_line_number&quot;,
+        &quot;property_type_id&quot;  : &quot;&lt;integer type&gt;&quot;,
+    },
+}
+</code></pre>
+<h3 id="45-property-types">4.5 Property Types<a class="headerlink" href="#45-property-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Property types for validation (aligned with XSD datatypes)
+
+property_types = {
+    &quot;string&quot;: {
+        &quot;property_type_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_type_ref&quot; : &quot;string&quot;,
+    },
+    &quot;text&quot;: {
+        &quot;property_type_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_type_ref&quot; : &quot;text&quot;,
+    },
+    &quot;integer&quot;: {
+        &quot;property_type_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_type_ref&quot; : &quot;integer&quot;,
+    },
+    &quot;boolean&quot;: {
+        &quot;property_type_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+        &quot;property_type_ref&quot; : &quot;boolean&quot;,
+    },
+}
+</code></pre>
+<h3 id="46-taxonomy-categories">4.6 Taxonomy Categories<a class="headerlink" href="#46-taxonomy-categories" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Taxonomy: call_flow_taxonomy
+# Hierarchical classification of node types
+
+taxonomy = {
+    &quot;root&quot;: &quot;code_element&quot;,
+    &quot;categories&quot;: {
+        &quot;code_element&quot;: {
+            &quot;category_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+            &quot;category_ref&quot; : &quot;code_element&quot;,
+            &quot;parent_id&quot;    : None,
+            &quot;child_ids&quot;    : [&quot;&lt;container&gt;&quot;, &quot;&lt;callable&gt;&quot;, &quot;&lt;reference&gt;&quot;],
+        },
+        &quot;container&quot;: {
+            &quot;category_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+            &quot;category_ref&quot; : &quot;container&quot;,
+            &quot;parent_id&quot;    : &quot;&lt;code_element&gt;&quot;,
+            &quot;child_ids&quot;    : [],
+            # Node types: module, class
+        },
+        &quot;callable&quot;: {
+            &quot;category_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+            &quot;category_ref&quot; : &quot;callable&quot;,
+            &quot;parent_id&quot;    : &quot;&lt;code_element&gt;&quot;,
+            &quot;child_ids&quot;    : [],
+            # Node types: method, function
+        },
+        &quot;reference&quot;: {
+            &quot;category_id&quot;  : &quot;&lt;deterministic&gt;&quot;,
+            &quot;category_ref&quot; : &quot;reference&quot;,
+            &quot;parent_id&quot;    : &quot;&lt;code_element&gt;&quot;,
+            &quot;child_ids&quot;    : [],
+            # Node types: external
+        },
+    }
+}
+</code></pre>
+<h3 id="47-ontology-json-file">4.7 Ontology JSON File<a class="headerlink" href="#47-ontology-json-file" title="Permanent link">&para;</a></h3>
+<p>The complete ontology will be stored as JSON:</p>
+<pre><code>osbot_utils/helpers/python_call_flow/data/
+├── ontology__call_flow.json
+├── taxonomy__call_flow.json
+└── rules__call_flow.json        # Optional: required property rules
+</code></pre>
+<hr />
+<h2 id="5-technical-refactoring-specification">5. Technical Refactoring Specification<a class="headerlink" href="#5-technical-refactoring-specification" title="Permanent link">&para;</a></h2>
+<h3 id="51-directory-structure-changes">5.1 Directory Structure Changes<a class="headerlink" href="#51-directory-structure-changes" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/helpers/python_call_flow/
+│
+├── __init__.py
+│
+├── data/                                    # NEW: Ontology definitions
+│   ├── __init__.py
+│   ├── ontology__call_flow.json            # Node types, predicates, properties
+│   ├── taxonomy__call_flow.json            # Category hierarchy
+│   └── rules__call_flow.json               # Optional: required properties
+│
+├── schemas/                                 # MODIFIED: Simplified
+│   ├── __init__.py
+│   ├── Schema__Call_Flow__Config.py        # KEEP: Analysis configuration
+│   └── Schema__Call_Flow__Result.py        # NEW: Wraps semantic graph + metadata
+│
+├── Call_Flow__Analyzer.py                   # MODIFIED: Use builder
+├── Call_Flow__AST__Extractor.py             # KEEP: AST extraction logic
+├── Call_Flow__Call__Resolver.py             # KEEP: Call resolution logic
+├── Call_Flow__Call__Filter.py               # KEEP: Scope control logic
+├── Call_Flow__Ontology.py                   # NEW: Load/cache ontology
+├── Call_Flow__Builder.py                    # NEW: Thin wrapper on Semantic_Graph__Builder
+├── Call_Flow__Exporter__Mermaid.py          # MODIFIED: Use projection
+│
+├── DEPRECATED/                              # Files to remove after migration
+│   ├── Schema__Call_Graph.py
+│   ├── Schema__Call_Graph__Node.py
+│   ├── Schema__Call_Graph__Edge.py
+│   ├── Enum__Call_Graph__Node_Type.py
+│   ├── Enum__Call_Graph__Edge_Type.py
+│   ├── Call_Flow__Node__Factory.py
+│   ├── Call_Flow__Edge__Factory.py
+│   └── Call_Flow__Node__Registry.py
+</code></pre>
+<h3 id="52-files-to-delete-replace-with-semantic_graphs">5.2 Files to DELETE (Replace with semantic_graphs)<a class="headerlink" href="#52-files-to-delete-replace-with-semantic_graphs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Enum__Call_Graph__Node_Type.py</code></td>
+<td>Ontology node types</td>
+</tr>
+<tr>
+<td><code>Enum__Call_Graph__Edge_Type.py</code></td>
+<td>Ontology predicates</td>
+</tr>
+<tr>
+<td><code>Schema__Call_Graph.py</code></td>
+<td><code>Schema__Semantic_Graph</code></td>
+</tr>
+<tr>
+<td><code>Schema__Call_Graph__Node.py</code></td>
+<td><code>Schema__Semantic_Graph__Node</code></td>
+</tr>
+<tr>
+<td><code>Schema__Call_Graph__Edge.py</code></td>
+<td><code>Schema__Semantic_Graph__Edge</code></td>
+</tr>
+<tr>
+<td><code>Call_Flow__Node__Factory.py</code></td>
+<td><code>Semantic_Graph__Builder</code></td>
+</tr>
+<tr>
+<td><code>Call_Flow__Edge__Factory.py</code></td>
+<td><code>Semantic_Graph__Builder</code></td>
+</tr>
+<tr>
+<td><code>Call_Flow__Node__Registry.py</code></td>
+<td>Builder helper + graph's <code>Dict__Nodes__By_Id</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-files-to-keep-domain-specific-logic">5.3 Files to KEEP (Domain-Specific Logic)<a class="headerlink" href="#53-files-to-keep-domain-specific-logic" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+<th>Changes Needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Schema__Call_Flow__Config.py</code></td>
+<td>Analysis configuration</td>
+<td>None (maybe add ontology_ref)</td>
+</tr>
+<tr>
+<td><code>Call_Flow__Analyzer.py</code></td>
+<td>Orchestrates analysis</td>
+<td>Use builder, return semantic graph</td>
+</tr>
+<tr>
+<td><code>Call_Flow__AST__Extractor.py</code></td>
+<td>Extracts calls from AST</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>Call_Flow__Call__Resolver.py</code></td>
+<td>Resolves call targets</td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>Call_Flow__Call__Filter.py</code></td>
+<td>Scope control (stdlib, etc.)</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-files-to-create">5.4 Files to CREATE<a class="headerlink" href="#54-files-to-create" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Call_Flow__Ontology.py</code></td>
+<td>Load and cache call flow ontology/taxonomy</td>
+</tr>
+<tr>
+<td><code>Call_Flow__Builder.py</code></td>
+<td>Thin wrapper providing call-flow-specific builder methods</td>
+</tr>
+<tr>
+<td><code>Schema__Call_Flow__Result.py</code></td>
+<td>Wrapper holding semantic graph + analysis metadata</td>
+</tr>
+</tbody>
+</table>
+<h3 id="55-files-to-modify">5.5 Files to MODIFY<a class="headerlink" href="#55-files-to-modify" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Modification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Call_Flow__Exporter__Mermaid.py</code></td>
+<td>Work with <code>Projected__Semantic_Graph</code> instead of custom schema</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-implementation-details">6. Implementation Details<a class="headerlink" href="#6-implementation-details" title="Permanent link">&para;</a></h2>
+<h3 id="61-call_flow__ontology">6.1 Call_Flow__Ontology<a class="headerlink" href="#61-call_flow__ontology" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                          import Type_Safe
+from osbot_utils.helpers.semantic_graphs.registries.Ontology__Registry        import Ontology__Registry
+from osbot_utils.helpers.semantic_graphs.registries.Taxonomy__Registry        import Taxonomy__Registry
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology    import Schema__Ontology
+from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy    import Schema__Taxonomy
+
+ONTOLOGY_PATH = Path(__file__).parent / 'data' / 'ontology__call_flow.json'
+TAXONOMY_PATH = Path(__file__).parent / 'data' / 'taxonomy__call_flow.json'
+
+
+class Call_Flow__Ontology(Type_Safe):
+    &quot;&quot;&quot;Loads and caches the call flow ontology and taxonomy.&quot;&quot;&quot;
+
+    ontology_registry : Ontology__Registry = None
+    taxonomy_registry : Taxonomy__Registry = None
+    ontology          : Schema__Ontology   = None
+    taxonomy          : Schema__Taxonomy   = None
+
+    def setup(self) -&gt; 'Call_Flow__Ontology':
+        &quot;&quot;&quot;Load ontology and taxonomy from JSON files.&quot;&quot;&quot;
+        self.ontology_registry = Ontology__Registry()
+        self.taxonomy_registry = Taxonomy__Registry()
+
+        self.ontology = self.ontology_registry.load_from_json(ONTOLOGY_PATH)
+        self.taxonomy = self.taxonomy_registry.load_from_json(TAXONOMY_PATH)
+
+        return self
+
+    def node_type_id(self, ref: str) -&gt; Node_Type_Id:
+        &quot;&quot;&quot;Get node type ID by ref (e.g., 'class', 'method').&quot;&quot;&quot;
+        return self.ontology_registry.node_type_id_by_ref(ref)
+
+    def predicate_id(self, ref: str) -&gt; Predicate_Id:
+        &quot;&quot;&quot;Get predicate ID by ref (e.g., 'calls', 'contains').&quot;&quot;&quot;
+        return self.ontology_registry.predicate_id_by_ref(ref)
+
+    def property_name_id(self, ref: str) -&gt; Property_Name_Id:
+        &quot;&quot;&quot;Get property name ID by ref (e.g., 'line_number').&quot;&quot;&quot;
+        return self.ontology_registry.property_name_id_by_ref(ref)
+</code></pre>
+<h3 id="62-call_flow__builder">6.2 Call_Flow__Builder<a class="headerlink" href="#62-call_flow__builder" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                          import Type_Safe
+from osbot_utils.helpers.semantic_graphs.builders.Semantic_Graph__Builder     import Semantic_Graph__Builder
+from osbot_utils.helpers.python_call_flow.Call_Flow__Ontology                 import Call_Flow__Ontology
+
+
+class Call_Flow__Builder(Type_Safe):
+    &quot;&quot;&quot;Call-flow-specific builder wrapping Semantic_Graph__Builder.&quot;&quot;&quot;
+
+    ontology      : Call_Flow__Ontology      = None
+    builder       : Semantic_Graph__Builder  = None
+    name_to_id    : dict                     = None    # qualified_name → Node_Id
+
+    def setup(self) -&gt; 'Call_Flow__Builder':
+        &quot;&quot;&quot;Initialize builder with call flow ontology.&quot;&quot;&quot;
+        self.ontology = Call_Flow__Ontology().setup()
+        self.builder  = Semantic_Graph__Builder(ontology_id=self.ontology.ontology.ontology_id)
+        self.name_to_id = {}
+        return self
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Node Creation (domain-specific convenience methods)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def add_class(self, name: str, qualified_name: str, **properties) -&gt; Node_Id:
+        &quot;&quot;&quot;Add a class node.&quot;&quot;&quot;
+        return self._add_node('class', name, qualified_name, **properties)
+
+    def add_method(self, name: str, qualified_name: str, **properties) -&gt; Node_Id:
+        &quot;&quot;&quot;Add a method node.&quot;&quot;&quot;
+        return self._add_node('method', name, qualified_name, **properties)
+
+    def add_function(self, name: str, qualified_name: str, **properties) -&gt; Node_Id:
+        &quot;&quot;&quot;Add a function node.&quot;&quot;&quot;
+        return self._add_node('function', name, qualified_name, **properties)
+
+    def add_module(self, name: str, qualified_name: str, **properties) -&gt; Node_Id:
+        &quot;&quot;&quot;Add a module node.&quot;&quot;&quot;
+        return self._add_node('module', name, qualified_name, **properties)
+
+    def add_external(self, name: str, qualified_name: str, **properties) -&gt; Node_Id:
+        &quot;&quot;&quot;Add an external reference node.&quot;&quot;&quot;
+        return self._add_node('external', name, qualified_name, **properties)
+
+    def _add_node(self, type_ref: str, name: str, qualified_name: str, **properties) -&gt; Node_Id:
+        &quot;&quot;&quot;Internal: Add node with type and properties.&quot;&quot;&quot;
+        node_type_id = self.ontology.node_type_id(type_ref)
+
+        # Use qualified_name as seed for deterministic ID
+        node_id = self.builder.add_node(
+            node_type_id = node_type_id,
+            name         = Safe_Str__Id(name),
+            seed         = qualified_name,                                    # Deterministic ID
+        )
+
+        # Add qualified_name as property
+        self.builder.add_node_property(
+            node_id          = node_id,
+            property_name_id = self.ontology.property_name_id('qualified_name'),
+            value            = Safe_Str__Text(qualified_name),
+        )
+
+        # Add additional properties
+        for prop_ref, value in properties.items():
+            self.builder.add_node_property(
+                node_id          = node_id,
+                property_name_id = self.ontology.property_name_id(prop_ref),
+                value            = Safe_Str__Text(str(value)),
+            )
+
+        # Track name → ID mapping
+        self.name_to_id[qualified_name] = node_id
+
+        return node_id
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Edge Creation (domain-specific convenience methods)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def add_contains(self, container_id: Node_Id, contained_id: Node_Id) -&gt; Edge_Id:
+        &quot;&quot;&quot;Add containment edge (class contains method, module contains class).&quot;&quot;&quot;
+        return self._add_edge('contains', container_id, contained_id)
+
+    def add_calls(self, caller_id: Node_Id, callee_id: Node_Id, **properties) -&gt; Edge_Id:
+        &quot;&quot;&quot;Add call edge (method calls function).&quot;&quot;&quot;
+        return self._add_edge('calls', caller_id, callee_id, **properties)
+
+    def add_calls_self(self, caller_id: Node_Id, callee_id: Node_Id, **properties) -&gt; Edge_Id:
+        &quot;&quot;&quot;Add self-call edge (self.method() within same class).&quot;&quot;&quot;
+        return self._add_edge('calls_self', caller_id, callee_id, **properties)
+
+    def add_calls_chain(self, caller_id: Node_Id, callee_id: Node_Id, **properties) -&gt; Edge_Id:
+        &quot;&quot;&quot;Add chain call edge (obj.attr.method()).&quot;&quot;&quot;
+        return self._add_edge('calls_chain', caller_id, callee_id, **properties)
+
+    def _add_edge(self, predicate_ref: str, from_id: Node_Id, to_id: Node_Id, **properties) -&gt; Edge_Id:
+        &quot;&quot;&quot;Internal: Add edge with predicate and properties.&quot;&quot;&quot;
+        predicate_id = self.ontology.predicate_id(predicate_ref)
+
+        edge_id = self.builder.add_edge(
+            from_node_id = from_id,
+            to_node_id   = to_id,
+            predicate_id = predicate_id,
+        )
+
+        # Add edge properties
+        for prop_ref, value in properties.items():
+            self.builder.add_edge_property(
+                edge_id          = edge_id,
+                property_name_id = self.ontology.property_name_id(prop_ref),
+                value            = Safe_Str__Text(str(value)),
+            )
+
+        return edge_id
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Registry Helpers
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def lookup_node_id(self, qualified_name: str) -&gt; Node_Id | None:
+        &quot;&quot;&quot;Look up node ID by qualified name.&quot;&quot;&quot;
+        return self.name_to_id.get(qualified_name)
+
+    def node_exists(self, qualified_name: str) -&gt; bool:
+        &quot;&quot;&quot;Check if node already exists.&quot;&quot;&quot;
+        return qualified_name in self.name_to_id
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Build
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def build(self) -&gt; Schema__Semantic_Graph:
+        &quot;&quot;&quot;Build and return the semantic graph.&quot;&quot;&quot;
+        return self.builder.build()
+
+    def validate(self) -&gt; List[str]:
+        &quot;&quot;&quot;Validate graph against ontology rules.&quot;&quot;&quot;
+        return self.builder.validate()
+</code></pre>
+<h3 id="63-schema__call_flow__result">6.3 Schema__Call_Flow__Result<a class="headerlink" href="#63-schema__call_flow__result" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                           import Type_Safe
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph  import Schema__Semantic_Graph
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Flow__Config    import Schema__Call_Flow__Config
+
+
+class Schema__Call_Flow__Result(Type_Safe):
+    &quot;&quot;&quot;Result of call flow analysis: semantic graph + analysis metadata.&quot;&quot;&quot;
+
+    graph          : Schema__Semantic_Graph                                    # The call flow graph
+    config         : Schema__Call_Flow__Config                                 # Analysis configuration used
+    entry_point    : str                                                       # Entry point analyzed
+    node_count     : int                         = 0                           # Total nodes
+    edge_count     : int                         = 0                           # Total edges
+    max_depth      : int                         = 0                           # Maximum call depth reached
+    validation_errors : list                     = None                        # Any validation errors
+</code></pre>
+<h3 id="64-modified-call_flow__analyzer">6.4 Modified Call_Flow__Analyzer<a class="headerlink" href="#64-modified-call_flow__analyzer" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                          import Type_Safe
+from osbot_utils.helpers.python_call_flow.Call_Flow__Builder                  import Call_Flow__Builder
+from osbot_utils.helpers.python_call_flow.Call_Flow__AST__Extractor           import Call_Flow__AST__Extractor
+from osbot_utils.helpers.python_call_flow.Call_Flow__Call__Resolver           import Call_Flow__Call__Resolver
+from osbot_utils.helpers.python_call_flow.Call_Flow__Call__Filter             import Call_Flow__Call__Filter
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Flow__Config   import Schema__Call_Flow__Config
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Flow__Result   import Schema__Call_Flow__Result
+
+
+class Call_Flow__Analyzer(Type_Safe):
+    &quot;&quot;&quot;Analyzes Python call flows using semantic graph framework.&quot;&quot;&quot;
+
+    config        : Schema__Call_Flow__Config  = None
+    builder       : Call_Flow__Builder         = None
+    ast_extractor : Call_Flow__AST__Extractor  = None
+    resolver      : Call_Flow__Call__Resolver  = None
+    filter        : Call_Flow__Call__Filter    = None
+    visited       : set                        = None
+
+    def __enter__(self):
+        self.setup()
+        return self
+
+    def __exit__(self, *args):
+        pass
+
+    def setup(self) -&gt; 'Call_Flow__Analyzer':
+        &quot;&quot;&quot;Initialize analyzer components.&quot;&quot;&quot;
+        self.config        = self.config or Schema__Call_Flow__Config()
+        self.builder       = Call_Flow__Builder().setup()
+        self.ast_extractor = Call_Flow__AST__Extractor()
+        self.resolver      = Call_Flow__Call__Resolver()
+        self.filter        = Call_Flow__Call__Filter(config=self.config)
+        self.visited       = set()
+        return self
+
+    def analyze(self, target) -&gt; Schema__Call_Flow__Result:
+        &quot;&quot;&quot;Analyze target (class or function) and return call flow result.&quot;&quot;&quot;
+        self.setup()                                                          # Reset state
+
+        entry_point = self._get_qualified_name(target)
+
+        if inspect.isclass(target):
+            self._analyze_class(target, depth=0, is_entry=True)
+        elif inspect.isfunction(target) or inspect.ismethod(target):
+            self._analyze_function(target, depth=0, is_entry=True)
+        else:
+            raise ValueError(f&quot;Cannot analyze {type(target)}&quot;)
+
+        graph = self.builder.build()
+        validation_errors = self.builder.validate()
+
+        return Schema__Call_Flow__Result(
+            graph             = graph,
+            config            = self.config,
+            entry_point       = entry_point,
+            node_count        = len(graph.nodes),
+            edge_count        = len(graph.edges),
+            max_depth         = self._calculate_max_depth(),
+            validation_errors = validation_errors,
+        )
+
+    def _analyze_class(self, cls, depth: int, is_entry: bool = False):
+        &quot;&quot;&quot;Analyze a class and its methods.&quot;&quot;&quot;
+        qualified_name = self._get_qualified_name(cls)
+
+        if qualified_name in self.visited:
+            return self.builder.lookup_node_id(qualified_name)
+        self.visited.add(qualified_name)
+
+        # Create class node
+        class_id = self.builder.add_class(
+            name           = cls.__name__,
+            qualified_name = qualified_name,
+            module_name    = cls.__module__,
+            file_path      = self._get_file_path(cls),
+            call_depth     = depth,
+            is_entry       = is_entry,
+        )
+
+        # Analyze methods
+        for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
+            if not self.filter.should_include_method(name):
+                continue
+
+            method_id = self._analyze_function(
+                method, 
+                depth      = depth + 1,
+                is_entry   = False,
+                class_name = qualified_name,
+            )
+
+            if method_id:
+                self.builder.add_contains(class_id, method_id)
+
+        return class_id
+
+    def _analyze_function(self, func, depth: int, is_entry: bool = False, class_name: str = None):
+        &quot;&quot;&quot;Analyze a function/method and its calls.&quot;&quot;&quot;
+        qualified_name = self._get_qualified_name(func)
+
+        if qualified_name in self.visited:
+            return self.builder.lookup_node_id(qualified_name)
+        self.visited.add(qualified_name)
+
+        if depth &gt; self.config.max_depth:
+            return None
+
+        # Determine node type
+        is_method = class_name is not None
+
+        # Create node
+        if is_method:
+            node_id = self.builder.add_method(
+                name           = func.__name__,
+                qualified_name = qualified_name,
+                module_name    = func.__module__,
+                file_path      = self._get_file_path(func),
+                line_number    = self._get_line_number(func),
+                call_depth     = depth,
+                is_entry       = is_entry,
+            )
+        else:
+            node_id = self.builder.add_function(
+                name           = func.__name__,
+                qualified_name = qualified_name,
+                module_name    = func.__module__,
+                file_path      = self._get_file_path(func),
+                line_number    = self._get_line_number(func),
+                call_depth     = depth,
+                is_entry       = is_entry,
+            )
+
+        # Extract and process calls
+        calls = self.ast_extractor.extract_calls(func)
+
+        for call in calls:
+            self._process_call(node_id, call, depth, class_name)
+
+        return node_id
+
+    def _process_call(self, caller_id: Node_Id, call, depth: int, class_name: str):
+        &quot;&quot;&quot;Process a single call and create appropriate edge.&quot;&quot;&quot;
+        resolved = self.resolver.resolve(call, class_name)
+
+        if not resolved:
+            return
+
+        if not self.filter.should_follow(resolved):
+            # Create external node
+            callee_id = self.builder.add_external(
+                name           = resolved.name,
+                qualified_name = resolved.qualified_name,
+                is_external    = True,
+            )
+        else:
+            # Recursively analyze
+            callee_id = self._analyze_target(resolved, depth + 1)
+
+        if callee_id:
+            # Determine edge type
+            if resolved.is_self_call:
+                self.builder.add_calls_self(
+                    caller_id, 
+                    callee_id,
+                    call_line_number = call.line_number,
+                    is_conditional   = call.is_conditional,
+                )
+            elif resolved.is_chain_call:
+                self.builder.add_calls_chain(
+                    caller_id,
+                    callee_id,
+                    call_line_number = call.line_number,
+                    is_conditional   = call.is_conditional,
+                )
+            else:
+                self.builder.add_calls(
+                    caller_id,
+                    callee_id,
+                    call_line_number = call.line_number,
+                    is_conditional   = call.is_conditional,
+                )
+
+    # ... (helper methods: _get_qualified_name, _get_file_path, etc.)
+</code></pre>
+<h3 id="65-modified-call_flow__exporter__mermaid">6.5 Modified Call_Flow__Exporter__Mermaid<a class="headerlink" href="#65-modified-call_flow__exporter__mermaid" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                                import Type_Safe
+from osbot_utils.helpers.semantic_graphs.projectors.Semantic_Graph__Projector       import Semantic_Graph__Projector
+from osbot_utils.helpers.semantic_graphs.schemas.projected.Schema__Projected__Semantic_Graph import Schema__Projected__Semantic_Graph
+from osbot_utils.helpers.python_call_flow.schemas.Schema__Call_Flow__Result         import Schema__Call_Flow__Result
+
+
+class Call_Flow__Exporter__Mermaid(Type_Safe):
+    &quot;&quot;&quot;Export call flow graph to Mermaid diagram format.&quot;&quot;&quot;
+
+    projector : Semantic_Graph__Projector = None
+
+    def setup(self) -&gt; 'Call_Flow__Exporter__Mermaid':
+        self.projector = Semantic_Graph__Projector()
+        return self
+
+    def export(self, result: Schema__Call_Flow__Result) -&gt; str:
+        &quot;&quot;&quot;Export call flow result to Mermaid flowchart.&quot;&quot;&quot;
+        # Project graph to human-readable form
+        projected = self.projector.project(result.graph)
+
+        return self._render_mermaid(projected)
+
+    def _render_mermaid(self, projected: Schema__Projected__Semantic_Graph) -&gt; str:
+        &quot;&quot;&quot;Render projected graph as Mermaid flowchart.&quot;&quot;&quot;
+        lines = ['flowchart TD']
+
+        # Render nodes
+        for node in projected.projection.nodes:
+            node_id = self._sanitize_id(node.name)
+            shape = self._get_shape(node.ref)
+            lines.append(f'    {node_id}{shape}')
+
+        # Render edges
+        for edge in projected.projection.edges:
+            from_id = self._sanitize_id(edge.from_name)
+            to_id   = self._sanitize_id(edge.to_name)
+            arrow   = self._get_arrow(edge.ref)
+            label   = self._get_label(edge.ref)
+
+            if label:
+                lines.append(f'    {from_id} {arrow}|{label}| {to_id}')
+            else:
+                lines.append(f'    {from_id} {arrow} {to_id}')
+
+        return '\n'.join(lines)
+
+    def _get_shape(self, node_type_ref: str) -&gt; str:
+        &quot;&quot;&quot;Get Mermaid shape for node type.&quot;&quot;&quot;
+        shapes = {
+            'class'   : '[&quot;{name}&quot;]',      # Rectangle
+            'method'  : '(&quot;{name}&quot;)',      # Rounded rectangle
+            'function': '(&quot;{name}&quot;)',      # Rounded rectangle
+            'module'  : '[[&quot;{name}&quot;]]',    # Subroutine shape
+            'external': '&gt;&quot;{name}&quot;]',      # Asymmetric
+        }
+        return shapes.get(node_type_ref, '[&quot;{name}&quot;]')
+
+    def _get_arrow(self, predicate_ref: str) -&gt; str:
+        &quot;&quot;&quot;Get Mermaid arrow for predicate.&quot;&quot;&quot;
+        arrows = {
+            'contains'    : '--&gt;',
+            'calls'       : '--&gt;',
+            'calls_self'  : '-.-&gt;',        # Dotted (self call)
+            'calls_chain' : '==&gt;',         # Thick (chain call)
+        }
+        return arrows.get(predicate_ref, '--&gt;')
+
+    def _get_label(self, predicate_ref: str) -&gt; str:
+        &quot;&quot;&quot;Get edge label for predicate.&quot;&quot;&quot;
+        labels = {
+            'contains'    : None,          # No label for containment
+            'calls'       : None,          # No label for simple calls
+            'calls_self'  : 'self',
+            'calls_chain' : 'chain',
+        }
+        return labels.get(predicate_ref)
+
+    def _sanitize_id(self, name: str) -&gt; str:
+        &quot;&quot;&quot;Sanitize name for Mermaid ID.&quot;&quot;&quot;
+        return name.replace('.', '_').replace(' ', '_')
+</code></pre>
+<hr />
+<h2 id="7-ontology-json-files">7. Ontology JSON Files<a class="headerlink" href="#7-ontology-json-files" title="Permanent link">&para;</a></h2>
+<h3 id="71-ontology__call_flowjson">7.1 ontology__call_flow.json<a class="headerlink" href="#71-ontology__call_flowjson" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+    &quot;ontology_id&quot;: &quot;&lt;generated from seed&gt;&quot;,
+    &quot;ontology_ref&quot;: &quot;call_flow&quot;,
+    &quot;taxonomy_id&quot;: &quot;&lt;taxonomy id&gt;&quot;,
+    &quot;version&quot;: &quot;1.0.0&quot;,
+
+    &quot;node_types&quot;: {
+        &quot;&lt;class_type_id&gt;&quot;: {
+            &quot;node_type_id&quot;: &quot;&lt;class_type_id&gt;&quot;,
+            &quot;node_type_ref&quot;: &quot;class&quot;,
+            &quot;category_id&quot;: &quot;&lt;container_category_id&gt;&quot;
+        },
+        &quot;&lt;method_type_id&gt;&quot;: {
+            &quot;node_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;,
+            &quot;node_type_ref&quot;: &quot;method&quot;,
+            &quot;category_id&quot;: &quot;&lt;callable_category_id&gt;&quot;
+        },
+        &quot;&lt;function_type_id&gt;&quot;: {
+            &quot;node_type_id&quot;: &quot;&lt;function_type_id&gt;&quot;,
+            &quot;node_type_ref&quot;: &quot;function&quot;,
+            &quot;category_id&quot;: &quot;&lt;callable_category_id&gt;&quot;
+        },
+        &quot;&lt;module_type_id&gt;&quot;: {
+            &quot;node_type_id&quot;: &quot;&lt;module_type_id&gt;&quot;,
+            &quot;node_type_ref&quot;: &quot;module&quot;,
+            &quot;category_id&quot;: &quot;&lt;container_category_id&gt;&quot;
+        },
+        &quot;&lt;external_type_id&gt;&quot;: {
+            &quot;node_type_id&quot;: &quot;&lt;external_type_id&gt;&quot;,
+            &quot;node_type_ref&quot;: &quot;external&quot;,
+            &quot;category_id&quot;: &quot;&lt;reference_category_id&gt;&quot;
+        }
+    },
+
+    &quot;predicates&quot;: {
+        &quot;&lt;contains_id&gt;&quot;: {
+            &quot;predicate_id&quot;: &quot;&lt;contains_id&gt;&quot;,
+            &quot;predicate_ref&quot;: &quot;contains&quot;,
+            &quot;inverse_id&quot;: &quot;&lt;contained_by_id&gt;&quot;
+        },
+        &quot;&lt;contained_by_id&gt;&quot;: {
+            &quot;predicate_id&quot;: &quot;&lt;contained_by_id&gt;&quot;,
+            &quot;predicate_ref&quot;: &quot;contained_by&quot;,
+            &quot;inverse_id&quot;: &quot;&lt;contains_id&gt;&quot;
+        },
+        &quot;&lt;calls_id&gt;&quot;: {
+            &quot;predicate_id&quot;: &quot;&lt;calls_id&gt;&quot;,
+            &quot;predicate_ref&quot;: &quot;calls&quot;,
+            &quot;inverse_id&quot;: &quot;&lt;called_by_id&gt;&quot;
+        },
+        &quot;&lt;called_by_id&gt;&quot;: {
+            &quot;predicate_id&quot;: &quot;&lt;called_by_id&gt;&quot;,
+            &quot;predicate_ref&quot;: &quot;called_by&quot;,
+            &quot;inverse_id&quot;: &quot;&lt;calls_id&gt;&quot;
+        },
+        &quot;&lt;calls_self_id&gt;&quot;: {
+            &quot;predicate_id&quot;: &quot;&lt;calls_self_id&gt;&quot;,
+            &quot;predicate_ref&quot;: &quot;calls_self&quot;,
+            &quot;inverse_id&quot;: null
+        },
+        &quot;&lt;calls_chain_id&gt;&quot;: {
+            &quot;predicate_id&quot;: &quot;&lt;calls_chain_id&gt;&quot;,
+            &quot;predicate_ref&quot;: &quot;calls_chain&quot;,
+            &quot;inverse_id&quot;: null
+        }
+    },
+
+    &quot;property_names&quot;: {
+        &quot;&lt;qualified_name_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;qualified_name_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;qualified_name&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;string_type_id&gt;&quot;
+        },
+        &quot;&lt;module_name_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;module_name_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;module_name&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;string_type_id&gt;&quot;
+        },
+        &quot;&lt;file_path_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;file_path_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;file_path&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;string_type_id&gt;&quot;
+        },
+        &quot;&lt;line_number_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;line_number_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;line_number&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;integer_type_id&gt;&quot;
+        },
+        &quot;&lt;call_depth_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;call_depth_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;call_depth&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;integer_type_id&gt;&quot;
+        },
+        &quot;&lt;source_code_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;source_code_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;source_code&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;text_type_id&gt;&quot;
+        },
+        &quot;&lt;is_entry_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;is_entry_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;is_entry&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;boolean_type_id&gt;&quot;
+        },
+        &quot;&lt;is_external_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;is_external_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;is_external&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;boolean_type_id&gt;&quot;
+        },
+        &quot;&lt;is_recursive_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;is_recursive_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;is_recursive&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;boolean_type_id&gt;&quot;
+        },
+        &quot;&lt;is_conditional_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;is_conditional_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;is_conditional&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;boolean_type_id&gt;&quot;
+        },
+        &quot;&lt;call_line_number_prop_id&gt;&quot;: {
+            &quot;property_name_id&quot;: &quot;&lt;call_line_number_prop_id&gt;&quot;,
+            &quot;property_name_ref&quot;: &quot;call_line_number&quot;,
+            &quot;property_type_id&quot;: &quot;&lt;integer_type_id&gt;&quot;
+        }
+    },
+
+    &quot;property_types&quot;: {
+        &quot;&lt;string_type_id&gt;&quot;: {
+            &quot;property_type_id&quot;: &quot;&lt;string_type_id&gt;&quot;,
+            &quot;property_type_ref&quot;: &quot;string&quot;
+        },
+        &quot;&lt;text_type_id&gt;&quot;: {
+            &quot;property_type_id&quot;: &quot;&lt;text_type_id&gt;&quot;,
+            &quot;property_type_ref&quot;: &quot;text&quot;
+        },
+        &quot;&lt;integer_type_id&gt;&quot;: {
+            &quot;property_type_id&quot;: &quot;&lt;integer_type_id&gt;&quot;,
+            &quot;property_type_ref&quot;: &quot;integer&quot;
+        },
+        &quot;&lt;boolean_type_id&gt;&quot;: {
+            &quot;property_type_id&quot;: &quot;&lt;boolean_type_id&gt;&quot;,
+            &quot;property_type_ref&quot;: &quot;boolean&quot;
+        }
+    },
+
+    &quot;edge_rules&quot;: [
+        {&quot;source_type_id&quot;: &quot;&lt;module_type_id&gt;&quot;,   &quot;predicate_id&quot;: &quot;&lt;contains_id&gt;&quot;,    &quot;target_type_id&quot;: &quot;&lt;class_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;module_type_id&gt;&quot;,   &quot;predicate_id&quot;: &quot;&lt;contains_id&gt;&quot;,    &quot;target_type_id&quot;: &quot;&lt;function_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;class_type_id&gt;&quot;,    &quot;predicate_id&quot;: &quot;&lt;contains_id&gt;&quot;,    &quot;target_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;},
+
+        {&quot;source_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;,   &quot;predicate_id&quot;: &quot;&lt;calls_id&gt;&quot;,       &quot;target_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;,   &quot;predicate_id&quot;: &quot;&lt;calls_id&gt;&quot;,       &quot;target_type_id&quot;: &quot;&lt;function_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;,   &quot;predicate_id&quot;: &quot;&lt;calls_id&gt;&quot;,       &quot;target_type_id&quot;: &quot;&lt;external_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;function_type_id&gt;&quot;, &quot;predicate_id&quot;: &quot;&lt;calls_id&gt;&quot;,       &quot;target_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;function_type_id&gt;&quot;, &quot;predicate_id&quot;: &quot;&lt;calls_id&gt;&quot;,       &quot;target_type_id&quot;: &quot;&lt;function_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;function_type_id&gt;&quot;, &quot;predicate_id&quot;: &quot;&lt;calls_id&gt;&quot;,       &quot;target_type_id&quot;: &quot;&lt;external_type_id&gt;&quot;},
+
+        {&quot;source_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;,   &quot;predicate_id&quot;: &quot;&lt;calls_self_id&gt;&quot;,  &quot;target_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;},
+
+        {&quot;source_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;,   &quot;predicate_id&quot;: &quot;&lt;calls_chain_id&gt;&quot;, &quot;target_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;,   &quot;predicate_id&quot;: &quot;&lt;calls_chain_id&gt;&quot;, &quot;target_type_id&quot;: &quot;&lt;external_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;function_type_id&gt;&quot;, &quot;predicate_id&quot;: &quot;&lt;calls_chain_id&gt;&quot;, &quot;target_type_id&quot;: &quot;&lt;method_type_id&gt;&quot;},
+        {&quot;source_type_id&quot;: &quot;&lt;function_type_id&gt;&quot;, &quot;predicate_id&quot;: &quot;&lt;calls_chain_id&gt;&quot;, &quot;target_type_id&quot;: &quot;&lt;external_type_id&gt;&quot;}
+    ]
+}
+</code></pre>
+<h3 id="72-taxonomy__call_flowjson">7.2 taxonomy__call_flow.json<a class="headerlink" href="#72-taxonomy__call_flowjson" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+    &quot;taxonomy_id&quot;: &quot;&lt;generated from seed&gt;&quot;,
+    &quot;taxonomy_ref&quot;: &quot;call_flow_taxonomy&quot;,
+    &quot;version&quot;: &quot;1.0.0&quot;,
+    &quot;root_id&quot;: &quot;&lt;code_element_id&gt;&quot;,
+
+    &quot;categories&quot;: {
+        &quot;&lt;code_element_id&gt;&quot;: {
+            &quot;category_id&quot;: &quot;&lt;code_element_id&gt;&quot;,
+            &quot;category_ref&quot;: &quot;code_element&quot;,
+            &quot;parent_id&quot;: null,
+            &quot;child_ids&quot;: [&quot;&lt;container_id&gt;&quot;, &quot;&lt;callable_id&gt;&quot;, &quot;&lt;reference_id&gt;&quot;]
+        },
+        &quot;&lt;container_id&gt;&quot;: {
+            &quot;category_id&quot;: &quot;&lt;container_id&gt;&quot;,
+            &quot;category_ref&quot;: &quot;container&quot;,
+            &quot;parent_id&quot;: &quot;&lt;code_element_id&gt;&quot;,
+            &quot;child_ids&quot;: []
+        },
+        &quot;&lt;callable_id&gt;&quot;: {
+            &quot;category_id&quot;: &quot;&lt;callable_id&gt;&quot;,
+            &quot;category_ref&quot;: &quot;callable&quot;,
+            &quot;parent_id&quot;: &quot;&lt;code_element_id&gt;&quot;,
+            &quot;child_ids&quot;: []
+        },
+        &quot;&lt;reference_id&gt;&quot;: {
+            &quot;category_id&quot;: &quot;&lt;reference_id&gt;&quot;,
+            &quot;category_ref&quot;: &quot;reference&quot;,
+            &quot;parent_id&quot;: &quot;&lt;code_element_id&gt;&quot;,
+            &quot;child_ids&quot;: []
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="8-implementation-checklist">8. Implementation Checklist<a class="headerlink" href="#8-implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-ontology-definition">Phase 1: Ontology Definition<a class="headerlink" href="#phase-1-ontology-definition" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>osbot_utils/helpers/python_call_flow/data/</code> directory</li>
+<li>[ ] Create <code>ontology__call_flow.json</code> with all node types, predicates, properties</li>
+<li>[ ] Create <code>taxonomy__call_flow.json</code> with category hierarchy</li>
+<li>[ ] Use deterministic IDs from stable seeds (e.g., <code>call_flow:node_type:class</code>)</li>
+<li>[ ] Validate ontology loads correctly via <code>Ontology__Registry</code></li>
+</ul>
+<h3 id="phase-2-core-infrastructure">Phase 2: Core Infrastructure<a class="headerlink" href="#phase-2-core-infrastructure" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>Call_Flow__Ontology.py</code> — load/cache ontology and taxonomy</li>
+<li>[ ] Create <code>Call_Flow__Builder.py</code> — domain-specific builder wrapper</li>
+<li>[ ] Create <code>Schema__Call_Flow__Result.py</code> — result container</li>
+<li>[ ] Write unit tests for all new classes</li>
+</ul>
+<h3 id="phase-3-analyzer-refactoring">Phase 3: Analyzer Refactoring<a class="headerlink" href="#phase-3-analyzer-refactoring" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Modify <code>Call_Flow__Analyzer.py</code> to use <code>Call_Flow__Builder</code></li>
+<li>[ ] Replace <code>Schema__Call_Graph</code> usage with <code>Schema__Semantic_Graph</code></li>
+<li>[ ] Update node creation to use builder methods</li>
+<li>[ ] Update edge creation to use builder methods</li>
+<li>[ ] Add properties instead of flat attributes</li>
+<li>[ ] Return <code>Schema__Call_Flow__Result</code> from <code>analyze()</code></li>
+<li>[ ] Update all analyzer tests</li>
+</ul>
+<h3 id="phase-4-exporter-refactoring">Phase 4: Exporter Refactoring<a class="headerlink" href="#phase-4-exporter-refactoring" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Modify <code>Call_Flow__Exporter__Mermaid.py</code> to use projections</li>
+<li>[ ] Project graph before rendering</li>
+<li>[ ] Use <code>Projected__Node</code> and <code>Projected__Edge</code> for rendering</li>
+<li>[ ] Update exporter tests</li>
+</ul>
+<h3 id="phase-5-cleanup">Phase 5: Cleanup<a class="headerlink" href="#phase-5-cleanup" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Move deprecated files to <code>DEPRECATED/</code> directory</li>
+<li>[ ] Update all imports throughout codebase</li>
+<li>[ ] Run full test suite</li>
+<li>[ ] Remove <code>DEPRECATED/</code> directory after verification</li>
+</ul>
+<h3 id="phase-6-documentation">Phase 6: Documentation<a class="headerlink" href="#phase-6-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Update module docstrings</li>
+<li>[ ] Update README if applicable</li>
+<li>[ ] Create usage examples</li>
+</ul>
+<hr />
+<h2 id="9-testing-strategy">9. Testing Strategy<a class="headerlink" href="#9-testing-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="91-unit-tests-for-new-classes">9.1 Unit Tests for New Classes<a class="headerlink" href="#91-unit-tests-for-new-classes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_Call_Flow__Ontology(TestCase):
+
+    def test__setup__loads_ontology(self):
+        ontology = Call_Flow__Ontology().setup()
+
+        assert ontology.ontology is not None
+        assert ontology.taxonomy is not None
+
+    def test__node_type_id__returns_correct_id(self):
+        ontology = Call_Flow__Ontology().setup()
+
+        class_id = ontology.node_type_id('class')
+        method_id = ontology.node_type_id('method')
+
+        assert class_id is not None
+        assert method_id is not None
+        assert class_id != method_id
+
+
+class test_Call_Flow__Builder(TestCase):
+
+    def test__add_class__creates_node_with_properties(self):
+        with graph_deterministic_ids():
+            builder = Call_Flow__Builder().setup()
+
+            class_id = builder.add_class(
+                name           = 'MyClass',
+                qualified_name = 'mymodule.MyClass',
+                line_number    = 10,
+            )
+
+            graph = builder.build()
+            node = graph.nodes.get(class_id)
+
+            assert node is not None
+            assert node.name == Safe_Str__Id('MyClass')
+
+    def test__add_calls__creates_edge(self):
+        with graph_deterministic_ids():
+            builder = Call_Flow__Builder().setup()
+
+            method1_id = builder.add_method('method1', 'MyClass.method1')
+            method2_id = builder.add_method('method2', 'MyClass.method2')
+
+            edge_id = builder.add_calls(method1_id, method2_id)
+
+            graph = builder.build()
+
+            assert len(graph.edges) == 1
+            assert graph.edges[0].from_node_id == method1_id
+            assert graph.edges[0].to_node_id == method2_id
+</code></pre>
+<h3 id="92-integration-tests">9.2 Integration Tests<a class="headerlink" href="#92-integration-tests" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_Call_Flow__Analyzer__Integration(TestCase):
+
+    def test__analyze__class__produces_valid_semantic_graph(self):
+        with graph_deterministic_ids():
+            analyzer = Call_Flow__Analyzer()
+            result = analyzer.analyze(Sample__Processor)
+
+            # Result is a Schema__Call_Flow__Result
+            assert isinstance(result.graph, Schema__Semantic_Graph)
+            assert result.node_count &gt; 0
+            assert result.edge_count &gt; 0
+
+    def test__analyze__validates_against_ontology(self):
+        with graph_deterministic_ids():
+            analyzer = Call_Flow__Analyzer()
+            result = analyzer.analyze(Sample__Processor)
+
+            # No validation errors
+            assert result.validation_errors == []
+
+    def test__meta__self_analysis(self):
+        &quot;&quot;&quot;Analyzer can analyze itself.&quot;&quot;&quot;
+        with graph_deterministic_ids():
+            analyzer = Call_Flow__Analyzer()
+            result = analyzer.analyze(Call_Flow__Analyzer)
+
+            assert result.node_count &gt;= 5
+            assert 'analyze' in result.entry_point or 'Call_Flow__Analyzer' in result.entry_point
+</code></pre>
+<h3 id="93-export-tests">9.3 Export Tests<a class="headerlink" href="#93-export-tests" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_Call_Flow__Exporter__Mermaid__Integration(TestCase):
+
+    def test__export__produces_valid_mermaid(self):
+        analyzer = Call_Flow__Analyzer()
+        result = analyzer.analyze(Sample__Processor)
+
+        exporter = Call_Flow__Exporter__Mermaid().setup()
+        mermaid = exporter.export(result)
+
+        assert 'flowchart TD' in mermaid
+        assert 'Sample__Processor' in mermaid or 'sample' in mermaid.lower()
+</code></pre>
+<hr />
+<h2 id="10-success-criteria">10. Success Criteria<a class="headerlink" href="#10-success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="101-functional-requirements">10.1 Functional Requirements<a class="headerlink" href="#101-functional-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] <code>Call_Flow__Analyzer.analyze()</code> returns <code>Schema__Call_Flow__Result</code> with valid semantic graph</li>
+<li>[ ] All node types (class, method, function, module, external) correctly mapped</li>
+<li>[ ] All edge types (contains, calls, calls_self, calls_chain) correctly mapped</li>
+<li>[ ] Properties (line_number, file_path, etc.) stored on nodes/edges</li>
+<li>[ ] Mermaid export works with projected graph</li>
+<li>[ ] Ontology validation passes for all generated graphs</li>
+</ul>
+<h3 id="102-non-functional-requirements">10.2 Non-Functional Requirements<a class="headerlink" href="#102-non-functional-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] No regressions in analysis accuracy</li>
+<li>[ ] All existing tests pass (after updates)</li>
+<li>[ ] New capability: taxonomy-based grouping available</li>
+<li>[ ] New capability: validation errors reported</li>
+</ul>
+<h3 id="103-verification-test">10.3 Verification Test<a class="headerlink" href="#103-verification-test" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__full_workflow(self):
+    &quot;&quot;&quot;Complete workflow from analysis to export.&quot;&quot;&quot;
+
+    # 1. Analyze
+    analyzer = Call_Flow__Analyzer()
+    result = analyzer.analyze(Sample__Processor)
+
+    # 2. Verify semantic graph structure
+    assert isinstance(result.graph, Schema__Semantic_Graph)
+    assert result.graph.ontology_id is not None
+
+    # 3. Verify validation
+    assert result.validation_errors == []
+
+    # 4. Project for human readability
+    projector = Semantic_Graph__Projector()
+    projected = projector.project(result.graph)
+
+    # 5. Verify projection has no IDs, only refs and names
+    json_str = projected.projection.json()
+    assert 'node_id' not in json_str
+    assert 'ref' in json_str
+    assert 'name' in json_str
+
+    # 6. Export to Mermaid
+    exporter = Call_Flow__Exporter__Mermaid().setup()
+    mermaid = exporter.export(result)
+
+    assert 'flowchart TD' in mermaid
+</code></pre>
+<hr />
+<h2 id="11-migration-notes">11. Migration Notes<a class="headerlink" href="#11-migration-notes" title="Permanent link">&para;</a></h2>
+<h3 id="111-breaking-changes">11.1 Breaking Changes<a class="headerlink" href="#111-breaking-changes" title="Permanent link">&para;</a></h3>
+<p>The refactoring changes the public API:</p>
+<table>
+<thead>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>analyzer.analyze() → Schema__Call_Graph</code></td>
+<td><code>analyzer.analyze() → Schema__Call_Flow__Result</code></td>
+</tr>
+<tr>
+<td><code>result.nodes</code> (dict of custom nodes)</td>
+<td><code>result.graph.nodes</code> (Dict__Nodes__By_Id)</td>
+</tr>
+<tr>
+<td><code>result.edges</code> (list of custom edges)</td>
+<td><code>result.graph.edges</code> (List__Semantic_Graph__Edges)</td>
+</tr>
+<tr>
+<td><code>node.module</code> (attribute)</td>
+<td><code>node.properties['module_name']</code></td>
+</tr>
+<tr>
+<td><code>node.line_number</code> (attribute)</td>
+<td><code>node.properties['line_number']</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="112-migration-path-for-consumers">11.2 Migration Path for Consumers<a class="headerlink" href="#112-migration-path-for-consumers" title="Permanent link">&para;</a></h3>
+<p>If external code uses the current API:</p>
+<pre><code class="language-python"># Before
+result = analyzer.analyze(MyClass)
+for node_id, node in result.nodes.items():
+    print(f&quot;{node.name} in {node.module}&quot;)
+
+# After
+result = analyzer.analyze(MyClass)
+for node_id, node in result.graph.nodes.items():
+    module = node.properties.get(module_name_prop_id, '')
+    print(f&quot;{node.name} in {module}&quot;)
+
+# Or use projection for human-readable access
+projected = Semantic_Graph__Projector().project(result.graph)
+for node in projected.projection.nodes:
+    print(f&quot;{node.name} ({node.ref})&quot;)
+</code></pre>
+<h3 id="113-deprecation-period">11.3 Deprecation Period<a class="headerlink" href="#113-deprecation-period" title="Permanent link">&para;</a></h3>
+<p>Since this is internal tooling, we can:
+1. Keep old files in <code>DEPRECATED/</code> for reference during migration
+2. Remove after all tests pass with new implementation
+3. No external deprecation notices needed</p>
+<hr />
+<h2 id="12-summary">12. Summary<a class="headerlink" href="#12-summary" title="Permanent link">&para;</a></h2>
+<h3 id="121-what-this-achieves">12.1 What This Achieves<a class="headerlink" href="#121-what-this-achieves" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>How Addressed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Reuse semantic_graphs</strong></td>
+<td>Call flow becomes a domain application of the framework</td>
+</tr>
+<tr>
+<td><strong>Ontology-based validation</strong></td>
+<td>Edge rules catch invalid connections</td>
+</tr>
+<tr>
+<td><strong>Typed properties</strong></td>
+<td>Properties have optional type validation</td>
+</tr>
+<tr>
+<td><strong>Taxonomy grouping</strong></td>
+<td>Node types categorized (container, callable, reference)</td>
+</tr>
+<tr>
+<td><strong>Human-readable output</strong></td>
+<td>Projector generates ref-based views</td>
+</tr>
+<tr>
+<td><strong>Standards alignment</strong></td>
+<td>RDF/OWL compatible graph structure</td>
+</tr>
+<tr>
+<td><strong>Reduced code</strong></td>
+<td>Delete ~8 files, leverage framework instead</td>
+</tr>
+</tbody>
+</table>
+<h3 id="122-the-complete-architecture">12.2 The Complete Architecture<a class="headerlink" href="#122-the-complete-architecture" title="Permanent link">&para;</a></h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────────┐
+│                         CALL FLOW AS SEMANTIC GRAPH                               │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                   │
+│  DOMAIN LAYER (python_call_flow)                                                  │
+│  ════════════════════════════════                                                 │
+│                                                                                   │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐                   │
+│  │ Call_Flow__     │  │ Call_Flow__     │  │ Call_Flow__     │                   │
+│  │ Analyzer        │  │ Builder         │  │ Ontology        │                   │
+│  │                 │  │                 │  │                 │                   │
+│  │ • Orchestrates  │  │ • Domain API    │  │ • Load ontology │                   │
+│  │ • Uses builder  │  │ • add_class()   │  │ • Lookup IDs    │                   │
+│  │ • AST extraction│  │ • add_method()  │  │ • Cache         │                   │
+│  └────────┬────────┘  │ • add_calls()   │  └─────────────────┘                   │
+│           │           └────────┬────────┘                                         │
+│           │                    │                                                  │
+│           │                    │ uses                                             │
+│           │                    ▼                                                  │
+│  ─────────┼────────────────────────────────────────────────────────────────────  │
+│           │                                                                       │
+│  FRAMEWORK LAYER (semantic_graphs)                                                │
+│  ══════════════════════════════════                                               │
+│           │                                                                       │
+│           │           ┌─────────────────┐  ┌─────────────────┐                   │
+│           │           │ Semantic_Graph__│  │ Semantic_Graph__│                   │
+│           │           │ Builder         │  │ Validator       │                   │
+│           │           └────────┬────────┘  └────────┬────────┘                   │
+│           │                    │                    │                             │
+│           │                    ▼                    ▼                             │
+│           │           ┌─────────────────────────────────────┐                    │
+│           └──────────►│       Schema__Semantic_Graph        │                    │
+│                       │  • nodes: Dict__Nodes__By_Id        │                    │
+│                       │  • edges: List__Semantic_Graph__Edges│                    │
+│                       │  • ontology_id (FK)                 │                    │
+│                       └────────────────┬────────────────────┘                    │
+│                                        │                                          │
+│                                        │ project()                                │
+│                                        ▼                                          │
+│                       ┌─────────────────────────────────────┐                    │
+│                       │    Projected__Semantic_Graph        │                    │
+│                       │  • projection (nodes, edges by ref) │                    │
+│                       │  • references (ref → id mappings)   │                    │
+│                       │  • sources (provenance)             │                    │
+│                       └─────────────────────────────────────┘                    │
+│                                                                                   │
+└──────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="123-next-steps-after-this-brief">12.3 Next Steps After This Brief<a class="headerlink" href="#123-next-steps-after-this-brief" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Implement Brief 4.0</strong> — This document</li>
+<li><strong>Brief 5.0</strong> — Code Structure Graph (module→package→class→method hierarchy)</li>
+<li><strong>Brief 6.0</strong> — Combined Analysis (call flow + code structure + references)</li>
+<li><strong>Brief 7.0</strong> — Interactive Visualization (browser-based graph explorer)</li>
+</ol>
+<hr />
+<p><em>End of Implementation Brief</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

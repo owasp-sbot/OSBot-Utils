@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/getting-started/type_safe_quick_reference_card/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Type_Safe Quick Reference Card - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Quick Reference Card";
+        var mkdocs_page_input_path = "type_safe/getting-started/type_safe_quick_reference_card.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/getting-started/type_safe_quick_reference_card/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Quick Reference Card</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-quick-reference-card">Type_Safe Quick Reference Card<a class="headerlink" href="#type_safe-quick-reference-card" title="Permanent link">&para;</a></h1>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<pre><code class="language-bash">pip install osbot-utils
+</code></pre>
+<h2 id="basic-class-definition">Basic Class Definition<a class="headerlink" href="#basic-class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+from typing import List, Dict, Optional
+
+class MyClass(Type_Safe):
+    name: str                      # Required, auto-init to ''
+    count: int = 10               # Optional with default
+    items: List[str]              # Auto-init to []
+    data: Dict[str, int]          # Auto-init to {}
+    note: Optional[str] = None    # Nullable
+</code></pre>
+<h2 id="type-annotations-cheat-sheet">Type Annotations Cheat Sheet<a class="headerlink" href="#type-annotations-cheat-sheet" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Declaration</th>
+<th>Auto Default</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>String</td>
+<td><code>name: str</code></td>
+<td><code>''</code></td>
+<td><code>"text"</code></td>
+</tr>
+<tr>
+<td>Integer</td>
+<td><code>age: int</code></td>
+<td><code>0</code></td>
+<td><code>42</code></td>
+</tr>
+<tr>
+<td>Float</td>
+<td><code>price: float</code></td>
+<td><code>0.0</code></td>
+<td><code>19.99</code></td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td><code>active: bool</code></td>
+<td><code>False</code></td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td>List</td>
+<td><code>items: List[T]</code></td>
+<td><code>[]</code></td>
+<td><code>[1, 2, 3]</code></td>
+</tr>
+<tr>
+<td>Dict</td>
+<td><code>data: Dict[K,V]</code></td>
+<td><code>{}</code></td>
+<td><code>{"a": 1}</code></td>
+</tr>
+<tr>
+<td>Set</td>
+<td><code>ids: Set[T]</code></td>
+<td><code>set()</code></td>
+<td><code>{1, 2, 3}</code></td>
+</tr>
+<tr>
+<td>Tuple</td>
+<td><code>pos: Tuple[int,int]</code></td>
+<td><code>(0,0)</code></td>
+<td><code>(10, 20)</code></td>
+</tr>
+<tr>
+<td>Optional</td>
+<td><code>val: Optional[T]</code></td>
+<td><code>None</code></td>
+<td><code>None</code> or <code>T</code></td>
+</tr>
+<tr>
+<td>Union</td>
+<td><code>id: Union[int,str]</code></td>
+<td>First type</td>
+<td><code>1</code> or <code>"a"</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="configuration-object">Configuration Object<a class="headerlink" href="#configuration-object" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Config(Type_Safe):
+    host: str = &quot;localhost&quot;
+    port: int = 8080
+    debug: bool = False
+    endpoints: List[str]
+</code></pre>
+<h3 id="nested-objects">Nested Objects<a class="headerlink" href="#nested-objects" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Address(Type_Safe):
+    street: str
+    city: str
+
+class Person(Type_Safe):
+    name: str
+    home: Address
+    work: Optional[Address] = None
+</code></pre>
+<h3 id="self-referential">Self-Referential<a class="headerlink" href="#self-referential" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Node(Type_Safe):
+    value: int
+    children: List['Node'] = []
+    parent: Optional['Node'] = None
+</code></pre>
+<h2 id="validators">Validators<a class="headerlink" href="#validators" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from osbot_utils.type_safe.validators import Min, Max, Regex, OneOf, Validate
+
+class Validated(Type_Safe):
+    age: Validate[int, Min(0), Max(120)]
+    email: Validate[str, Regex(r'^[\w\.-]+@[\w\.-]+$')]
+    status: Validate[str, OneOf(['active', 'inactive'])]
+</code></pre>
+<h2 id="method-validation">Method Validation<a class="headerlink" href="#method-validation" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from osbot_utils.type_safe.decorators import type_safe
+
+class Service(Type_Safe):
+    @type_safe
+    def process(self, data: List[int], factor: float = 1.0) -&gt; float:
+        return sum(data) * factor
+</code></pre>
+<h2 id="type-safe-primitives">Type-Safe Primitives<a class="headerlink" href="#type-safe-primitives" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
+
+class UserId(Safe_Id): pass
+class OrderId(Safe_Id): pass
+
+class Order(Type_Safe):
+    id: OrderId
+    user: UserId
+    amount: float
+
+# Prevents mixing IDs
+order = Order()
+order.id = OrderId(&quot;ORD-123&quot;)    # ✓
+order.id = UserId(&quot;USR-456&quot;)     # ✗ TypeError
+</code></pre>
+<h2 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Object to JSON
+obj = MyClass(name=&quot;test&quot;, count=5)
+data = obj.json()                      # Returns dict
+json_str = json.dumps(obj.json())      # Returns string
+
+# JSON to Object  
+obj = MyClass.from_json(data)          # From dict
+obj = MyClass.from_json(json_str)      # From string
+
+# Nested serialization works automatically
+person = Person.from_json({
+    &quot;name&quot;: &quot;Alice&quot;,
+    &quot;home&quot;: {&quot;street&quot;: &quot;123 Main&quot;, &quot;city&quot;: &quot;Boston&quot;}
+})
+</code></pre>
+<h2 id="collection-operations">Collection Operations<a class="headerlink" href="#collection-operations" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Store(Type_Safe):
+    items: List[int]
+    index: Dict[str, str]
+
+store = Store()
+
+# List - all operations type-checked
+store.items.append(1)              # ✓
+store.items.extend([2, 3])         # ✓
+store.items.append(&quot;text&quot;)         # ✗ TypeError
+
+# Dict - keys and values checked
+store.index[&quot;key&quot;] = &quot;value&quot;       # ✓
+store.index[123] = &quot;value&quot;         # ✗ TypeError (key)
+store.index[&quot;key&quot;] = 123           # ✗ TypeError (value)
+</code></pre>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">try:
+    obj = MyClass()
+    obj.count = &quot;not a number&quot;
+except ValueError as e:
+    # &quot;Invalid type for attribute 'count'. Expected '&lt;class 'int'&gt;' but got '&lt;class 'str'&gt;'&quot;
+    print(e)
+</code></pre>
+<h2 id="initialization-patterns">Initialization Patterns<a class="headerlink" href="#initialization-patterns" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Empty initialization
+obj = MyClass()
+
+# Partial initialization
+obj = MyClass(name=&quot;Alice&quot;)
+
+# Full initialization
+obj = MyClass(name=&quot;Alice&quot;, count=10, items=[&quot;a&quot;, &quot;b&quot;])
+
+# From dictionary
+obj = MyClass(**{&quot;name&quot;: &quot;Alice&quot;, &quot;count&quot;: 10})
+
+# Update after creation
+obj = MyClass()
+obj.name = &quot;Alice&quot;
+obj.count = 10
+</code></pre>
+<h2 id="dos-and-donts">DO's and DON'Ts<a class="headerlink" href="#dos-and-donts" title="Permanent link">&para;</a></h2>
+<h3 id="do">DO ✓<a class="headerlink" href="#do" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Use type annotations
+name: str
+
+# Use immutable defaults
+count: int = 0
+
+# Use specific types
+items: List[str]
+
+# Handle errors
+try:
+    obj.value = wrong_type
+except ValueError:
+    handle_error()
+</code></pre>
+<h3 id="dont">DON'T ✗<a class="headerlink" href="#dont" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Skip annotations
+name = &quot;default&quot;
+
+# Use mutable defaults
+items: list = []
+
+# Use generic types  
+data: dict
+
+# Ignore type safety
+obj.value = any_value
+</code></pre>
+<h2 id="common-exceptions">Common Exceptions<a class="headerlink" href="#common-exceptions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Exception</th>
+<th>Cause</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ValueError</code></td>
+<td>Wrong type assigned</td>
+<td><code>obj.age = "thirty"</code></td>
+</tr>
+<tr>
+<td><code>ValueError</code></td>
+<td>Invalid constructor arg</td>
+<td><code>MyClass(unknown_field=1)</code></td>
+</tr>
+<tr>
+<td><code>ValueError</code></td>
+<td>Validation failed</td>
+<td><code>age = -5</code> with <code>Min(0)</code></td>
+</tr>
+<tr>
+<td><code>TypeError</code></td>
+<td>Collection type mismatch</td>
+<td><code>list_of_ints.append("text")</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="performance-tips">Performance Tips<a class="headerlink" href="#performance-tips" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Cache Type_Safe objects</strong> - Don't recreate unnecessarily</li>
+<li><strong>Use at boundaries</strong> - Validate input/output, not internal ops</li>
+<li><strong>Batch operations</strong> - Process collections efficiently</li>
+<li><strong>Selective validation</strong> - Use @type_safe only where needed</li>
+</ol>
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Core
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+# Decorators
+from osbot_utils.type_safe.decorators import type_safe
+
+# Validators
+from osbot_utils.type_safe.validators import (
+    Min, Max, Regex, OneOf, Validate
+)
+
+# Safe Primitives
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
+from osbot_utils.helpers.safe_str import Safe_Str
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+from osbot_utils.type_safe.Type_Safe__Dict import Type_Safe__Dict
+</code></pre>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

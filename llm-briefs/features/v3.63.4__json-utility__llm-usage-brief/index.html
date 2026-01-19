@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.63.4__json-utility__llm-usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Json Utility - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Json Utility - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.63.4__json-utility__llm-usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.63.4__json-utility__llm-usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Json Utility - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="json-utility-llm-usage-brief">Json Utility - LLM Usage Brief<a class="headerlink" href="#json-utility-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.63.4<br />
+<strong>Purpose</strong>: Guide for LLMs and developers on using the comprehensive JSON serialization utility<br />
+<strong>Location</strong>: <code>osbot_utils.utils.Json</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="what-is-the-json-utility">What is the Json Utility?<a class="headerlink" href="#what-is-the-json-utility" title="Permanent link">&para;</a></h2>
+<p><strong>The Json utility is a battle-tested toolkit that simplifies JSON operations in Python.</strong> It wraps the standard <code>json</code> module with sensible defaults, robust error handling, and seamless file I/O integration, eliminating the boilerplate of exception handling, encoding issues, and file operations.</p>
+<p>Instead of writing try/except blocks around every JSON operation, remembering encoding parameters, or handling edge cases for None values, you get simple, reliable operations that return useful values or fail gracefully.</p>
+<h3 id="the-problem-it-solves">The Problem It Solves<a class="headerlink" href="#the-problem-it-solves" title="Permanent link">&para;</a></h3>
+<p>Python's standard <code>json</code> module requires verbose handling for common scenarios:</p>
+<pre><code class="language-python"># Standard library - verbose and error-prone
+import json
+
+# Serialize with pretty printing
+try:
+    result = json.dumps(data, indent=4, sort_keys=False, default=str)
+except Exception as e:
+    result = None
+    print(f&quot;Error: {e}&quot;)
+
+# Load from file
+try:
+    with open(path, 'r') as f:
+        data = json.load(f)
+except FileNotFoundError:
+    data = {}
+except json.JSONDecodeError:
+    data = {}
+
+# Handle None gracefully
+if data is not None:
+    json_str = json.dumps(data)
+else:
+    json_str = None
+</code></pre>
+<p><strong>With the Json utility:</strong></p>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_dumps, json_load_file, json_loads
+
+# Serialize with pretty printing (default)
+result = json_dumps(data)                    # Pretty by default, handles None
+
+# Load from file (returns {} on any error)
+data = json_load_file(path)
+
+# Parse JSON string (returns {} on error)
+data = json_loads(json_string)
+</code></pre>
+<h3 id="design-philosophy">Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Graceful failure</strong> — Operations return <code>{}</code> or <code>None</code> on error by default, never crash</li>
+<li><strong>Sensible defaults</strong> — Pretty printing enabled, 4-space indent, <code>str</code> as default serializer</li>
+<li><strong>Dual API</strong> — Use <code>Json.method()</code> class syntax or <code>function_name()</code> aliases</li>
+<li><strong>Rich aliases</strong> — Multiple function names for discoverability (<code>json_parse</code> = <code>json_loads</code> = <code>str_to_json</code>)</li>
+<li><strong>File integration</strong> — Seamless read/write with gzip support built-in</li>
+</ol>
+<h3 id="the-power-of-the-json-utility">The Power of the Json Utility<a class="headerlink" href="#the-power-of-the-json-utility" title="Permanent link">&para;</a></h3>
+<h4 id="1-eliminate-exception-handling-boilerplate">1. Eliminate Exception Handling Boilerplate<a class="headerlink" href="#1-eliminate-exception-handling-boilerplate" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Standard library - must handle exceptions
+try:
+    data = json.loads(maybe_invalid_json)
+except json.JSONDecodeError:
+    data = {}
+
+# Json utility - just works
+data = json_loads(maybe_invalid_json)  # Returns {} on error
+</code></pre>
+<h4 id="2-handle-none-gracefully">2. Handle None Gracefully<a class="headerlink" href="#2-handle-none-gracefully" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Standard library - crashes on None
+json.dumps(None)  # Returns &quot;null&quot;, but what if you want None?
+
+# Json utility - returns None for None input
+json_dumps(None)  # Returns None, not &quot;null&quot;
+</code></pre>
+<h4 id="3-sensible-serialization-defaults">3. Sensible Serialization Defaults<a class="headerlink" href="#3-sensible-serialization-defaults" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Standard library - must specify everything
+json.dumps(data, indent=4, default=str)  # Manual every time
+
+# Json utility - pretty and safe by default
+json_dumps(data)  # Pretty printed, uses str() for non-serializable types
+</code></pre>
+<h4 id="4-integrated-file-operations">4. Integrated File Operations<a class="headerlink" href="#4-integrated-file-operations" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Standard library - multiple steps
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+
+# Json utility - one function
+json_save_file(data, path, pretty=True)
+</code></pre>
+<h4 id="5-deep-equality-with-type-flexibility">5. Deep Equality with Type Flexibility<a class="headerlink" href="#5-deep-equality-with-type-flexibility" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Compare JSON structures where lists and sets should be equivalent
+list_data = {&quot;items&quot;: [1, 2, 3]}
+set_data  = {&quot;items&quot;: {1, 2, 3}}
+
+json__equals__list_and_set(list_data, set_data)  # True
+</code></pre>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="basic-serialization">Basic Serialization<a class="headerlink" href="#basic-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_dumps, json_loads
+
+# Python → JSON string
+data = {&quot;name&quot;: &quot;Alice&quot;, &quot;scores&quot;: [95, 87, 92]}
+json_str = json_dumps(data)  # Pretty printed by default
+
+# JSON string → Python
+parsed = json_loads(json_str)
+</code></pre>
+<h3 id="file-operations">File Operations<a class="headerlink" href="#file-operations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_load_file, json_save_file
+
+# Save to file
+json_save_file(data, '/path/to/file.json', pretty=True)
+
+# Load from file
+data = json_load_file('/path/to/file.json')  # Returns {} if file missing
+</code></pre>
+<h3 id="compact-output">Compact Output<a class="headerlink" href="#compact-output" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_dumps
+
+# Compact (no whitespace)
+compact = json_dumps(data, pretty=False)
+</code></pre>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<h3 id="function-aliases-recommended">Function Aliases (Recommended)<a class="headerlink" href="#function-aliases-recommended" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Serialization (Python → JSON string)
+from osbot_utils.utils.Json import (
+    json_dumps,              # Primary - serialize to string
+    json_dump,               # Alias for json_dumps
+    json_format,             # Alias for json_dumps
+    json_to_str,             # Alias for json_dumps
+    to_json_str,             # Alias for json_dumps
+    str_from_json,           # Alias for json_dumps
+)
+
+# Deserialization (JSON string → Python)
+from osbot_utils.utils.Json import (
+    json_loads,              # Primary - parse JSON string
+    json_load,               # Alias for json_loads
+    json_parse,              # Alias for json_loads
+    json_from_string,        # Alias for json_loads
+    str_to_json,             # Alias for json_loads
+    from_json_str,           # Alias for json_loads
+)
+
+# File operations
+from osbot_utils.utils.Json import (
+    json_load_file,          # Load JSON from file
+    json_save_file,          # Save JSON to file
+    json_load_file_gz,       # Load from gzipped file
+    json_save_file_gz,       # Save to gzipped file
+    json_save_file_pretty,   # Save with pretty printing
+    json_lines_file_load,    # Load JSON Lines format
+    json_lines_file_load_gz, # Load gzipped JSON Lines
+)
+
+# Bytes conversion
+from osbot_utils.utils.Json import (
+    json_dumps_to_bytes,     # Serialize to UTF-8 bytes
+    json_to_bytes,           # Alias for json_dumps_to_bytes
+    bytes_to_json,           # Parse bytes to Python
+    bytes_to_json_loads,     # Alias for bytes_to_json
+)
+
+# Compression
+from osbot_utils.utils.Json import (
+    json_to_gz,              # Serialize and gzip compress
+    gz_to_json,              # Decompress gzip and parse
+)
+
+# Hashing
+from osbot_utils.utils.Json import (
+    json_sha_256,            # SHA-256 hash of JSON representation
+    json_md5,                # MD5 hash of JSON representation
+)
+
+# Comparison
+from osbot_utils.utils.Json import (
+    json__equals__list_and_set,  # Deep equality treating list/set as equivalent
+    json__type_key,              # Sorting key for mixed-type structures
+)
+
+# Utilities
+from osbot_utils.utils.Json import (
+    json_round_trip,         # Serialize then parse (normalize data)
+    json_lines_loads,        # Parse JSON Lines string
+    json_lines_parse,        # Alias for json_lines_loads
+)
+</code></pre>
+<h3 id="class-based-api">Class-Based API<a class="headerlink" href="#class-based-api" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import Json
+
+# Same operations via class methods
+Json.loads(json_string)              # Parse JSON string
+Json.load_file(path)                 # Load from file
+Json.load_file_gz(path)              # Load from gzipped file
+Json.save_file(data, path)           # Save to file
+Json.save_file_pretty(data, path)    # Save with pretty printing
+Json.save_file_gz(data, path)        # Save to gzipped file
+Json.md5(data)                       # MD5 hash
+Json.round_trip(data)                # Normalize via JSON round-trip
+Json.loads_json_lines(lines_string)  # Parse JSON Lines format
+</code></pre>
+<hr />
+<h2 id="api-reference-by-category">API Reference by Category<a class="headerlink" href="#api-reference-by-category" title="Permanent link">&para;</a></h2>
+<h3 id="serialization-python-json-string">Serialization (Python → JSON String)<a class="headerlink" href="#serialization-python-json-string" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json_dumps(obj, indent=4, pretty=True, sort_keys=False, default=str)</code></td>
+<td>Serialize Python object to JSON string</td>
+<td><code>str</code> or <code>None</code></td>
+</tr>
+<tr>
+<td><code>json_dumps(obj, pretty=False)</code></td>
+<td>Compact serialization (no whitespace)</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>json_dumps_to_bytes(obj, ...)</code></td>
+<td>Serialize to UTF-8 encoded bytes</td>
+<td><code>bytes</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Parameters:</strong>
+- <code>python_object</code> — The object to serialize
+- <code>indent</code> — Number of spaces for indentation (default: 4)
+- <code>pretty</code> — Enable pretty printing (default: True)
+- <code>sort_keys</code> — Sort dictionary keys alphabetically (default: False)
+- <code>default</code> — Fallback serializer for non-JSON types (default: <code>str</code>)
+- <code>raise_exception</code> — Raise on error instead of returning None (default: False)</p>
+<h3 id="deserialization-json-string-python">Deserialization (JSON String → Python)<a class="headerlink" href="#deserialization-json-string-python" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json_loads(json_string)</code></td>
+<td>Parse JSON string to Python object</td>
+<td><code>dict</code>/<code>list</code> or <code>{}</code></td>
+</tr>
+<tr>
+<td><code>json_loads(json_string, raise_exception=True)</code></td>
+<td>Parse with exception on error</td>
+<td><code>dict</code>/<code>list</code> or raises</td>
+</tr>
+<tr>
+<td><code>bytes_to_json_loads(data)</code></td>
+<td>Parse UTF-8 bytes to Python</td>
+<td><code>dict</code>/<code>list</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-operations_1">File Operations<a class="headerlink" href="#file-operations_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json_load_file(path)</code></td>
+<td>Load JSON from file</td>
+<td><code>dict</code>/<code>list</code> or <code>{}</code></td>
+</tr>
+<tr>
+<td><code>json_save_file(obj, path, pretty=False)</code></td>
+<td>Save to file</td>
+<td><code>str</code> (path)</td>
+</tr>
+<tr>
+<td><code>json_save_file_pretty(obj, path)</code></td>
+<td>Save with pretty printing</td>
+<td><code>str</code> (path)</td>
+</tr>
+<tr>
+<td><code>json_load_file_gz(path)</code></td>
+<td>Load from gzipped file</td>
+<td><code>dict</code>/<code>list</code> or <code>{}</code></td>
+</tr>
+<tr>
+<td><code>json_save_file_gz(obj, path)</code></td>
+<td>Save to gzipped file</td>
+<td><code>str</code> (path)</td>
+</tr>
+<tr>
+<td><code>json_load_file_and_delete(path)</code></td>
+<td>Load then delete file</td>
+<td><code>dict</code>/<code>list</code></td>
+</tr>
+<tr>
+<td><code>json_load_file_gz_and_delete(path)</code></td>
+<td>Load gzipped then delete</td>
+<td><code>dict</code>/<code>list</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="json-lines-format">JSON Lines Format<a class="headerlink" href="#json-lines-format" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json_lines_file_load(path)</code></td>
+<td>Load JSON Lines file to list</td>
+<td><code>list</code></td>
+</tr>
+<tr>
+<td><code>json_lines_file_load_gz(path)</code></td>
+<td>Load gzipped JSON Lines</td>
+<td><code>list</code></td>
+</tr>
+<tr>
+<td><code>json_lines_loads(lines_string)</code></td>
+<td>Parse JSON Lines string</td>
+<td><code>list</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="compression">Compression<a class="headerlink" href="#compression" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json_to_gz(data)</code></td>
+<td>Serialize and gzip compress</td>
+<td><code>bytes</code> (gzipped)</td>
+</tr>
+<tr>
+<td><code>gz_to_json(gz_data)</code></td>
+<td>Decompress and parse</td>
+<td><code>dict</code>/<code>list</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="hashing">Hashing<a class="headerlink" href="#hashing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json_sha_256(target)</code></td>
+<td>SHA-256 of JSON representation</td>
+<td><code>str</code> (hex)</td>
+</tr>
+<tr>
+<td><code>json_md5(data)</code></td>
+<td>MD5 of JSON representation</td>
+<td><code>str</code> (hex)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="comparison-utilities">Comparison &amp; Utilities<a class="headerlink" href="#comparison-utilities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json__equals__list_and_set(val1, val2)</code></td>
+<td>Deep equality (list≈set)</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>json__type_key(obj)</code></td>
+<td>Sorting key for mixed types</td>
+<td><code>tuple</code></td>
+</tr>
+<tr>
+<td><code>json_round_trip(data)</code></td>
+<td>Normalize via serialize/parse</td>
+<td><code>dict</code>/<code>list</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-safe-json-parsing">Pattern 1: Safe JSON Parsing<a class="headerlink" href="#pattern-1-safe-json-parsing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_loads
+
+# Parse user input safely
+user_input = request.body.decode('utf-8')
+data = json_loads(user_input)  # Returns {} on invalid JSON
+
+if not data:
+    return error_response(&quot;Invalid JSON&quot;)
+
+# Or raise exception for explicit error handling
+try:
+    data = json_loads(user_input, raise_exception=True)
+except Exception as e:
+    return error_response(f&quot;Parse error: {e}&quot;)
+</code></pre>
+<h3 id="pattern-2-configuration-file-handling">Pattern 2: Configuration File Handling<a class="headerlink" href="#pattern-2-configuration-file-handling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_load_file, json_save_file_pretty
+
+CONFIG_PATH = '/app/config.json'
+
+def load_config():
+    config = json_load_file(CONFIG_PATH)
+    if not config:
+        return default_config()
+    return config
+
+def save_config(config):
+    json_save_file_pretty(config, CONFIG_PATH)
+</code></pre>
+<h3 id="pattern-3-api-response-formatting">Pattern 3: API Response Formatting<a class="headerlink" href="#pattern-3-api-response-formatting" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_dumps
+
+def api_response(data, compact=False):
+    if compact:
+        return json_dumps(data, pretty=False)
+    return json_dumps(data)  # Pretty printed for debugging
+</code></pre>
+<h3 id="pattern-4-json-lines-ndjson-processing">Pattern 4: JSON Lines (NDJSON) Processing<a class="headerlink" href="#pattern-4-json-lines-ndjson-processing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_lines_file_load, json_lines_file_load_gz
+
+# Load log file in JSON Lines format
+# Each line is a separate JSON object
+logs = json_lines_file_load('/var/log/app.jsonl')
+
+for entry in logs:
+    if entry.get('level') == 'ERROR':
+        process_error(entry)
+
+# Load compressed JSON Lines
+archived_logs = json_lines_file_load_gz('/var/log/archive.jsonl.gz')
+</code></pre>
+<h3 id="pattern-5-data-deduplication-with-hashing">Pattern 5: Data Deduplication with Hashing<a class="headerlink" href="#pattern-5-data-deduplication-with-hashing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_sha_256
+
+def deduplicate_records(records):
+    seen = set()
+    unique = []
+
+    for record in records:
+        hash_key = json_sha_256(record)
+        if hash_key not in seen:
+            seen.add(hash_key)
+            unique.append(record)
+
+    return unique
+</code></pre>
+<h3 id="pattern-6-compressed-json-storage">Pattern 6: Compressed JSON Storage<a class="headerlink" href="#pattern-6-compressed-json-storage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_to_gz, gz_to_json, json_save_file_gz, json_load_file_gz
+
+# In-memory compression for transmission
+compressed = json_to_gz(large_data)
+send_over_network(compressed)
+
+# Receive and decompress
+received = receive_from_network()
+data = gz_to_json(received)
+
+# File-based compression
+json_save_file_gz(large_data, '/data/archive.json.gz')
+restored = json_load_file_gz('/data/archive.json.gz')
+</code></pre>
+<h3 id="pattern-7-deep-comparison-with-type-flexibility">Pattern 7: Deep Comparison with Type Flexibility<a class="headerlink" href="#pattern-7-deep-comparison-with-type-flexibility" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json__equals__list_and_set
+
+# Compare structures where list/set ordering shouldn't matter
+expected = {&quot;tags&quot;: [&quot;python&quot;, &quot;json&quot;, &quot;utils&quot;]}
+actual   = {&quot;tags&quot;: {&quot;utils&quot;, &quot;python&quot;, &quot;json&quot;}}  # Different order, set vs list
+
+assert json__equals__list_and_set(expected, actual)  # True
+
+# Nested comparison works too
+config_a = {&quot;servers&quot;: [{&quot;host&quot;: &quot;a&quot;}, {&quot;host&quot;: &quot;b&quot;}]}
+config_b = {&quot;servers&quot;: [{&quot;host&quot;: &quot;b&quot;}, {&quot;host&quot;: &quot;a&quot;}]}  # Different order
+
+assert json__equals__list_and_set(config_a, config_b)  # True
+</code></pre>
+<h3 id="pattern-8-bytes-handling-for-networkstorage">Pattern 8: Bytes Handling for Network/Storage<a class="headerlink" href="#pattern-8-bytes-handling-for-networkstorage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_dumps_to_bytes, bytes_to_json_loads
+
+# Serialize to bytes for storage/transmission
+data = {&quot;message&quot;: &quot;Hello, World!&quot;}
+raw_bytes = json_dumps_to_bytes(data)
+
+# Store in binary cache
+cache.set(b'my_key', raw_bytes)
+
+# Retrieve and parse
+retrieved = cache.get(b'my_key')
+parsed = bytes_to_json_loads(retrieved)
+</code></pre>
+<h3 id="pattern-9-data-normalization-via-round-trip">Pattern 9: Data Normalization via Round-Trip<a class="headerlink" href="#pattern-9-data-normalization-via-round-trip" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_round_trip
+
+# Normalize data by serializing and parsing
+# Converts sets to lists, custom objects to their string representation, etc.
+messy_data = {
+    &quot;items&quot;: {1, 2, 3},           # set
+    &quot;timestamp&quot;: datetime.now(),  # datetime
+}
+
+normalized = json_round_trip(messy_data)
+# {&quot;items&quot;: [1, 2, 3], &quot;timestamp&quot;: &quot;2024-01-15 10:30:00&quot;}
+</code></pre>
+<h3 id="pattern-10-temporary-json-files">Pattern 10: Temporary JSON Files<a class="headerlink" href="#pattern-10-temporary-json-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_save_file, json_load_file_and_delete
+
+# Create temp file for inter-process communication
+temp_path = json_save_file(data, path=None)  # Auto-generates temp path
+
+# In another process - load and cleanup
+data = json_load_file_and_delete(temp_path)  # File removed after reading
+</code></pre>
+<hr />
+<h2 id="common-recipes">Common Recipes<a class="headerlink" href="#common-recipes" title="Permanent link">&para;</a></h2>
+<h3 id="recipe-safe-config-loading-with-defaults">Recipe: Safe Config Loading with Defaults<a class="headerlink" href="#recipe-safe-config-loading-with-defaults" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_load_file
+
+def load_config_with_defaults(path, defaults):
+    config = json_load_file(path)
+    return {**defaults, **config}  # Config overrides defaults
+
+# Usage
+config = load_config_with_defaults('/app/config.json', {
+    'debug': False,
+    'port': 8080,
+    'workers': 4,
+})
+</code></pre>
+<h3 id="recipe-json-schema-validation-prep">Recipe: JSON Schema Validation Prep<a class="headerlink" href="#recipe-json-schema-validation-prep" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_loads, json_round_trip
+
+def validate_json_input(raw_input):
+    # Parse and normalize
+    data = json_loads(raw_input)
+    if not data:
+        return None, &quot;Invalid JSON&quot;
+
+    # Normalize to ensure consistent types
+    normalized = json_round_trip(data)
+
+    # Now validate against schema...
+    return normalized, None
+</code></pre>
+<h3 id="recipe-incremental-json-lines-writing">Recipe: Incremental JSON Lines Writing<a class="headerlink" href="#recipe-incremental-json-lines-writing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_dumps
+
+def write_json_lines(records, path):
+    with open(path, 'w') as f:
+        for record in records:
+            line = json_dumps(record, pretty=False)  # Compact, one line
+            f.write(line + '\n')
+</code></pre>
+<h3 id="recipe-compare-json-files">Recipe: Compare JSON Files<a class="headerlink" href="#recipe-compare-json-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_load_file, json__equals__list_and_set
+
+def json_files_equivalent(path1, path2):
+    data1 = json_load_file(path1)
+    data2 = json_load_file(path2)
+    return json__equals__list_and_set(data1, data2)
+</code></pre>
+<h3 id="recipe-cache-with-json-hashing">Recipe: Cache with JSON Hashing<a class="headerlink" href="#recipe-cache-with-json-hashing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Json import json_sha_256, json_dumps, json_loads
+
+class JsonCache:
+    def __init__(self):
+        self.store = {}
+
+    def get_or_compute(self, key_data, compute_fn):
+        cache_key = json_sha_256(key_data)
+
+        if cache_key in self.store:
+            return self.store[cache_key]
+
+        result = compute_fn()
+        self.store[cache_key] = result
+        return result
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-use-graceful-error-handling">DO: Use Graceful Error Handling<a class="headerlink" href="#do-use-graceful-error-handling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - returns {} on error, check for empty
+data = json_loads(user_input)
+if not data:
+    handle_invalid_input()
+
+# ✅ Good - explicit exception when needed
+try:
+    data = json_loads(user_input, raise_exception=True)
+except Exception as e:
+    log_error(e)
+</code></pre>
+<h3 id="do-use-pretty-printing-for-debugging">DO: Use Pretty Printing for Debugging<a class="headerlink" href="#do-use-pretty-printing-for-debugging" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - pretty for debugging/logs
+debug_output = json_dumps(response_data)  # Pretty by default
+logger.debug(f&quot;API Response:\n{debug_output}&quot;)
+
+# ✅ Good - compact for production transmission
+api_response = json_dumps(response_data, pretty=False)
+</code></pre>
+<h3 id="do-use-appropriate-file-functions">DO: Use Appropriate File Functions<a class="headerlink" href="#do-use-appropriate-file-functions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - use built-in file operations
+data = json_load_file('/config.json')
+json_save_file_pretty(data, '/config.json')
+
+# ❌ Bad - manual file handling
+with open('/config.json', 'r') as f:
+    data = json.loads(f.read())
+</code></pre>
+<h3 id="do-use-json_round_trip-for-normalization">DO: Use json_round_trip for Normalization<a class="headerlink" href="#do-use-json_round_trip-for-normalization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - normalize data before comparison/storage
+normalized = json_round_trip(potentially_messy_data)
+
+# ❌ Bad - comparing data with inconsistent types
+data1 == data2  # May fail due to set vs list, datetime vs string, etc.
+</code></pre>
+<h3 id="dont-ignore-return-values">DON'T: Ignore Return Values<a class="headerlink" href="#dont-ignore-return-values" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - ignoring potential parse failure
+data = json_loads(untrusted_input)
+process(data['key'])  # May fail if data is {}
+
+# ✅ Good - check result
+data = json_loads(untrusted_input)
+if data and 'key' in data:
+    process(data['key'])
+</code></pre>
+<h3 id="dont-use-wrong-function-for-format">DON'T: Use Wrong Function for Format<a class="headerlink" href="#dont-use-wrong-function-for-format" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - wrong function for JSON Lines
+data = json_load_file('/logs.jsonl')  # Won't work correctly
+
+# ✅ Good - use JSON Lines specific function
+data = json_lines_file_load('/logs.jsonl')
+</code></pre>
+<h3 id="dont-forget-compression-for-large-files">DON'T: Forget Compression for Large Files<a class="headerlink" href="#dont-forget-compression-for-large-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - large files without compression
+json_save_file(huge_data, '/archive.json')  # Large file
+
+# ✅ Good - compress large files
+json_save_file_gz(huge_data, '/archive.json.gz')  # Much smaller
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-json_loads-returns-empty-dict">Problem: json_loads Returns Empty Dict<a class="headerlink" href="#problem-json_loads-returns-empty-dict" title="Permanent link">&para;</a></h3>
+<p><strong>Cause 1</strong>: Invalid JSON input</p>
+<pre><code class="language-python"># Check if input is valid
+data = json_loads('not valid json')  # Returns {}
+
+# Solution: Use raise_exception to see error
+try:
+    data = json_loads('not valid json', raise_exception=True)
+except Exception as e:
+    print(f&quot;Parse error: {e}&quot;)  # Shows actual error
+</code></pre>
+<p><strong>Cause 2</strong>: Empty or None input</p>
+<pre><code class="language-python"># json_loads returns {} for empty/None input
+json_loads(None)    # Returns {}
+json_loads('')      # Returns {}
+json_loads('   ')   # Returns {}
+</code></pre>
+<h3 id="problem-json_dumps-returns-none">Problem: json_dumps Returns None<a class="headerlink" href="#problem-json_dumps-returns-none" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Input is None</p>
+<pre><code class="language-python">json_dumps(None)  # Returns None by design
+
+# If you want &quot;null&quot; string, use standard json
+import json
+json.dumps(None)  # Returns &quot;null&quot;
+</code></pre>
+<h3 id="problem-non-serializable-types">Problem: Non-Serializable Types<a class="headerlink" href="#problem-non-serializable-types" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Object cannot be converted to JSON</p>
+<pre><code class="language-python"># Default behavior uses str() for unknown types
+data = {&quot;date&quot;: datetime.now()}
+result = json_dumps(data)  # Works - datetime converted via str()
+
+# If default=str isn't enough
+def custom_serializer(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    return str(obj)
+
+result = json_dumps(data, default=custom_serializer)
+</code></pre>
+<h3 id="problem-json_load_file-returns-empty-dict">Problem: json_load_file Returns Empty Dict<a class="headerlink" href="#problem-json_load_file-returns-empty-dict" title="Permanent link">&para;</a></h3>
+<p><strong>Cause 1</strong>: File doesn't exist</p>
+<pre><code class="language-python">from osbot_utils.utils.Files import file_exists
+
+if not file_exists(path):
+    print(&quot;File not found&quot;)
+</code></pre>
+<p><strong>Cause 2</strong>: File contains invalid JSON</p>
+<pre><code class="language-python"># Check file contents
+from osbot_utils.utils.Files import file_contents
+raw = file_contents(path)
+print(f&quot;File contents: {raw!r}&quot;)  # See what's actually in file
+</code></pre>
+<h3 id="problem-json-lines-not-parsing-correctly">Problem: JSON Lines Not Parsing Correctly<a class="headerlink" href="#problem-json-lines-not-parsing-correctly" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Using wrong function</p>
+<pre><code class="language-python"># ❌ Wrong - json_load_file expects single JSON object
+data = json_load_file('/logs.jsonl')  # Fails or wrong result
+
+# ✅ Correct - use JSON Lines function
+data = json_lines_file_load('/logs.jsonl')
+</code></pre>
+<h3 id="problem-deep-comparison-fails-unexpectedly">Problem: Deep Comparison Fails Unexpectedly<a class="headerlink" href="#problem-deep-comparison-fails-unexpectedly" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Type differences not in list/set</p>
+<pre><code class="language-python"># json__equals__list_and_set handles list/set, but not int/float
+val1 = {&quot;count&quot;: 1}
+val2 = {&quot;count&quot;: 1.0}
+
+json__equals__list_and_set(val1, val2)  # False - different types
+
+# Solution: normalize first
+json__equals__list_and_set(
+    json_round_trip(val1),
+    json_round_trip(val2)
+)  # True after normalization
+</code></pre>
+<hr />
+<h2 id="function-alias-quick-reference">Function Alias Quick Reference<a class="headerlink" href="#function-alias-quick-reference" title="Permanent link">&para;</a></h2>
+<p>The module provides extensive aliases for discoverability. Use whichever reads best in your context:</p>
+<h3 id="serialization-aliases">Serialization Aliases<a class="headerlink" href="#serialization-aliases" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Same As</th>
+<th>Semantic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json_dumps</code></td>
+<td>Primary</td>
+<td>"dumps" from stdlib</td>
+</tr>
+<tr>
+<td><code>json_dump</code></td>
+<td><code>json_dumps</code></td>
+<td>Shorter form</td>
+</tr>
+<tr>
+<td><code>json_format</code></td>
+<td><code>json_dumps</code></td>
+<td>"Format as JSON"</td>
+</tr>
+<tr>
+<td><code>json_to_str</code></td>
+<td><code>json_dumps</code></td>
+<td>Direction: to string</td>
+</tr>
+<tr>
+<td><code>to_json_str</code></td>
+<td><code>json_dumps</code></td>
+<td>Direction: to string</td>
+</tr>
+<tr>
+<td><code>str_from_json</code></td>
+<td><code>json_dumps</code></td>
+<td>Direction: string from object</td>
+</tr>
+</tbody>
+</table>
+<h3 id="deserialization-aliases">Deserialization Aliases<a class="headerlink" href="#deserialization-aliases" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Same As</th>
+<th>Semantic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json_loads</code></td>
+<td>Primary</td>
+<td>"loads" from stdlib</td>
+</tr>
+<tr>
+<td><code>json_load</code></td>
+<td><code>json_loads</code></td>
+<td>Shorter form</td>
+</tr>
+<tr>
+<td><code>json_parse</code></td>
+<td><code>json_loads</code></td>
+<td>"Parse JSON"</td>
+</tr>
+<tr>
+<td><code>json_from_string</code></td>
+<td><code>json_loads</code></td>
+<td>Direction: from string</td>
+</tr>
+<tr>
+<td><code>str_to_json</code></td>
+<td><code>json_loads</code></td>
+<td>Direction: string to object</td>
+</tr>
+<tr>
+<td><code>from_json_str</code></td>
+<td><code>json_loads</code></td>
+<td>Direction: from string</td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-aliases">File Aliases<a class="headerlink" href="#file-aliases" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Same As</th>
+<th>Semantic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>json_load_file</code></td>
+<td><code>Json.load_file</code></td>
+<td>"Load from file"</td>
+</tr>
+<tr>
+<td><code>json_file_contents</code></td>
+<td><code>Json.load_file</code></td>
+<td>"Get file contents"</td>
+</tr>
+<tr>
+<td><code>json_from_file</code></td>
+<td><code>Json.load_file</code></td>
+<td>Direction: from file</td>
+</tr>
+<tr>
+<td><code>load_file_json</code></td>
+<td><code>json_load_file</code></td>
+<td>"Load file as JSON"</td>
+</tr>
+<tr>
+<td><code>json_save_file</code></td>
+<td><code>Json.save_file</code></td>
+<td>"Save to file"</td>
+</tr>
+<tr>
+<td><code>json_to_file</code></td>
+<td><code>Json.save_file</code></td>
+<td>Direction: to file</td>
+</tr>
+<tr>
+<td><code>json_file_create</code></td>
+<td><code>Json.save_file</code></td>
+<td>"Create file"</td>
+</tr>
+<tr>
+<td><code>file_create_json</code></td>
+<td><code>Json.save_file_pretty</code></td>
+<td>"Create JSON file"</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When working with JSON in OSBot-Utils:</p>
+<ul>
+<li>[ ] Import from <code>osbot_utils.utils.Json</code></li>
+<li>[ ] Use <code>json_dumps()</code> for serialization (pretty by default)</li>
+<li>[ ] Use <code>json_loads()</code> for parsing (returns <code>{}</code> on error)</li>
+<li>[ ] Check for empty dict when parsing untrusted input</li>
+<li>[ ] Use <code>raise_exception=True</code> when you need explicit error handling</li>
+<li>[ ] Use <code>json_load_file()</code> / <code>json_save_file()</code> for file operations</li>
+<li>[ ] Use <code>json_lines_file_load()</code> for JSON Lines format (<code>.jsonl</code>)</li>
+<li>[ ] Use <code>json_to_gz()</code> / <code>gz_to_json()</code> for compression</li>
+<li>[ ] Use <code>json_sha_256()</code> for content hashing</li>
+<li>[ ] Use <code>json__equals__list_and_set()</code> for deep comparison ignoring list/set differences</li>
+<li>[ ] Use <code>json_round_trip()</code> to normalize data types</li>
+<li>[ ] Use <code>pretty=False</code> for compact transmission</li>
+<li>[ ] Remember: <code>json_dumps(None)</code> returns <code>None</code>, not <code>"null"</code></li>
+<li>[ ] Remember: <code>json_loads()</code> returns <code>{}</code> for empty/invalid input</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

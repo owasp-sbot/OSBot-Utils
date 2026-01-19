@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/getting-started/type_safe_troubleshooting_guide/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Type_Safe Troubleshooting Guide - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Troubleshooting Guide";
+        var mkdocs_page_input_path = "type_safe/getting-started/type_safe_troubleshooting_guide.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/getting-started/type_safe_troubleshooting_guide/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Troubleshooting Guide</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-troubleshooting-guide">Type_Safe Troubleshooting Guide<a class="headerlink" href="#type_safe-troubleshooting-guide" title="Permanent link">&para;</a></h1>
+<h2 id="common-issues-and-solutions">Common Issues and Solutions<a class="headerlink" href="#common-issues-and-solutions" title="Permanent link">&para;</a></h2>
+<h3 id="issue-variable-x-is-defined-as-type-y-which-is-not-supported-by-type_safe">Issue: "variable 'X' is defined as type 'Y' which is not supported by Type_Safe"<a class="headerlink" href="#issue-variable-x-is-defined-as-type-y-which-is-not-supported-by-type_safe" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-python">class BadConfig(Type_Safe):
+    settings: dict = {}  # ERROR!
+</code></pre>
+<p><strong>Cause:</strong> Type_Safe only allows immutable default values to prevent shared mutable defaults.</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-python">class GoodConfig(Type_Safe):
+    settings: Dict[str, Any]  # Let Type_Safe initialize it
+    # OR
+    settings: Optional[Dict[str, Any]] = None  # Use None as default
+</code></pre>
+<h3 id="issue-invalid-type-for-attribute-x-expected-y-but-got-z">Issue: "Invalid type for attribute 'X'. Expected 'Y' but got 'Z'"<a class="headerlink" href="#issue-invalid-type-for-attribute-x-expected-y-but-got-z" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-python">user = User()
+user.age = &quot;25&quot;  # ERROR: Expected int, got str
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Convert before assignment:</strong></li>
+</ol>
+<pre><code class="language-python">user.age = int(&quot;25&quot;)
+</code></pre>
+<ol>
+<li><strong>Use type conversion in setter:</strong></li>
+</ol>
+<pre><code class="language-python">class User(Type_Safe):
+    _age: int
+
+    @property
+    def age(self) -&gt; int:
+        return self._age
+
+    @age.setter
+    def age(self, value):
+        self._age = int(value) if isinstance(value, str) else value
+</code></pre>
+<ol>
+<li><strong>Use Safe_Int for automatic conversion:</strong></li>
+</ol>
+<pre><code class="language-python">from osbot_utils.helpers.Safe_Int import Safe_Int
+
+class User(Type_Safe):
+    age: Safe_Int  # Accepts strings and converts them
+</code></pre>
+<h3 id="issue-x-has-no-attribute-y-and-cannot-be-assigned">Issue: "X has no attribute 'Y' and cannot be assigned"<a class="headerlink" href="#issue-x-has-no-attribute-y-and-cannot-be-assigned" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-python">user = User(username=&quot;alice&quot;, unknown_field=&quot;value&quot;)  # ERROR!
+</code></pre>
+<p><strong>Cause:</strong> Type_Safe prevents adding undefined attributes.</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-python"># Option 1: Define all needed attributes
+class User(Type_Safe):
+    username: str
+    extra_field: Optional[str] = None
+
+# Option 2: Use a flexible data field
+class User(Type_Safe):
+    username: str
+    metadata: Dict[str, Any]  # For dynamic data
+
+user = User(username=&quot;alice&quot;)
+user.metadata[&quot;unknown_field&quot;] = &quot;value&quot;
+</code></pre>
+<h3 id="issue-forward-references-not-working">Issue: Forward references not working<a class="headerlink" href="#issue-forward-references-not-working" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-python">class Node(Type_Safe):
+    parent: 'TreeNode'  # ERROR: Can't reference other class
+</code></pre>
+<p><strong>Cause:</strong> Type_Safe only supports forward references to the current class.</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-python"># Option 1: Use current class name
+class Node(Type_Safe):
+    parent: Optional['Node'] = None  # Must be 'Node'
+
+# Option 2: Import the class
+from mymodule import TreeNode
+
+class Node(Type_Safe):
+    parent: Optional[TreeNode] = None
+</code></pre>
+<h3 id="issue-collections-not-maintaining-type-safety">Issue: Collections not maintaining type safety<a class="headerlink" href="#issue-collections-not-maintaining-type-safety" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-python">class Store(Type_Safe):
+    items: list  # Not type-safe!
+
+store = Store()
+store.items.append(&quot;text&quot;)
+store.items.append(123)  # No error!
+</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-python">from typing import List
+
+class Store(Type_Safe):
+    items: List[str]  # Now type-safe
+
+store = Store()
+store.items.append(&quot;text&quot;)  # ✓
+store.items.append(123)      # ✗ TypeError!
+</code></pre>
+<h3 id="issue-none-assignment-rejected">Issue: None assignment rejected<a class="headerlink" href="#issue-none-assignment-rejected" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-python">class Config(Type_Safe):
+    value: str
+
+config = Config()
+config.value = None  # ERROR: Can't set None
+</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-python">from typing import Optional
+
+class Config(Type_Safe):
+    value: Optional[str] = None  # Now accepts None
+</code></pre>
+<h3 id="issue-circular-imports-with-forward-references">Issue: Circular imports with forward references<a class="headerlink" href="#issue-circular-imports-with-forward-references" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-python"># file1.py
+from file2 import ClassB
+class ClassA(Type_Safe):
+    b: ClassB
+
+# file2.py  
+from file1 import ClassA
+class ClassB(Type_Safe):
+    a: ClassA
+</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-python"># file1.py
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from file2 import ClassB
+
+class ClassA(Type_Safe):
+    b: 'ClassB'  # String reference
+
+# file2.py
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from file1 import ClassA
+
+class ClassB(Type_Safe):
+    a: 'ClassA'  # String reference
+</code></pre>
+<h3 id="issue-performance-degradation">Issue: Performance degradation<a class="headerlink" href="#issue-performance-degradation" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- Slow object creation
+- Slow attribute assignments
+- High memory usage</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Cache Type_Safe objects:</strong></li>
+</ol>
+<pre><code class="language-python"># Bad
+for item in large_list:
+    obj = ExpensiveClass(data=item)  # Creates new object each time
+    process(obj)
+
+# Good
+cache = {}
+for item in large_list:
+    if item not in cache:
+        cache[item] = ExpensiveClass(data=item)
+    process(cache[item])
+</code></pre>
+<ol>
+<li><strong>Use primitives for computation:</strong></li>
+</ol>
+<pre><code class="language-python">class DataProcessor(Type_Safe):
+    values: List[Safe_Float]
+
+    def compute_average(self):
+        # Extract primitives for computation
+        raw_values = [float(v) for v in self.values]
+        result = sum(raw_values) / len(raw_values)
+        return Safe_Float(result)  # Convert back
+</code></pre>
+<ol>
+<li><strong>Selective validation:</strong></li>
+</ol>
+<pre><code class="language-python">class Service(Type_Safe):
+    # Only validate public API
+    @type_safe
+    def public_method(self, data: List[int]) -&gt; int:
+        return self._internal_method(data)
+
+    # Skip validation for internal methods
+    def _internal_method(self, data):
+        return sum(data)
+</code></pre>
+<h3 id="issue-json-serializationdeserialization-failing">Issue: JSON serialization/deserialization failing<a class="headerlink" href="#issue-json-serializationdeserialization-failing" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-python">data = obj.json()
+new_obj = MyClass.from_json(data)  # ERROR!
+</code></pre>
+<p><strong>Common Causes and Solutions:</strong></p>
+<ol>
+<li><strong>Circular references:</strong></li>
+</ol>
+<pre><code class="language-python"># Problem
+class Node(Type_Safe):
+    parent: Optional['Node'] = None
+    children: List['Node'] = []
+
+# Creates circular reference
+parent = Node()
+child = Node()
+parent.children.append(child)
+child.parent = parent
+data = parent.json()  # May fail or recurse infinitely
+
+# Solution: Implement custom serialization
+class Node(Type_Safe):
+    def json(self):
+        return {
+            'id': self.id,
+            'parent_id': self.parent.id if self.parent else None,
+            'children_ids': [c.id for c in self.children]
+        }
+</code></pre>
+<ol>
+<li><strong>Non-serializable types:</strong></li>
+</ol>
+<pre><code class="language-python"># Problem
+class Config(Type_Safe):
+    callback: Callable  # Can't serialize functions
+
+# Solution
+class Config(Type_Safe):
+    callback_name: str  # Store reference instead
+</code></pre>
+<h3 id="issue-validation-not-working-as-expected">Issue: Validation not working as expected<a class="headerlink" href="#issue-validation-not-working-as-expected" title="Permanent link">&para;</a></h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-python">from osbot_utils.type_safe.validators import Min
+
+class Product(Type_Safe):
+    price: Validate[float, Min(0)]
+
+product = Product()
+product.price = -10  # Should fail but doesn't?
+</code></pre>
+<p><strong>Check:</strong>
+1. Import is correct
+2. Validate syntax is correct
+3. Type_Safe version supports validators</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-python">from osbot_utils.type_safe.validators import Validate, Min
+
+class Product(Type_Safe):
+    price: Validate[float, Min(0.0)]  # Ensure proper syntax
+</code></pre>
+<h2 id="debugging-tips">Debugging Tips<a class="headerlink" href="#debugging-tips" title="Permanent link">&para;</a></h2>
+<h3 id="enable-type-checking-logs">Enable Type Checking Logs<a class="headerlink" href="#enable-type-checking-logs" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import logging
+logging.basicConfig(level=logging.DEBUG)
+
+# Will show type checking operations
+obj = MyClass()
+obj.field = value
+</code></pre>
+<h3 id="inspect-type_safe-cache">Inspect Type_Safe Cache<a class="headerlink" href="#inspect-type_safe-cache" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.shared.Type_Safe__Cache import type_safe_cache
+
+# View cache statistics
+type_safe_cache.print_cache_hits()
+
+# Clear cache if needed
+type_safe_cache._cls__kwargs_cache.clear()
+</code></pre>
+<h3 id="check-annotations">Check Annotations<a class="headerlink" href="#check-annotations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class MyClass(Type_Safe):
+    name: str
+    age: int
+
+# View all annotations
+print(MyClass.__annotations__)
+# {'name': &lt;class 'str'&gt;, 'age': &lt;class 'int'&gt;}
+
+# View default values
+obj = MyClass()
+print(obj.__default_kwargs__())
+# {'name': '', 'age': 0}
+</code></pre>
+<h3 id="test-type-validation">Test Type Validation<a class="headerlink" href="#test-type-validation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_type_validation():
+    obj = MyClass()
+
+    # Test each field
+    try:
+        obj.field = test_value
+        print(f&quot;✓ {field} accepts {type(test_value)}&quot;)
+    except ValueError as e:
+        print(f&quot;✗ {field} rejects {type(test_value)}: {e}&quot;)
+</code></pre>
+<h2 id="performance-profiling">Performance Profiling<a class="headerlink" href="#performance-profiling" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import cProfile
+import pstats
+
+def profile_type_safe():
+    # Your Type_Safe code here
+    for _ in range(1000):
+        obj = MyClass()
+        obj.field = value
+
+# Profile
+cProfile.run('profile_type_safe()', 'stats')
+
+# Analyze
+stats = pStats.Stats('stats')
+stats.sort_stats('cumulative')
+stats.print_stats(10)  # Top 10 time consumers
+</code></pre>
+<h2 id="getting-help">Getting Help<a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Check the examples:</strong> Review working examples in tests</li>
+<li><strong>Enable debug logging:</strong> See what Type_Safe is doing</li>
+<li><strong>Simplify the problem:</strong> Create minimal reproduction</li>
+<li><strong>Check version:</strong> Ensure using latest osbot-utils</li>
+<li><strong>Review type annotations:</strong> Ensure they're correct</li>
+<li><strong>File an issue:</strong> https://github.com/owasp-sbot/OSBot-Utils/issues</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

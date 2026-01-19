@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/Html__To__Html_Tag/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Html__To__Html_Tag - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Html__To__Html_Tag";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/Html__To__Html_Tag.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/Html__To__Html_Tag/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Html__To__Html_Tag</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="html__to__html_tag">Html__To__Html_Tag<a class="headerlink" href="#html__to__html_tag" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Html__To__Html_Tag</code> provides a direct conversion path from HTML strings to tag objects. It combines HTML parsing and tag object creation into a single operation, streamlining the process of working with HTML in an object-oriented manner.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Html__To__Html_Tag:
+    def __init__(self, html):
+        self.html_to_dict = Html__To__Html_Dict(html)
+
+    def __enter__(self):
+        return self.convert()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return
+
+    def convert(self):
+        html_dict = self.html_to_dict.convert()
+        html_tag = Html_Dict__To__Html_Tags(html_dict).convert()
+        return html_tag
+</code></pre>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>This class simplifies the two-step process:
+1. HTML string → Dictionary (via <code>Html__To__Html_Dict</code>)
+2. Dictionary → Tag objects (via <code>Html_Dict__To__Html_Tags</code>)</p>
+<p>Into a single, convenient operation with context manager support.</p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="convert-tag__base"><code>convert() -&gt; Tag__Base</code><a class="headerlink" href="#convert-tag__base" title="Permanent link">&para;</a></h3>
+<p>Performs the complete conversion from HTML to tag objects.</p>
+<pre><code class="language-python">converter = Html__To__Html_Tag(html)
+root_tag = converter.convert()
+</code></pre>
+<h3 id="context-manager-methods">Context Manager Methods<a class="headerlink" href="#context-manager-methods" title="Permanent link">&para;</a></h3>
+<p>Supports Python's context manager protocol:</p>
+<pre><code class="language-python">with Html__To__Html_Tag(html) as tag:
+    # Work with tag
+    tag.attributes['id'] = 'modified'
+    print(tag.render())
+</code></pre>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-conversion">Basic Conversion<a class="headerlink" href="#basic-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.Html__To__Html_Tag import Html__To__Html_Tag
+
+html = &quot;&lt;div class='container'&gt;&lt;h1&gt;Title&lt;/h1&gt;&lt;p&gt;Content&lt;/p&gt;&lt;/div&gt;&quot;
+
+# Direct conversion
+converter = Html__To__Html_Tag(html)
+root_tag = converter.convert()
+
+# Access tag properties
+print(root_tag.tag_name)  # 'div'
+print(root_tag.attributes['class'])  # 'container'
+print(len(root_tag.elements))  # 2
+</code></pre>
+<h3 id="using-context-manager">Using Context Manager<a class="headerlink" href="#using-context-manager" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">html = &quot;&quot;&quot;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;title&gt;My Page&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Welcome&lt;/h1&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+&quot;&quot;&quot;
+
+with Html__To__Html_Tag(html) as html_tag:
+    # Modify the structure
+    html_tag.head.title = &quot;Updated Title&quot;
+
+    # Add new elements
+    new_p = Tag__Base(tag_name='p', inner_html='New paragraph')
+    html_tag.body.append(new_p)
+
+    # Render modified HTML
+    modified_html = html_tag.render()
+</code></pre>
+<h3 id="quick-html-manipulation">Quick HTML Manipulation<a class="headerlink" href="#quick-html-manipulation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def add_bootstrap_to_html(html_string):
+    &quot;&quot;&quot;Add Bootstrap CSS to any HTML.&quot;&quot;&quot;
+    with Html__To__Html_Tag(html_string) as tag:
+        if isinstance(tag, Tag__Html):
+            tag.head.add_css_bootstrap()
+        return tag.render()
+    return html_string  # Return original if not valid HTML
+
+# Usage
+original_html = &quot;&lt;html&gt;&lt;head&gt;&lt;title&gt;Plain&lt;/title&gt;&lt;/head&gt;&lt;body&gt;Content&lt;/body&gt;&lt;/html&gt;&quot;
+bootstrap_html = add_bootstrap_to_html(original_html)
+</code></pre>
+<h2 id="integration-patterns">Integration Patterns<a class="headerlink" href="#integration-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="html-transformation-pipeline">HTML Transformation Pipeline<a class="headerlink" href="#html-transformation-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class HtmlTransformer:
+    def __init__(self, html):
+        self.original_html = html
+        self.tag = None
+
+    def load(self):
+        &quot;&quot;&quot;Load HTML into tag structure.&quot;&quot;&quot;
+        with Html__To__Html_Tag(self.original_html) as tag:
+            self.tag = tag
+        return self
+
+    def transform(self, transformation_func):
+        &quot;&quot;&quot;Apply transformation function to tag.&quot;&quot;&quot;
+        if self.tag:
+            transformation_func(self.tag)
+        return self
+
+    def render(self):
+        &quot;&quot;&quot;Render transformed HTML.&quot;&quot;&quot;
+        return self.tag.render() if self.tag else self.original_html
+
+# Usage
+transformer = HtmlTransformer(html)
+result = (transformer
+    .load()
+    .transform(lambda tag: tag.attributes.update({'data-processed': 'true'}))
+    .transform(add_timestamps)
+    .transform(optimize_images)
+    .render()
+)
+</code></pre>
+<h3 id="batch-processing">Batch Processing<a class="headerlink" href="#batch-processing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def process_html_files(file_paths, processor_func):
+    &quot;&quot;&quot;Process multiple HTML files.&quot;&quot;&quot;
+    results = []
+
+    for path in file_paths:
+        with open(path, 'r', encoding='utf-8') as f:
+            html = f.read()
+
+        try:
+            with Html__To__Html_Tag(html) as tag:
+                processor_func(tag)
+                processed_html = tag.render()
+
+                results.append({
+                    'path': path,
+                    'success': True,
+                    'html': processed_html
+                })
+        except Exception as e:
+            results.append({
+                'path': path,
+                'success': False,
+                'error': str(e)
+            })
+
+    return results
+</code></pre>
+<h3 id="validation-and-conversion">Validation and Conversion<a class="headerlink" href="#validation-and-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def validate_and_fix_html(html_string):
+    &quot;&quot;&quot;Validate HTML and fix common issues.&quot;&quot;&quot;
+    issues = []
+
+    with Html__To__Html_Tag(html_string) as tag:
+        # Check if it's a complete HTML document
+        if not isinstance(tag, Tag__Html):
+            # Wrap in HTML structure
+            html_tag = Tag__Html()
+            html_tag.body.append(tag)
+            tag = html_tag
+            issues.append(&quot;Wrapped content in HTML structure&quot;)
+
+        # Check for missing elements
+        if not tag.head.title:
+            tag.head.title = &quot;Untitled&quot;
+            issues.append(&quot;Added missing title&quot;)
+
+        # Check for lang attribute
+        if not tag.lang:
+            tag.lang = &quot;en&quot;
+            issues.append(&quot;Added lang attribute&quot;)
+
+        return tag.render(), issues
+</code></pre>
+<h2 id="advanced-usage">Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permanent link">&para;</a></h2>
+<h3 id="custom-tag-processing">Custom Tag Processing<a class="headerlink" href="#custom-tag-processing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class HtmlProcessor:
+    def __init__(self):
+        self.processors = {}
+
+    def register_processor(self, tag_name, processor_func):
+        &quot;&quot;&quot;Register a processor for specific tag type.&quot;&quot;&quot;
+        self.processors[tag_name] = processor_func
+
+    def process_html(self, html_string):
+        &quot;&quot;&quot;Process HTML with registered processors.&quot;&quot;&quot;
+        with Html__To__Html_Tag(html_string) as root_tag:
+            self._process_tag(root_tag)
+            return root_tag.render()
+
+    def _process_tag(self, tag):
+        &quot;&quot;&quot;Recursively process tags.&quot;&quot;&quot;
+        # Apply processor if registered
+        if tag.tag_name in self.processors:
+            self.processors[tag.tag_name](tag)
+
+        # Process children
+        if hasattr(tag, 'elements'):
+            for child in tag.elements:
+                if hasattr(child, 'tag_name'):
+                    self._process_tag(child)
+
+# Usage
+processor = HtmlProcessor()
+processor.register_processor('img', lambda tag: tag.attributes.setdefault('loading', 'lazy'))
+processor.register_processor('a', lambda tag: tag.attributes.setdefault('rel', 'noopener'))
+
+processed_html = processor.process_html(original_html)
+</code></pre>
+<h3 id="memory-efficient-processing">Memory-Efficient Processing<a class="headerlink" href="#memory-efficient-processing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def stream_process_html(html_string, chunk_processor):
+    &quot;&quot;&quot;Process HTML in chunks (conceptual).&quot;&quot;&quot;
+    # Note: Full HTML parsing requires complete document
+    # This shows the pattern for memory-conscious processing
+
+    with Html__To__Html_Tag(html_string) as tag:
+        # Process top-level elements one at a time
+        if hasattr(tag, 'elements'):
+            for i, element in enumerate(tag.elements):
+                # Process element
+                chunk_processor(element)
+
+                # Clear processed elements to free memory
+                if i &gt; 0:
+                    tag.elements[i-1] = None
+
+        return tag.render()
+</code></pre>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<h3 id="safe-conversion">Safe Conversion<a class="headerlink" href="#safe-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def safe_html_to_tag(html_string, default_tag=None):
+    &quot;&quot;&quot;Safely convert HTML with fallback.&quot;&quot;&quot;
+    try:
+        converter = Html__To__Html_Tag(html_string)
+        return converter.convert()
+    except Exception as e:
+        print(f&quot;Conversion failed: {e}&quot;)
+
+        if default_tag:
+            return default_tag
+
+        # Return error message as tag
+        error_tag = Tag__Div()
+        error_tag.tag_classes = ['error']
+        error_tag.inner_html = f&quot;Failed to parse HTML: {str(e)}&quot;
+        return error_tag
+</code></pre>
+<h3 id="detailed-error-reporting">Detailed Error Reporting<a class="headerlink" href="#detailed-error-reporting" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class HtmlConversionResult:
+    def __init__(self, html_string):
+        self.html_string = html_string
+        self.tag = None
+        self.errors = []
+        self.warnings = []
+        self.success = False
+
+    def convert(self):
+        &quot;&quot;&quot;Attempt conversion with detailed reporting.&quot;&quot;&quot;
+        try:
+            with Html__To__Html_Tag(self.html_string) as tag:
+                self.tag = tag
+                self.success = True
+                self._validate_tag()
+        except Exception as e:
+            self.errors.append(f&quot;Conversion error: {str(e)}&quot;)
+
+        return self
+
+    def _validate_tag(self):
+        &quot;&quot;&quot;Validate converted tag structure.&quot;&quot;&quot;
+        if not self.tag:
+            return
+
+        # Add validation warnings
+        if hasattr(self.tag, 'tag_name'):
+            if self.tag.tag_name != 'html':
+                self.warnings.append(&quot;Root element is not &lt;html&gt;&quot;)
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import time
+
+class PerformanceMonitor:
+    def __init__(self):
+        self.timings = []
+
+    def convert_with_timing(self, html_string):
+        &quot;&quot;&quot;Convert HTML and track timing.&quot;&quot;&quot;
+        start_time = time.time()
+
+        with Html__To__Html_Tag(html_string) as tag:
+            parse_time = time.time() - start_time
+
+            render_start = time.time()
+            rendered = tag.render()
+            render_time = time.time() - render_start
+
+        self.timings.append({
+            'parse_time': parse_time,
+            'render_time': render_time,
+            'total_time': parse_time + render_time,
+            'html_size': len(html_string),
+            'rendered_size': len(rendered)
+        })
+
+        return tag
+
+    def get_average_timing(self):
+        &quot;&quot;&quot;Get average conversion timing.&quot;&quot;&quot;
+        if not self.timings:
+            return None
+
+        avg_parse = sum(t['parse_time'] for t in self.timings) / len(self.timings)
+        avg_render = sum(t['render_time'] for t in self.timings) / len(self.timings)
+
+        return {
+            'avg_parse_time': avg_parse,
+            'avg_render_time': avg_render,
+            'samples': len(self.timings)
+        }
+</code></pre>
+<h2 id="testing-utilities">Testing Utilities<a class="headerlink" href="#testing-utilities" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def create_test_html(title=&quot;Test&quot;, body_content=&quot;Test content&quot;):
+    &quot;&quot;&quot;Create test HTML quickly.&quot;&quot;&quot;
+    html = f&quot;&quot;&quot;
+    &lt;html lang=&quot;en&quot;&gt;
+        &lt;head&gt;
+            &lt;title&gt;{title}&lt;/title&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+            &lt;h1&gt;{title}&lt;/h1&gt;
+            &lt;p&gt;{body_content}&lt;/p&gt;
+        &lt;/body&gt;
+    &lt;/html&gt;
+    &quot;&quot;&quot;
+
+    with Html__To__Html_Tag(html) as tag:
+        return tag
+
+def assert_valid_conversion(html_string):
+    &quot;&quot;&quot;Assert HTML converts successfully.&quot;&quot;&quot;
+    with Html__To__Html_Tag(html_string) as tag:
+        assert tag is not None, &quot;Conversion returned None&quot;
+        assert hasattr(tag, 'tag_name'), &quot;Result missing tag_name&quot;
+        assert hasattr(tag, 'render'), &quot;Result missing render method&quot;
+
+        # Try rendering
+        rendered = tag.render()
+        assert rendered, &quot;Rendered HTML is empty&quot;
+
+    return tag
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Use Context Manager</strong>: Leverage the with statement for clean code</li>
+<li><strong>Check Tag Types</strong>: Verify expected tag types after conversion</li>
+<li><strong>Handle Errors</strong>: Always wrap conversions in try-except</li>
+<li><strong>Validate Results</strong>: Check converted tags before using</li>
+<li><strong>Memory Awareness</strong>: Large HTML documents create many objects</li>
+</ol>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="adding-metadata">Adding Metadata<a class="headerlink" href="#adding-metadata" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def add_metadata_to_html(html_string, metadata):
+    &quot;&quot;&quot;Add metadata to HTML head.&quot;&quot;&quot;
+    with Html__To__Html_Tag(html_string) as tag:
+        if isinstance(tag, Tag__Html):
+            for name, content in metadata.items():
+                meta = Tag__Base(
+                    tag_name='meta',
+                    attributes={'name': name, 'content': content},
+                    end_tag=False
+                )
+                tag.head.elements.append(meta)
+
+        return tag.render()
+</code></pre>
+<h3 id="extracting-information">Extracting Information<a class="headerlink" href="#extracting-information" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def extract_links_from_html(html_string):
+    &quot;&quot;&quot;Extract all links from HTML.&quot;&quot;&quot;
+    links = []
+
+    def extract_from_tag(tag):
+        if tag.tag_name == 'a' and 'href' in tag.attributes:
+            links.append({
+                'href': tag.attributes['href'],
+                'text': tag.inner_html,
+                'attributes': tag.attributes
+            })
+
+        for child in getattr(tag, 'elements', []):
+            if hasattr(child, 'tag_name'):
+                extract_from_tag(child)
+
+    with Html__To__Html_Tag(html_string) as tag:
+        extract_from_tag(tag)
+
+    return links
+</code></pre>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Memory Usage</strong>: Creates full object tree in memory</li>
+<li><strong>No Streaming</strong>: Requires complete HTML document</li>
+<li><strong>Parse Errors</strong>: Malformed HTML may fail to convert</li>
+<li><strong>Performance</strong>: Object creation adds overhead</li>
+<li><strong>Tag Types</strong>: Limited to available tag classes</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

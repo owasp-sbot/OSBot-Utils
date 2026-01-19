@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/Html_Document__To__Html_Dict/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Html_Document__To__Html_Dict - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Html_Document__To__Html_Dict";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/Html_Document__To__Html_Dict.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/Html_Document__To__Html_Dict/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Html_Document__To__Html_Dict</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="html_document__to__html_dict">Html_Document__To__Html_Dict<a class="headerlink" href="#html_document__to__html_dict" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Html_Document__To__Html_Dict</code> reverses the schema conversion process, transforming type-safe <code>Schema__Html_Document</code> objects back into dictionary representations. This enables the complete roundtrip from HTML to schema and back to HTML.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Html_Document__To__Html_Dict(Type_Safe):
+    html__document : Schema__Html_Document = None
+    html__dict     : dict                  = None
+</code></pre>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>This converter is essential for:
+1. <strong>Completing the Roundtrip</strong>: Schema → Dict → HTML
+2. <strong>Position Merging</strong>: Reconstructs mixed content using positions
+3. <strong>Format Compatibility</strong>: Outputs the same format as <code>Html__To__Html_Dict</code>
+4. <strong>Serialization Bridge</strong>: Converts from type-safe to parseable format</p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="convert-dict"><code>convert() -&gt; dict</code><a class="headerlink" href="#convert-dict" title="Permanent link">&para;</a></h3>
+<p>Main method that converts a schema document back to dictionary format.</p>
+<pre><code class="language-python">converter = Html_Document__To__Html_Dict(html__document=document)
+html_dict = converter.convert()
+</code></pre>
+<h3 id="node_to_dictnode-schema__html_node-dictstr-any"><code>node_to_dict(node: Schema__Html_Node) -&gt; Dict[str, Any]</code><a class="headerlink" href="#node_to_dictnode-schema__html_node-dictstr-any" title="Permanent link">&para;</a></h3>
+<p>Recursively converts schema nodes to dictionary format, handling:
+- Merging child_nodes and text_nodes by position
+- Recreating the mixed content structure
+- Converting attributes back to dict format</p>
+<h2 id="conversion-process">Conversion Process<a class="headerlink" href="#conversion-process" title="Permanent link">&para;</a></h2>
+<h3 id="1-input-schema-format">1. Input Schema Format<a class="headerlink" href="#1-input-schema-format" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">Schema__Html_Node(
+    tag='div',
+    attrs={'class': 'container'},
+    child_nodes=[
+        Schema__Html_Node(tag='p', position=1, ...)
+    ],
+    text_nodes=[
+        Schema__Html_Node__Data(data='Before', position=0),
+        Schema__Html_Node__Data(data='After', position=2)
+    ]
+)
+</code></pre>
+<h3 id="2-position-based-merging">2. Position-Based Merging<a class="headerlink" href="#2-position-based-merging" title="Permanent link">&para;</a></h3>
+<p>The converter:
+1. Collects all nodes with their positions
+2. Sorts by position
+3. Rebuilds the original mixed array</p>
+<h3 id="3-output-dictionary-format">3. Output Dictionary Format<a class="headerlink" href="#3-output-dictionary-format" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">{
+    'tag': 'div',
+    'attrs': {'class': 'container'},
+    'nodes': [
+        {'type': 'TEXT', 'data': 'Before'},
+        {'tag': 'p', 'attrs': {}, 'nodes': [...]},
+        {'type': 'TEXT', 'data': 'After'}
+    ]
+}
+</code></pre>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-conversion">Basic Conversion<a class="headerlink" href="#basic-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.schemas.Schema__Html_Document import Schema__Html_Document
+from osbot_utils.helpers.html.transformers.Html_Document__To__Html_Dict import Html_Document__To__Html_Dict
+
+# Assume we have a document
+document = Schema__Html_Document.from_json(json_data)
+
+# Convert back to dict
+converter = Html_Document__To__Html_Dict(html__document=document)
+html_dict = converter.convert()
+
+# Now can render to HTML
+html = Html_Dict__To__Html(html_dict).convert()
+</code></pre>
+<h3 id="complete-roundtrip">Complete Roundtrip<a class="headerlink" href="#complete-roundtrip" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Original HTML
+original_html = &quot;&lt;div&gt;Hello &lt;strong&gt;World&lt;/strong&gt;!&lt;/div&gt;&quot;
+
+# Parse to dict
+dict1 = Html__To__Html_Dict(original_html).convert()
+
+# Convert to document
+document = Html_Dict__To__Html_Document(html__dict=dict1).convert()
+
+# Convert back to dict
+dict2 = Html_Document__To__Html_Dict(html__document=document).convert()
+
+# Should be identical
+assert dict1 == dict2
+
+# Convert back to HTML
+final_html = Html_Dict__To__Html(dict2).convert()
+</code></pre>
+<h3 id="handling-complex-structures">Handling Complex Structures<a class="headerlink" href="#handling-complex-structures" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Document with nested mixed content
+document = create_complex_document()
+
+# Convert maintaining structure
+converter = Html_Document__To__Html_Dict(html__document=document)
+html_dict = converter.convert()
+
+# Verify structure preserved
+def verify_mixed_content(node_dict):
+    nodes = node_dict.get('nodes', [])
+    for i, node in enumerate(nodes):
+        if node.get('type') == 'TEXT':
+            print(f&quot;Position {i}: Text '{node['data']}'&quot;)
+        else:
+            print(f&quot;Position {i}: Element &lt;{node['tag']}&gt;&quot;)
+</code></pre>
+<h2 id="position-resolution-algorithm">Position Resolution Algorithm<a class="headerlink" href="#position-resolution-algorithm" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># The algorithm for merging nodes:
+all_nodes = []
+
+# Add child nodes with positions
+for child in node.child_nodes:
+    all_nodes.append((child.position, 'child', child))
+
+# Add text nodes with positions  
+for text in node.text_nodes:
+    all_nodes.append((text.position, 'text', text))
+
+# Sort by position
+all_nodes.sort(key=lambda x: x[0])
+
+# Build nodes array
+nodes = []
+for position, node_type, node_obj in all_nodes:
+    if node_type == 'text':
+        nodes.append({
+            'type': 'TEXT',
+            'data': node_obj.data
+        })
+    else:
+        nodes.append(self.node_to_dict(node_obj))
+</code></pre>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def safe_convert(document):
+    &quot;&quot;&quot;Safely convert document to dict with error handling.&quot;&quot;&quot;
+    if not document:
+        return None
+
+    try:
+        converter = Html_Document__To__Html_Dict(html__document=document)
+        return converter.convert()
+    except Exception as e:
+        print(f&quot;Conversion error: {e}&quot;)
+        return None
+</code></pre>
+<h2 id="integration-patterns">Integration Patterns<a class="headerlink" href="#integration-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="with-modification-pipeline">With Modification Pipeline<a class="headerlink" href="#with-modification-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def modify_and_convert(document):
+    &quot;&quot;&quot;Modify document and convert back.&quot;&quot;&quot;
+    # Modify the document
+    for node in document.root_node.child_nodes:
+        if node.tag == 'p':
+            node.attrs['class'] = 'modified'
+
+    # Convert back to dict
+    return Html_Document__To__Html_Dict(
+        html__document=document
+    ).convert()
+</code></pre>
+<h3 id="validation-after-conversion">Validation After Conversion<a class="headerlink" href="#validation-after-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def validate_roundtrip(original_dict, document):
+    &quot;&quot;&quot;Ensure roundtrip maintains structure.&quot;&quot;&quot;
+    # Convert back
+    converter = Html_Document__To__Html_Dict(html__document=document)
+    result_dict = converter.convert()
+
+    # Compare
+    if original_dict != result_dict:
+        # Find differences
+        return find_dict_differences(original_dict, result_dict)
+
+    return None  # Success
+</code></pre>
+<h2 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h2>
+<h3 id="batch-processing">Batch Processing<a class="headerlink" href="#batch-processing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def batch_convert_documents(documents):
+    &quot;&quot;&quot;Convert multiple documents efficiently.&quot;&quot;&quot;
+    results = []
+
+    for document in documents:
+        converter = Html_Document__To__Html_Dict(html__document=document)
+        results.append(converter.convert())
+
+    return results
+</code></pre>
+<h3 id="caching-conversion">Caching Conversion<a class="headerlink" href="#caching-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class CachedConverter:
+    def __init__(self):
+        self._cache = {}
+
+    def convert(self, document):
+        # Use document timestamp as cache key
+        cache_key = f&quot;{id(document)}_{document.timestamp}&quot;
+
+        if cache_key not in self._cache:
+            converter = Html_Document__To__Html_Dict(
+                html__document=document
+            )
+            self._cache[cache_key] = converter.convert()
+
+        return self._cache[cache_key]
+</code></pre>
+<h2 id="testing-patterns">Testing Patterns<a class="headerlink" href="#testing-patterns" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def test_position_preservation():
+    &quot;&quot;&quot;Test that positions correctly reconstruct order.&quot;&quot;&quot;
+    # Create test structure
+    text1 = Schema__Html_Node__Data(data='A', position=0)
+    elem = Schema__Html_Node(tag='b', position=1)
+    text2 = Schema__Html_Node__Data(data='B', position=2)
+
+    node = Schema__Html_Node(
+        tag='div',
+        text_nodes=[text1, text2],
+        child_nodes=[elem]
+    )
+
+    # Convert
+    result = node_to_dict(node)
+
+    # Verify order
+    assert result['nodes'][0]['data'] == 'A'
+    assert result['nodes'][1]['tag'] == 'b'
+    assert result['nodes'][2]['data'] == 'B'
+</code></pre>
+<h2 id="common-issues-and-solutions">Common Issues and Solutions<a class="headerlink" href="#common-issues-and-solutions" title="Permanent link">&para;</a></h2>
+<h3 id="missing-positions">Missing Positions<a class="headerlink" href="#missing-positions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Problem: Nodes without positions
+# Solution: Assign positions during creation
+def fix_positions(node):
+    all_items = [(n, 'child') for n in node.child_nodes]
+    all_items.extend([(n, 'text') for n in node.text_nodes])
+
+    for i, (item, type_) in enumerate(all_items):
+        if item.position == -1:  # Unset
+            item.position = i
+</code></pre>
+<h3 id="position-conflicts">Position Conflicts<a class="headerlink" href="#position-conflicts" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Problem: Multiple nodes with same position
+# Solution: Re-index positions
+def reindex_positions(node):
+    all_positions = []
+    for child in node.child_nodes:
+        all_positions.append((child.position, child, 'child'))
+    for text in node.text_nodes:
+        all_positions.append((text.position, text, 'text'))
+
+    # Sort and reassign
+    all_positions.sort(key=lambda x: x[0])
+    for i, (_, item, _) in enumerate(all_positions):
+        item.position = i
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Verify Positions</strong>: Always check position consistency</li>
+<li><strong>Handle Empty Nodes</strong>: Account for nodes without children</li>
+<li><strong>Preserve Attributes</strong>: Ensure all attributes are maintained</li>
+<li><strong>Test Roundtrips</strong>: Verify dict1 == dict2 after roundtrip</li>
+<li><strong>Document Changes</strong>: Track any modifications during conversion</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev/Python-code-formatting-guidelines/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Coding Guidelines - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Coding Guidelines";
+        var mkdocs_page_input_path = "dev/Python-code-formatting-guidelines.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev/Python-code-formatting-guidelines/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Coding Guidelines</a>
+    <ul class="current">
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Development</li>
+      <li class="breadcrumb-item active">Coding Guidelines</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="python-code-formatting-guidelines">Python Code Formatting Guidelines<a class="headerlink" href="#python-code-formatting-guidelines" title="Permanent link">&para;</a></h1>
+<h1 id="code-formatting-philosophy-principles-and-specification">Code Formatting Philosophy, Principles and Specification<a class="headerlink" href="#code-formatting-philosophy-principles-and-specification" title="Permanent link">&para;</a></h1>
+<h2 id="core-principles">Core Principles<a class="headerlink" href="#core-principles" title="Permanent link">&para;</a></h2>
+<h3 id="1-visual-pattern-recognition">1. Visual Pattern Recognition<a class="headerlink" href="#1-visual-pattern-recognition" title="Permanent link">&para;</a></h3>
+<p>The human brain excels at pattern recognition. This formatting prioritizes creating clear visual patterns that make code structure immediately apparent: 
+- Aligned equals signs create vertical lanes that guide the eye
+- Consistent comma placement creates predictable rhythm
+- Grouped imports with aligned elements form distinct visual blocks</p>
+<h3 id="2-information-density-vs-readability">2. Information Density vs Readability<a class="headerlink" href="#2-information-density-vs-readability" title="Permanent link">&para;</a></h3>
+<p>While PEP-8 often spreads code across many lines for "readability", this approach recognizes that excessive vertical spread can actually harm comprehension by:</p>
+<ul>
+<li>Forcing more scrolling</li>
+<li>Breaking mental context</li>
+<li>Making patterns harder to spot</li>
+<li>Reducing the amount of code visible at once</li>
+</ul>
+<h3 id="3-contextual-proximity">3. Contextual Proximity<a class="headerlink" href="#3-contextual-proximity" title="Permanent link">&para;</a></h3>
+<p>Related information should be visually close to enhance understanding:
+- Method documentation appears on the same line as the method definition
+- Constructor parameters align vertically to show relationships
+- Dictionary key-value pairs maintain close horizontal proximity</p>
+<h2 id="departures-from-pep-8">Departures from PEP-8<a class="headerlink" href="#departures-from-pep-8" title="Permanent link">&para;</a></h2>
+<h3 id="why-we-differ">Why We Differ<a class="headerlink" href="#why-we-differ" title="Permanent link">&para;</a></h3>
+<p>PEP-8's formatting guidelines, while well-intentioned, can create several practical issues:</p>
+<ol>
+<li>Vertical Space Inefficiency</li>
+</ol>
+<pre><code class="language-python"># PEP-8 style
+self.method_call(
+parameter_one=&quot;value&quot;,
+    parameter_two=&quot;value&quot;,
+    parameter_three=&quot;value&quot;
+)
+
+# This style
+self.method_call(parameter_one   = &quot;value&quot;,
+                 parameter_two   = &quot;value&quot;,
+                 parameter_three = &quot;value&quot;)
+</code></pre>
+<ol>
+<li>Loss of Visual Patterns</li>
+</ol>
+<pre><code class="language-python"># PEP-8 style
+assert something.value == expected_value
+assert something_else.other_value == other_expected_value
+assert third_thing.final_value == final_expected_value
+
+# This style
+assert something.value          == expected_value
+assert something_else.value     == other_expected_value
+assert third_thing.final_value  == final_expected_value
+</code></pre>
+<ol>
+<li>Broken Visual Context</li>
+</ol>
+<pre><code class="language-python"># PEP-8 style - related elements separated
+class SomeClass:
+
+    def __init__(
+        self,
+        param_one,
+        param_two
+    ):
+        self.param_one = param_one
+        self.param_two = param_two
+
+# This style - related elements together
+class SomeClass:
+    def __init__(self, param_one ,
+                       param_two  
+                   )-&gt; None:
+        self.param_one = param_one
+        self.param_two = param_two
+</code></pre>
+<h2 id="benefits-of-our-approach">Benefits of Our Approach<a class="headerlink" href="#benefits-of-our-approach" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Enhanced Scanning</li>
+<li>Column alignment makes it easy to scan for specific elements</li>
+<li>Consistent patterns reduce cognitive load</li>
+<li>
+<p>Related information stays visually grouped</p>
+</li>
+<li>
+<p>Better Maintainability</p>
+</li>
+<li>Alignment makes inconsistencies immediately visible</li>
+<li>Format violations stand out visually</li>
+<li>
+<p>Pattern adherence encourages consistent updates</p>
+</li>
+<li>
+<p>Improved Debugging</p>
+</li>
+<li>Clear visual structure helps spot logical errors</li>
+<li>Aligned comparisons make value mismatches obvious</li>
+<li>
+<p>Grouped information reduces context switching</p>
+</li>
+<li>
+<p>Code Review Efficiency</p>
+</li>
+<li>Structured patterns make changes more apparent</li>
+<li>Consistent formatting reduces noise in diffs</li>
+<li>Visual grouping helps reviewers understand intent</li>
+</ol>
+<h2 id="real-world-impact">Real-World Impact<a class="headerlink" href="#real-world-impact" title="Permanent link">&para;</a></h2>
+<p>This formatting approach has proven particularly valuable in:
+- Large codebases where pattern recognition becomes crucial
+- Test files where structure and relationships matter more than PEP-8 conformity
+- Code review processes where visual clarity speeds up reviews
+- Debugging sessions where quick scanning and pattern recognition are essential</p>
+<p>Our philosophy prioritizes human factors and practical utility over strict adherence to style guidelines, recognizing that code is read far more often than it is written.</p>
+<h1 id="python-code-formatting-specification">Python Code Formatting Specification<a class="headerlink" href="#python-code-formatting-specification" title="Permanent link">&para;</a></h1>
+<h2 id="import-statements">Import Statements<a class="headerlink" href="#import-statements" title="Permanent link">&para;</a></h2>
+<p>Imports should be aligned with the longest import path, using spaces between major groups:</p>
+<pre><code class="language-python">from unittest                                        import TestCase
+from mgraph_ai.schemas.Schema__MGraph__Node          import Schema__MGraph__Node
+from mgraph_ai.schemas.Schema__MGraph__Node__Config  import Schema__MGraph__Node__Config
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid                 import Random_Guid
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id                     import Safe_Id
+</code></pre>
+<h2 id="method-signature-formatting">Method Signature Formatting<a class="headerlink" href="#method-signature-formatting" title="Permanent link">&para;</a></h2>
+<h3 id="core-principles_1">Core Principles<a class="headerlink" href="#core-principles_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Visual Lanes</strong></li>
+<li>Parameters stack vertically</li>
+<li>Type hints align in their own column</li>
+<li>Comments align at a consistent position</li>
+<li>
+<p>Return types appear on a new line after continuation</p>
+</li>
+<li>
+<p><strong>Information Density</strong></p>
+</li>
+<li>Each line contains one parameter</li>
+<li>Type information is immediately visible</li>
+<li>Purpose is clear from aligned comment</li>
+<li>Related elements stay visually grouped</li>
+</ol>
+<h3 id="method-signature-layout">Method Signature Layout<a class="headerlink" href="#method-signature-layout" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def method_name(self, first_param  : Type1        ,                               # Method purpose comment
+                      second_param : Type2        ,                               # Aligned at column 80
+                      third_param  : Type3 = None                                 # Default values align with type
+                 ) -&gt; ReturnType:                                                # Return on new line
+</code></pre>
+<p>Key aspects:
+- Method name starts at indent level
+- Parameters indent to align with opening parenthesis
+- Type hints align in their own column
+- Commas align in their own column
+- Backslash continuation before return type
+- Return type aligns with the first variable name
+- Comments align at column 80
+- vertical alignment on : , #
+- DON'T use this when there is only one param or when (where are no types or default values being set)
+- the format for the return type is ") -&gt; {return type}" </p>
+<h3 id="parameter-documentation">Parameter Documentation<a class="headerlink" href="#parameter-documentation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def complex_operation(self, data_input     : Dict    [str, Any]         ,         # Primary data structure
+                            config_options : Optional[Config  ]         ,         # Processing configuration 
+                            max_retries    : int                = 3     ,         # Maximum retry attempts
+                            timeout_ms     : float              = 1000.0          # Operation timeout
+                       ) -&gt; Tuple[Results, Metrics]:             # Returns results and metrics
+</code></pre>
+<p>Guidelines:
+- Parameter names should be descriptive
+- Type hints should be as specific as possible
+- Default values align with type hints
+- Comments describe parameter purpose
+- Return type comment describes what is returned</p>
+<h3 id="method-groups-and-spacing">Method Groups and Spacing<a class="headerlink" href="#method-groups-and-spacing" title="Permanent link">&para;</a></h3>
+<p>Methods should be grouped by functionality with clear separation:</p>
+<pre><code class="language-python">    # Core initialization methods
+    def __init__(self, config : Config                                           # Initialize with configuration
+                  ) -&gt; None:                                                           
+
+    def setup(self, options: Dict[str, Any]                                      # Configure processing options
+               ) -&gt; bool:                                                              
+
+
+    # Data validation methods  
+    def validate_input(self, data        : InputData        ,                    # Validate input format
+                             strict_mode : bool      = False                     # Enable strict validation
+                        ) -&gt; ValidationResult:
+
+    def validate_output(self, result     : OutputData ,                          # Validate output format
+                              thresholds : Thresholds                            # Validation thresholds
+                         ) -&gt; bool:
+
+
+    # Processing methods
+    def process_item(self, item     : DataItem ,                                 # Process single data item
+                           settings : Settings                                   # Processing settings
+                      ) -&gt; ProcessedItem:
+</code></pre>
+<p>Note how the return type name assigns with the variable self, and there is always at least one space before the : and the ,</p>
+<h3 id="complex-type-signatures">Complex Type Signatures<a class="headerlink" href="#complex-type-signatures" title="Permanent link">&para;</a></h3>
+<p>For methods with complex type signatures:</p>
+<pre><code class="language-python">def process_batch(self, items           : List[DataItem]                   ,     # Batch of items to process
+                        batch_config     : BatchConfig                      ,     # Batch processing config
+                        error_handler    : ErrorHandler                     ,     # Handles processing errors
+                        retry_strategy   : Optional[Strategy]               ,     # Retry strategy to use
+                        metrics_callback : Callable[[Metrics], None] = None       # Metrics reporting callback
+                   ) -&gt; BatchResults:                          # Processed batch results
+</code></pre>
+<p>Guidelines:
+- Break complex generic types at logical points
+- Align nested type parameters
+- Keep related type information together
+- Document complex types in comments</p>
+<h2 id="variable-assignment-alignment">Variable Assignment Alignment<a class="headerlink" href="#variable-assignment-alignment" title="Permanent link">&para;</a></h2>
+<p>Variable assignments should be aligned on the <code>=</code> operator:</p>
+<pre><code class="language-python">self.node_id    = Random_Guid()
+self.value_type = str
+</code></pre>
+<h2 id="constructor-calls">Constructor Calls<a class="headerlink" href="#constructor-calls" title="Permanent link">&para;</a></h2>
+<p>Constructor calls should be formatted with aligned parameters, aligned equals signs, and aligned commas:</p>
+<pre><code class="language-python">node_config = Schema__MGraph__Node__Config(node_id    = Random_Guid(),
+                                           value_type = str          )
+
+</code></pre>
+<p>Note that:
+- The opening parenthesis is on the same line as the constructor call
+- Parameters are indented to align with the start of the constructor name
+- Equals signs are aligned
+- Commas are aligned at the end
+- Closing parenthesis is aligned with the commas</p>
+<h2 id="assert-statements">Assert Statements<a class="headerlink" href="#assert-statements" title="Permanent link">&para;</a></h2>
+<p>Assert statements should be aligned on the comparison operator:</p>
+<pre><code class="language-python">assert type(self.node)                                   is Schema__MGraph__Node
+assert self.node.node_data                               == self.node_data
+assert self.node.value                                   == &quot;test_node_value&quot;
+assert len(self.node.attributes)                         == 1
+assert self.node.attributes[self.attribute.attribute_id] == self.attribute
+</code></pre>
+<h2 id="dictionary-literals">Dictionary Literals<a class="headerlink" href="#dictionary-literals" title="Permanent link">&para;</a></h2>
+<p>Dictionary literals in constructor calls should maintain alignment while using minimal line breaks:</p>
+<pre><code class="language-python">node = Schema__MGraph__Node(attributes = {attr_1.attribute_id: attr_1   ,
+                                          attr_2.attribute_id: attr_2}  ,
+                            node_config = self.node_data                ,
+                            node_type   = Schema__MGraph__Node          ,
+                            value       = &quot;test_node_value&quot;             )
+</code></pre>
+<h2 id="test-class-structure">Test Class Structure<a class="headerlink" href="#test-class-structure" title="Permanent link">&para;</a></h2>
+<p>Test classes should follow this structure:
+1. Helper classes (if needed)
+2. setUp method
+3. Test methods in logical grouping:
+   - Basic initialization tests
+   - Type safety validation tests
+   - Functionality tests
+   - Edge cases/special scenarios</p>
+<p>Example:</p>
+<pre><code class="language-python">class Simple_Node(Schema__MGraph__Node): pass                                   # Helper class for testing
+
+class test_Schema__MGraph__Node(TestCase):
+
+    def setUp(self):                                                            # Initialize test data
+        ...
+
+    def test_init(self):                                                        # Tests basic initialization
+        ...
+
+    def test_type_safety_validation(self):                                      # Tests type safety
+        ...
+
+    def test_different_value_types(self):                                       # Tests various scenarios
+        ...
+</code></pre>
+<h2 id="comments-and-documentation">Comments and Documentation<a class="headerlink" href="#comments-and-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Inline documentation should be minimal and descriptive</li>
+<li>Comments explaining test cases should be aligned with the code</li>
+<li>Complex test setups should include explanatory comments</li>
+<li>DON'T add docstrings to methods or classes </li>
+<li>methods or classes can have a comment in the same line as the method return value (column aligned with the other comments on the page)</li>
+</ul>
+<h2 id="additional-guidelines">Additional Guidelines<a class="headerlink" href="#additional-guidelines" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Maximum line length should be reasonable (around 120 characters)</li>
+<li>Group related tests together</li>
+<li>Use consistent spacing between methods (one line)</li>
+<li>Maintain alphabetical ordering of imports when possible</li>
+<li>Use clear and descriptive test method names</li>
+</ul>
+<p>This specification aims to enhance code readability while maintaining consistent formatting across the codebase.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/" class="btn btn-neutral float-left" title="Flows"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

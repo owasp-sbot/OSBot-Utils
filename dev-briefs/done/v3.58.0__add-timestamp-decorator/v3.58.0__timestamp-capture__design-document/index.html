@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/done/v3.58.0__add-timestamp-decorator/v3.58.0__timestamp-capture__design-document/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Timestamp Capture System - Design Document - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Timestamp Capture System - Design Document";
+        var mkdocs_page_input_path = "dev-briefs/done/v3.58.0__add-timestamp-decorator/v3.58.0__timestamp-capture__design-document.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/done/v3.58.0__add-timestamp-decorator/v3.58.0__timestamp-capture__design-document/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Timestamp Capture System - Design Document</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="timestamp-capture-system-design-document">Timestamp Capture System - Design Document<a class="headerlink" href="#timestamp-capture-system-design-document" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.58.0<br />
+<strong>Date</strong>: December 2025</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>A lightweight performance instrumentation framework using decorators and stack-walking to capture execution timestamps with minimal code changes.</p>
+<hr />
+<h2 id="design-goals">Design Goals<a class="headerlink" href="#design-goals" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Minimal Code Changes</strong></td>
+<td>Just add <code>@timestamp</code> decorator to methods</td>
+</tr>
+<tr>
+<td><strong>No Signature Changes</strong></td>
+<td>Methods don't need collector parameter</td>
+</tr>
+<tr>
+<td><strong>Thread/Call-Specific</strong></td>
+<td>Each invocation has its own collector</td>
+</tr>
+<tr>
+<td><strong>Low Overhead</strong></td>
+<td>Minimal impact when not profiling</td>
+</tr>
+<tr>
+<td><strong>Reusable</strong></td>
+<td>Generic system, not tied to Html_MGraph</td>
+</tr>
+<tr>
+<td><strong>Leave-in-Place</strong></td>
+<td>Can remain in codebase permanently</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="core-concept">Core Concept<a class="headerlink" href="#core-concept" title="Permanent link">&para;</a></h2>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           STACK-WALKING PATTERN                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    Entry Point (test/main)                    @timestamp decorated methods
+    ────────────────────────                   ────────────────────────────
+
+    def test_workflow():                       class Converter:
+        _timestamp_collector_ = Collector()        @timestamp
+        with _timestamp_collector_:                def convert(self, data):
+            result = converter.convert(data)           ...
+                        │                              │
+                        │                              │
+                        ▼                              ▼
+                    ┌───────────────────────────────────────┐
+                    │         CALL STACK                    │
+                    ├───────────────────────────────────────┤
+                    │  frame 0: convert()                   │
+                    │  frame 1: ...                         │
+                    │  frame 2: ...                         │
+                    │  frame N: test_workflow()  ◄── HAS    │
+                    │           _timestamp_collector_       │
+                    └───────────────────────────────────────┘
+                                    │
+                                    │ walk stack, find collector
+                                    ▼
+                    ┌───────────────────────────────────────┐
+                    │  collector.enter(&quot;convert&quot;)           │
+                    │  ... execute method ...               │
+                    │  collector.exit(&quot;convert&quot;)            │
+                    └───────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="key-design-decisions">Key Design Decisions<a class="headerlink" href="#key-design-decisions" title="Permanent link">&para;</a></h2>
+<h3 id="1-stack-walking-to-find-collector">1. Stack-Walking to Find Collector<a class="headerlink" href="#1-stack-walking-to-find-collector" title="Permanent link">&para;</a></h3>
+<p><strong>Why</strong>: Avoids passing collector through every function signature.</p>
+<pre><code class="language-python"># WITHOUT stack-walking (invasive)
+def convert(self, data, collector=None):
+    result = self._parse(data, collector)       # Must thread through
+    result = self._transform(result, collector)  # Every method
+    return result
+
+# WITH stack-walking (non-invasive)
+@timestamp
+def convert(self, data):
+    result = self._parse(data)                   # No changes needed
+    result = self._transform(result)             # Signatures unchanged
+    return result
+</code></pre>
+<h3 id="2-magic-variable-name-_timestamp_collector_">2. Magic Variable Name <code>_timestamp_collector_</code><a class="headerlink" href="#2-magic-variable-name-_timestamp_collector_" title="Permanent link">&para;</a></h3>
+<p><strong>Why</strong>: Simple convention that works with Python's frame inspection.</p>
+<pre><code class="language-python"># The collector must be a local variable with this exact name
+_timestamp_collector_ = Timestamp_Collector()
+
+# Stack walker looks for this:
+if '_timestamp_collector_' in frame.f_locals:
+    return frame.f_locals['_timestamp_collector_']
+</code></pre>
+<h3 id="3-no-op-when-collector-absent">3. No-Op When Collector Absent<a class="headerlink" href="#3-no-op-when-collector-absent" title="Permanent link">&para;</a></h3>
+<p><strong>Why</strong>: Decorated code runs normally when not profiling.</p>
+<pre><code class="language-python">@timestamp
+def my_method(self):
+    ...
+
+# When no collector in stack:
+#   - Stack walk takes ~1-2μs
+#   - Returns None
+#   - Method executes directly
+#   - Minimal overhead
+</code></pre>
+<h3 id="4-perf_counter_ns-for-timing">4. perf_counter_ns for Timing<a class="headerlink" href="#4-perf_counter_ns-for-timing" title="Permanent link">&para;</a></h3>
+<p><strong>Why</strong>: Monotonic, high-resolution, not affected by system clock changes.</p>
+<pre><code class="language-python">timestamp_ns = time.perf_counter_ns()   # Monotonic, ~nanosecond precision
+clock_ns     = time.time_ns()            # Wall clock (for correlation)
+</code></pre>
+<hr />
+<h2 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
+<h3 id="timestamp_collector">Timestamp_Collector<a class="headerlink" href="#timestamp_collector" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Timestamp_Collector(Type_Safe):
+    name          : str                       # Collector name
+    entries       : List[Timestamp_Entry]     # All recorded entries
+    start_time_ns : int                       # Start timestamp
+    end_time_ns   : int                       # End timestamp
+
+    # Context manager
+    def __enter__(self) -&gt; 'Timestamp_Collector'
+    def __exit__(...)
+
+    # Recording
+    def enter(self, name: str, extra: Dict = None)
+    def exit(self, name: str, extra: Dict = None)
+
+    # Analysis
+    def total_duration_ms(self) -&gt; float
+    def get_method_timings(self) -&gt; Dict[str, Method_Timing]
+    def get_hotspots(self, top_n: int = 10) -&gt; List[Method_Timing]
+
+    # Reporting
+    def print_report()
+    def print_timeline(max_entries: int = 100)
+    def print_hotspots(top_n: int = 10)
+</code></pre>
+<h3 id="timestamp-decorator">@timestamp Decorator<a class="headerlink" href="#timestamp-decorator" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@timestamp
+def my_method(self):
+    ...
+
+@timestamp(name=&quot;custom.name&quot;)
+def another_method(self):
+    ...
+</code></pre>
+<h3 id="timestamp_block-context-manager">timestamp_block Context Manager<a class="headerlink" href="#timestamp_block-context-manager" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with timestamp_block(&quot;processing_phase&quot;):
+    # Code to measure
+    ...
+</code></pre>
+<hr />
+<h2 id="overhead-analysis">Overhead Analysis<a class="headerlink" href="#overhead-analysis" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Approximate Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stack walk (collector not found)</td>
+<td>~1-2 μs</td>
+</tr>
+<tr>
+<td>Stack walk (collector found)</td>
+<td>~1-2 μs</td>
+</tr>
+<tr>
+<td>Record entry</td>
+<td>~0.5-1 μs</td>
+</tr>
+<tr>
+<td>Per decorated call (when profiling)</td>
+<td>~3-5 μs total</td>
+</tr>
+<tr>
+<td>Per decorated call (no collector)</td>
+<td>~1-2 μs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comparison with alternatives</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Overhead</th>
+<th>Granularity</th>
+<th>Code Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>This approach</strong></td>
+<td>~3-5 μs/call</td>
+<td>Method-level</td>
+<td>Decorator only</td>
+</tr>
+<tr>
+<td>sys.settrace</td>
+<td>~100-500 μs/call</td>
+<td>Line-level</td>
+<td>None</td>
+</tr>
+<tr>
+<td>cProfile</td>
+<td>~10-50 μs/call</td>
+<td>Function-level</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Manual timing</td>
+<td>~1-2 μs/call</td>
+<td>Arbitrary</td>
+<td>Extensive</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="alternative-approaches-considered">Alternative Approaches Considered<a class="headerlink" href="#alternative-approaches-considered" title="Permanent link">&para;</a></h2>
+<h3 id="1-syssettrace-syssetprofile">1. sys.settrace / sys.setprofile<a class="headerlink" href="#1-syssettrace-syssetprofile" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def trace_calls(frame, event, arg):
+    if event == 'call':
+        record_entry(frame.f_code.co_name)
+    return trace_calls
+
+sys.settrace(trace_calls)
+</code></pre>
+<p><strong>Pros</strong>: No code changes, traces everything<br />
+<strong>Cons</strong>: High overhead (~100-500μs per call), captures too much</p>
+<h3 id="2-cprofile">2. cProfile<a class="headerlink" href="#2-cprofile" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import cProfile
+profiler = cProfile.Profile()
+profiler.enable()
+# ... code ...
+profiler.disable()
+profiler.print_stats()
+</code></pre>
+<p><strong>Pros</strong>: Built-in, comprehensive<br />
+<strong>Cons</strong>: Can't leave in place, all-or-nothing, ~10-50μs overhead</p>
+<h3 id="3-context-variables-python-37">3. Context Variables (Python 3.7+)<a class="headerlink" href="#3-context-variables-python-37" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from contextvars import ContextVar
+_collector: ContextVar[Timestamp_Collector] = ContextVar('collector')
+
+@timestamp
+def my_method(self):
+    collector = _collector.get(None)
+    if collector:
+        collector.enter(...)
+</code></pre>
+<p><strong>Pros</strong>: Thread-safe, async-compatible<br />
+<strong>Cons</strong>: Still need to set context var somewhere (similar to our approach)</p>
+<h3 id="4-thread-local-storage">4. Thread-Local Storage<a class="headerlink" href="#4-thread-local-storage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import threading
+_local = threading.local()
+
+@timestamp
+def my_method(self):
+    collector = getattr(_local, 'collector', None)
+    ...
+</code></pre>
+<p><strong>Pros</strong>: Simple, thread-safe<br />
+<strong>Cons</strong>: Global state, cleanup issues, less explicit</p>
+<hr />
+<h2 id="integration-with-html_mgraph">Integration with Html_MGraph<a class="headerlink" href="#integration-with-html_mgraph" title="Permanent link">&para;</a></h2>
+<h3 id="step-1-add-decorators-to-key-methods">Step 1: Add decorators to key methods<a class="headerlink" href="#step-1-add-decorators-to-key-methods" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Html__To__Html_MGraph__Document.py
+
+class Html__To__Html_MGraph__Document(Type_Safe):
+
+    @timestamp
+    def convert(self, html: str) -&gt; Html_MGraph__Document:
+        ...
+
+    @timestamp(name=&quot;parse_html&quot;)
+    def _parse_html(self, html: str):
+        self.soup = BeautifulSoup(html, 'html.parser')
+
+    @timestamp(name=&quot;build_body_graph&quot;)
+    def _build_body_graph(self, doc):
+        ...
+
+    @timestamp(name=&quot;build_attrs_graph&quot;)  
+    def _build_attrs_graph(self, doc):
+        ...
+
+    @timestamp(name=&quot;process_element&quot;)
+    def _process_element(self, elem, parent_id):
+        # Called many times - will aggregate
+        ...
+</code></pre>
+<h3 id="step-2-use-in-testsprofiling">Step 2: Use in tests/profiling<a class="headerlink" href="#step-2-use-in-testsprofiling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_conversion_performance():
+    html = load_test_html()
+
+    _timestamp_collector_ = Timestamp_Collector(name=&quot;html_conversion&quot;)
+
+    with _timestamp_collector_:
+        with Html__To__Html_MGraph__Document() as converter:
+            doc = converter.convert(html)
+
+    # Automatic report
+    _timestamp_collector_.print_report()
+
+    # Or get data programmatically
+    timings = _timestamp_collector_.get_method_timings()
+    assert timings['build_attrs_graph'].total_ms() &lt; 100
+</code></pre>
+<h3 id="step-3-leave-decorators-in-production">Step 3: Leave decorators in production<a class="headerlink" href="#step-3-leave-decorators-in-production" title="Permanent link">&para;</a></h3>
+<p>The decorators have minimal overhead (~1-2μs) when no collector is present.</p>
+<pre><code class="language-python"># Production code - no collector, minimal overhead
+doc = converter.convert(html)  # ~1-2μs extra per decorated method
+
+# Debugging - add collector to capture timing
+_timestamp_collector_ = Timestamp_Collector()
+with _timestamp_collector_:
+    doc = converter.convert(html)  # Full timing captured
+</code></pre>
+<hr />
+<h2 id="sample-output">Sample Output<a class="headerlink" href="#sample-output" title="Permanent link">&para;</a></h2>
+<pre><code>================================================================================
+Timestamp Report: html_conversion
+================================================================================
+
+  Total Duration : 3,419.15 ms
+  Entry Count    : 847
+  Methods Traced : 12
+
+Method Timings (sorted by total time):
+----------------------------------------------------------------------------------------------------
+Method                                             Calls      Total       Self      Avg    %Total
+----------------------------------------------------------------------------------------------------
+Html__To__Html_MGraph__Document.convert                1  2942.93ms  145.23ms 2942.930ms   86.1%
+build_attrs_graph                                      1  1823.45ms 1823.45ms 1823.450ms   53.3%
+build_body_graph                                       1   892.12ms  234.56ms  892.120ms   26.1%
+process_element                                      156   657.56ms  657.56ms    4.215ms   19.2%
+Html_MGraph__Document__To__Html.convert                1   476.22ms   89.34ms  476.220ms   13.9%
+serialize_element                                    156   386.88ms  386.88ms    2.480ms   11.3%
+...
+
+================================================================================
+Top 10 Hotspots (by self-time)
+================================================================================
+   1. build_attrs_graph                        1823.45ms (53.3%) [1 calls]
+   2. process_element                           657.56ms (19.2%) [156 calls]
+   3. serialize_element                         386.88ms (11.3%) [156 calls]
+   4. build_body_graph                          234.56ms ( 6.9%) [1 calls]
+   5. Html__To__Html_MGraph__Document.convert   145.23ms ( 4.2%) [1 calls]
+================================================================================
+</code></pre>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Find collector</td>
+<td>Stack walk looking for <code>_timestamp_collector_</code></td>
+</tr>
+<tr>
+<td>Minimal changes</td>
+<td><code>@timestamp</code> decorator only</td>
+</tr>
+<tr>
+<td>Low overhead</td>
+<td>~3-5μs when profiling, ~1-2μs when not</td>
+</tr>
+<tr>
+<td>Thread-safe</td>
+<td>Each call has its own collector</td>
+</tr>
+<tr>
+<td>Leave-in-place</td>
+<td>Decorators stay in production code</td>
+</tr>
+<tr>
+<td>Self-time</td>
+<td>Tracks exclusive time (minus children)</td>
+</tr>
+<tr>
+<td>Aggregation</td>
+<td>Sums multiple calls to same method</td>
+</tr>
+</tbody>
+</table>
+<p>The approach meets all stated requirements while providing rich timing data for performance analysis.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

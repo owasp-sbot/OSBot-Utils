@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.66.0__for_llms__semantic_graphs/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Semantic Graphs — LLM Reference Guide - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Semantic Graphs \u2014 LLM Reference Guide";
+        var mkdocs_page_input_path = "dev-briefs/v3.63.0__call-flow-analysis/v3.66.0__for_llms__semantic_graphs.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.66.0__for_llms__semantic_graphs/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Semantic Graphs — LLM Reference Guide</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="semantic-graphs-llm-reference-guide">Semantic Graphs — LLM Reference Guide<a class="headerlink" href="#semantic-graphs-llm-reference-guide" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> v3.66.0<br />
+<strong>Module:</strong> <code>osbot_utils.helpers.semantic_graphs</code><br />
+<strong>Status:</strong> Production<br />
+<strong>Created:</strong> January 2026<br />
+<strong>Purpose:</strong> Complete reference for LLMs working with the semantic_graphs codebase<br />
+<strong>Related:</strong> MGraph-DB v1.10.6 (visualization and query layer)</p>
+<hr />
+<h2 id="1-overview">1. Overview<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
+<p>The <code>semantic_graphs</code> module provides a type-safe framework for creating, validating, and projecting semantic graphs. It implements a rigorous ID/Ref architecture inspired by RDF/OWL standards, with a clear separation between machine-optimized storage (Schema__) and human-readable output (Projected__).</p>
+<h3 id="11-key-architectural-concepts">1.1 Key Architectural Concepts<a class="headerlink" href="#11-key-architectural-concepts" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Schema__ layer</strong></td>
+<td>ID-based, source of truth, for graph operations</td>
+</tr>
+<tr>
+<td><strong>Projected__ layer</strong></td>
+<td>Ref-based, human-readable, generated views</td>
+</tr>
+<tr>
+<td><strong>ID-based references</strong></td>
+<td>All cross-references use deterministic IDs (via <code>Obj_Id.from_seed()</code>)</td>
+</tr>
+<tr>
+<td><strong>Ref as labels</strong></td>
+<td><code>*_ref</code> fields are human-readable labels, never foreign keys</td>
+</tr>
+<tr>
+<td><strong>Type_Safe foundation</strong></td>
+<td>All classes extend <code>Type_Safe</code> for runtime validation</td>
+</tr>
+<tr>
+<td><strong>MGraph-DB compatible</strong></td>
+<td>All IDs are <code>Obj_Id</code>-based, enabling graph visualization</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-standards-alignment-rdfowl">1.2 Standards Alignment (RDF/OWL)<a class="headerlink" href="#12-standards-alignment-rdfowl" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Our Concept</th>
+<th>RDF/RDFS</th>
+<th>OWL</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node Type</td>
+<td><code>rdfs:Class</code></td>
+<td><code>owl:Class</code></td>
+<td>Type definition</td>
+</tr>
+<tr>
+<td>Node</td>
+<td><code>rdf:Resource</code></td>
+<td><code>owl:NamedIndividual</code></td>
+<td>Instance</td>
+</tr>
+<tr>
+<td>Predicate</td>
+<td><code>rdf:Property</code></td>
+<td><code>owl:ObjectProperty</code></td>
+<td>Relationship type</td>
+</tr>
+<tr>
+<td>Edge</td>
+<td>RDF Triple</td>
+<td>Same</td>
+<td>Subject-Predicate-Object</td>
+</tr>
+<tr>
+<td>Edge Rule</td>
+<td><code>rdfs:domain</code> + <code>rdfs:range</code></td>
+<td>Same</td>
+<td>Valid connections</td>
+</tr>
+<tr>
+<td>inverse_id</td>
+<td>—</td>
+<td><code>owl:inverseOf</code></td>
+<td>Bidirectional relationships</td>
+</tr>
+<tr>
+<td>Category</td>
+<td><code>rdfs:Class</code> hierarchy</td>
+<td><code>owl:subClassOf</code></td>
+<td>Classification</td>
+</tr>
+<tr>
+<td>Property Name</td>
+<td><code>rdf:Property</code></td>
+<td><code>owl:DatatypeProperty</code></td>
+<td>Data properties</td>
+</tr>
+<tr>
+<td>Property Type</td>
+<td><code>xsd:*</code> datatypes</td>
+<td>Same</td>
+<td>Value types</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-the-graph-of-graphs-vision">1.3 The "Graph of Graphs" Vision<a class="headerlink" href="#13-the-graph-of-graphs-vision" title="Permanent link">&para;</a></h3>
+<p>A critical architectural decision: <strong>every ID in semantic_graphs is <code>Obj_Id</code>-based</strong>, making it directly compatible with MGraph-DB's <code>Node_Id</code> and <code>Edge_Id</code>. This enables:</p>
+<ol>
+<li><strong>Visualizing the ontology itself</strong> as an MGraph-DB graph</li>
+<li><strong>Visualizing the taxonomy</strong> as a hierarchical graph</li>
+<li><strong>Visualizing rule sets</strong> and their constraints</li>
+<li><strong>Combining all artifacts</strong> into a unified queryable graph</li>
+<li><strong>Querying across metadata and data</strong> using MGraph-DB's index system</li>
+</ol>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                    MGraph-DB Visualization &amp; Query Layer                    │
+│                                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │  Ontology    │  │  Taxonomy    │  │  Rule Set    │  │  Projection  │     │
+│  │   Graph      │  │   Graph      │  │   Graph      │  │   Graph      │     │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘     │
+│         │                 │                 │                 │             │
+│         └─────────────────┴────────┬────────┴─────────────────┘             │
+│                                    │                                        │
+│                         ┌──────────▼──────────┐                             │
+│                         │   Combined Graph    │                             │
+│                         │  (Query Across All) │                             │
+│                         └──────────▲──────────┘                             │
+│                                    │                                        │
+│                         ┌──────────┴──────────┐                             │
+│                         │  Semantic Graph     │                             │
+│                         │  (Domain Data)      │                             │
+│                         └─────────────────────┘                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="2-mgraph-db-integration">2. MGraph-DB Integration<a class="headerlink" href="#2-mgraph-db-integration" title="Permanent link">&para;</a></h2>
+<h3 id="21-id-compatibility">2.1 ID Compatibility<a class="headerlink" href="#21-id-compatibility" title="Permanent link">&para;</a></h3>
+<p>The foundation of the integration is that ALL semantic_graphs IDs share the same base type as MGraph-DB:</p>
+<pre><code class="language-python"># semantic_graphs IDs (all extend Obj_Id)
+Node_Type_Id(Obj_Id.from_seed('myapp:nt:class'))
+Predicate_Id(Obj_Id.from_seed('myapp:pred:contains'))
+Category_Id(Obj_Id.from_seed('myapp:cat:callable'))
+Property_Name_Id(Obj_Id.from_seed('myapp:prop:line_number'))
+Ontology_Id(Obj_Id.from_seed('myapp:ontology:code'))
+Taxonomy_Id(Obj_Id.from_seed('myapp:taxonomy:categories'))
+
+# MGraph-DB IDs (also Obj_Id based)
+Node_Id(Obj_Id.from_seed('...'))
+Edge_Id(Obj_Id.from_seed('...'))
+</code></pre>
+<p><strong>This means:</strong> Any semantic_graphs ID can be used directly as a <code>Node_Id</code> in MGraph-DB.</p>
+<h3 id="22-foreign-keys-become-edges">2.2 Foreign Keys Become Edges<a class="headerlink" href="#22-foreign-keys-become-edges" title="Permanent link">&para;</a></h3>
+<p>Every <code>*_id</code> foreign key in semantic_graphs becomes an edge in MGraph-DB:</p>
+<pre><code class="language-python"># In semantic_graphs:
+Schema__Ontology__Node_Type(
+    node_type_id = Node_Type_Id('abc123'),      # This is a Node
+    category_id  = Category_Id('def456')        # This FK becomes an Edge!
+)
+
+# In MGraph-DB visualization:
+#   [Node: abc123] ──category_of──▶ [Node: def456]
+</code></pre>
+<h3 id="23-visualizable-artifacts">2.3 Visualizable Artifacts<a class="headerlink" href="#23-visualizable-artifacts" title="Permanent link">&para;</a></h3>
+<p>Each semantic_graphs artifact can be exported to MGraph-DB:</p>
+<h4 id="ontology-graph">Ontology Graph<a class="headerlink" href="#ontology-graph" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>MGraph-DB Node</th>
+<th>MGraph-DB Edges</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node Type</td>
+<td><code>Node_Type_Id</code></td>
+<td>→ <code>category_id</code> (to taxonomy)</td>
+</tr>
+<tr>
+<td>Predicate</td>
+<td><code>Predicate_Id</code></td>
+<td>→ <code>inverse_id</code> (bidirectional link)</td>
+</tr>
+<tr>
+<td>Property Name</td>
+<td><code>Property_Name_Id</code></td>
+<td>→ <code>property_type_id</code></td>
+</tr>
+<tr>
+<td>Property Type</td>
+<td><code>Property_Type_Id</code></td>
+<td>(leaf node)</td>
+</tr>
+<tr>
+<td>Edge Rule</td>
+<td>(creates edge)</td>
+<td><code>source_type_id</code> → <code>predicate_id</code> → <code>target_type_id</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code>Example Ontology Graph:
+
+    [class]───────────────────┐     
+       │                      │     
+       │ category_of          │     
+       ▼                      │     
+  [callable]                  │ contains (edge rule)
+       ▲                      │     
+       │ category_of          │     
+       │                      ▼     
+   [method]◄──────────────────┘     
+       │                            
+       │ allowed_property           
+       ▼                            
+ [line_number]──type_of──▶[integer] 
+</code></pre>
+<h4 id="taxonomy-graph">Taxonomy Graph<a class="headerlink" href="#taxonomy-graph" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>MGraph-DB Node</th>
+<th>MGraph-DB Edges</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Category</td>
+<td><code>Category_Id</code></td>
+<td>→ <code>parent_id</code>, → each <code>child_id</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code>Example Taxonomy Graph:
+
+        [code_element]
+         /     |     \
+        /      |      \
+       ▼       ▼       ▼
+ [callable] [container] [data]
+</code></pre>
+<h4 id="rule-set-graph">Rule Set Graph<a class="headerlink" href="#rule-set-graph" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>MGraph-DB Node</th>
+<th>MGraph-DB Edges</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rule Set</td>
+<td><code>Rule_Set_Id</code></td>
+<td>→ <code>ontology_id</code></td>
+</tr>
+<tr>
+<td>Required Node Property</td>
+<td>(rule node)</td>
+<td>→ <code>node_type_id</code>, → <code>property_name_id</code></td>
+</tr>
+<tr>
+<td>Required Edge Property</td>
+<td>(rule node)</td>
+<td>→ <code>predicate_id</code>, → <code>property_name_id</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code>Example Rule Set Graph:
+
+[code_analysis_rules]──applies_to──▶[code_analysis_ontology]
+         │
+         │ has_rule
+         ▼
+  [required_prop_rule]
+         │
+    ┌────┴────┐
+    │         │
+    ▼         ▼
+[method]  [line_number]
+</code></pre>
+<h4 id="semantic-graph-domain-data">Semantic Graph (Domain Data)<a class="headerlink" href="#semantic-graph-domain-data" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>MGraph-DB Node</th>
+<th>MGraph-DB Edges</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node</td>
+<td><code>Node_Id</code></td>
+<td>→ <code>node_type_id</code> (to ontology)</td>
+</tr>
+<tr>
+<td>Edge</td>
+<td>(creates edge)</td>
+<td><code>from_node_id</code> → <code>to_node_id</code> via <code>predicate_id</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code>Example Domain Graph:
+
+[my_module]──contains──▶[MyClass]──contains──▶[my_method]
+     │                      │                      │
+     │ type_of              │ type_of              │ type_of
+     ▼                      ▼                      ▼
+  [module]               [class]               [method]
+</code></pre>
+<h3 id="24-combined-graph-queries">2.4 Combined Graph Queries<a class="headerlink" href="#24-combined-graph-queries" title="Permanent link">&para;</a></h3>
+<p>With all artifacts in MGraph-DB, you can query across them:</p>
+<pre><code class="language-python"># Example: Find all nodes whose type is in the &quot;callable&quot; category
+mgraph.query()
+    .filter_by_predicate('type_of')           # Get type relationships
+    .traverse('category_of')                   # Follow to categories
+    .filter_by_value(Category_Ref('callable')) # Filter to callable
+    .collect()
+
+# Example: Find all nodes missing required properties
+mgraph.query()
+    .filter_by_predicate('has_rule')          # Get rules
+    .filter_by_type('required_prop_rule')     # Required property rules
+    .traverse('applies_to_type')              # Get affected node types
+    .collect()
+</code></pre>
+<h3 id="25-export-architecture-planned">2.5 Export Architecture (Planned)<a class="headerlink" href="#25-export-architecture-planned" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Future API design
+from semantic_graphs.exporters import MGraph_Exporter
+
+exporter = MGraph_Exporter()
+
+# Export individual artifacts
+ontology_graph = exporter.export_ontology(ontology)
+taxonomy_graph = exporter.export_taxonomy(taxonomy)
+rule_set_graph = exporter.export_rule_set(rule_set)
+data_graph     = exporter.export_semantic_graph(graph)
+
+# Export combined graph
+combined = exporter.export_all(
+    ontology = ontology,
+    taxonomy = taxonomy,
+    rule_set = rule_set,
+    graph    = graph
+)
+
+# Use MGraph-DB features
+combined.query().filter_by_type(Node_Type_Ref('method')).collect()
+combined.screenshot().save('full_graph.png')
+</code></pre>
+<hr />
+<h2 id="3-module-structure">3. Module Structure<a class="headerlink" href="#3-module-structure" title="Permanent link">&para;</a></h2>
+<pre><code>osbot_utils/helpers/semantic_graphs/
+├── graph/
+│   ├── Semantic_Graph__Builder.py      # Fluent API for graph construction
+│   ├── Semantic_Graph__Utils.py        # Query/traversal operations
+│   └── Semantic_Graph__Validator.py    # Rule-based validation
+├── ontology/
+│   ├── Ontology__Registry.py           # Ontology storage/lookup
+│   └── Ontology__Utils.py              # Ontology operations
+├── projectors/
+│   └── Semantic_Graph__Projector.py    # Schema__ → Projected__ transformation
+├── rule/
+│   ├── Rule__Engine.py                 # Rule execution engine
+│   └── Rule_Set__Utils.py              # Rule set operations
+├── schemas/
+│   ├── collection/                      # Type-safe collections
+│   │   ├── Dict__Nodes__By_Id.py
+│   │   ├── Dict__Categories__By_Id.py
+│   │   ├── Dict__Property_Names__By_Id.py
+│   │   └── ... (many more)
+│   ├── graph/
+│   │   ├── Schema__Semantic_Graph.py
+│   │   ├── Schema__Semantic_Graph__Node.py
+│   │   └── Schema__Semantic_Graph__Edge.py
+│   ├── identifier/                      # Semantic ID/Ref types
+│   │   ├── Node_Type_Id.py / Node_Type_Ref.py
+│   │   ├── Predicate_Id.py / Predicate_Ref.py
+│   │   ├── Category_Id.py / Category_Ref.py
+│   │   ├── Property_Name_Id.py / Property_Name_Ref.py
+│   │   └── ... (many more)
+│   ├── ontology/
+│   │   ├── Schema__Ontology.py
+│   │   ├── Schema__Ontology__Node_Type.py
+│   │   ├── Schema__Ontology__Predicate.py
+│   │   ├── Schema__Ontology__Property_Name.py
+│   │   └── Schema__Ontology__Property_Type.py
+│   ├── projected/
+│   │   ├── Schema__Projected__Semantic_Graph.py
+│   │   ├── Schema__Projected__Node.py
+│   │   └── Schema__Projected__References.py
+│   ├── rule/
+│   │   ├── Schema__Rule_Set.py
+│   │   ├── Schema__Rule__Required_Node_Property.py
+│   │   └── Schema__Rule__Required_Edge_Property.py
+│   └── taxonomy/
+│       ├── Schema__Taxonomy.py
+│       └── Schema__Taxonomy__Category.py
+├── taxonomy/
+│   ├── Taxonomy__Registry.py
+│   └── Taxonomy__Utils.py
+└── testing/
+    └── QA__Semantic_Graphs__Test_Data.py    # Deterministic test fixtures
+</code></pre>
+<hr />
+<h2 id="4-core-schemas">4. Core Schemas<a class="headerlink" href="#4-core-schemas" title="Permanent link">&para;</a></h2>
+<h3 id="41-schema__semantic_graph">4.1 Schema__Semantic_Graph<a class="headerlink" href="#41-schema__semantic_graph" title="Permanent link">&para;</a></h3>
+<p>The main graph container holding nodes and edges.</p>
+<pre><code class="language-python">class Schema__Semantic_Graph(Type_Safe):
+    graph_id        : Graph_Id                           # Instance identifier
+    graph_id_source : Schema__Id__Source       = None    # Provenance for deterministic IDs
+    ontology_id     : Ontology_Id                        # FK to ontology definition
+    nodes           : Dict__Nodes__By_Id                 # Node_Id → Schema__Semantic_Graph__Node
+    edges           : List__Semantic_Graph__Edges        # List of edges
+</code></pre>
+<h3 id="42-schema__semantic_graph__node">4.2 Schema__Semantic_Graph__Node<a class="headerlink" href="#42-schema__semantic_graph__node" title="Permanent link">&para;</a></h3>
+<p>A typed node with optional properties.</p>
+<pre><code class="language-python">class Schema__Semantic_Graph__Node(Type_Safe):
+    node_id        : Node_Id                             # Instance identifier
+    node_id_source : Schema__Id__Source        = None    # Provenance
+    node_type_id   : Node_Type_Id                        # FK to ontology node type
+    name           : Safe_Str__Id                        # Human-readable instance name
+    properties     : Dict__Node_Properties     = None    # Property_Name_Id → Safe_Str__Text
+</code></pre>
+<h3 id="43-schema__semantic_graph__edge">4.3 Schema__Semantic_Graph__Edge<a class="headerlink" href="#43-schema__semantic_graph__edge" title="Permanent link">&para;</a></h3>
+<p>A directed relationship (triple: subject → predicate → object).</p>
+<pre><code class="language-python">class Schema__Semantic_Graph__Edge(Type_Safe):
+    from_node_id   : Node_Id                             # Subject
+    predicate_id   : Predicate_Id                        # Predicate (relationship type)
+    to_node_id     : Node_Id                             # Object
+    properties     : Dict__Edge_Properties     = None    # Property_Name_Id → Safe_Str__Text
+</code></pre>
+<h3 id="44-schema__ontology">4.4 Schema__Ontology<a class="headerlink" href="#44-schema__ontology" title="Permanent link">&para;</a></h3>
+<p>Defines valid node types, predicates, properties, and edge rules.</p>
+<pre><code class="language-python">class Schema__Ontology(Type_Safe):
+    ontology_id    : Ontology_Id
+    ontology_ref   : Ontology_Ref                        # Human-readable label
+    taxonomy_id    : Taxonomy_Id               = None    # FK to taxonomy (optional)
+    node_types     : Dict__Node_Types__By_Id             # Node_Type_Id → Schema__Ontology__Node_Type
+    predicates     : Dict__Predicates__By_Id             # Predicate_Id → Schema__Ontology__Predicate
+    property_names : Dict__Property_Names__By_Id         # Property_Name_Id → Schema__Ontology__Property_Name
+    property_types : Dict__Property_Types__By_Id         # Property_Type_Id → Schema__Ontology__Property_Type
+    edge_rules     : List__Edge_Rules                    # Valid source-predicate-target combinations
+</code></pre>
+<h3 id="45-schema__ontology__node_type">4.5 Schema__Ontology__Node_Type<a class="headerlink" href="#45-schema__ontology__node_type" title="Permanent link">&para;</a></h3>
+<p>A node type definition with taxonomy link.</p>
+<pre><code class="language-python">class Schema__Ontology__Node_Type(Type_Safe):
+    node_type_id        : Node_Type_Id                   # Instance identifier
+    node_type_ref       : Node_Type_Ref                  # Human-readable label
+    category_id         : Category_Id          = None    # FK to taxonomy category
+    node_type_id_source : Schema__Id__Source   = None    # Provenance
+    description         : Safe_Str__Text       = None    # Optional description
+</code></pre>
+<h3 id="46-schema__ontology__predicate">4.6 Schema__Ontology__Predicate<a class="headerlink" href="#46-schema__ontology__predicate" title="Permanent link">&para;</a></h3>
+<p>A predicate (relationship type) with optional inverse.</p>
+<pre><code class="language-python">class Schema__Ontology__Predicate(Type_Safe):
+    predicate_id  : Predicate_Id                         # Instance identifier
+    predicate_ref : Predicate_Ref                        # Human-readable label (&quot;contains&quot;)
+    inverse_id    : Predicate_Id               = None    # FK to inverse predicate (&quot;in&quot;)
+    description   : Safe_Str__Text             = None    # Optional description
+</code></pre>
+<h3 id="47-schema__taxonomy">4.7 Schema__Taxonomy<a class="headerlink" href="#47-schema__taxonomy" title="Permanent link">&para;</a></h3>
+<p>Hierarchical classification system for node types.</p>
+<pre><code class="language-python">class Schema__Taxonomy(Type_Safe):
+    taxonomy_id  : Taxonomy_Id
+    taxonomy_ref : Taxonomy_Ref
+    version      : Safe_Str__Version
+    root_id      : Category_Id                           # FK to root category
+    categories   : Dict__Categories__By_Id               # Category_Id → Schema__Taxonomy__Category
+</code></pre>
+<h3 id="48-schema__taxonomy__category">4.8 Schema__Taxonomy__Category<a class="headerlink" href="#48-schema__taxonomy__category" title="Permanent link">&para;</a></h3>
+<p>A category in the taxonomy hierarchy.</p>
+<pre><code class="language-python">class Schema__Taxonomy__Category(Type_Safe):
+    category_id  : Category_Id                           # Instance identifier
+    category_ref : Category_Ref                          # Human-readable label
+    parent_id    : Category_Id               = None      # FK to parent (None = root)
+    child_ids    : List__Category_Ids                    # FKs to children
+</code></pre>
+<h3 id="49-schema__rule_set">4.9 Schema__Rule_Set<a class="headerlink" href="#49-schema__rule_set" title="Permanent link">&para;</a></h3>
+<p>Validation rules for graphs.</p>
+<pre><code class="language-python">class Schema__Rule_Set(Type_Safe):
+    rule_set_id              : Rule_Set_Id
+    rule_set_ref             : Rule_Set_Ref
+    ontology_id              : Ontology_Id               # FK to ontology these rules apply to
+    version                  : Safe_Str__Version
+    transitivity_rules       : List__Rules__Transitivity
+    cardinality_rules        : List__Rules__Cardinality
+    required_node_properties : List__Rules__Required_Node_Property
+    required_edge_properties : List__Rules__Required_Edge_Property
+</code></pre>
+<h3 id="410-schema__rule__required_node_property">4.10 Schema__Rule__Required_Node_Property<a class="headerlink" href="#410-schema__rule__required_node_property" title="Permanent link">&para;</a></h3>
+<p>A rule requiring a property on nodes of a specific type.</p>
+<pre><code class="language-python">class Schema__Rule__Required_Node_Property(Type_Safe):
+    node_type_id     : Node_Type_Id                      # FK to node type
+    property_name_id : Property_Name_Id                  # FK to required property
+    required         : bool                  = True      # True = must have, False = optional
+</code></pre>
+<hr />
+<h2 id="5-identifier-system">5. Identifier System<a class="headerlink" href="#5-identifier-system" title="Permanent link">&para;</a></h2>
+<h3 id="51-id-vs-ref-pattern">5.1 ID vs Ref Pattern<a class="headerlink" href="#51-id-vs-ref-pattern" title="Permanent link">&para;</a></h3>
+<p>Every entity has two identifiers:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+<th>Used For</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*_id</code></td>
+<td>Machine identifier</td>
+<td>Foreign keys, lookups, MGraph-DB nodes</td>
+<td><code>Node_Type_Id('a3f2b8c1')</code></td>
+</tr>
+<tr>
+<td><code>*_ref</code></td>
+<td>Human label</td>
+<td>Display, debugging</td>
+<td><code>Node_Type_Ref('method')</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical Rule:</strong> IDs are used for all cross-references. Refs are labels defined once on the entity itself.</p>
+<p><strong>MGraph-DB Integration:</strong> Because all <code>*_id</code> types extend <code>Obj_Id</code>, they can be used directly as <code>Node_Id</code> values in MGraph-DB graphs.</p>
+<h3 id="52-identifier-type-hierarchy">5.2 Identifier Type Hierarchy<a class="headerlink" href="#52-identifier-type-hierarchy" title="Permanent link">&para;</a></h3>
+<p>All identifiers extend from base types:</p>
+<pre><code class="language-python"># Base types (in osbot_utils.type_safe.primitives)
+class Semantic_Id(Type_Safe):   # Base for all *_Id types — Obj_Id compatible
+    pass
+
+class Semantic_Ref(Type_Safe):  # Base for all *_Ref types
+    pass
+
+# Semantic graph identifiers (all usable as MGraph-DB Node_Id)
+class Node_Type_Id(Semantic_Id): pass
+class Node_Type_Ref(Semantic_Ref): pass
+class Predicate_Id(Semantic_Id): pass
+class Predicate_Ref(Semantic_Ref): pass
+class Category_Id(Semantic_Id): pass
+class Category_Ref(Semantic_Ref): pass
+class Property_Name_Id(Semantic_Id): pass
+class Property_Name_Ref(Semantic_Ref): pass
+class Property_Type_Id(Semantic_Id): pass
+class Property_Type_Ref(Semantic_Ref): pass
+class Ontology_Id(Semantic_Id): pass
+class Ontology_Ref(Semantic_Ref): pass
+class Taxonomy_Id(Semantic_Id): pass
+class Taxonomy_Ref(Semantic_Ref): pass
+class Rule_Set_Id(Semantic_Id): pass
+class Rule_Set_Ref(Semantic_Ref): pass
+</code></pre>
+<h3 id="53-deterministic-id-generation">5.3 Deterministic ID Generation<a class="headerlink" href="#53-deterministic-id-generation" title="Permanent link">&para;</a></h3>
+<p>IDs are typically generated deterministically from seeds:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id import Obj_Id
+
+# Same seed always produces same ID
+node_type_id = Node_Type_Id(Obj_Id.from_seed('myapp:node_type:method'))
+predicate_id = Predicate_Id(Obj_Id.from_seed('myapp:predicate:contains'))
+category_id  = Category_Id(Obj_Id.from_seed('myapp:category:callable'))
+
+# These IDs are stable and can be used as MGraph-DB Node_Id values
+# This enables cross-artifact queries and visualization
+</code></pre>
+<h3 id="54-why-obj_id-matters">5.4 Why Obj_Id Matters<a class="headerlink" href="#54-why-obj_id-matters" title="Permanent link">&para;</a></h3>
+<p>The use of <code>Obj_Id.from_seed()</code> throughout provides:</p>
+<ol>
+<li><strong>Determinism:</strong> Same seed → same ID, every time</li>
+<li><strong>Reproducibility:</strong> Tests always produce identical graphs</li>
+<li><strong>MGraph-DB compatibility:</strong> All IDs work as <code>Node_Id</code>/<code>Edge_Id</code></li>
+<li><strong>Cross-artifact references:</strong> An <code>Ontology_Id</code> can reference the same entity in multiple graphs</li>
+<li><strong>Unified queries:</strong> Query across ontology, taxonomy, rules, and data in one graph</li>
+</ol>
+<hr />
+<h2 id="6-collection-types">6. Collection Types<a class="headerlink" href="#6-collection-types" title="Permanent link">&para;</a></h2>
+<p>Type-safe collections ensure correct key/value types:</p>
+<h3 id="61-dictionary-collections">6.1 Dictionary Collections<a class="headerlink" href="#61-dictionary-collections" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Key → Value mappings
+class Dict__Nodes__By_Id(Type_Safe__Dict):
+    expected_key_type   = Node_Id
+    expected_value_type = Schema__Semantic_Graph__Node
+
+class Dict__Node_Types__By_Id(Type_Safe__Dict):
+    expected_key_type   = Node_Type_Id
+    expected_value_type = Schema__Ontology__Node_Type
+
+class Dict__Categories__By_Id(Type_Safe__Dict):
+    expected_key_type   = Category_Id
+    expected_value_type = Schema__Taxonomy__Category
+
+class Dict__Property_Names__By_Id(Type_Safe__Dict):
+    expected_key_type   = Property_Name_Id
+    expected_value_type = Schema__Ontology__Property_Name
+
+class Dict__Node_Properties(Type_Safe__Dict):
+    expected_key_type   = Property_Name_Id
+    expected_value_type = Safe_Str__Text
+</code></pre>
+<h3 id="62-list-collections">6.2 List Collections<a class="headerlink" href="#62-list-collections" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class List__Semantic_Graph__Edges(Type_Safe__List):
+    expected_type = Schema__Semantic_Graph__Edge
+
+class List__Edge_Rules(Type_Safe__List):
+    expected_type = Schema__Ontology__Edge_Rule
+
+class List__Category_Ids(Type_Safe__List):
+    expected_type = Category_Id
+
+class List__Rules__Required_Node_Property(Type_Safe__List):
+    expected_type = Schema__Rule__Required_Node_Property
+</code></pre>
+<hr />
+<h2 id="7-building-graphs">7. Building Graphs<a class="headerlink" href="#7-building-graphs" title="Permanent link">&para;</a></h2>
+<h3 id="71-using-semantic_graph__builder">7.1 Using Semantic_Graph__Builder<a class="headerlink" href="#71-using-semantic_graph__builder" title="Permanent link">&para;</a></h3>
+<p>The builder provides a fluent API for graph construction:</p>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Builder import Semantic_Graph__Builder
+
+with Semantic_Graph__Builder() as builder:
+    # Configure
+    builder.with_ontology_id(ontology_id)
+    builder.with_deterministic_graph_id(Safe_Str__Id__Seed('my:graph'))
+
+    # Add nodes
+    builder.add_node(node_type_id=class_type_id, name=Safe_Str__Id('MyClass'))
+    builder.add_node(node_type_id=method_type_id, name=Safe_Str__Id('my_method'))
+
+    # Add edges
+    builder.add_edge(
+        from_name    = Safe_Str__Id('MyClass'),
+        predicate_id = contains_pred_id,
+        to_name      = Safe_Str__Id('my_method')
+    )
+
+    graph = builder.build()
+</code></pre>
+<h3 id="72-adding-properties-to-nodes">7.2 Adding Properties to Nodes<a class="headerlink" href="#72-adding-properties-to-nodes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Node_Properties import Dict__Node_Properties
+
+properties = Dict__Node_Properties()
+properties[line_number_id] = Safe_Str__Text('42')
+properties[docstring_id]   = Safe_Str__Text('Calculate sum of values')
+
+builder.add_node(
+    node_type_id = method_type_id,
+    name         = Safe_Str__Id('calculate_sum'),
+    properties   = properties
+)
+</code></pre>
+<hr />
+<h2 id="8-ontology-definition">8. Ontology Definition<a class="headerlink" href="#8-ontology-definition" title="Permanent link">&para;</a></h2>
+<h3 id="81-creating-an-ontology">8.1 Creating an Ontology<a class="headerlink" href="#81-creating-an-ontology" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology import Schema__Ontology
+
+# Create node types (with taxonomy links)
+class_type = Schema__Ontology__Node_Type(
+    node_type_id  = class_type_id,
+    node_type_ref = Node_Type_Ref('class'),
+    category_id   = callable_category_id,     # FK to taxonomy
+    description   = Safe_Str__Text('Python class')
+)
+
+method_type = Schema__Ontology__Node_Type(
+    node_type_id  = method_type_id,
+    node_type_ref = Node_Type_Ref('method'),
+    category_id   = callable_category_id,
+    description   = Safe_Str__Text('Python method')
+)
+
+# Create predicates (with inverse relationships)
+contains_pred = Schema__Ontology__Predicate(
+    predicate_id  = contains_id,
+    predicate_ref = Predicate_Ref('contains'),
+    inverse_id    = in_id                      # Bidirectional relationship
+)
+
+# Create edge rules
+edge_rule = Schema__Ontology__Edge_Rule(
+    source_type_id = class_type_id,
+    predicate_id   = contains_id,
+    target_type_id = method_type_id
+)
+
+# Assemble ontology
+ontology = Schema__Ontology(
+    ontology_id    = ontology_id,
+    ontology_ref   = Ontology_Ref('code_analysis'),
+    taxonomy_id    = taxonomy_id,
+    node_types     = node_types_dict,
+    predicates     = predicates_dict,
+    property_names = property_names_dict,
+    property_types = property_types_dict,
+    edge_rules     = edge_rules_list
+)
+</code></pre>
+<h3 id="82-defining-properties">8.2 Defining Properties<a class="headerlink" href="#82-defining-properties" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Property type (optional - for validation)
+string_type = Schema__Ontology__Property_Type(
+    property_type_id  = string_type_id,
+    property_type_ref = Property_Type_Ref('string')
+)
+
+int_type = Schema__Ontology__Property_Type(
+    property_type_id  = int_type_id,
+    property_type_ref = Property_Type_Ref('integer')
+)
+
+# Property name (with optional type constraint)
+line_number_prop = Schema__Ontology__Property_Name(
+    property_name_id  = line_number_id,
+    property_name_ref = Property_Name_Ref('line_number'),
+    property_type_id  = int_type_id          # Optional type constraint
+)
+</code></pre>
+<hr />
+<h2 id="9-taxonomy-definition">9. Taxonomy Definition<a class="headerlink" href="#9-taxonomy-definition" title="Permanent link">&para;</a></h2>
+<h3 id="91-creating-a-taxonomy-hierarchy">9.1 Creating a Taxonomy Hierarchy<a class="headerlink" href="#91-creating-a-taxonomy-hierarchy" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy import Schema__Taxonomy
+
+# Create categories with parent/child relationships
+root_cat = Schema__Taxonomy__Category(
+    category_id  = root_id,
+    category_ref = Category_Ref('code_element'),
+    parent_id    = None,                      # Root has no parent
+    child_ids    = List__Category_Ids([callable_id, container_id, data_id])
+)
+
+callable_cat = Schema__Taxonomy__Category(
+    category_id  = callable_id,
+    category_ref = Category_Ref('callable'),
+    parent_id    = root_id,                   # FK to parent
+    child_ids    = List__Category_Ids()       # Leaf node
+)
+
+# Build categories dict
+categories = Dict__Categories__By_Id()
+categories[root_id]     = root_cat
+categories[callable_id] = callable_cat
+# ... add more categories
+
+# Create taxonomy
+taxonomy = Schema__Taxonomy(
+    taxonomy_id  = taxonomy_id,
+    taxonomy_ref = Taxonomy_Ref('code_analysis'),
+    version      = Safe_Str__Version('1.0.0'),
+    root_id      = root_id,
+    categories   = categories
+)
+</code></pre>
+<h3 id="92-using-taxonomy__utils">9.2 Using Taxonomy__Utils<a class="headerlink" href="#92-using-taxonomy__utils" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.taxonomy.Taxonomy__Utils import Taxonomy__Utils
+
+utils = Taxonomy__Utils()
+
+# Navigate hierarchy
+root = utils.get_root(taxonomy)
+children = utils.get_children(taxonomy, root_id)
+parent = utils.get_parent(taxonomy, callable_id)
+ancestors = utils.get_ancestors(taxonomy, callable_id)
+descendants = utils.get_descendants(taxonomy, root_id)
+
+# Lookup by ref
+category = utils.get_category_by_ref(taxonomy, Category_Ref('callable'))
+cat_id = utils.get_category_id_by_ref(taxonomy, Category_Ref('callable'))
+cat_ref = utils.get_category_ref_by_id(taxonomy, callable_id)
+</code></pre>
+<hr />
+<h2 id="10-rule-sets-and-validation">10. Rule Sets and Validation<a class="headerlink" href="#10-rule-sets-and-validation" title="Permanent link">&para;</a></h2>
+<h3 id="101-defining-rules">10.1 Defining Rules<a class="headerlink" href="#101-defining-rules" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.schemas.rule.Schema__Rule_Set import Schema__Rule_Set
+
+# Property requirement rule
+node_prop_rule = Schema__Rule__Required_Node_Property(
+    node_type_id     = method_type_id,
+    property_name_id = line_number_id,
+    required         = True           # Must have this property
+)
+
+edge_prop_rule = Schema__Rule__Required_Edge_Property(
+    predicate_id     = calls_pred_id,
+    property_name_id = call_count_id,
+    required         = False          # Optional property
+)
+
+# Create rule set
+rule_set = Schema__Rule_Set(
+    rule_set_id              = rule_set_id,
+    rule_set_ref             = Rule_Set_Ref('code_analysis_rules'),
+    ontology_id              = ontology_id,
+    version                  = Safe_Str__Version('1.0.0'),
+    transitivity_rules       = List__Rules__Transitivity(),
+    cardinality_rules        = List__Rules__Cardinality(),
+    required_node_properties = List__Rules__Required_Node_Property([node_prop_rule]),
+    required_edge_properties = List__Rules__Required_Edge_Property([edge_prop_rule])
+)
+</code></pre>
+<h3 id="102-validating-graphs">10.2 Validating Graphs<a class="headerlink" href="#102-validating-graphs" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Validator import Semantic_Graph__Validator
+
+validator = Semantic_Graph__Validator()
+result = validator.validate(graph, ontology, rule_set)
+
+if result.is_valid:
+    print(&quot;Graph is valid&quot;)
+else:
+    for error in result.errors:
+        print(f&quot;Error: {error}&quot;)
+</code></pre>
+<hr />
+<h2 id="11-projection-system">11. Projection System<a class="headerlink" href="#11-projection-system" title="Permanent link">&para;</a></h2>
+<h3 id="111-schema__-to-projected__-transformation">11.1 Schema__ to Projected__ Transformation<a class="headerlink" href="#111-schema__-to-projected__-transformation" title="Permanent link">&para;</a></h3>
+<p>The projector converts ID-based Schema__ data to human-readable Projected__ format:</p>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.projectors.Semantic_Graph__Projector import Semantic_Graph__Projector
+
+projector = Semantic_Graph__Projector()
+projected = projector.project(graph, ontology, taxonomy)
+
+# projected.projection - human-readable nodes and edges
+# projected.references - ref → ID mappings
+# projected.taxonomy   - category hierarchy
+# projected.sources    - provenance information
+</code></pre>
+<h3 id="112-projected-output-structure">11.2 Projected Output Structure<a class="headerlink" href="#112-projected-output-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Projected__Semantic_Graph(Type_Safe):
+    projection : Schema__Projection              # Nodes and edges with refs
+    references : Schema__Projected__References   # Ref → ID mappings
+    taxonomy   : Schema__Projected__Taxonomy     # Category relationships
+    sources    : Schema__Projected__Sources      # Provenance
+
+class Schema__Projected__Node(Type_Safe):
+    ref        : Node_Type_Ref                   # Human-readable type
+    name       : Safe_Str__Id                    # Instance name
+    properties : Dict__Projected_Properties      # Property_Name_Ref → value
+
+class Schema__Projected__Edge(Type_Safe):
+    from_name  : Safe_Str__Id
+    ref        : Predicate_Ref                   # Human-readable predicate
+    to_name    : Safe_Str__Id
+    properties : Dict__Projected_Properties
+</code></pre>
+<hr />
+<h2 id="12-test-data-generation">12. Test Data Generation<a class="headerlink" href="#12-test-data-generation" title="Permanent link">&para;</a></h2>
+<h3 id="121-qa__semantic_graphs__test_data">12.1 QA__Semantic_Graphs__Test_Data<a class="headerlink" href="#121-qa__semantic_graphs__test_data" title="Permanent link">&para;</a></h3>
+<p>Provides deterministic test fixtures:</p>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.testing.QA__Semantic_Graphs__Test_Data import QA__Semantic_Graphs__Test_Data
+
+test_data = QA__Semantic_Graphs__Test_Data()
+
+# Pre-built test objects
+ontology = test_data.create_ontology__code_structure()
+taxonomy = test_data.create_taxonomy()
+rule_set = test_data.create_rule_set()
+graph    = test_data.create_graph__code_structure()
+
+# Empty variants
+empty_graph    = test_data.create_graph__empty()
+empty_rule_set = test_data.create_rule_set__empty()
+
+# Get specific IDs (deterministic - same every time)
+module_type_id = test_data.get_node_type_id__module()
+class_type_id  = test_data.get_node_type_id__class()
+contains_id    = test_data.get_predicate_id__contains()
+</code></pre>
+<h3 id="122-seed-constants">12.2 Seed Constants<a class="headerlink" href="#122-seed-constants" title="Permanent link">&para;</a></h3>
+<p>Test data uses consistent seed patterns:</p>
+<pre><code class="language-python">class QA__Semantic_Graphs__Test_Data:
+    SEED__ONTOLOGY        = Safe_Str__Id__Seed('test:ontology:code_structure')
+    SEED__TAXONOMY        = Safe_Str__Id__Seed('test:taxonomy')
+    SEED__RULE_SET        = Safe_Str__Id__Seed('test:rule_set')
+    SEED__NT_MODULE       = Safe_Str__Id__Seed('test:node_type:module')
+    SEED__NT_CLASS        = Safe_Str__Id__Seed('test:node_type:class')
+    SEED__NT_METHOD       = Safe_Str__Id__Seed('test:node_type:method')
+    SEED__PRED_CONTAINS   = Safe_Str__Id__Seed('test:predicate:contains')
+    SEED__CAT_ROOT        = Safe_Str__Id__Seed('test:category:root')
+    # ... etc
+</code></pre>
+<hr />
+<h2 id="13-common-patterns">13. Common Patterns<a class="headerlink" href="#13-common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="131-creating-deterministic-ids">13.1 Creating Deterministic IDs<a class="headerlink" href="#131-creating-deterministic-ids" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Always use from_seed for reproducible IDs
+node_type_id = Node_Type_Id(Obj_Id.from_seed('myapp:node_type:class'))
+
+# Same seed = same ID (important for tests and references)
+id1 = Obj_Id.from_seed('test:example')
+id2 = Obj_Id.from_seed('test:example')
+assert id1 == id2  # True
+
+# These IDs can be used directly in MGraph-DB
+# as Node_Id values for visualization
+</code></pre>
+<h3 id="132-type-safe-collections">13.2 Type-Safe Collections<a class="headerlink" href="#132-type-safe-collections" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Create typed dictionary
+node_types = Dict__Node_Types__By_Id()
+
+# Add entries (type-checked at runtime)
+node_types[class_type_id] = class_node_type    # OK
+node_types['invalid']     = class_node_type    # Raises TypeError
+node_types[class_type_id] = &quot;invalid&quot;          # Raises TypeError
+</code></pre>
+<h3 id="133-context-manager-pattern">13.3 Context Manager Pattern<a class="headerlink" href="#133-context-manager-pattern" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># All Type_Safe classes support context managers
+with Schema__Ontology(ontology_id=id, ontology_ref=ref) as ontology:
+    assert ontology.ontology_id == id
+    # ... work with ontology
+</code></pre>
+<h3 id="134-json-serialization">13.4 JSON Serialization<a class="headerlink" href="#134-json-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># All schemas support JSON round-trip
+json_data = schema.json()
+restored = Schema__Ontology.from_json(json_data)
+assert str(restored.ontology_id) == str(schema.ontology_id)
+</code></pre>
+<hr />
+<h2 id="14-important-conventions">14. Important Conventions<a class="headerlink" href="#14-important-conventions" title="Permanent link">&para;</a></h2>
+<h3 id="141-field-naming">14.1 Field Naming<a class="headerlink" href="#141-field-naming" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*_id</code></td>
+<td>Foreign key (machine ID, MGraph-DB compatible)</td>
+<td><code>ontology_id</code>, <code>node_type_id</code></td>
+</tr>
+<tr>
+<td><code>*_ref</code></td>
+<td>Human-readable label</td>
+<td><code>ontology_ref</code>, <code>node_type_ref</code></td>
+</tr>
+<tr>
+<td><code>*_source</code></td>
+<td>Provenance information</td>
+<td><code>node_id_source</code>, <code>graph_id_source</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="142-collection-naming">14.2 Collection Naming<a class="headerlink" href="#142-collection-naming" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Dict__*__By_Id</code></td>
+<td>Dictionary keyed by ID type</td>
+</tr>
+<tr>
+<td><code>Dict__*__By_Ref</code></td>
+<td>Dictionary keyed by Ref type (projections only)</td>
+</tr>
+<tr>
+<td><code>List__*</code></td>
+<td>Type-safe list</td>
+</tr>
+</tbody>
+</table>
+<h3 id="143-schema-vs-utils-pattern">14.3 Schema vs Utils Pattern<a class="headerlink" href="#143-schema-vs-utils-pattern" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Schema__ classes:</strong> Pure data containers (no business logic)</li>
+<li><strong>Utils classes:</strong> Operations on schemas (queries, traversal, validation)</li>
+</ul>
+<pre><code class="language-python"># Schema (data only)
+class Schema__Taxonomy(Type_Safe):
+    taxonomy_id : Taxonomy_Id
+    categories  : Dict__Categories__By_Id
+    # No methods for traversal, lookup, etc.
+
+# Utils (operations)
+class Taxonomy__Utils:
+    def get_category(self, taxonomy, category_id): ...
+    def get_children(self, taxonomy, category_id): ...
+    def get_ancestors(self, taxonomy, category_id): ...
+</code></pre>
+<hr />
+<h2 id="15-migration-notes-brief-37-38">15. Migration Notes (Brief 3.7 → 3.8)<a class="headerlink" href="#15-migration-notes-brief-37-38" title="Permanent link">&para;</a></h2>
+<p>Key changes in Brief 3.8:</p>
+<table>
+<thead>
+<tr>
+<th>Before (3.7)</th>
+<th>After (3.8)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ontology_ref: Ontology_Ref</code></td>
+<td><code>ontology_id: Ontology_Id</code></td>
+</tr>
+<tr>
+<td><code>root_category: Category_Ref</code></td>
+<td><code>root_id: Category_Id</code></td>
+</tr>
+<tr>
+<td><code>parent_ref: Category_Ref</code></td>
+<td><code>parent_id: Category_Id</code></td>
+</tr>
+<tr>
+<td><code>child_refs: List__Category_Refs</code></td>
+<td><code>child_ids: List__Category_Ids</code></td>
+</tr>
+<tr>
+<td><code>Dict__Categories__By_Ref</code></td>
+<td><code>Dict__Categories__By_Id</code></td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>category_id</code> on Schema__Taxonomy__Category</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>category_id</code> on Schema__Ontology__Node_Type</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>property_names</code> on Schema__Ontology</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>property_types</code> on Schema__Ontology</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>required_node_properties</code> on Schema__Rule_Set</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>required_edge_properties</code> on Schema__Rule_Set</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>required</code> field on property rules</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why these changes:</strong> The migration to ID-based references enables MGraph-DB visualization and cross-artifact queries.</p>
+<hr />
+<h2 id="16-quick-reference">16. Quick Reference<a class="headerlink" href="#16-quick-reference" title="Permanent link">&para;</a></h2>
+<h3 id="161-essential-imports">16.1 Essential Imports<a class="headerlink" href="#161-essential-imports" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Identifiers
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Id    import Node_Type_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Node_Type_Ref   import Node_Type_Ref
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Predicate_Id    import Predicate_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Category_Id     import Category_Id
+from osbot_utils.helpers.semantic_graphs.schemas.identifier.Ontology_Id     import Ontology_Id
+
+# Core schemas
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph       import Schema__Semantic_Graph
+from osbot_utils.helpers.semantic_graphs.schemas.graph.Schema__Semantic_Graph__Node import Schema__Semantic_Graph__Node
+from osbot_utils.helpers.semantic_graphs.schemas.ontology.Schema__Ontology          import Schema__Ontology
+from osbot_utils.helpers.semantic_graphs.schemas.taxonomy.Schema__Taxonomy          import Schema__Taxonomy
+
+# Collections
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Nodes__By_Id      import Dict__Nodes__By_Id
+from osbot_utils.helpers.semantic_graphs.schemas.collection.Dict__Categories__By_Id import Dict__Categories__By_Id
+from osbot_utils.helpers.semantic_graphs.schemas.collection.List__Category_Ids      import List__Category_Ids
+
+# Utilities
+from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Builder    import Semantic_Graph__Builder
+from osbot_utils.helpers.semantic_graphs.taxonomy.Taxonomy__Utils         import Taxonomy__Utils
+from osbot_utils.helpers.semantic_graphs.ontology.Ontology__Utils         import Ontology__Utils
+
+# Base types
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                    import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id     import Safe_Str__Id
+</code></pre>
+<h3 id="162-minimal-working-example">16.2 Minimal Working Example<a class="headerlink" href="#162-minimal-working-example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.semantic_graphs.testing.QA__Semantic_Graphs__Test_Data import QA__Semantic_Graphs__Test_Data
+
+# Get pre-built test data
+test_data = QA__Semantic_Graphs__Test_Data()
+ontology  = test_data.create_ontology__code_structure()
+graph     = test_data.create_graph__code_structure()
+
+# Query the graph
+from osbot_utils.helpers.semantic_graphs.graph.Semantic_Graph__Utils import Semantic_Graph__Utils
+utils = Semantic_Graph__Utils()
+
+nodes = utils.get_nodes_by_type(graph, test_data.get_node_type_id__class())
+edges = utils.get_edges_from_node(graph, some_node_id)
+</code></pre>
+<h3 id="163-mgraph-db-integration-example-future">16.3 MGraph-DB Integration Example (Future)<a class="headerlink" href="#163-mgraph-db-integration-example-future" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from semantic_graphs.exporters import MGraph_Exporter
+from mgraph_db import MGraph
+
+# Export semantic graph artifacts to MGraph-DB
+exporter = MGraph_Exporter()
+mgraph = exporter.export_all(ontology, taxonomy, rule_set, graph)
+
+# Now use MGraph-DB features
+mgraph.query().filter_by_type('method').collect()
+mgraph.screenshot().save('semantic_graph.png')
+
+# Query across artifacts
+mgraph.query()
+    .start_at(method_type_id)          # Start at a node type
+    .traverse('category_of')            # Follow to taxonomy
+    .traverse('parent')                 # Go up hierarchy
+    .collect()                          # Get results
+</code></pre>
+<hr />
+<h2 id="17-architecture-summary">17. Architecture Summary<a class="headerlink" href="#17-architecture-summary" title="Permanent link">&para;</a></h2>
+<h3 id="171-layer-responsibilities">17.1 Layer Responsibilities<a class="headerlink" href="#171-layer-responsibilities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Purpose</th>
+<th>Key Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Schema__</strong></td>
+<td>Pure data structures</td>
+<td>ID-based FKs, Type_Safe</td>
+</tr>
+<tr>
+<td><strong>Utils</strong></td>
+<td>Operations on schemas</td>
+<td>Stateless, schema as parameter</td>
+</tr>
+<tr>
+<td><strong>Registry</strong></td>
+<td>Storage/lookup</td>
+<td>In-memory caching</td>
+</tr>
+<tr>
+<td><strong>Builder</strong></td>
+<td>Fluent construction</td>
+<td>Method chaining</td>
+</tr>
+<tr>
+<td><strong>Projector</strong></td>
+<td>Schema__ → Projected__</td>
+<td>One-way transformation</td>
+</tr>
+<tr>
+<td><strong>Validator</strong></td>
+<td>Rule enforcement</td>
+<td>Ontology + Rules → Errors</td>
+</tr>
+</tbody>
+</table>
+<h3 id="172-the-complete-picture">17.2 The Complete Picture<a class="headerlink" href="#172-the-complete-picture" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                              semantic_graphs                                 │
+│                                                                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │  Ontology   │  │  Taxonomy   │  │  Rule Set   │  │  Graph      │        │
+│  │  (types)    │  │  (hierarchy)│  │  (rules)    │  │  (data)     │        │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘        │
+│         │                │                │                │                │
+│         └────────────────┴────────┬───────┴────────────────┘                │
+│                                   │                                         │
+│                          All IDs are Obj_Id                                 │
+│                                   │                                         │
+└───────────────────────────────────┼─────────────────────────────────────────┘
+                                    │
+                                    │ Export / Visualize
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                               MGraph-DB                                      │
+│                                                                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │  Index      │  │  Query      │  │  Builder    │  │  Screenshot │        │
+│  │  (O(1))     │  │  (fluent)   │  │  (fluent)   │  │  (DOT/PNG)  │        │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
+│                                                                              │
+│  Query across: ontology + taxonomy + rules + data = unified graph           │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<p><em>End of LLM Reference Guide</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

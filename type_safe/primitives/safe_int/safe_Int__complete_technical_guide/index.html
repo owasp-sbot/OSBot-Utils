@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/primitives/safe_int/safe_Int__complete_technical_guide/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Safe_Int - Type-Safe Integer Primitives with Domain Validation - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Safe_Int - Type-Safe Integer Primitives with Domain Validation";
+        var mkdocs_page_input_path = "type_safe/primitives/safe_int/safe_Int__complete_technical_guide.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/primitives/safe_int/safe_Int__complete_technical_guide/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Safe_Int - Type-Safe Integer Primitives with Domain Validation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="safe_int-type-safe-integer-primitives-with-domain-validation">Safe_Int - Type-Safe Integer Primitives with Domain Validation<a class="headerlink" href="#safe_int-type-safe-integer-primitives-with-domain-validation" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Safe_Int provides a comprehensive system for creating type-safe integer types with domain-specific validation rules. Built on top of <code>Type_Safe__Primitive</code>, it extends Python's built-in <code>int</code> type with configurable constraints, automatic type conversion, and range validation while maintaining full compatibility with integer operations.</p>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<pre><code class="language-mermaid">classDiagram
+    class Type_Safe__Primitive {
+        &lt;&lt;abstract&gt;&gt;
+        +__primitive_base__
+        +arithmetic operations
+    }
+
+    class Safe_Int {
+        +min_value: Optional[int]
+        +max_value: Optional[int]
+        +allow_none: bool
+        +allow_bool: bool
+        +allow_str: bool
+        +strict_type: bool
+        +__new__(value)
+        +__add__(other)
+        +__sub__(other)
+        +__mul__(other)
+        +__truediv__(other)
+    }
+
+    class Safe_UInt {
+        +min_value: 0
+        +max_value: None
+        +allow_bool: False
+    }
+
+    class Safe_UInt__Byte {
+        +min_value: 0
+        +max_value: 255
+    }
+
+    class Safe_UInt__Port {
+        +min_value: 0
+        +max_value: 65535
+        +allow_none: False
+    }
+
+    class Safe_UInt__FileSize {
+        +max_value: 2^63-1
+        +to_kb()
+        +to_mb()
+        +to_gb()
+    }
+
+    class Safe_UInt__Percentage {
+        +min_value: 0
+        +max_value: 100
+    }
+
+    Type_Safe__Primitive &lt;|-- Safe_Int
+    Safe_Int &lt;|-- Safe_UInt
+    Safe_UInt &lt;|-- Safe_UInt__Byte
+    Safe_UInt &lt;|-- Safe_UInt__Port
+    Safe_UInt &lt;|-- Safe_UInt__FileSize
+    Safe_UInt &lt;|-- Safe_UInt__Percentage
+</code></pre>
+<h2 id="core-features">Core Features<a class="headerlink" href="#core-features" title="Permanent link">&para;</a></h2>
+<h3 id="configuration-options">Configuration Options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h3>
+<p>Safe_Int provides six configuration attributes that control validation and conversion behavior:</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>min_value</code></td>
+<td><code>Optional[int]</code></td>
+<td><code>None</code></td>
+<td>Minimum allowed value (inclusive)</td>
+</tr>
+<tr>
+<td><code>max_value</code></td>
+<td><code>Optional[int]</code></td>
+<td><code>None</code></td>
+<td>Maximum allowed value (inclusive)</td>
+</tr>
+<tr>
+<td><code>allow_none</code></td>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>Whether None converts to 0</td>
+</tr>
+<tr>
+<td><code>allow_bool</code></td>
+<td><code>bool</code></td>
+<td><code>False</code></td>
+<td>Whether bool values are accepted</td>
+</tr>
+<tr>
+<td><code>allow_str</code></td>
+<td><code>bool</code></td>
+<td><code>True</code></td>
+<td>Whether string conversion is allowed</td>
+</tr>
+<tr>
+<td><code>strict_type</code></td>
+<td><code>bool</code></td>
+<td><code>False</code></td>
+<td>If True, only accept int type (no conversions)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="type-conversion-behavior">Type Conversion Behavior<a class="headerlink" href="#type-conversion-behavior" title="Permanent link">&para;</a></h3>
+<p>Safe_Int intelligently handles various input types:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_int.Safe_Int import Safe_Int
+
+# String conversion (when allow_str=True)
+value = Safe_Int(&quot;42&quot;)        # ✓ Returns Safe_Int(42)
+value = Safe_Int(&quot;  42  &quot;)    # ✓ Strips whitespace, returns Safe_Int(42)
+value = Safe_Int(&quot;invalid&quot;)   # ✗ ValueError: Cannot convert 'invalid' to integer
+
+# None handling (when allow_none=True)
+value = Safe_Int(None)        # ✓ Returns Safe_Int(0)
+
+# Boolean handling (when allow_bool=False by default)
+value = Safe_Int(True)        # ✗ TypeError: does not allow boolean values
+value = Safe_Int(False)       # ✗ TypeError: does not allow boolean values
+
+# Strict type mode
+class StrictInt(Safe_Int):
+    strict_type = True
+
+strict = StrictInt(42)        # ✓ Works
+strict = StrictInt(&quot;42&quot;)      # ✗ TypeError: requires int type
+</code></pre>
+<h3 id="range-validation">Range Validation<a class="headerlink" href="#range-validation" title="Permanent link">&para;</a></h3>
+<p>Safe_Int enforces min/max constraints at creation time:</p>
+<pre><code class="language-python">class Age(Safe_Int):
+    min_value = 0
+    max_value = 150
+
+age = Age(25)                 # ✓ Valid
+age = Age(-5)                 # ✗ ValueError: Age must be &gt;= 0
+age = Age(200)                # ✗ ValueError: Age must be &lt;= 150
+
+# String input is converted then validated
+age = Age(&quot;30&quot;)               # ✓ Converted to 30, then validated
+age = Age(&quot;200&quot;)              # ✗ Converted to 200, then fails validation
+</code></pre>
+<h3 id="arithmetic-operations-with-type-safety">Arithmetic Operations with Type Safety<a class="headerlink" href="#arithmetic-operations-with-type-safety" title="Permanent link">&para;</a></h3>
+<p>Safe_Int maintains type safety through arithmetic operations when possible:</p>
+<pre><code class="language-python">class Byte(Safe_Int):
+    min_value = 0
+    max_value = 255
+
+byte1 = Byte(100)
+byte2 = Byte(50)
+
+# Addition
+result = byte1 + byte2        # Returns Byte(150) - within range
+result = byte1 + 200          # Returns int(300) - exceeds range, degrades to int
+
+# Subtraction
+result = byte2 - byte1        # Returns int(-50) - below min, degrades to int
+result = byte1 - 50           # Returns Byte(50) - within range
+
+# Multiplication
+result = byte1 * 2            # Returns Byte(200) - within range
+result = byte1 * 3            # Returns int(300) - exceeds range
+
+# Division (always returns Safe_Float)
+result = byte1 / 2            # Returns Safe_Float(50.0)
+</code></pre>
+<h2 id="built-in-safe-integer-types">Built-in Safe Integer Types<a class="headerlink" href="#built-in-safe-integer-types" title="Permanent link">&para;</a></h2>
+<h3 id="safe_uint-unsigned-integer-base">Safe_UInt - Unsigned Integer Base<a class="headerlink" href="#safe_uint-unsigned-integer-base" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.safe_int.Safe_UInt import Safe_UInt
+
+class Safe_UInt(Safe_Int):
+    min_value = 0             # Can't be negative
+    max_value = None          # No upper limit
+    allow_bool = False        # Don't treat True/False as 1/0
+
+# Usage
+count = Safe_UInt(42)         # ✓ Valid
+count = Safe_UInt(-1)         # ✗ ValueError: must be &gt;= 0
+count = Safe_UInt(True)       # ✗ TypeError: does not allow boolean
+</code></pre>
+<h3 id="safe_uint__byte-single-byte-0-255">Safe_UInt__Byte - Single Byte (0-255)<a class="headerlink" href="#safe_uint__byte-single-byte-0-255" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.safe_int.Safe_UInt__Byte import Safe_UInt__Byte
+
+byte = Safe_UInt__Byte(128)   # ✓ Valid
+byte = Safe_UInt__Byte(256)   # ✗ ValueError: must be &lt;= 255
+byte = Safe_UInt__Byte(-1)    # ✗ ValueError: must be &gt;= 0
+
+# Useful for:
+# - RGB color components
+# - Binary data manipulation
+# - Protocol byte values
+</code></pre>
+<h3 id="safe_uint__port-network-port-0-65535">Safe_UInt__Port - Network Port (0-65535)<a class="headerlink" href="#safe_uint__port-network-port-0-65535" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.safe_int.Safe_UInt__Port import Safe_UInt__Port
+
+port = Safe_UInt__Port(8080)      # ✓ Valid HTTP port
+port = Safe_UInt__Port(443)       # ✓ Valid HTTPS port
+port = Safe_UInt__Port(70000)     # ✗ ValueError: must be &lt;= 65535
+port = Safe_UInt__Port(None)      # ✗ ValueError: does not allow None
+
+# Note: allow_none=False prevents port 0 (unusual for real use)
+</code></pre>
+<h3 id="safe_uint__filesize-file-sizes-with-conversion">Safe_UInt__FileSize - File Sizes with Conversion<a class="headerlink" href="#safe_uint__filesize-file-sizes-with-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.safe_int.Safe_UInt__FileSize import Safe_UInt__FileSize
+
+size = Safe_UInt__FileSize(1048576)  # 1 MB in bytes
+
+# Conversion methods
+print(f&quot;{size.to_kb():.2f} KB&quot;)      # 1024.00 KB
+print(f&quot;{size.to_mb():.2f} MB&quot;)      # 1.00 MB
+print(f&quot;{size.to_gb():.4f} GB&quot;)      # 0.0010 GB
+
+# Maximum is 2^63-1 (about 9.2 exabytes)
+huge = Safe_UInt__FileSize(2**63-1)  # ✓ Maximum file size
+too_big = Safe_UInt__FileSize(2**63) # ✗ ValueError: exceeds max
+</code></pre>
+<h3 id="safe_uint__percentage-percentage-values-0-100">Safe_UInt__Percentage - Percentage Values (0-100)<a class="headerlink" href="#safe_uint__percentage-percentage-values-0-100" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.safe_int.Safe_UInt__Percentage import Safe_UInt__Percentage
+
+progress = Safe_UInt__Percentage(75)   # ✓ 75%
+progress = Safe_UInt__Percentage(100)  # ✓ Complete
+progress = Safe_UInt__Percentage(101)  # ✗ ValueError: must be &lt;= 100
+progress = Safe_UInt__Percentage(-10)  # ✗ ValueError: must be &gt;= 0
+
+# Useful for progress bars, completion rates, etc.
+</code></pre>
+<h2 id="real-world-usage-examples">Real-World Usage Examples<a class="headerlink" href="#real-world-usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="configuration-values">Configuration Values<a class="headerlink" href="#configuration-values" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class ServerConfig(Type_Safe):
+    port: Safe_UInt__Port
+    max_connections: Safe_UInt
+    timeout_seconds: Safe_UInt
+    retry_attempts: Safe_Int
+
+    def __init__(self, **kwargs):
+        # Set defaults
+        super().__init__(**kwargs)
+        if self.max_connections == 0:
+            self.max_connections = Safe_UInt(100)
+
+config = ServerConfig(
+    port=8080,
+    max_connections=1000,
+    timeout_seconds=30,
+    retry_attempts=3
+)
+
+# Type safety prevents invalid configurations
+try:
+    config.port = 70000  # ✗ Raises ValueError
+except ValueError as e:
+    print(f&quot;Invalid port: {e}&quot;)
+</code></pre>
+<h3 id="resource-limits">Resource Limits<a class="headerlink" href="#resource-limits" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class ResourceLimits(Type_Safe):
+    cpu_percent: Safe_UInt__Percentage
+    memory_mb: Safe_UInt__FileSize
+    disk_quota_gb: Safe_UInt__FileSize
+    max_processes: Safe_UInt
+
+    def validate_usage(self, current_cpu: int, current_memory: int):
+        &quot;&quot;&quot;Check if current usage is within limits&quot;&quot;&quot;
+        cpu_usage = Safe_UInt__Percentage(current_cpu)
+
+        if cpu_usage &gt; self.cpu_percent:
+            raise ValueError(f&quot;CPU usage {cpu_usage}% exceeds limit {self.cpu_percent}%&quot;)
+
+        mem_usage = Safe_UInt__FileSize(current_memory * 1024 * 1024)
+        if mem_usage &gt; self.memory_mb:
+            raise ValueError(f&quot;Memory usage {mem_usage.to_mb():.1f}MB exceeds limit&quot;)
+
+limits = ResourceLimits(
+    cpu_percent=80,
+    memory_mb=2048 * 1024 * 1024,  # 2GB in bytes
+    disk_quota_gb=100 * 1024 * 1024 * 1024,  # 100GB in bytes
+    max_processes=50
+)
+</code></pre>
+<h3 id="network-protocol-implementation">Network Protocol Implementation<a class="headerlink" href="#network-protocol-implementation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class TCPPacket(Type_Safe):
+    source_port: Safe_UInt__Port
+    dest_port: Safe_UInt__Port
+    sequence_num: Safe_UInt
+    ack_num: Safe_UInt
+    data_offset: Safe_UInt__Byte  # 4-bit field * 4 = max 60 bytes
+    flags: Safe_UInt__Byte
+    window_size: Safe_UInt
+    checksum: Safe_UInt
+
+    def is_syn(self) -&gt; bool:
+        &quot;&quot;&quot;Check if SYN flag is set&quot;&quot;&quot;
+        return bool(self.flags &amp; 0x02)
+
+    def is_ack(self) -&gt; bool:
+        &quot;&quot;&quot;Check if ACK flag is set&quot;&quot;&quot;
+        return bool(self.flags &amp; 0x10)
+
+# Create a SYN packet
+syn_packet = TCPPacket(
+    source_port=54321,
+    dest_port=80,
+    sequence_num=1000,
+    ack_num=0,
+    data_offset=5,  # 20 bytes header
+    flags=0x02,  # SYN flag
+    window_size=65535,
+    checksum=0
+)
+</code></pre>
+<h3 id="data-validation-pipeline">Data Validation Pipeline<a class="headerlink" href="#data-validation-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class DataRecord(Type_Safe):
+    record_id: Safe_UInt
+    file_size: Safe_UInt__FileSize
+    compression_ratio: Safe_UInt__Percentage
+    error_count: Safe_UInt
+    retry_count: Safe_Int
+
+    def process_file(self, file_path: str):
+        &quot;&quot;&quot;Process and validate file data&quot;&quot;&quot;
+        import os
+
+        # Get file size with validation
+        size = os.path.getsize(file_path)
+        self.file_size = Safe_UInt__FileSize(size)
+
+        # Validate size limits
+        max_size = Safe_UInt__FileSize(100 * 1024 * 1024)  # 100MB
+        if self.file_size &gt; max_size:
+            raise ValueError(f&quot;File too large: {self.file_size.to_mb():.1f}MB&quot;)
+
+        # Process compression
+        compressed_size = self.compress_file(file_path)
+        ratio = int((1 - compressed_size / size) * 100)
+        self.compression_ratio = Safe_UInt__Percentage(ratio)
+
+        print(f&quot;File {self.record_id}: {self.file_size.to_mb():.1f}MB&quot;)
+        print(f&quot;Compression: {self.compression_ratio}%&quot;)
+</code></pre>
+<h2 id="creating-custom-safe-integer-types">Creating Custom Safe Integer Types<a class="headerlink" href="#creating-custom-safe-integer-types" title="Permanent link">&para;</a></h2>
+<h3 id="domain-specific-types">Domain-Specific Types<a class="headerlink" href="#domain-specific-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># HTTP Status Code
+class HTTPStatusCode(Safe_UInt):
+    min_value = 100
+    max_value = 599
+
+    def is_success(self) -&gt; bool:
+        return 200 &lt;= self &lt; 300
+
+    def is_error(self) -&gt; bool:
+        return self &gt;= 400
+
+status = HTTPStatusCode(200)  # ✓ OK
+status = HTTPStatusCode(404)  # ✓ Not Found
+status = HTTPStatusCode(999)  # ✗ ValueError: must be &lt;= 599
+
+# Unix Timestamp
+class UnixTimestamp(Safe_UInt):
+    min_value = 0
+    max_value = 2147483647  # 32-bit timestamp limit (year 2038)
+
+    def to_datetime(self):
+        from datetime import datetime
+        return datetime.fromtimestamp(self)
+
+timestamp = UnixTimestamp(1234567890)
+print(timestamp.to_datetime())  # 2009-02-13 23:31:30
+
+# Priority Level
+class Priority(Safe_Int):
+    min_value = 1
+    max_value = 5
+    allow_none = False
+
+    def is_urgent(self) -&gt; bool:
+        return self &gt;= 4
+
+    def __str__(self):
+        names = {1: &quot;Low&quot;, 2: &quot;Medium&quot;, 3: &quot;Normal&quot;, 4: &quot;High&quot;, 5: &quot;Critical&quot;}
+        return names.get(int(self), &quot;Unknown&quot;)
+
+priority = Priority(4)
+print(f&quot;Priority: {priority} (Urgent: {priority.is_urgent()})&quot;)
+</code></pre>
+<h3 id="business-logic-types">Business Logic Types<a class="headerlink" href="#business-logic-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Inventory Management
+class StockQuantity(Safe_UInt):
+    min_value = 0
+    max_value = 999999
+
+    def is_low_stock(self, threshold: int = 10) -&gt; bool:
+        return self &lt; threshold
+
+    def can_fulfill_order(self, quantity: int) -&gt; bool:
+        return self &gt;= quantity
+
+# Age Validation
+class Age(Safe_UInt):
+    min_value = 0
+    max_value = 150
+
+    def is_adult(self) -&gt; bool:
+        return self &gt;= 18
+
+    def is_senior(self) -&gt; bool:
+        return self &gt;= 65
+
+# Currency (in cents to avoid float issues)
+class CurrencyCents(Safe_UInt):
+    min_value = 0
+    max_value = 2**63 - 1
+
+    def to_dollars(self) -&gt; float:
+        return self / 100
+
+    def from_dollars(cls, dollars: float):
+        return cls(int(dollars * 100))
+
+    def __str__(self):
+        return f&quot;${self.to_dollars():.2f}&quot;
+
+price = CurrencyCents(1999)  # $19.99
+print(price)  # $19.99
+</code></pre>
+<h2 id="integration-with-type_safe">Integration with Type_Safe<a class="headerlink" href="#integration-with-type_safe" title="Permanent link">&para;</a></h2>
+<p>Safe_Int types integrate seamlessly with Type_Safe classes:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class SystemMetrics(Type_Safe):
+    cpu_usage: Safe_UInt__Percentage
+    memory_usage: Safe_UInt__Percentage
+    disk_usage: Safe_UInt__Percentage
+    active_connections: Safe_UInt
+    error_rate: Safe_UInt__Percentage
+    response_time_ms: Safe_UInt
+
+    def is_healthy(self) -&gt; bool:
+        &quot;&quot;&quot;Check if all metrics are within healthy ranges&quot;&quot;&quot;
+        return (
+            self.cpu_usage &lt; 80 and
+            self.memory_usage &lt; 90 and
+            self.disk_usage &lt; 85 and
+            self.error_rate &lt; 5 and
+            self.response_time_ms &lt; 1000
+        )
+
+    def get_alerts(self) -&gt; list:
+        &quot;&quot;&quot;Generate alerts for problematic metrics&quot;&quot;&quot;
+        alerts = []
+
+        if self.cpu_usage &gt;= 90:
+            alerts.append(f&quot;Critical: CPU at {self.cpu_usage}%&quot;)
+        elif self.cpu_usage &gt;= 80:
+            alerts.append(f&quot;Warning: CPU at {self.cpu_usage}%&quot;)
+
+        if self.memory_usage &gt;= 95:
+            alerts.append(f&quot;Critical: Memory at {self.memory_usage}%&quot;)
+
+        if self.error_rate &gt;= 10:
+            alerts.append(f&quot;Critical: Error rate at {self.error_rate}%&quot;)
+
+        return alerts
+
+# Usage
+metrics = SystemMetrics(
+    cpu_usage=75,
+    memory_usage=82,
+    disk_usage=45,
+    active_connections=150,
+    error_rate=2,
+    response_time_ms=250
+)
+
+print(f&quot;System healthy: {metrics.is_healthy()}&quot;)
+for alert in metrics.get_alerts():
+    print(f&quot;⚠️ {alert}&quot;)
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="validation-overhead">Validation Overhead<a class="headerlink" href="#validation-overhead" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Creation time</strong>: Single validation check with range comparison</li>
+<li><strong>Arithmetic operations</strong>: Additional type check and potential re-instantiation</li>
+<li><strong>Memory</strong>: Same as regular int plus class overhead</li>
+</ul>
+<h3 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Cache instances</strong> when using the same values repeatedly</li>
+<li><strong>Use appropriate types</strong> - don't over-constrain if not needed</li>
+<li><strong>Consider strict_type=True</strong> if you never need conversions</li>
+<li><strong>Batch operations</strong> on raw ints, then validate results</li>
+</ol>
+<pre><code class="language-python"># Efficient batch processing
+raw_values = [1, 2, 3, 4, 5, 100, 200, 300]
+total = sum(raw_values)  # Process as raw ints
+result = Safe_UInt(total)  # Validate once at the end
+</code></pre>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>Safe_Int provides clear, specific error messages:</p>
+<pre><code class="language-python">try:
+    port = Safe_UInt__Port(70000)
+except ValueError as e:
+    print(e)  # &quot;Safe_UInt__Port must be &lt;= 65535, got 70000&quot;
+
+try:
+    age = Age(&quot;not a number&quot;)
+except ValueError as e:
+    print(e)  # &quot;Cannot convert 'not a number' to integer&quot;
+
+try:
+    byte = Safe_UInt__Byte(True)
+except TypeError as e:
+    print(e)  # &quot;Safe_UInt__Byte does not allow boolean values&quot;
+</code></pre>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Safe_Int provides a robust framework for integer validation with:</p>
+<ul>
+<li><strong>Configurable validation rules</strong> for different use cases</li>
+<li><strong>Automatic type conversion</strong> with safety checks</li>
+<li><strong>Range enforcement</strong> with min/max bounds</li>
+<li><strong>Type-safe arithmetic</strong> that degrades gracefully</li>
+<li><strong>Domain-specific types</strong> for common patterns</li>
+<li><strong>Clear error messages</strong> for debugging</li>
+<li><strong>Seamless Type_Safe integration</strong> for complex models</li>
+</ul>
+<p>The combination of flexibility and safety makes Safe_Int ideal for:
+- Configuration management
+- Network protocols
+- Resource limits
+- Business logic constraints
+- Data validation pipelines
+- Any domain requiring validated integers</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

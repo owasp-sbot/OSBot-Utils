@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/getting-started/llm-prompt-guidance__using_osbot_utils_type_safe/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>LLM Prompt Guidance: Using OSBot-Utils Type_Safe - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "LLM Prompt Guidance: Using OSBot-Utils Type_Safe";
+        var mkdocs_page_input_path = "type_safe/getting-started/llm-prompt-guidance__using_osbot_utils_type_safe.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/getting-started/llm-prompt-guidance__using_osbot_utils_type_safe/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">LLM Prompt Guidance: Using OSBot-Utils Type_Safe</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="llm-prompt-guidance-using-osbot-utils-type_safe">LLM Prompt Guidance: Using OSBot-Utils Type_Safe<a class="headerlink" href="#llm-prompt-guidance-using-osbot-utils-type_safe" title="Permanent link">&para;</a></h1>
+<h2 id="for-llmsai-assistants">For LLMs/AI Assistants<a class="headerlink" href="#for-llmsai-assistants" title="Permanent link">&para;</a></h2>
+<p>When working with code that uses OSBot-Utils Type_Safe, follow these guidelines to generate correct and safe code.</p>
+<h2 id="core-understanding">Core Understanding<a class="headerlink" href="#core-understanding" title="Permanent link">&para;</a></h2>
+<p>Type_Safe is a runtime type checking system that:
+1. <strong>Validates EVERY operation</strong> - Not just at creation/assignment
+2. <strong>Auto-initializes attributes</strong> - Based on type annotations
+3. <strong>Provides type-safe collections</strong> - Lists, dicts, sets with continuous validation
+4. <strong>Supports type-safe primitives</strong> - Safe_Str, Safe_Int, Safe_Float with domain validation</p>
+<h2 id="code-generation-rules">Code Generation Rules<a class="headerlink" href="#code-generation-rules" title="Permanent link">&para;</a></h2>
+<h3 id="rule-1-always-inherit-from-type_safe">Rule 1: Always Inherit from Type_Safe<a class="headerlink" href="#rule-1-always-inherit-from-type_safe" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ CORRECT
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class MyClass(Type_Safe):
+    name: str
+    count: int
+
+# ✗ WRONG - Missing Type_Safe inheritance
+class MyClass:
+    name: str
+    count: int
+</code></pre>
+<h3 id="rule-2-use-type-annotations-for-all-attributes">Rule 2: Use Type Annotations for All Attributes<a class="headerlink" href="#rule-2-use-type-annotations-for-all-attributes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ CORRECT - All attributes have type annotations
+class Config(Type_Safe):
+    host: str
+    port: int
+    ssl_enabled: bool
+    endpoints: List[str]
+
+# ✗ WRONG - Missing or incomplete annotations
+class Config(Type_Safe):
+    host = &quot;localhost&quot;  # Missing annotation
+    port: int
+    ssl_enabled  # Missing annotation and value
+</code></pre>
+<h3 id="rule-3-only-immutable-default-values">Rule 3: Only Immutable Default Values<a class="headerlink" href="#rule-3-only-immutable-default-values" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ CORRECT - Immutable defaults only
+class Settings(Type_Safe):
+    name: str = &quot;&quot;                    # Immutable
+    count: int = 0                    # Immutable  
+    active: bool = True               # Immutable
+    value: Optional[float] = None     # Immutable
+    items: List[str]                  # No default needed, Type_Safe handles it
+
+# ✗ WRONG - Mutable defaults
+class Settings(Type_Safe):
+    items: List[str] = []      # ERROR: Mutable default
+    config: dict = {}          # ERROR: Mutable default
+    cache: set = set()         # ERROR: Mutable default
+</code></pre>
+<h3 id="rule-4-use-specific-types-for-collections">Rule 4: Use Specific Types for Collections<a class="headerlink" href="#rule-4-use-specific-types-for-collections" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ CORRECT - Specific generic types
+class DataModel(Type_Safe):
+    names: List[str]
+    scores: Dict[str, float]
+    unique_ids: Set[int]
+    coordinates: Tuple[float, float]
+
+# ✗ WRONG - Untyped collections
+class DataModel(Type_Safe):
+    names: list                # Missing element type
+    scores: dict               # Missing key/value types
+    unique_ids: set            # Missing element type
+</code></pre>
+<h3 id="rule-5-forward-references-use-current-class-name">Rule 5: Forward References Use Current Class Name<a class="headerlink" href="#rule-5-forward-references-use-current-class-name" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ CORRECT - Forward ref to same class
+class TreeNode(Type_Safe):
+    value: int
+    parent: Optional['TreeNode'] = None
+    children: List['TreeNode'] = []
+
+# ✗ WRONG - Forward ref to different class
+class TreeNode(Type_Safe):
+    value: int
+    parent: Optional['Node']  # ERROR: Must be 'TreeNode'
+</code></pre>
+<h3 id="rule-6-use-type_safe-for-method-validation">Rule 6: Use @type_safe for Method Validation<a class="headerlink" href="#rule-6-use-type_safe-for-method-validation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.decorators import type_safe
+
+class Calculator(Type_Safe):
+    # ✓ CORRECT - Validates parameters and return
+    @type_safe
+    def add(self, a: int, b: int) -&gt; int:
+        return a + b
+
+    # ✗ WRONG - Missing decorator for validation
+    def multiply(self, a: int, b: int) -&gt; int:
+        return a * b
+</code></pre>
+<h3 id="rule-7-use-type-safe-primitives-for-domain-types">Rule 7: Use Type-Safe Primitives for Domain Types<a class="headerlink" href="#rule-7-use-type-safe-primitives-for-domain-types" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
+
+# ✓ CORRECT - Domain-specific type
+class UserId(Safe_Id): pass
+class Email(Safe_Str): pass
+
+class User(Type_Safe):
+    id: UserId
+    email: Email
+
+# ✗ WRONG - Using raw types for domain concepts  
+class User(Type_Safe):
+    id: str      # Should be UserId
+    email: str   # Should be Email
+</code></pre>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-configuration-objects">Pattern 1: Configuration Objects<a class="headerlink" href="#pattern-1-configuration-objects" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class DatabaseConfig(Type_Safe):
+    host: str = &quot;localhost&quot;
+    port: int = 5432
+    database: str
+    username: str
+    password: str
+    pool_size: int = 10
+    ssl: bool = False
+    options: Dict[str, str]
+</code></pre>
+<h3 id="pattern-2-api-requestresponse-models">Pattern 2: API Request/Response Models<a class="headerlink" href="#pattern-2-api-requestresponse-models" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class APIRequest(Type_Safe):
+    endpoint: str
+    method: str = &quot;GET&quot;
+    headers: Dict[str, str]
+    params: Dict[str, Any]
+    body: Optional[Dict[str, Any]] = None
+
+class APIResponse(Type_Safe):
+    status_code: int
+    headers: Dict[str, str]
+    data: Dict[str, Any]
+    errors: List[str]
+</code></pre>
+<h3 id="pattern-3-nested-data-structures">Pattern 3: Nested Data Structures<a class="headerlink" href="#pattern-3-nested-data-structures" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Address(Type_Safe):
+    street: str
+    city: str
+    state: str
+    zip_code: str
+
+class Company(Type_Safe):
+    name: str
+    headquarters: Address
+    branches: List[Address]
+    employees: Dict[str, Address]
+</code></pre>
+<h2 id="serialization-patterns">Serialization Patterns<a class="headerlink" href="#serialization-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="json-serialization">JSON Serialization<a class="headerlink" href="#json-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Creating from JSON
+user = User.from_json('{&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 30}')
+user = User.from_json({&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 30})  # Dict also works
+
+# Converting to JSON
+json_data = user.json()  # Returns dict
+json_str = json.dumps(user.json())  # For string
+
+# Nested objects work automatically
+company = Company.from_json({
+    &quot;name&quot;: &quot;TechCorp&quot;,
+    &quot;headquarters&quot;: {
+        &quot;street&quot;: &quot;123 Main&quot;,
+        &quot;city&quot;: &quot;Boston&quot;,
+        &quot;state&quot;: &quot;MA&quot;,
+        &quot;zip_code&quot;: &quot;02101&quot;
+    }
+})
+</code></pre>
+<h2 id="validation-patterns">Validation Patterns<a class="headerlink" href="#validation-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="using-built-in-validators">Using Built-in Validators<a class="headerlink" href="#using-built-in-validators" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.validators import Min, Max, Regex, OneOf, Validate
+
+class ValidatedModel(Type_Safe):
+    # Numeric ranges
+    age: Validate[int, Min(0), Max(150)]
+    score: Validate[float, Min(0.0), Max(100.0)]
+
+    # String patterns
+    username: Validate[str, Regex(r'^[a-z0-9_]{3,20}$')]
+    email: Validate[str, Regex(r'^[\w\.-]+@[\w\.-]+\.\w+$')]
+
+    # Enumerated values
+    status: Validate[str, OneOf(['active', 'inactive', 'pending'])]
+    priority: Validate[int, OneOf([1, 2, 3, 4, 5])]
+</code></pre>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<h3 id="expected-exceptions">Expected Exceptions<a class="headerlink" href="#expected-exceptions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">try:
+    user = User()
+    user.age = &quot;invalid&quot;  # Not an int
+except ValueError as e:
+    # &quot;Invalid type for attribute 'age'. Expected '&lt;class 'int'&gt;' but got '&lt;class 'str'&gt;'&quot;
+    print(f&quot;Validation error: {e}&quot;)
+
+try:
+    @type_safe
+    def process(data: List[int]) -&gt; int:
+        return sum(data)
+
+    process([&quot;1&quot;, &quot;2&quot;])  # Wrong type in list
+except ValueError as e:
+    # &quot;Parameter 'data' expected type List[int], but got...&quot;
+    print(f&quot;Parameter error: {e}&quot;)
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<p>When generating code with Type_Safe:</p>
+<ol>
+<li><strong>Use at boundaries</strong> - Input validation, API endpoints</li>
+<li><strong>Cache instances</strong> - Don't recreate Type_Safe objects unnecessarily</li>
+<li><strong>Bulk operations</strong> - Process collections in chunks when possible</li>
+<li><strong>Selective validation</strong> - Use @type_safe only on public methods</li>
+</ol>
+<h2 id="do-not-generate-these-anti-patterns">DO NOT Generate These Anti-Patterns<a class="headerlink" href="#do-not-generate-these-anti-patterns" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># ❌ DON'T: Mix Type_Safe with other validation
+class Bad(Type_Safe, BaseModel):  # Don't mix with Pydantic
+    name: str
+
+# ❌ DON'T: Use mutable defaults
+class Bad(Type_Safe):
+    items: List[str] = []  # Will raise error
+
+# ❌ DON'T: Forget type annotations
+class Bad(Type_Safe):
+    name = &quot;default&quot;  # Missing annotation
+
+# ❌ DON'T: Use raw dict/list types
+class Bad(Type_Safe):
+    data: dict  # Should be Dict[K, V]
+    items: list  # Should be List[T]
+
+# ❌ DON'T: Forward reference other classes
+class Node(Type_Safe):
+    other: 'SomeOtherClass'  # Won't work
+</code></pre>
+<h2 id="testing-patterns">Testing Patterns<a class="headerlink" href="#testing-patterns" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import pytest
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class TestModel(Type_Safe):
+    name: str
+    value: int
+
+def test_type_validation():
+    model = TestModel()
+
+    # Test valid assignments
+    model.name = &quot;test&quot;
+    assert model.name == &quot;test&quot;
+
+    # Test invalid assignments
+    with pytest.raises(ValueError):
+        model.value = &quot;not an int&quot;
+
+    # Test serialization
+    model.value = 42
+    data = model.json()
+    assert data == {&quot;name&quot;: &quot;test&quot;, &quot;value&quot;: 42}
+
+    # Test deserialization
+    new_model = TestModel.from_json(data)
+    assert new_model.name == model.name
+    assert new_model.value == model.value
+</code></pre>
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When generating Type_Safe code:
+- [ ] Inherit from Type_Safe
+- [ ] Add type annotations for ALL attributes
+- [ ] Use only immutable defaults (or none)
+- [ ] Use specific generic types (List[T], not list)
+- [ ] Forward references only to current class
+- [ ] Add @type_safe to validated methods
+- [ ] Use Safe_* types for domain concepts
+- [ ] Handle ValueError exceptions appropriately
+- [ ] Test type validation and serialization</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

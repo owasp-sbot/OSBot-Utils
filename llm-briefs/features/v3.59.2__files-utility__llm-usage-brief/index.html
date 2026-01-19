@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.59.2__files-utility__llm-usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Files Utility - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Files Utility - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.59.2__files-utility__llm-usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.59.2__files-utility__llm-usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Files Utility - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="files-utility-llm-usage-brief">Files Utility - LLM Usage Brief<a class="headerlink" href="#files-utility-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.59.2<br />
+<strong>Purpose</strong>: Guide for LLMs and developers on using the comprehensive file system utility<br />
+<strong>Location</strong>: <code>osbot_utils.utils.Files</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="what-is-the-files-utility">What is the Files Utility?<a class="headerlink" href="#what-is-the-files-utility" title="Permanent link">&para;</a></h2>
+<p><strong>The Files utility is a comprehensive, battle-tested toolkit that eliminates the friction of file system operations in Python.</strong> It wraps the scattered functionality of <code>os</code>, <code>os.path</code>, <code>shutil</code>, <code>pathlib</code>, <code>tempfile</code>, <code>gzip</code>, <code>pickle</code>, and <code>glob</code> into a single, consistent, and intuitive API.</p>
+<p>Instead of remembering which module has which function, or writing the same boilerplate for the hundredth time, you get simple, readable operations that just work.</p>
+<h3 id="the-problem-it-solves">The Problem It Solves<a class="headerlink" href="#the-problem-it-solves" title="Permanent link">&para;</a></h3>
+<p>Python's standard library spreads file operations across multiple modules with inconsistent APIs:</p>
+<pre><code class="language-python"># Standard library - scattered and verbose
+import os
+import os.path
+import shutil
+import tempfile
+from pathlib import Path
+
+# Does this file exist?
+os.path.exists(path) and os.path.isfile(path)  # Two calls needed
+
+# Read file contents
+with open(path, 'r') as f:
+    contents = f.read()
+
+# Create a temp file with content
+fd, tmp_path = tempfile.mkstemp('.txt')
+os.close(fd)
+with open(tmp_path, 'w') as f:
+    f.write(contents)
+
+# Get parent folder
+os.path.dirname(os.path.abspath(path))
+
+# Copy file, ensuring target folder exists
+os.makedirs(os.path.dirname(dest), exist_ok=True)
+shutil.copy(src, dest)
+</code></pre>
+<p><strong>With the Files utility:</strong></p>
+<pre><code class="language-python">from osbot_utils.utils.Files import file_exists, file_contents, file_create, parent_folder, file_copy
+
+# Does this file exist?
+file_exists(path)
+
+# Read file contents
+contents = file_contents(path)
+
+# Create a temp file with content
+tmp_path = file_create(contents=contents, extension='.txt')
+
+# Get parent folder
+parent_folder(path)
+
+# Copy file (target folder created automatically)
+file_copy(src, dest)
+</code></pre>
+<h3 id="design-philosophy">Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>One function, one job</strong> — <code>file_exists()</code> checks if a file exists. That's it.</li>
+<li><strong>Sensible defaults</strong> — <code>temp_file()</code> creates a unique temp file. No ceremony required.</li>
+<li><strong>Automatic safety</strong> — Copy operations create parent folders. Delete operations check existence first.</li>
+<li><strong>Dual API</strong> — Use <code>Files.method()</code> class syntax or <code>function_name()</code> aliases—your choice.</li>
+<li><strong>No surprises</strong> — Functions return useful values (paths created, success booleans) or <code>None</code> on failure.</li>
+</ol>
+<h3 id="the-power-of-the-files-utility">The Power of the Files Utility<a class="headerlink" href="#the-power-of-the-files-utility" title="Permanent link">&para;</a></h3>
+<h4 id="1-eliminate-boilerplate">1. Eliminate Boilerplate<a class="headerlink" href="#1-eliminate-boilerplate" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Create a file with content, in a folder that may not exist
+file_create_all_parent_folders('/path/to/deep/nested/file.txt')
+file_create('/path/to/deep/nested/file.txt', 'content')
+
+# Or even simpler - temp file with content
+path = file_create(contents='my data', extension='.json')
+</code></pre>
+<h4 id="2-consistent-return-values">2. Consistent Return Values<a class="headerlink" href="#2-consistent-return-values" title="Permanent link">&para;</a></h4>
+<p>Every function returns something useful:</p>
+<pre><code class="language-python">path = file_create(contents='data')           # Returns: path to created file
+path = folder_create('/new/folder')           # Returns: path to folder
+success = file_delete('/some/file.txt')       # Returns: True/False
+contents = file_contents('/some/file.txt')    # Returns: string or None
+</code></pre>
+<h4 id="3-safe-operations-by-default">3. Safe Operations by Default<a class="headerlink" href="#3-safe-operations-by-default" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Won't crash if file doesn't exist
+file_delete('/nonexistent/file.txt')  # Returns False, no exception
+
+# Won't crash if folder already exists
+folder_create('/existing/folder')     # Returns path, no exception
+
+# Automatically creates parent folders
+file_copy(src, '/new/deep/path/file.txt')  # Creates /new/deep/path/ first
+</code></pre>
+<h4 id="4-rich-content-handling">4. Rich Content Handling<a class="headerlink" href="#4-rich-content-handling" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Text, bytes, gzip, base64, pickle - all covered
+text = file_contents(path)
+data = file_bytes(path)
+text = file_contents_gz(path)
+b64 = file_to_base64(path)
+obj = pickle_load_from_file(path)
+
+# Hashing built in
+md5 = file_contents_md5(path)
+sha = file_contents_sha256(path)
+</code></pre>
+<h4 id="5-powerful-file-finding">5. Powerful File Finding<a class="headerlink" href="#5-powerful-file-finding" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># Find all Python files recursively
+py_files = files_find('**/*.py', recursive=True)
+
+# List files in folder with pattern
+configs = files_list('/app/config', pattern='*.yaml')
+
+# Get files without full path (virtual paths)
+relative = files_list__virtual_paths('/app/data')
+</code></pre>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="basic-file-operations">Basic File Operations<a class="headerlink" href="#basic-file-operations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import (
+    file_exists, file_contents, file_create, file_delete,
+    file_copy, file_name, file_extension
+)
+
+# Check and read
+if file_exists('/path/to/file.txt'):
+    content = file_contents('/path/to/file.txt')
+
+# Create file (returns path)
+path = file_create('/path/to/new.txt', 'Hello World')
+
+# Create temp file with content
+temp = file_create(contents='temporary data', extension='.tmp')
+
+# Copy and delete
+file_copy('/source.txt', '/dest.txt')
+file_delete('/source.txt')
+
+# File info
+name = file_name('/path/to/file.txt')       # 'file.txt'
+ext = file_extension('/path/to/file.txt')   # '.txt'
+</code></pre>
+<h3 id="basic-folder-operations">Basic Folder Operations<a class="headerlink" href="#basic-folder-operations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import (
+    folder_exists, folder_create, folder_delete, folder_delete_all,
+    files_list, parent_folder
+)
+
+# Create folder (returns path)
+folder_create('/new/folder')
+
+# List files
+all_files = files_list('/my/folder')
+py_files = files_list('/my/folder', pattern='*.py')
+
+# Get parent
+parent = parent_folder('/path/to/file.txt')  # '/path/to'
+
+# Delete (empty folder only)
+folder_delete('/empty/folder')
+
+# Delete recursively (CAREFUL!)
+folder_delete_all('/folder/with/contents')
+</code></pre>
+<h3 id="temp-files-and-folders">Temp Files and Folders<a class="headerlink" href="#temp-files-and-folders" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import (
+    temp_file, temp_folder, temp_folder_current
+)
+
+# Create temp file (returns path)
+tmp = temp_file()                            # /tmp/xxxxx.tmp
+tmp = temp_file(extension='.json')           # /tmp/xxxxx.json
+tmp = temp_file(contents='data')             # Creates with content
+
+# Create temp folder (returns path)
+tmp_dir = temp_folder()                      # /tmp/xxxxx
+tmp_dir = temp_folder(prefix='myapp_')       # /tmp/myapp_xxxxx
+
+# Get system temp folder
+sys_tmp = temp_folder_current()              # /tmp (or platform equivalent)
+</code></pre>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<h3 id="function-aliases-recommended">Function Aliases (Recommended)<a class="headerlink" href="#function-aliases-recommended" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># File operations
+from osbot_utils.utils.Files import (
+    file_exists, file_not_exists,
+    file_contents, file_contents_gz, file_bytes,
+    file_create, file_create_gz, file_create_bytes,
+    file_delete, file_copy, file_move,
+    file_name, file_extension, file_size, file_stats,
+    file_lines, file_lines_gz,
+    file_to_base64, file_from_base64,
+    file_contents_md5, file_contents_sha256,
+)
+
+# Folder operations
+from osbot_utils.utils.Files import (
+    folder_exists, folder_not_exists,
+    folder_create, folder_delete, folder_delete_all,
+    folder_copy, folder_name,
+    folders_in_folder, folders_recursive,
+)
+
+# Path operations
+from osbot_utils.utils.Files import (
+    path_combine, path_combine_safe,
+    parent_folder, parent_folder_create,
+    absolute_path, current_folder,
+)
+
+# File finding
+from osbot_utils.utils.Files import (
+    files_list, files_find, files_recursive,
+    files_names, files_in_folder,
+)
+
+# Temp operations
+from osbot_utils.utils.Files import (
+    temp_file, temp_folder, temp_filename,
+    temp_folder_current,
+)
+
+# Pickle operations
+from osbot_utils.utils.Files import (
+    pickle_save_to_file, pickle_load_from_file,
+)
+
+# Safety utilities
+from osbot_utils.utils.Files import (
+    safe_file_name, is_file, is_folder,
+)
+</code></pre>
+<h3 id="class-based-api">Class-Based API<a class="headerlink" href="#class-based-api" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import Files
+
+# Same operations via class
+Files.exists(path)
+Files.contents(path)
+Files.write(path, contents)
+Files.delete(path)
+Files.copy(src, dest)
+Files.folder_create(path)
+Files.temp_file(extension='.json')
+</code></pre>
+<hr />
+<h2 id="api-reference-by-category">API Reference by Category<a class="headerlink" href="#api-reference-by-category" title="Permanent link">&para;</a></h2>
+<h3 id="file-existence-info">File Existence &amp; Info<a class="headerlink" href="#file-existence-info" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file_exists(path)</code></td>
+<td>Check if file exists</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>file_not_exists(path)</code></td>
+<td>Check if file doesn't exist</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>file_size(path)</code></td>
+<td>Get file size in bytes</td>
+<td><code>int</code></td>
+</tr>
+<tr>
+<td><code>file_stats(path)</code></td>
+<td>Get full file stats</td>
+<td><code>os.stat_result</code></td>
+</tr>
+<tr>
+<td><code>file_name(path)</code></td>
+<td>Get filename from path</td>
+<td><code>str</code> - <code>'file.txt'</code></td>
+</tr>
+<tr>
+<td><code>file_extension(path)</code></td>
+<td>Get extension</td>
+<td><code>str</code> - <code>'.txt'</code></td>
+</tr>
+<tr>
+<td><code>file_name_without_extension(path)</code></td>
+<td>Get name without ext</td>
+<td><code>str</code> - <code>'file'</code></td>
+</tr>
+<tr>
+<td><code>is_file(path)</code></td>
+<td>Check if path is a file</td>
+<td><code>bool</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-reading">File Reading<a class="headerlink" href="#file-reading" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file_contents(path)</code></td>
+<td>Read file as text</td>
+<td><code>str</code> or <code>None</code></td>
+</tr>
+<tr>
+<td><code>file_contents_gz(path)</code></td>
+<td>Read gzip file as text</td>
+<td><code>str</code> or <code>None</code></td>
+</tr>
+<tr>
+<td><code>file_bytes(path)</code></td>
+<td>Read file as bytes</td>
+<td><code>bytes</code></td>
+</tr>
+<tr>
+<td><code>file_lines(path)</code></td>
+<td>Iterate lines (generator)</td>
+<td><code>Generator[str]</code></td>
+</tr>
+<tr>
+<td><code>file_lines_gz(path)</code></td>
+<td>Iterate gzip lines</td>
+<td><code>Generator[str]</code></td>
+</tr>
+<tr>
+<td><code>file_contains(path, content)</code></td>
+<td>Check if file contains text</td>
+<td><code>bool</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-writing">File Writing<a class="headerlink" href="#file-writing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file_create(path, contents)</code></td>
+<td>Create/overwrite file</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>file_create(contents=x, extension=y)</code></td>
+<td>Create temp file</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>file_create_bytes(path, bytes)</code></td>
+<td>Write bytes to file</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>file_create_gz(path, contents)</code></td>
+<td>Write gzip file</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>file_write(path, contents)</code></td>
+<td>Alias for file_create</td>
+<td><code>str</code> - path</td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-operations">File Operations<a class="headerlink" href="#file-operations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file_copy(src, dest)</code></td>
+<td>Copy file</td>
+<td><code>str</code> - dest path</td>
+</tr>
+<tr>
+<td><code>file_move(src, dest)</code></td>
+<td>Move file</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>file_delete(path)</code></td>
+<td>Delete file</td>
+<td><code>bool</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-encoding">File Encoding<a class="headerlink" href="#file-encoding" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file_to_base64(path)</code></td>
+<td>Encode file to base64</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>file_from_base64(b64, path)</code></td>
+<td>Decode base64 to file</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>file_contents_md5(path)</code></td>
+<td>Get MD5 hash</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>file_contents_sha256(path)</code></td>
+<td>Get SHA256 hash</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>pickle_save_to_file(obj, path)</code></td>
+<td>Pickle object to file</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>pickle_load_from_file(path)</code></td>
+<td>Load pickled object</td>
+<td><code>object</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="folder-existence-info">Folder Existence &amp; Info<a class="headerlink" href="#folder-existence-info" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>folder_exists(path)</code></td>
+<td>Check if folder exists</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>folder_not_exists(path)</code></td>
+<td>Check if folder doesn't exist</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>folder_name(path)</code></td>
+<td>Get folder name</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>is_folder(path)</code></td>
+<td>Check if path is folder</td>
+<td><code>bool</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="folder-operations">Folder Operations<a class="headerlink" href="#folder-operations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>folder_create(path)</code></td>
+<td>Create folder (with parents)</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>folder_delete(path)</code></td>
+<td>Delete empty folder</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>folder_delete_all(path)</code></td>
+<td>Delete folder recursively</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>folder_copy(src, dest)</code></td>
+<td>Copy folder tree</td>
+<td><code>str</code> - dest path</td>
+</tr>
+<tr>
+<td><code>folder_copy(src, dest, ignore_pattern='*.pyc')</code></td>
+<td>Copy with exclusions</td>
+<td><code>str</code> - dest path</td>
+</tr>
+</tbody>
+</table>
+<h3 id="folder-listing">Folder Listing<a class="headerlink" href="#folder-listing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>files_list(path)</code></td>
+<td>List files in folder</td>
+<td><code>List[str]</code></td>
+</tr>
+<tr>
+<td><code>files_list(path, pattern='*.py')</code></td>
+<td>List with pattern</td>
+<td><code>List[str]</code></td>
+</tr>
+<tr>
+<td><code>files_in_folder(path)</code></td>
+<td>List files (non-recursive)</td>
+<td><code>List[str]</code></td>
+</tr>
+<tr>
+<td><code>files_recursive(path)</code></td>
+<td>List all files recursively</td>
+<td><code>List[str]</code></td>
+</tr>
+<tr>
+<td><code>folders_in_folder(path)</code></td>
+<td>List subfolders</td>
+<td><code>List[str]</code></td>
+</tr>
+<tr>
+<td><code>folders_recursive(path)</code></td>
+<td>List all folders recursively</td>
+<td><code>List[str]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="path-operations">Path Operations<a class="headerlink" href="#path-operations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>path_combine(base, sub)</code></td>
+<td>Join paths safely</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>path_combine_safe(base, sub)</code></td>
+<td>Join with traversal protection</td>
+<td><code>str</code> or <code>None</code></td>
+</tr>
+<tr>
+<td><code>parent_folder(path)</code></td>
+<td>Get parent directory</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>parent_folder_create(path)</code></td>
+<td>Create parent directory</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>absolute_path(path)</code></td>
+<td>Get absolute path</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>current_folder()</code></td>
+<td>Get current directory</td>
+<td><code>str</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="temp-files-folders">Temp Files &amp; Folders<a class="headerlink" href="#temp-files-folders" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>temp_file()</code></td>
+<td>Create temp file</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>temp_file(extension='.json')</code></td>
+<td>With extension</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>temp_file(contents='data')</code></td>
+<td>With content</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>temp_folder()</code></td>
+<td>Create temp folder</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>temp_folder(prefix='app_')</code></td>
+<td>With prefix</td>
+<td><code>str</code> - path</td>
+</tr>
+<tr>
+<td><code>temp_folder_current()</code></td>
+<td>Get system temp dir</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>temp_filename()</code></td>
+<td>Generate temp filename</td>
+<td><code>str</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-finding">File Finding<a class="headerlink" href="#file-finding" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>files_find(pattern)</code></td>
+<td>Glob pattern search</td>
+<td><code>List[str]</code></td>
+</tr>
+<tr>
+<td><code>files_find('**/*.py', recursive=True)</code></td>
+<td>Recursive glob</td>
+<td><code>List[str]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="safety-utilities">Safety Utilities<a class="headerlink" href="#safety-utilities" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>safe_file_name(name)</code></td>
+<td>Sanitize filename</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>file_extension_fix(ext)</code></td>
+<td>Ensure extension has dot</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>file_create_all_parent_folders(path)</code></td>
+<td>Create all parents</td>
+<td><code>str</code> - parent path</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-read-process-write">Pattern 1: Read, Process, Write<a class="headerlink" href="#pattern-1-read-process-write" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import file_contents, file_create, file_exists
+
+def process_config(input_path, output_path):
+    if not file_exists(input_path):
+        return None
+
+    # Read
+    content = file_contents(input_path)
+
+    # Process
+    processed = content.upper()
+
+    # Write (creates parent folders automatically via copy if needed)
+    return file_create(output_path, processed)
+</code></pre>
+<h3 id="pattern-2-safe-temp-file-workflow">Pattern 2: Safe Temp File Workflow<a class="headerlink" href="#pattern-2-safe-temp-file-workflow" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import temp_file, file_contents, file_delete
+
+def safe_transform(data):
+    # Create temp file with data
+    tmp = temp_file(contents=data, extension='.json')
+
+    try:
+        # Do something with temp file
+        result = external_tool_process(tmp)
+        return result
+    finally:
+        # Cleanup
+        file_delete(tmp)
+</code></pre>
+<h3 id="pattern-3-batch-file-processing">Pattern 3: Batch File Processing<a class="headerlink" href="#pattern-3-batch-file-processing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import files_list, file_contents, file_create, parent_folder
+
+def convert_all_markdown(source_dir, dest_dir):
+    md_files = files_list(source_dir, pattern='*.md')
+
+    for md_file in md_files:
+        content = file_contents(md_file)
+        html = markdown_to_html(content)
+
+        # Preserve relative structure
+        relative = md_file.replace(source_dir, '')
+        dest = path_combine(dest_dir, relative.replace('.md', '.html'))
+
+        file_create(dest, html)
+</code></pre>
+<h3 id="pattern-4-finding-and-filtering-files">Pattern 4: Finding and Filtering Files<a class="headerlink" href="#pattern-4-finding-and-filtering-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import files_find, file_size, file_contents_md5
+
+# Find all Python files
+py_files = files_find('**/*.py', recursive=True)
+
+# Filter by size (&gt; 10KB)
+large_files = [f for f in py_files if file_size(f) &gt; 10240]
+
+# Find duplicates by hash
+hashes = {}
+for f in py_files:
+    h = file_contents_md5(f)
+    hashes.setdefault(h, []).append(f)
+
+duplicates = {h: files for h, files in hashes.items() if len(files) &gt; 1}
+</code></pre>
+<h3 id="pattern-5-working-with-gzip-files">Pattern 5: Working with Gzip Files<a class="headerlink" href="#pattern-5-working-with-gzip-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import file_create_gz, file_contents_gz, file_lines_gz
+
+# Write compressed
+file_create_gz('/logs/app.log.gz', log_content)
+
+# Read compressed
+content = file_contents_gz('/logs/app.log.gz')
+
+# Stream large compressed files
+for line in file_lines_gz('/logs/huge.log.gz'):
+    process_log_line(line)
+</code></pre>
+<h3 id="pattern-6-safe-path-handling-prevent-directory-traversal">Pattern 6: Safe Path Handling (Prevent Directory Traversal)<a class="headerlink" href="#pattern-6-safe-path-handling-prevent-directory-traversal" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import path_combine_safe
+
+def serve_file(base_dir, user_requested_path):
+    # Safe: prevents ../../../etc/passwd attacks
+    safe_path = path_combine_safe(base_dir, user_requested_path)
+
+    if safe_path is None:
+        raise SecurityError(&quot;Invalid path&quot;)
+
+    return file_contents(safe_path)
+</code></pre>
+<h3 id="pattern-7-file-hashing-and-integrity">Pattern 7: File Hashing and Integrity<a class="headerlink" href="#pattern-7-file-hashing-and-integrity" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import file_contents_md5, file_contents_sha256, file_exists
+
+def verify_download(path, expected_sha256):
+    if not file_exists(path):
+        return False
+
+    actual = file_contents_sha256(path)
+    return actual == expected_sha256
+
+def get_file_fingerprint(path):
+    return {
+        'md5': file_contents_md5(path),
+        'sha256': file_contents_sha256(path),
+        'size': file_size(path),
+    }
+</code></pre>
+<h3 id="pattern-8-pickle-serialization">Pattern 8: Pickle Serialization<a class="headerlink" href="#pattern-8-pickle-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import pickle_save_to_file, pickle_load_from_file
+
+# Save complex object
+model = train_ml_model(data)
+path = pickle_save_to_file(model, '/models/trained_v1.pickle')
+
+# Load later
+loaded_model = pickle_load_from_file('/models/trained_v1.pickle')
+predictions = loaded_model.predict(new_data)
+</code></pre>
+<h3 id="pattern-9-base64-encoding-for-apis">Pattern 9: Base64 Encoding for APIs<a class="headerlink" href="#pattern-9-base64-encoding-for-apis" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import file_to_base64, file_from_base64
+
+# Encode file for JSON API
+image_b64 = file_to_base64('/images/photo.png')
+api_request = {'image': image_b64, 'format': 'png'}
+
+# Decode received file
+received_b64 = api_response['document']
+path = file_from_base64(received_b64, extension='.pdf')
+</code></pre>
+<h3 id="pattern-10-folder-tree-operations">Pattern 10: Folder Tree Operations<a class="headerlink" href="#pattern-10-folder-tree-operations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import (
+    folder_create, folder_copy, folder_delete_all,
+    folders_recursive, files_recursive
+)
+
+# Create project structure
+for folder in ['src', 'tests', 'docs', 'config']:
+    folder_create(f'/project/{folder}')
+
+# Clone folder tree (excluding patterns)
+folder_copy('/template', '/new_project', ignore_pattern=['*.pyc', '__pycache__'])
+
+# Get full inventory
+all_folders = folders_recursive('/project')
+all_files = files_recursive('/project')
+
+# Clean up
+folder_delete_all('/project/build')
+</code></pre>
+<hr />
+<h2 id="common-recipes">Common Recipes<a class="headerlink" href="#common-recipes" title="Permanent link">&para;</a></h2>
+<h3 id="recipe-create-file-with-parent-folders">Recipe: Create File with Parent Folders<a class="headerlink" href="#recipe-create-file-with-parent-folders" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import file_create_all_parent_folders, file_create
+
+path = '/deep/nested/path/that/may/not/exist/file.txt'
+file_create_all_parent_folders(path)
+file_create(path, 'content')
+</code></pre>
+<h3 id="recipe-read-jsonyaml-config">Recipe: Read JSON/YAML Config<a class="headerlink" href="#recipe-read-jsonyaml-config" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import json
+from osbot_utils.utils.Files import file_contents, file_exists
+
+def load_config(path):
+    if not file_exists(path):
+        return {}
+    return json.loads(file_contents(path))
+</code></pre>
+<h3 id="recipe-atomic-write-via-temp-file">Recipe: Atomic Write (via Temp File)<a class="headerlink" href="#recipe-atomic-write-via-temp-file" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import temp_file, file_copy, file_delete
+
+def atomic_write(path, content):
+    &quot;&quot;&quot;Write atomically - either succeeds completely or not at all.&quot;&quot;&quot;
+    tmp = temp_file(contents=content)
+    try:
+        file_copy(tmp, path)
+    finally:
+        file_delete(tmp)
+</code></pre>
+<h3 id="recipe-get-all-files-with-extension">Recipe: Get All Files with Extension<a class="headerlink" href="#recipe-get-all-files-with-extension" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import files_list
+
+# In single folder
+python_files = files_list('/src', pattern='*.py')
+
+# Recursive
+from osbot_utils.utils.Files import files_find
+all_python = files_find('/project/**/*.py', recursive=True)
+</code></pre>
+<h3 id="recipe-compare-two-files">Recipe: Compare Two Files<a class="headerlink" href="#recipe-compare-two-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import file_contents_sha256
+
+def files_identical(path1, path2):
+    return file_contents_sha256(path1) == file_contents_sha256(path2)
+</code></pre>
+<h3 id="recipe-safe-filename-from-user-input">Recipe: Safe Filename from User Input<a class="headerlink" href="#recipe-safe-filename-from-user-input" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.utils.Files import safe_file_name, path_combine
+
+def save_user_upload(user_filename, content, upload_dir):
+    safe_name = safe_file_name(user_filename)  # Removes dangerous chars
+    path = path_combine(upload_dir, safe_name)
+    return file_create(path, content)
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-use-existence-checks">DO: Use Existence Checks<a class="headerlink" href="#do-use-existence-checks" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - check before read
+if file_exists(path):
+    content = file_contents(path)
+
+# ✅ Good - file_contents returns None if not exists
+content = file_contents(path)
+if content is not None:
+    process(content)
+</code></pre>
+<h3 id="do-use-temp-files-for-intermediate-results">DO: Use Temp Files for Intermediate Results<a class="headerlink" href="#do-use-temp-files-for-intermediate-results" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - use temp for scratch work
+tmp = temp_file(extension='.json')
+# ... work with tmp ...
+file_delete(tmp)
+
+# ✅ Good - let system choose location
+tmp = temp_file()  # Uses system temp dir
+</code></pre>
+<h3 id="do-use-path_combine-for-path-building">DO: Use path_combine for Path Building<a class="headerlink" href="#do-use-path_combine-for-path-building" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - handles separators correctly
+full_path = path_combine(base_dir, 'subdir', 'file.txt')
+
+# ❌ Bad - manual string concatenation
+full_path = base_dir + '/' + 'subdir' + '/' + 'file.txt'
+</code></pre>
+<h3 id="do-use-path_combine_safe-for-user-input">DO: Use path_combine_safe for User Input<a class="headerlink" href="#do-use-path_combine_safe-for-user-input" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - prevents directory traversal
+safe = path_combine_safe('/uploads', user_input)
+if safe:
+    return file_contents(safe)
+
+# ❌ Dangerous - user could pass '../../../etc/passwd'
+path = path_combine('/uploads', user_input)
+</code></pre>
+<h3 id="dont-assume-folder-exists">DON'T: Assume Folder Exists<a class="headerlink" href="#dont-assume-folder-exists" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - may fail if folder doesn't exist
+file_create('/new/path/file.txt', content)
+
+# ✅ Good - ensure parent exists
+file_create_all_parent_folders('/new/path/file.txt')
+file_create('/new/path/file.txt', content)
+</code></pre>
+<h3 id="dont-use-folder_delete_all-carelessly">DON'T: Use folder_delete_all Carelessly<a class="headerlink" href="#dont-use-folder_delete_all-carelessly" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ DANGEROUS - deletes everything recursively!
+folder_delete_all(user_provided_path)
+
+# ✅ Safer - validate path first
+if path.startswith('/safe/prefix/') and folder_exists(path):
+    folder_delete_all(path)
+</code></pre>
+<h3 id="dont-ignore-return-values">DON'T: Ignore Return Values<a class="headerlink" href="#dont-ignore-return-values" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Bad - ignoring failure
+file_delete(path)
+
+# ✅ Good - check result
+if not file_delete(path):
+    logger.warning(f&quot;Could not delete {path}&quot;)
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-file_contents-returns-none">Problem: file_contents Returns None<a class="headerlink" href="#problem-file_contents-returns-none" title="Permanent link">&para;</a></h3>
+<p><strong>Cause 1</strong>: File doesn't exist</p>
+<pre><code class="language-python"># Check first
+if file_exists(path):
+    content = file_contents(path)
+</code></pre>
+<p><strong>Cause 2</strong>: Path is actually a folder</p>
+<pre><code class="language-python"># Verify it's a file
+if is_file(path):
+    content = file_contents(path)
+</code></pre>
+<h3 id="problem-file_create-fails">Problem: file_create Fails<a class="headerlink" href="#problem-file_create-fails" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Parent folder doesn't exist</p>
+<pre><code class="language-python"># Solution: create parents first
+file_create_all_parent_folders(path)
+file_create(path, contents)
+</code></pre>
+<h3 id="problem-permission-denied">Problem: Permission Denied<a class="headerlink" href="#problem-permission-denied" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Insufficient permissions</p>
+<pre><code class="language-python"># Check if writable location
+import os
+if os.access(parent_folder(path), os.W_OK):
+    file_create(path, contents)
+else:
+    # Use temp location instead
+    path = temp_file(contents=contents)
+</code></pre>
+<h3 id="problem-folder_delete-returns-false">Problem: folder_delete Returns False<a class="headerlink" href="#problem-folder_delete-returns-false" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Folder is not empty</p>
+<pre><code class="language-python"># Use recursive delete for non-empty folders
+folder_delete_all(path)  # CAREFUL - deletes everything!
+</code></pre>
+<h3 id="problem-files_find-returns-empty">Problem: files_find Returns Empty<a class="headerlink" href="#problem-files_find-returns-empty" title="Permanent link">&para;</a></h3>
+<p><strong>Cause 1</strong>: Pattern syntax wrong</p>
+<pre><code class="language-python"># ✅ Correct recursive pattern
+files_find('**/*.py', recursive=True)
+
+# ❌ Wrong - missing recursive flag
+files_find('**/*.py')  # recursive=False by default for some patterns
+</code></pre>
+<p><strong>Cause 2</strong>: Path doesn't exist</p>
+<pre><code class="language-python"># Verify base path
+if folder_exists('/search/path'):
+    results = files_find('/search/path/**/*.py', recursive=True)
+</code></pre>
+<h3 id="problem-encoding-errors-reading-files">Problem: Encoding Errors Reading Files<a class="headerlink" href="#problem-encoding-errors-reading-files" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: File is binary or different encoding</p>
+<pre><code class="language-python"># For binary files
+data = file_bytes(path)
+
+# For specific encoding
+with open(path, 'r', encoding='utf-8') as f:
+    content = f.read()
+</code></pre>
+<hr />
+<h2 id="function-alias-quick-reference">Function Alias Quick Reference<a class="headerlink" href="#function-alias-quick-reference" title="Permanent link">&para;</a></h2>
+<p>The module provides multiple aliases for common operations. Use whichever reads best:</p>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Same As</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file_create</code></td>
+<td><code>Files.write</code></td>
+<td>Create/write file</td>
+</tr>
+<tr>
+<td><code>file_contents</code></td>
+<td><code>Files.contents</code></td>
+<td>Read file text</td>
+</tr>
+<tr>
+<td><code>file_bytes</code></td>
+<td><code>Files.bytes</code></td>
+<td>Read file bytes</td>
+</tr>
+<tr>
+<td><code>create_folder</code></td>
+<td><code>folder_create</code></td>
+<td>Create folder</td>
+</tr>
+<tr>
+<td><code>folder_delete_recursively</code></td>
+<td><code>folder_delete_all</code></td>
+<td>Delete folder tree</td>
+</tr>
+<tr>
+<td><code>load_file</code></td>
+<td><code>file_contents</code></td>
+<td>Read file</td>
+</tr>
+<tr>
+<td><code>save_string_as_file</code></td>
+<td><code>Files.save</code></td>
+<td>Write string to file</td>
+</tr>
+<tr>
+<td><code>bytes_to_file</code></td>
+<td><code>Files.write_bytes</code></td>
+<td>Write bytes to file</td>
+</tr>
+<tr>
+<td><code>path_append</code></td>
+<td><code>path_combine</code></td>
+<td>Join paths</td>
+</tr>
+<tr>
+<td><code>find_files</code></td>
+<td><code>files_list</code></td>
+<td>List files</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When working with files in OSBot-Utils:</p>
+<ul>
+<li>[ ] Import from <code>osbot_utils.utils.Files</code></li>
+<li>[ ] Use function aliases (<code>file_exists</code>, <code>file_contents</code>) for readability</li>
+<li>[ ] Check existence before reading: <code>file_exists()</code> or handle <code>None</code> return</li>
+<li>[ ] Use <code>temp_file()</code> and <code>temp_folder()</code> for scratch work</li>
+<li>[ ] Use <code>path_combine()</code> instead of string concatenation</li>
+<li>[ ] Use <code>path_combine_safe()</code> for user-provided paths</li>
+<li>[ ] Use <code>file_create_all_parent_folders()</code> before creating files in new paths</li>
+<li>[ ] Use <code>folder_delete_all()</code> carefully—it's recursive!</li>
+<li>[ ] Use <code>safe_file_name()</code> for user-provided filenames</li>
+<li>[ ] Remember: most functions return the path on success, making chaining easy</li>
+<li>[ ] For gzip: <code>file_create_gz()</code>, <code>file_contents_gz()</code>, <code>file_lines_gz()</code></li>
+<li>[ ] For hashing: <code>file_contents_md5()</code>, <code>file_contents_sha256()</code></li>
+<li>[ ] For encoding: <code>file_to_base64()</code>, <code>file_from_base64()</code></li>
+<li>[ ] For serialization: <code>pickle_save_to_file()</code>, <code>pickle_load_from_file()</code></li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

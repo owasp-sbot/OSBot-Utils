@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.63.0__ast-helpers__llm-usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>AST Helpers - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "AST Helpers - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.63.0__ast-helpers__llm-usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.63.0__ast-helpers__llm-usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">AST Helpers - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="ast-helpers-llm-usage-brief">AST Helpers - LLM Usage Brief<a class="headerlink" href="#ast-helpers-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.63.0<br />
+<strong>Purpose</strong>: Guide for LLMs and developers on using the Python AST parsing and manipulation toolkit<br />
+<strong>Location</strong>: <code>osbot_utils.helpers.ast</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="what-is-the-ast-helpers-toolkit">What is the AST Helpers Toolkit?<a class="headerlink" href="#what-is-the-ast-helpers-toolkit" title="Permanent link">&para;</a></h2>
+<p><strong>The AST helpers toolkit is a clean, object-oriented wrapper around Python's <code>ast</code> module that transforms raw AST nodes into a navigable, type-safe object graph.</strong> Instead of wrestling with Python's native AST API (which returns generic node objects requiring constant type-checking and attribute access), you get strongly-typed wrapper classes with intuitive methods for each AST node type.</p>
+<h3 id="the-problem-it-solves">The Problem It Solves<a class="headerlink" href="#the-problem-it-solves" title="Permanent link">&para;</a></h3>
+<p>Python's built-in <code>ast</code> module is powerful but awkward:</p>
+<pre><code class="language-python"># Standard library - verbose and error-prone
+import ast
+
+source = &quot;def add(a, b): return a + b&quot;
+tree = ast.parse(source)
+
+# What type is this node? Have to check manually
+func_node = tree.body[0]
+if isinstance(func_node, ast.FunctionDef):
+    # Access raw attributes - easy to get wrong
+    func_name = func_node.name
+    args = func_node.args.args  # Wait, is it .args.args or just .args?
+
+    # Walking the tree? Manual recursion
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            # More type checking...
+            pass
+
+# Dumping for debugging is clunky
+print(ast.dump(tree, indent=4))
+
+# JSON serialization? You're on your own
+</code></pre>
+<p><strong>With OSBot-Utils AST helpers:</strong></p>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+
+source = &quot;def add(a, b): return a + b&quot;
+module = Ast_Module(source)
+
+# Strongly-typed access
+func = module.body()[0]                    # Returns Ast_Function_Def
+print(func.name())                         # 'add'
+print(func.args())                         # Returns Ast_Arguments
+
+# JSON-friendly data structures
+print(module.json())                       # Clean dict output
+
+# Execute and inspect
+result = module.execute_code()             # {'status': 'ok', 'locals': {...}}
+
+# Visitor pattern built in
+from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+with Ast_Visit(module) as visitor:
+    visitor.capture_functions()
+    visitor.capture_calls()
+    visitor.visit()
+    print(visitor.stats())                 # {'Ast_Function_Def': 1, 'Ast_Call': 0}
+</code></pre>
+<h3 id="design-philosophy">Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>One class per AST node type</strong> — <code>Ast_Call</code>, <code>Ast_Function_Def</code>, <code>Ast_If</code> etc. wrap their native counterparts</li>
+<li><strong>Automatic type resolution</strong> — The <code>Type_Registry</code> maps <code>ast.FunctionDef</code> → <code>Ast_Function_Def</code> automatically</li>
+<li><strong>Consistent interface</strong> — Every wrapper has <code>.info()</code> for structured data, <code>.json()</code> for serialization</li>
+<li><strong>Source code round-trip</strong> — Parse, modify, regenerate valid Python via <code>.source_code()</code></li>
+<li><strong>Visitor pattern support</strong> — <code>Ast_Visit</code> captures specific node types with callbacks</li>
+</ol>
+<h3 id="key-capabilities">Key Capabilities<a class="headerlink" href="#key-capabilities" title="Permanent link">&para;</a></h3>
+<h4 id="1-parse-anything">1. Parse Anything<a class="headerlink" href="#1-parse-anything" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+
+# From source code string
+module = Ast_Module(&quot;x = 42&quot;)
+
+# From a file path
+module = Ast_Module(&quot;/path/to/file.py&quot;)
+
+# From a Python object (class, function, etc.)
+module = Ast_Module(MyClass)
+</code></pre>
+<h4 id="2-navigate-with-type-safety">2. Navigate with Type Safety<a class="headerlink" href="#2-navigate-with-type-safety" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">func = module.body()[0]                    # Ast_Function_Def
+print(type(func).__name__)                 # 'Ast_Function_Def'
+print(func.args())                         # Ast_Arguments
+print(func.body())                         # [Ast_Return, ...]
+
+# Each node type exposes its relevant attributes as methods
+if_stmt = Ast_If(some_if_node)
+print(if_stmt.test())                      # The condition
+print(if_stmt.body())                      # True branch
+print(if_stmt.orelse())                    # Else branch
+</code></pre>
+<h4 id="3-serialize-to-json">3. Serialize to JSON<a class="headerlink" href="#3-serialize-to-json" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">data = module.json()
+# {
+#   'Ast_Module': {
+#     'body': [
+#       {'Ast_Assign': {'targets': [...], 'value': {...}}}
+#     ]
+#   }
+# }
+</code></pre>
+<h4 id="4-execute-dynamically">4. Execute Dynamically<a class="headerlink" href="#4-execute-dynamically" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">result = Ast_Module(&quot;x = 42&quot;).execute_code()
+print(result['locals']['x'])               # 42
+print(result['status'])                    # 'ok'
+
+# Even functions
+code = &quot;def greet(name): return f'Hello {name}'&quot;
+result = Ast_Module(code).execute_code()
+greet = result['locals']['greet']
+print(greet('World'))                      # 'Hello World'
+</code></pre>
+<h4 id="5-visit-and-capture-nodes">5. Visit and Capture Nodes<a class="headerlink" href="#5-visit-and-capture-nodes" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+
+with Ast_Visit(&quot;/path/to/file.py&quot;) as visitor:
+    visitor.capture_imports()
+    visitor.capture_functions()
+    visitor.capture_calls()
+    visitor.visit()
+
+    captured = visitor.captured_nodes()
+    print(f&quot;Found {len(captured['Ast_Import'])} imports&quot;)
+    print(f&quot;Found {len(captured['Ast_Function_Def'])} functions&quot;)
+</code></pre>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="basic-parsing-and-inspection">Basic Parsing and Inspection<a class="headerlink" href="#basic-parsing-and-inspection" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+
+# Parse source code
+source = &quot;&quot;&quot;
+def calculate(x, y):
+    result = x + y
+    return result
+&quot;&quot;&quot;
+module = Ast_Module(source)
+
+# Get the function definition
+func = module.body()[0]
+print(func.name())                         # 'calculate'
+
+# Inspect arguments
+args = func.args()
+print(args.args())                         # [Ast_Argument, Ast_Argument]
+
+# Get structured info
+print(func.json())
+
+# Regenerate source code
+print(module.source_code())
+</code></pre>
+<h3 id="visiting-and-collecting-nodes">Visiting and Collecting Nodes<a class="headerlink" href="#visiting-and-collecting-nodes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+
+# Parse and visit
+with Ast_Visit(&quot;import os\nimport sys\ndef main(): pass&quot;) as v:
+    v.capture_imports()
+    v.capture_functions()
+    v.visit()
+
+    imports = v.captured_nodes()['Ast_Import']
+    functions = v.captured_nodes()['Ast_Function_Def']
+    print(f&quot;Imports: {len(imports)}, Functions: {len(functions)}&quot;)
+</code></pre>
+<h3 id="loading-multiple-files">Loading Multiple Files<a class="headerlink" href="#loading-multiple-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Load import Ast_Load
+
+loader = Ast_Load()
+loader.load_files(['/path/file1.py', '/path/file2.py'])
+
+stats = loader.stats()
+print(f&quot;Visited {stats['node_count']} nodes&quot;)
+print(f&quot;Found {stats['nodes'].get('Ast_Class_Def', 0)} classes&quot;)
+print(f&quot;Found {stats['nodes'].get('Ast_Function_Def', 0)} functions&quot;)
+</code></pre>
+<h3 id="merging-ast-modules">Merging AST Modules<a class="headerlink" href="#merging-ast-modules" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Merge import Ast_Merge
+from osbot_utils.helpers.ast import Ast_Module
+
+merger = Ast_Merge()
+merger.merge_module(Ast_Module(&quot;a = 1&quot;))
+merger.merge_module(Ast_Module(&quot;b = 2&quot;))
+merger.merge_module(Ast_Module(&quot;def add(): return a + b&quot;))
+
+print(merger.source_code())
+# a = 1
+# 
+# b = 2
+# 
+# def add(): return a + b
+</code></pre>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<h3 id="core-classes">Core Classes<a class="headerlink" href="#core-classes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Main entry point - parse source/file/object into AST
+from osbot_utils.helpers.ast.nodes.Ast_Module import Ast_Module
+
+# Base class for all AST wrappers
+from osbot_utils.helpers.ast.Ast_Base import Ast_Base
+
+# Generic node wrapper (used when specific type not registered)
+from osbot_utils.helpers.ast.Ast_Node import Ast_Node
+
+# Visitor pattern implementation
+from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+
+# Multi-file loading with statistics
+from osbot_utils.helpers.ast.Ast_Load import Ast_Load
+
+# Merge multiple AST modules
+from osbot_utils.helpers.ast.Ast_Merge import Ast_Merge
+
+# High-level convenience class
+from osbot_utils.helpers.ast.Ast import Ast
+</code></pre>
+<h3 id="node-type-wrappers">Node Type Wrappers<a class="headerlink" href="#node-type-wrappers" title="Permanent link">&para;</a></h3>
+<p>All node types are automatically registered and resolved. Import from the package:</p>
+<pre><code class="language-python">from osbot_utils.helpers.ast import (
+    # Statements
+    Ast_Module, Ast_Function_Def, Ast_Class_Def,
+    Ast_If, Ast_For, Ast_While, Ast_With, Ast_Try,
+    Ast_Assign, Ast_Aug_Assign, Ast_Return, Ast_Raise,
+    Ast_Import, Ast_Import_From, Ast_Pass, Ast_Break, Ast_Continue,
+
+    # Expressions
+    Ast_Call, Ast_Attribute, Ast_Subscript, Ast_Name,
+    Ast_Constant, Ast_List, Ast_Dict, Ast_Set, Ast_Tuple,
+    Ast_Bin_Op, Ast_Unary_Op, Ast_Bool_Op, Ast_Compare,
+    Ast_Lambda, Ast_If_Exp, Ast_List_Comp, Ast_Generator_Exp,
+
+    # Operators
+    Ast_Add, Ast_Sub, Ast_Mult, Ast_Mod, Ast_Pow,
+    Ast_Eq, Ast_Not_Eq, Ast_Lt, Ast_LtE, Ast_Gt, Ast_GtE,
+    Ast_And, Ast_Or, Ast_Not, Ast_In, Ast_Not_In, Ast_Is, Ast_Is_Not,
+
+    # Components
+    Ast_Arguments, Ast_Argument, Ast_Keyword, Ast_Alias,
+    Ast_Except_Handler, Ast_With_Item, Ast_Comprehension,
+
+    # Contexts
+    Ast_Load, Ast_Store,
+)
+</code></pre>
+<hr />
+<h2 id="api-reference-by-category">API Reference by Category<a class="headerlink" href="#api-reference-by-category" title="Permanent link">&para;</a></h2>
+<h3 id="ast_module-entry-point">Ast_Module (Entry Point)<a class="headerlink" href="#ast_module-entry-point" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ast_Module(target)</code></td>
+<td>Parse source string, file path, or Python object</td>
+<td><code>Ast_Module</code></td>
+</tr>
+<tr>
+<td><code>.body()</code></td>
+<td>Get top-level statements</td>
+<td><code>List[Ast_Node]</code></td>
+</tr>
+<tr>
+<td><code>.info()</code></td>
+<td>Get structured representation</td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td><code>.json()</code></td>
+<td>Get JSON-serializable dict</td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td><code>.source_code()</code></td>
+<td>Regenerate Python source</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>.execute_code(exec_locals, exec_namespace)</code></td>
+<td>Execute the code</td>
+<td><code>dict</code> with status/locals</td>
+</tr>
+<tr>
+<td><code>.dump()</code></td>
+<td>Get <code>ast.dump()</code> output</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>.all_ast_nodes()</code></td>
+<td>Walk all nodes in tree</td>
+<td><code>List[Ast_Node]</code></td>
+</tr>
+<tr>
+<td><code>.stats()</code></td>
+<td>Get node type statistics</td>
+<td><code>dict</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ast_visit-visitor-pattern">Ast_Visit (Visitor Pattern)<a class="headerlink" href="#ast_visit-visitor-pattern" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ast_Visit(target)</code></td>
+<td>Create visitor for module/source/path</td>
+<td><code>Ast_Visit</code></td>
+</tr>
+<tr>
+<td><code>.capture(node_type, callback)</code></td>
+<td>Capture specific node type</td>
+<td><code>self</code></td>
+</tr>
+<tr>
+<td><code>.capture_calls(callback)</code></td>
+<td>Capture <code>Ast_Call</code> nodes</td>
+<td><code>self</code></td>
+</tr>
+<tr>
+<td><code>.capture_imports(callback)</code></td>
+<td>Capture import nodes</td>
+<td><code>self</code></td>
+</tr>
+<tr>
+<td><code>.capture_functions(callback)</code></td>
+<td>Capture function definitions</td>
+<td><code>self</code></td>
+</tr>
+<tr>
+<td><code>.capture_modules(callback)</code></td>
+<td>Capture modules</td>
+<td><code>self</code></td>
+</tr>
+<tr>
+<td><code>.register_node_handler(type, handler)</code></td>
+<td>Register callback for node type</td>
+<td><code>self</code></td>
+</tr>
+<tr>
+<td><code>.visit()</code></td>
+<td>Execute the visit</td>
+<td><code>self</code></td>
+</tr>
+<tr>
+<td><code>.captured_nodes()</code></td>
+<td>Get captured nodes by type</td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td><code>.stats()</code></td>
+<td>Get capture statistics</td>
+<td><code>dict</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ast_load-multi-file-loading">Ast_Load (Multi-File Loading)<a class="headerlink" href="#ast_load-multi-file-loading" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ast_Load()</code></td>
+<td>Create loader instance</td>
+<td><code>Ast_Load</code></td>
+</tr>
+<tr>
+<td><code>.load_file(path)</code></td>
+<td>Load single file</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>.load_files(paths)</code></td>
+<td>Load multiple files</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>.load_target(target)</code></td>
+<td>Load from Python object path</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>.stats()</code></td>
+<td>Get loading statistics</td>
+<td><code>dict</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ast_merge-module-merging">Ast_Merge (Module Merging)<a class="headerlink" href="#ast_merge-module-merging" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ast_Merge()</code></td>
+<td>Create empty merge container</td>
+<td><code>Ast_Merge</code></td>
+</tr>
+<tr>
+<td><code>.merge_file(path)</code></td>
+<td>Merge file into container</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>.merge_module(ast_module)</code></td>
+<td>Merge Ast_Module</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>.source_code()</code></td>
+<td>Get merged source code</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>.module</code></td>
+<td>Access underlying Ast_Module</td>
+<td><code>Ast_Module</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-node-methods">Common Node Methods<a class="headerlink" href="#common-node-methods" title="Permanent link">&para;</a></h3>
+<p>All <code>Ast_Node</code> subclasses inherit these methods:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Description</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.info()</code></td>
+<td>Structured representation of node</td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td><code>.json()</code></td>
+<td>JSON-serializable representation</td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td><code>.source_code()</code></td>
+<td>Regenerate source for this node</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>.dump()</code></td>
+<td>AST dump output</td>
+<td><code>str</code></td>
+</tr>
+<tr>
+<td><code>.node</code></td>
+<td>Access underlying <code>ast.*</code> node</td>
+<td><code>ast.AST</code></td>
+</tr>
+<tr>
+<td><code>.key()</code></td>
+<td>Node's class name</td>
+<td><code>str</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="node-specific-accessors">Node-Specific Accessors<a class="headerlink" href="#node-specific-accessors" title="Permanent link">&para;</a></h3>
+<p>Each node type provides accessors for its fields:</p>
+<pre><code class="language-python"># Ast_Function_Def
+func.name()                                # str - function name
+func.args()                                # Ast_Arguments
+func.body()                                # List[Ast_Node]
+
+# Ast_Class_Def
+cls.name                                   # str - class name
+cls.bases()                                # List[Ast_Node] - base classes
+cls.body()                                 # List[Ast_Node] - class body
+
+# Ast_Call
+call.func()                                # Ast_Node - callable
+call.args()                                # List[Ast_Node] - positional args
+call.keywords()                            # List[Ast_Keyword] - keyword args
+call.name()                                # str or None - resolved name
+
+# Ast_If
+if_stmt.test()                             # Ast_Node - condition
+if_stmt.body()                             # List[Ast_Node] - true branch
+if_stmt.orelse()                           # List[Ast_Node] - else branch
+
+# Ast_For
+for_stmt.target()                          # Ast_Node - loop variable
+for_stmt.iter()                            # Ast_Node - iterable
+for_stmt.body()                            # List[Ast_Node]
+for_stmt.orelse()                          # List[Ast_Node]
+
+# Ast_Assign
+assign.targets()                           # List[Ast_Node] - assignment targets
+assign.value()                             # Ast_Node - assigned value
+
+# Ast_Import_From
+import_from.module()                       # str - module name
+import_from.names()                        # List[Ast_Alias]
+import_from.level()                        # int - relative import level
+</code></pre>
+<hr />
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-analyze-function-signatures">Pattern 1: Analyze Function Signatures<a class="headerlink" href="#pattern-1-analyze-function-signatures" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+
+def analyze_functions(source_path):
+    module = Ast_Module(source_path)
+    results = []
+
+    for node in module.body():
+        if type(node).__name__ == 'Ast_Function_Def':
+            args = node.args()
+            arg_names = [arg.node.arg for arg in args.args()]
+            results.append({
+                'name': node.name(),
+                'args': arg_names,
+                'body_lines': len(node.body())
+            })
+
+    return results
+</code></pre>
+<h3 id="pattern-2-extract-all-imports">Pattern 2: Extract All Imports<a class="headerlink" href="#pattern-2-extract-all-imports" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+
+def get_imports(source):
+    with Ast_Visit(source) as visitor:
+        visitor.capture_imports()
+        visitor.visit()
+
+        imports = []
+        for node in visitor.captured_nodes().get('Ast_Import', []):
+            for alias in node.names():
+                imports.append(alias.node.name)
+
+        for node in visitor.captured_nodes().get('Ast_Import_From', []):
+            module = node.module()
+            for alias in node.names():
+                imports.append(f&quot;{module}.{alias.node.name}&quot;)
+
+        return imports
+</code></pre>
+<h3 id="pattern-3-find-function-calls">Pattern 3: Find Function Calls<a class="headerlink" href="#pattern-3-find-function-calls" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+
+def find_calls_to(source, function_name):
+    &quot;&quot;&quot;Find all calls to a specific function.&quot;&quot;&quot;
+    calls = []
+
+    with Ast_Visit(source) as visitor:
+        def on_call(node):
+            if node.name() == function_name:
+                calls.append({
+                    'args': len(node.args()),
+                    'kwargs': [kw.node.arg for kw in node.keywords()]
+                })
+
+        visitor.register_node_handler('Ast_Call', on_call)
+        visitor.visit()
+
+    return calls
+</code></pre>
+<h3 id="pattern-4-code-generation-via-merging">Pattern 4: Code Generation via Merging<a class="headerlink" href="#pattern-4-code-generation-via-merging" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Merge import Ast_Merge
+from osbot_utils.helpers.ast import Ast_Module
+
+def generate_test_file(class_source):
+    &quot;&quot;&quot;Generate test skeleton from class definition.&quot;&quot;&quot;
+    merger = Ast_Merge()
+
+    # Add imports
+    merger.merge_module(Ast_Module(&quot;import unittest&quot;))
+    merger.merge_module(Ast_Module(&quot;from unittest.mock import patch, MagicMock&quot;))
+
+    # Parse class and generate test methods
+    cls_module = Ast_Module(class_source)
+    class_def = cls_module.body()[0]
+
+    test_class = f&quot;&quot;&quot;
+class Test_{class_def.node.name}(unittest.TestCase):
+    def setUp(self):
+        self.instance = {class_def.node.name}()
+&quot;&quot;&quot;
+
+    for node in class_def.body():
+        if type(node).__name__ == 'Ast_Function_Def':
+            method_name = node.name()
+            if not method_name.startswith('_'):
+                test_class += f&quot;&quot;&quot;
+    def test_{method_name}(self):
+        # TODO: implement test
+        pass
+&quot;&quot;&quot;
+
+    merger.merge_module(Ast_Module(test_class))
+    return merger.source_code()
+</code></pre>
+<h3 id="pattern-5-dynamic-code-execution">Pattern 5: Dynamic Code Execution<a class="headerlink" href="#pattern-5-dynamic-code-execution" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+
+def run_sandboxed(code, provided_locals=None):
+    &quot;&quot;&quot;Execute code with controlled namespace.&quot;&quot;&quot;
+    module = Ast_Module(code)
+
+    # Restricted namespace (no builtins by default is too restrictive)
+    namespace = {'__builtins__': {'print': print, 'len': len, 'range': range}}
+    locals_dict = provided_locals or {}
+
+    result = module.execute_code(
+        exec_locals=locals_dict,
+        exec_namespace=namespace
+    )
+
+    if result['status'] == 'error':
+        raise RuntimeError(f&quot;Execution failed: {result['error']}&quot;)
+
+    return result['locals']
+</code></pre>
+<h3 id="pattern-6-codebase-statistics">Pattern 6: Codebase Statistics<a class="headerlink" href="#pattern-6-codebase-statistics" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Load import Ast_Load
+from osbot_utils.utils.Files import files_list
+
+def analyze_codebase(root_path):
+    &quot;&quot;&quot;Get comprehensive stats for a Python codebase.&quot;&quot;&quot;
+    py_files = files_list(root_path, pattern='*.py')
+
+    loader = Ast_Load()
+    loader.load_files(py_files)
+
+    stats = loader.stats()
+    return {
+        'files': len(stats['files_visited']),
+        'total_nodes': stats['node_count'],
+        'classes': stats['nodes'].get('Ast_Class_Def', 0),
+        'functions': stats['nodes'].get('Ast_Function_Def', 0),
+        'imports': stats['nodes'].get('Ast_Import', 0) + 
+                   stats['nodes'].get('Ast_Import_From', 0),
+        'calls': stats['nodes'].get('Ast_Call', 0),
+    }
+</code></pre>
+<h3 id="pattern-7-transform-source-code">Pattern 7: Transform Source Code<a class="headerlink" href="#pattern-7-transform-source-code" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+
+def add_docstring_to_functions(source):
+    &quot;&quot;&quot;Add placeholder docstrings to functions without them.&quot;&quot;&quot;
+    module = Ast_Module(source)
+
+    for node in module.all_ast_nodes():
+        if type(node).__name__ == 'Ast_Function_Def':
+            body = node.body()
+            # Check if first statement is a docstring
+            if body and type(body[0]).__name__ != 'Ast_Expr':
+                # Would need to modify the actual ast.node to add docstring
+                # This pattern shows inspection - modification requires
+                # working with the underlying node.node object
+                pass
+
+    return module.source_code()
+</code></pre>
+<hr />
+<h2 id="common-recipes">Common Recipes<a class="headerlink" href="#common-recipes" title="Permanent link">&para;</a></h2>
+<h3 id="recipe-check-if-code-has-specific-pattern">Recipe: Check if Code Has Specific Pattern<a class="headerlink" href="#recipe-check-if-code-has-specific-pattern" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+
+def has_recursive_call(func_source):
+    &quot;&quot;&quot;Check if function calls itself.&quot;&quot;&quot;
+    module = Ast_Visit(func_source)
+    module.capture_functions()
+    module.capture_calls()
+    module.visit()
+
+    functions = module.captured_nodes()['Ast_Function_Def']
+    calls = module.captured_nodes()['Ast_Call']
+
+    if not functions:
+        return False
+
+    func_name = functions[0].name()
+    return any(call.name() == func_name for call in calls)
+</code></pre>
+<h3 id="recipe-get-complexity-metrics">Recipe: Get Complexity Metrics<a class="headerlink" href="#recipe-get-complexity-metrics" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+
+def count_branches(source):
+    &quot;&quot;&quot;Count branching statements (simple complexity metric).&quot;&quot;&quot;
+    module = Ast_Module(source)
+
+    branch_types = {'Ast_If', 'Ast_For', 'Ast_While', 'Ast_Try', 'Ast_With'}
+    count = 0
+
+    for node in module.all_ast_nodes():
+        if type(node).__name__ in branch_types:
+            count += 1
+
+    return count
+</code></pre>
+<h3 id="recipe-extract-string-literals">Recipe: Extract String Literals<a class="headerlink" href="#recipe-extract-string-literals" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+
+def get_all_strings(source):
+    &quot;&quot;&quot;Extract all string literals from source.&quot;&quot;&quot;
+    module = Ast_Module(source)
+    strings = []
+
+    for node in module.all_ast_nodes():
+        if type(node).__name__ == 'Ast_Constant':
+            value = node.value()
+            if isinstance(value, str):
+                strings.append(value)
+
+    return strings
+</code></pre>
+<h3 id="recipe-compare-ast-structures">Recipe: Compare AST Structures<a class="headerlink" href="#recipe-compare-ast-structures" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast import Ast_Module
+
+def ast_equals(source1, source2):
+    &quot;&quot;&quot;Check if two sources have identical AST structure.&quot;&quot;&quot;
+    json1 = Ast_Module(source1).json()
+    json2 = Ast_Module(source2).json()
+    return json1 == json2
+
+# Formatting differences don't matter:
+assert ast_equals(&quot;x=1+2&quot;, &quot;x = 1 + 2&quot;)  # True
+assert ast_equals(&quot;a=1&quot;, &quot;b=1&quot;)          # False (different variable name)
+</code></pre>
+<h3 id="recipe-find-unused-imports">Recipe: Find Unused Imports<a class="headerlink" href="#recipe-find-unused-imports" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+
+def find_unused_imports(source):
+    &quot;&quot;&quot;Find imports that are never used.&quot;&quot;&quot;
+    visitor = Ast_Visit(source)
+    visitor.capture_imports()
+    visitor.capture('Ast_Name', None)
+    visitor.visit()
+
+    captured = visitor.captured_nodes()
+
+    # Collect imported names
+    imported = set()
+    for imp in captured.get('Ast_Import', []):
+        for alias in imp.names():
+            name = alias.node.asname or alias.node.name
+            imported.add(name.split('.')[0])
+
+    for imp in captured.get('Ast_Import_From', []):
+        for alias in imp.names():
+            name = alias.node.asname or alias.node.name
+            imported.add(name)
+
+    # Collect used names
+    used = set()
+    for name_node in captured.get('Ast_Name', []):
+        used.add(name_node.id())
+
+    return imported - used
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-use-ast_module-as-entry-point">DO: Use Ast_Module as Entry Point<a class="headerlink" href="#do-use-ast_module-as-entry-point" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - handles strings, paths, and objects
+from osbot_utils.helpers.ast import Ast_Module
+
+module = Ast_Module(&quot;x = 1&quot;)           # String
+module = Ast_Module(&quot;/path/to/file.py&quot;) # File path
+module = Ast_Module(MyClass)            # Python object
+</code></pre>
+<h3 id="do-use-ast_visit-for-node-collection">DO: Use Ast_Visit for Node Collection<a class="headerlink" href="#do-use-ast_visit-for-node-collection" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - clean visitor pattern
+from osbot_utils.helpers.ast.Ast_Visit import Ast_Visit
+
+with Ast_Visit(source) as v:
+    v.capture_functions()
+    v.capture_calls()
+    v.visit()
+    # Access v.captured_nodes()
+</code></pre>
+<h3 id="do-check-node-types-by-class-name">DO: Check Node Types by Class Name<a class="headerlink" href="#do-check-node-types-by-class-name" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - string comparison is reliable
+if type(node).__name__ == 'Ast_Function_Def':
+    process_function(node)
+
+# ✅ Also good - isinstance works too
+from osbot_utils.helpers.ast.nodes.Ast_Function_Def import Ast_Function_Def
+if isinstance(node, Ast_Function_Def):
+    process_function(node)
+</code></pre>
+<h3 id="do-use-json-for-serialization">DO: Use .json() for Serialization<a class="headerlink" href="#do-use-json-for-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - clean, JSON-serializable output
+import json
+data = module.json()
+json.dumps(data)  # Works perfectly
+</code></pre>
+<h3 id="dont-access-node-attributes-directly-usually">DON'T: Access .node Attributes Directly (Usually)<a class="headerlink" href="#dont-access-node-attributes-directly-usually" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Avoid when possible - bypasses wrappers
+raw_name = node.node.name
+
+# ✅ Better - use provided methods
+name = node.name()
+</code></pre>
+<h3 id="dont-forget-to-call-visit">DON'T: Forget to Call .visit()<a class="headerlink" href="#dont-forget-to-call-visit" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Wrong - nothing captured
+visitor = Ast_Visit(source)
+visitor.capture_functions()
+nodes = visitor.captured_nodes()  # Empty!
+
+# ✅ Correct - visit() executes the traversal
+visitor = Ast_Visit(source)
+visitor.capture_functions()
+visitor.visit()  # Must call this!
+nodes = visitor.captured_nodes()
+</code></pre>
+<h3 id="dont-modify-ast-without-understanding-implications">DON'T: Modify AST Without Understanding Implications<a class="headerlink" href="#dont-modify-ast-without-understanding-implications" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Risky - direct modification can break things
+node.node.body.append(new_node)
+
+# ✅ Better - use Ast_Merge for combining code
+merger = Ast_Merge()
+merger.merge_module(original)
+merger.merge_module(additions)
+</code></pre>
+<h3 id="dont-expect-comments-in-source-code-round-trip">DON'T: Expect Comments in Source Code Round-Trip<a class="headerlink" href="#dont-expect-comments-in-source-code-round-trip" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Comments are NOT preserved
+source = &quot;x = 1  # this is lost&quot;
+module = Ast_Module(source)
+print(module.source_code())  # &quot;x = 1&quot; - comment gone
+
+# This is a fundamental limitation of Python's AST
+# Use LibCST or parso if you need comment preservation
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-syntaxerror-when-parsing">Problem: SyntaxError When Parsing<a class="headerlink" href="#problem-syntaxerror-when-parsing" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Invalid Python syntax in source</p>
+<pre><code class="language-python"># Check your source is valid Python
+from osbot_utils.helpers.ast import Ast_Module
+
+try:
+    module = Ast_Module(&quot;import ...&quot;)  # Invalid syntax
+except Exception as e:
+    print(e)
+    # [SyntaxError] 
+    # Error parsing code: invalid syntax in &lt;unknown&gt; at line 1 column 8
+</code></pre>
+<p><strong>Solution</strong>: Validate source first or catch the exception</p>
+<h3 id="problem-node-method-returns-none">Problem: Node Method Returns None<a class="headerlink" href="#problem-node-method-returns-none" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Accessing optional field that isn't present</p>
+<pre><code class="language-python"># Some fields are optional
+assign = module.body()[0]
+if hasattr(assign.node, 'type_comment'):
+    tc = assign.node.type_comment  # May be None
+</code></pre>
+<p><strong>Solution</strong>: Check for None or use hasattr</p>
+<h3 id="problem-type-registry-returns-ast_node-instead-of-specific-type">Problem: Type Registry Returns Ast_Node Instead of Specific Type<a class="headerlink" href="#problem-type-registry-returns-ast_node-instead-of-specific-type" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Unregistered node type (rare, but possible with very new Python versions)</p>
+<pre><code class="language-python"># Check if you're getting the generic wrapper
+node = some_method()
+if type(node).__name__ == 'Ast_Node':
+    # This is the fallback type
+    print(f&quot;Unregistered: {node.node.__class__}&quot;)
+</code></pre>
+<p><strong>Solution</strong>: Most node types are registered. If you find a missing one, wrap it manually or contribute to the project.</p>
+<h3 id="problem-execute_code-returns-error">Problem: execute_code() Returns Error<a class="headerlink" href="#problem-execute_code-returns-error" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Code has runtime errors or needs imports/context</p>
+<pre><code class="language-python">result = Ast_Module(&quot;print(undefined_var)&quot;).execute_code()
+print(result['status'])  # 'error'
+print(result['error'])   # &quot;name 'undefined_var' is not defined&quot;
+</code></pre>
+<p><strong>Solution</strong>: Provide required context via exec_locals or exec_namespace</p>
+<pre><code class="language-python">result = Ast_Module(&quot;x + 1&quot;).execute_code(exec_locals={'x': 41})
+print(result['locals'])  # No error
+</code></pre>
+<h3 id="problem-ast_visit-doesnt-find-expected-nodes">Problem: Ast_Visit Doesn't Find Expected Nodes<a class="headerlink" href="#problem-ast_visit-doesnt-find-expected-nodes" title="Permanent link">&para;</a></h3>
+<p><strong>Cause 1</strong>: Wrong capture type name</p>
+<pre><code class="language-python"># ❌ Wrong - must use Ast_* wrapper name
+visitor.capture('FunctionDef', callback)
+
+# ✅ Correct
+visitor.capture('Ast_Function_Def', callback)
+</code></pre>
+<p><strong>Cause 2</strong>: Forgot to call visit()</p>
+<pre><code class="language-python"># ❌ Missing visit()
+visitor.capture_functions()
+nodes = visitor.captured_nodes()  # Empty
+
+# ✅ Must visit
+visitor.capture_functions()
+visitor.visit()
+nodes = visitor.captured_nodes()  # Has data
+</code></pre>
+<h3 id="problem-source_code-output-differs-from-original">Problem: source_code() Output Differs from Original<a class="headerlink" href="#problem-source_code-output-differs-from-original" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: AST normalizes formatting and loses comments</p>
+<pre><code class="language-python">original = '''
+x = 1 + \
+    2  # multiline
+'''
+module = Ast_Module(original)
+print(module.source_code())  # &quot;x = 1 + 2&quot; - normalized
+</code></pre>
+<p><strong>Solution</strong>: This is expected behavior. For formatting-preserving transforms, use LibCST.</p>
+<hr />
+<h2 id="type-registry-system">Type Registry System<a class="headerlink" href="#type-registry-system" title="Permanent link">&para;</a></h2>
+<p>The AST helpers use a <code>Type_Registry</code> to automatically resolve native <code>ast.*</code> types to wrapper classes:</p>
+<pre><code class="language-python">from osbot_utils.helpers.Type_Registry import type_registry
+
+# How it works internally:
+import ast
+type_registry.resolve(ast.FunctionDef)  # Returns Ast_Function_Def class
+
+# All mappings are registered in osbot_utils/helpers/ast/__init__.py
+ast_types = {
+    ast.FunctionDef: Ast_Function_Def,
+    ast.ClassDef: Ast_Class_Def,
+    ast.Call: Ast_Call,
+    # ... 60+ mappings
+}
+</code></pre>
+<p>This enables seamless conversion when navigating the AST:</p>
+<pre><code class="language-python"># When you call body(), targets(), etc., the return values are
+# automatically wrapped in the appropriate Ast_* class
+func = module.body()[0]  # Returns Ast_Function_Def, not ast.FunctionDef
+</code></pre>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When working with OSBot-Utils AST helpers:</p>
+<ul>
+<li>[ ] Import from <code>osbot_utils.helpers.ast</code></li>
+<li>[ ] Use <code>Ast_Module(target)</code> as the entry point for parsing</li>
+<li>[ ] <code>Ast_Module</code> accepts: source strings, file paths, Python objects</li>
+<li>[ ] Use <code>.body()</code>, <code>.args()</code>, etc. to navigate - returns typed wrappers</li>
+<li>[ ] Use <code>.info()</code> for structured dict, <code>.json()</code> for serialization</li>
+<li>[ ] Use <code>.source_code()</code> to regenerate Python code</li>
+<li>[ ] Use <code>.execute_code()</code> for dynamic execution</li>
+<li>[ ] Use <code>Ast_Visit</code> with <code>.capture_*()</code> methods for collecting nodes</li>
+<li>[ ] Always call <code>.visit()</code> on <code>Ast_Visit</code> to execute the traversal</li>
+<li>[ ] Use <code>Ast_Load</code> for multi-file analysis with statistics</li>
+<li>[ ] Use <code>Ast_Merge</code> to combine multiple modules</li>
+<li>[ ] Check node types via <code>type(node).__name__</code></li>
+<li>[ ] Remember: comments are NOT preserved (fundamental AST limitation)</li>
+<li>[ ] For stats, use <code>.stats()</code> on <code>Ast_Module</code> or <code>Ast_Load</code></li>
+<li>[ ] Use <code>.all_ast_nodes()</code> to walk the entire tree</li>
+<li>[ ] Access underlying native node via <code>.node</code> property when needed</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

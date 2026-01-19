@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/llm-brief/html-transformers-guide/" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>HTML Transformers Pipeline Guide - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "HTML Transformers Pipeline Guide";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/llm-brief/html-transformers-guide.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/llm-brief/html-transformers-guide/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">HTML Transformers Pipeline Guide</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="html-transformers-pipeline-guide">HTML Transformers Pipeline Guide<a class="headerlink" href="#html-transformers-pipeline-guide" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">🎯 Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>The HTML Transformers provide <strong>bidirectional conversion</strong> between HTML strings, dictionary representations, typed documents, and tag objects.</p>
+<h2 id="transformation-pipeline">🔄 Transformation Pipeline<a class="headerlink" href="#transformation-pipeline" title="Permanent link">&para;</a></h2>
+<pre><code class="language-mermaid">graph LR
+    HTML[HTML String] &lt;--&gt; Dict[Dictionary]
+    Dict &lt;--&gt; Doc[Schema Document]
+    Dict &lt;--&gt; Tags[Tag Objects]
+    Doc &lt;--&gt; Dict2[Dictionary]
+    Tags --&gt; HTML2[HTML String]
+
+    style Dict fill:#f9f,stroke:#333,stroke-width:2px
+    style Doc fill:#bbf,stroke:#333,stroke-width:2px
+</code></pre>
+<h2 id="core-transformers">📦 Core Transformers<a class="headerlink" href="#core-transformers" title="Permanent link">&para;</a></h2>
+<h3 id="1-html__to__html_dict">1. Html__To__Html_Dict<a class="headerlink" href="#1-html__to__html_dict" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Parse HTML string to dictionary structure</p>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html__To__Html_Dict import Html__To__Html_Dict
+
+html = &quot;&lt;div class='container'&gt;&lt;p&gt;Hello&lt;/p&gt;&lt;/div&gt;&quot;
+parser = Html__To__Html_Dict(html)
+html_dict = parser.convert()
+
+# Result structure:
+# {
+#     'tag': 'div',
+#     'attrs': {'class': 'container'},
+#     'nodes': [
+#         {
+#             'tag': 'p',
+#             'attrs': {},
+#             'nodes': [{'type': 'TEXT', 'data': 'Hello'}]
+#         }
+#     ]
+# }
+</code></pre>
+<h3 id="2-html_dict__to__html">2. Html_Dict__To__Html<a class="headerlink" href="#2-html_dict__to__html" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Convert dictionary back to HTML string</p>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html_Dict__To__Html import Html_Dict__To__Html
+
+html_dict = {
+    'tag': 'div',
+    'attrs': {'id': 'main'},
+    'nodes': [{'type': 'TEXT', 'data': 'Content'}]
+}
+
+converter = Html_Dict__To__Html(html_dict)
+html = converter.convert()
+# Result: &lt;div id=&quot;main&quot;&gt;Content&lt;/div&gt;
+</code></pre>
+<h3 id="3-html_dict__to__html_document">3. Html_Dict__To__Html_Document<a class="headerlink" href="#3-html_dict__to__html_document" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Convert dictionary to typed Schema__Html_Document</p>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Document import Html_Dict__To__Html_Document
+
+converter = Html_Dict__To__Html_Document(html__dict=html_dict)
+document = converter.convert()
+
+# Access typed structure
+root = document.root_node
+assert root.tag == 'div'
+assert root.attrs['id'] == 'main'
+</code></pre>
+<h3 id="4-html_document__to__html_dict">4. Html_Document__To__Html_Dict<a class="headerlink" href="#4-html_document__to__html_dict" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Convert Schema__Html_Document back to dictionary</p>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html_Document__To__Html_Dict import Html_Document__To__Html_Dict
+
+converter = Html_Document__To__Html_Dict(html__document=document)
+html_dict = converter.convert()
+</code></pre>
+<h3 id="5-html__to__html_document">5. Html__To__Html_Document<a class="headerlink" href="#5-html__to__html_document" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Direct HTML to Schema__Html_Document conversion</p>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html__To__Html_Document import Html__To__Html_Document
+
+html = &quot;&lt;html&gt;&lt;body&gt;&lt;div&gt;Content&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;&quot;
+converter = Html__To__Html_Document(html=html)
+document = converter.convert()
+</code></pre>
+<h3 id="6-html_dict__to__html_tags">6. Html_Dict__To__Html_Tags<a class="headerlink" href="#6-html_dict__to__html_tags" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Convert dictionary to Tag object hierarchy</p>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html_Dict__To__Html_Tags import Html_Dict__To__Html_Tags
+
+converter = Html_Dict__To__Html_Tags(html_dict)
+tag_tree = converter.convert()
+
+# Work with Tag objects
+assert tag_tree.tag_name == 'html'
+assert tag_tree.head.title == 'Page Title'
+</code></pre>
+<h2 id="data-structures">📊 Data Structures<a class="headerlink" href="#data-structures" title="Permanent link">&para;</a></h2>
+<h3 id="dictionary-format">Dictionary Format<a class="headerlink" href="#dictionary-format" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">{
+    'tag': 'element_name',           # HTML tag name
+    'attrs': {                       # Attributes dictionary
+        'id': 'value',
+        'class': 'classes'
+    },
+    'nodes': [                       # Child nodes
+        {'type': 'TEXT', 'data': 'text content'},  # Text node
+        {'tag': 'child', 'attrs': {}, 'nodes': []} # Element node
+    ]
+}
+</code></pre>
+<h3 id="schema__html_document">Schema__Html_Document<a class="headerlink" href="#schema__html_document" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Html_Document:
+    root_node: Schema__Html_Node    # Root element
+    timestamp: Timestamp_Now         # Creation time
+
+class Schema__Html_Node:
+    tag: str                         # Element tag
+    attrs: Dict[str, str]           # Attributes
+    child_nodes: List[Schema__Html_Node]  # Element children
+    text_nodes: List[Schema__Html_Node__Data]  # Text children
+    position: int                    # Position in parent
+
+class Schema__Html_Node__Data:
+    data: str                        # Text content
+    type: Schema__Html_Node__Data__Type  # Always 'TEXT'
+    position: int                    # Position in parent
+</code></pre>
+<h2 id="round-trip-conversions">🔄 Round-Trip Conversions<a class="headerlink" href="#round-trip-conversions" title="Permanent link">&para;</a></h2>
+<h3 id="html-dictionary">HTML ↔ Dictionary<a class="headerlink" href="#html-dictionary" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># HTML to Dict
+original_html = &quot;&lt;div&gt;&lt;p&gt;Text&lt;/p&gt;&lt;/div&gt;&quot;
+html_dict = Html__To__Html_Dict(original_html).convert()
+
+# Dict back to HTML
+reconstructed_html = Html_Dict__To__Html(html_dict).convert()
+
+assert original_html == reconstructed_html  # Lossless conversion
+</code></pre>
+<h3 id="dictionary-document">Dictionary ↔ Document<a class="headerlink" href="#dictionary-document" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Dict to Document
+document = Html_Dict__To__Html_Document(html__dict=html_dict).convert()
+
+# Document back to Dict
+dict_again = Html_Document__To__Html_Dict(html__document=document).convert()
+
+assert html_dict == dict_again  # Structure preserved
+</code></pre>
+<h3 id="complete-pipeline">Complete Pipeline<a class="headerlink" href="#complete-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Full round-trip test
+html_1 = &quot;&lt;div id='test'&gt;&lt;span&gt;Content&lt;/span&gt;&lt;/div&gt;&quot;
+
+# Forward pipeline
+dict_1 = Html__To__Html_Dict(html_1).convert()
+doc_1 = Html_Dict__To__Html_Document(html__dict=dict_1).convert()
+
+# Reverse pipeline
+dict_2 = Html_Document__To__Html_Dict(html__document=doc_1).convert()
+html_2 = Html_Dict__To__Html(dict_2).convert()
+
+assert html_1 == html_2  # Complete round-trip
+</code></pre>
+<h2 id="tag-objects-system">🎨 Tag Objects System<a class="headerlink" href="#tag-objects-system" title="Permanent link">&para;</a></h2>
+<h3 id="working-with-tag-classes">Working with Tag Classes<a class="headerlink" href="#working-with-tag-classes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.tags.Tag__Html import Tag__Html
+from osbot_utils.helpers.html.tags.Tag__Link import Tag__Link
+
+# Build HTML programmatically
+html_tag = Tag__Html(lang='en')
+html_tag.head.title = 'My Page'
+html_tag.head.links.append(
+    Tag__Link(href='/css/style.css', rel='stylesheet')
+)
+html_tag.body.inner_html = '&lt;div&gt;Content&lt;/div&gt;'
+
+# Render to HTML
+html = html_tag.render()
+</code></pre>
+<h3 id="tag-hierarchy">Tag Hierarchy<a class="headerlink" href="#tag-hierarchy" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">Tag__Base                # Base class for all tags
+├── Tag__Html           # &lt;html&gt; tag
+├── Tag__Head           # &lt;head&gt; tag
+├── Tag__Body           # &lt;body&gt; tag
+├── Tag__Div            # &lt;div&gt; tag
+├── Tag__Link           # &lt;link&gt; tag
+├── Tag__Style          # &lt;style&gt; tag
+└── Tag__Text           # Text node representation
+</code></pre>
+<h2 id="parsing-options">🔍 Parsing Options<a class="headerlink" href="#parsing-options" title="Permanent link">&para;</a></h2>
+<h3 id="html__to__html_dict-options">Html__To__Html_Dict Options<a class="headerlink" href="#html__to__html_dict-options" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">parser = Html__To__Html_Dict(html)
+parser.strip_text_data = True  # Strip whitespace from text nodes
+
+# Pretty print the structure
+parser.print()  # Visual tree representation
+lines = parser.print(just_return_lines=True)  # Get as list
+</code></pre>
+<h3 id="html_dict__to__html-options">Html_Dict__To__Html Options<a class="headerlink" href="#html_dict__to__html-options" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">converter = Html_Dict__To__Html(
+    root=html_dict,
+    include_doctype=True,  # Add &lt;!DOCTYPE html&gt;
+    doctype=&quot;&lt;!DOCTYPE html&gt;\n&quot;
+)
+</code></pre>
+<h2 id="performance-considerations">⚡ Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="memory-usage">Memory Usage<a class="headerlink" href="#memory-usage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Dictionary format: ~2x HTML size
+# Document format: ~3x HTML size (includes type information)
+# Tag objects: ~4x HTML size (includes methods and properties)
+</code></pre>
+<h3 id="processing-speed">Processing Speed<a class="headerlink" href="#processing-speed" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Parsing: O(n) where n = HTML length
+# Conversion between formats: O(m) where m = number of nodes
+# Round-trip: ~2x parsing time
+</code></pre>
+<h2 id="testing-patterns">🧪 Testing Patterns<a class="headerlink" href="#testing-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="structure-verification">Structure Verification<a class="headerlink" href="#structure-verification" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_html_structure():
+    html = load_html_file()
+
+    # Convert to dictionary for easy comparison
+    actual = Html__To__Html_Dict(html).convert()
+
+    expected = {
+        'tag': 'html',
+        'attrs': {'lang': 'en'},
+        'nodes': [
+            {'tag': 'head', 'attrs': {}, 'nodes': [...]},
+            {'tag': 'body', 'attrs': {}, 'nodes': [...]}
+        ]
+    }
+
+    assert actual == expected
+</code></pre>
+<h3 id="transformation-validation">Transformation Validation<a class="headerlink" href="#transformation-validation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_transformation_preserves_structure():
+    original_html = get_test_html()
+
+    # Transform through pipeline
+    dict_1 = Html__To__Html_Dict(original_html).convert()
+    doc = Html_Dict__To__Html_Document(html__dict=dict_1).convert()
+    dict_2 = Html_Document__To__Html_Dict(html__document=doc).convert()
+
+    # Verify structure preserved
+    assert dict_1 == dict_2
+</code></pre>
+<h2 id="edge-cases">🚫 Edge Cases<a class="headerlink" href="#edge-cases" title="Permanent link">&para;</a></h2>
+<h3 id="mixed-content">Mixed Content<a class="headerlink" href="#mixed-content" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Text and elements mixed
+html = &quot;&lt;div&gt;Text &lt;b&gt;bold&lt;/b&gt; more text&lt;/div&gt;&quot;
+
+# Properly preserves order
+dict_result = Html__To__Html_Dict(html).convert()
+# nodes: [
+#     {'type': 'TEXT', 'data': 'Text '},
+#     {'tag': 'b', ...},
+#     {'type': 'TEXT', 'data': ' more text'}
+# ]
+</code></pre>
+<h3 id="self-closing-tags">Self-Closing Tags<a class="headerlink" href="#self-closing-tags" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Handled automatically
+html = &quot;&lt;img src='test.jpg'/&gt;&lt;br/&gt;&lt;input type='text'/&gt;&quot;
+
+# Recognized as void elements
+parser = Html__To__Html_Dict(html)
+# parser.void_elements includes these tags
+</code></pre>
+<h3 id="attribute-handling">Attribute Handling<a class="headerlink" href="#attribute-handling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Complex attributes preserved
+html = '&lt;div data-test=&quot;value&quot; class=&quot;a b c&quot; id=&quot;main&quot;&gt;&lt;/div&gt;'
+
+dict_result = Html__To__Html_Dict(html).convert()
+# attrs: {
+#     'data-test': 'value',
+#     'class': 'a b c',
+#     'id': 'main'
+# }
+</code></pre>
+<h2 id="integration-points">🔗 Integration Points<a class="headerlink" href="#integration-points" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use with <code>Html__Query</code> for high-level access</li>
+<li>Combine with test frameworks for HTML validation</li>
+<li>Export to JSON for API responses</li>
+<li>Import from JSON for template generation</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

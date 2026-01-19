@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/type_safety/v3.63.3__for_llms__type_safe__collections__subclassing_guide/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Type_Safe Collections: Subclassing Guide for LLMs - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Collections: Subclassing Guide for LLMs";
+        var mkdocs_page_input_path = "llm-briefs/type_safety/v3.63.3__for_llms__type_safe__collections__subclassing_guide.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/type_safety/v3.63.3__for_llms__type_safe__collections__subclassing_guide/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Collections: Subclassing Guide for LLMs</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-collections-subclassing-guide-for-llms">Type_Safe Collections: Subclassing Guide for LLMs<a class="headerlink" href="#type_safe-collections-subclassing-guide-for-llms" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>version</strong>: v3.63.3</li>
+<li><strong>updated</strong>: January 2026</li>
+<li><strong>prerequisite</strong>: Familiarity with the main Type_Safe &amp; Python Formatting Guide</li>
+</ul>
+<hr />
+<h2 id="why-type_safe-collections-exist">Why Type_Safe Collections Exist<a class="headerlink" href="#why-type_safe-collections-exist" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem-python-collections-have-no-runtime-type-safety">The Problem: Python Collections Have No Runtime Type Safety<a class="headerlink" href="#the-problem-python-collections-have-no-runtime-type-safety" title="Permanent link">&para;</a></h3>
+<p>Python's built-in collections (<code>dict</code>, <code>list</code>, <code>set</code>, <code>tuple</code>) provide <strong>zero runtime type enforcement</strong>. Type hints like <code>Dict[str, int]</code> are completely ignored at runtime—they're just documentation for static analyzers:</p>
+<pre><code class="language-python">from typing import Dict, List
+
+# Python allows this - type hints are IGNORED at runtime
+users: Dict[str, int] = {}
+users[&quot;alice&quot;] = &quot;not an int&quot;      # ✗ No error! Silent corruption
+users[123] = 456                   # ✗ No error! Key should be str
+
+items: List[str] = []
+items.append(999)                  # ✗ No error! Should be str
+items.append(None)                 # ✗ No error! Silent None injection
+</code></pre>
+<p>This leads to:
+- <strong>Silent data corruption</strong>: Wrong types enter your data structures undetected
+- <strong>Delayed failures</strong>: Errors surface far from where bad data was introduced
+- <strong>Security vulnerabilities</strong>: Unchecked input flows through your system
+- <strong>Debugging nightmares</strong>: "How did a <code>float</code> get into my <code>Dict[str, User]</code>?"</p>
+<h3 id="the-solution-type_safe-collection-classes">The Solution: Type_Safe Collection Classes<a class="headerlink" href="#the-solution-type_safe-collection-classes" title="Permanent link">&para;</a></h3>
+<p>The <code>Type_Safe__Dict</code>, <code>Type_Safe__List</code>, <code>Type_Safe__Set</code>, and <code>Type_Safe__Tuple</code> classes provide <strong>runtime type enforcement</strong> for every operation:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+
+# Type_Safe__Dict enforces types on EVERY operation
+safe_dict = Type_Safe__Dict(expected_key_type=str, expected_value_type=int)
+safe_dict[&quot;alice&quot;] = 42            # ✓ Valid
+safe_dict[&quot;bob&quot;] = &quot;not an int&quot;    # ✗ TypeError! Caught immediately
+safe_dict[123] = 456               # ✗ TypeError! Key must be str
+
+# Type_Safe__List enforces element types
+safe_list = Type_Safe__List(expected_type=str)
+safe_list.append(&quot;valid&quot;)          # ✓ Valid
+safe_list.append(999)              # ✗ TypeError! Must be str
+</code></pre>
+<h3 id="key-capabilities-of-type_safe-collections">Key Capabilities of Type_Safe Collections<a class="headerlink" href="#key-capabilities-of-type_safe-collections" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Python Built-in</th>
+<th>Type_Safe Collections</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Runtime type checking</td>
+<td>❌ None</td>
+<td>✓ Every operation</td>
+</tr>
+<tr>
+<td>Auto-conversion</td>
+<td>❌ None</td>
+<td>✓ <code>"123"</code> → <code>Safe_Id("123")</code></td>
+</tr>
+<tr>
+<td>Validation on insert</td>
+<td>❌ None</td>
+<td>✓ Invalid data rejected</td>
+</tr>
+<tr>
+<td>Works with Type_Safe classes</td>
+<td>❌ Loses type info</td>
+<td>✓ Full integration</td>
+</tr>
+<tr>
+<td>JSON serialization</td>
+<td>❌ Manual</td>
+<td>✓ Automatic with type preservation</td>
+</tr>
+<tr>
+<td>Subclass type preservation</td>
+<td>N/A</td>
+<td>✓ <code>copy()</code>, <code>|</code> return subclass</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-type_safe-classes-already-use-these-collections">How Type_Safe Classes Already Use These Collections<a class="headerlink" href="#how-type_safe-classes-already-use-these-collections" title="Permanent link">&para;</a></h3>
+<p>When you use <code>Dict</code>, <code>List</code>, <code>Set</code>, or <code>Tuple</code> annotations in a <code>Type_Safe</code> class, the framework <strong>automatically converts</strong> them to their Type_Safe equivalents during construction:</p>
+<pre><code class="language-python">from typing                                      import Dict, List, Set
+from osbot_utils.type_safe.Type_Safe             import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id import Obj_Id
+
+class Ontology__Registry(Type_Safe):
+    cache   : Dict[Obj_Id, Schema__Ontology]     # Auto-converts to Type_Safe__Dict
+    items   : List[str]                          # Auto-converts to Type_Safe__List
+    tags    : Set[str]                           # Auto-converts to Type_Safe__Set
+
+# At runtime, Type_Safe converts the annotations automatically
+registry = Ontology__Registry()
+
+# The actual types are Type_Safe collections, not Python built-ins
+assert type(registry.cache) is Type_Safe__Dict   # ✓ Runtime type is Type_Safe__Dict
+assert type(registry.items) is Type_Safe__List   # ✓ Runtime type is Type_Safe__List
+assert type(registry.tags)  is Type_Safe__Set    # ✓ Runtime type is Type_Safe__Set
+
+# Full type enforcement is active
+registry.cache[Obj_Id()] = Schema__Ontology()    # ✓ Valid
+registry.cache[&quot;wrong&quot;] = &quot;bad&quot;                  # ✗ TypeError! Key must be Obj_Id
+</code></pre>
+<p>This automatic conversion gives you <strong>all the runtime type safety benefits</strong> without any extra code. The Type_Safe constructor handles the conversion transparently.</p>
+<h3 id="limitations-of-inline-annotations">Limitations of Inline Annotations<a class="headerlink" href="#limitations-of-inline-annotations" title="Permanent link">&para;</a></h3>
+<p>While the auto-conversion works great, there are practical limitations:</p>
+<p><strong>1. IDE Type Mismatch</strong>: PyCharm/VS Code see the annotation type, not the runtime type:</p>
+<pre><code class="language-python">class Ontology__Registry(Type_Safe):
+    cache : Dict[Obj_Id, Schema__Ontology]       # IDE sees Dict
+
+def test__init__(self):
+    with Ontology__Registry() as _:
+        assert type(_.cache) is Type_Safe__Dict  # ✓ Passes at runtime
+
+        # But in PyCharm:
+        # _.cache is shown as Dict[Obj_Id, Schema__Ontology]
+        # Not as Type_Safe__Dict
+        # This causes false &quot;type mismatch&quot; warnings
+</code></pre>
+<p><strong>2. Repetition</strong>: The same type combination must be repeated everywhere:</p>
+<pre><code class="language-python">class Service_A(Type_Safe):
+    cache : Dict[Obj_Id, Schema__Ontology]       # Repeated
+
+class Service_B(Type_Safe):
+    cache : Dict[Obj_Id, Schema__Ontology]       # Repeated again
+
+class Service_C(Type_Safe):
+    cache : Dict[Obj_Id, Schema__Ontology]       # And again...
+
+# If the value type changes, you must update ALL locations
+</code></pre>
+<p><strong>3. No Semantic Naming</strong>: The type doesn't describe what it represents:</p>
+<pre><code class="language-python">cache : Dict[Obj_Id, Schema__Ontology]           # What kind of cache? For what?
+# vs
+cache : Ontology_Cache                           # Self-documenting
+</code></pre>
+<h3 id="why-subclassing-takes-it-further">Why Subclassing Takes It Further<a class="headerlink" href="#why-subclassing-takes-it-further" title="Permanent link">&para;</a></h3>
+<p>While you can use <code>Type_Safe__Dict</code> directly with constructor parameters, <strong>subclassing</strong> solves all the limitations above:</p>
+<pre><code class="language-python"># ❌ REPETITIVE: Passing type parameters everywhere
+def process_hashes(data: Type_Safe__Dict) -&gt; Type_Safe__Dict:
+    result = Type_Safe__Dict(expected_key_type=Safe_Str__Hash, 
+                             expected_value_type=str)
+    # ... more code creating the same type ...
+    return result
+
+# ✓ CLEAN: Define once, use everywhere
+class Dict__Content__Hashes(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Hash
+    expected_value_type = str
+
+def process_hashes(data: Dict__Content__Hashes) -&gt; Dict__Content__Hashes:
+    result = Dict__Content__Hashes()              # No parameters needed
+    # ... cleaner code ...
+    return result
+</code></pre>
+<p>Subclassing enables:
+- <strong>Named domain types</strong>: <code>Dict__Users__By_Id</code>, <code>List__Event__Log</code>, <code>Set__Permission__Ids</code>
+- <strong>Type annotations</strong>: Use as field types in <code>Type_Safe</code> classes
+- <strong>Auto-initialization</strong>: Empty instance created automatically in parent classes
+- <strong>IDE support</strong>: Better autocomplete and type checking
+- <strong>Self-documenting code</strong>: The class name describes both collection type AND contents</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide covers creating <strong>reusable, named collection types</strong> by subclassing the Type_Safe collection classes: <code>Type_Safe__Dict</code>, <code>Type_Safe__List</code>, <code>Type_Safe__Set</code>, and <code>Type_Safe__Tuple</code>. These subclasses provide type-safe containers with fixed type parameters that can be used as type annotations in <code>Type_Safe</code> classes.</p>
+<h3 id="why-subclass-type_safe-collections">Why Subclass Type_Safe Collections?<a class="headerlink" href="#why-subclass-type_safe-collections" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Benefit</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Reusability</strong></td>
+<td>Define <code>Dict__Content__Hashes</code> once, use everywhere</td>
+</tr>
+<tr>
+<td><strong>Clarity</strong></td>
+<td><code>hashes: Dict__Content__Hashes</code> vs <code>hashes: Dict[Safe_Str__Hash, str]</code></td>
+</tr>
+<tr>
+<td><strong>Encapsulation</strong></td>
+<td>Type parameters defined in one place</td>
+</tr>
+<tr>
+<td><strong>Full Integration</strong></td>
+<td>Works with JSON serialization, auto-initialization, type enforcement</td>
+</tr>
+<tr>
+<td><strong>Operation Preservation</strong></td>
+<td><code>copy()</code>, <code>|</code>, <code>fromkeys()</code> return the subclass type</td>
+</tr>
+</tbody>
+</table>
+<h3 id="when-to-subclass-vs-use-inline-annotations">When to Subclass vs Use Inline Annotations<a class="headerlink" href="#when-to-subclass-vs-use-inline-annotations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✓ USE INLINE when type combination is used once
+class OneOffSchema(Type_Safe):
+    temp_data: Dict[str, int]                    # One-off usage
+
+# ✓ USE SUBCLASS when type combination is reused or has semantic meaning
+class Dict__Content__Hashes(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Hash
+    expected_value_type = str
+
+class Schema__Document(Type_Safe):
+    content_hashes : Dict__Content__Hashes       # Reused type
+    backup_hashes  : Dict__Content__Hashes       # Same type, different field
+</code></pre>
+<hr />
+<h2 id="type_safe__dict-subclasses">Type_Safe__Dict Subclasses<a class="headerlink" href="#type_safe__dict-subclasses" title="Permanent link">&para;</a></h2>
+<h3 id="basic-pattern">Basic Pattern<a class="headerlink" href="#basic-pattern" title="Permanent link">&para;</a></h3>
+<p>Create a subclass with class-level type definitions:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict               import Type_Safe__Dict
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash  import Safe_Str__Hash
+
+class Dict__Content__Hashes(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Hash         # Keys must be Safe_Str__Hash
+    expected_value_type = str                    # Values must be str
+
+# Create instance - no constructor arguments needed
+hash_map = Dict__Content__Hashes()
+
+# Type enforcement is active
+hash_map['abc1234567'] = 'some value'           # ✓ Key auto-converts to Safe_Str__Hash
+hash_map[Safe_Str__Hash('def1234567')] = 'ok'   # ✓ Already correct type
+
+# Invalid types raise errors
+hash_map[True] = 'value'                        # ✗ TypeError: Expected 'Safe_Str__Hash', but got 'bool'
+hash_map['abc1234567'] = 123                    # ✗ TypeError: Expected 'str', but got 'int'
+</code></pre>
+<h3 id="creating-with-initial-data">Creating with Initial Data<a class="headerlink" href="#creating-with-initial-data" title="Permanent link">&para;</a></h3>
+<p>Pass initial data as the first argument (like a regular dict):</p>
+<pre><code class="language-python"># Create with initial data
+hash_map = Dict__Content__Hashes({'abc1234567': 'Value A',
+                                  'def1234567': 'Value B'})
+
+# Keys are auto-converted to Safe_Str__Hash
+assert isinstance(list(hash_map.keys())[0], Safe_Str__Hash)
+
+# Invalid data raises during construction
+Dict__Content__Hashes({'short': 'value'})       # ✗ ValueError from Safe_Str__Hash validation
+Dict__Content__Hashes({'abc1234567': 42})       # ✗ TypeError: Expected 'str', but got 'int'
+</code></pre>
+<h3 id="using-in-type_safe-classes">Using in Type_Safe Classes<a class="headerlink" href="#using-in-type_safe-classes" title="Permanent link">&para;</a></h3>
+<p>Subclasses work seamlessly as type annotations:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class Dict__Content__Hashes(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Hash
+    expected_value_type = str
+
+class Schema__Document(Type_Safe):
+    title  : str
+    hashes : Dict__Content__Hashes               # Auto-initializes to empty Dict__Content__Hashes
+
+# Auto-initialization
+doc = Schema__Document()
+assert type(doc.hashes) is Dict__Content__Hashes  # Correct subclass type
+assert doc.hashes.expected_key_type is Safe_Str__Hash
+
+# Use the mapping
+doc.hashes['abc1234567'] = 'Content hash'
+doc.hashes['def1234567'] = 'Backup hash'
+
+assert len(doc.hashes) == 2
+</code></pre>
+<h3 id="auto-conversion-from-plain-dicts">Auto-Conversion from Plain Dicts<a class="headerlink" href="#auto-conversion-from-plain-dicts" title="Permanent link">&para;</a></h3>
+<p>When assigning a plain <code>dict</code> to a <code>Type_Safe__Dict</code> subclass field, it auto-converts:</p>
+<pre><code class="language-python">class Dict__Content__Hashes(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Hash
+    expected_value_type = str
+
+class Schema__Container(Type_Safe):
+    data: Dict__Content__Hashes
+
+# Plain dict in constructor - auto-converts to Dict__Content__Hashes
+container = Schema__Container(data={'abc1234567': 'value'})
+assert type(container.data) is Dict__Content__Hashes
+
+# Plain dict assignment after init - also auto-converts
+container.data = {'def1234567': 'new value'}
+assert type(container.data) is Dict__Content__Hashes
+
+# Keys are converted to Safe_Str__Hash
+assert all(isinstance(k, Safe_Str__Hash) for k in container.data.keys())
+</code></pre>
+<h3 id="json-serialization">JSON Serialization<a class="headerlink" href="#json-serialization" title="Permanent link">&para;</a></h3>
+<p>Subclasses serialize to plain dicts and deserialize back to the correct subclass:</p>
+<pre><code class="language-python">class Dict__Content__Hashes(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Hash
+    expected_value_type = str
+
+class Schema__Document(Type_Safe):
+    title  : str
+    hashes : Dict__Content__Hashes
+
+# Create and populate
+doc = Schema__Document(title='Test Doc')
+doc.hashes['abc1234567'] = 'Value A'
+doc.hashes['def1234567'] = 'Value B'
+
+# Serialize to JSON
+json_data = doc.json()
+# Result: {'title': 'Test Doc', 'hashes': {'abc1234567': 'Value A', 'def1234567': 'Value B'}}
+
+# Keys are plain strings in JSON output
+assert type(json_data['hashes']) is dict
+assert all(type(k) is str for k in json_data['hashes'].keys())
+
+# Deserialize - subclass type is restored
+restored = Schema__Document.from_json(json_data)
+assert type(restored.hashes) is Dict__Content__Hashes
+assert restored.hashes.expected_key_type is Safe_Str__Hash
+
+# Keys are Safe_Str__Hash instances again
+assert all(isinstance(k, Safe_Str__Hash) for k in restored.hashes.keys())
+</code></pre>
+<h3 id="operations-preserve-subclass-type">Operations Preserve Subclass Type<a class="headerlink" href="#operations-preserve-subclass-type" title="Permanent link">&para;</a></h3>
+<p>Dict operations return the same subclass type, not the base <code>Type_Safe__Dict</code>:</p>
+<pre><code class="language-python">class Dict__Content__Hashes(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Hash
+    expected_value_type = str
+
+hash_map = Dict__Content__Hashes({'abc1234567': 'value'})
+
+# copy() returns Dict__Content__Hashes
+copied = hash_map.copy()
+assert type(copied) is Dict__Content__Hashes     # ✓ Not Type_Safe__Dict
+
+# | operator returns Dict__Content__Hashes
+merged = hash_map | {'def1234567': 'other'}
+assert type(merged) is Dict__Content__Hashes     # ✓ Not Type_Safe__Dict
+
+# |= modifies in place (type preserved)
+hash_map |= {'ghi1234567': 'third'}
+assert type(hash_map) is Dict__Content__Hashes
+
+# fromkeys() returns Dict__Content__Hashes
+from_keys = Dict__Content__Hashes.fromkeys(['aaa1234567', 'bbb1234567'], 'default')
+assert type(from_keys) is Dict__Content__Hashes  # ✓ Not Type_Safe__Dict
+</code></pre>
+<hr />
+<h2 id="nested-collection-subclasses">Nested Collection Subclasses<a class="headerlink" href="#nested-collection-subclasses" title="Permanent link">&para;</a></h2>
+<h3 id="dict-containing-another-dict-subclass">Dict Containing Another Dict Subclass<a class="headerlink" href="#dict-containing-another-dict-subclass" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Inner__Values(Type_Safe__Dict):
+    expected_key_type   = str
+    expected_value_type = int
+
+class Dict__Outer__Groups(Type_Safe__Dict):
+    expected_key_type   = Safe_Id
+    expected_value_type = Dict__Inner__Values    # Value is another subclass
+
+class Schema__Container(Type_Safe):
+    data: Dict__Outer__Groups
+
+# Nested plain dicts auto-convert to correct subclass types
+container = Schema__Container(data={
+    'outer-1': {'inner-1': 1, 'inner-2': 2},
+    'outer-2': {'inner-3': 3}
+})
+
+assert type(container.data) is Dict__Outer__Groups
+assert type(container.data['outer-1']) is Dict__Inner__Values
+assert container.data['outer-1']['inner-1'] == 1
+</code></pre>
+<h3 id="deep-nesting-3-levels">Deep Nesting (3+ Levels)<a class="headerlink" href="#deep-nesting-3-levels" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Level3__Values(Type_Safe__Dict):
+    expected_key_type   = str
+    expected_value_type = int
+
+class Dict__Level2__Groups(Type_Safe__Dict):
+    expected_key_type   = str
+    expected_value_type = Dict__Level3__Values
+
+class Dict__Level1__Root(Type_Safe__Dict):
+    expected_key_type   = str
+    expected_value_type = Dict__Level2__Groups
+
+class Schema__Container(Type_Safe):
+    data: Dict__Level1__Root
+
+# Triple-nested plain dict
+container = Schema__Container(data={
+    'level1': {
+        'level2': {
+            'level3': 42
+        }
+    }
+})
+
+assert type(container.data) is Dict__Level1__Root
+assert type(container.data['level1']) is Dict__Level2__Groups
+assert type(container.data['level1']['level2']) is Dict__Level3__Values
+</code></pre>
+<h3 id="dict-containing-type_safe-objects">Dict Containing Type_Safe Objects<a class="headerlink" href="#dict-containing-type_safe-objects" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Schema__Item(Type_Safe):
+    name  : str
+    value : int
+
+class Dict__Items__By_Id(Type_Safe__Dict):
+    expected_key_type   = Safe_Id
+    expected_value_type = Schema__Item           # Value is a Type_Safe class
+
+class Schema__Container(Type_Safe):
+    items: Dict__Items__By_Id
+
+# Plain dicts for values auto-convert to Schema__Item
+container = Schema__Container(items={
+    'item-1': {'name': 'First', 'value': 10},
+    'item-2': {'name': 'Second', 'value': 20}
+})
+
+assert type(container.items) is Dict__Items__By_Id
+assert type(container.items['item-1']) is Schema__Item
+assert container.items['item-1'].name == 'First'
+</code></pre>
+<hr />
+<h2 id="type_safe__list-subclasses">Type_Safe__List Subclasses<a class="headerlink" href="#type_safe__list-subclasses" title="Permanent link">&para;</a></h2>
+<h3 id="basic-pattern_1">Basic Pattern<a class="headerlink" href="#basic-pattern_1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id     import Safe_Id
+
+class List__User__Ids(Type_Safe__List):
+    expected_type = Safe_Id                      # Elements must be Safe_Id
+
+# Create and use
+id_list = List__User__Ids()
+id_list.append('user-123')                       # ✓ Auto-converts to Safe_Id
+id_list.append(Safe_Id('user-456'))              # ✓ Already correct type
+
+# Type enforcement
+id_list.append(123)                              # ✗ TypeError
+</code></pre>
+<h3 id="using-in-type_safe-classes_1">Using in Type_Safe Classes<a class="headerlink" href="#using-in-type_safe-classes_1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class List__User__Ids(Type_Safe__List):
+    expected_type = Safe_Id
+
+class Schema__User_Group(Type_Safe):
+    name    : str
+    members : List__User__Ids                    # Auto-initializes to empty List__User__Ids
+
+group = Schema__User_Group(name='Admins')
+group.members.append('admin-1')
+group.members.append('admin-2')
+
+assert type(group.members) is List__User__Ids
+assert all(isinstance(m, Safe_Id) for m in group.members)
+</code></pre>
+<h3 id="creating-with-initial-data_1">Creating with Initial Data<a class="headerlink" href="#creating-with-initial-data_1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class List__User__Ids(Type_Safe__List):
+    expected_type = Safe_Id
+
+# Pass list as first argument
+id_list = List__User__Ids(['user-1', 'user-2', 'user-3'])
+
+assert len(id_list) == 3
+assert all(isinstance(item, Safe_Id) for item in id_list)
+</code></pre>
+<h3 id="operations-preserve-subclass-type_1">Operations Preserve Subclass Type<a class="headerlink" href="#operations-preserve-subclass-type_1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class List__User__Ids(Type_Safe__List):
+    expected_type = Safe_Id
+
+list1 = List__User__Ids(['user-1'])
+
+# copy() returns List__User__Ids
+copied = list1.copy()
+assert type(copied) is List__User__Ids
+
+# + operator returns List__User__Ids
+combined = list1 + ['user-2']
+assert type(combined) is List__User__Ids
+
+# * operator returns List__User__Ids
+repeated = list1 * 3
+assert type(repeated) is List__User__Ids
+</code></pre>
+<hr />
+<h2 id="type_safe__set-subclasses">Type_Safe__Set Subclasses<a class="headerlink" href="#type_safe__set-subclasses" title="Permanent link">&para;</a></h2>
+<h3 id="basic-pattern_2">Basic Pattern<a class="headerlink" href="#basic-pattern_2" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set import Type_Safe__Set
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id    import Safe_Id
+
+class Set__User__Ids(Type_Safe__Set):
+    expected_type = Safe_Id
+
+# Create and use
+id_set = Set__User__Ids()
+id_set.add('user-123')                           # ✓ Auto-converts to Safe_Id
+id_set.add('user-123')                           # No duplicate (set behavior)
+
+assert len(id_set) == 1
+</code></pre>
+<h3 id="using-in-type_safe-classes_2">Using in Type_Safe Classes<a class="headerlink" href="#using-in-type_safe-classes_2" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Set__User__Ids(Type_Safe__Set):
+    expected_type = Safe_Id
+
+class Schema__Access_Control(Type_Safe):
+    resource    : str
+    allowed_ids : Set__User__Ids                 # Auto-initializes to empty Set__User__Ids
+
+acl = Schema__Access_Control(resource='/api/admin')
+acl.allowed_ids.add('admin-1')
+acl.allowed_ids.add('admin-2')
+
+assert type(acl.allowed_ids) is Set__User__Ids
+</code></pre>
+<h3 id="operations-preserve-subclass-type_2">Operations Preserve Subclass Type<a class="headerlink" href="#operations-preserve-subclass-type_2" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Set__User__Ids(Type_Safe__Set):
+    expected_type = Safe_Id
+
+set1 = Set__User__Ids({'user-1', 'user-2'})
+set2 = Set__User__Ids({'user-2', 'user-3'})
+
+# | operator returns Set__User__Ids
+union = set1 | set2
+assert type(union) is Set__User__Ids
+
+# &amp; operator returns Set__User__Ids
+intersection = set1 &amp; set2
+assert type(intersection) is Set__User__Ids
+
+# - operator returns Set__User__Ids
+difference = set1 - set2
+assert type(difference) is Set__User__Ids
+
+# copy() returns Set__User__Ids
+copied = set1.copy()
+assert type(copied) is Set__User__Ids
+</code></pre>
+<hr />
+<h2 id="type_safe__tuple-subclasses">Type_Safe__Tuple Subclasses<a class="headerlink" href="#type_safe__tuple-subclasses" title="Permanent link">&para;</a></h2>
+<h3 id="basic-pattern_3">Basic Pattern<a class="headerlink" href="#basic-pattern_3" title="Permanent link">&para;</a></h3>
+<p><code>Type_Safe__Tuple</code> is different - it uses <code>expected_types</code> (plural) since tuples have fixed positions:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple import Type_Safe__Tuple
+
+# Note: Tuple subclassing is less common because tuples have fixed structure
+# Usually use inline: Tuple[Safe_Float, Safe_Float, Safe_Float]
+
+# For a subclass:
+class Tuple__Coordinates__3D(Type_Safe__Tuple):
+    expected_types = (float, float, float)
+
+point = Tuple__Coordinates__3D((1.0, 2.0, 3.0))
+</code></pre>
+<h3 id="using-in-type_safe-classes_3">Using in Type_Safe Classes<a class="headerlink" href="#using-in-type_safe-classes_3" title="Permanent link">&para;</a></h3>
+<p>For tuples, inline annotations are often clearer:</p>
+<pre><code class="language-python">from typing import Tuple
+
+class Schema__Coordinate(Type_Safe):
+    point: Tuple[float, float, float]            # Inline is usually cleaner for tuples
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-naming-conventions-prefix-with-collection-type">1. Naming Conventions: Prefix with Collection Type<a class="headerlink" href="#1-naming-conventions-prefix-with-collection-type" title="Permanent link">&para;</a></h3>
+<p><strong>Always prefix collection subclass names with the collection type</strong> (<code>Dict__</code>, <code>List__</code>, <code>Set__</code>, <code>Tuple__</code>). This mirrors the <code>Schema__</code> prefix pattern for Type_Safe schema classes and provides immediate clarity:</p>
+<pre><code class="language-python"># ✓ RECOMMENDED: Collection type prefix + domain meaning
+class Dict__Ontologies__By_Id(Type_Safe__Dict):          # Clearly a Dict
+    expected_key_type   = Ontology_Id
+    expected_value_type = Schema__Ontology
+
+class Dict__Users__By_Email(Type_Safe__Dict):            # Clearly a Dict
+    expected_key_type   = Safe_Str__Email
+    expected_value_type = Schema__User
+
+class List__Ontology__Node_Types(Type_Safe__List):       # Clearly a List
+    expected_type = Schema__Ontology__Node_Type
+
+class Set__Permission__Ids(Type_Safe__Set):              # Clearly a Set
+    expected_type = Safe_Id
+
+class Tuple__Coordinates(Type_Safe__Tuple):              # Clearly a Tuple
+    expected_types = (Safe_Float, Safe_Float, Safe_Float)
+
+# ✗ AVOID: No collection type indicator
+class Ontologies_By_Id(Type_Safe__Dict): ...             # Is this a Dict? List? Set?
+class User_Mapping(Type_Safe__Dict): ...                 # Ambiguous
+class Hash_Index(Type_Safe__Dict): ...                   # Could be anything
+</code></pre>
+<p><strong>Why this pattern?</strong>
+- <strong>Consistency with <code>Schema__</code> prefix</strong>: Just as <code>Schema__Ontology</code> tells you it's a schema, <code>Dict__Ontologies</code> tells you it's a Dict
+- <strong>Immediate type recognition</strong>: No need to check the base class
+- <strong>Distinguishes from schemas</strong>: <code>Schema__</code> = data structure, <code>Dict__</code>/<code>List__</code>/<code>Set__</code>/<code>Tuple__</code> = typed collection
+- <strong>Searchability</strong>: Easy to find all Dict subclasses with <code>grep "class Dict__"</code></p>
+<p><strong>Complete naming pattern:</strong></p>
+<pre><code class="language-python"># Schema classes: Schema__{Domain}__{Concept}
+class Schema__Ontology(Type_Safe): ...
+class Schema__Ontology__Node_Type(Type_Safe): ...
+
+# Collection subclasses: {CollectionType}__{Domain}__{Description}
+class Dict__Ontologies__By_Id(Type_Safe__Dict): ...
+class List__Ontology__Nodes(Type_Safe__List): ...
+class Set__Ontology__Tags(Type_Safe__Set): ...
+</code></pre>
+<h3 id="2-combine-with-type_safe__primitive-keys">2. Combine with Type_Safe__Primitive Keys<a class="headerlink" href="#2-combine-with-type_safe__primitive-keys" title="Permanent link">&para;</a></h3>
+<p>Type_Safe__Dict subclasses work best with Type_Safe__Primitive keys:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash import Safe_Str__Hash
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                  import Safe_Id
+
+# ✓ GOOD: Primitive key type with validation
+class Dict__Content__By_Hash(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Hash         # 10-char hex hash
+    expected_value_type = str
+
+# ✓ GOOD: Safe_Id for identifiers
+class Dict__Entities__By_Id(Type_Safe__Dict):
+    expected_key_type   = Safe_Id                # Sanitized identifier
+    expected_value_type = Entity
+
+# ✗ AVOID: Raw str keys (no validation)
+class Dict__Unsafe__Mapping(Type_Safe__Dict):
+    expected_key_type   = str                    # Any string allowed
+    expected_value_type = str
+</code></pre>
+<h3 id="3-document-type-parameters">3. Document Type Parameters<a class="headerlink" href="#3-document-type-parameters" title="Permanent link">&para;</a></h3>
+<p>Add inline comments explaining the type constraints (consistent with Type_Safe no-docstring style):</p>
+<pre><code class="language-python">class Dict__Content__Hash_Index(Type_Safe__Dict):    # Maps content hashes to file paths
+    expected_key_type   = Safe_Str__Hash             # 10-char lowercase hex
+    expected_value_type = Safe_Str__File__Path       # Validated file path
+</code></pre>
+<h3 id="4-use-subclasses-for-domain-concepts">4. Use Subclasses for Domain Concepts<a class="headerlink" href="#4-use-subclasses-for-domain-concepts" title="Permanent link">&para;</a></h3>
+<p>Create subclasses when the collection represents a domain concept:</p>
+<pre><code class="language-python"># ✓ GOOD: Named domain concept with collection type prefix
+class Set__Permission__Ids(Type_Safe__Set):
+    expected_type = Safe_Id
+
+class Schema__User(Type_Safe):
+    permissions: Set__Permission__Ids            # Clear: it's a Set of permission IDs
+
+# ✗ LESS CLEAR: Inline annotation
+class Schema__User(Type_Safe):
+    permissions: Set[Safe_Id]                    # What kind of IDs? Set of what?
+</code></pre>
+<h3 id="5-validate-early-with-subclass-constructors">5. Validate Early with Subclass Constructors<a class="headerlink" href="#5-validate-early-with-subclass-constructors" title="Permanent link">&para;</a></h3>
+<p>Use subclass construction to validate data at boundaries:</p>
+<pre><code class="language-python">class Dict__Api_Keys__By_Key(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__API_Key
+    expected_value_type = Safe_Str__Timestamp
+
+def process_api_keys(raw_data: dict) -&gt; Dict__Api_Keys__By_Key:
+    &quot;&quot;&quot;Convert and validate raw API key data.&quot;&quot;&quot;
+    return Dict__Api_Keys__By_Key(raw_data)      # Validates all keys/values
+</code></pre>
+<hr />
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-registryindex">Pattern: Registry/Index<a class="headerlink" href="#pattern-registryindex" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Nodes__By_Id(Type_Safe__Dict):           # Index mapping node IDs to node objects
+    expected_key_type   = Node_Id
+    expected_value_type = Schema__Node
+
+class Schema__Graph(Type_Safe):
+    nodes: Dict__Nodes__By_Id
+
+    def add_node(self, node: Schema__Node) -&gt; None:
+        self.nodes[node.id] = node
+
+    def get_node(self, node_id: Node_Id) -&gt; Schema__Node:
+        return self.nodes[node_id]
+</code></pre>
+<h3 id="pattern-multi-value-index">Pattern: Multi-Value Index<a class="headerlink" href="#pattern-multi-value-index" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Documents__By_Tag(Type_Safe__Dict):      # Maps tags to sets of document IDs
+    expected_key_type   = Safe_Str__Tag
+    expected_value_type = Set__Document__Ids         # Value is another subclass
+
+class Schema__Document_Store(Type_Safe):
+    by_tag: Dict__Documents__By_Tag
+
+    def add_tag(self, doc_id: Safe_Id, tag: str) -&gt; None:
+        if tag not in self.by_tag:
+            self.by_tag[tag] = Set__Document__Ids()
+        self.by_tag[tag].add(doc_id)
+</code></pre>
+<h3 id="pattern-configuration-registry">Pattern: Configuration Registry<a class="headerlink" href="#pattern-configuration-registry" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Dict__Config__Settings(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Key
+    expected_value_type = str
+
+class Schema__Service_Config(Type_Safe):
+    name     : Safe_Id
+    settings : Dict__Config__Settings
+
+# Usage
+config = Schema__Service_Config(
+    name='api-gateway',
+    settings={
+        'host'   : 'localhost',
+        'port'   : '8080',
+        'timeout': '30'
+    }
+)
+</code></pre>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Core collection classes
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict  import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List  import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set   import Type_Safe__Set
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple import Type_Safe__Tuple
+
+# Common key types for Type_Safe__Dict
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                       import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Obj_Id                        import Obj_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id         import Safe_Str__Id
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Key        import Safe_Str__Key
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__Hash      import Safe_Str__Hash
+from osbot_utils.type_safe.primitives.domains.cryptography.safe_str.Safe_Str__SHA1      import Safe_Str__SHA1
+
+# Type_Safe base class
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+</code></pre>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When creating Type_Safe collection subclasses:</p>
+<ul>
+<li>[ ] <strong>Name with collection type prefix</strong>: <code>Dict__</code>, <code>List__</code>, <code>Set__</code>, <code>Tuple__</code></li>
+<li>[ ] Define class-level <code>expected_key_type</code> and <code>expected_value_type</code> for dicts</li>
+<li>[ ] Define class-level <code>expected_type</code> for lists and sets</li>
+<li>[ ] Use Type_Safe__Primitive subclasses for keys when possible</li>
+<li>[ ] Use meaningful names that describe the domain concept (e.g., <code>Dict__Users__By_Email</code>)</li>
+<li>[ ] Add inline comments explaining type constraints (not docstrings)</li>
+<li>[ ] Trust auto-conversion from plain dicts/lists in Type_Safe classes</li>
+<li>[ ] Remember operations (<code>copy</code>, <code>|</code>, <code>fromkeys</code>) preserve subclass type</li>
+<li>[ ] Test JSON round-trip serialization if needed</li>
+<li>[ ] Use subclasses when the collection is reused or has semantic meaning</li>
+<li>[ ] Use inline annotations for one-off type combinations</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

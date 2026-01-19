@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/features/v3.59.2__trace-call__llm-usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Trace Call - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Trace Call - LLM Usage Brief";
+        var mkdocs_page_input_path = "llm-briefs/features/v3.59.2__trace-call__llm-usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/features/v3.59.2__trace-call__llm-usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Trace Call - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="trace-call-llm-usage-brief">Trace Call - LLM Usage Brief<a class="headerlink" href="#trace-call-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.59.2<br />
+<strong>Purpose</strong>: Guide for LLMs and developers on using the call tracing/profiling system<br />
+<strong>Location</strong>: <code>osbot_utils.helpers.trace</code><br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils<br />
+<strong>Install</strong>: <code>pip install osbot-utils</code></p>
+<hr />
+<h2 id="what-is-trace_call">What is Trace_Call?<a class="headerlink" href="#what-is-trace_call" title="Permanent link">&para;</a></h2>
+<p><strong>Trace_Call is a powerful runtime introspection system that lets you see exactly what your Python code is doing—every function call, every return, every line executed—without modifying a single line of the code you're investigating.</strong></p>
+<p>Think of it as an X-ray machine for Python execution. You point it at any code—yours, a third-party library, or even the standard library—and it reveals the complete call hierarchy, timing information, variable states, and execution flow in real-time.</p>
+<h3 id="the-problem-it-solves">The Problem It Solves<a class="headerlink" href="#the-problem-it-solves" title="Permanent link">&para;</a></h3>
+<p>When working with Python code, developers frequently face these challenges:</p>
+<ol>
+<li>
+<p><strong>"What is this code actually doing?"</strong> — You're using a library or inherited codebase and need to understand its internal behavior without reading thousands of lines of source code.</p>
+</li>
+<li>
+<p><strong>"Where is the time going?"</strong> — Your application is slow, but profilers give you flat lists of functions. You need to see the <em>call tree</em> to understand which path through the code is expensive.</p>
+</li>
+<li>
+<p><strong>"What was the state when this broke?"</strong> — A bug occurs deep in a call stack, and you need to know what values variables had at each step leading to the failure.</p>
+</li>
+<li>
+<p><strong>"How do different inputs change execution?"</strong> — You want to compare what code paths are taken for different inputs without manually adding print statements everywhere.</p>
+</li>
+<li>
+<p><strong>"I can't modify this code"</strong> — The code you need to debug is in a third-party package, a compiled module, or a production system where changes aren't allowed.</p>
+</li>
+</ol>
+<p>Traditional debugging approaches—print statements, breakpoints, logging—require you to <em>modify</em> the code and <em>know in advance</em> where to look. Trace_Call requires neither.</p>
+<h3 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h3>
+<p>Trace_Call leverages Python's built-in <code>sys.settrace()</code> mechanism—the same hook that debuggers and profilers use. When activated, Python's interpreter calls your trace function on every:</p>
+<ul>
+<li><strong><code>call</code></strong> — A function is about to execute</li>
+<li><strong><code>return</code></strong> — A function is about to return</li>
+<li><strong><code>line</code></strong> — A new line is about to execute</li>
+<li><strong><code>exception</code></strong> — An exception has been raised</li>
+</ul>
+<p>Trace_Call intercepts these events and:</p>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                           Python Interpreter                                 │
+│                                                                             │
+│    your_code()  ──────►  sys.settrace() hook  ──────►  Trace_Call          │
+│         │                       │                           │               │
+│         │                       │                    ┌──────▼──────┐        │
+│         ▼                       │                    │   Filter    │        │
+│    library_code()               │                    │  (include/  │        │
+│         │                       │                    │   exclude)  │        │
+│         ▼                       │                    └──────┬──────┘        │
+│    deep_function()              │                           │               │
+│         │                       │                    ┌──────▼──────┐        │
+│         ▼                       │                    │ Stack Tree  │        │
+│      returns                    │                    │  Builder    │        │
+│                                 │                    └──────┬──────┘        │
+│                                 │                           │               │
+│                                 │                    ┌──────▼──────┐        │
+│                                 │                    │  Capture:   │        │
+│                                 │                    │  - Duration │        │
+│                                 │                    │  - Locals   │        │
+│                                 │                    │  - Source   │        │
+│                                 │                    └──────┬──────┘        │
+│                                 │                           │               │
+│                                 │                    ┌──────▼──────┐        │
+│                                 │                    │   Output    │        │
+│                                 │                    │  (tree/     │        │
+│                                 │                    │   table)    │        │
+│                                 │                    └─────────────┘        │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>The key insight</strong>: Because tracing happens at the interpreter level, it works on <em>any</em> Python code—your code, libraries, frameworks—without requiring source access or modifications.</p>
+<h3 id="the-power-of-trace_call">The Power of Trace_Call<a class="headerlink" href="#the-power-of-trace_call" title="Permanent link">&para;</a></h3>
+<h4 id="1-zero-instrumentation-observability">1. Zero-Instrumentation Observability<a class="headerlink" href="#1-zero-instrumentation-observability" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python"># You don't need to add ANY code to the library you're investigating
+with Trace_Call() as trace:
+    trace.config.trace_capture_start_with = ['requests']
+
+    requests.get('https://api.example.com')  # Trace everything requests does internally
+</code></pre>
+<p>This traces the entire internal execution of the <code>requests</code> library—HTTP connection handling, redirect logic, cookie processing—without touching its source.</p>
+<h4 id="2-hierarchical-call-trees-not-flat-lists">2. Hierarchical Call Trees (Not Flat Lists)<a class="headerlink" href="#2-hierarchical-call-trees-not-flat-lists" title="Permanent link">&para;</a></h4>
+<p>Unlike flat profilers that show "function X took 500ms," Trace_Call shows <em>why</em>:</p>
+<pre><code>📦  Trace Session
+│   └── 🔗️ process_request                                    523.45ms
+│       ├── 🧩️ validate_input                                  12.34ms
+│       ├── 🔗️ fetch_data                                     456.78ms
+│       │   ├── 🔗️ db_query                                   234.56ms
+│       │   │   └── 🧩️ execute_sql                            230.12ms  ← THE BOTTLENECK
+│       │   └── 🔗️ api_call                                   220.11ms
+│       │       └── 🧩️ http_request                           218.90ms
+│       └── 🧩️ format_response                                 54.33ms
+</code></pre>
+<p>Now you can <em>see</em> that <code>execute_sql</code> inside <code>db_query</code> is the actual bottleneck, not just that <code>process_request</code> is slow.</p>
+<h4 id="3-surgical-filtering">3. Surgical Filtering<a class="headerlink" href="#3-surgical-filtering" title="Permanent link">&para;</a></h4>
+<p>The real world is noisy. A simple function call might trigger hundreds of internal calls through logging, caching, ORMs, and framework code. Trace_Call's filtering system lets you focus:</p>
+<pre><code class="language-python">trace.config.trace_capture_start_with = ['my_app.services']     # Only my code
+trace.config.trace_ignore_start_with = ['my_app.services.cache'] # But not caching
+trace.config.trace_up_to_depth = 5                               # Only 5 levels deep
+trace.config.with_duration_bigger_than = 0.001                   # Only calls &gt; 1ms
+</code></pre>
+<h4 id="4-time-travel-debugging-via-local-capture">4. Time-Travel Debugging via Local Capture<a class="headerlink" href="#4-time-travel-debugging-via-local-capture" title="Permanent link">&para;</a></h4>
+<p>When you enable <code>capture_locals</code>, Trace_Call snapshots the local variables at each function call:</p>
+<pre><code>│   ├── 🔗️ process_order
+│          🔖 order_id   = 12345
+│          🔖 customer   = Customer(id=67, name='Alice')
+│          🔖 items      = [Item(sku='A1'), Item(sku='B2')]
+│          🔖 total      = 299.99
+</code></pre>
+<p>This is like having a debugger breakpoint at <em>every</em> function call, but captured automatically and reviewable after execution.</p>
+<h4 id="5-line-by-line-execution-tracing">5. Line-by-Line Execution Tracing<a class="headerlink" href="#5-line-by-line-execution-tracing" title="Permanent link">&para;</a></h4>
+<p>For the deepest debugging, enable line tracing to see exactly which lines executed:</p>
+<pre><code>┌─────┬──────┬─────────────────────────────────┬──────────────────────────┬───────┐
+│ #   │ Line │ Source code                     │ Method                   │ Depth │
+├─────┼──────┼─────────────────────────────────┼──────────────────────────┼───────┤
+│ 1   │   45 │   def process(self, data):     │ Processor.process        │     1 │
+│ 2   │   46 │       if data is None:         │ Processor.process        │     1 │
+│ 3   │   48 │       validated = self._val()  │ Processor.process        │     1 │
+│ 4   │   23 │     def _validate(self):       │ Processor._validate      │     2 │
+│ 5   │   24 │         return self.rules.check│ Processor._validate      │     2 │
+</code></pre>
+<p>This shows you the actual execution path, including which branches were taken.</p>
+<h4 id="6-production-safe-design">6. Production-Safe Design<a class="headerlink" href="#6-production-safe-design" title="Permanent link">&para;</a></h4>
+<p>Trace_Call can remain in your codebase with minimal risk:</p>
+<pre><code class="language-python">@trace_calls(include=['my_app'], enabled=DEBUG_MODE)  # Only traces when DEBUG_MODE=True
+def critical_function():
+    pass
+</code></pre>
+<p>When disabled, the decorator adds negligible overhead (~microseconds). This means you can leave tracing decorators in place and activate them only when needed.</p>
+<h3 id="when-to-use-trace_call">When to Use Trace_Call<a class="headerlink" href="#when-to-use-trace_call" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Trace_Call Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Understanding unfamiliar code</td>
+<td><code>trace_capture_start_with=['unknown_lib']</code> + <code>trace_up_to_depth=4</code></td>
+</tr>
+<tr>
+<td>Finding performance bottlenecks</td>
+<td><code>capture_duration=True</code> + <code>with_duration_bigger_than=0.01</code></td>
+</tr>
+<tr>
+<td>Debugging variable state</td>
+<td><code>capture_locals=True</code> + <code>deep_copy_locals=True</code></td>
+</tr>
+<tr>
+<td>Comparing execution paths</td>
+<td>Run twice with different inputs, compare <code>view_data()</code></td>
+</tr>
+<tr>
+<td>Understanding test failures</td>
+<td><code>@trace_calls</code> decorator on test methods</td>
+</tr>
+<tr>
+<td>Reverse-engineering APIs</td>
+<td>Trace the library while making API calls</td>
+</tr>
+</tbody>
+</table>
+<h3 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h3>
+<pre><code>Trace_Call (entry point)
+    │
+    ├── Trace_Call__Config        # 30+ configuration options
+    │
+    ├── Trace_Call__Handler       # sys.settrace() callback, event routing
+    │       │
+    │       ├── Trace_Call__Stack      # Call stack management
+    │       │       │
+    │       │       └── Trace_Call__Stack_Node  # Individual call records
+    │       │
+    │       └── Trace_Call__Stats      # Call/return/line counters
+    │
+    ├── Trace_Call__View_Model    # Transforms stack into display format
+    │
+    ├── Trace_Call__Print_Traces  # Tree output (📦 🔗️ 🧩️)
+    │
+    └── Trace_Call__Print_Lines   # Table output (line-by-line)
+</code></pre>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="1-using-the-context-manager">1. Using the Context Manager<a class="headerlink" href="#1-using-the-context-manager" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.trace.Trace_Call import Trace_Call
+
+with Trace_Call() as trace:
+    trace.config.trace_capture_start_with = ['my_module']  # Filter what to capture
+    trace.config.print_traces_on_exit = True               # Auto-print on exit
+
+    result = my_function()  # Your code here
+</code></pre>
+<h3 id="2-using-the-decorator">2. Using the Decorator<a class="headerlink" href="#2-using-the-decorator" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.trace.Trace_Call import trace_calls
+
+@trace_calls(include=['my_module'], print_traces=True)
+def my_function():
+    do_something()
+    do_something_else()
+    return result
+
+my_function()  # Traces printed automatically
+</code></pre>
+<h3 id="3-thats-it">3. That's It<a class="headerlink" href="#3-thats-it" title="Permanent link">&para;</a></h3>
+<p>The tracer intercepts all Python function calls via <code>sys.settrace()</code>, filters based on your criteria, and builds a call tree you can inspect or print.</p>
+<hr />
+<h2 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="how-it-works_1">How It Works<a class="headerlink" href="#how-it-works_1" title="Permanent link">&para;</a></h3>
+<p>Trace_Call uses Python's <code>sys.settrace()</code> to intercept every function call, return, and line execution. It:</p>
+<ol>
+<li><strong>Filters</strong> calls based on module/function name patterns</li>
+<li><strong>Builds</strong> a tree structure representing the call hierarchy</li>
+<li><strong>Captures</strong> optional data (locals, duration, source code)</li>
+<li><strong>Outputs</strong> a visual tree or detailed line-by-line trace</li>
+</ol>
+<h3 id="the-filtering-model">The Filtering Model<a class="headerlink" href="#the-filtering-model" title="Permanent link">&para;</a></h3>
+<p>Traces capture EVERYTHING by default when <code>trace_capture_all=True</code>, or selectively using:</p>
+<pre><code class="language-python"># Capture methods in modules starting with these prefixes
+config.trace_capture_start_with = ['my_app', 'my_lib']
+
+# Capture methods containing these strings (module OR function name)
+config.trace_capture_contains = ['process', 'handle']
+
+# Ignore methods in modules/functions starting with these
+config.trace_ignore_start_with = ['logging', 'debug_']
+
+# Ignore methods containing these strings
+config.trace_ignore_contains = ['_internal', '_cache']
+</code></pre>
+<p><strong>Filter Logic:</strong>
+1. Check <code>trace_capture_start_with</code> OR <code>trace_capture_contains</code> → must match at least one
+2. Check <code>trace_ignore_start_with</code> AND <code>trace_ignore_contains</code> → must NOT match any
+3. If <code>trace_show_internals=False</code>, skip functions starting with <code>_</code></p>
+<h3 id="stack-tracking">Stack Tracking<a class="headerlink" href="#stack-tracking" title="Permanent link">&para;</a></h3>
+<p>The tracer maintains a stack of <code>Trace_Call__Stack_Node</code> objects. Each node contains:</p>
+<ul>
+<li><code>name</code> - Full qualified name (e.g., <code>my_module.MyClass.my_method</code>)</li>
+<li><code>func_name</code> - Just the function name</li>
+<li><code>module</code> - Module name</li>
+<li><code>children</code> - List of child nodes (calls made from this function)</li>
+<li><code>locals</code> - Captured local variables (if enabled)</li>
+<li><code>call_duration</code> - Execution time (if enabled)</li>
+<li><code>source_code</code> - The actual source line (if enabled)</li>
+</ul>
+<hr />
+<h2 id="import-reference">Import Reference<a class="headerlink" href="#import-reference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Main tracer (context manager)
+from osbot_utils.helpers.trace.Trace_Call import Trace_Call
+
+# Decorator
+from osbot_utils.helpers.trace.Trace_Call import trace_calls
+
+# Configuration (usually accessed via trace.config)
+from osbot_utils.helpers.trace.Trace_Call__Config import Trace_Call__Config
+
+# For programmatic access to trace data
+from osbot_utils.helpers.trace.Trace_Call__Handler import Trace_Call__Handler
+from osbot_utils.helpers.trace.Trace_Call__Stack import Trace_Call__Stack
+from osbot_utils.helpers.trace.Trace_Call__Stack_Node import Trace_Call__Stack_Node
+
+# For custom output formatting
+from osbot_utils.helpers.trace.Trace_Call__View_Model import Trace_Call__View_Model
+from osbot_utils.helpers.trace.Trace_Call__Print_Traces import Trace_Call__Print_Traces
+from osbot_utils.helpers.trace.Trace_Call__Print_Lines import Trace_Call__Print_Lines
+
+# Statistics
+from osbot_utils.helpers.trace.Trace_Call__Stats import Trace_Call__Stats
+</code></pre>
+<hr />
+<h2 id="configuration-reference">Configuration Reference<a class="headerlink" href="#configuration-reference" title="Permanent link">&para;</a></h2>
+<h3 id="basic-filtering-options">Basic Filtering Options<a class="headerlink" href="#basic-filtering-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trace_capture_all</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Capture ALL calls (ignores start_with/contains filters)</td>
+</tr>
+<tr>
+<td><code>trace_capture_start_with</code></td>
+<td>list</td>
+<td><code>[]</code></td>
+<td>Capture modules starting with these prefixes</td>
+</tr>
+<tr>
+<td><code>trace_capture_contains</code></td>
+<td>list</td>
+<td><code>[]</code></td>
+<td>Capture modules/functions containing these strings</td>
+</tr>
+<tr>
+<td><code>trace_ignore_start_with</code></td>
+<td>list</td>
+<td><code>[]</code></td>
+<td>Ignore modules/functions starting with these</td>
+</tr>
+<tr>
+<td><code>trace_ignore_contains</code></td>
+<td>list</td>
+<td><code>[]</code></td>
+<td>Ignore modules/functions containing these</td>
+</tr>
+<tr>
+<td><code>trace_show_internals</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Include functions starting with <code>_</code></td>
+</tr>
+<tr>
+<td><code>trace_up_to_depth</code></td>
+<td>int</td>
+<td><code>0</code></td>
+<td>Max call depth to capture (0 = unlimited)</td>
+</tr>
+<tr>
+<td><code>trace_enabled</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Master switch to enable/disable tracing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="duration-performance-options">Duration &amp; Performance Options<a class="headerlink" href="#duration-performance-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>capture_duration</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Record execution time for each call</td>
+</tr>
+<tr>
+<td><code>print_duration</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Show duration in output</td>
+</tr>
+<tr>
+<td><code>with_duration_bigger_than</code></td>
+<td>float</td>
+<td><code>0.0</code></td>
+<td>Only show calls taking longer than N seconds</td>
+</tr>
+<tr>
+<td><code>print_padding_duration</code></td>
+<td>int</td>
+<td><code>100</code></td>
+<td>Column width for duration display</td>
+</tr>
+</tbody>
+</table>
+<h3 id="local-variables-options">Local Variables Options<a class="headerlink" href="#local-variables-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>capture_locals</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Capture local variables at call time</td>
+</tr>
+<tr>
+<td><code>print_locals</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Show locals in output</td>
+</tr>
+<tr>
+<td><code>deep_copy_locals</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Deep copy locals (safer but slower)</td>
+</tr>
+<tr>
+<td><code>print_max_string_length</code></td>
+<td>int</td>
+<td><code>100</code></td>
+<td>Truncate strings longer than this</td>
+</tr>
+</tbody>
+</table>
+<h3 id="source-code-options">Source Code Options<a class="headerlink" href="#source-code-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trace_capture_source_code</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Capture the source code line</td>
+</tr>
+<tr>
+<td><code>trace_capture_lines</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Capture line-by-line execution</td>
+</tr>
+<tr>
+<td><code>show_source_code_path</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Show file path in output</td>
+</tr>
+</tbody>
+</table>
+<h3 id="output-formatting-options">Output Formatting Options<a class="headerlink" href="#output-formatting-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>print_traces_on_exit</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Auto-print tree on context exit</td>
+</tr>
+<tr>
+<td><code>print_lines_on_exit</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Auto-print line table on context exit</td>
+</tr>
+<tr>
+<td><code>show_method_class</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Show <code>ClassName.method</code> format</td>
+</tr>
+<tr>
+<td><code>show_parent_info</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Show full parent path</td>
+</tr>
+<tr>
+<td><code>print_padding_parent_info</code></td>
+<td>int</td>
+<td><code>60</code></td>
+<td>Column width for parent info</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>str</td>
+<td><code>''</code></td>
+<td>Custom title for trace session</td>
+</tr>
+</tbody>
+</table>
+<h3 id="advanced-options">Advanced Options<a class="headerlink" href="#advanced-options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>capture_frame</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Store frame object in node</td>
+</tr>
+<tr>
+<td><code>capture_frame_stats</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Collect raw frame statistics</td>
+</tr>
+<tr>
+<td><code>capture_extra_data</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Capture return values</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="usage-patterns">Usage Patterns<a class="headerlink" href="#usage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-trace-specific-modules">Pattern 1: Trace Specific Modules<a class="headerlink" href="#pattern-1-trace-specific-modules" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.trace.Trace_Call import Trace_Call
+
+with Trace_Call() as trace:
+    trace.config.trace_capture_start_with = ['my_app.services', 'my_app.models']
+    trace.config.print_traces_on_exit = True
+
+    result = my_app.services.process_request(data)
+
+# Output shows only calls within my_app.services and my_app.models
+</code></pre>
+<h3 id="pattern-2-trace-everything-up-to-depth-n">Pattern 2: Trace Everything Up to Depth N<a class="headerlink" href="#pattern-2-trace-everything-up-to-depth-n" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Trace_Call() as trace:
+    trace.config.trace_capture_all = True      # Capture everything
+    trace.config.trace_up_to_depth = 3         # But only 3 levels deep
+    trace.config.print_traces_on_exit = True
+
+    complex_operation()
+</code></pre>
+<h3 id="pattern-3-duration-profiling">Pattern 3: Duration Profiling<a class="headerlink" href="#pattern-3-duration-profiling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Trace_Call() as trace:
+    trace.config.trace_capture_start_with = ['my_app']
+    trace.config.capture_duration = True
+    trace.config.print_duration = True
+    trace.config.with_duration_bigger_than = 0.001  # Only show calls &gt; 1ms
+    trace.config.print_traces_on_exit = True
+
+    slow_operation()
+</code></pre>
+<h3 id="pattern-4-capture-local-variables">Pattern 4: Capture Local Variables<a class="headerlink" href="#pattern-4-capture-local-variables" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Trace_Call() as trace:
+    trace.config.trace_capture_start_with = ['my_app']
+    trace.config.capture_locals = True
+    trace.config.print_locals = True
+    trace.config.print_traces_on_exit = True
+
+    debug_this_function()
+
+# Output shows local variables at each call site
+</code></pre>
+<h3 id="pattern-5-line-by-line-tracing">Pattern 5: Line-by-Line Tracing<a class="headerlink" href="#pattern-5-line-by-line-tracing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Trace_Call() as trace:
+    trace.config.trace_capture_start_with = ['my_app']
+    trace.config.trace_capture_lines = True
+    trace.config.print_lines_on_exit = True
+
+    step_through_this()
+
+# Output shows each line executed with line numbers
+</code></pre>
+<h3 id="pattern-6-using-the-decorator">Pattern 6: Using the Decorator<a class="headerlink" href="#pattern-6-using-the-decorator" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.trace.Trace_Call import trace_calls
+
+# Full options via decorator
+@trace_calls(
+    include=['my_app'],           # trace_capture_start_with
+    contains=['process'],         # trace_capture_contains
+    ignore=['cache'],             # trace_ignore_start_with
+    print_traces=True,            # print_traces_on_exit
+    show_duration=True,           # capture_duration + print_duration
+    show_locals=True,             # capture_locals + print_locals
+    show_lines=True,              # trace_capture_lines
+    trace_depth=5,                # trace_up_to_depth
+    show_internals=False,         # trace_show_internals
+    enabled=True                  # trace_enabled
+)
+def my_complex_function():
+    # All calls from here are traced
+    pass
+</code></pre>
+<h3 id="pattern-7-using-config-fluent-api">Pattern 7: Using Config Fluent API<a class="headerlink" href="#pattern-7-using-config-fluent-api" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Trace_Call() as trace:
+    trace.config.all(up_to_depth=3, print_traces=True)  # Capture all, depth 3
+    trace.config.duration(bigger_than=0.001)             # With timing &gt; 1ms
+    trace.config.locals()                                 # With local variables
+
+    my_function()
+</code></pre>
+<h3 id="pattern-8-programmatic-access-to-trace-data">Pattern 8: Programmatic Access to Trace Data<a class="headerlink" href="#pattern-8-programmatic-access-to-trace-data" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Trace_Call() as trace:
+    trace.config.trace_capture_start_with = ['my_app']
+    my_function()
+
+# Access the trace tree
+view_data = trace.view_data()  # List of trace entries
+
+for entry in view_data:
+    print(f&quot;{entry['method_name']}: {entry['duration']:.3f}s&quot;)
+
+# Access statistics
+stats = trace.stats()
+print(f&quot;Total calls: {stats['calls']}&quot;)
+print(f&quot;Calls captured: {stats['calls'] - stats['calls_skipped']}&quot;)
+</code></pre>
+<h3 id="pattern-9-filter-by-contains-module-or-function">Pattern 9: Filter by Contains (Module OR Function)<a class="headerlink" href="#pattern-9-filter-by-contains-module-or-function" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Trace_Call() as trace:
+    # Captures any call where module OR function name contains 'save' or 'load'
+    trace.config.trace_capture_contains = ['save', 'load']
+    trace.config.print_traces_on_exit = True
+
+    data_processor.run()  # Will trace any save/load operations
+</code></pre>
+<h3 id="pattern-10-combining-filters">Pattern 10: Combining Filters<a class="headerlink" href="#pattern-10-combining-filters" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with Trace_Call() as trace:
+    # Capture my_app modules, but ignore caching and logging
+    trace.config.trace_capture_start_with = ['my_app']
+    trace.config.trace_ignore_start_with = ['my_app.cache', 'my_app.logging']
+    trace.config.trace_ignore_contains = ['_debug', '_trace']
+    trace.config.trace_show_internals = False  # Skip _private methods
+    trace.config.print_traces_on_exit = True
+
+    my_app.run()
+</code></pre>
+<hr />
+<h2 id="output-interpretation">Output Interpretation<a class="headerlink" href="#output-interpretation" title="Permanent link">&para;</a></h2>
+<h3 id="tree-output-print_traces">Tree Output (print_traces)<a class="headerlink" href="#tree-output-print_traces" title="Permanent link">&para;</a></h3>
+<pre><code>--------- CALL TRACER ----------
+Here are the 6 traces captured
+
+📦  Trace Session
+│   ├── 🔗️ MyClass.process
+│   │   ├── 🧩️ MyClass._parse
+│   │   └── 🔗️ MyClass._transform
+│   │       └── 🧩️ Helper.convert
+│   └── 🧩️ MyClass._output
+└────────── 🧩️ final_cleanup
+</code></pre>
+<p><strong>Emoji Meanings:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Emoji</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📦</td>
+<td>Root node (trace session start)</td>
+</tr>
+<tr>
+<td>🔗️</td>
+<td>Node with children (made calls to other traced functions)</td>
+</tr>
+<tr>
+<td>🧩️</td>
+<td>Leaf node (no children, or children not captured)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tree Structure:</strong></p>
+<ul>
+<li><code>│</code> - Vertical line showing hierarchy</li>
+<li><code>├──</code> - Branch to sibling (more siblings follow)</li>
+<li><code>└──</code> - Last branch (no more siblings)</li>
+</ul>
+<h3 id="line-output-print_lines">Line Output (print_lines)<a class="headerlink" href="#line-output-print_lines" title="Permanent link">&para;</a></h3>
+<pre><code>--------- CALL TRACER (Lines)----------
+Here are the 13 lines captured
+
+┌─────┬──────┬─────────────────────────────────┬──────────────────────────────┬─────────────┬───────┐
+│ #   │ Line │ Source code                     │ Method Class and Name        │ Self object │ Depth │
+├─────┼──────┼─────────────────────────────────┼──────────────────────────────┼─────────────┼───────┤
+│ 1   │   25 │   def process(self, data):     │ my_module.MyClass.process    │ MyClass     │     1 │
+│ 2   │   26 │       parsed = self._parse()   │ my_module.MyClass.process    │ MyClass     │     1 │
+│ 3   │   42 │     def _parse(self):          │ my_module.MyClass._parse     │ MyClass     │     2 │
+...
+└─────┴──────┴─────────────────────────────────┴──────────────────────────────┴─────────────┴───────┘
+</code></pre>
+<p><strong>Columns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#</td>
+<td>Sequential line index</td>
+</tr>
+<tr>
+<td>Line</td>
+<td>Line number in source file</td>
+</tr>
+<tr>
+<td>Source code</td>
+<td>The actual code (indented by depth)</td>
+</tr>
+<tr>
+<td>Method Class and Name</td>
+<td><code>module.class.method</code></td>
+</tr>
+<tr>
+<td>Self object</td>
+<td>Class name of <code>self</code> if present</td>
+</tr>
+<tr>
+<td>Depth</td>
+<td>Call stack depth</td>
+</tr>
+</tbody>
+</table>
+<h3 id="duration-output">Duration Output<a class="headerlink" href="#duration-output" title="Permanent link">&para;</a></h3>
+<p>When <code>print_duration=True</code>:</p>
+<pre><code>📦  Trace Session
+│   ├── 🔗️ MyClass.process                                           125.432ms
+│   │   ├── 🧩️ MyClass._parse                                         45.123ms
+│   │   └── 🔗️ MyClass._transform                                     78.901ms
+</code></pre>
+<h3 id="locals-output">Locals Output<a class="headerlink" href="#locals-output" title="Permanent link">&para;</a></h3>
+<p>When <code>print_locals=True</code>:</p>
+<pre><code>│   ├── 🔗️ MyClass.process
+│          🔖 data     = {'key': 'value'}
+│          🔖 options  = ProcessOptions
+│          🔖 timeout  = 30
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="do-use-specific-filters">DO: Use Specific Filters<a class="headerlink" href="#do-use-specific-filters" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - specific module prefix
+trace.config.trace_capture_start_with = ['my_app.services.payment']
+
+# ❌ Bad - too broad, will capture everything
+trace.config.trace_capture_all = True
+</code></pre>
+<h3 id="do-limit-depth-for-exploratory-tracing">DO: Limit Depth for Exploratory Tracing<a class="headerlink" href="#do-limit-depth-for-exploratory-tracing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - manageable output
+trace.config.trace_capture_all = True
+trace.config.trace_up_to_depth = 3
+
+# ❌ Bad - overwhelming output for complex code
+trace.config.trace_capture_all = True
+# trace_up_to_depth = 0 (unlimited)
+</code></pre>
+<h3 id="do-use-duration-filtering-for-performance-analysis">DO: Use Duration Filtering for Performance Analysis<a class="headerlink" href="#do-use-duration-filtering-for-performance-analysis" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - focus on slow calls
+trace.config.capture_duration = True
+trace.config.with_duration_bigger_than = 0.01  # Only show &gt; 10ms
+
+# ❌ Less useful - shows everything including micro-calls
+trace.config.capture_duration = True
+trace.config.with_duration_bigger_than = 0  # Shows all
+</code></pre>
+<h3 id="do-ignore-noisy-modules">DO: Ignore Noisy Modules<a class="headerlink" href="#do-ignore-noisy-modules" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - clean output
+trace.config.trace_capture_start_with = ['my_app']
+trace.config.trace_ignore_start_with = ['my_app.logging', 'my_app.metrics']
+
+# ❌ Bad - log and metric calls clutter the trace
+trace.config.trace_capture_start_with = ['my_app']
+</code></pre>
+<h3 id="dont-leave-tracing-enabled-in-production">DON'T: Leave Tracing Enabled in Production<a class="headerlink" href="#dont-leave-tracing-enabled-in-production" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good - conditional tracing
+@trace_calls(include=['my_app'], enabled=DEBUG_MODE)
+def production_function():
+    pass
+
+# ❌ Bad - always tracing
+@trace_calls(include=['my_app'], enabled=True)  # In production code
+def production_function():
+    pass
+</code></pre>
+<h3 id="dont-capture-locals-in-performance-sensitive-code">DON'T: Capture Locals in Performance-Sensitive Code<a class="headerlink" href="#dont-capture-locals-in-performance-sensitive-code" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✅ Good for debugging - captures locals
+trace.config.capture_locals = True
+trace.config.deep_copy_locals = True  # Safe but slow
+
+# ✅ Good for performance profiling - skip locals
+trace.config.capture_duration = True
+trace.config.capture_locals = False  # Faster
+</code></pre>
+<h3 id="dont-use-trace_capture_all-without-depth-limit">DON'T: Use trace_capture_all Without Depth Limit<a class="headerlink" href="#dont-use-trace_capture_all-without-depth-limit" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ❌ Dangerous - can produce gigabytes of output
+trace.config.trace_capture_all = True
+
+# ✅ Safe - bounded output
+trace.config.trace_capture_all = True
+trace.config.trace_up_to_depth = 5
+</code></pre>
+<hr />
+<h2 id="common-integration-scenarios">Common Integration Scenarios<a class="headerlink" href="#common-integration-scenarios" title="Permanent link">&para;</a></h2>
+<h3 id="scenario-understanding-unfamiliar-code">Scenario: Understanding Unfamiliar Code<a class="headerlink" href="#scenario-understanding-unfamiliar-code" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.trace.Trace_Call import Trace_Call
+
+def explore_library(input_data):
+    &quot;&quot;&quot;Trace a library to understand its call flow.&quot;&quot;&quot;
+
+    with Trace_Call() as trace:
+        trace.config.trace_capture_start_with = ['unknown_library']
+        trace.config.trace_up_to_depth = 4
+        trace.config.show_method_class = True
+        trace.config.print_traces_on_exit = True
+
+        result = unknown_library.process(input_data)
+
+    return result
+
+# Now you can see exactly what unknown_library.process() does internally
+</code></pre>
+<h3 id="scenario-finding-performance-bottlenecks">Scenario: Finding Performance Bottlenecks<a class="headerlink" href="#scenario-finding-performance-bottlenecks" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def profile_slow_operation():
+    &quot;&quot;&quot;Find which functions are taking the most time.&quot;&quot;&quot;
+
+    with Trace_Call() as trace:
+        trace.config.trace_capture_start_with = ['my_app']
+        trace.config.capture_duration = True
+        trace.config.print_duration = True
+        trace.config.with_duration_bigger_than = 0.005  # Show &gt; 5ms only
+        trace.config.print_traces_on_exit = True
+
+        my_app.slow_operation()
+
+    # Output shows only slow calls with their durations
+</code></pre>
+<h3 id="scenario-debugging-variable-state">Scenario: Debugging Variable State<a class="headerlink" href="#scenario-debugging-variable-state" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def debug_unexpected_behavior():
+    &quot;&quot;&quot;Capture local variables to understand state at each call.&quot;&quot;&quot;
+
+    with Trace_Call() as trace:
+        trace.config.trace_capture_start_with = ['my_app.buggy_module']
+        trace.config.capture_locals = True
+        trace.config.print_locals = True
+        trace.config.deep_copy_locals = True  # Capture state at call time
+        trace.config.print_traces_on_exit = True
+
+        my_app.buggy_module.process(data)
+
+    # Output shows variable values at each function call
+</code></pre>
+<h3 id="scenario-tracing-test-execution">Scenario: Tracing Test Execution<a class="headerlink" href="#scenario-tracing-test-execution" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.trace.Trace_Call import trace_calls
+
+class TestMyFeature:
+
+    @trace_calls(include=['my_app'], print_traces=True, trace_depth=3)
+    def test_complex_feature(self):
+        &quot;&quot;&quot;Test with automatic call tracing.&quot;&quot;&quot;
+        result = my_app.complex_feature()
+        assert result.is_valid()
+
+    # Trace is printed after test completes (pass or fail)
+</code></pre>
+<h3 id="scenario-comparing-execution-paths">Scenario: Comparing Execution Paths<a class="headerlink" href="#scenario-comparing-execution-paths" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def compare_code_paths(input_a, input_b):
+    &quot;&quot;&quot;Compare what gets called for different inputs.&quot;&quot;&quot;
+
+    # Trace path A
+    with Trace_Call() as trace_a:
+        trace_a.config.trace_capture_start_with = ['my_app']
+        my_app.process(input_a)
+
+    # Trace path B
+    with Trace_Call() as trace_b:
+        trace_b.config.trace_capture_start_with = ['my_app']
+        my_app.process(input_b)
+
+    # Compare
+    methods_a = {entry['method_name'] for entry in trace_a.view_data()}
+    methods_b = {entry['method_name'] for entry in trace_b.view_data()}
+
+    only_in_a = methods_a - methods_b
+    only_in_b = methods_b - methods_a
+
+    print(f&quot;Only called with input_a: {only_in_a}&quot;)
+    print(f&quot;Only called with input_b: {only_in_b}&quot;)
+</code></pre>
+<h3 id="scenario-generating-call-statistics">Scenario: Generating Call Statistics<a class="headerlink" href="#scenario-generating-call-statistics" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def analyze_call_patterns():
+    &quot;&quot;&quot;Get statistics about call patterns.&quot;&quot;&quot;
+
+    with Trace_Call() as trace:
+        trace.config.trace_capture_start_with = ['my_app']
+        trace.config.capture_frame_stats = True
+
+        my_app.run_batch_job()
+
+    # Get raw statistics
+    stats = trace.stats()
+    print(f&quot;Total calls intercepted: {stats['calls']}&quot;)
+    print(f&quot;Calls captured: {stats['calls'] - stats['calls_skipped']}&quot;)
+    print(f&quot;Return events: {stats['returns']}&quot;)
+    print(f&quot;Line events: {stats['lines']}&quot;)
+
+    # Get detailed frame stats (if capture_frame_stats=True)
+    handler = trace.trace_call_handler
+    frame_stats = handler.stats.frames_stats()
+    # Returns nested dict: module -&gt; class -&gt; method -&gt; count
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="problem-no-traces-captured">Problem: No Traces Captured<a class="headerlink" href="#problem-no-traces-captured" title="Permanent link">&para;</a></h3>
+<p><strong>Cause 1</strong>: Filter doesn't match any modules</p>
+<pre><code class="language-python"># ❌ Wrong module name
+trace.config.trace_capture_start_with = ['myapp']  # Missing underscore
+
+# ✅ Correct module name
+trace.config.trace_capture_start_with = ['my_app']
+</code></pre>
+<p><strong>Cause 2</strong>: Tracing disabled</p>
+<pre><code class="language-python"># Check these aren't blocking capture
+assert trace.config.trace_enabled == True
+assert trace.started == True  # After entering context
+</code></pre>
+<p><strong>Cause 3</strong>: All calls filtered by ignore rules</p>
+<pre><code class="language-python"># Check ignore lists aren't too broad
+print(trace.config.trace_ignore_start_with)
+print(trace.config.trace_ignore_contains)
+</code></pre>
+<h3 id="problem-too-much-output">Problem: Too Much Output<a class="headerlink" href="#problem-too-much-output" title="Permanent link">&para;</a></h3>
+<p><strong>Solution 1</strong>: Add depth limit</p>
+<pre><code class="language-python">trace.config.trace_up_to_depth = 3
+</code></pre>
+<p><strong>Solution 2</strong>: Add ignore patterns</p>
+<pre><code class="language-python">trace.config.trace_ignore_start_with = ['logging', 'metrics', 'cache']
+</code></pre>
+<p><strong>Solution 3</strong>: Use duration filter</p>
+<pre><code class="language-python">trace.config.capture_duration = True
+trace.config.with_duration_bigger_than = 0.001  # Only &gt; 1ms
+</code></pre>
+<h3 id="problem-missing-internalprivate-methods">Problem: Missing Internal/Private Methods<a class="headerlink" href="#problem-missing-internalprivate-methods" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: <code>trace_show_internals</code> is False (default)</p>
+<pre><code class="language-python"># ✅ Include methods starting with _
+trace.config.trace_show_internals = True
+</code></pre>
+<h3 id="problem-locals-show-wrong-values">Problem: Locals Show Wrong Values<a class="headerlink" href="#problem-locals-show-wrong-values" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Locals captured by reference, values changed later</p>
+<pre><code class="language-python"># ✅ Deep copy locals at capture time
+trace.config.capture_locals = True
+trace.config.deep_copy_locals = True
+</code></pre>
+<h3 id="problem-trace-interferes-with-debugger">Problem: Trace Interferes with Debugger<a class="headerlink" href="#problem-trace-interferes-with-debugger" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Both use <code>sys.settrace()</code></p>
+<p><strong>Solution</strong>: Disable tracing when debugging</p>
+<pre><code class="language-python">@trace_calls(include=['my_app'], enabled=not_debugging())
+def my_function():
+    pass
+
+def not_debugging():
+    import sys
+    return sys.gettrace() is None
+</code></pre>
+<h3 id="problem-high-overhead">Problem: High Overhead<a class="headerlink" href="#problem-high-overhead" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Tracing everything or capturing too much data</p>
+<p><strong>Solution</strong>: Be selective</p>
+<pre><code class="language-python"># ❌ Expensive
+trace.config.trace_capture_all = True
+trace.config.capture_locals = True
+trace.config.deep_copy_locals = True
+trace.config.trace_capture_lines = True
+
+# ✅ Lean
+trace.config.trace_capture_start_with = ['my_app.target_module']
+trace.config.trace_up_to_depth = 3
+</code></pre>
+<h3 id="problem-typeerror-or-serialization-errors-in-locals">Problem: "TypeError" or Serialization Errors in Locals<a class="headerlink" href="#problem-typeerror-or-serialization-errors-in-locals" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Some local variables can't be printed/copied</p>
+<p><strong>Solution</strong>: The tracer handles errors gracefully, but you can also:</p>
+<pre><code class="language-python"># Skip locals capture if causing issues
+trace.config.capture_locals = False
+
+# Or increase string truncation
+trace.config.print_max_string_length = 50
+</code></pre>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When adding call tracing to investigate code:</p>
+<ul>
+<li>[ ] Import <code>Trace_Call</code> or <code>trace_calls</code> decorator</li>
+<li>[ ] Choose filtering strategy:</li>
+<li>[ ] <code>trace_capture_start_with</code> for specific modules</li>
+<li>[ ] <code>trace_capture_contains</code> for pattern matching</li>
+<li>[ ] <code>trace_capture_all</code> + <code>trace_up_to_depth</code> for exploration</li>
+<li>[ ] Add ignore patterns for noisy modules (<code>logging</code>, <code>cache</code>, etc.)</li>
+<li>[ ] Set <code>trace_show_internals=True</code> if you need <code>_private</code> methods</li>
+<li>[ ] For performance profiling:</li>
+<li>[ ] Enable <code>capture_duration</code> and <code>print_duration</code></li>
+<li>[ ] Set <code>with_duration_bigger_than</code> to filter noise</li>
+<li>[ ] For debugging:</li>
+<li>[ ] Enable <code>capture_locals</code> and <code>print_locals</code></li>
+<li>[ ] Use <code>deep_copy_locals=True</code> for accurate snapshots</li>
+<li>[ ] For detailed analysis:</li>
+<li>[ ] Enable <code>trace_capture_lines</code> for line-by-line</li>
+<li>[ ] Use <code>view_data()</code> for programmatic access</li>
+<li>[ ] Remember:</li>
+<li>[ ] <code>trace_up_to_depth</code> prevents overwhelming output</li>
+<li>[ ] Decorator is convenient; context manager offers more control</li>
+<li>[ ] Tracing adds overhead; disable in production</li>
+<li>[ ] Can't run alongside debugger (both use <code>sys.settrace</code>)</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

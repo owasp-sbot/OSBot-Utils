@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/legacy/Type_Safe.py.diagrams/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Visual Guide to Type_Safe Features and Patterns - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Visual Guide to Type_Safe Features and Patterns";
+        var mkdocs_page_input_path = "type_safe/legacy/Type_Safe.py.diagrams.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/legacy/Type_Safe.py.diagrams/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Visual Guide to Type_Safe Features and Patterns</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="visual-guide-to-type_safe-features-and-patterns">Visual Guide to Type_Safe Features and Patterns<a class="headerlink" href="#visual-guide-to-type_safe-features-and-patterns" title="Permanent link">&para;</a></h1>
+<h2 id="core-features">Core Features<a class="headerlink" href="#core-features" title="Permanent link">&para;</a></h2>
+<h3 id="1-runtime-type-checking">1. Runtime Type Checking<a class="headerlink" href="#1-runtime-type-checking" title="Permanent link">&para;</a></h3>
+<p>How Type_Safe validates type safety during attribute assignment:</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[Attribute Assignment] --&gt; B{Has Type Annotation?}
+    B --&gt;|Yes| C{Is Value None?}
+    B --&gt;|No| D[Allow Assignment]
+
+    C --&gt;|Yes| E{Existing Value?}
+    C --&gt;|No| F{Type Matches?}
+
+    E --&gt;|Yes| G[Reject None Assignment]
+    E --&gt;|No| H[Allow None Assignment]
+
+    F --&gt;|Yes| I[Allow Assignment]
+    F --&gt;|No| J[Raise TypeError]
+
+    style A fill:#f9f,stroke:#333
+    style J fill:#f66,stroke:#333
+    style G fill:#f66,stroke:#333
+</code></pre>
+<p>Key points:
+- Validates type annotations during runtime
+- Handles None values appropriately
+- Provides clear error messages for type violations
+- Prevents invalid assignments</p>
+<h3 id="2-automatic-attribute-management">2. Automatic Attribute Management<a class="headerlink" href="#2-automatic-attribute-management" title="Permanent link">&para;</a></h3>
+<p>How Type_Safe manages class attributes and their initialization:</p>
+<pre><code class="language-mermaid">classDiagram
+    class Type_Safe {
+        +__init__(kwargs)
+        +__setattr__(name, value)
+        +__default_value__(var_type)
+    }
+
+    class UserClass {
+        +name String
+        +age Integer
+        +active Boolean
+        +scores List~int~
+    }
+
+    class DefaultValues {
+        +String empty_string
+        +Integer zero
+        +Boolean false
+        +List empty_list
+        +Dict empty_dict
+    }
+
+    Type_Safe &lt;|-- UserClass : inherits
+    Type_Safe ..&gt; DefaultValues : uses
+</code></pre>
+<p>Key points:
+- Automatic attribute creation from type annotations
+- Default value initialization
+- Inheritance handling
+- Type-safe attribute management</p>
+<h3 id="3-type-safe-collections-support">3. Type-Safe Collections Support<a class="headerlink" href="#3-type-safe-collections-support" title="Permanent link">&para;</a></h3>
+<p>How Type_Safe handles collections with type safety:</p>
+<pre><code class="language-mermaid">classDiagram
+    class Type_Safe_List {
+        +expected_type Type
+        +append(item)
+        +extend(items)
+        +set_item(index, value)
+    }
+
+    class Type_Safe_Dict {
+        +expected_key_type Type
+        +expected_value_type Type
+        +set_item(key, value)
+        +update(items)
+    }
+
+    class List_Validator {
+        +validate_item(item)
+        +validate_items(items)
+    }
+
+    class Dict_Validator {
+        +validate_key(key)
+        +validate_value(value)
+        +validate_pairs(items)
+    }
+
+    Type_Safe_List ..&gt; List_Validator : validates using
+    Type_Safe_Dict ..&gt; Dict_Validator : validates using
+</code></pre>
+<p>Key points:
+- Type-safe list operations
+- Type-safe dictionary operations
+- Validation for both keys and values
+- Support for nested collections</p>
+<h3 id="4-serialization-deserialization">4. Serialization &amp; Deserialization<a class="headerlink" href="#4-serialization-deserialization" title="Permanent link">&para;</a></h3>
+<p>The flow of data during serialization and deserialization:</p>
+<pre><code class="language-mermaid">flowchart LR
+    subgraph Serialization
+    A[Type_Safe Object] --&gt;|serialize_to_dict| B[Dictionary]
+    B --&gt;|json| C[JSON String]
+    end
+
+    subgraph Deserialization
+    D[JSON String] --&gt;|parse_json| E[Dictionary]
+    E --&gt;|deserialize_from_dict| F[Type_Safe Object]
+    end
+
+    C -.-&gt;|Input| D
+
+    style A fill:#f9f,stroke:#333
+    style F fill:#f9f,stroke:#333
+</code></pre>
+<p>Key points:
+- Bidirectional conversion
+- Type safety preservation
+- JSON compatibility
+- Nested object handling</p>
+<h3 id="5-immutability-controls">5. Immutability Controls<a class="headerlink" href="#5-immutability-controls" title="Permanent link">&para;</a></h3>
+<p>How Type_Safe manages immutable default values:</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[Default Value Assignment] --&gt; B{Is Type Immutable?}
+
+    B --&gt;|Yes| C[Allow Assignment]
+    B --&gt;|No| D[Raise ValueError]
+
+    C --&gt; E{Type is}
+
+    E --&gt;|int| F[Default: 0]
+    E --&gt;|str| G[Default: empty string]
+    E --&gt;|bool| H[Default: False]
+    E --&gt;|tuple| I[Default: empty tuple]
+    E --&gt;|frozenset| J[Default: empty frozenset]
+
+    style D fill:#f66,stroke:#333
+    style A fill:#f9f,stroke:#333
+</code></pre>
+<p>Key points:
+- Enforces immutable defaults
+- Prevents mutable default issues
+- Clear type definitions
+- Safe initialization</p>
+<h2 id="design-patterns">Design Patterns<a class="headerlink" href="#design-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="1-4-primary-design-patterns">1-4. Primary Design Patterns<a class="headerlink" href="#1-4-primary-design-patterns" title="Permanent link">&para;</a></h3>
+<p>How Type_Safe implements various design patterns:</p>
+<pre><code class="language-mermaid">classDiagram
+    class Type_Safe {
+        +update_from_kwargs(**kwargs)
+        +from_json(json_data)
+        +__enter__()
+        +__exit__()
+    }
+
+    class Builder {
+        +name String
+        +age Integer
+        +update_from_kwargs(**kwargs)
+    }
+
+    class Factory {
+        +from_json(json_data)
+        +deserialize_from_dict(data)
+    }
+
+    class ContextManager {
+        +__enter__()
+        +__exit__()
+    }
+
+    class ForwardRef {
+        +parent ForwardRef
+        +children List~ForwardRef~
+    }
+
+    Type_Safe &lt;|-- Builder : Builder Pattern
+    Type_Safe &lt;|-- Factory : Factory Pattern
+    Type_Safe &lt;|-- ContextManager : Context Manager
+    Type_Safe &lt;|-- ForwardRef : Forward References
+</code></pre>
+<h3 id="5-type-safe-decorator-pattern">5. Type-Safe Decorator Pattern<a class="headerlink" href="#5-type-safe-decorator-pattern" title="Permanent link">&para;</a></h3>
+<p>How the @type_safe decorator validates types:</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[Function Call] --&gt; B{Has @type_safe?}
+    B --&gt;|Yes| C[Check Parameter Types]
+    B --&gt;|No| G[Execute Function]
+
+    C --&gt; D{Types Match?}
+    D --&gt;|Yes| E[Execute Function]
+    D --&gt;|No| F[Raise TypeError]
+
+    E --&gt; H[Check Return Type]
+    H --&gt;|Matches| I[Return Result]
+    H --&gt;|Doesn't Match| J[Raise TypeError]
+
+    style F fill:#f66,stroke:#333
+    style J fill:#f66,stroke:#333
+</code></pre>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-class-definition">Basic Class Definition<a class="headerlink" href="#basic-class-definition" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class UserProfile(Type_Safe):
+    name: str
+    age: int
+    active: bool = True
+    scores: List[int] = []
+</code></pre>
+<h3 id="using-the-builder-pattern">Using the Builder Pattern<a class="headerlink" href="#using-the-builder-pattern" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">profile = UserProfile().update_from_kwargs(
+    name=&quot;John&quot;,
+    age=30
+)
+</code></pre>
+<h3 id="using-the-factory-pattern">Using the Factory Pattern<a class="headerlink" href="#using-the-factory-pattern" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">profile = UserProfile.from_json('{&quot;name&quot;: &quot;John&quot;, &quot;age&quot;: 30}')
+</code></pre>
+<h3 id="using-the-context-manager">Using the Context Manager<a class="headerlink" href="#using-the-context-manager" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">with UserProfile() as profile:
+    profile.name = &quot;John&quot;
+    profile.age = 30
+</code></pre>
+<h3 id="using-forward-references">Using Forward References<a class="headerlink" href="#using-forward-references" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Node(Type_Safe):
+    value: int
+    parent: Optional['Node'] = None
+    children: List['Node'] = []
+</code></pre>
+<h3 id="using-the-type-safe-decorator">Using the Type-Safe Decorator<a class="headerlink" href="#using-the-type-safe-decorator" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@type_safe
+def process_user(user: UserProfile) -&gt; Dict[str, Any]:
+    return {&quot;status&quot;: &quot;success&quot;, &quot;data&quot;: user.json()}
+</code></pre>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

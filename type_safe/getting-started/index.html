@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/getting-started/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Type_Safe &amp; Safe Primitives - Getting Started - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe \u0026amp; Safe Primitives - Getting Started";
+        var mkdocs_page_input_path = "type_safe/getting-started/README.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/getting-started/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe &amp; Safe Primitives - Getting Started</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-safe-primitives-getting-started">Type_Safe &amp; Safe Primitives - Getting Started<a class="headerlink" href="#type_safe-safe-primitives-getting-started" title="Permanent link">&para;</a></h1>
+<h2 id="purpose-of-this-folder">Purpose of This Folder<a class="headerlink" href="#purpose-of-this-folder" title="Permanent link">&para;</a></h2>
+<p>This folder contains comprehensive documentation for <strong>OSBot-Utils' Type_Safe system</strong> - a powerful runtime type checking framework for Python. Whether you're a developer learning the library, building type-safe applications, or an LLM generating code, these guides will help you write correct, robust, and type-safe code.</p>
+<h2 id="documentation-overview">📚 Documentation Overview<a class="headerlink" href="#documentation-overview" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Purpose</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><a href="type_safe_quick_reference_card/">type_safe_quick_reference_card.md</a></strong></td>
+<td>Quick syntax lookup and common patterns</td>
+<td>Quick reminders, syntax checking</td>
+</tr>
+<tr>
+<td><strong><a href="llm-prompt-guidance__using_osbot_utils_type_safe/">llm-prompt-guidance__using_osbot_utils_type_safe.md</a></strong></td>
+<td>Code generation rules and anti-patterns</td>
+<td>LLMs and understanding what NOT to do</td>
+</tr>
+<tr>
+<td><strong><a href="osbot-utils-safe-primitives__reference-guide.md">osbot-utils-safe-primitives__reference-guide.md</a></strong></td>
+<td>Complete catalog of Safe_* primitive types</td>
+<td>Finding the right domain-specific type</td>
+</tr>
+<tr>
+<td><strong><a href="type-safe-technical-documentation/">type-safe-technical-documentation.md</a></strong></td>
+<td>Deep dive into Type_Safe internals</td>
+<td>Understanding how it works</td>
+</tr>
+<tr>
+<td><strong><a href="type_safe_round-trip_serialization/">type_safe_round-trip_serialization.md</a></strong></td>
+<td>Serialization, APIs, and persistence</td>
+<td>Building networked applications</td>
+</tr>
+<tr>
+<td><strong><a href="type_safe_troubleshooting_guide/">type_safe_troubleshooting_guide.md</a></strong></td>
+<td>Common issues and solutions</td>
+<td>Debugging and problem-solving</td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start-paths">🚀 Quick Start Paths<a class="headerlink" href="#quick-start-paths" title="Permanent link">&para;</a></h2>
+<h3 id="for-developers-new-to-type_safe">For Developers New to Type_Safe<a class="headerlink" href="#for-developers-new-to-type_safe" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Start here:</strong> <a href="type_safe_quick_reference_card/">type_safe_quick_reference_card.md</a> - Get familiar with the syntax</li>
+<li><strong>Then read:</strong> <a href="type-safe-technical-documentation/">type-safe-technical-documentation.md</a> - Understand the concepts</li>
+<li><strong>Explore:</strong> <a href="osbot-utils-safe-primitives__reference-guide.md">osbot-utils-safe-primitives__reference-guide.md</a> - Discover powerful primitives</li>
+<li><strong>When needed:</strong> <a href="type_safe_troubleshooting_guide/">type_safe_troubleshooting_guide.md</a> - Solve problems</li>
+</ol>
+<h3 id="for-experienced-developers">For Experienced Developers<a class="headerlink" href="#for-experienced-developers" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Building APIs?</strong> Jump to <a href="type_safe_round-trip_serialization/">type_safe_round-trip_serialization.md</a></li>
+<li><strong>Need domain types?</strong> Check <a href="osbot-utils-safe-primitives__reference-guide.md">osbot-utils-safe-primitives__reference-guide.md</a></li>
+<li><strong>Debugging?</strong> See <a href="type_safe_troubleshooting_guide/">type_safe_troubleshooting_guide.md</a></li>
+</ul>
+<h3 id="for-llmsai-assistants">For LLMs/AI Assistants<a class="headerlink" href="#for-llmsai-assistants" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Primary guide:</strong> <a href="llm-prompt-guidance__using_osbot_utils_type_safe/">llm-prompt-guidance__using_osbot_utils_type_safe.md</a></li>
+<li><strong>Syntax reference:</strong> <a href="type_safe_quick_reference_card/">type_safe_quick_reference_card.md</a></li>
+<li><strong>Primitives catalog:</strong> <a href="osbot-utils-safe-primitives__reference-guide.md">osbot-utils-safe-primitives__reference-guide.md</a></li>
+</ol>
+<h2 id="what-is-type_safe">💡 What is Type_Safe?<a class="headerlink" href="#what-is-type_safe" title="Permanent link">&para;</a></h2>
+<p>Type_Safe is a Python framework that brings <strong>runtime type checking</strong> to your applications. Unlike Python's type hints (which are just suggestions), Type_Safe <strong>enforces</strong> types during execution.</p>
+<h3 id="why-use-type_safe">Why Use Type_Safe?<a class="headerlink" href="#why-use-type_safe" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Regular Python - Type hints are ignored at runtime
+class User:
+    name: str
+    age: int
+
+user = User()
+user.age = &quot;twenty&quot;  # No error! 😱
+
+# With Type_Safe - Types are enforced
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+class User(Type_Safe):
+    name: str
+    age: int
+
+user = User()
+user.age = &quot;twenty&quot;  # ValueError! Type safety! ✅
+</code></pre>
+<h3 id="key-benefits">Key Benefits<a class="headerlink" href="#key-benefits" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>Catches bugs early</strong> - Type errors fail fast at assignment, not deep in your code</li>
+<li>✅ <strong>Self-documenting</strong> - Type annotations show exactly what's expected</li>
+<li>✅ <strong>Auto-initialization</strong> - No more forgetting to initialize lists or dicts</li>
+<li>✅ <strong>Perfect serialization</strong> - JSON round-trips preserve all type information</li>
+<li>✅ <strong>Domain modeling</strong> - Safe_Id prevents mixing UserIds with OrderIds</li>
+</ul>
+<h2 id="document-deep-dive">📖 Document Deep Dive<a class="headerlink" href="#document-deep-dive" title="Permanent link">&para;</a></h2>
+<h3 id="core-references">Core References<a class="headerlink" href="#core-references" title="Permanent link">&para;</a></h3>
+<h4 id="type_safe_quick_reference_cardmd">📋 <a href="type_safe_quick_reference_card/">type_safe_quick_reference_card.md</a><a class="headerlink" href="#type_safe_quick_reference_cardmd" title="Permanent link">&para;</a></h4>
+<p>Your cheat sheet for Type_Safe syntax. Keep this handy while coding.
+- Class definition patterns
+- Type annotation table
+- Common patterns (configs, nested objects)
+- Do's and Don'ts
+- Import references</p>
+<h4 id="llm-prompt-guidance__using_osbot_utils_type_safemd">🤖 <a href="llm-prompt-guidance__using_osbot_utils_type_safe/">llm-prompt-guidance__using_osbot_utils_type_safe.md</a><a class="headerlink" href="#llm-prompt-guidance__using_osbot_utils_type_safemd" title="Permanent link">&para;</a></h4>
+<p>Essential rules for generating correct Type_Safe code. Great for understanding what NOT to do.
+- Code generation rules
+- Anti-patterns to avoid
+- Forward reference limitations
+- Testing patterns</p>
+<h4 id="osbot-utils-safe-primitives__reference-guidemd">🔒 <a href="osbot-utils-safe-primitives__reference-guide.md">osbot-utils-safe-primitives__reference-guide.md</a><a class="headerlink" href="#osbot-utils-safe-primitives__reference-guidemd" title="Permanent link">&para;</a></h4>
+<p>Complete catalog of type-safe primitives for domain modeling.
+- <strong>Safe_Str types:</strong> URLs, file paths, emails, IP addresses
+- <strong>Safe_Int types:</strong> Ports, file sizes, percentages
+- <strong>Safe_Float types:</strong> Money, engineering values
+- <strong>Identity types:</strong> Safe_Id, Guid, Random_Guid
+- Real-world usage examples</p>
+<h3 id="advanced-topics">Advanced Topics<a class="headerlink" href="#advanced-topics" title="Permanent link">&para;</a></h3>
+<h4 id="type-safe-technical-documentationmd">📚 <a href="type-safe-technical-documentation/">type-safe-technical-documentation.md</a><a class="headerlink" href="#type-safe-technical-documentationmd" title="Permanent link">&para;</a></h4>
+<p>Deep technical dive into Type_Safe internals.
+- How runtime checking works
+- Automatic initialization magic
+- MGraph schema examples
+- Implementation details</p>
+<h4 id="type_safe_round-trip_serializationmd">🔄 <a href="type_safe_round-trip_serialization/">type_safe_round-trip_serialization.md</a><a class="headerlink" href="#type_safe_round-trip_serializationmd" title="Permanent link">&para;</a></h4>
+<p>Master data persistence and network transport.
+- JSON serialization patterns
+- REST API integration
+- WebSocket communication
+- Database storage
+- Message queue patterns</p>
+<h4 id="type_safe_troubleshooting_guidemd">🔧 <a href="type_safe_troubleshooting_guide/">type_safe_troubleshooting_guide.md</a><a class="headerlink" href="#type_safe_troubleshooting_guidemd" title="Permanent link">&para;</a></h4>
+<p>Your problem-solving companion.
+- Common error fixes
+- Performance optimization
+- Debugging techniques
+- Solution patterns</p>
+<h2 id="real-world-example">🎯 Real-World Example<a class="headerlink" href="#real-world-example" title="Permanent link">&para;</a></h2>
+<p>Here's a complete example showing the power of Type_Safe:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.safe_float.Safe_Float__Money import Safe_Float__Money
+from typing import List, Dict, Optional
+
+# Domain-specific IDs (can't be mixed!)
+class UserId(Safe_Id): pass
+class ProductId(Safe_Id): pass
+class OrderId(Safe_Id): pass
+
+class Order(Type_Safe):
+    # Identity
+    id: OrderId
+    user_id: UserId
+
+    # Products
+    items: Dict[ProductId, int]  # product -&gt; quantity
+
+    # Money (exact decimal arithmetic)
+    subtotal: Safe_Float__Money
+    tax: Safe_Float__Money
+    total: Safe_Float__Money
+
+    # Metadata
+    status: str = &quot;pending&quot;
+    notes: List[str]
+    created_at: str
+
+# Create an order
+order = Order(
+    id=OrderId(&quot;ORD-2024-001&quot;),
+    user_id=UserId(&quot;USR-12345&quot;),
+    items={
+        ProductId(&quot;LAPTOP-001&quot;): 1,
+        ProductId(&quot;MOUSE-002&quot;): 2
+    },
+    subtotal=Safe_Float__Money(1299.99),
+    tax=Safe_Float__Money(129.99),
+    total=Safe_Float__Money(1429.98),
+    created_at=&quot;2024-01-15T10:30:00Z&quot;
+)
+
+# Type safety prevents mistakes
+try:
+    order.user_id = OrderId(&quot;ORD-999&quot;)  # Wrong ID type!
+except ValueError:
+    print(&quot;Type safety prevented ID mix-up!&quot;)
+
+# Perfect serialization for APIs
+json_data = order.json()
+send_to_api(json_data)
+
+# Reconstruct with full type safety
+received_order = Order.from_json(json_data)
+assert isinstance(received_order.user_id, UserId)  # Types preserved!
+</code></pre>
+<h2 id="five-critical-rules">🔑 Five Critical Rules<a class="headerlink" href="#five-critical-rules" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Always inherit from Type_Safe</strong> - <code>class MyClass(Type_Safe):</code></li>
+<li><strong>Type annotate everything</strong> - Every attribute needs a type</li>
+<li><strong>Immutable defaults only</strong> - Use <code>None</code>, strings, numbers, booleans</li>
+<li><strong>Specific collection types</strong> - Use <code>List[str]</code> not <code>list</code></li>
+<li><strong>Forward refs = current class</strong> - Can only reference the class being defined</li>
+</ol>
+<h2 id="learning-resources">🎓 Learning Resources<a class="headerlink" href="#learning-resources" title="Permanent link">&para;</a></h2>
+<h3 id="by-experience-level">By Experience Level<a class="headerlink" href="#by-experience-level" title="Permanent link">&para;</a></h3>
+<p><strong>Beginners:</strong>
+- Start with the quick reference card
+- Try the examples in technical documentation
+- Use the troubleshooting guide when stuck</p>
+<p><strong>Intermediate:</strong>
+- Explore Safe_* primitives for domain modeling
+- Learn serialization patterns for APIs
+- Understand the anti-patterns in LLM guidance</p>
+<p><strong>Advanced:</strong>
+- Deep dive into technical documentation
+- Build custom Safe_* types
+- Optimize performance using troubleshooting tips</p>
+<h3 id="by-use-case">By Use Case<a class="headerlink" href="#by-use-case" title="Permanent link">&para;</a></h3>
+<p><strong>Building REST APIs:</strong>
+- type_safe_round-trip_serialization.md (REST API section)
+- osbot-utils-safe-primitives__reference-guide.md (HTTP types)</p>
+<p><strong>Domain Modeling:</strong>
+- osbot-utils-safe-primitives__reference-guide.md (Identity types)
+- type-safe-technical-documentation.md (MGraph example)</p>
+<p><strong>Data Validation:</strong>
+- type_safe_quick_reference_card.md (Validators section)
+- osbot-utils-safe-primitives__reference-guide.md (Safe_* types)</p>
+<h2 id="contributing">🤝 Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
+<p>Found an issue or have suggestions? 
+- <strong>GitHub:</strong> https://github.com/owasp-sbot/OSBot-Utils
+- <strong>Issues:</strong> Check troubleshooting guide first</p>
+<h2 id="installation">📦 Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<pre><code class="language-bash">pip install osbot-utils
+</code></pre>
+<hr />
+<p><em>Type_Safe: Because runtime type safety shouldn't be optional.</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

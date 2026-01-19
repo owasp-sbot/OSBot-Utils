@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/schemas/Schema__Html_Node__Data__Type/" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>Schema__Html_Node__Data__Type - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Schema__Html_Node__Data__Type";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/schemas/Schema__Html_Node__Data__Type.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/schemas/Schema__Html_Node__Data__Type/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Schema__Html_Node__Data__Type</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="schema__html_node__data__type">Schema__Html_Node__Data__Type<a class="headerlink" href="#schema__html_node__data__type" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Schema__Html_Node__Data__Type</code> is an enumeration that identifies the type of data nodes in the HTML schema system. Currently, it supports only text nodes, but the design allows for future expansion to other data types.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from enum import Enum
+
+class Schema__Html_Node__Data__Type(Enum):
+    TEXT : str = 'text'
+</code></pre>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>This enum serves to:
+1. <strong>Type Identification</strong>: Clearly identify text nodes vs element nodes
+2. <strong>Serialization Support</strong>: Provide consistent type values in JSON
+3. <strong>Type Safety</strong>: Prevent invalid type assignments
+4. <strong>Future Extensibility</strong>: Allow for additional node types if needed</p>
+<h2 id="enum-values">Enum Values<a class="headerlink" href="#enum-values" title="Permanent link">&para;</a></h2>
+<h3 id="text"><code>TEXT</code><a class="headerlink" href="#text" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Value</strong>: <code>'text'</code></li>
+<li><strong>Purpose</strong>: Identifies text content nodes</li>
+<li><strong>Usage</strong>: Default and currently only supported type</li>
+</ul>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data__Type import Schema__Html_Node__Data__Type
+
+# Access enum value
+text_type = Schema__Html_Node__Data__Type.TEXT
+print(text_type.value)  # 'text'
+print(text_type.name)   # 'TEXT'
+</code></pre>
+<h3 id="in-schema__html_node__data">In Schema__Html_Node__Data<a class="headerlink" href="#in-schema__html_node__data" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data import Schema__Html_Node__Data
+from osbot_utils.helpers.html.schemas.Schema__Html_Node__Data__Type import Schema__Html_Node__Data__Type
+
+# Create text node with explicit type
+text_node = Schema__Html_Node__Data(
+    data=&quot;Hello World&quot;,
+    type=Schema__Html_Node__Data__Type.TEXT,
+    position=0
+)
+
+# Check node type
+if text_node.type == Schema__Html_Node__Data__Type.TEXT:
+    print(f&quot;Text content: {text_node.data}&quot;)
+</code></pre>
+<h3 id="type-checking">Type Checking<a class="headerlink" href="#type-checking" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def process_node_data(node_data):
+    &quot;&quot;&quot;Process node data based on type.&quot;&quot;&quot;
+    if node_data.type == Schema__Html_Node__Data__Type.TEXT:
+        # Handle text node
+        return node_data.data.strip()
+    else:
+        # Future: Handle other types
+        raise ValueError(f&quot;Unknown node data type: {node_data.type}&quot;)
+</code></pre>
+<h2 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">&para;</a></h2>
+<h3 id="json-representation">JSON Representation<a class="headerlink" href="#json-representation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># When serialized, the enum value is used
+text_node = Schema__Html_Node__Data(
+    data=&quot;Sample text&quot;,
+    type=Schema__Html_Node__Data__Type.TEXT
+)
+
+json_data = text_node.json()
+# {
+#     &quot;data&quot;: &quot;Sample text&quot;,
+#     &quot;type&quot;: &quot;TEXT&quot;,  # Note: Uses the string value
+#     &quot;position&quot;: 0
+# }
+</code></pre>
+<h3 id="deserialization">Deserialization<a class="headerlink" href="#deserialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># From JSON back to object
+json_data = {
+    &quot;data&quot;: &quot;Sample text&quot;,
+    &quot;type&quot;: &quot;TEXT&quot;,
+    &quot;position&quot;: 0
+}
+
+# The enum is automatically reconstructed
+restored_node = Schema__Html_Node__Data.from_json(json_data)
+assert restored_node.type == Schema__Html_Node__Data__Type.TEXT
+</code></pre>
+<h2 id="integration-points">Integration Points<a class="headerlink" href="#integration-points" title="Permanent link">&para;</a></h2>
+<h3 id="with-html__to__html_dict">With Html__To__Html_Dict<a class="headerlink" href="#with-html__to__html_dict" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># The parser uses the string value for text nodes
+STRING__SCHEMA_TEXT = 'TEXT'  # Matches enum name
+
+# In parsed dictionary
+{
+    'type': 'TEXT',  # This matches Schema__Html_Node__Data__Type.TEXT.name
+    'data': 'Text content'
+}
+</code></pre>
+<h3 id="type-discrimination">Type Discrimination<a class="headerlink" href="#type-discrimination" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def is_text_node(node_dict):
+    &quot;&quot;&quot;Check if dictionary represents a text node.&quot;&quot;&quot;
+    return node_dict.get('type') == Schema__Html_Node__Data__Type.TEXT.name
+
+def is_element_node(node_dict):
+    &quot;&quot;&quot;Check if dictionary represents an element node.&quot;&quot;&quot;
+    return 'tag' in node_dict and node_dict.get('type') != Schema__Html_Node__Data__Type.TEXT.name
+</code></pre>
+<h2 id="validation-patterns">Validation Patterns<a class="headerlink" href="#validation-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="enum-validation">Enum Validation<a class="headerlink" href="#enum-validation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def validate_node_type(type_value):
+    &quot;&quot;&quot;Validate that type value is valid.&quot;&quot;&quot;
+    try:
+        # Try to get enum by value
+        for member in Schema__Html_Node__Data__Type:
+            if member.value == type_value:
+                return True
+        return False
+    except:
+        return False
+
+# Usage
+assert validate_node_type('text') == True
+assert validate_node_type('invalid') == False
+</code></pre>
+<h3 id="type-conversion">Type Conversion<a class="headerlink" href="#type-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def string_to_node_type(type_string):
+    &quot;&quot;&quot;Convert string to node type enum.&quot;&quot;&quot;
+    if type_string == 'TEXT' or type_string == 'text':
+        return Schema__Html_Node__Data__Type.TEXT
+
+    raise ValueError(f&quot;Invalid node type: {type_string}&quot;)
+</code></pre>
+<h2 id="future-extensibility">Future Extensibility<a class="headerlink" href="#future-extensibility" title="Permanent link">&para;</a></h2>
+<p>The enum design allows for future node types:</p>
+<pre><code class="language-python"># Potential future additions (example only)
+class Schema__Html_Node__Data__Type(Enum):
+    TEXT    : str = 'text'
+    COMMENT : str = 'comment'  # HTML comments
+    CDATA   : str = 'cdata'    # CDATA sections
+    PI      : str = 'pi'       # Processing instructions
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Always Use Enum</strong>: Don't hardcode type strings</li>
+<li><strong>Type Checking</strong>: Use enum for type comparisons</li>
+<li><strong>Serialization</strong>: Be aware of name vs value in JSON</li>
+<li><strong>Future Proof</strong>: Design code to handle potential new types</li>
+<li><strong>Validation</strong>: Validate types when deserializing</li>
+</ol>
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="type-switching">Type Switching<a class="headerlink" href="#type-switching" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def render_node_data(node_data):
+    &quot;&quot;&quot;Render node data based on type.&quot;&quot;&quot;
+    type_handlers = {
+        Schema__Html_Node__Data__Type.TEXT: lambda n: n.data
+        # Future types would be added here
+    }
+
+    handler = type_handlers.get(node_data.type)
+    if handler:
+        return handler(node_data)
+    else:
+        raise ValueError(f&quot;No handler for type: {node_data.type}&quot;)
+</code></pre>
+<h3 id="type-guards">Type Guards<a class="headerlink" href="#type-guards" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing import TypeGuard
+
+def is_text_node_data(node_data: any) -&gt; TypeGuard[Schema__Html_Node__Data]:
+    &quot;&quot;&quot;Type guard for text node data.&quot;&quot;&quot;
+    return (
+        hasattr(node_data, 'type') and
+        node_data.type == Schema__Html_Node__Data__Type.TEXT
+    )
+</code></pre>
+<h3 id="factory-pattern">Factory Pattern<a class="headerlink" href="#factory-pattern" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class NodeDataFactory:
+    @staticmethod
+    def create(data_type: Schema__Html_Node__Data__Type, **kwargs):
+        &quot;&quot;&quot;Create node data based on type.&quot;&quot;&quot;
+        if data_type == Schema__Html_Node__Data__Type.TEXT:
+            return Schema__Html_Node__Data(
+                type=data_type,
+                **kwargs
+            )
+        else:
+            raise ValueError(f&quot;Unsupported type: {data_type}&quot;)
+
+# Usage
+text_node = NodeDataFactory.create(
+    Schema__Html_Node__Data__Type.TEXT,
+    data=&quot;Hello&quot;,
+    position=0
+)
+</code></pre>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def test_enum_values():
+    &quot;&quot;&quot;Test enum values and properties.&quot;&quot;&quot;
+    text_type = Schema__Html_Node__Data__Type.TEXT
+
+    # Test value
+    assert text_type.value == 'text'
+
+    # Test name
+    assert text_type.name == 'TEXT'
+
+    # Test string representation
+    assert str(text_type) == 'Schema__Html_Node__Data__Type.TEXT'
+
+    # Test membership
+    assert Schema__Html_Node__Data__Type.TEXT in Schema__Html_Node__Data__Type
+
+    # Test iteration
+    all_types = list(Schema__Html_Node__Data__Type)
+    assert len(all_types) == 1
+    assert all_types[0] == Schema__Html_Node__Data__Type.TEXT
+</code></pre>
+<h2 id="performance-notes">Performance Notes<a class="headerlink" href="#performance-notes" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Enum Comparison</strong>: Very fast (identity comparison)</li>
+<li><strong>Value Access</strong>: Constant time</li>
+<li><strong>Memory</strong>: Minimal overhead</li>
+<li><strong>Serialization</strong>: Slight overhead for enum reconstruction</li>
+</ol>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Single Type</strong>: Currently only supports TEXT</li>
+<li><strong>No Metadata</strong>: Enum doesn't carry additional metadata</li>
+<li><strong>String Values</strong>: JSON serialization uses strings, not enum objects</li>
+<li><strong>No Inheritance</strong>: Enums can't be extended through inheritance</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.64.1__brief_3.7__projected-data-architecture__implementation-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>(Brief 3.7) Projected Data Architecture - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "(Brief 3.7) Projected Data Architecture";
+        var mkdocs_page_input_path = "dev-briefs/v3.63.0__call-flow-analysis/v3.64.1__brief_3.7__projected-data-architecture__implementation-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.63.0__call-flow-analysis/v3.64.1__brief_3.7__projected-data-architecture__implementation-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">(Brief 3.7) Projected Data Architecture</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="brief-37-projected-data-architecture">(Brief 3.7) Projected Data Architecture<a class="headerlink" href="#brief-37-projected-data-architecture" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> v3.64.0<br />
+<strong>Status:</strong> Extension to Brief 3.5<br />
+<strong>Target:</strong> OSBot-Utils (<code>osbot_utils.helpers.semantic_graphs</code>)<br />
+<strong>Created:</strong> January 2026<br />
+<strong>Prerequisites:</strong> Brief 3.5 (ID/Ref Architecture) in progress<br />
+<strong>Enables:</strong> Human-readable exports, visualization, debugging  </p>
+<hr />
+<h2 id="1-document-purpose">1. Document Purpose<a class="headerlink" href="#1-document-purpose" title="Permanent link">&para;</a></h2>
+<p>This brief introduces the <strong>Projected Data</strong> pattern as an architectural extension to Brief 3.5. It addresses a fundamental tension discovered during implementation:</p>
+<blockquote>
+<p><strong>The Problem:</strong> We want ID-based referential integrity for data storage and graph operations, but we also need human-readable representations for visualization, debugging, and understanding.</p>
+<p><strong>The Solution:</strong> Separate the concerns into two complementary layers:
+- <strong>Schema__ (Master):</strong> ID-based, graph-friendly, source of truth
+- <strong>Projected__ (Derived):</strong> Ref-based, human-readable, generated for understanding</p>
+</blockquote>
+<p><strong>Key Insight:</strong> This is <strong>not</strong> a round-trip transformation. The projection is <strong>generated</strong> — it's a one-way view designed for human consumption. If you need to modify data, you work with Schema__ directly.</p>
+<p><strong>Audience:</strong> Developers implementing Brief 3.5 who need to understand how the Projected layer completes the architecture.</p>
+<hr />
+<h2 id="2-design-principles">2. Design Principles<a class="headerlink" href="#2-design-principles" title="Permanent link">&para;</a></h2>
+<p>The following principles guided every decision in this architecture. Understanding them is essential for extending or modifying the design.</p>
+<h3 id="principle-1-projections-are-generated-not-edited">Principle 1: Projections Are Generated, Not Edited<a class="headerlink" href="#principle-1-projections-are-generated-not-edited" title="Permanent link">&para;</a></h3>
+<pre><code>Schema__ (Source of Truth) ────► Projected__ (Generated View)
+
+         NO ROUND-TRIP ◄────────────────────────────────────
+</code></pre>
+<p>A projection is like a report generated from a database — you read it, you don't edit it. This is fundamentally different from serialization/deserialization where round-trips are expected.</p>
+<p><strong>Why this matters:</strong>
+- Projections can be regenerated at any time
+- No synchronization complexity
+- Schema__ remains the single source of truth
+- Projections are disposable artifacts</p>
+<h3 id="principle-2-human-readability-is-the-primary-goal">Principle 2: Human Readability Is the Primary Goal<a class="headerlink" href="#principle-2-human-readability-is-the-primary-goal" title="Permanent link">&para;</a></h3>
+<p>The projection exists for one purpose: <strong>to be understood by humans</strong>.</p>
+<p>Every design decision should ask: "Does this make the output easier to read and understand?"</p>
+<ul>
+<li>No IDs in the projection section (IDs are for machines)</li>
+<li>Use names that make sense when read aloud</li>
+<li>Structure the data as humans think about it</li>
+</ul>
+<h3 id="principle-3-graphs-are-nodes-and-edges-nothing-more">Principle 3: Graphs Are Nodes and Edges — Nothing More<a class="headerlink" href="#principle-3-graphs-are-nodes-and-edges-nothing-more" title="Permanent link">&para;</a></h3>
+<p>In the projection, everything is either:
+- A <strong>node</strong> (a thing with a type and a name)
+- An <strong>edge</strong> (a relationship between two things)</p>
+<p>Properties, metadata, and complexity belong in Schema__. If something is important enough to visualize, represent it as a node or edge.</p>
+<p><strong>Example:</strong> Instead of a <code>line_number</code> property on a node, you could have:</p>
+<pre><code>MyClass --defined_at--&gt; line:42
+</code></pre>
+<h3 id="principle-4-refs-are-lookup-keys-names-are-instance-identity">Principle 4: Refs Are Lookup Keys, Names Are Instance Identity<a class="headerlink" href="#principle-4-refs-are-lookup-keys-names-are-instance-identity" title="Permanent link">&para;</a></h3>
+<p>Two distinct concepts:
+- <strong>ref:</strong> The <em>type</em> or <em>category</em> — looks up to a definition (e.g., "class", "calls")
+- <strong>name:</strong> The <em>instance</em> identity — what this specific thing is called (e.g., "MyClass")</p>
+<pre><code class="language-json">{&quot;ref&quot;: &quot;class&quot;, &quot;name&quot;: &quot;MyClass&quot;}
+</code></pre>
+<p>Read as: "A <strong>class</strong> named <strong>MyClass</strong>" or "The node type is <strong>class</strong>, the instance is <strong>MyClass</strong>"</p>
+<h3 id="principle-5-separation-of-concerns-via-three-sections">Principle 5: Separation of Concerns via Three Sections<a class="headerlink" href="#principle-5-separation-of-concerns-via-three-sections" title="Permanent link">&para;</a></h3>
+<p>A projected file has exactly three sections, each with a distinct purpose:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Purpose</th>
+<th>Contains</th>
+<th>For Whom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>projection</strong></td>
+<td>Understanding</td>
+<td>Nodes, edges, relationships</td>
+<td>Humans</td>
+</tr>
+<tr>
+<td><strong>references</strong></td>
+<td>Correlation</td>
+<td>Ref → ID mappings</td>
+<td>Tools that need IDs</td>
+</tr>
+<tr>
+<td><strong>sources</strong></td>
+<td>Provenance</td>
+<td>Where data came from</td>
+<td>Debugging, auditing</td>
+</tr>
+</tbody>
+</table>
+<p>This separation means:
+- You can read <code>projection</code> without ever looking at <code>references</code>
+- Tools can use <code>references</code> to correlate back to Schema__
+- <code>sources</code> provides an audit trail</p>
+<h3 id="principle-6-references-map-types-not-instances">Principle 6: References Map Types, Not Instances<a class="headerlink" href="#principle-6-references-map-types-not-instances" title="Permanent link">&para;</a></h3>
+<p>The <code>references</code> section maps <strong>type refs</strong> to their IDs:
+- <code>"class"</code> → node type ID
+- <code>"calls"</code> → predicate ID</p>
+<p>It does <strong>not</strong> map instance names (<code>"MyClass"</code>) to node IDs. Why?</p>
+<ol>
+<li>Instance names ARE the human-readable representation — that's the point</li>
+<li>If you need instance IDs, use <code>sources.source_graph_id</code> to find the Schema__ and look up by name</li>
+<li>Keeps references small and focused on type definitions</li>
+</ol>
+<h3 id="principle-7-consistency-in-naming">Principle 7: Consistency in Naming<a class="headerlink" href="#principle-7-consistency-in-naming" title="Permanent link">&para;</a></h3>
+<p>Fields follow a predictable pattern:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ref</code></td>
+<td>Type/category lookup key</td>
+<td><code>"class"</code>, <code>"calls"</code></td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Instance identity</td>
+<td><code>"MyClass"</code></td>
+</tr>
+<tr>
+<td><code>from_name</code></td>
+<td>Source node's name</td>
+<td><code>"MyClass"</code></td>
+</tr>
+<tr>
+<td><code>to_name</code></td>
+<td>Target node's name</td>
+<td><code>"helper_func"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Edges use <code>from_name</code>/<code>to_name</code> (not <code>from_node</code>/<code>to_node</code>) because they reference the node's <code>name</code> field directly.</p>
+<hr />
+<h2 id="3-the-problem-space">3. The Problem Space<a class="headerlink" href="#3-the-problem-space" title="Permanent link">&para;</a></h2>
+<h3 id="31-the-current-state-brief-35">3.1 The Current State (Brief 3.5)<a class="headerlink" href="#31-the-current-state-brief-35" title="Permanent link">&para;</a></h3>
+<p>Brief 3.5 currently uses <code>*_Ref</code> for cross-artifact references:</p>
+<pre><code class="language-python">class Schema__Semantic_Graph(Type_Safe):
+    graph_id         : Graph_Id
+    graph_id_source  : Schema__Id__Source = None
+    ontology_ref     : Ontology_Ref                  # ← Ref, not ID
+    rule_set_ref     : Rule_Set_Ref                  # ← Ref, not ID
+    nodes            : Dict__Nodes__By_Id
+    edges            : List__Semantic_Graph__Edges
+
+
+class Schema__Semantic_Graph__Node(Type_Safe):
+    node_id        : Node_Id
+    node_id_source : Schema__Id__Source = None
+    node_type      : Node_Type_Ref                   # ← Ref, not ID
+    name           : Safe_Str__Id
+    line_number    : Safe_UInt
+</code></pre>
+<p><strong>The Problem:</strong> These <code>*_Ref</code> fields are string-based lookups, not true foreign keys:</p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>No referential integrity</strong></td>
+<td>String "call_flow" doesn't guarantee ontology exists</td>
+</tr>
+<tr>
+<td><strong>Rename fragility</strong></td>
+<td>Renaming ontology breaks all references</td>
+</tr>
+<tr>
+<td><strong>Ambiguity</strong></td>
+<td>Two ontologies with same ref? Which one?</td>
+</tr>
+<tr>
+<td><strong>Graph unfriendly</strong></td>
+<td>MGraph-DB expects ID-based node relationships</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-the-tension">3.2 The Tension<a class="headerlink" href="#32-the-tension" title="Permanent link">&para;</a></h3>
+<p>If we change to ID-based references (which we should for integrity):</p>
+<pre><code class="language-python">class Schema__Semantic_Graph(Type_Safe):
+    ontology_id  : Ontology_Id               # Foreign key to ontology
+    rule_set_id  : Rule_Set_Id               # Foreign key to rule set
+</code></pre>
+<p>This creates a fundamental tension:</p>
+<pre><code class="language-json">{
+    &quot;graph_id&quot;: &quot;a3f2b8c1&quot;,
+    &quot;ontology_id&quot;: &quot;7b4e9f12&quot;,
+    &quot;nodes&quot;: {
+        &quot;f1a2b3c4&quot;: {
+            &quot;node_id&quot;: &quot;f1a2b3c4&quot;,
+            &quot;node_type_id&quot;: &quot;9e8d7c6b&quot;,
+            &quot;name&quot;: &quot;MyClass&quot;
+        }
+    }
+}
+</code></pre>
+<p><strong>Questions a human reader would ask:</strong>
+- What ontology is <code>7b4e9f12</code>? 
+- What node type is <code>9e8d7c6b</code>?
+- How do I debug this?
+- How do I visualize this?</p>
+<h3 id="33-before-and-after-schema-layer">3.3 Before and After: Schema Layer<a class="headerlink" href="#33-before-and-after-schema-layer" title="Permanent link">&para;</a></h3>
+<p><strong>BEFORE (Brief 3.5 current - refs everywhere):</strong></p>
+<pre><code class="language-python">class Schema__Semantic_Graph(Type_Safe):
+    graph_id         : Graph_Id
+    ontology_ref     : Ontology_Ref              # String lookup
+    rule_set_ref     : Rule_Set_Ref              # String lookup
+    nodes            : Dict__Nodes__By_Id
+    edges            : List__Edges
+
+class Schema__Semantic_Graph__Node(Type_Safe):
+    node_id          : Node_Id
+    node_type        : Node_Type_Ref             # String lookup
+    name             : Safe_Str__Id
+</code></pre>
+<p><strong>AFTER (This brief - IDs for integrity):</strong></p>
+<pre><code class="language-python">class Schema__Semantic_Graph(Type_Safe):
+    graph_id         : Graph_Id
+    ontology_id      : Ontology_Id               # Foreign key (ID)
+    rule_set_id      : Rule_Set_Id               # Foreign key (ID)
+    nodes            : Dict__Nodes__By_Id
+    edges            : List__Edges
+
+class Schema__Semantic_Graph__Node(Type_Safe):
+    node_id          : Node_Id
+    node_type_id     : Node_Type_Id              # Foreign key (ID)
+    name             : Safe_Str__Id
+</code></pre>
+<p><strong>The human-readable refs still exist</strong> — they're stored in the Ontology definition (see Section 9.1). The Projector resolves IDs → Refs when generating the projection.</p>
+<h3 id="34-three-conflicting-requirements">3.4 Three Conflicting Requirements<a class="headerlink" href="#34-three-conflicting-requirements" title="Permanent link">&para;</a></h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                     THREE REQUIREMENTS IN TENSION                            │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐           │
+│  │  GRAPH-FRIENDLY │    │   ID-BASED      │    │ HUMAN-READABLE  │           │
+│  │                 │    │                 │    │                 │           │
+│  │ • MGraph-DB     │    │ • Referential   │    │ • Debuggable    │           │
+│  │   compatible    │    │   integrity     │    │ • Visualizable  │           │
+│  │ • Node/Edge     │    │ • Cross-session │    │ • Understandable│           │
+│  │   patterns      │    │   identity      │    │ • No IDs        │           │
+│  │ • Index-able    │    │ • Deterministic │    │                 │           │
+│  └────────┬────────┘    └────────┬────────┘    └────────┬────────┘           │
+│           │                      │                      │                    │
+│           └──────────────────────┼──────────────────────┘                    │
+│                                  │                                           │
+│                                  ▼                                           │
+│                    ┌─────────────────────────┐                               │
+│                    │   HOW DO WE SATISFY     │                               │
+│                    │   ALL THREE?            │                               │
+│                    └─────────────────────────┘                               │
+│                                                                              │
+│  ANSWER: Two layers with different responsibilities                          │
+│                                                                              │
+│  Schema__ ───► Graph-friendly + ID-based (requirements 1 &amp; 2)                │
+│  Projected__ ► Human-readable (requirement 3)                                │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="35-why-projected-not-view">3.5 Why "Projected" Not "View"?<a class="headerlink" href="#35-why-projected-not-view" title="Permanent link">&para;</a></h3>
+<p>We chose <strong>Projected__</strong> over <strong>View__</strong> deliberately:</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Connotations</th>
+<th>Why Not</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>View</strong></td>
+<td>MVC views, database views, UI views</td>
+<td>Overloaded, implies interactivity</td>
+</tr>
+<tr>
+<td><strong>Export</strong></td>
+<td>File format conversion</td>
+<td>Implies serialization only</td>
+</tr>
+<tr>
+<td><strong>Rendered</strong></td>
+<td>Visual output</td>
+<td>Implies graphics</td>
+</tr>
+<tr>
+<td><strong>Generated</strong></td>
+<td>Created from source</td>
+<td>Good, but doesn't convey "subset/perspective"</td>
+</tr>
+<tr>
+<td><strong>Projected</strong></td>
+<td>Data projection, derived view</td>
+<td>✓ Implies one-way, derived, focused</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Projected</strong> also connects to the philosophy: <em>"Use databases as data projections, not data stores."</em> A projection is a focused, derived representation of underlying data.</p>
+<hr />
+<h2 id="4-the-solution-schemaprojected-separation">4. The Solution: Schema/Projected Separation<a class="headerlink" href="#4-the-solution-schemaprojected-separation" title="Permanent link">&para;</a></h2>
+<h3 id="41-core-architecture">4.1 Core Architecture<a class="headerlink" href="#41-core-architecture" title="Permanent link">&para;</a></h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                     SCHEMA / PROJECTED ARCHITECTURE                          │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   ┌──────────────────────────────────────────────────────────────────────┐   │
+│   │                       SCHEMA__ LAYER                                 │   │
+│   │                    (Master / Source of Truth)                        │   │
+│   │                                                                      │   │
+│   │  • All cross-references use *_Id                                     │   │
+│   │  • Graph-friendly (MGraph-DB compatible)                             │   │
+│   │  • Referential integrity guaranteed                                  │   │
+│   │  • Full properties and metadata                                      │   │
+│   │  • Stored, persisted, indexed                                        │   │
+│   │                                                                      │   │
+│   │  Schema__Semantic_Graph                                              │   │
+│   │  Schema__Semantic_Graph__Node                                        │   │
+│   │  Schema__Semantic_Graph__Edge                                        │   │
+│   └──────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                         │
+│                                    │ Projector                               │
+│                                    │ (one-way generation)                    │
+│                                    ▼                                         │
+│   ┌──────────────────────────────────────────────────────────────────────┐   │
+│   │                      PROJECTED__ LAYER                               │   │
+│   │                    (Derived / Generated)                             │   │
+│   │                                                                      │   │
+│   │  • Human-readable (refs and names only)                              │   │
+│   │  • No IDs in projection section                                      │   │
+│   │  • Three sections: projection, references, sources                   │   │
+│   │  • Computed on-demand, disposable                                    │   │
+│   │  • NOT edited — regenerate from Schema__ instead                     │   │
+│   │                                                                      │   │
+│   │  Projected__Semantic_Graph                                           │   │
+│   │    ├── projection  (human-readable nodes/edges)                      │   │
+│   │    ├── references  (ref → ID mappings)                               │   │
+│   │    └── sources     (provenance)                                      │   │
+│   └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="42-data-flow">4.2 Data Flow<a class="headerlink" href="#42-data-flow" title="Permanent link">&para;</a></h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                              DATA FLOW                                       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                        ┌──────────────────┐                                  │
+│                        │   JSON Config    │                                  │
+│                        │   (ontology,     │                                  │
+│                        │    taxonomy)     │                                  │
+│                        └────────┬─────────┘                                  │
+│                                 │                                            │
+│                                 │ load + register                            │
+│                                 ▼                                            │
+│   ┌──────────────────────────────────────────────────────────────────────┐   │
+│   │                        REGISTRY LAYER                                │   │
+│   │                                                                      │   │
+│   │  Ontology__Registry    Taxonomy__Registry    Rule_Set__Registry      │   │
+│   │       │                      │                      │                │   │
+│   │       │ by_id: Id → Schema   │ by_id: Id → Schema   │                │   │
+│   │       │ by_ref: Ref → Id     │ by_ref: Ref → Id     │                │   │
+│   └───────┼──────────────────────┼──────────────────────┼────────────────┘   │
+│           │                      │                      │                    │
+│           └──────────────────────┼──────────────────────┘                    │
+│                                  │                                           │
+│                                  ▼                                           │
+│   ┌──────────────────────────────────────────────────────────────────────┐   │
+│   │                Schema__Semantic_Graph                                │   │
+│   │                     (ID-based)                                       │   │
+│   └───────────────────────────┬──────────────────────────────────────────┘   │
+│                               │                                              │
+│              ┌────────────────┼────────────────┐                             │
+│              │                │                │                             │
+│              ▼                ▼                ▼                             │
+│   ┌──────────────────┐ ┌────────────┐ ┌───────────────────┐                  │
+│   │ MGraph-DB        │ │ Indexing   │ │ Projector         │                  │
+│   │ (persistence)    │ │ (queries)  │ │ (generate view)   │                  │
+│   └──────────────────┘ └────────────┘ └─────────┬─────────┘                  │
+│                                                 │                            │
+│                                                 ▼                            │
+│                              ┌───────────────────────────────┐               │
+│                              │ Projected__Semantic_Graph     │               │
+│                              │                               │               │
+│                              │ • projection (human-readable) │               │
+│                              │ • references (ref → ID)       │               │
+│                              │ • sources (provenance)        │               │
+│                              └───────────────────────────────┘               │
+│                                                 │                            │
+│                                                 ▼                            │
+│                              ┌───────────────────────────────┐               │
+│                              │ Human Consumption             │               │
+│                              │ • Visualization               │               │
+│                              │ • Debugging                   │               │
+│                              │ • Documentation               │               │
+│                              │ • Understanding               │               │
+│                              └───────────────────────────────┘               │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="5-the-three-section-structure">5. The Three-Section Structure<a class="headerlink" href="#5-the-three-section-structure" title="Permanent link">&para;</a></h2>
+<h3 id="51-overview">5.1 Overview<a class="headerlink" href="#51-overview" title="Permanent link">&para;</a></h3>
+<p>Every projected file has exactly three sections:</p>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                     PROJECTED FILE STRUCTURE                                 │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐    │
+│  │  1. PROJECTION                                                       │    │
+│  │     (Human Readable — What You Look At)                              │    │
+│  │                                                                      │    │
+│  │  • Nodes with type (ref) and identity (name)                         │    │
+│  │  • Edges with source (from_name), target (to_name), type (ref)       │    │
+│  │  • NO IDs anywhere — pure human-readable content                     │    │
+│  │                                                                      │    │
+│  │  Read this section to understand the graph.                          │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐    │
+│  │  2. REFERENCES                                                       │    │
+│  │     (Lookup Index — How to Correlate Back)                           │    │
+│  │                                                                      │    │
+│  │  • Maps type refs to their IDs                                       │    │
+│  │  • nodes: {&quot;class&quot;: &quot;9e8d7c6b&quot;, ...}                                 │    │
+│  │  • edges: {&quot;calls&quot;: &quot;p1p2p3p4&quot;, ...}                                 │    │
+│  │  • Only needed if tooling requires ID correlation                    │    │
+│  │                                                                      │    │
+│  │  Use this section to find IDs for type definitions.                  │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐    │
+│  │  3. SOURCES                                                          │    │
+│  │     (Provenance — Where It Came From)                                │    │
+│  │                                                                      │    │
+│  │  • source_graph_id: Which Schema__ graph was projected               │    │
+│  │  • ontology_seed: The ontology's identity seed                       │    │
+│  │  • generated_at: When this projection was created                    │    │
+│  │                                                                      │    │
+│  │  Use this section to trace back to source data.                      │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="52-why-this-separation">5.2 Why This Separation?<a class="headerlink" href="#52-why-this-separation" title="Permanent link">&para;</a></h3>
+<p><strong>Reading:</strong> A human only needs to look at <code>projection</code>. The nodes and edges tell the complete story in human terms.</p>
+<p><strong>Tooling:</strong> A visualization tool might read <code>projection</code> for display and <code>references</code> to add ID annotations or build indexes.</p>
+<p><strong>Debugging:</strong> When something looks wrong, <code>sources</code> tells you exactly which Schema__ graph to investigate.</p>
+<p><strong>Regeneration:</strong> Since <code>sources</code> captures provenance, you can always regenerate the projection from the original Schema__.</p>
+<hr />
+<h2 id="6-detailed-design">6. Detailed Design<a class="headerlink" href="#6-detailed-design" title="Permanent link">&para;</a></h2>
+<h3 id="61-the-projection-section">6.1 The Projection Section<a class="headerlink" href="#61-the-projection-section" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Projected__Data(Type_Safe):
+    &quot;&quot;&quot;The human-readable projection — NO IDs.&quot;&quot;&quot;
+    nodes : List[Projected__Node]
+    edges : List[Projected__Edge]
+
+
+class Projected__Node(Type_Safe):
+    &quot;&quot;&quot;A node in the projection.
+
+    ref:  The type/category of this node (looks up in references.nodes)
+    name: The identity of this specific instance
+
+    Example: {&quot;ref&quot;: &quot;class&quot;, &quot;name&quot;: &quot;MyClass&quot;}
+    Read as: &quot;A class named MyClass&quot;
+    &quot;&quot;&quot;
+    ref  : Semantic_Ref
+    name : Safe_Str__Id
+
+
+class Projected__Edge(Type_Safe):
+    &quot;&quot;&quot;An edge in the projection.
+
+    from_name: The source node's name (matches a node.name)
+    to_name:   The target node's name (matches a node.name)
+    ref:       The type of relationship (looks up in references.edges)
+
+    Example: {&quot;from_name&quot;: &quot;method_a&quot;, &quot;to_name&quot;: &quot;helper_func&quot;, &quot;ref&quot;: &quot;calls&quot;}
+    Read as: &quot;method_a calls helper_func&quot;
+    &quot;&quot;&quot;
+    from_name : Safe_Str__Id
+    to_name   : Safe_Str__Id
+    ref       : Semantic_Ref
+</code></pre>
+<h3 id="62-the-references-section">6.2 The References Section<a class="headerlink" href="#62-the-references-section" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Projected__References(Type_Safe):
+    &quot;&quot;&quot;Lookup index from refs to IDs.
+
+    Only maps TYPE refs (not instance names).
+    Use this when tooling needs to correlate back to Schema__.
+    &quot;&quot;&quot;
+    nodes : Dict[Semantic_Ref, Node_Type_Id]      # &quot;class&quot; → ID
+    edges : Dict[Semantic_Ref, Predicate_Id]      # &quot;calls&quot; → ID
+
+
+# Typed dictionary implementations
+class Dict__Node_Type_Ids__By_Ref(Type_Safe__Dict):
+    expected_key_type   = Semantic_Ref
+    expected_value_type = Node_Type_Id
+
+class Dict__Predicate_Ids__By_Ref(Type_Safe__Dict):
+    expected_key_type   = Semantic_Ref
+    expected_value_type = Predicate_Id
+</code></pre>
+<h3 id="63-the-sources-section">6.3 The Sources Section<a class="headerlink" href="#63-the-sources-section" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Projected__Sources(Type_Safe):
+    &quot;&quot;&quot;Provenance information — where this projection came from.
+
+    Use this to trace back to the original Schema__ data.
+    &quot;&quot;&quot;
+    source_graph_id : Graph_Id                           # The Schema__ graph that was projected
+    ontology_seed   : Safe_Str__Id__Seed = None          # Ontology identity (if deterministic)
+    generated_at    : Timestamp_Now                       # When projection was created
+</code></pre>
+<h3 id="64-the-complete-projected-schema">6.4 The Complete Projected Schema<a class="headerlink" href="#64-the-complete-projected-schema" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Projected__Semantic_Graph(Type_Safe):
+    &quot;&quot;&quot;A human-readable projection of a Schema__Semantic_Graph.
+
+    Three sections:
+    - projection: The human-readable content (nodes and edges)
+    - references: Lookup index from refs to IDs
+    - sources:    Provenance information
+
+    This is GENERATED, not edited. To modify data, work with Schema__ directly.
+    &quot;&quot;&quot;
+    projection : Projected__Data
+    references : Projected__References
+    sources    : Projected__Sources
+</code></pre>
+<hr />
+<h2 id="7-example-output">7. Example Output<a class="headerlink" href="#7-example-output" title="Permanent link">&para;</a></h2>
+<h3 id="71-complete-json-example">7.1 Complete JSON Example<a class="headerlink" href="#71-complete-json-example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+    &quot;projection&quot;: {
+        &quot;nodes&quot;: [
+            {&quot;ref&quot;: &quot;class&quot;,    &quot;name&quot;: &quot;MyClass&quot;},
+            {&quot;ref&quot;: &quot;class&quot;,    &quot;name&quot;: &quot;OtherClass&quot;},
+            {&quot;ref&quot;: &quot;function&quot;, &quot;name&quot;: &quot;helper_func&quot;},
+            {&quot;ref&quot;: &quot;method&quot;,   &quot;name&quot;: &quot;my_method&quot;}
+        ],
+        &quot;edges&quot;: [
+            {&quot;from_name&quot;: &quot;MyClass&quot;,    &quot;to_name&quot;: &quot;helper_func&quot;, &quot;ref&quot;: &quot;calls&quot;},
+            {&quot;from_name&quot;: &quot;MyClass&quot;,    &quot;to_name&quot;: &quot;OtherClass&quot;,  &quot;ref&quot;: &quot;inherits&quot;},
+            {&quot;from_name&quot;: &quot;MyClass&quot;,    &quot;to_name&quot;: &quot;my_method&quot;,   &quot;ref&quot;: &quot;contains&quot;},
+            {&quot;from_name&quot;: &quot;my_method&quot;,  &quot;to_name&quot;: &quot;helper_func&quot;, &quot;ref&quot;: &quot;calls&quot;}
+        ]
+    },
+    &quot;references&quot;: {
+        &quot;nodes&quot;: {
+            &quot;class&quot;:    &quot;9e8d7c6b&quot;,
+            &quot;function&quot;: &quot;5a4b3c2d&quot;,
+            &quot;method&quot;:   &quot;1a2b3c4d&quot;
+        },
+        &quot;edges&quot;: {
+            &quot;calls&quot;:    &quot;p1p2p3p4&quot;,
+            &quot;inherits&quot;: &quot;p5p6p7p8&quot;,
+            &quot;contains&quot;: &quot;p9p0p1p2&quot;
+        }
+    },
+    &quot;sources&quot;: {
+        &quot;source_graph_id&quot;: &quot;a3f2b8c1&quot;,
+        &quot;ontology_seed&quot;: &quot;http://osbot.dev/ontologies/call_flow/1.0.0&quot;,
+        &quot;generated_at&quot;: &quot;2026-01-04T12:00:00Z&quot;
+    }
+}
+</code></pre>
+<h3 id="72-how-to-read-it">7.2 How to Read It<a class="headerlink" href="#72-how-to-read-it" title="Permanent link">&para;</a></h3>
+<p>Looking only at the <code>projection</code> section:</p>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│     [class]              [class]                                             │
+│     MyClass ─────────────► OtherClass                                        │
+│        │     inherits                                                        │
+│        │                                                                     │
+│        │ contains                                                            │
+│        │                                                                     │
+│        ▼                                                                     │
+│     [method]                                                                 │
+│     my_method                                                                │
+│        │                                                                     │
+│        │ calls                                                               │
+│        │                         [function]                                  │
+│        └────────────────────────► helper_func ◄──────────────────────┐       │
+│                                                                      │       │
+│                                                       calls          │       │
+│     MyClass ─────────────────────────────────────────────────────────┘       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>No IDs needed to understand this graph.</strong> That's the whole point.</p>
+<hr />
+<h2 id="8-the-projector">8. The Projector<a class="headerlink" href="#8-the-projector" title="Permanent link">&para;</a></h2>
+<h3 id="81-projector-implementation">8.1 Projector Implementation<a class="headerlink" href="#81-projector-implementation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Semantic_Graph__Projector(Type_Safe):
+    &quot;&quot;&quot;Transforms Schema__ (ID-based) to Projected__ (Ref-based).
+
+    This is a one-way transformation. The projection is generated
+    for human consumption and is not intended to be edited.
+    &quot;&quot;&quot;
+
+    ontology_registry : Ontology__Registry
+
+    def project(self, graph: Schema__Semantic_Graph) -&gt; Projected__Semantic_Graph:
+        &quot;&quot;&quot;Generate a human-readable projection of the graph.&quot;&quot;&quot;
+
+        # Get ontology for ref lookups
+        ontology = self.ontology_registry.by_id.get(graph.ontology_id)
+
+        # Build reverse lookups: ID → Ref
+        node_type_id_to_ref = {}
+        predicate_id_to_ref = {}
+
+        if ontology:
+            node_type_id_to_ref = {
+                nt.node_type_id: nt.node_type_ref 
+                for nt in ontology.node_types.values()
+            }
+            predicate_id_to_ref = {
+                p.predicate_id: p.predicate_ref 
+                for p in ontology.predicates.values()
+            }
+
+        # Build node name lookup for edges
+        node_id_to_name = {
+            node.node_id: node.name 
+            for node in graph.nodes.values()
+        }
+
+        # Project nodes
+        projected_nodes = [
+            Projected__Node(
+                ref  = node_type_id_to_ref.get(node.node_type_id, Semantic_Ref('')),
+                name = node.name,
+            )
+            for node in graph.nodes.values()
+        ]
+
+        # Project edges
+        projected_edges = [
+            Projected__Edge(
+                from_name = node_id_to_name.get(edge.from_node_id, Safe_Str__Id('')),
+                to_name   = node_id_to_name.get(edge.to_node_id, Safe_Str__Id('')),
+                ref       = predicate_id_to_ref.get(edge.predicate_id, Semantic_Ref('')),
+            )
+            for edge in graph.edges
+        ]
+
+        # Build references (ref → ID, for type lookups only)
+        references = Projected__References(
+            nodes = {ref: id for id, ref in node_type_id_to_ref.items()},
+            edges = {ref: id for id, ref in predicate_id_to_ref.items()},
+        )
+
+        # Build sources
+        sources = Projected__Sources(
+            source_graph_id = graph.graph_id,
+            ontology_seed   = ontology.ontology_id_source.seed if ontology and ontology.ontology_id_source else None,
+            generated_at    = Timestamp_Now(),
+        )
+
+        return Projected__Semantic_Graph(
+            projection = Projected__Data(
+                nodes = projected_nodes,
+                edges = projected_edges,
+            ),
+            references = references,
+            sources    = sources,
+        )
+</code></pre>
+<h3 id="82-usage">8.2 Usage<a class="headerlink" href="#82-usage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Create projector with registry access
+projector = Semantic_Graph__Projector(
+    ontology_registry = ontology_registry,
+)
+
+# Generate projection from Schema__
+projected = projector.project(schema_graph)
+
+# Export for humans
+print(projected.json())
+
+# Or just the projection section
+print(projected.projection.json())
+</code></pre>
+<hr />
+<h2 id="9-schema-layer-updates-from-brief-35">9. Schema Layer Updates (From Brief 3.5)<a class="headerlink" href="#9-schema-layer-updates-from-brief-35" title="Permanent link">&para;</a></h2>
+<h3 id="91-where-human-readable-refs-are-stored">9.1 Where Human-Readable Refs Are Stored<a class="headerlink" href="#91-where-human-readable-refs-are-stored" title="Permanent link">&para;</a></h3>
+<p>A key clarification: the human-readable refs (<code>Node_Type_Ref</code>, <code>Predicate_Ref</code>, etc.) are stored <strong>once</strong> in the definition layer, not in every instance.</p>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                   WHERE REFS ARE STORED (NORMALIZED)                         │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  DEFINITION LAYER (Ontology) - Refs defined ONCE                             │
+│  ───────────────────────────────────────────────                             │
+│                                                                              │
+│  Schema__Ontology                                                            │
+│  ├── ontology_id  : Ontology_Id           # &quot;7b4e9f12&quot;                       │
+│  ├── ontology_ref : Ontology_Ref          # &quot;call_flow&quot; ← STORED HERE        │
+│  │                                                                           │
+│  ├── node_types: Dict[Node_Type_Id, Schema__Ontology__Node_Type]             │
+│  │   │                                                                       │
+│  │   └── Schema__Ontology__Node_Type                                         │
+│  │       ├── node_type_id  : Node_Type_Id     # &quot;9e8d7c6b&quot;                   │
+│  │       └── node_type_ref : Node_Type_Ref    # &quot;class&quot; ← STORED ONCE        │
+│  │                                                                           │
+│  ├── predicates: Dict[Predicate_Id, Schema__Ontology__Predicate]             │
+│  │   │                                                                       │
+│  │   └── Schema__Ontology__Predicate                                         │
+│  │       ├── predicate_id  : Predicate_Id     # &quot;p1p2p3p4&quot;                   │
+│  │       ├── predicate_ref : Predicate_Ref    # &quot;calls&quot; ← STORED ONCE        │
+│  │       └── inverse_id    : Predicate_Id     # points to &quot;called_by&quot;        │
+│  │                                                                           │
+│  └── edge_rules: List[Schema__Ontology__Edge_Rule]                           │
+│      │                                                                       │
+│      └── Schema__Ontology__Edge_Rule                                         │
+│          ├── source_type_id : Node_Type_Id    # method                       │
+│          ├── predicate_id   : Predicate_Id    # calls (by ID, not ref)       │
+│          └── target_type_id : Node_Type_Id    # function                     │
+│                                                                              │
+│                                                                              │
+│  INSTANCE LAYER (Graph) - IDs only, no refs                                  │
+│  ──────────────────────────────────────────                                  │
+│                                                                              │
+│  Schema__Semantic_Graph__Node                                                │
+│  ├── node_id      : Node_Id               # &quot;f1a2b3c4&quot;                       │
+│  ├── node_type_id : Node_Type_Id          # &quot;9e8d7c6b&quot; ← Just the ID         │
+│  └── name         : Safe_Str__Id          # &quot;MyClass&quot;                        │
+│      (no node_type_ref - look it up in Ontology.node_types)                  │
+│                                                                              │
+│  Schema__Semantic_Graph__Edge                                                │
+│  ├── edge_id      : Edge_Id               # &quot;e1e2e3e4&quot;                       │
+│  ├── from_node_id : Node_Id               # &quot;f1a2b3c4&quot;                       │
+│  ├── to_node_id   : Node_Id               # &quot;a7b8c9d0&quot;                       │
+│  └── predicate_id : Predicate_Id          # &quot;p1p2p3p4&quot; ← Just the ID         │
+│      (no predicate_ref - look it up in Ontology.predicates)                  │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>Why this design:</strong>
+- Refs are defined once (in Ontology), not duplicated in every node/edge
+- Predicates are first-class entities with their own IDs
+- Changing a ref means updating one place (the definition)
+- Instances are lightweight (just IDs)
+- The Projector resolves IDs → Refs by looking up the Ontology</p>
+<h3 id="92-all-cross-references-use-ids">9.2 All Cross-References Use IDs<a class="headerlink" href="#92-all-cross-references-use-ids" title="Permanent link">&para;</a></h3>
+<p>Building on Brief 3.5, the Schema__ layer uses <code>*_Id</code> for all cross-artifact references.</p>
+<h4 id="definition-layer-normalized-structure">Definition Layer - Normalized Structure<a class="headerlink" href="#definition-layer-normalized-structure" title="Permanent link">&para;</a></h4>
+<p>Predicates are <strong>first-class entities</strong> defined once, referenced by ID everywhere:</p>
+<pre><code class="language-python">class Schema__Ontology(Type_Safe):
+    ontology_id       : Ontology_Id
+    ontology_id_source: Ontology_Id__Source = None
+    ontology_ref      : Ontology_Ref                  # Human label (not a link)
+    description       : Safe_Str__Text
+    taxonomy_id       : Taxonomy_Id                   # Foreign key to taxonomy
+    node_types        : Dict__Node_Types__By_Id       # Node type definitions
+    predicates        : Dict__Predicates__By_Id       # Predicate definitions (ONCE each)
+    edge_rules        : List__Edge_Rules              # What edges are allowed
+
+
+class Schema__Ontology__Node_Type(Type_Safe):
+    node_type_id        : Node_Type_Id
+    node_type_id_source : Node_Type_Id__Source = None   
+    node_type_ref       : Node_Type_Ref                 # &quot;class&quot;, &quot;method&quot; - defined ONCE
+    description         : Safe_Str__Text
+
+
+class Schema__Ontology__Predicate(Type_Safe):
+    predicate_id      : Predicate_Id
+    predicate_id_source : Predicate_Id__Source = None  
+    predicate_ref     : Predicate_Ref                   # &quot;calls&quot; - defined ONCE
+    inverse_id        : Predicate_Id           = None   # Points to inverse predicate (e.g., &quot;called_by&quot;)
+    description       : Safe_Str__Text         = None
+
+
+class Schema__Ontology__Edge_Rule(Type_Safe):         # Defines what edges are allowed: source --predicate--&gt; target
+    source_type_id    : Node_Type_Id                  # e.g., method
+    predicate_id      : Predicate_Id                  # e.g., calls
+    target_type_id    : Node_Type_Id                  # e.g., function
+</code></pre>
+<h4 id="why-normalized-predicates">Why Normalized Predicates?<a class="headerlink" href="#why-normalized-predicates" title="Permanent link">&para;</a></h4>
+<p><strong>Before (denormalized):</strong> "calls" repeated in every node type that uses it:</p>
+<pre><code class="language-python"># OLD: &quot;calls&quot; defined multiple times
+method_node_type = Schema__Ontology__Node_Type(
+    relationships = {'calls': Schema__Ontology__Relationship(inverse='called_by', ...)}
+)
+function_node_type = Schema__Ontology__Node_Type(
+    relationships = {'calls': Schema__Ontology__Relationship(inverse='called_by', ...)}  # Duplicate!
+)
+</code></pre>
+<p><strong>After (normalized):</strong> "calls" defined once, referenced by ID:</p>
+<pre><code class="language-python"># NEW: &quot;calls&quot; defined ONCE
+predicates = {
+    calls_id: Schema__Ontology__Predicate(
+        predicate_id  = calls_id,
+        predicate_ref = Predicate_Ref('calls'),       # Defined ONCE
+        inverse_id    = called_by_id,
+    ),
+    called_by_id: Schema__Ontology__Predicate(
+        predicate_id  = called_by_id,
+        predicate_ref = Predicate_Ref('called_by'),   # Defined ONCE
+        inverse_id    = calls_id,
+    ),
+}
+
+# Edge rules reference by ID
+edge_rules = [
+    Schema__Ontology__Edge_Rule(source_type_id=method_id,   predicate_id=calls_id, target_type_id=method_id),
+    Schema__Ontology__Edge_Rule(source_type_id=method_id,   predicate_id=calls_id, target_type_id=function_id),
+    Schema__Ontology__Edge_Rule(source_type_id=function_id, predicate_id=calls_id, target_type_id=function_id),
+]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Denormalized (Before)</th>
+<th>Normalized (After)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Predicate definition</strong></td>
+<td>Repeated per node type</td>
+<td>Once</td>
+</tr>
+<tr>
+<td><strong>Rename predicate</strong></td>
+<td>Find all occurrences</td>
+<td>Change one place</td>
+</tr>
+<tr>
+<td><strong>Inverse consistency</strong></td>
+<td>Could mismatch</td>
+<td>Single source of truth</td>
+</tr>
+<tr>
+<td><strong>Projection references</strong></td>
+<td>Can't map to ID</td>
+<td><code>references.edges["calls"] → predicate_id</code> ✓</td>
+</tr>
+</tbody>
+</table>
+<h4 id="instance-layer-ids-only">Instance Layer - IDs Only<a class="headerlink" href="#instance-layer-ids-only" title="Permanent link">&para;</a></h4>
+<pre><code class="language-python">class Schema__Semantic_Graph(Type_Safe):
+    graph_id          : Graph_Id
+    graph_id_source   : Graph_Id__Source = None
+    ontology_id       : Ontology_Id                   # Foreign key (ID, not Ref)
+    rule_set_id       : Rule_Set_Id                   # Foreign key (ID, not Ref)
+    nodes             : Dict__Nodes__By_Id
+    edges             : List__Edges
+
+
+class Schema__Semantic_Graph__Node(Type_Safe):
+    node_id           : Node_Id
+    node_id_source    : Node_Id__Source = None
+    node_type_id      : Node_Type_Id                  # Foreign key (ID, not Ref)
+    name              : Safe_Str__Id
+    # NO node_type_ref - look it up in Ontology.node_types[node_type_id].node_type_ref
+
+
+class Schema__Semantic_Graph__Edge(Type_Safe):
+    edge_id           : Edge_Id
+    edge_id_source    : Edge_Id__Source = None
+    from_node_id      : Node_Id
+    to_node_id        : Node_Id
+    predicate_id      : Predicate_Id                  # Foreign key (ID, not Ref)
+    # NO predicate_ref - look it up in Ontology.predicates[predicate_id].predicate_ref
+</code></pre>
+<h4 id="concrete-example-python-code-ontology">Concrete Example: Python Code Ontology<a class="headerlink" href="#concrete-example-python-code-ontology" title="Permanent link">&para;</a></h4>
+<p>Showing how the test ontology transforms from denormalized to normalized:</p>
+<p><strong>OLD (denormalized - relationships embedded in node types):</strong></p>
+<pre><code class="language-python">method_node_type = Schema__Ontology__Node_Type(
+    description   = 'Python method',
+    relationships = {
+        'calls': Schema__Ontology__Relationship(
+            inverse = 'called_by',
+            targets = ['method', 'function']
+        )
+    }
+)
+</code></pre>
+<p><strong>NEW (normalized - predicates and edge_rules separate):</strong></p>
+<pre><code class="language-python"># Node types - just identity and description
+node_types = {
+    method_id:   Schema__Ontology__Node_Type(node_type_id=method_id,   node_type_ref=Node_Type_Ref('method')),
+    function_id: Schema__Ontology__Node_Type(node_type_id=function_id, node_type_ref=Node_Type_Ref('function')),
+    class_id:    Schema__Ontology__Node_Type(node_type_id=class_id,    node_type_ref=Node_Type_Ref('class')),
+    module_id:   Schema__Ontology__Node_Type(node_type_id=module_id,   node_type_ref=Node_Type_Ref('module')),
+}
+
+# Predicates - defined ONCE with inverse relationships
+predicates = {
+    calls_id:     Schema__Ontology__Predicate(predicate_id=calls_id,     predicate_ref=Predicate_Ref('calls'),     inverse_id=called_by_id),
+    called_by_id: Schema__Ontology__Predicate(predicate_id=called_by_id, predicate_ref=Predicate_Ref('called_by'), inverse_id=calls_id),
+    defines_id:   Schema__Ontology__Predicate(predicate_id=defines_id,   predicate_ref=Predicate_Ref('defines'),   inverse_id=defined_in_id),
+    defined_in_id:Schema__Ontology__Predicate(predicate_id=defined_in_id,predicate_ref=Predicate_Ref('defined_in'),inverse_id=defines_id),
+    # ... etc
+}
+
+# Edge rules - what edges are allowed
+edge_rules = [
+    Schema__Ontology__Edge_Rule(source_type_id=method_id,   predicate_id=calls_id,   target_type_id=method_id),
+    Schema__Ontology__Edge_Rule(source_type_id=method_id,   predicate_id=calls_id,   target_type_id=function_id),
+    Schema__Ontology__Edge_Rule(source_type_id=module_id,   predicate_id=defines_id, target_type_id=class_id),
+    Schema__Ontology__Edge_Rule(source_type_id=module_id,   predicate_id=defines_id, target_type_id=function_id),
+    # ... etc
+]
+</code></pre>
+<h3 id="93-id-reference-map">9.3 ID Reference Map<a class="headerlink" href="#93-id-reference-map" title="Permanent link">&para;</a></h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                         ID REFERENCE MAP                                     │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  DEFINITION LAYER                                                            │
+│  ────────────────                                                            │
+│                                                                              │
+│  Schema__Ontology                                                            │
+│  ├── ontology_id ──────────► (self)                                          │
+│  └── taxonomy_id ──────────► Taxonomy__Registry.by_id                        │
+│                                                                              │
+│  Schema__Ontology__Node_Type                                                 │
+│  ├── node_type_id ─────────► (self)                                          │
+│                                                                              │
+│  Schema__Ontology__Predicate                                                 │
+│  ├── predicate_id ─────────► (self)                                          │
+│  └── inverse_id ───────────► Ontology.predicates[id] (the inverse predicate) │
+│                                                                              │
+│  Schema__Ontology__Edge_Rule                                                 │
+│  ├── source_type_id ───────► Ontology.node_types[id]                         │
+│  ├── predicate_id ─────────► Ontology.predicates[id]                         │
+│  └── target_type_id ───────► Ontology.node_types[id]                         │
+│                                                                              │
+│                                                                              │
+│  INSTANCE LAYER                                                              │
+│  ──────────────                                                              │
+│                                                                              │
+│  Schema__Semantic_Graph                                                      │
+│  ├── graph_id ─────────────► (self)                                          │
+│  ├── ontology_id ──────────► Ontology__Registry.by_id                        │
+│  └── rule_set_id ──────────► Rule_Set__Registry.by_id                        │
+│                                                                              │
+│  Schema__Semantic_Graph__Node                                                │
+│  ├── node_id ──────────────► (self)                                          │
+│  └── node_type_id ─────────► Ontology.node_types[id]                         │
+│                                                                              │
+│  Schema__Semantic_Graph__Edge                                                │
+│  ├── edge_id ──────────────► (self)                                          │
+│  ├── from_node_id ─────────► Graph.nodes[id]                                 │
+│  ├── to_node_id ───────────► Graph.nodes[id]                                 │
+│  └── predicate_id ─────────► Ontology.predicates[id]                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="10-how-artifacts-fit-together">10. How Artifacts Fit Together<a class="headerlink" href="#10-how-artifacts-fit-together" title="Permanent link">&para;</a></h2>
+<h3 id="101-complete-architecture">10.1 Complete Architecture<a class="headerlink" href="#101-complete-architecture" title="Permanent link">&para;</a></h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                     COMPLETE DATA ARCHITECTURE                               │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                         DEFINITION LAYER                                     │
+│  ┌──────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │   JSON Configs ──► Registries ──► Schema__ definitions               │    │
+│  │                                                                      │    │
+│  │   • Ontology                                                         │    │
+│  │     ├── node_types  (Node_Type_Id → Schema__Ontology__Node_Type)     │    │
+│  │     ├── predicates  (Predicate_Id → Schema__Ontology__Predicate)     │    │
+│  │     └── edge_rules  (what edges are allowed)                         │    │
+│  │   • Taxonomy (categories)                                            │    │
+│  │   • Rule Sets (validation rules)                                     │    │
+│  │                                                                      │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    │ referenced by ID                        │
+│                                    ▼                                         │
+│                          INSTANCE LAYER                                      │
+│  ┌──────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │   Schema__Semantic_Graph (ID-based, stored, indexed)                 │    │
+│  │   ├── nodes: Node_Id → Schema__Node                                  │    │
+│  │   └── edges: List[Schema__Edge]                                      │    │
+│  │                                                                      │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    │ projected (one-way)                     │
+│                                    ▼                                         │
+│                        PROJECTION LAYER                                      │
+│  ┌──────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │   Projected__Semantic_Graph (Ref-based, generated, disposable)       │    │
+│  │   ├── projection: Human-readable nodes/edges                         │    │
+│  │   ├── references: Ref → ID lookup                                    │    │
+│  │   └── sources: Provenance                                            │    │
+│  │                                                                      │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│                         CONSUMPTION LAYER                                    │
+│  ┌──────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │   • Visualization tools                                              │    │
+│  │   • Documentation generators                                         │    │
+│  │   • Debugging / inspection                                           │    │
+│  │   • Human understanding                                              │    │
+│  │                                                                      │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="102-what-goes-where">10.2 What Goes Where<a class="headerlink" href="#102-what-goes-where" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Layer</th>
+<th>Contains</th>
+<th>Stored?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSON configs</td>
+<td>Definition</td>
+<td>Ontology, taxonomy definitions</td>
+<td>Yes (files)</td>
+</tr>
+<tr>
+<td>Registries</td>
+<td>Definition</td>
+<td>ID ↔ Ref mappings</td>
+<td>Runtime</td>
+</tr>
+<tr>
+<td>Schema__Semantic_Graph</td>
+<td>Instance</td>
+<td>ID-based graph data</td>
+<td>Yes (MGraph-DB)</td>
+</tr>
+<tr>
+<td>Projected__Semantic_Graph</td>
+<td>Projection</td>
+<td>Ref-based human view</td>
+<td>No (regenerate)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-file-structure">11. File Structure<a class="headerlink" href="#11-file-structure" title="Permanent link">&para;</a></h2>
+<h3 id="111-updated-ontology-files-normalized">11.1 Updated Ontology Files (Normalized)<a class="headerlink" href="#111-updated-ontology-files-normalized" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/helpers/semantic_graphs/schemas/
+├── identifier/
+│   ├── Node_Type_Id.py                             # NEW: ID for node types
+│   ├── Predicate_Id.py                             # NEW: ID for predicates
+│   └── ...
+├── ontology/
+│   ├── Schema__Ontology.py                         # UPDATED: add predicates, edge_rules
+│   ├── Schema__Ontology__Node_Type.py              # UPDATED: add node_type_id, node_type_ref
+│   ├── Schema__Ontology__Predicate.py              # NEW: predicate definition
+│   ├── Schema__Ontology__Edge_Rule.py              # NEW: edge constraint rule
+│   └── Schema__Ontology__Relationship.py           # DEPRECATED: remove after migration
+├── collection/
+│   ├── Dict__Node_Types__By_Id.py                  # NEW: Node_Type_Id → Schema__Ontology__Node_Type
+│   ├── Dict__Predicates__By_Id.py                  # NEW: Predicate_Id → Schema__Ontology__Predicate
+│   └── List__Edge_Rules.py                         # NEW: List of edge rules
+</code></pre>
+<h3 id="112-new-projected-files">11.2 New Projected Files<a class="headerlink" href="#112-new-projected-files" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/helpers/semantic_graphs/
+├── schemas/                                        # Schema__ (master data)
+│   ├── graph/
+│   │   ├── Schema__Semantic_Graph.py
+│   │   ├── Schema__Semantic_Graph__Node.py
+│   │   └── Schema__Semantic_Graph__Edge.py
+│   └── ...
+├── projected/                                      # NEW DIRECTORY
+│   ├── __init__.py
+│   ├── Projected__Semantic_Graph.py               # Container with 3 sections
+│   ├── Projected__Data.py                         # The projection section
+│   ├── Projected__Node.py
+│   ├── Projected__Edge.py
+│   ├── Projected__References.py                   # The references section
+│   └── Projected__Sources.py                      # The sources section
+└── projectors/                                     # NEW DIRECTORY
+    ├── __init__.py
+    └── Semantic_Graph__Projector.py
+</code></pre>
+<hr />
+<h2 id="12-implementation-checklist">12. Implementation Checklist<a class="headerlink" href="#12-implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-ontology-normalization-definition-layer">Phase 1: Ontology Normalization (Definition Layer)<a class="headerlink" href="#phase-1-ontology-normalization-definition-layer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>Predicate_Id</code> type in identifiers</li>
+<li>[ ] Create <code>Schema__Ontology__Predicate</code> with predicate_id, predicate_ref, inverse_id</li>
+<li>[ ] Create <code>Schema__Ontology__Edge_Rule</code> with source_type_id, predicate_id, target_type_id</li>
+<li>[ ] Update <code>Schema__Ontology</code> to add <code>predicates</code> and <code>edge_rules</code> collections</li>
+<li>[ ] Update <code>Schema__Ontology__Node_Type</code> to remove <code>relationships</code> dict</li>
+<li>[ ] Add <code>node_type_id</code> and <code>node_type_ref</code> to <code>Schema__Ontology__Node_Type</code></li>
+<li>[ ] Create <code>Dict__Predicates__By_Id</code> collection type</li>
+<li>[ ] Create <code>List__Edge_Rules</code> collection type</li>
+<li>[ ] Update <code>Ontology__Utils</code> for new structure (valid_edge, get_inverse_verb, etc.)</li>
+<li>[ ] Add migration helper to convert old ontology format to new</li>
+</ul>
+<h3 id="phase-2-schema-layer-updates-instance-layer">Phase 2: Schema Layer Updates (Instance Layer)<a class="headerlink" href="#phase-2-schema-layer-updates-instance-layer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Change <code>Schema__Semantic_Graph.ontology_ref</code> → <code>ontology_id</code></li>
+<li>[ ] Change <code>Schema__Semantic_Graph.rule_set_ref</code> → <code>rule_set_id</code></li>
+<li>[ ] Change <code>Schema__Semantic_Graph__Node.node_type</code> → <code>node_type_id</code></li>
+<li>[ ] Add <code>predicate_id</code> to <code>Schema__Semantic_Graph__Edge</code></li>
+<li>[ ] Update registries with ID-based lookups (by_id, by_ref)</li>
+<li>[ ] Update <code>Schema__Semantic_Graph__Builder</code> for ID-based creation</li>
+</ul>
+<h3 id="phase-3-create-projected-layer">Phase 3: Create Projected Layer<a class="headerlink" href="#phase-3-create-projected-layer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>projected/</code> directory</li>
+<li>[ ] Implement <code>Projected__Node</code> (ref, name)</li>
+<li>[ ] Implement <code>Projected__Edge</code> (from_name, to_name, ref)</li>
+<li>[ ] Implement <code>Projected__Data</code> (nodes, edges)</li>
+<li>[ ] Implement <code>Projected__References</code> (nodes dict, edges dict)</li>
+<li>[ ] Implement <code>Projected__Sources</code> (source_graph_id, ontology_seed, generated_at)</li>
+<li>[ ] Implement <code>Projected__Semantic_Graph</code> (projection, references, sources)</li>
+<li>[ ] Add tests for all Projected__ types</li>
+</ul>
+<h3 id="phase-4-create-projector">Phase 4: Create Projector<a class="headerlink" href="#phase-4-create-projector" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Create <code>projectors/</code> directory</li>
+<li>[ ] Implement <code>Semantic_Graph__Projector</code></li>
+<li>[ ] Add tests for projection generation</li>
+<li>[ ] Verify projection output matches expected format</li>
+</ul>
+<h3 id="phase-5-integration-migration">Phase 5: Integration &amp; Migration<a class="headerlink" href="#phase-5-integration-migration" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add <code>.project()</code> convenience method to builders</li>
+<li>[ ] Test full flow: JSON → Registry → Schema__ → Projected__</li>
+<li>[ ] Update existing ontology JSON files to new format</li>
+<li>[ ] Update all tests for new structure</li>
+<li>[ ] Document usage patterns</li>
+</ul>
+<hr />
+<h2 id="13-success-criteria">13. Success Criteria<a class="headerlink" href="#13-success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="131-projection-is-human-readable">13.1 Projection Is Human-Readable<a class="headerlink" href="#131-projection-is-human-readable" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__projection_no_ids(self):
+    &quot;&quot;&quot;Projection section contains NO IDs.&quot;&quot;&quot;
+    projected = projector.project(schema_graph)
+
+    json_str = projected.projection.json()
+
+    # No ID patterns in projection
+    assert 'node_id' not in json_str
+    assert 'edge_id' not in json_str
+    assert 'node_type_id' not in json_str
+    assert 'predicate_id' not in json_str
+
+    # Has refs and names
+    assert 'ref' in json_str
+    assert 'name' in json_str
+    assert 'from_name' in json_str
+    assert 'to_name' in json_str
+</code></pre>
+<h3 id="132-references-enable-correlation">13.2 References Enable Correlation<a class="headerlink" href="#132-references-enable-correlation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__references_map_types(self):
+    &quot;&quot;&quot;References section maps type refs to IDs.&quot;&quot;&quot;
+    projected = projector.project(schema_graph)
+
+    # Can look up node type ID from ref
+    class_id = projected.references.nodes.get(Semantic_Ref('class'))
+    assert class_id is not None
+
+    # Can look up predicate ID from ref
+    calls_id = projected.references.edges.get(Semantic_Ref('calls'))
+    assert calls_id is not None
+</code></pre>
+<h3 id="133-sources-enable-tracing">13.3 Sources Enable Tracing<a class="headerlink" href="#133-sources-enable-tracing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__sources_provide_provenance(self):
+    &quot;&quot;&quot;Sources section enables tracing back to Schema__.&quot;&quot;&quot;
+    projected = projector.project(schema_graph)
+
+    # Can find original graph
+    assert projected.sources.source_graph_id == schema_graph.graph_id
+
+    # Has timestamp
+    assert projected.sources.generated_at is not None
+</code></pre>
+<h3 id="134-consistent-field-naming">13.4 Consistent Field Naming<a class="headerlink" href="#134-consistent-field-naming" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__consistent_naming(self):
+    &quot;&quot;&quot;Fields follow consistent naming conventions.&quot;&quot;&quot;
+    projected = projector.project(schema_graph)
+
+    for node in projected.projection.nodes:
+        assert hasattr(node, 'ref')       # Type lookup key
+        assert hasattr(node, 'name')      # Instance identity
+
+    for edge in projected.projection.edges:
+        assert hasattr(edge, 'from_name') # Source node's name
+        assert hasattr(edge, 'to_name')   # Target node's name
+        assert hasattr(edge, 'ref')       # Relationship type lookup key
+</code></pre>
+<hr />
+<h2 id="14-summary">14. Summary<a class="headerlink" href="#14-summary" title="Permanent link">&para;</a></h2>
+<h3 id="141-the-pattern">14.1 The Pattern<a class="headerlink" href="#141-the-pattern" title="Permanent link">&para;</a></h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│   Schema__ (Master)              ────────►       Projected__ (Generated)     │
+│                                  Projector                                   │
+│   • All refs by *_Id                             • All refs by Semantic_Ref  │
+│   • Graph-friendly                               • Human-readable            │
+│   • Stored/persisted                             • Three sections:           │
+│   • Source of truth                                - projection (content)    │
+│   • Full properties                                - references (lookups)    │
+│                                                    - sources (provenance)    │
+│                                                  • Generated, not edited     │
+│                                                                              │
+│                          NO ROUND-TRIP                                       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="142-key-decisions">14.2 Key Decisions<a class="headerlink" href="#142-key-decisions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Projected__" not "View__"</td>
+<td>Implies one-way generation, not interactive</td>
+</tr>
+<tr>
+<td>Three sections</td>
+<td>Separates concerns: content, correlation, provenance</td>
+</tr>
+<tr>
+<td><code>ref</code> for type lookups</td>
+<td>Consistent field name across nodes and edges</td>
+</tr>
+<tr>
+<td><code>name</code>/<code>from_name</code>/<code>to_name</code></td>
+<td>Clear instance identity</td>
+</tr>
+<tr>
+<td>No IDs in projection</td>
+<td>Human readability is the primary goal</td>
+</tr>
+<tr>
+<td>References map types only</td>
+<td>Instance names ARE the human representation</td>
+</tr>
+<tr>
+<td>No round-trip</td>
+<td>Projection is disposable, regenerate from Schema__</td>
+</tr>
+</tbody>
+</table>
+<h3 id="143-benefits-achieved">14.3 Benefits Achieved<a class="headerlink" href="#143-benefits-achieved" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>How Addressed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Graph-friendly</strong></td>
+<td>Schema__ uses IDs, MGraph-DB compatible</td>
+</tr>
+<tr>
+<td><strong>ID-based integrity</strong></td>
+<td>All cross-refs are foreign keys in Schema__</td>
+</tr>
+<tr>
+<td><strong>Human-readable</strong></td>
+<td>Projected__ has no IDs, just refs and names</td>
+</tr>
+<tr>
+<td><strong>Debuggable</strong></td>
+<td>Projection JSON is immediately understandable</td>
+</tr>
+<tr>
+<td><strong>Traceable</strong></td>
+<td>References and sources enable correlation</td>
+</tr>
+<tr>
+<td><strong>Single source of truth</strong></td>
+<td>Schema__ is master, Projected__ is derived</td>
+</tr>
+<tr>
+<td><strong>Simple model</strong></td>
+<td>Nodes have ref+name, edges have from_name+to_name+ref</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>End of Implementation Brief</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

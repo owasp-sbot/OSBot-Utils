@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/type_safety/helpers/v3.69.1__performance-schemas__type-safe-briefing/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Type_Safe Performance Schemas: Implementation Briefing - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Performance Schemas: Implementation Briefing";
+        var mkdocs_page_input_path = "llm-briefs/type_safety/helpers/v3.69.1__performance-schemas__type-safe-briefing.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/type_safety/helpers/v3.69.1__performance-schemas__type-safe-briefing/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Performance Schemas: Implementation Briefing</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-performance-schemas-implementation-briefing">Type_Safe Performance Schemas: Implementation Briefing<a class="headerlink" href="#type_safe-performance-schemas-implementation-briefing" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> Based on OSBot-Utils v3.69.1<br />
+<strong>Purpose:</strong> Guide for implementing type-safe performance benchmark schemas<br />
+<strong>Context:</strong> This document provides the patterns and primitives used in the OSBot-Utils performance measurement infrastructure.</p>
+<hr />
+<h2 id="part-1-core-type_safe-principles">Part 1: Core Type_Safe Principles<a class="headerlink" href="#part-1-core-type_safe-principles" title="Permanent link">&para;</a></h2>
+<h3 id="11-what-is-type_safe">1.1 What is Type_Safe?<a class="headerlink" href="#11-what-is-type_safe" title="Permanent link">&para;</a></h3>
+<p>Type_Safe is a <strong>runtime type checking framework</strong> for Python that enforces type constraints during execution. Unlike Python's type hints (which are ignored at runtime), Type_Safe validates every operation, auto-initializes attributes, and provides domain-specific primitive types.</p>
+<p><strong>Key differences from standard Python:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Python Type Hints</th>
+<th>Type_Safe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Runtime enforcement</td>
+<td>❌ Ignored</td>
+<td>✓ Every operation</td>
+</tr>
+<tr>
+<td>Auto-initialization</td>
+<td>❌ Manual</td>
+<td>✓ Automatic</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td>❌ None</td>
+<td>✓ On assignment</td>
+</tr>
+<tr>
+<td>Domain primitives</td>
+<td>❌ None</td>
+<td>✓ 100+ specialized types</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-critical-rule-ban-raw-primitives">1.2 Critical Rule: Ban Raw Primitives<a class="headerlink" href="#12-critical-rule-ban-raw-primitives" title="Permanent link">&para;</a></h3>
+<p><strong>NEVER use raw <code>str</code>, <code>int</code>, or <code>float</code> in Type_Safe classes.</strong> </p>
+<pre><code class="language-python"># ✗ WRONG - Raw primitives are dangerous
+class Schema__Perf_Report__Metadata(Type_Safe):
+    date         : str                           # Can contain anything
+    version      : str                           # No validation
+    measure_mode : str                           # Should be enum
+    description  : str                           # No length limits
+
+# ✓ CORRECT - Domain-specific types
+class Schema__Perf_Report__Metadata(Type_Safe):
+    date         : Timestamp_Now                 # Auto-generates, validated
+    version      : Safe_Str__Version             # Format: v{major}.{minor}.{patch}
+    measure_mode : Enum__Measure_Mode            # QUICK, FAST, DEFAULT
+    description  : Safe_Str__Benchmark__Description  # Length-limited, sanitized
+</code></pre>
+<p><strong>Why this matters:</strong>
+- <strong>String</strong>: SQL injection, XSS, buffer overflows, command injection
+- <strong>Integer</strong>: Overflow bugs, negative values where positive expected
+- <strong>Float</strong>: Financial calculation errors, precision loss</p>
+<h3 id="13-schema-classes-must-be-pure-data-containers">1.3 Schema Classes Must Be Pure Data Containers<a class="headerlink" href="#13-schema-classes-must-be-pure-data-containers" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL: Schema classes should ONLY contain type annotations - NO methods, NO business logic!</strong></p>
+<pre><code class="language-python"># ✗ WRONG - Methods in schema
+class Schema__Perf_Report__Analysis(Type_Safe):
+    bottleneck_id  : Safe_Str__Benchmark_Id
+    bottleneck_pct : Safe_Float__Percentage_Change
+
+    def calculate_impact(self) -&gt; float:        # NO! Move to helper class
+        return self.bottleneck_pct * 100
+
+# ✓ CORRECT - Schema is pure data
+class Schema__Perf_Report__Analysis(Type_Safe):
+    bottleneck_id  : Safe_Str__Benchmark_Id
+    bottleneck_pct : Safe_Float__Percentage_Change
+    key_insight    : Safe_Str__Benchmark__Description
+    overhead_ns    : Safe_UInt
+</code></pre>
+<hr />
+<h2 id="part-2-available-primitives-for-performance-schemas">Part 2: Available Primitives for Performance Schemas<a class="headerlink" href="#part-2-available-primitives-for-performance-schemas" title="Permanent link">&para;</a></h2>
+<h3 id="21-core-numeric-primitives">2.1 Core Numeric Primitives<a class="headerlink" href="#21-core-numeric-primitives" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+<th>Import</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Int</code></td>
+<td>Signed integer with validation</td>
+<td><code>0</code></td>
+<td><code>osbot_utils.type_safe.primitives.core.Safe_Int</code></td>
+</tr>
+<tr>
+<td><code>Safe_UInt</code></td>
+<td>Unsigned integer (≥0)</td>
+<td><code>0</code></td>
+<td><code>osbot_utils.type_safe.primitives.core.Safe_UInt</code></td>
+</tr>
+<tr>
+<td><code>Safe_Float</code></td>
+<td>Float with precision control</td>
+<td><code>0.0</code></td>
+<td><code>osbot_utils.type_safe.primitives.core.Safe_Float</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>For performance timing values, always use <code>Safe_UInt</code></strong> (nanoseconds are never negative):</p>
+<pre><code class="language-python">class Schema__Perf_Report__Benchmark(Type_Safe):
+    time_ns      : Safe_UInt                     # Nanosecond timing
+    total_ns     : Safe_UInt                     # Aggregate timing
+    sample_count : Safe_UInt                     # Number of samples
+</code></pre>
+<h3 id="22-percentage-and-float-primitives">2.2 Percentage and Float Primitives<a class="headerlink" href="#22-percentage-and-float-primitives" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+<th>Range</th>
+<th>Precision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Float__Percentage_Change</code></td>
+<td>Percentage change values</td>
+<td>Any</td>
+<td>Float</td>
+</tr>
+<tr>
+<td><code>Safe_Float__Percentage_Exact</code></td>
+<td>Exact percentage</td>
+<td>0.0-100.0</td>
+<td>2 decimals</td>
+</tr>
+<tr>
+<td><code>Safe_UInt__Percentage</code></td>
+<td>Integer percentage</td>
+<td>0-100</td>
+<td>Integer</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Percentage_Change import Safe_Float__Percentage_Change
+
+class Schema__Perf_Report__Benchmark(Type_Safe):
+    pct_of_total : Safe_Float__Percentage_Change  # Can be negative for improvements
+</code></pre>
+<h3 id="23-string-primitives-used-in-performance-code">2.3 String Primitives Used in Performance Code<a class="headerlink" href="#23-string-primitives-used-in-performance-code" title="Permanent link">&para;</a></h3>
+<p>The performance infrastructure uses several specialized string types:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Max Length</th>
+<th>Purpose</th>
+<th>Characters Allowed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Str__Benchmark_Id</code></td>
+<td>100</td>
+<td>Full benchmark identifier</td>
+<td><code>A_01__python__nop</code></td>
+</tr>
+<tr>
+<td><code>Safe_Str__Benchmark__Section</code></td>
+<td>50</td>
+<td>Section identifier</td>
+<td><code>A</code>, <code>B</code>, <code>Python</code></td>
+</tr>
+<tr>
+<td><code>Safe_Str__Benchmark__Index</code></td>
+<td>10</td>
+<td>Index within section</td>
+<td><code>01</code>, <code>02</code></td>
+</tr>
+<tr>
+<td><code>Safe_Str__Benchmark__Title</code></td>
+<td>200</td>
+<td>Session/benchmark title</td>
+<td>Alphanumeric + spaces</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Benchmark__Description</code></td>
+<td>4096</td>
+<td>Rich descriptions</td>
+<td>Wide character set</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Benchmark__Report</code></td>
+<td>1MB</td>
+<td>Full report text</td>
+<td>Text + table chars</td>
+</tr>
+<tr>
+<td><code>Safe_Str__Version</code></td>
+<td>varies</td>
+<td>Version strings</td>
+<td><code>v1.0.0</code> format</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Import paths:</strong></p>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id           import Safe_Str__Benchmark_Id
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Section     import Safe_Str__Benchmark__Section
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Index       import Safe_Str__Benchmark__Index
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Title       import Safe_Str__Benchmark__Title
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Description import Safe_Str__Benchmark__Description
+</code></pre>
+<h3 id="24-identifier-and-timestamp-primitives">2.4 Identifier and Timestamp Primitives<a class="headerlink" href="#24-identifier-and-timestamp-primitives" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+<th>Auto-generates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Timestamp_Now</code></td>
+<td>Current timestamp in milliseconds</td>
+<td>✓ Yes</td>
+</tr>
+<tr>
+<td><code>Safe_Id</code></td>
+<td>General safe identifier (512 chars)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>Random_Guid</code></td>
+<td>Random UUID4</td>
+<td>✓ Yes</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now import Timestamp_Now
+
+class Schema__Perf__Benchmark__Session(Type_Safe):
+    timestamp : Timestamp_Now                    # Auto-generates current time on creation
+</code></pre>
+<h3 id="25-file-path-primitives">2.5 File Path Primitives<a class="headerlink" href="#25-file-path-primitives" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Max Length</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Safe_Str__File__Path</code></td>
+<td>1024</td>
+<td>File system paths</td>
+</tr>
+<tr>
+<td><code>Safe_Str__File__Name</code></td>
+<td>varies</td>
+<td>Filenames only</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+
+class Schema__Perf_Benchmark__Timing__Config(Type_Safe):
+    output_path   : Safe_Str__File__Path         # /path/to/output
+    output_prefix : Safe_Str__File__Name         # benchmark
+</code></pre>
+<hr />
+<h2 id="part-3-enum-types-for-performance-schemas">Part 3: Enum Types for Performance Schemas<a class="headerlink" href="#part-3-enum-types-for-performance-schemas" title="Permanent link">&para;</a></h2>
+<h3 id="31-available-enums">3.1 Available Enums<a class="headerlink" href="#31-available-enums" title="Permanent link">&para;</a></h3>
+<p>The performance infrastructure defines several enums:</p>
+<pre><code class="language-python"># Measurement accuracy vs speed tradeoff
+class Enum__Measure_Mode(Enum):
+    QUICK   = 'quick'                           # ~100 iterations, fastest
+    FAST    = 'fast'                            # ~1,000 iterations, balanced
+    DEFAULT = 'default'                         # ~10,000 iterations, most accurate
+
+# Performance trend indicators
+class Enum__Benchmark__Trend(Enum):
+    STRONG_IMPROVEMENT = 'strong_improvement'   # &gt; 10% faster
+    IMPROVEMENT        = 'improvement'          # 0-10% faster
+    UNCHANGED          = 'unchanged'            # No change
+    REGRESSION         = 'regression'           # 0-10% slower
+    STRONG_REGRESSION  = 'strong_regression'    # &gt; 10% slower
+
+# Comparison operation status
+class Enum__Comparison__Status(Enum):
+    SUCCESS                     = 'success'
+    ERROR_NO_SESSIONS           = 'no_sessions'
+    ERROR_INSUFFICIENT_SESSIONS = 'insufficient_sessions'
+    ERROR_NO_COMMON_BENCHMARKS  = 'no_common_benchmarks'
+
+# Hypothesis test outcome
+class Enum__Hypothesis__Status(Enum):
+    SUCCESS      = 'success'                    # Met or exceeded target
+    FAILURE      = 'failure'                    # Did not meet target
+    INCONCLUSIVE = 'inconclusive'               # Mixed results
+    REGRESSION   = 'regression'                 # Performance got worse
+
+# Time display units
+class Enum__Time_Unit(Enum):
+    NANOSECONDS  = 'ns'                         # Default
+    MICROSECONDS = 'µs'
+    MILLISECONDS = 'ms'
+    SECONDS      = 's'
+</code></pre>
+<p><strong>Import paths:</strong></p>
+<pre><code class="language-python">from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Measure_Mode      import Enum__Measure_Mode
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Benchmark__Trend  import Enum__Benchmark__Trend
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Comparison__Status import Enum__Comparison__Status
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Time_Unit         import Enum__Time_Unit
+</code></pre>
+<hr />
+<h2 id="part-4-type-safe-collections">Part 4: Type-Safe Collections<a class="headerlink" href="#part-4-type-safe-collections" title="Permanent link">&para;</a></h2>
+<h3 id="41-why-subclass-collections">4.1 Why Subclass Collections?<a class="headerlink" href="#41-why-subclass-collections" title="Permanent link">&para;</a></h3>
+<p>Instead of using <code>List[str]</code> or <code>Dict[str, int]</code>, the performance code creates <strong>named collection subclasses</strong>:</p>
+<pre><code class="language-python"># ✗ AVOID: Generic annotations
+class Schema__Report(Type_Safe):
+    scores     : List[int]                      # What kind of scores?
+    benchmarks : Dict[str, Schema__Benchmark]   # Keys are what?
+
+# ✓ PREFERRED: Named collection subclasses
+class List__Scores(Type_Safe__List):
+    expected_type = Safe_UInt
+
+class Dict__Benchmark_Results(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Benchmark_Id
+    expected_value_type = Schema__Perf__Benchmark__Result
+
+class Schema__Report(Type_Safe):
+    scores     : List__Scores                   # Self-documenting
+    benchmarks : Dict__Benchmark_Results        # Clear purpose
+</code></pre>
+<h3 id="42-naming-convention">4.2 Naming Convention<a class="headerlink" href="#42-naming-convention" title="Permanent link">&para;</a></h3>
+<p>Use prefix pattern: <code>{CollectionType}__{Domain}__{Description}</code></p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Dict__*</code></td>
+<td><code>Dict__Benchmark_Results</code>, <code>Dict__Benchmark__Legend</code></td>
+</tr>
+<tr>
+<td><code>List__*</code></td>
+<td><code>List__Scores</code>, <code>List__Titles</code>, <code>List__Benchmark_Comparisons</code></td>
+</tr>
+<tr>
+<td><code>Set__*</code></td>
+<td><code>Set__Permission__Ids</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-collection-subclasses-in-performance-code">4.3 Collection Subclasses in Performance Code<a class="headerlink" href="#43-collection-subclasses-in-performance-code" title="Permanent link">&para;</a></h3>
+<p><strong>Dict subclasses:</strong></p>
+<pre><code class="language-python">class Dict__Benchmark_Results(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Benchmark_Id
+    expected_value_type = Schema__Perf__Benchmark__Result
+
+class Dict__Benchmark_Sessions(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Benchmark_Id
+    expected_value_type = Performance_Measure__Session
+
+class Dict__Benchmark__Legend(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Benchmark__Section
+    expected_value_type = Safe_Str__Benchmark__Title
+</code></pre>
+<p><strong>List subclasses:</strong></p>
+<pre><code class="language-python">class List__Benchmark_Sessions(Type_Safe__List):
+    expected_type = Schema__Perf__Benchmark__Session
+
+class List__Benchmark_Comparisons(Type_Safe__List):
+    expected_type = Schema__Perf__Benchmark__Comparison
+
+class List__Benchmark_Evolutions(Type_Safe__List):
+    expected_type = Schema__Perf__Benchmark__Evolution
+
+class List__Scores(Type_Safe__List):
+    expected_type = Safe_UInt
+
+class List__Titles(Type_Safe__List):
+    expected_type = Safe_Str__Benchmark__Title
+</code></pre>
+<p><strong>Import paths:</strong></p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List import Type_Safe__List
+</code></pre>
+<hr />
+<h2 id="part-5-migration-examples">Part 5: Migration Examples<a class="headerlink" href="#part-5-migration-examples" title="Permanent link">&para;</a></h2>
+<h3 id="51-schema__perf_report__metadata">5.1 Schema__Perf_Report__Metadata<a class="headerlink" href="#51-schema__perf_report__metadata" title="Permanent link">&para;</a></h3>
+<p><strong>Before (raw primitives):</strong></p>
+<pre><code class="language-python">class Schema__Perf_Report__Metadata(Type_Safe):
+    date         : str
+    version      : str
+    test_input   : str
+    measure_mode : str
+    description  : str
+</code></pre>
+<p><strong>After (type-safe):</strong></p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                                             import Type_Safe
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now                 import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Version                  import Safe_Str__Version
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Measure_Mode                  import Enum__Measure_Mode
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Description import Safe_Str__Benchmark__Description
+
+class Schema__Perf_Report__Metadata(Type_Safe):
+    timestamp    : Timestamp_Now                              # Auto-generates current time
+    version      : Safe_Str__Version                          # Format: v{major}.{minor}.{patch}
+    test_input   : Safe_Str__Benchmark__Description           # Sanitized, max 4096 chars
+    measure_mode : Enum__Measure_Mode                         # QUICK, FAST, DEFAULT
+    description  : Safe_Str__Benchmark__Description           # Sanitized description
+</code></pre>
+<h3 id="52-schema__perf_report__benchmark">5.2 Schema__Perf_Report__Benchmark<a class="headerlink" href="#52-schema__perf_report__benchmark" title="Permanent link">&para;</a></h3>
+<p><strong>Before (raw primitives):</strong></p>
+<pre><code class="language-python">class Schema__Perf_Report__Benchmark(Type_Safe):
+    benchmark_id : str
+    time_ns      : int
+    category     : str
+    pct_of_total : float
+</code></pre>
+<p><strong>After (type-safe):</strong></p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                                     import Safe_UInt
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id                   import Safe_Str__Benchmark_Id
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Section             import Safe_Str__Benchmark__Section
+from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Percentage_Change         import Safe_Float__Percentage_Change
+
+class Schema__Perf_Report__Benchmark(Type_Safe):
+    benchmark_id : Safe_Str__Benchmark_Id                     # Max 100 chars, validated format
+    time_ns      : Safe_UInt                                  # Unsigned, never negative
+    category     : Safe_Str__Benchmark__Section               # Max 50 chars, clean chars
+    pct_of_total : Safe_Float__Percentage_Change              # Percentage with sign
+</code></pre>
+<h3 id="53-schema__perf_report__category">5.3 Schema__Perf_Report__Category<a class="headerlink" href="#53-schema__perf_report__category" title="Permanent link">&para;</a></h3>
+<p><strong>Before (raw primitives):</strong></p>
+<pre><code class="language-python">class Schema__Perf_Report__Category(Type_Safe):
+    name         : str
+    total_ns     : int
+    pct_of_total : float
+    benchmarks   : List[str]
+</code></pre>
+<p><strong>After (type-safe):</strong></p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                                     import Safe_UInt
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List                                    import Type_Safe__List
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Section             import Safe_Str__Benchmark__Section
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id                   import Safe_Str__Benchmark_Id
+from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Percentage_Change         import Safe_Float__Percentage_Change
+
+# Define collection subclass
+class List__Benchmark_Ids(Type_Safe__List):
+    expected_type = Safe_Str__Benchmark_Id
+
+class Schema__Perf_Report__Category(Type_Safe):
+    name         : Safe_Str__Benchmark__Section               # Category/section name
+    total_ns     : Safe_UInt                                  # Aggregate timing
+    pct_of_total : Safe_Float__Percentage_Change              # Percentage of total
+    benchmarks   : List__Benchmark_Ids                        # Type-safe list of IDs
+</code></pre>
+<h3 id="54-schema__perf_report__analysis">5.4 Schema__Perf_Report__Analysis<a class="headerlink" href="#54-schema__perf_report__analysis" title="Permanent link">&para;</a></h3>
+<p><strong>Before (raw primitives):</strong></p>
+<pre><code class="language-python">class Schema__Perf_Report__Analysis(Type_Safe):
+    bottleneck_id  : str
+    bottleneck_pct : float
+    key_insight    : str
+    overhead_ns    : int
+</code></pre>
+<p><strong>After (type-safe):</strong></p>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe                                                                     import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                                     import Safe_UInt
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id                   import Safe_Str__Benchmark_Id
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Description         import Safe_Str__Benchmark__Description
+from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Percentage_Change         import Safe_Float__Percentage_Change
+
+class Schema__Perf_Report__Analysis(Type_Safe):
+    bottleneck_id  : Safe_Str__Benchmark_Id                   # Validated benchmark ID
+    bottleneck_pct : Safe_Float__Percentage_Change            # Can be negative (improvement)
+    key_insight    : Safe_Str__Benchmark__Description         # Rich text, max 4096 chars
+    overhead_ns    : Safe_UInt                                # Unsigned timing value
+</code></pre>
+<hr />
+<h2 id="part-6-creating-custom-safe-primitives">Part 6: Creating Custom Safe Primitives<a class="headerlink" href="#part-6-creating-custom-safe-primitives" title="Permanent link">&para;</a></h2>
+<p>If you need a primitive that doesn't exist, create a subclass:</p>
+<h3 id="61-custom-safe_str">6.1 Custom Safe_Str<a class="headerlink" href="#61-custom-safe_str" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import re
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Benchmark__Category(Safe_Str):
+    max_length = 50
+    regex      = re.compile(r'[^a-zA-Z0-9_ ]')   # Only allow alphanumeric, underscore, space
+</code></pre>
+<h3 id="62-custom-safe_uint">6.2 Custom Safe_UInt<a class="headerlink" href="#62-custom-safe_uint" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.Safe_UInt import Safe_UInt
+
+class Safe_UInt__Nanoseconds(Safe_UInt):
+    min_value = 0
+    max_value = 1_000_000_000_000                # Max 1000 seconds in ns
+</code></pre>
+<h3 id="63-custom-safe_float">6.3 Custom Safe_Float<a class="headerlink" href="#63-custom-safe_float" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.core.Safe_Float import Safe_Float
+
+class Safe_Float__Percentage_0_100(Safe_Float):
+    min_value      = 0.0
+    max_value      = 100.0
+    decimal_places = 2
+</code></pre>
+<hr />
+<h2 id="part-7-complete-import-reference">Part 7: Complete Import Reference<a class="headerlink" href="#part-7-complete-import-reference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# Core Type_Safe
+# ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.type_safe.Type_Safe import Type_Safe
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Core Primitives
+# ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.type_safe.primitives.core.Safe_Str   import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Int   import Safe_Int
+from osbot_utils.type_safe.primitives.core.Safe_UInt  import Safe_UInt
+from osbot_utils.type_safe.primitives.core.Safe_Float import Safe_Float
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Collections
+# ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict  import Type_Safe__Dict
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List  import Type_Safe__List
+from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set   import Type_Safe__Set
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Identifier Primitives
+# ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id                    import Safe_Id
+from osbot_utils.type_safe.primitives.domains.identifiers.Random_Guid                import Random_Guid
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_int.Timestamp_Now     import Timestamp_Now
+from osbot_utils.type_safe.primitives.domains.identifiers.safe_str.Safe_Str__Id      import Safe_Str__Id
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Numerical Primitives
+# ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Percentage_Change import Safe_Float__Percentage_Change
+from osbot_utils.type_safe.primitives.domains.numerical.safe_float.Safe_Float__Percentage_Exact  import Safe_Float__Percentage_Exact
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# File Primitives
+# ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Path import Safe_Str__File__Path
+from osbot_utils.type_safe.primitives.domains.files.safe_str.Safe_Str__File__Name import Safe_Str__File__Name
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Performance Benchmark Primitives
+# ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id           import Safe_Str__Benchmark_Id
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Section     import Safe_Str__Benchmark__Section
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Index       import Safe_Str__Benchmark__Index
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Title       import Safe_Str__Benchmark__Title
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Description import Safe_Str__Benchmark__Description
+from osbot_utils.helpers.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Report      import Safe_Str__Benchmark__Report
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Performance Benchmark Enums
+# ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Measure_Mode       import Enum__Measure_Mode
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Benchmark__Trend   import Enum__Benchmark__Trend
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Comparison__Status import Enum__Comparison__Status
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Hypothesis__Status import Enum__Hypothesis__Status
+from osbot_utils.helpers.performance.benchmark.schemas.enums.Enum__Time_Unit          import Enum__Time_Unit
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Performance Benchmark Collections
+# ═══════════════════════════════════════════════════════════════════════════════
+from osbot_utils.helpers.performance.benchmark.schemas.collections.Dict__Benchmark_Results     import Dict__Benchmark_Results
+from osbot_utils.helpers.performance.benchmark.schemas.collections.Dict__Benchmark_Sessions    import Dict__Benchmark_Sessions
+from osbot_utils.helpers.performance.benchmark.schemas.collections.Dict__Benchmark__Legend     import Dict__Benchmark__Legend
+from osbot_utils.helpers.performance.benchmark.schemas.collections.List__Benchmark_Sessions    import List__Benchmark_Sessions
+from osbot_utils.helpers.performance.benchmark.schemas.collections.List__Benchmark_Comparisons import List__Benchmark_Comparisons
+from osbot_utils.helpers.performance.benchmark.schemas.collections.List__Benchmark_Evolutions  import List__Benchmark_Evolutions
+from osbot_utils.helpers.performance.benchmark.schemas.collections.List__Scores                import List__Scores
+from osbot_utils.helpers.performance.benchmark.schemas.collections.List__Titles                import List__Titles
+</code></pre>
+<hr />
+<h2 id="part-8-quick-reference-checklist">Part 8: Quick Reference Checklist<a class="headerlink" href="#part-8-quick-reference-checklist" title="Permanent link">&para;</a></h2>
+<p>When creating performance schemas:</p>
+<ul>
+<li>[ ] <strong>Inherit from Type_Safe</strong> - All schemas extend <code>Type_Safe</code></li>
+<li>[ ] <strong>Ban raw primitives</strong> - Never use <code>str</code>, <code>int</code>, <code>float</code> directly</li>
+<li>[ ] <strong>Use Safe_UInt for timing</strong> - Nanoseconds are never negative</li>
+<li>[ ] <strong>Use enums for modes</strong> - <code>Enum__Measure_Mode</code>, not <code>str</code></li>
+<li>[ ] <strong>Use Timestamp_Now for timestamps</strong> - Auto-generates current time</li>
+<li>[ ] <strong>Create collection subclasses</strong> - <code>List__Scores</code>, not <code>List[int]</code></li>
+<li>[ ] <strong>Name collections with prefix</strong> - <code>Dict__*</code>, <code>List__*</code>, <code>Set__*</code></li>
+<li>[ ] <strong>No methods in schemas</strong> - Pure data containers only</li>
+<li>[ ] <strong>Use domain primitives</strong> - <code>Safe_Str__Benchmark_Id</code>, not <code>Safe_Str</code></li>
+<li>[ ] <strong>Add inline comments</strong> - Explain type constraints, not docstrings</li>
+</ul>
+<hr />
+<h2 id="part-9-existing-schemas-reference">Part 9: Existing Schemas Reference<a class="headerlink" href="#part-9-existing-schemas-reference" title="Permanent link">&para;</a></h2>
+<p>The performance infrastructure already defines these schemas that you can reference:</p>
+<table>
+<thead>
+<tr>
+<th>Schema</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Schema__Perf__Benchmark__Result</code></td>
+<td>Single benchmark measurement</td>
+</tr>
+<tr>
+<td><code>Schema__Perf__Benchmark__Session</code></td>
+<td>Full session with all results</td>
+</tr>
+<tr>
+<td><code>Schema__Perf__Benchmark__Comparison</code></td>
+<td>Two-session benchmark diff</td>
+</tr>
+<tr>
+<td><code>Schema__Perf__Benchmark__Evolution</code></td>
+<td>Multi-session tracking</td>
+</tr>
+<tr>
+<td><code>Schema__Perf__Comparison__Two</code></td>
+<td>Two-session comparison result</td>
+</tr>
+<tr>
+<td><code>Schema__Perf__Evolution</code></td>
+<td>Multi-session evolution result</td>
+</tr>
+<tr>
+<td><code>Schema__Perf__Statistics</code></td>
+<td>Summary statistics</td>
+</tr>
+<tr>
+<td><code>Schema__Perf__Hypothesis__Result</code></td>
+<td>Hypothesis test outcome</td>
+</tr>
+<tr>
+<td><code>Schema__Perf_Benchmark__Timing__Config</code></td>
+<td>Benchmark configuration</td>
+</tr>
+<tr>
+<td><code>Schema__Performance_Measure__Measurement</code></td>
+<td>Raw measurement metrics</td>
+</tr>
+<tr>
+<td><code>Schema__Performance_Measure__Result</code></td>
+<td>Measurement results</td>
+</tr>
+</tbody>
+</table>
+<p>These are all pure data containers following the Type_Safe patterns described in this document.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

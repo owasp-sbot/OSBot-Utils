@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/done/v3.66.3__type-safe-init__performance-analysis-and-improvements/v3.67.0__implementation-brief__add_perf-benchmark-timing/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Implementation Brief: Perf_Benchmark__Timing Infrastructure - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Implementation Brief: Perf_Benchmark__Timing Infrastructure";
+        var mkdocs_page_input_path = "dev-briefs/done/v3.66.3__type-safe-init__performance-analysis-and-improvements/v3.67.0__implementation-brief__add_perf-benchmark-timing.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/done/v3.66.3__type-safe-init__performance-analysis-and-improvements/v3.67.0__implementation-brief__add_perf-benchmark-timing/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Implementation Brief: Perf_Benchmark__Timing Infrastructure</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="implementation-brief-perf_benchmark__timing-infrastructure">Implementation Brief: Perf_Benchmark__Timing Infrastructure<a class="headerlink" href="#implementation-brief-perf_benchmark__timing-infrastructure" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>version</strong>: v3.67.0</li>
+<li><strong>updated</strong>: January 2026</li>
+<li><strong>status</strong>: Ready for Implementation</li>
+</ul>
+<hr />
+<h2 id="1-introduction">1. Introduction<a class="headerlink" href="#1-introduction" title="Permanent link">&para;</a></h2>
+<h3 id="11-what-were-building">1.1 What We're Building<a class="headerlink" href="#11-what-were-building" title="Permanent link">&para;</a></h3>
+<p>This document describes the implementation of a <strong>reusable benchmarking infrastructure</strong> for the <code>osbot_utils</code> library. The goal is to create a clean, Type_Safe framework that makes it easy to:</p>
+<ol>
+<li><strong>Write performance benchmarks</strong> with minimal boilerplate</li>
+<li><strong>Collect and organize results</strong> with automatic section/index extraction</li>
+<li><strong>Generate reports</strong> in multiple formats (text, JSON, markdown, HTML)</li>
+<li><strong>Compare results</strong> between runs (before/after optimization)</li>
+<li><strong>Test hypotheses</strong> about performance improvements</li>
+<li><strong>Track evolution</strong> across multiple benchmark sessions over time</li>
+</ol>
+<pre><code>┌────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                    │
+│   BEFORE: 50+ lines of boilerplate per benchmark file                              │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │  class test_perf__Something(TestCase):                                      │  │
+│   │      @classmethod                                                           │  │
+│   │      def setUpClass(cls):                                                   │  │
+│   │          cls.session = Perf(assert_enabled=True)                            │  │
+│   │          cls.results = {}                                                   │  │
+│   │          cls.time_1_kns = 1000                                              │  │
+│   │          # ... more thresholds ...                                          │  │
+│   │                                                                             │  │
+│   │      @classmethod                                                           │  │
+│   │      def tearDownClass(cls):                                                │  │
+│   │          # ... 30 lines of formatting code ...                              │  │
+│   │          # ... JSON serialization ...                                       │  │
+│   │          # ... file writing ...                                             │  │
+│   │                                                                             │  │
+│   │      def capture_result(self, name, result):                                │  │
+│   │          # ... result capture logic ...                                     │  │
+│   │                                                                             │  │
+│   │      def test_perf__A_01__something(self):                                  │  │
+│   │          with self.session as _:                                            │  │
+│   │              _.measure__quick(lambda: operation())                          │  │
+│   │              self.capture_result('A_01__something', _.result)               │  │
+│   │              _.assert_time__less_than(self.time_1_kns)                      │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+│   AFTER: Clean, minimal test files                                                 │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │  class test_perf__Something(TestCase__Benchmark__Timing):                   │  │
+│   │      config = Perf_Benchmark__Timing__Config(title=&quot;My Benchmarks&quot;)         │  │
+│   │                                                                             │  │
+│   │      def test__A_01__something(self):                                       │  │
+│   │          self.benchmark('A_01__something', lambda: operation())             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="12-why-we-need-this">1.2 Why We Need This<a class="headerlink" href="#12-why-we-need-this" title="Permanent link">&para;</a></h3>
+<p>The <code>osbot_utils</code> library is undergoing performance optimization work, particularly around <code>Type_Safe</code> object creation. To measure and track these optimizations, we need:</p>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Consistent measurement</strong></td>
+<td>Leverage existing <code>Perf</code> class with Fibonacci sampling</td>
+</tr>
+<tr>
+<td><strong>Organized results</strong></td>
+<td>Section/index extraction from benchmark IDs</td>
+</tr>
+<tr>
+<td><strong>Multiple output formats</strong></td>
+<td>Reporter generates txt, JSON, markdown, HTML</td>
+</tr>
+<tr>
+<td><strong>Before/after comparison</strong></td>
+<td>Built-in comparison functionality</td>
+</tr>
+<tr>
+<td><strong>Hypothesis testing</strong></td>
+<td>Structured experiments with baseline vs optimized code</td>
+</tr>
+<tr>
+<td><strong>Evolution tracking</strong></td>
+<td>Load and compare multiple sessions from disk</td>
+</tr>
+<tr>
+<td><strong>Minimal boilerplate</strong></td>
+<td>Base class handles all infrastructure</td>
+</tr>
+<tr>
+<td><strong>Type safety</strong></td>
+<td>All components use Type_Safe patterns</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-the-performance-measurement-foundation-perf-class">1.3 The Performance Measurement Foundation: <code>Perf</code> Class<a class="headerlink" href="#13-the-performance-measurement-foundation-perf-class" title="Permanent link">&para;</a></h3>
+<p>We're building on top of the existing <code>Performance_Measure__Session</code> class (aliased as <code>Perf</code>), which provides sophisticated timing capabilities:</p>
+<pre><code>┌────────────────────────────────────────────────────────────────────────────────────┐
+│                     Performance_Measure__Session (Perf)                            │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│   FIBONACCI SAMPLING                                                               │
+│   ══════════════════                                                               │
+│   Instead of fixed iteration counts, uses Fibonacci sequence for sampling:         │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │  FULL:  [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]             │  │
+│   │         = 1,597 total invocations                                           │  │
+│   │                                                                             │  │
+│   │  FAST:  [1, 2, 3, 5, 8, 13, 21, 34]                                         │  │
+│   │         = 87 total invocations                                              │  │
+│   │                                                                             │  │
+│   │  QUICK: [1, 2, 3, 5, 8]                                                     │  │
+│   │         = 19 total invocations  ◄── We use this for benchmarks              │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+│   WHY FIBONACCI?                                                                   │
+│   • Captures warm-up effects (JIT, caches)                                         │
+│   • Natural progression of sample sizes                                            │
+│   • Statistical stability across different scales                                  │
+│                                                                                    │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│   SCORE CALCULATION                                                                │
+│   ═════════════════                                                                │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │   Raw Times ──► Sort ──► Trim 10% ──► Weighted Score ──► Normalize          │  │
+│   │       │                  each end      (60% median +      to bucket         │  │
+│   │       │                                 40% mean)                           │  │
+│   │       ▼                                                                     │  │
+│   │   [523, 487, 512, 498, 1205, 489, 501, 495, 510, 488]                       │  │
+│   │       │                                                                     │  │
+│   │       ▼ sort                                                                │  │
+│   │   [487, 488, 489, 495, 498, 501, 510, 512, 523, 1205]                       │  │
+│   │       │                                                                     │  │
+│   │       ▼ trim outliers (10% each end)                                        │  │
+│   │   [489, 495, 498, 501, 510, 512, 523]                                       │  │
+│   │       │                                                                     │  │
+│   │       ▼ weighted: 60% median (501) + 40% mean (504)                         │  │
+│   │   raw_score = 502                                                           │  │
+│   │       │                                                                     │  │
+│   │       ▼ normalize to bucket                                                 │  │
+│   │   final_score = 500  (nearest 100ns for sub-µs values)                      │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│   NORMALIZATION BUCKETS                                                            │
+│   ═════════════════════                                                            │
+│                                                                                    │
+│   Score Range          Bucket Size       Example                                   │
+│   ───────────────────────────────────────────────────                              │
+│   &lt; 1,000 ns           100 ns            487 → 500                                 │
+│   &lt; 10,000 ns          1,000 ns          5,234 → 5,000                             │
+│   &lt; 100,000 ns         10,000 ns         52,340 → 50,000                           │
+│   ≥ 100,000 ns         100,000 ns        523,400 → 500,000                         │
+│                                                                                    │
+│   WHY? Makes scores stable across runs and comparable between machines             │
+│                                                                                    │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│   KEY METHODS                                                                      │
+│   ═══════════                                                                      │
+│                                                                                    │
+│   measure(target)        Full measurement (1,597 invocations)                      │
+│   measure__fast(target)  Balanced measurement (87 invocations)                     │
+│   measure__quick(target) Quick measurement (19 invocations) ◄── Our default        │
+│                                                                                    │
+│   assert_time(*expected)        Score must match one of expected values            │
+│   assert_time__less_than(max)   Score must be below threshold                      │
+│   assert_time__more_than(min)   Score must be above threshold                      │
+│                                                                                    │
+│   print()                       Print single-line result                           │
+│   print_report()                Print detailed report with histogram               │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="14-what-were-adding">1.4 What We're Adding<a class="headerlink" href="#14-what-were-adding" title="Permanent link">&para;</a></h3>
+<p>We're wrapping the <code>Perf</code> class with infrastructure that handles:</p>
+<pre><code>┌────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                    │
+│                        NEW BENCHMARKING INFRASTRUCTURE                             │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │   USER CODE                        INFRASTRUCTURE                           │  │
+│   │   ─────────                        ──────────────                           │  │
+│   │                                                                             │  │
+│   │   benchmark('A_01__nop', fn)  ───► Perf_Benchmark__Timing                   │  │
+│   │                                         │                                   │  │
+│   │                                         ├── Calls Perf.measure__quick()     │  │
+│   │                                         │                                   │  │
+│   │                                         ├── Parses ID → section/index       │  │
+│   │                                         │   'A_01__nop' → A, 01, nop        │  │
+│   │                                         │                                   │  │
+│   │                                         ├── Creates Schema result           │  │
+│   │                                         │                                   │  │
+│   │                                         └── Stores in Dict__Results         │  │
+│   │                                                   │                         │  │
+│   │                                                   ▼                         │  │
+│   │                                         Perf_Benchmark__Timing__Reporter    │  │
+│   │                                                   │                         │  │
+│   │                                         ┌────┬────┼────┬────┐               │  │
+│   │                                         ▼    ▼    ▼    ▼    ▼               │  │
+│   │                                      .txt .json .md .html  diff             │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="15-core-concepts">1.5 Core Concepts<a class="headerlink" href="#15-core-concepts" title="Permanent link">&para;</a></h3>
+<p>This infrastructure introduces three key concepts:</p>
+<pre><code>┌────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                    │
+│                              THREE CORE CONCEPTS                                   │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │   1. BENCHMARK SESSION                                                      │  │
+│   │   ════════════════════                                                      │  │
+│   │                                                                             │  │
+│   │   A single execution of a benchmark suite. Captures multiple individual     │  │
+│   │   benchmark measurements in one run.                                        │  │
+│   │                                                                             │  │
+│   │   ┌──────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │  Session: &quot;Type_Safe Performance - 2026-01-06&quot;                       │  │  │
+│   │   │  ├── A_01__python__nop           : 100 ns                            │  │  │
+│   │   │  ├── A_02__python__class_empty   : 200 ns                            │  │  │
+│   │   │  ├── B_01__type_safe__empty      : 800 ns                            │  │  │
+│   │   │  └── B_02__type_safe__primitives : 5,000 ns                          │  │  │
+│   │   └──────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   │   Output: JSON file that can be loaded later for comparison                 │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │   2. HYPOTHESIS                                                             │  │
+│   │   ═════════════                                                             │  │
+│   │                                                                             │  │
+│   │   A structured experiment to test a performance improvement claim.          │  │
+│   │   By definition, a hypothesis has exactly TWO executions:                   │  │
+│   │                                                                             │  │
+│   │   ┌──────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │                                                                      │  │  │
+│   │   │   Hypothesis: &quot;skip_setattr reduces Type_Safe creation by 50%&quot;       │  │  │
+│   │   │                                                                      │  │  │
+│   │   │   ┌─────────────────┐         ┌─────────────────┐                    │  │  │
+│   │   │   │    BEFORE       │         │     AFTER       │                    │  │  │
+│   │   │   │   (baseline)    │   vs    │  (optimized)    │                    │  │  │
+│   │   │   │                 │         │                 │                    │  │  │
+│   │   │   │  Code unchanged │         │  Code modified  │                    │  │  │
+│   │   │   │  5,000 ns       │         │  2,000 ns       │                    │  │  │
+│   │   │   └─────────────────┘         └─────────────────┘                    │  │  │
+│   │   │                                                                      │  │  │
+│   │   │   Result: SUCCESS (-60% improvement, exceeds 50% target)             │  │  │
+│   │   │                                                                      │  │  │
+│   │   └──────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   │   KEY PRINCIPLE: Always measure BEFORE touching the codebase!               │  │
+│   │   The baseline must be captured with unchanged code.                        │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │   3. DIFF (Multi-Session Comparison)                                        │  │
+│   │   ══════════════════════════════════                                        │  │
+│   │                                                                             │  │
+│   │   Compare 2 or more sessions to track performance evolution over time.      │  │
+│   │   Sessions are loaded from saved JSON files.                                │  │
+│   │                                                                             │  │
+│   │   ┌──────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │                                                                      │  │  │
+│   │   │   Load from folder: /benchmarks/type_safe/                           │  │  │
+│   │   │   ├── session_2026_01_01.json                                        │  │  │
+│   │   │   ├── session_2026_01_03.json                                        │  │  │
+│   │   │   ├── session_2026_01_05.json                                        │  │  │
+│   │   │   └── session_2026_01_06.json                                        │  │  │
+│   │   │                                                                      │  │  │
+│   │   │   ┌───────────────────────────────────────────────────────────┐      │  │  │
+│   │   │   │  Benchmark         │ Jan 1  │ Jan 3  │ Jan 5  │ Jan 6     │      │  │  │
+│   │   │   │───────────────────────────────────────────────────────────│      │  │  │
+│   │   │   │  type_safe__empty  │ 800 ns │ 600 ns │ 400 ns │ 300 ns ▼  │      │  │  │
+│   │   │   │  type_safe__prims  │ 5 µs   │ 4 µs   │ 2 µs   │ 500 ns ▼  │      │  │  │
+│   │   │   └───────────────────────────────────────────────────────────┘      │  │  │
+│   │   │                                                                      │  │  │
+│   │   └──────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   │   KEY INSIGHT: The JSON files we save may be the ONLY thing that survives   │  │
+│   │   across versions. The Diff tool can reconstruct analysis from saved files. │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="2-architecture-overview">2. Architecture Overview<a class="headerlink" href="#2-architecture-overview" title="Permanent link">&para;</a></h2>
+<h3 id="21-component-relationships">2.1 Component Relationships<a class="headerlink" href="#21-component-relationships" title="Permanent link">&para;</a></h3>
+<pre><code>┌────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                    │
+│                              COMPONENT ARCHITECTURE                                │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │                    TestCase__Benchmark__Timing                              │  │
+│   │                    (extends unittest.TestCase)                              │  │
+│   │                                                                             │  │
+│   │    ┌─────────────────────────────────────────────────────────────────────┐  │  │
+│   │    │  • setUpClass()   → creates timing, calls start()                   │  │  │
+│   │    │  • tearDownClass() → calls stop(), prints summary                   │  │  │
+│   │    │  • benchmark()    → delegates to self.timing.benchmark()            │  │  │
+│   │    │  • reporter()     → delegates to self.timing.reporter()             │  │  │
+│   │    └─────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                      │                                      │  │
+│   │                                      │ has-a                                │  │
+│   │                                      ▼                                      │  │
+│   │    ┌─────────────────────────────────────────────────────────────────────┐  │  │
+│   │    │                                                                     │  │  │
+│   │    │                    Perf_Benchmark__Timing                           │  │  │
+│   │    │                    (extends Type_Safe)                              │  │  │
+│   │    │                                                                     │  │  │
+│   │    │  ┌────────────────────────────────────────────────────────────────┐ │  │  │
+│   │    │  │  config  : Perf_Benchmark__Timing__Config                      │ │  │  │
+│   │    │  │  results : Dict__Benchmark_Results                             │ │  │  │
+│   │    │  │  session : Performance_Measure__Session (Perf)                 │ │  │  │
+│   │    │  ├────────────────────────────────────────────────────────────────┤ │  │  │
+│   │    │  │  start()     → initialize session                              │ │  │  │
+│   │    │  │  stop()      → finalize, auto-save if configured               │ │  │  │
+│   │    │  │  benchmark() → measure + capture result                        │ │  │  │
+│   │    │  │  reporter()  → create reporter instance                        │ │  │  │
+│   │    │  │  __enter__() → context manager (calls start)                   │ │  │  │
+│   │    │  │  __exit__()  → context manager (calls stop)                    │ │  │  │
+│   │    │  └────────────────────────────────────────────────────────────────┘ │  │  │
+│   │    │                         │                                           │  │  │
+│   │    └─────────────────────────┼───────────────────────────────────────────┘  │  │
+│   │                              │                                              │  │
+│   │                              │ creates                                      │  │
+│   │                              ▼                                              │  │
+│   │    ┌─────────────────────────────────────────────────────────────────────┐  │  │
+│   │    │                                                                     │  │  │
+│   │    │               Perf_Benchmark__Timing__Reporter                      │  │  │
+│   │    │               (extends Type_Safe)                                   │  │  │
+│   │    │                                                                     │  │  │
+│   │    │  ┌────────────────────────────────────────────────────────────────┐ │  │  │
+│   │    │  │  results : Dict__Benchmark_Results                             │ │  │  │
+│   │    │  │  config  : Perf_Benchmark__Timing__Config                      │ │  │  │
+│   │    │  ├────────────────────────────────────────────────────────────────┤ │  │  │
+│   │    │  │  build_text()     → formatted text (uses Print_Table)          │ │  │  │
+│   │    │  │  build_json()     → dict for serialization                     │ │  │  │
+│   │    │  │  build_markdown() → markdown tables                            │ │  │  │
+│   │    │  │  build_html()     → HTML with JavaScript charts                │ │  │  │
+│   │    │  │  save_all()       → write all formats to files                 │ │  │  │
+│   │    │  │  compare()        → before/after comparison (2 sessions)       │ │  │  │
+│   │    │  │  print_summary()  → print to console                           │ │  │  │
+│   │    │  └────────────────────────────────────────────────────────────────┘ │  │  │
+│   │    │                                                                     │  │  │
+│   │    └─────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │                    Perf_Benchmark__Hypothesis                               │  │
+│   │                    (extends Type_Safe)                                      │  │
+│   │                                                                             │  │
+│   │    ┌─────────────────────────────────────────────────────────────────────┐  │  │
+│   │    │  description    : Safe_Str                                          │  │  │
+│   │    │  before_results : Dict__Benchmark_Results                           │  │  │
+│   │    │  after_results  : Dict__Benchmark_Results                           │  │  │
+│   │    │  target_improvement : Safe_Float  (e.g., 0.5 for 50%)               │  │  │
+│   │    ├─────────────────────────────────────────────────────────────────────┤  │  │
+│   │    │  run_before(benchmarks: Callable)  → capture baseline               │  │  │
+│   │    │  run_after(benchmarks: Callable)   → capture optimized              │  │  │
+│   │    │  evaluate() → Schema__Perf__Hypothesis__Result                      │  │  │
+│   │    │  save()     → persist to disk                                       │  │  │
+│   │    └─────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │                    Perf_Benchmark__Diff                                     │  │
+│   │                    (extends Type_Safe)                                      │  │
+│   │                                                                             │  │
+│   │    ┌─────────────────────────────────────────────────────────────────────┐  │  │
+│   │    │  sessions : List__Benchmark_Sessions                                │  │  │
+│   │    ├─────────────────────────────────────────────────────────────────────┤  │  │
+│   │    │  load_session(filepath)  → load single JSON                         │  │  │
+│   │    │  load_folder(path)       → load all JSONs from directory            │  │  │
+│   │    │  compare_two()           → 2-session comparison                     │  │  │
+│   │    │  compare_all()           → multi-session evolution                  │  │  │
+│   │    │  build_evolution_html()  → HTML with charts                         │  │  │
+│   │    │  build_statistics()      → summary stats                            │  │  │
+│   │    └─────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="22-data-flow">2.2 Data Flow<a class="headerlink" href="#22-data-flow" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                     │
+│                                    DATA FLOW                                        │
+│                                                                                     │
+│                                                                                     │
+│    TEST METHOD                                                                      │
+│    ───────────                                                                      │
+│    def test__A_01__nop(self):                                                       │
+│        self.benchmark('A_01__nop', lambda: None)                                    │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│    ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│    │  Perf_Benchmark__Timing.benchmark()                                         │  │
+│    └─────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│    ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│    │  1. Call Perf.measure__quick(target)                                        │  │
+│    │                                                                             │  │
+│    │     ┌────────────────────────────────────────────────────────────────────┐  │  │
+│    │     │  Loop: [1, 2, 3, 5, 8] iterations                                  │  │  │
+│    │     │  For each: time.perf_counter_ns() around target()                  │  │  │
+│    │     │  Collect all times → calculate raw_score → normalize               │  │  │
+│    │     └────────────────────────────────────────────────────────────────────┘  │  │
+│    │                                                                             │  │
+│    │     Returns: session.result (Model__Performance_Measure__Result)            │  │
+│    │              • final_score: 100                                             │  │
+│    │              • raw_score: 87                                                │  │
+│    └─────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│    ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│    │  2. Parse benchmark ID                                                      │  │
+│    │                                                                             │  │
+│    │     'A_01__python__nop'                                                     │  │
+│    │           │                                                                 │  │
+│    │           ▼                                                                 │  │
+│    │     ┌─────────┬─────────┬─────────────────┐                                 │  │
+│    │     │ section │  index  │      name       │                                 │  │
+│    │     │   'A'   │  '01'   │  'python__nop'  │                                 │  │
+│    │     └─────────┴─────────┴─────────────────┘                                 │  │
+│    └─────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│    ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│    │  3. Create Schema__Perf__Benchmark__Result                                  │  │
+│    │                                                                             │  │
+│    │     Schema__Perf__Benchmark__Result(                                        │  │
+│    │         benchmark_id = 'A_01__python__nop'                                  │  │
+│    │         section      = 'A'                                                  │  │
+│    │         index        = '01'                                                 │  │
+│    │         name         = 'python__nop'                                        │  │
+│    │         final_score  = 100                                                  │  │
+│    │         raw_score    = 87                                                   │  │
+│    │     )                                                                       │  │
+│    └─────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│    ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│    │  4. Store in Dict__Benchmark_Results                                        │  │
+│    │                                                                             │  │
+│    │     self.results['A_01__python__nop'] = result                              │  │
+│    └─────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│    ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│    │  5. Optional: Assert time threshold                                         │  │
+│    │                                                                             │  │
+│    │     if assert_less_than:                                                    │  │
+│    │         session.assert_time__less_than(threshold)                           │  │
+│    └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+│                                                                                     │
+│    AFTER ALL TESTS (tearDownClass)                                                  │
+│    ───────────────────────────────                                                  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│    ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│    │  Reporter generates outputs from Dict__Benchmark_Results                    │  │
+│    │                                                                             │  │
+│    │     ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐             │  │
+│    │     │   .txt     │ │   .json    │ │   .md      │ │   .html    │             │  │
+│    │     │            │ │            │ │            │ │            │             │  │
+│    │     │ Print_Table│ │ { results, │ │ # Title    │ │ &lt;html&gt;     │             │  │
+│    │     │ formatted  │ │   sections,│ │ ## Sec A   │ │ Chart.js   │             │  │
+│    │     │ output     │ │   ... }    │ │ | ID |... |│ │ graphs     │             │  │
+│    │     └────────────┘ └────────────┘ └────────────┘ └────────────┘             │  │
+│    └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="23-lifecycle">2.3 Lifecycle<a class="headerlink" href="#23-lifecycle" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                     │
+│                              BENCHMARK LIFECYCLE                                    │
+│                                                                                     │
+│                                                                                     │
+│   OPTION 1: TestCase (for pytest/unittest)                                          │
+│   ════════════════════════════════════════                                          │
+│                                                                                     │
+│   ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐           │
+│   │setUpCls │───►│ test 1  │───►│ test 2  │───►│ test N  │───►│tearDown │           │
+│   │         │    │         │    │         │    │         │    │  Cls    │           │
+│   └────┬────┘    └────┬────┘    └────┬────┘    └────┬────┘    └────┬────┘           │
+│        │              │              │              │              │                │
+│        ▼              ▼              ▼              ▼              ▼                │
+│   ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐           │
+│   │ start() │    │benchmark│    │benchmark│    │benchmark│    │ stop()  │           │
+│   │         │    │   ()    │    │   ()    │    │   ()    │    │ print() │           │
+│   │         │    │         │    │         │    │         │    │ save()? │           │
+│   └─────────┘    └─────────┘    └─────────┘    └─────────┘    └─────────┘           │
+│                                                                                     │
+│                                                                                     │
+│   OPTION 2: Context Manager (for ad-hoc use)                                        │
+│   ══════════════════════════════════════════                                        │
+│                                                                                     │
+│   with Perf_Benchmark__Timing(config=config) as timing:                             │
+│        │                                                                            │
+│        │  ┌──────────────────────────────────────────────────────────────────────┐  │
+│        │  │                                                                      │  │
+│        │  │    __enter__()  ◄─────  calls start()                                │  │
+│        │  │         │                                                            │  │
+│        │  │         ▼                                                            │  │
+│        │  │    timing.benchmark('A_01__test', fn)                                │  │
+│        │  │    timing.benchmark('A_02__test', fn)                                │  │
+│        │  │    timing.benchmark('A_03__test', fn)                                │  │
+│        │  │         │                                                            │  │
+│        │  │         ▼                                                            │  │
+│        │  │    __exit__()  ◄─────  calls stop()                                  │  │
+│        │  │                        (auto-saves if configured)                    │  │
+│        │  │                                                                      │  │
+│        │  └──────────────────────────────────────────────────────────────────────┘  │
+│        │                                                                            │
+│                                                                                     │
+│                                                                                     │
+│   OPTION 3: Manual Control                                                          │
+│   ════════════════════════                                                          │
+│                                                                                     │
+│   timing = Perf_Benchmark__Timing(config=config)                                    │
+│   timing.start()                                                                    │
+│        │                                                                            │
+│        ▼                                                                            │
+│   timing.benchmark('A_01__test', fn)                                                │
+│   timing.benchmark('A_02__test', fn)                                                │
+│        │                                                                            │
+│        ▼                                                                            │
+│   timing.stop()                                                                     │
+│   timing.reporter().save_all()   ◄─────  explicit save                              │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="24-hypothesis-workflow">2.4 Hypothesis Workflow<a class="headerlink" href="#24-hypothesis-workflow" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                     │
+│                             HYPOTHESIS WORKFLOW                                     │
+│                                                                                     │
+│   ┌──────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                              │  │
+│   │   STEP 1: Define Hypothesis                                                  │  │
+│   │   ─────────────────────────                                                  │  │
+│   │                                                                              │  │
+│   │   hypothesis = Perf_Benchmark__Hypothesis(                                   │  │
+│   │       description        = &quot;skip_setattr reduces creation time by 50%&quot;     , │  │
+│   │       target_improvement = 0.5                                             ) │  │
+│   │                                                                              │  │
+│   └──────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│   ┌──────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                              │  │
+│   │   STEP 2: Capture Baseline (BEFORE changing code!)                           │  │
+│   │   ─────────────────────────────────────────────────                          │  │
+│   │                                                                              │  │
+│   │   def run_benchmarks(timing):                                                │  │
+│   │       timing.benchmark('type_safe__empty', lambda: TS__Empty())              │  │
+│   │       timing.benchmark('type_safe__prims', lambda: TS__Prims())              │  │
+│   │                                                                              │  │
+│   │   hypothesis.run_before(run_benchmarks)                                      │  │
+│   │                                                                              │  │
+│   │   ┌───────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │  BASELINE CAPTURED                                                    │  │  │
+│   │   │  • type_safe__empty  : 800 ns                                         │  │  │
+│   │   │  • type_safe__prims  : 5,000 ns                                       │  │  │
+│   │   └───────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                              │  │
+│   └──────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│   ┌──────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                              │  │
+│   │   STEP 3: Make Code Changes                                                  │  │
+│   │   ──────────────────────────                                                 │  │
+│   │                                                                              │  │
+│   │   # Modify Type_Safe.__init__ to check config.skip_setattr                   │  │
+│   │   # ... implement the optimization ...                                       │  │
+│   │                                                                              │  │
+│   └──────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│   ┌──────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                              │  │
+│   │   STEP 4: Capture After                                                      │  │
+│   │   ─────────────────────                                                      │  │
+│   │                                                                              │  │
+│   │   hypothesis.run_after(run_benchmarks)                                       │  │
+│   │                                                                              │  │
+│   │   ┌───────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │  AFTER CAPTURED                                                       │  │  │
+│   │   │  • type_safe__empty  : 300 ns                                         │  │  │
+│   │   │  • type_safe__prims  : 500 ns                                         │  │  │
+│   │   └───────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                              │  │
+│   └──────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│   ┌──────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                              │  │
+│   │   STEP 5: Evaluate                                                           │  │
+│   │   ────────────────                                                           │  │
+│   │                                                                              │  │
+│   │   result = hypothesis.evaluate()                                             │  │
+│   │                                                                              │  │
+│   │   ┌───────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │  HYPOTHESIS RESULT                                                    │  │  │
+│   │   │                                                                       │  │  │
+│   │   │  Description: &quot;skip_setattr reduces creation time by 50%&quot;             │  │  │
+│   │   │  Target: 50% improvement                                              │  │  │
+│   │   │                                                                       │  │  │
+│   │   │  Benchmark            Before    After     Change                      │  │  │
+│   │   │  ─────────────────────────────────────────────────                    │  │  │
+│   │   │  type_safe__empty     800 ns    300 ns    -62.5% ▼                    │  │  │
+│   │   │  type_safe__prims     5,000 ns  500 ns    -90.0% ▼                    │  │  │
+│   │   │                                                                       │  │  │
+│   │   │  Average improvement: 76.25%                                          │  │  │
+│   │   │                                                                       │  │  │
+│   │   │  ╔═══════════════════════════════════════════════════════════════╗    │  │  │
+│   │   │  ║  RESULT: ✓ SUCCESS (76.25% &gt; 50% target)                      ║    │  │  │
+│   │   │  ╚═══════════════════════════════════════════════════════════════╝    │  │  │
+│   │   └───────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                              │  │
+│   └──────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│   ┌──────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                              │  │
+│   │   STEP 6: Save (optional)                                                    │  │
+│   │   ───────────────────────                                                    │  │
+│   │                                                                              │  │
+│   │   hypothesis.save('/benchmarks/hypotheses/skip_setattr_2026_01_06.json')     │  │
+│   │                                                                              │  │
+│   └──────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="25-diff-workflow">2.5 Diff Workflow<a class="headerlink" href="#25-diff-workflow" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                     │
+│                               DIFF WORKFLOW                                         │
+│                                                                                     │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │   LOADING SESSIONS                                                          │  │
+│   │   ════════════════                                                          │  │
+│   │                                                                             │  │
+│   │   diff = Perf_Benchmark__Diff()                                             │  │
+│   │                                                                             │  │
+│   │   # Option A: Load individual files                                         │  │
+│   │   diff.load_session('/benchmarks/session_jan_01.json')                      │  │
+│   │   diff.load_session('/benchmarks/session_jan_03.json')                      │  │
+│   │   diff.load_session('/benchmarks/session_jan_06.json')                      │  │
+│   │                                                                             │  │
+│   │   # Option B: Load all from folder                                          │  │
+│   │   diff.load_folder('/benchmarks/type_safe/')                                │  │
+│   │                                                                             │  │
+│   │   ┌─────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │  /benchmarks/type_safe/                                             │  │  │
+│   │   │  ├── session_2026_01_01.json  ──► loaded                            │  │  │
+│   │   │  ├── session_2026_01_03.json  ──► loaded                            │  │  │
+│   │   │  ├── session_2026_01_05.json  ──► loaded                            │  │  │
+│   │   │  ├── session_2026_01_06.json  ──► loaded                            │  │  │
+│   │   │  └── README.md                ──► skipped (not JSON)                │  │  │
+│   │   └─────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │   TWO-SESSION COMPARISON                                                    │  │
+│   │   ══════════════════════                                                    │  │
+│   │                                                                             │  │
+│   │   result = diff.compare_two(session_0, session_1)                           │  │
+│   │                                                                             │  │
+│   │   ┌─────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │  Comparison: Jan 1 vs Jan 6                                         │  │  │
+│   │   │                                                                     │  │  │
+│   │   │  Benchmark            Jan 1       Jan 6       Change                │  │  │
+│   │   │  ─────────────────────────────────────────────────────              │  │  │
+│   │   │  type_safe__empty     800 ns      300 ns      -62.5% ▼              │  │  │
+│   │   │  type_safe__prims     5,000 ns    500 ns      -90.0% ▼              │  │  │
+│   │   │  type_safe__nested    20,000 ns   1,000 ns    -95.0% ▼              │  │  │
+│   │   │                                                                     │  │  │
+│   │   │  Average: -82.5% improvement                                        │  │  │
+│   │   └─────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │   MULTI-SESSION EVOLUTION                                                   │  │
+│   │   ═══════════════════════                                                   │  │
+│   │                                                                             │  │
+│   │   result = diff.compare_all()                                               │  │
+│   │                                                                             │  │
+│   │   ┌─────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │  Evolution: 4 sessions                                              │  │  │
+│   │   │                                                                     │  │  │
+│   │   │  Benchmark         Jan 1    Jan 3    Jan 5    Jan 6    Trend        │  │  │
+│   │   │  ────────────────────────────────────────────────────────────       │  │  │
+│   │   │  type_safe__empty  800 ns   600 ns   400 ns   300 ns   ▼▼▼         │  │  │
+│   │   │  type_safe__prims  5 µs     4 µs     2 µs     500 ns   ▼▼▼         │  │  │
+│   │   │  type_safe__nested 20 µs    15 µs    5 µs     1 µs     ▼▼▼         │  │  │
+│   │   │                                                                     │  │  │
+│   │   │  Summary:                                                           │  │  │
+│   │   │  • All benchmarks improved                                          │  │  │
+│   │   │  • Biggest gain: type_safe__nested (-95%)                           │  │  │
+│   │   │  • Steady improvement across all sessions                           │  │  │
+│   │   └─────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                  │                                                                  │
+│                  ▼                                                                  │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                             │  │
+│   │   HTML OUTPUT WITH CHARTS                                                   │  │
+│   │   ═══════════════════════                                                   │  │
+│   │                                                                             │  │
+│   │   diff.build_evolution_html('/reports/type_safe_evolution.html')            │  │
+│   │                                                                             │  │
+│   │   ┌─────────────────────────────────────────────────────────────────────┐  │  │
+│   │   │  &lt;html&gt;                                                             │  │  │
+│   │   │    &lt;script src=&quot;chart.js&quot;&gt;                                          │  │  │
+│   │   │                                                                     │  │  │
+│   │   │    ┌───────────────────────────────────────────────────────────┐   │  │  │
+│   │   │    │      Performance Evolution                                │   │  │  │
+│   │   │    │  ns                                                       │   │  │  │
+│   │   │    │  ▲                                                        │   │  │  │
+│   │   │    │  │  ●                                                     │   │  │  │
+│   │   │    │  │   ╲                                                    │   │  │  │
+│   │   │    │  │    ●                                                   │   │  │  │
+│   │   │    │  │     ╲                                                  │   │  │  │
+│   │   │    │  │      ●                                                 │   │  │  │
+│   │   │    │  │       ╲                                                │   │  │  │
+│   │   │    │  │        ●                                               │   │  │  │
+│   │   │    │  └──────────────────────────────────────────────────► date│   │  │  │
+│   │   │    │    Jan 1   Jan 3   Jan 5   Jan 6                          │   │  │  │
+│   │   │    └───────────────────────────────────────────────────────────┘   │  │  │
+│   │   │                                                                     │  │  │
+│   │   │  &lt;/html&gt;                                                            │  │  │
+│   │   └─────────────────────────────────────────────────────────────────────┘  │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="3-file-structure">3. File Structure<a class="headerlink" href="#3-file-structure" title="Permanent link">&para;</a></h2>
+<pre><code>osbot_utils/testing/performance/benchmark/
+│
+├── __init__.py
+│
+├── Perf_Benchmark__Timing.py                              # Core benchmark logic
+├── Perf_Benchmark__Timing__Config.py                      # Configuration schema  
+├── Perf_Benchmark__Timing__Reporter.py                    # Output generation
+├── TestCase__Benchmark__Timing.py                         # TestCase subclass
+│
+├── Perf_Benchmark__Hypothesis.py                          # Hypothesis testing
+├── Perf_Benchmark__Diff.py                                # Multi-session comparison
+│
+└── schemas/
+    │
+    ├── __init__.py
+    │
+    ├── Schema__Perf__Benchmark__Result.py                 # Single benchmark result
+    ├── Schema__Perf__Benchmark__Session.py                # Full session data
+    ├── Schema__Perf__Hypothesis__Result.py                # Hypothesis outcome
+    │
+    ├── safe_str/
+    │   ├── __init__.py
+    │   ├── Safe_Str__Benchmark_Id.py                      # &quot;A_01__python__nop&quot;
+    │   ├── Safe_Str__Benchmark__Section.py                # &quot;A&quot;, &quot;Python&quot;  
+    │   └── Safe_Str__Benchmark__Index.py                  # &quot;01&quot;, &quot;02&quot;
+    │
+    ├── collections/
+    │   ├── __init__.py
+    │   ├── Dict__Benchmark_Results.py                     # {id → result}
+    │   ├── Dict__Benchmark__Legend.py                     # {section → description}
+    │   └── List__Benchmark_Sessions.py                    # [session, session, ...]
+    │
+    └── enums/
+        ├── __init__.py
+        ├── Enum__Time_Unit.py                             # NANOSECONDS, MICROSECONDS, etc.
+        └── Enum__Hypothesis__Status.py                    # SUCCESS, FAILURE, INCONCLUSIVE
+</code></pre>
+<hr />
+<h2 id="4-schema-definitions">4. Schema Definitions<a class="headerlink" href="#4-schema-definitions" title="Permanent link">&para;</a></h2>
+<h3 id="41-custom-primitives">4.1 Custom Primitives<a class="headerlink" href="#41-custom-primitives" title="Permanent link">&para;</a></h3>
+<p><strong><code>Safe_Str__Benchmark_Id</code></strong> - Full benchmark identifier</p>
+<pre><code class="language-python"># File: benchmark/schemas/safe_str/Safe_Str__Benchmark_Id.py
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Benchmark_Id(Safe_Str):                    # e.g., &quot;A_01__python__nop&quot;
+    max_length = 100
+</code></pre>
+<p><strong><code>Safe_Str__Benchmark__Section</code></strong> - Section identifier</p>
+<pre><code class="language-python"># File: benchmark/schemas/safe_str/Safe_Str__Benchmark__Section.py
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Benchmark__Section(Safe_Str):              # e.g., &quot;A&quot;, &quot;Python&quot;
+    max_length = 50
+</code></pre>
+<p><strong><code>Safe_Str__Benchmark__Index</code></strong> - Index within section</p>
+<pre><code class="language-python"># File: benchmark/schemas/safe_str/Safe_Str__Benchmark__Index.py
+from osbot_utils.type_safe.primitives.core.Safe_Str import Safe_Str
+
+class Safe_Str__Benchmark__Index(Safe_Str):                # e.g., &quot;01&quot;, &quot;02&quot;
+    max_length = 10
+</code></pre>
+<h3 id="42-enums">4.2 Enums<a class="headerlink" href="#42-enums" title="Permanent link">&para;</a></h3>
+<p><strong><code>Enum__Time_Unit</code></strong> - Time display unit</p>
+<pre><code class="language-python"># File: benchmark/schemas/enums/Enum__Time_Unit.py
+from enum import Enum
+
+class Enum__Time_Unit(Enum):
+    NANOSECONDS  = 'ns'
+    MICROSECONDS = 'µs'
+    MILLISECONDS = 'ms'
+    SECONDS      = 's'
+</code></pre>
+<p><strong><code>Enum__Hypothesis__Status</code></strong> - Hypothesis outcome</p>
+<pre><code class="language-python"># File: benchmark/schemas/enums/Enum__Hypothesis__Status.py
+from enum import Enum
+
+class Enum__Hypothesis__Status(Enum):
+    SUCCESS      = 'success'                               # Met or exceeded target
+    FAILURE      = 'failure'                               # Did not meet target
+    INCONCLUSIVE = 'inconclusive'                          # Mixed results
+    REGRESSION   = 'regression'                            # Performance got worse
+</code></pre>
+<h3 id="43-collections">4.3 Collections<a class="headerlink" href="#43-collections" title="Permanent link">&para;</a></h3>
+<p><strong><code>Dict__Benchmark_Results</code></strong> - Results collection</p>
+<pre><code class="language-python"># File: benchmark/schemas/collections/Dict__Benchmark_Results.py
+from osbot_utils.type_safe.shared.Type_Safe__Dict                                            import Type_Safe__Dict
+from osbot_utils.testing.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id       import Safe_Str__Benchmark_Id
+from osbot_utils.testing.performance.benchmark.schemas.Schema__Perf__Benchmark__Result       import Schema__Perf__Benchmark__Result
+
+class Dict__Benchmark_Results(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Benchmark_Id
+    expected_value_type = Schema__Perf__Benchmark__Result
+</code></pre>
+<p><strong><code>Dict__Benchmark__Legend</code></strong> - Section legend</p>
+<pre><code class="language-python"># File: benchmark/schemas/collections/Dict__Benchmark__Legend.py
+from osbot_utils.type_safe.shared.Type_Safe__Dict                                            import Type_Safe__Dict
+from osbot_utils.type_safe.primitives.core.Safe_Str                                          import Safe_Str
+from osbot_utils.testing.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Section import Safe_Str__Benchmark__Section
+
+class Dict__Benchmark__Legend(Type_Safe__Dict):
+    expected_key_type   = Safe_Str__Benchmark__Section
+    expected_value_type = Safe_Str
+</code></pre>
+<p><strong><code>List__Benchmark_Sessions</code></strong> - Sessions list for Diff</p>
+<pre><code class="language-python"># File: benchmark/schemas/collections/List__Benchmark_Sessions.py
+from osbot_utils.type_safe.shared.Type_Safe__List                                            import Type_Safe__List
+from osbot_utils.testing.performance.benchmark.schemas.Schema__Perf__Benchmark__Session      import Schema__Perf__Benchmark__Session
+
+class List__Benchmark_Sessions(Type_Safe__List):
+    expected_type = Schema__Perf__Benchmark__Session
+</code></pre>
+<h3 id="44-result-schemas">4.4 Result Schemas<a class="headerlink" href="#44-result-schemas" title="Permanent link">&para;</a></h3>
+<p><strong><code>Schema__Perf__Benchmark__Result</code></strong> - Single benchmark result</p>
+<pre><code class="language-python"># File: benchmark/schemas/Schema__Perf__Benchmark__Result.py
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                          import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                         import Safe_UInt
+from osbot_utils.testing.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id       import Safe_Str__Benchmark_Id
+from osbot_utils.testing.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Section import Safe_Str__Benchmark__Section
+from osbot_utils.testing.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark__Index   import Safe_Str__Benchmark__Index
+
+class Schema__Perf__Benchmark__Result(Type_Safe):          # Single benchmark result (pure data)
+    benchmark_id : Safe_Str__Benchmark_Id                  # Full ID: &quot;A_01__python__nop&quot;
+    section      : Safe_Str__Benchmark__Section            # Extracted: &quot;A&quot;
+    index        : Safe_Str__Benchmark__Index              # Extracted: &quot;01&quot;
+    name         : Safe_Str                                # Extracted: &quot;python__nop&quot;
+    final_score  : Safe_UInt                               # Normalized score in ns
+    raw_score    : Safe_UInt                               # Raw score in ns
+</code></pre>
+<p><strong><code>Schema__Perf__Benchmark__Session</code></strong> - Full session for serialization</p>
+<pre><code class="language-python"># File: benchmark/schemas/Schema__Perf__Benchmark__Session.py
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                          import Safe_Str
+from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                      import Timestamp_Now
+from osbot_utils.testing.performance.benchmark.schemas.collections.Dict__Benchmark_Results   import Dict__Benchmark_Results
+from osbot_utils.testing.performance.benchmark.schemas.collections.Dict__Benchmark__Legend   import Dict__Benchmark__Legend
+
+class Schema__Perf__Benchmark__Session(Type_Safe):         # Full session (pure data)
+    title       : Safe_Str                                 # Session title
+    description : Safe_Str                                 # Optional description
+    timestamp   : Timestamp_Now                            # When session was run
+    results     : Dict__Benchmark_Results                  # All benchmark results
+    legend      : Dict__Benchmark__Legend                  # Section descriptions
+</code></pre>
+<p><strong><code>Schema__Perf__Hypothesis__Result</code></strong> - Hypothesis outcome</p>
+<pre><code class="language-python"># File: benchmark/schemas/Schema__Perf__Hypothesis__Result.py
+from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                           import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Float                                         import Safe_Float
+from osbot_utils.type_safe.primitives.domains.identifiers.Timestamp_Now                       import Timestamp_Now
+from osbot_utils.testing.performance.benchmark.schemas.collections.Dict__Benchmark_Results    import Dict__Benchmark_Results
+from osbot_utils.testing.performance.benchmark.schemas.enums.Enum__Hypothesis__Status         import Enum__Hypothesis__Status
+
+class Schema__Perf__Hypothesis__Result(Type_Safe):         # Hypothesis outcome (pure data)
+    description        : Safe_Str                          # What we're testing
+    target_improvement : Safe_Float                        # e.g., 0.5 for 50%
+    actual_improvement : Safe_Float                        # Calculated from results
+    before_results     : Dict__Benchmark_Results           # Baseline measurements
+    after_results      : Dict__Benchmark_Results           # Optimized measurements
+    status             : Enum__Hypothesis__Status          # SUCCESS, FAILURE, etc.
+    timestamp          : Timestamp_Now                     # When evaluated
+    comments           : Safe_Str                          # Optional notes
+</code></pre>
+<hr />
+<h2 id="5-class-specifications">5. Class Specifications<a class="headerlink" href="#5-class-specifications" title="Permanent link">&para;</a></h2>
+<h3 id="51-perf_benchmark__timing__config-schema-pure-data">5.1 <code>Perf_Benchmark__Timing__Config</code> (Schema - Pure Data)<a class="headerlink" href="#51-perf_benchmark__timing__config-schema-pure-data" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># File: benchmark/Perf_Benchmark__Timing__Config.py
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                          import Safe_Str
+from osbot_utils.testing.performance.benchmark.schemas.collections.Dict__Benchmark__Legend   import Dict__Benchmark__Legend
+from osbot_utils.testing.performance.benchmark.schemas.enums.Enum__Time_Unit                 import Enum__Time_Unit
+
+class Perf_Benchmark__Timing__Config(Type_Safe):           # Configuration (pure data)
+    title                   : Safe_Str                     # &quot;Type_Safe__Config Performance Baselines&quot;
+    description             : Safe_Str                     # Optional subtitle
+    output_path             : Safe_Str                     # Base path for output files
+    output_prefix           : Safe_Str                     # Filename prefix
+    legend                  : Dict__Benchmark__Legend      # Optional: {'A': 'Python', 'B': 'Config'}
+    time_unit               : Enum__Time_Unit = Enum__Time_Unit.NANOSECONDS
+    print_to_console        : bool            = True       # Print on report generation
+    auto_save_on_completion : bool            = False      # Save in stop()/__exit__/tearDownClass
+</code></pre>
+<h3 id="52-perf_benchmark__timing-core-logic-has-methods">5.2 <code>Perf_Benchmark__Timing</code> (Core Logic - Has Methods)<a class="headerlink" href="#52-perf_benchmark__timing-core-logic-has-methods" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># File: benchmark/Perf_Benchmark__Timing.py
+from typing                                                                                  import Callable, Optional
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                         import Safe_UInt
+from osbot_utils.testing.performance.Performance_Measure__Session                            import Perf
+from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Timing__Config                import Perf_Benchmark__Timing__Config
+from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Timing__Reporter              import Perf_Benchmark__Timing__Reporter
+from osbot_utils.testing.performance.benchmark.schemas.collections.Dict__Benchmark_Results   import Dict__Benchmark_Results
+from osbot_utils.testing.performance.benchmark.schemas.Schema__Perf__Benchmark__Result       import Schema__Perf__Benchmark__Result
+from osbot_utils.testing.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id       import Safe_Str__Benchmark_Id
+
+class Perf_Benchmark__Timing(Type_Safe):
+    config  : Perf_Benchmark__Timing__Config               # Configuration
+    results : Dict__Benchmark_Results                      # Collected results
+    session : Perf                                         # Performance measurement session
+
+    # Standard thresholds (nanoseconds)
+    time_100_ns  : Safe_UInt =     100
+    time_500_ns  : Safe_UInt =     500
+    time_1_kns   : Safe_UInt =   1_000
+    time_2_kns   : Safe_UInt =   2_000
+    time_5_kns   : Safe_UInt =   5_000
+    time_10_kns  : Safe_UInt =  10_000
+    time_20_kns  : Safe_UInt =  20_000
+    time_50_kns  : Safe_UInt =  50_000
+    time_100_kns : Safe_UInt = 100_000
+
+    # Lifecycle methods
+    def start(self) -&gt; 'Perf_Benchmark__Timing': ...       # Initialize session
+    def stop(self) -&gt; 'Perf_Benchmark__Timing': ...        # Finalize, optionally save
+
+    # Context manager
+    def __enter__(self) -&gt; 'Perf_Benchmark__Timing': ...   # Calls start()
+    def __exit__(self, *args) -&gt; None: ...                 # Calls stop()
+
+    # Core benchmark method
+    def benchmark(self, 
+                  benchmark_id    : Safe_Str__Benchmark_Id             ,
+                  target          : Callable                           ,
+                  assert_less_than: Optional[Safe_UInt] = None         ) -&gt; Schema__Perf__Benchmark__Result: ...
+
+    # Reporter access
+    def reporter(self) -&gt; Perf_Benchmark__Timing__Reporter: ...
+
+    # Helpers
+    def _parse_benchmark_id(self, benchmark_id: Safe_Str__Benchmark_Id) -&gt; tuple: ...
+</code></pre>
+<h3 id="53-testcase__benchmark__timing-testcase-subclass">5.3 <code>TestCase__Benchmark__Timing</code> (TestCase Subclass)<a class="headerlink" href="#53-testcase__benchmark__timing-testcase-subclass" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># File: benchmark/TestCase__Benchmark__Timing.py
+from typing                                                                                  import Callable, Optional
+from unittest                                                                                import TestCase
+from osbot_utils.type_safe.primitives.core.Safe_UInt                                         import Safe_UInt
+from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Timing                        import Perf_Benchmark__Timing
+from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Timing__Config                import Perf_Benchmark__Timing__Config
+from osbot_utils.testing.performance.benchmark.schemas.Schema__Perf__Benchmark__Result       import Schema__Perf__Benchmark__Result
+from osbot_utils.testing.performance.benchmark.schemas.safe_str.Safe_Str__Benchmark_Id       import Safe_Str__Benchmark_Id
+
+class TestCase__Benchmark__Timing(TestCase):               # For use in test files
+    config : Perf_Benchmark__Timing__Config                # Class attribute - override in subclass
+    timing : Perf_Benchmark__Timing                        # Set in setUpClass
+
+    # Expose thresholds at class level for convenience
+    time_100_ns  = 100
+    time_500_ns  = 500
+    time_1_kns   = 1_000
+    time_2_kns   = 2_000
+    time_5_kns   = 5_000
+    time_10_kns  = 10_000
+    time_20_kns  = 20_000
+    time_50_kns  = 50_000
+    time_100_kns = 100_000
+
+    @classmethod
+    def setUpClass(cls) -&gt; None:
+        cls.timing = Perf_Benchmark__Timing(config=cls.config)
+        cls.timing.start()
+
+    @classmethod
+    def tearDownClass(cls) -&gt; None:
+        cls.timing.stop()                                  # Handles auto_save if configured
+        if cls.config.print_to_console:
+            cls.timing.reporter().print_summary()
+
+    # Delegate to timing instance
+    def benchmark(self,
+                  benchmark_id    : Safe_Str__Benchmark_Id             ,
+                  target          : Callable                           ,
+                  assert_less_than: Optional[Safe_UInt] = None         ) -&gt; Schema__Perf__Benchmark__Result:
+        return self.timing.benchmark(benchmark_id, target, assert_less_than)
+
+    # Access reporter
+    @classmethod
+    def reporter(cls) -&gt; 'Perf_Benchmark__Timing__Reporter':
+        return cls.timing.reporter()
+</code></pre>
+<h3 id="54-perf_benchmark__timing__reporter-has-methods">5.4 <code>Perf_Benchmark__Timing__Reporter</code> (Has Methods)<a class="headerlink" href="#54-perf_benchmark__timing__reporter-has-methods" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># File: benchmark/Perf_Benchmark__Timing__Reporter.py
+from osbot_utils.type_safe.Type_Safe                                                         import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                          import Safe_Str
+from osbot_utils.utils.Print_Table                                                           import Print_Table
+from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Timing__Config                import Perf_Benchmark__Timing__Config
+from osbot_utils.testing.performance.benchmark.schemas.collections.Dict__Benchmark_Results   import Dict__Benchmark_Results
+from osbot_utils.testing.performance.benchmark.schemas.collections.Dict__Benchmark__Legend   import Dict__Benchmark__Legend
+
+class Perf_Benchmark__Timing__Reporter(Type_Safe):
+    results : Dict__Benchmark_Results                      # Benchmark results
+    config  : Perf_Benchmark__Timing__Config               # Configuration
+
+    # Output generation (uses Print_Table internally)
+    def build_text(self)     -&gt; Safe_Str: ...              # Formatted text with sections
+    def build_json(self)     -&gt; dict: ...                  # Native dict for json.dump
+    def build_markdown(self) -&gt; Safe_Str: ...              # Markdown tables
+    def build_html(self)     -&gt; Safe_Str: ...              # HTML with JavaScript charts
+
+    # File operations
+    def save_all(self) -&gt; None: ...                        # Writes .txt, .json, .md, .html
+    def save_text(self, filepath: Safe_Str) -&gt; None: ...
+    def save_json(self, filepath: Safe_Str) -&gt; None: ...
+    def save_markdown(self, filepath: Safe_Str) -&gt; None: ...
+    def save_html(self, filepath: Safe_Str) -&gt; None: ...
+
+    # Comparison (2 sessions)
+    def compare(self, other: 'Perf_Benchmark__Timing__Reporter') -&gt; Safe_Str: ...
+    def compare_from_json(self, filepath: Safe_Str) -&gt; Safe_Str: ...
+
+    # Helpers
+    def detect_sections(self) -&gt; Dict__Benchmark__Legend: ...
+    def print_summary(self) -&gt; None: ...
+
+    # Internal - uses Print_Table
+    def _create_results_table(self) -&gt; Print_Table: ...
+    def _create_comparison_table(self, other_results: Dict__Benchmark_Results) -&gt; Print_Table: ...
+    def _create_html_chart(self) -&gt; Safe_Str: ...
+</code></pre>
+<h3 id="55-perf_benchmark__hypothesis-hypothesis-testing">5.5 <code>Perf_Benchmark__Hypothesis</code> (Hypothesis Testing)<a class="headerlink" href="#55-perf_benchmark__hypothesis-hypothesis-testing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># File: benchmark/Perf_Benchmark__Hypothesis.py
+from typing                                                                                   import Callable
+from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                           import Safe_Str
+from osbot_utils.type_safe.primitives.core.Safe_Float                                         import Safe_Float
+from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Timing                         import Perf_Benchmark__Timing
+from osbot_utils.testing.performance.benchmark.schemas.collections.Dict__Benchmark_Results    import Dict__Benchmark_Results
+from osbot_utils.testing.performance.benchmark.schemas.Schema__Perf__Hypothesis__Result       import Schema__Perf__Hypothesis__Result
+
+class Perf_Benchmark__Hypothesis(Type_Safe):
+    description        : Safe_Str                          # What we're testing
+    target_improvement : Safe_Float                        # e.g., 0.5 for 50%
+    before_results     : Dict__Benchmark_Results           # Baseline (captured first)
+    after_results      : Dict__Benchmark_Results           # Optimized (captured after code changes)
+    comments           : Safe_Str                          # Optional notes
+
+    # Capture methods
+    def run_before(self, 
+                   benchmarks: Callable[[Perf_Benchmark__Timing], None]) -&gt; 'Perf_Benchmark__Hypothesis': ...
+
+    def run_after(self, 
+                  benchmarks: Callable[[Perf_Benchmark__Timing], None]) -&gt; 'Perf_Benchmark__Hypothesis': ...
+
+    # Evaluation
+    def evaluate(self) -&gt; Schema__Perf__Hypothesis__Result: ...
+
+    # Persistence
+    def save(self, filepath: Safe_Str) -&gt; None: ...
+
+    @classmethod
+    def load(cls, filepath: Safe_Str) -&gt; 'Perf_Benchmark__Hypothesis': ...
+
+    # Reporting
+    def print_result(self) -&gt; None: ...
+</code></pre>
+<h3 id="56-perf_benchmark__diff-multi-session-comparison">5.6 <code>Perf_Benchmark__Diff</code> (Multi-Session Comparison)<a class="headerlink" href="#56-perf_benchmark__diff-multi-session-comparison" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># File: benchmark/Perf_Benchmark__Diff.py
+from osbot_utils.type_safe.Type_Safe                                                          import Type_Safe
+from osbot_utils.type_safe.primitives.core.Safe_Str                                           import Safe_Str
+from osbot_utils.testing.performance.benchmark.schemas.collections.List__Benchmark_Sessions   import List__Benchmark_Sessions
+from osbot_utils.testing.performance.benchmark.schemas.Schema__Perf__Benchmark__Session       import Schema__Perf__Benchmark__Session
+from osbot_utils.utils.Print_Table                                                            import Print_Table
+
+class Perf_Benchmark__Diff(Type_Safe):
+    sessions : List__Benchmark_Sessions                    # Loaded sessions
+
+    # Loading
+    def load_session(self, filepath: Safe_Str) -&gt; 'Perf_Benchmark__Diff': ...
+    def load_folder(self, folder_path: Safe_Str) -&gt; 'Perf_Benchmark__Diff': ...
+
+    # Comparison
+    def compare_two(self, 
+                    session_a: Schema__Perf__Benchmark__Session = None,
+                    session_b: Schema__Perf__Benchmark__Session = None) -&gt; Safe_Str: ...
+
+    def compare_all(self) -&gt; Safe_Str: ...
+
+    # Output
+    def build_evolution_text(self) -&gt; Safe_Str: ...
+    def build_evolution_html(self) -&gt; Safe_Str: ...        # With Chart.js graphs
+    def build_statistics(self) -&gt; Safe_Str: ...
+
+    # File operations
+    def save_comparison(self, filepath: Safe_Str) -&gt; None: ...
+    def save_evolution_html(self, filepath: Safe_Str) -&gt; None: ...
+
+    # Helpers
+    def _create_evolution_table(self) -&gt; Print_Table: ...
+    def _create_chart_js_data(self) -&gt; Safe_Str: ...
+</code></pre>
+<hr />
+<h2 id="6-key-method-implementations">6. Key Method Implementations<a class="headerlink" href="#6-key-method-implementations" title="Permanent link">&para;</a></h2>
+<h3 id="61-perf_benchmark__timingbenchmark">6.1 <code>Perf_Benchmark__Timing.benchmark()</code><a class="headerlink" href="#61-perf_benchmark__timingbenchmark" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def benchmark(self, benchmark_id, target, assert_less_than=None):
+    self.session.measure__quick(target)
+    perf_result = self.session.result
+
+    # Extract section and index from ID
+    section, index, name = self._parse_benchmark_id(benchmark_id)
+
+    result = Schema__Perf__Benchmark__Result(
+        benchmark_id = benchmark_id                                               ,
+        section      = section                                                    ,
+        index        = index                                                      ,
+        name         = name                                                       ,
+        final_score  = Safe_UInt(int(perf_result.final_score))                    ,
+        raw_score    = Safe_UInt(int(perf_result.raw_score  ))                    )
+
+    self.results[benchmark_id] = result
+
+    if assert_less_than:
+        self.session.assert_time__less_than(int(assert_less_than))
+
+    return result
+
+def _parse_benchmark_id(self, benchmark_id):
+    # &quot;A_01__python__nop&quot; → (&quot;A&quot;, &quot;01&quot;, &quot;python__nop&quot;)
+    parts = str(benchmark_id).split('_', 2)
+    if len(parts) &gt;= 3:
+        return (Safe_Str__Benchmark__Section(parts[0]), 
+                Safe_Str__Benchmark__Index(parts[1]), 
+                Safe_Str(parts[2].lstrip('_')))
+    return (Safe_Str__Benchmark__Section(''), 
+            Safe_Str__Benchmark__Index(''), 
+            Safe_Str(str(benchmark_id)))
+</code></pre>
+<h3 id="62-perf_benchmark__timingstart-stop">6.2 <code>Perf_Benchmark__Timing.start()</code> / <code>stop()</code><a class="headerlink" href="#62-perf_benchmark__timingstart-stop" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def start(self):
+    self.session = Perf(assert_enabled=True)
+    self.results = Dict__Benchmark_Results()
+    return self
+
+def stop(self):
+    if self.config.auto_save_on_completion and self.config.output_path:
+        self.reporter().save_all()
+    return self
+</code></pre>
+<h3 id="63-context-manager">6.3 Context Manager<a class="headerlink" href="#63-context-manager" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __enter__(self):
+    return self.start()
+
+def __exit__(self, exc_type, exc_val, exc_tb):
+    self.stop()
+    return False
+</code></pre>
+<h3 id="64-reporter-using-print_table">6.4 Reporter Using Print_Table<a class="headerlink" href="#64-reporter-using-print_table" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def _create_results_table(self) -&gt; Print_Table:
+    table = Print_Table()
+    table.set_title(str(self.config.title))
+    table.add_headers('ID', 'Benchmark', 'Score', 'Raw')
+
+    # Group by section
+    current_section = None
+
+    for benchmark_id in sorted(self.results.keys()):
+        result  = self.results[benchmark_id]
+        section = str(result.section)
+
+        # Add section separator row if section changed
+        if section != current_section:
+            if current_section is not None:
+                table.add_row(['─' * 6, '─' * 30, '─' * 12, '─' * 12])
+            current_section = section
+
+        # Format score based on time_unit
+        score_str = self._format_time(result.final_score)
+        raw_str   = self._format_time(result.raw_score)
+
+        table.add_row([
+            f&quot;{result.section}_{result.index}&quot;            ,
+            str(result.name)                              ,
+            score_str                                     ,
+            raw_str                                       ])
+
+    table.set_footer(f&quot;Total: {len(self.results)} benchmarks&quot;)
+    return table
+
+def _format_time(self, ns_value: Safe_UInt) -&gt; Safe_Str:
+    value = int(ns_value)
+    unit  = self.config.time_unit
+
+    if unit == Enum__Time_Unit.NANOSECONDS:
+        return Safe_Str(f&quot;{value:,} ns&quot;)
+    elif unit == Enum__Time_Unit.MICROSECONDS:
+        return Safe_Str(f&quot;{value / 1_000:,.3f} µs&quot;)
+    elif unit == Enum__Time_Unit.MILLISECONDS:
+        return Safe_Str(f&quot;{value / 1_000_000:,.3f} ms&quot;)
+    elif unit == Enum__Time_Unit.SECONDS:
+        return Safe_Str(f&quot;{value / 1_000_000_000:,.6f} s&quot;)
+    return Safe_Str(f&quot;{value:,} ns&quot;)
+
+def print_summary(self):
+    table = self._create_results_table()
+    table.print()
+</code></pre>
+<h3 id="65-html-chart-generation">6.5 HTML Chart Generation<a class="headerlink" href="#65-html-chart-generation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def build_html(self) -&gt; Safe_Str:
+    # Generate standalone HTML with Chart.js
+    chart_data = self._create_chart_js_data()
+
+    html = f'''&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;{self.config.title}&lt;/title&gt;
+    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/chart.js&quot;&gt;&lt;/script&gt;
+    &lt;style&gt;
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 20px; }}
+        .chart-container {{ max-width: 800px; margin: 20px auto; }}
+        table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
+        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+        th {{ background-color: #f4f4f4; }}
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;{self.config.title}&lt;/h1&gt;
+    &lt;div class=&quot;chart-container&quot;&gt;
+        &lt;canvas id=&quot;benchmarkChart&quot;&gt;&lt;/canvas&gt;
+    &lt;/div&gt;
+    {self._create_html_table()}
+    &lt;script&gt;
+        {chart_data}
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;'''
+    return Safe_Str(html)
+</code></pre>
+<h3 id="66-hypothesis-evaluation">6.6 Hypothesis Evaluation<a class="headerlink" href="#66-hypothesis-evaluation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def evaluate(self) -&gt; Schema__Perf__Hypothesis__Result:
+    if not self.before_results or not self.after_results:
+        raise ValueError(&quot;Must run both before and after benchmarks&quot;)
+
+    # Calculate improvements per benchmark
+    improvements = []
+    for benchmark_id in self.before_results.keys():
+        if benchmark_id in self.after_results:
+            before = self.before_results[benchmark_id].final_score
+            after  = self.after_results[benchmark_id].final_score
+            if before &gt; 0:
+                improvement = (before - after) / before
+                improvements.append(improvement)
+
+    # Calculate average improvement
+    actual_improvement = sum(improvements) / len(improvements) if improvements else 0
+
+    # Determine status
+    if actual_improvement &gt;= self.target_improvement:
+        status = Enum__Hypothesis__Status.SUCCESS
+    elif actual_improvement &lt; 0:
+        status = Enum__Hypothesis__Status.REGRESSION
+    elif actual_improvement &gt; 0:
+        status = Enum__Hypothesis__Status.FAILURE
+    else:
+        status = Enum__Hypothesis__Status.INCONCLUSIVE
+
+    return Schema__Perf__Hypothesis__Result(
+        description        = self.description                                     ,
+        target_improvement = self.target_improvement                              ,
+        actual_improvement = Safe_Float(actual_improvement)                       ,
+        before_results     = self.before_results                                  ,
+        after_results      = self.after_results                                   ,
+        status             = status                                               ,
+        comments           = self.comments                                        )
+</code></pre>
+<h3 id="67-diff-load-folder">6.7 Diff Load Folder<a class="headerlink" href="#67-diff-load-folder" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def load_folder(self, folder_path: Safe_Str) -&gt; 'Perf_Benchmark__Diff':
+    from osbot_utils.utils.Files import files_list, file_extension
+    from osbot_utils.utils.Json  import json_load_file
+
+    folder = str(folder_path)
+    json_files = [f for f in files_list(folder) if file_extension(f) == '.json']
+
+    for filepath in sorted(json_files):                    # Sort for consistent ordering
+        session_data = json_load_file(filepath)
+        session = Schema__Perf__Benchmark__Session.from_json(session_data)
+        self.sessions.append(session)
+
+    return self
+</code></pre>
+<hr />
+<h2 id="7-output-examples">7. Output Examples<a class="headerlink" href="#7-output-examples" title="Permanent link">&para;</a></h2>
+<h3 id="71-text-output-via-print_table">7.1 Text Output (via Print_Table)<a class="headerlink" href="#71-text-output-via-print_table" title="Permanent link">&para;</a></h3>
+<pre><code>┌────────────────────────────────────────────────────────────────────────────────────┐
+│ Type_Safe__Config Performance Baselines                                            │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ ID     │ Benchmark                      │ Score        │ Raw                       │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ A_01   │ python__nop                    │      100 ns  │       82 ns               │
+│ A_02   │ python__var_assignment         │      100 ns  │       82 ns               │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ B_01   │ config_creation__default       │      300 ns  │      281 ns               │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Total: 52 benchmarks                                                               │
+└────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="72-comparison-output-two-sessions">7.2 Comparison Output (Two Sessions)<a class="headerlink" href="#72-comparison-output-two-sessions" title="Permanent link">&para;</a></h3>
+<pre><code>┌────────────────────────────────────────────────────────────────────────────────────┐
+│ Comparison: Stats A vs Stats B                                                     │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark                      │ Before      │ After       │ Change               │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ D_01__type_safe__empty         │     800 ns  │     300 ns  │ -62.5% ▼             │
+│ D_02__type_safe__with_prims    │   5,000 ns  │     500 ns  │ -90.0% ▼             │
+│ D_03__type_safe__with_nested   │  20,000 ns  │   1,000 ns  │ -95.0% ▼             │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Average improvement: 82.5%                                                         │
+└────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="73-multi-session-evolution">7.3 Multi-Session Evolution<a class="headerlink" href="#73-multi-session-evolution" title="Permanent link">&para;</a></h3>
+<pre><code>┌────────────────────────────────────────────────────────────────────────────────────┐
+│ Performance Evolution: 4 sessions                                                  │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark             │ Jan 1    │ Jan 3    │ Jan 5    │ Jan 6    │ Trend         │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ type_safe__empty      │   800 ns │   600 ns │   400 ns │   300 ns │ ▼▼▼ -62.5%   │
+│ type_safe__prims      │ 5,000 ns │ 4,000 ns │ 2,000 ns │   500 ns │ ▼▼▼ -90.0%   │
+│ type_safe__nested     │20,000 ns │15,000 ns │ 5,000 ns │ 1,000 ns │ ▼▼▼ -95.0%   │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Overall trend: Steady improvement across all sessions                              │
+└────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="74-hypothesis-result">7.4 Hypothesis Result<a class="headerlink" href="#74-hypothesis-result" title="Permanent link">&para;</a></h3>
+<pre><code>┌────────────────────────────────────────────────────────────────────────────────────┐
+│ HYPOTHESIS RESULT                                                                  │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Description: &quot;skip_setattr reduces Type_Safe creation time by 50%&quot;                 │
+│ Target: 50% improvement                                                            │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Benchmark                      │ Before      │ After       │ Change               │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ type_safe__empty               │     800 ns  │     300 ns  │ -62.5% ▼             │
+│ type_safe__primitives          │   5,000 ns  │     500 ns  │ -90.0% ▼             │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│ Actual improvement: 76.25%                                                         │
+│                                                                                    │
+│ ╔════════════════════════════════════════════════════════════════════════════════╗│
+│ ║  STATUS: ✓ SUCCESS  (76.25% &gt; 50% target)                                      ║│
+│ ╚════════════════════════════════════════════════════════════════════════════════╝│
+└────────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="8-usage-examples">8. Usage Examples<a class="headerlink" href="#8-usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="81-basic-test-file">8.1 Basic Test File<a class="headerlink" href="#81-basic-test-file" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.performance.benchmark.TestCase__Benchmark__Timing    import TestCase__Benchmark__Timing
+from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Timing__Config import Perf_Benchmark__Timing__Config
+
+class Empty_Class:
+    pass
+
+class test_perf__My_Benchmarks(TestCase__Benchmark__Timing):
+
+    config = Perf_Benchmark__Timing__Config(title = &quot;My Performance Baselines&quot;)
+
+    def test__A_01__python__nop(self):
+        self.benchmark('A_01__python__nop', lambda: None)
+
+    def test__A_02__python__class_empty(self):
+        self.benchmark('A_02__python__class_empty', lambda: Empty_Class())
+
+    def test__B_01__something_complex(self):
+        def do_complex_thing():
+            return [i * 2 for i in range(100)]
+
+        self.benchmark('B_01__something_complex', do_complex_thing,
+                       assert_less_than=self.time_10_kns)
+</code></pre>
+<h3 id="82-with-auto-save">8.2 With Auto-Save<a class="headerlink" href="#82-with-auto-save" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class test_perf__My_Benchmarks(TestCase__Benchmark__Timing):
+
+    config = Perf_Benchmark__Timing__Config(
+        title                   = &quot;My Performance Baselines&quot;    ,
+        output_path             = &quot;tests/performance/stats&quot;     ,
+        output_prefix           = &quot;my_benchmarks&quot;               ,
+        auto_save_on_completion = True                          )  # Saves in tearDownClass
+</code></pre>
+<h3 id="83-using-context-manager">8.3 Using Context Manager<a class="headerlink" href="#83-using-context-manager" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Timing        import Perf_Benchmark__Timing
+from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Timing__Config import Perf_Benchmark__Timing__Config
+
+config = Perf_Benchmark__Timing__Config(
+    title                   = &quot;Ad-hoc Benchmarks&quot;              ,
+    output_path             = &quot;/tmp/benchmarks&quot;                ,
+    auto_save_on_completion = True                             )
+
+with Perf_Benchmark__Timing(config=config) as timing:
+    timing.benchmark('A_01__test_one', lambda: some_operation())
+    timing.benchmark('A_02__test_two', lambda: other_operation())
+# Auto-saves on context exit
+</code></pre>
+<h3 id="84-hypothesis-testing">8.4 Hypothesis Testing<a class="headerlink" href="#84-hypothesis-testing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Hypothesis import Perf_Benchmark__Hypothesis
+
+# Define the hypothesis
+hypothesis = Perf_Benchmark__Hypothesis(
+    description        = &quot;skip_setattr reduces Type_Safe creation by 50%&quot;         ,
+    target_improvement = 0.5                                                       )
+
+# Define benchmarks to run
+def run_benchmarks(timing):
+    timing.benchmark('type_safe__empty', lambda: Type_Safe())
+    timing.benchmark('type_safe__prims', lambda: TS__With_Primitives())
+
+# STEP 1: Capture baseline (BEFORE making any code changes!)
+hypothesis.run_before(run_benchmarks)
+
+# STEP 2: Make code changes
+# ... modify Type_Safe.__init__ ...
+
+# STEP 3: Capture after
+hypothesis.run_after(run_benchmarks)
+
+# STEP 4: Evaluate
+result = hypothesis.evaluate()
+hypothesis.print_result()
+
+# STEP 5: Save
+hypothesis.save('/benchmarks/hypotheses/skip_setattr.json')
+</code></pre>
+<h3 id="85-multi-session-comparison-diff">8.5 Multi-Session Comparison (Diff)<a class="headerlink" href="#85-multi-session-comparison-diff" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.testing.performance.benchmark.Perf_Benchmark__Diff import Perf_Benchmark__Diff
+
+# Load sessions from folder
+diff = Perf_Benchmark__Diff()
+diff.load_folder('/benchmarks/type_safe/')
+
+# Generate evolution report
+diff.compare_all()
+
+# Generate HTML with charts
+diff.save_evolution_html('/reports/type_safe_evolution.html')
+</code></pre>
+<hr />
+<h2 id="9-implementation-order">9. Implementation Order<a class="headerlink" href="#9-implementation-order" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Component</th>
+<th>Files</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Custom primitives</td>
+<td><code>Safe_Str__Benchmark_Id.py</code>, <code>Safe_Str__Benchmark__Section.py</code>, <code>Safe_Str__Benchmark__Index.py</code></td>
+<td>High</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enums</td>
+<td><code>Enum__Time_Unit.py</code>, <code>Enum__Hypothesis__Status.py</code></td>
+<td>High</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Result schemas</td>
+<td><code>Schema__Perf__Benchmark__Result.py</code>, <code>Schema__Perf__Benchmark__Session.py</code></td>
+<td>High</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Collections</td>
+<td><code>Dict__Benchmark_Results.py</code>, <code>Dict__Benchmark__Legend.py</code>, <code>List__Benchmark_Sessions.py</code></td>
+<td>High</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Config</td>
+<td><code>Perf_Benchmark__Timing__Config.py</code></td>
+<td>High</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Reporter</td>
+<td><code>Perf_Benchmark__Timing__Reporter.py</code></td>
+<td>High</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Core timing</td>
+<td><code>Perf_Benchmark__Timing.py</code></td>
+<td>High</td>
+</tr>
+<tr>
+<td>8</td>
+<td>TestCase</td>
+<td><code>TestCase__Benchmark__Timing.py</code></td>
+<td>High</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Tests (core)</td>
+<td>Unit tests for steps 1-8</td>
+<td>High</td>
+</tr>
+<tr>
+<td>10</td>
+<td>HTML export</td>
+<td>Add <code>build_html()</code> to Reporter</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Hypothesis schema</td>
+<td><code>Schema__Perf__Hypothesis__Result.py</code></td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Hypothesis class</td>
+<td><code>Perf_Benchmark__Hypothesis.py</code></td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Diff class</td>
+<td><code>Perf_Benchmark__Diff.py</code></td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Tests (extended)</td>
+<td>Unit tests for steps 10-13</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Refactor existing</td>
+<td><code>test_perf__Type_Safe__Config.py</code></td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-summary-checklist">10. Summary Checklist<a class="headerlink" href="#10-summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When implementing:</p>
+<p><strong>Core Infrastructure:</strong>
+- [ ] All schemas inherit from <code>Type_Safe</code> and are pure data (no methods)
+- [ ] All primitives go in <code>benchmark/schemas/safe_str/</code>
+- [ ] All collections go in <code>benchmark/schemas/collections/</code>
+- [ ] Each schema class is in its own file
+- [ ] No raw <code>str</code>, <code>int</code>, <code>dict</code> - use Safe_* and Type_Safe collections
+- [ ] <code>Enum__Time_Unit</code> controls display formatting
+- [ ] <code>Perf_Benchmark__Timing</code> has <code>start()</code>/<code>stop()</code> methods
+- [ ] <code>Perf_Benchmark__Timing</code> supports context manager
+- [ ] <code>TestCase__Benchmark__Timing</code> extends <code>TestCase</code> for test files
+- [ ] <code>auto_save_on_completion</code> triggers save in <code>stop()</code>/<code>__exit__</code>/<code>tearDownClass</code>
+- [ ] Reporter uses <code>Print_Table</code> for formatted output
+- [ ] Follow Python formatting guide (aligned assignments, right-aligned comments)</p>
+<p><strong>Extended Features:</strong>
+- [ ] Reporter generates <code>.txt</code>, <code>.json</code>, <code>.md</code>, <code>.html</code> outputs
+- [ ] HTML includes Chart.js for visualization
+- [ ] <code>Perf_Benchmark__Hypothesis</code> captures before/after with evaluation
+- [ ] Hypothesis workflow enforces baseline-first pattern
+- [ ] <code>Perf_Benchmark__Diff</code> loads sessions from files
+- [ ] Diff supports loading entire folders of JSON files
+- [ ] Multi-session evolution tracking with trend analysis
+- [ ] All outputs can be reconstructed from saved JSON files</p>
+<hr />
+<p><em>Document: Implementation Brief - Perf_Benchmark__Timing Infrastructure</em><br />
+<em>Version: v3.66.0</em><br />
+<em>Date: 6th January 2026</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

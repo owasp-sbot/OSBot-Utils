@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/llms/technical-brief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Type-Safe LLM Request Framework - Technical Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type-Safe LLM Request Framework - Technical Brief";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/llms/technical-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/llms/technical-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type-Safe LLM Request Framework - Technical Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type-safe-llm-request-framework-technical-brief">Type-Safe LLM Request Framework - Technical Brief<a class="headerlink" href="#type-safe-llm-request-framework-technical-brief" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This technical brief documents the design and implementation of a structured, type-safe framework for generating, managing, and caching requests to Large Language Model (LLM) providers. The system provides a unified interface for working with multiple LLM providers while enforcing strict type safety through a comprehensive schema system.</p>
+<h2 id="objectives">Objectives<a class="headerlink" href="#objectives" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Provider Abstraction</strong>: Create a unified interface that works seamlessly with multiple LLM providers (OpenAI, Anthropic)</li>
+<li><strong>Type Safety</strong>: Ensure all requests and responses adhere to well-defined schemas</li>
+<li><strong>Schema Generation</strong>: Automatically generate JSON schemas for function calling from Type_Safe classes</li>
+<li><strong>Request Building</strong>: Provide a clean API for constructing various types of LLM requests</li>
+<li><strong>Caching</strong>: Implement an efficient caching system to reduce redundant API calls</li>
+<li><strong>Extensibility</strong>: Design the system to easily accommodate new providers and request types</li>
+</ol>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>The framework follows a layered architecture with clear separation of concerns:</p>
+<h3 id="1-schema-layer">1. Schema Layer<a class="headerlink" href="#1-schema-layer" title="Permanent link">&para;</a></h3>
+<p>At the foundation are schema classes that define the structure of requests, responses, and related entities:</p>
+<ul>
+<li><code>Schema__LLM_Request</code>: The core request schema, containing request ID and request data</li>
+<li><code>Schema__LLM_Request__Data</code>: Contains the actual request parameters (model, messages, etc.)</li>
+<li><code>Schema__LLM_Request__Message__Content</code>: Defines message content with role and text</li>
+<li><code>Schema__LLM_Request__Function_Call</code>: Defines function calling parameters</li>
+<li><code>Schema__LLM_Response</code>: Structured representation of LLM responses</li>
+<li><code>Schema__LLM_Cache__Index</code>: Indexing structure for the caching system</li>
+<li><code>Schema__LLM_Response__Cache</code>: Cache entry schema for storing request/response pairs</li>
+</ul>
+<p>All schema classes extend the <code>Type_Safe</code> base class which provides type validation and other core functionality.</p>
+<h3 id="2-builder-layer">2. Builder Layer<a class="headerlink" href="#2-builder-layer" title="Permanent link">&para;</a></h3>
+<p>The builder classes are responsible for constructing valid requests according to provider-specific requirements:</p>
+<ul>
+<li><code>LLM_Request__Builder</code>: Base abstract builder class</li>
+<li><code>LLM_Request__Builder__OpenAI</code>: OpenAI-specific implementation</li>
+<li><code>LLM_Request__Builder__Claude</code>: Claude-specific implementation</li>
+</ul>
+<p>These builders handle the translation from the abstract schema representation to concrete API payloads.</p>
+<h3 id="3-factory-layer">3. Factory Layer<a class="headerlink" href="#3-factory-layer" title="Permanent link">&para;</a></h3>
+<p>The factory provides convenience methods for creating common request patterns:</p>
+<ul>
+<li><code>LLM_Request__Factory</code>: Creates various types of requests, selecting the appropriate builder</li>
+</ul>
+<h3 id="4-schema-generation">4. Schema Generation<a class="headerlink" href="#4-schema-generation" title="Permanent link">&para;</a></h3>
+<p><code>Type_Safe__Schema_For__LLMs</code> converts Type_Safe classes into JSON schemas compatible with LLM function calling:</p>
+<ul>
+<li>Automatically maps Python types to JSON schema types</li>
+<li>Handles nested objects, lists, dictionaries, etc.</li>
+<li>Supports validators for adding constraints (min/max values, regex patterns, etc.)</li>
+</ul>
+<h3 id="5-caching-system">5. Caching System<a class="headerlink" href="#5-caching-system" title="Permanent link">&para;</a></h3>
+<p><code>LLM_Request__Cache</code> provides an efficient caching mechanism:</p>
+<ul>
+<li>Indexes requests by their full content hash</li>
+<li>Supports retrieval of semantically similar requests via message-only hashing</li>
+<li>Provides stats and management functions</li>
+</ul>
+<h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
+<h3 id="type-safety">Type Safety<a class="headerlink" href="#type-safety" title="Permanent link">&para;</a></h3>
+<p>The framework leverages a custom type safety system based on the <code>Type_Safe</code> class, which:</p>
+<ol>
+<li>Enforces type checking at runtime</li>
+<li>Supports complex nested validation</li>
+<li>Provides automatic serialization/deserialization</li>
+<li>Enables schema generation for LLM function calling</li>
+</ol>
+<h3 id="request-building">Request Building<a class="headerlink" href="#request-building" title="Permanent link">&para;</a></h3>
+<p>The request building process follows these steps:</p>
+<ol>
+<li>Create message objects using the appropriate builder</li>
+<li>Optionally create a function call object if using function calling</li>
+<li>Construct the complete request</li>
+<li>Generate the provider-specific payload</li>
+</ol>
+<h3 id="function-calling">Function Calling<a class="headerlink" href="#function-calling" title="Permanent link">&para;</a></h3>
+<p>Function calling is implemented as follows:</p>
+<ol>
+<li>A Type_Safe class defines the expected structure of the function response</li>
+<li><code>Type_Safe__Schema_For__LLMs</code> converts this class to a JSON schema</li>
+<li>The schema is included in the request as a function parameter definition</li>
+<li>The LLM provider uses this schema to structure its response</li>
+</ol>
+<h3 id="json-mode-openai">JSON Mode (OpenAI)<a class="headerlink" href="#json-mode-openai" title="Permanent link">&para;</a></h3>
+<p>For OpenAI, the framework also supports direct JSON mode without function calling:</p>
+<ol>
+<li>Set <code>response_format={"type": "json_object"}</code> in the request</li>
+<li>Include schema information in the system or user message</li>
+<li>The model will return a valid JSON response</li>
+</ol>
+<h3 id="caching-system">Caching System<a class="headerlink" href="#caching-system" title="Permanent link">&para;</a></h3>
+<p>The caching system operates on two levels:</p>
+<ol>
+<li><strong>Full Request Matching</strong>: Exact match caching based on the complete request hash</li>
+<li><strong>Message-Based Matching</strong>: Semantic similarity matching based only on message content</li>
+</ol>
+<p>This allows both for exact caching and for retrieving similar responses to semantically equivalent queries.</p>
+<h2 id="usage-flow">Usage Flow<a class="headerlink" href="#usage-flow" title="Permanent link">&para;</a></h2>
+<p>Typical usage of the framework follows this pattern:</p>
+<ol>
+<li>Create an instance of <code>LLM_Request__Factory</code></li>
+<li>Use factory methods to create the appropriate type of request:</li>
+<li><code>create_simple_chat_request</code> for basic chat</li>
+<li><code>create_function_calling_request</code> for function calling</li>
+<li><code>create_entity_extraction_request</code> for entity extraction</li>
+<li>Use the builder to generate the provider-specific payload</li>
+<li>Send the request to the LLM provider</li>
+<li>Process and cache the response</li>
+</ol>
+<h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Streaming Support</strong>: Add support for streaming responses</li>
+<li><strong>Batch Processing</strong>: Implement batch request handling</li>
+<li><strong>Persistent Caching</strong>: Add database-backed cache implementations</li>
+<li><strong>Additional Providers</strong>: Support for other LLM providers</li>
+<li><strong>Response Validation</strong>: Validate responses against expected schemas</li>
+<li><strong>Optimized Token Usage</strong>: Token counting and optimization</li>
+</ol>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>This framework provides a robust, type-safe approach to working with LLM APIs. By enforcing strict schemas and separating concerns between different layers, it creates a maintainable and extensible system for interacting with multiple LLM providers while providing powerful features like function calling and caching.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

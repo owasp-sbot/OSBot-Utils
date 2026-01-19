@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/Html_Dict__To__Html/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Html_Dict__To__Html - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Html_Dict__To__Html";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/Html_Dict__To__Html.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/Html_Dict__To__Html/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Html_Dict__To__Html</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="html_dict__to__html">Html_Dict__To__Html<a class="headerlink" href="#html_dict__to__html" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Html_Dict__To__Html</code> converts dictionary representations back into HTML strings. It handles proper formatting, indentation, and special cases like self-closing tags and mixed content.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Html_Dict__To__Html:
+    def __init__(self, root, include_doctype=True, doctype=HTML_DEFAULT_DOCTYPE_VALUE):
+        self.self_closing_tags = HTML_SELF_CLOSING_TAGS
+        self.root              = root
+        self.include_doctype   = include_doctype
+        self.doctype           = doctype
+</code></pre>
+<h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Proper Indentation</strong>: Generates readable HTML with consistent indentation</li>
+<li><strong>Attribute Handling</strong>: Escapes quotes and handles special attribute values</li>
+<li><strong>Mixed Content Support</strong>: Correctly formats elements with both text and child elements</li>
+<li><strong>Self-Closing Tags</strong>: Recognizes and properly formats void elements</li>
+<li><strong>DOCTYPE Support</strong>: Optionally includes DOCTYPE declaration</li>
+</ul>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="convert-str"><code>convert() -&gt; str</code><a class="headerlink" href="#convert-str" title="Permanent link">&para;</a></h3>
+<p>Main method that converts the dictionary to an HTML string.</p>
+<pre><code class="language-python">html_dict = {'tag': 'div', 'attrs': {'class': 'container'}, 'nodes': []}
+converter = Html_Dict__To__Html(html_dict)
+html = converter.convert()
+# Returns: &quot;&lt;!DOCTYPE html&gt;\n&lt;div class=\&quot;container\&quot;&gt;&lt;/div&gt;\n&quot;
+</code></pre>
+<h3 id="convert_attrsattrs-dict-str"><code>convert_attrs(attrs: dict) -&gt; str</code><a class="headerlink" href="#convert_attrsattrs-dict-str" title="Permanent link">&para;</a></h3>
+<p>Converts attributes dictionary to HTML attribute string. Handles:
+- Empty values
+- None values<br />
+- Quote escaping
+- Special characters</p>
+<pre><code class="language-python">attrs = {'class': 'container', 'id': 'main', 'disabled': None}
+# Returns: ' class=&quot;container&quot; id=&quot;main&quot; disabled'
+</code></pre>
+<h3 id="convert_elementelement-dict-indent_level-int-str"><code>convert_element(element: dict, indent_level: int) -&gt; str</code><a class="headerlink" href="#convert_elementelement-dict-indent_level-int-str" title="Permanent link">&para;</a></h3>
+<p>Recursively converts dictionary elements to HTML with proper indentation.</p>
+<h3 id="convert_childrennodes-list-indent_level-int-str"><code>convert_children(nodes: list, indent_level: int) -&gt; str</code><a class="headerlink" href="#convert_childrennodes-list-indent_level-int-str" title="Permanent link">&para;</a></h3>
+<p>Processes child nodes with appropriate indentation.</p>
+<h2 id="formatting-rules">Formatting Rules<a class="headerlink" href="#formatting-rules" title="Permanent link">&para;</a></h2>
+<h3 id="1-empty-elements">1. Empty Elements<a class="headerlink" href="#1-empty-elements" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">{'tag': 'div', 'attrs': {}, 'nodes': []}
+# Output: &lt;div&gt;&lt;/div&gt;
+</code></pre>
+<h3 id="2-elements-with-only-child-elements">2. Elements with Only Child Elements<a class="headerlink" href="#2-elements-with-only-child-elements" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">{
+    'tag': 'ul',
+    'nodes': [
+        {'tag': 'li', 'nodes': [{'type': 'TEXT', 'data': 'Item'}]}
+    ]
+}
+# Output:
+# &lt;ul&gt;
+#     &lt;li&gt;Item&lt;/li&gt;
+# &lt;/ul&gt;
+</code></pre>
+<h3 id="3-mixed-content-text-elements">3. Mixed Content (Text + Elements)<a class="headerlink" href="#3-mixed-content-text-elements" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">{
+    'tag': 'p',
+    'nodes': [
+        {'type': 'TEXT', 'data': 'Hello '},
+        {'tag': 'strong', 'nodes': [{'type': 'TEXT', 'data': 'World'}]},
+        {'type': 'TEXT', 'data': '!'}
+    ]
+}
+# Output: &lt;p&gt;Hello &lt;strong&gt;World&lt;/strong&gt;!&lt;/p&gt;
+</code></pre>
+<h3 id="4-self-closing-tags">4. Self-Closing Tags<a class="headerlink" href="#4-self-closing-tags" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">{'tag': 'br', 'attrs': {}, 'nodes': []}
+# Output: &lt;br /&gt;
+</code></pre>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-conversion">Basic Conversion<a class="headerlink" href="#basic-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html_Dict__To__Html import Html_Dict__To__Html
+
+html_dict = {
+    'tag': 'html',
+    'attrs': {'lang': 'en'},
+    'nodes': [
+        {
+            'tag': 'head',
+            'attrs': {},
+            'nodes': [
+                {
+                    'tag': 'title',
+                    'attrs': {},
+                    'nodes': [{'type': 'TEXT', 'data': 'My Page'}]
+                }
+            ]
+        }
+    ]
+}
+
+converter = Html_Dict__To__Html(html_dict)
+html = converter.convert()
+</code></pre>
+<h3 id="without-doctype">Without DOCTYPE<a class="headerlink" href="#without-doctype" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">converter = Html_Dict__To__Html(html_dict, include_doctype=False)
+html = converter.convert()  # No DOCTYPE declaration
+</code></pre>
+<h3 id="custom-doctype">Custom DOCTYPE<a class="headerlink" href="#custom-doctype" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">custom_doctype = '&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot;&gt;\n'
+converter = Html_Dict__To__Html(html_dict, doctype=custom_doctype)
+</code></pre>
+<h2 id="attribute-handling-details">Attribute Handling Details<a class="headerlink" href="#attribute-handling-details" title="Permanent link">&para;</a></h2>
+<h3 id="quote-escaping">Quote Escaping<a class="headerlink" href="#quote-escaping" title="Permanent link">&para;</a></h3>
+<p>The converter intelligently handles quotes in attribute values:</p>
+<pre><code class="language-python"># Double quotes present: uses single quotes
+{'href': 'javascript:alert(&quot;Hello&quot;)'}
+# Output: href='javascript:alert(&quot;Hello&quot;)'
+
+# Both quotes present: escapes double quotes
+{'onclick': 'alert(&quot;It\'s working&quot;)'}
+# Output: onclick=&quot;alert(&amp;quot;It's working&amp;quot;)&quot;
+</code></pre>
+<h3 id="special-attribute-values">Special Attribute Values<a class="headerlink" href="#special-attribute-values" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># None values: attribute without value
+{'disabled': None} → 'disabled'
+
+# Empty strings: empty attribute
+{'alt': ''} → 'alt=&quot;&quot;'
+</code></pre>
+<h2 id="indentation">Indentation<a class="headerlink" href="#indentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Uses 4 spaces per indent level</li>
+<li>Elements-only content gets newlines and indentation</li>
+<li>Mixed content stays on one line</li>
+<li>Closing tags align with opening tags</li>
+</ul>
+<h2 id="constants">Constants<a class="headerlink" href="#constants" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">HTML_SELF_CLOSING_TAGS = {'area', 'base', 'br', 'col', 'command', 'embed', 
+                         'hr', 'img', 'input', 'link', 'meta', 'param', 
+                         'source', 'track', 'wbr'}
+HTML_DEFAULT_DOCTYPE_VALUE = &quot;&lt;!DOCTYPE html&gt;\n&quot;
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Consistent Structure</strong>: Ensure dictionary structure matches expected format</li>
+<li><strong>Text Nodes</strong>: Always include 'type': 'TEXT' for text content</li>
+<li><strong>Attributes</strong>: Use None for boolean attributes, empty string for empty values</li>
+<li><strong>Validation</strong>: Validate dictionary structure before conversion</li>
+</ol>
+<h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Does not validate HTML semantics</li>
+<li>Does not check for required attributes</li>
+<li>Does not enforce HTML5 vs XHTML rules</li>
+<li>Attribute order is preserved from dictionary (Python 3.7+)</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

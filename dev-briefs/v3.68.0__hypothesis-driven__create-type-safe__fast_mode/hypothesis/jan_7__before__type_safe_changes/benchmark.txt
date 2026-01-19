@@ -1,0 +1,65 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Type_Safe__Config Performance Baselines                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ ID     │ Benchmark                            │ Score        │ Raw          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ A_01   │ python__nop                          │ 100 ns       │ 146 ns       │
+│ A_02   │ python__var_assignment               │ 100 ns       │ 123 ns       │
+│ A_03   │ python__function_invocation          │ 100 ns       │ 123 ns       │
+│ A_04   │ python__function_invocation_x10      │ 700 ns       │ 702 ns       │
+│ A_05   │ python__class_empty                  │ 300 ns       │ 256 ns       │
+│ A_06   │ python__class_with_init              │ 300 ns       │ 337 ns       │
+│ A_07   │ python__class_with_slots             │ 300 ns       │ 303 ns       │
+│ A_08   │ python__class_with_init_x10          │ 2,000 ns     │ 2,197 ns     │
+│ A_09   │ python__class_with_init_x100         │ 20,000 ns    │ 19,219 ns    │
+│ ────── │ ──────────────────────────────       │ ──────────── │ ──────────── │
+│ B_01   │ config_creation__default             │ 300 ns       │ 321 ns       │
+│ B_02   │ config_creation__single_flag         │ 500 ns       │ 464 ns       │
+│ B_03   │ config_creation__all_flags           │ 700 ns       │ 653 ns       │
+│ B_04   │ factory__fast_mode                   │ 600 ns       │ 594 ns       │
+│ B_05   │ factory__on_demand_mode              │ 500 ns       │ 463 ns       │
+│ B_06   │ factory__bulk_load_mode              │ 500 ns       │ 522 ns       │
+│ B_07   │ config__repr                         │ 600 ns       │ 632 ns       │
+│ B_08   │ config__equality                     │ 500 ns       │ 483 ns       │
+│ B_09   │ context_manager__overhead            │ 400 ns       │ 396 ns       │
+│ ────── │ ──────────────────────────────       │ ──────────── │ ──────────── │
+│ C_01   │ find_config__no_config               │ 900 ns       │ 911 ns       │
+│ C_02   │ find_config__depth_1                 │ 900 ns       │ 946 ns       │
+│ C_03   │ find_config__depth_3                 │ 2,000 ns     │ 1,938 ns     │
+│ C_04   │ find_config__depth_5                 │ 3,000 ns     │ 2,558 ns     │
+│ C_05   │ find_config__depth_10                │ 4,000 ns     │ 3,968 ns     │
+│ C_06   │ find_config__repeated_x3             │ 2,000 ns     │ 2,227 ns     │
+│ C_07   │ find_config__no_config_x3            │ 2,000 ns     │ 1,842 ns     │
+│ C_08   │ full_pattern__create_and_lookup      │ 2,000 ns     │ 1,657 ns     │
+│ ────── │ ──────────────────────────────       │ ──────────── │ ──────────── │
+│ D_01   │ type_safe__empty                     │ 1,000 ns     │ 1,307 ns     │
+│ D_02   │ type_safe__with_primitives           │ 6,000 ns     │ 6,391 ns     │
+│ D_03   │ type_safe__with_safe_types           │ 30,000 ns    │ 26,522 ns    │
+│ D_04   │ type_safe__with_nested               │ 20,000 ns    │ 21,444 ns    │
+│ D_05   │ type_safe__with_python_collections   │ 20,000 ns    │ 23,295 ns    │
+│ D_06   │ type_safe__with_typesafe_collections │ 30,000 ns    │ 26,694 ns    │
+│ D_07   │ type_safe__empty_x10                 │ 10,000 ns    │ 10,892 ns    │
+│ D_08   │ type_safe__empty_x100                │ 100,000 ns   │ 105,297 ns   │
+│ D_09   │ type_safe__with_primitives_x10       │ 60,000 ns    │ 59,863 ns    │
+│ D_10   │ type_safe__with_nested_x10           │ 200,000 ns   │ 200,536 ns   │
+│ ────── │ ──────────────────────────────       │ ──────────── │ ──────────── │
+│ E_01   │ dataclass__empty                     │ 300 ns       │ 290 ns       │
+│ E_02   │ dataclass__with_primitives           │ 500 ns       │ 457 ns       │
+│ E_03   │ dataclass__with_nested               │ 600 ns       │ 583 ns       │
+│ E_04   │ dataclass__with_collections          │ 500 ns       │ 455 ns       │
+│ E_05   │ dataclass__empty_x10                 │ 2,000 ns     │ 1,945 ns     │
+│ E_06   │ dataclass__empty_x100                │ 20,000 ns    │ 16,768 ns    │
+│ E_07   │ dataclass__with_primitives_x10       │ 3,000 ns     │ 2,835 ns     │
+│ E_08   │ dataclass__with_nested_x10           │ 4,000 ns     │ 4,406 ns     │
+│ ────── │ ──────────────────────────────       │ ──────────── │ ──────────── │
+│ F_01   │ pydantic__empty                      │ 1,000 ns     │ 1,328 ns     │
+│ F_02   │ pydantic__with_primitives            │ 1,000 ns     │ 996 ns       │
+│ F_03   │ pydantic__with_nested                │ 5,000 ns     │ 5,116 ns     │
+│ F_04   │ pydantic__with_collections           │ 3,000 ns     │ 2,981 ns     │
+│ F_05   │ pydantic__empty_x10                  │ 6,000 ns     │ 5,768 ns     │
+│ F_06   │ pydantic__empty_x100                 │ 60,000 ns    │ 55,587 ns    │
+│ F_07   │ pydantic__with_primitives_x10        │ 8,000 ns     │ 7,918 ns     │
+│ F_08   │ pydantic__with_nested_x10            │ 40,000 ns    │ 40,038 ns    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Total: 52 benchmarks                                                        │
+└─────────────────────────────────────────────────────────────────────────────┘

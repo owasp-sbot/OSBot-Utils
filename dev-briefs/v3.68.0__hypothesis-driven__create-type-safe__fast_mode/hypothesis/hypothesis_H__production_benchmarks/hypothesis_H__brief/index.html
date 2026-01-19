@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_H__production_benchmarks/hypothesis_H__brief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis H: Production Performance Benchmarks - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis H: Production Performance Benchmarks";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_H__production_benchmarks/hypothesis_H__brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_H__production_benchmarks/hypothesis_H__brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis H: Production Performance Benchmarks</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-h-production-performance-benchmarks">Hypothesis H: Production Performance Benchmarks<a class="headerlink" href="#hypothesis-h-production-performance-benchmarks" title="Permanent link">&para;</a></h1>
+<p><strong>Status</strong>: ✅ Complete<br />
+<strong>Depends On</strong>: Hypothesis G (wiring in Type_Safe)</p>
+<hr />
+<h2 id="hypothesis">Hypothesis<a class="headerlink" href="#hypothesis" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>Using <code>Type_Safe__Config</code> context manager with <code>fast_create=True</code> and/or <code>skip_validation=True</code> provides significant performance improvements over default Type_Safe behavior.</p>
+</blockquote>
+<hr />
+<h2 id="three-comparisons">Three Comparisons<a class="headerlink" href="#three-comparisons" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Test File</th>
+<th>Baseline</th>
+<th>Target</th>
+<th>Expected Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_perf__Hypothesis_H__fast_create.py</code></td>
+<td>Default Type_Safe</td>
+<td><code>fast_create=True</code></td>
+<td>50-85%</td>
+</tr>
+<tr>
+<td><code>test_perf__Hypothesis_H__skip_validation.py</code></td>
+<td>Default <code>__setattr__</code></td>
+<td><code>skip_validation=True</code></td>
+<td>50-80%</td>
+</tr>
+<tr>
+<td><code>test_perf__Hypothesis_H__fast_create_skip_validation.py</code></td>
+<td>Default Type_Safe</td>
+<td>Both flags</td>
+<td>60-90%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="benchmark-categories">Benchmark Categories<a class="headerlink" href="#benchmark-categories" title="Permanent link">&para;</a></h2>
+<h3 id="object-creation-a-series">Object Creation (A series)<a class="headerlink" href="#object-creation-a-series" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A_01: Empty class</li>
+<li>A_02: Primitives only (str, int, bool, float)</li>
+<li>A_03: With collections (List, Dict)</li>
+<li>A_04: Many fields (10 fields)</li>
+<li>A_05: One nested Type_Safe</li>
+<li>A_06: Three nested Type_Safe</li>
+<li>A_07: Deep nested (3 levels)</li>
+<li>A_08: MGraph-like (complex structure)</li>
+</ul>
+<h3 id="batch-creation-b-series">Batch Creation (B series)<a class="headerlink" href="#batch-creation-b-series" title="Permanent link">&para;</a></h3>
+<ul>
+<li>B_01-B_04: x10 objects of various complexity</li>
+</ul>
+<h3 id="attribute-assignment-c-series-skip_validation-only">Attribute Assignment (C series) - skip_validation only<a class="headerlink" href="#attribute-assignment-c-series-skip_validation-only" title="Permanent link">&para;</a></h3>
+<ul>
+<li>C_01-C_04: x100 objects, x400 assignments</li>
+</ul>
+<h3 id="create-modify-d-series-combined-test-only">Create + Modify (D series) - combined test only<a class="headerlink" href="#create-modify-d-series-combined-test-only" title="Permanent link">&para;</a></h3>
+<ul>
+<li>D_01-D_04: Real-world patterns (create then modify)</li>
+</ul>
+<hr />
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python"># Run individual benchmark
+pytest test_perf__Hypothesis_H__fast_create.py -v
+
+# All benchmarks
+pytest test_perf__Hypothesis_H*.py -v
+</code></pre>
+<hr />
+<h2 id="key-findings">Key Findings<a class="headerlink" href="#key-findings" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Improvement</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simple classes</td>
+<td>30-50%</td>
+<td>Less validation to skip</td>
+</tr>
+<tr>
+<td>Nested classes</td>
+<td>50-70%</td>
+<td>Recursive creation overhead eliminated</td>
+</tr>
+<tr>
+<td>Complex (MGraph-like)</td>
+<td>70-85%</td>
+<td>Maximum benefit</td>
+</tr>
+<tr>
+<td>Batch x10</td>
+<td>Scales linearly</td>
+<td>10x objects = 10x savings</td>
+</tr>
+<tr>
+<td>setattr bypass</td>
+<td>60-80%</td>
+<td>Direct <code>object.__setattr__</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<ol>
+<li>✅ Hypothesis G complete (fast_create infrastructure)</li>
+<li>✅ Type_Safe.<strong>init</strong> wired to check config</li>
+<li>✅ Type_Safe.<strong>setattr</strong> wired to check config</li>
+<li>✅ All 117 integration tests passing</li>
+</ol>
+<hr />
+<h2 id="related-files">Related Files<a class="headerlink" href="#related-files" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Detailed Debrief</strong>: <code>Hypothesis_H__debrief_on_Type_Safe_changes.md</code></li>
+<li><strong>Integration Tests</strong>: <code>test_Type_Safe__Fast_Create__*.py</code> (5 files, 117 tests)</li>
+<li><strong>Performance Tests</strong>: <code>test_perf__Hypothesis_H__*.py</code> (3 files)</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

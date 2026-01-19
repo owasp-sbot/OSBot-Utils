@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/llm-briefs/v3.63.4__for_llms__python_formatting_guide/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Python Formatting &amp; Coding Style Guide for LLMs - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Python Formatting \u0026amp; Coding Style Guide for LLMs";
+        var mkdocs_page_input_path = "llm-briefs/v3.63.4__for_llms__python_formatting_guide.md";
+        var mkdocs_page_url = "/OSBot-Utils/llm-briefs/v3.63.4__for_llms__python_formatting_guide/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Python Formatting &amp; Coding Style Guide for LLMs</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="python-formatting-coding-style-guide-for-llms">Python Formatting &amp; Coding Style Guide for LLMs<a class="headerlink" href="#python-formatting-coding-style-guide-for-llms" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>version</strong>: v3.63.4</li>
+<li><strong>updated</strong>: January 2026</li>
+<li><strong>related</strong>: Type_Safe Capabilities Guide (v3_64_2__for_llms__type_safe__capabilities_guide.md)</li>
+</ul>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide defines a specialized Python formatting style that prioritizes visual pattern recognition and information density over PEP-8 conventions. It uses vertical alignment to create visual lanes that make code structure immediately apparent, groups related information to maintain context, and optimizes for real-world debugging and code review scenarios.</p>
+<p><strong>Core principles:</strong>
+- Code is read far more often than written
+- Human pattern recognition works best with consistent structure
+- Visual alignment reveals relationships and bugs
+- Information density reduces cognitive load</p>
+<hr />
+<h2 id="file-structure">File Structure<a class="headerlink" href="#file-structure" title="Permanent link">&para;</a></h2>
+<h3 id="file-header-comment">File Header Comment<a class="headerlink" href="#file-header-comment" title="Permanent link">&para;</a></h3>
+<p>Every file should have a descriptive header comment <strong>before imports</strong>, using the <code>═══</code> style:</p>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# MGraph HTML Graph - Common Graph Schemas for Native Export Formats
+# Shared data structures for vis.js, D3, Cytoscape, and Mermaid exports
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing                                      import Dict, List
+from osbot_utils.type_safe.Type_Safe            import Type_Safe
+# ... more imports
+</code></pre>
+<p><strong>Rules:</strong>
+- Use exactly 80 <code>═</code> characters for the border
+- Title on first line after border
+- Optional subtitle/description on second line
+- Closing border
+- Blank line before imports</p>
+<h3 id="section-dividers">Section Dividers<a class="headerlink" href="#section-dividers" title="Permanent link">&para;</a></h3>
+<p>Use section dividers to organize logical groups of methods or classes:</p>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# Graph Building Methods
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def build_node(self, data: dict) -&gt; Schema__Node:
+    pass
+
+def build_edge(self, source: Node_Id, target: Node_Id) -&gt; Schema__Edge:
+    pass
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Export Methods - Format-Specific Serialization
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def export_to_json(self) -&gt; str:
+    pass
+
+def export_to_cytoscape(self) -&gt; dict:
+    pass
+</code></pre>
+<p><strong>Format:</strong> <code># {Title}</code> or <code># {Title} - {Subtitle}</code></p>
+<hr />
+<h2 id="import-formatting">Import Formatting<a class="headerlink" href="#import-formatting" title="Permanent link">&para;</a></h2>
+<h3 id="aligned-imports">Aligned Imports<a class="headerlink" href="#aligned-imports" title="Permanent link">&para;</a></h3>
+<p>Align imports with the longest import path (no matter how long each import is):</p>
+<pre><code class="language-python">from unittest                                                               import TestCase
+from mgraph_ai.schemas.Schema__MGraph__Node                                 import Schema__MGraph__Node
+from osbot_utils.type_safe.primitives.domains.identifiers.Safe_Id           import Safe_Id
+from osbot_utils.type_safe.Type_Safe                                        import Type_Safe
+</code></pre>
+<p><strong>Rules:</strong>
+- One import per line
+- Align <code>import</code> keyword at consistent column (typically 80-85)
+- Group by: standard library, third-party, local modules
+- No blank lines within groups, one blank line between groups</p>
+<hr />
+<h2 id="documentation-style">Documentation Style<a class="headerlink" href="#documentation-style" title="Permanent link">&para;</a></h2>
+<h3 id="never-use-docstrings">NEVER Use Docstrings<a class="headerlink" href="#never-use-docstrings" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL</strong>: In Type_Safe code, NEVER use Python docstrings. All documentation must be inline comments aligned at the end of lines.</p>
+<pre><code class="language-python"># ✗ WRONG - Docstrings break visual patterns
+class Persona__Service(Type_Safe):
+    &quot;&quot;&quot;Core service for persona-based translation and impersonation&quot;&quot;&quot;
+
+    prompt_builder : Persona__Prompt_Builder
+    persona_manager: Persona__Manager
+
+    def setup(self) -&gt; 'Persona__Service':
+        &quot;&quot;&quot;Initialize the service with configuration&quot;&quot;&quot;
+        pass
+
+# ✓ CORRECT - Inline comments with alignment
+class Persona__Service(Type_Safe):                              # Core service for persona translation
+    prompt_builder  : Persona__Prompt_Builder                   # Builds prompts for LLM interactions
+    persona_manager : Persona__Manager                          # Manages available personas
+
+    def setup(self) -&gt; 'Persona__Service':                      # Initialize the service
+        self.prompt_builder  = Persona__Prompt_Builder()
+        self.persona_manager = Persona__Manager()
+        return self
+</code></pre>
+<h3 id="inline-comment-alignment">Inline Comment Alignment<a class="headerlink" href="#inline-comment-alignment" title="Permanent link">&para;</a></h3>
+<p>Align comments at a consistent column (typically 70-80):</p>
+<pre><code class="language-python">class Schema__Config(Type_Safe):
+    host        : Safe_Str__Host                                # Server hostname
+    port        : Safe_UInt__Port                               # Server port number
+    ssl_enabled : bool = True                                   # Enable SSL/TLS
+    timeout     : Safe_UInt = 30                                # Connection timeout in seconds
+    max_retries : Safe_UInt = 3                                 # Maximum retry attempts
+</code></pre>
+<hr />
+<h2 id="method-signatures">Method Signatures<a class="headerlink" href="#method-signatures" title="Permanent link">&para;</a></h2>
+<h3 id="multi-parameter-methods">Multi-Parameter Methods<a class="headerlink" href="#multi-parameter-methods" title="Permanent link">&para;</a></h3>
+<p>When methods have multiple parameters with types, use vertical alignment:</p>
+<pre><code class="language-python">def method_name(self                        ,                                       # Method purpose comment
+                first_param  : Type1        ,                                       # With params descriptions
+                second_param : Type2        ,                                       # Comments aligned at column 85
+                third_param  : Type3 = None                                         # Default values align
+           ) -&gt; ReturnType:                                                         # Return on new line (with return type aligned with last variable name)
+</code></pre>
+<p><strong>Critical alignment rules:</strong>
+1. Parameters stack vertically with opening parenthesis
+2. <strong>First letter of return type aligns with first letter of parameter names</strong>
+3. Vertical alignment on <code>:</code>, <code>,</code>, and <code>#</code>
+4. Return type format: <code>) -&gt; ReturnType:</code> positioned to achieve alignment
+5. self: is used to descibe the method's objective/purpose</p>
+<h3 id="alignment-example">Alignment Example<a class="headerlink" href="#alignment-example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def process_data(self                                          ,                    # Process and validate data            
+                 input_data   : Dict[Node_Id, Safe_Str__Text]  ,                    # Raw input data
+                 validator    : Schema__Validator              ,                    # Validation schema
+                 timeout      : Safe_Int__Positive = 30                             # Timeout in seconds
+            ) -&gt; Schema__Result:                                                    # Processed result
+#                ^-- 'S' in Schema__Result aligns with 'i' in input_data
+</code></pre>
+<h3 id="single-parameter-methods">Single Parameter Methods<a class="headerlink" href="#single-parameter-methods" title="Permanent link">&para;</a></h3>
+<p>Skip complex formatting for simple signatures:</p>
+<pre><code class="language-python">def get_name(self) -&gt; Safe_Str__Username:
+    return self.name
+
+def set_value(self, value: Save_UInt) -&gt; None:
+    self.value = value
+</code></pre>
+<h3 id="no-line-break-before-first-parameter">No Line Break Before First Parameter<a class="headerlink" href="#no-line-break-before-first-parameter" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL</strong>: Never put a line break before the first parameter in method calls or definitions:</p>
+<pre><code class="language-python"># ✗ WRONG - Line break before first parameter
+relationship = Schema__Ontology__Relationship(
+    inverse = Safe_Str__Ontology__Verb(rel_data.get('inverse', '')),
+    targets = targets,
+)
+
+# ✓ CORRECT - First parameter on same line, subsequent aligned
+relationship = Schema__Ontology__Relationship(inverse = verb_value,
+                                              targets = targets   )
+</code></pre>
+<hr />
+<h2 id="variable-assignment-assertions">Variable Assignment &amp; Assertions<a class="headerlink" href="#variable-assignment-assertions" title="Permanent link">&para;</a></h2>
+<h3 id="aligned-equals-signs">Aligned Equals Signs<a class="headerlink" href="#aligned-equals-signs" title="Permanent link">&para;</a></h3>
+<p>Align equals signs for related assignments:</p>
+<pre><code class="language-python">self.node_id    = Random_Guid()
+self.value_type = str
+self.created_at = Timestamp_Now()
+
+config.host     = &quot;localhost&quot;
+config.port     = 8080
+config.timeout  = 30
+</code></pre>
+<h3 id="aligned-comparison-operators">Aligned Comparison Operators<a class="headerlink" href="#aligned-comparison-operators" title="Permanent link">&para;</a></h3>
+<p>Align operators in assertion blocks:</p>
+<pre><code class="language-python">assert type(self.node)       is Schema__MGraph__Node
+assert self.node.value       == &quot;test_value&quot;
+assert len(self.attributes)  == 1
+assert self.node.parent      is None
+</code></pre>
+<h3 id="aligned-boolean-checks">Aligned Boolean Checks<a class="headerlink" href="#aligned-boolean-checks" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">if file_exists(path) is False:
+    return None
+if data            is None:
+    return None
+if len(items)      == 0:
+    return None
+</code></pre>
+<hr />
+<h2 id="constructor-calls">Constructor Calls<a class="headerlink" href="#constructor-calls" title="Permanent link">&para;</a></h2>
+<h3 id="multi-parameter-constructors">Multi-Parameter Constructors<a class="headerlink" href="#multi-parameter-constructors" title="Permanent link">&para;</a></h3>
+<p>Align parameters with the first parameter:</p>
+<pre><code class="language-python">node_config = Schema__MGraph__Node__Config(node_id    = Random_Guid(),
+                                           value_type = str          ,
+                                           label      = &quot;test_node&quot;  )
+
+ontology = Schema__Ontology(ontology_id = Ontology_Id(&quot;core-types&quot;),
+                            version     = &quot;1.0.0&quot;                  ,
+                            description = &quot;Core type definitions&quot;  )
+</code></pre>
+<p><strong>Rules:</strong>
+- First parameter on same line as constructor
+- Subsequent parameters aligned with first
+- Closing parenthesis on last parameter line (or aligned below)
+- Align <code>=</code> signs within the call</p>
+<h3 id="nested-constructor-calls">Nested Constructor Calls<a class="headerlink" href="#nested-constructor-calls" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">container = Schema__Container(config = Schema__Config(host = &quot;localhost&quot;,
+                                                      port = 8080       ),
+                              data   = Schema__Data(items = []          ))
+</code></pre>
+<hr />
+<h2 id="method-naming">Method Naming<a class="headerlink" href="#method-naming" title="Permanent link">&para;</a></h2>
+<h3 id="no-underscores-for-private-methods">No Underscores for Private Methods<a class="headerlink" href="#no-underscores-for-private-methods" title="Permanent link">&para;</a></h3>
+<p><strong>CRITICAL</strong>: Do not use leading underscores for helper/private methods:</p>
+<pre><code class="language-python"># ✗ WRONG - Underscore prefix
+class Parser(Type_Safe):
+    def parse(self, data: dict) -&gt; Schema__Result:
+        return self._parse_nodes(data)
+
+    def _parse_nodes(self, data: dict) -&gt; List[Schema__Node]:
+        pass
+
+# ✓ CORRECT - No underscore prefix
+class Parser(Type_Safe):
+    def parse(self, data: dict) -&gt; Schema__Result:
+        return self.parse_nodes(data)
+
+    def parse_nodes(self, data: dict) -&gt; List[Schema__Node]:
+        pass
+</code></pre>
+<p><strong>Rationale</strong>: In Type_Safe classes, all methods are part of the public interface. The underscore convention adds visual noise without providing meaningful encapsulation.</p>
+<hr />
+<h2 id="class-definitions">Class Definitions<a class="headerlink" href="#class-definitions" title="Permanent link">&para;</a></h2>
+<h3 id="schema-classes">Schema Classes<a class="headerlink" href="#schema-classes" title="Permanent link">&para;</a></h3>
+<p>Schema classes are pure data containers - no methods:</p>
+<pre><code class="language-python">class Schema__User(Type_Safe):                                  # User account data
+    user_id    : User_Id                                        # Unique identifier
+    username   : Safe_Str__Username                             # Login username
+    email      : Safe_Str__Email                                # Contact email
+    created_at : Timestamp_Now                                  # Account creation time
+    settings   : Schema__User_Settings                          # User preferences
+</code></pre>
+<h3 id="collection-subclasses">Collection Subclasses<a class="headerlink" href="#collection-subclasses" title="Permanent link">&para;</a></h3>
+<p>Collection subclasses are pure type definitions - no methods:</p>
+<pre><code class="language-python">class Dict__Users__By_Id(Type_Safe__Dict):                      # Maps user IDs to user data
+    expected_key_type   = User_Id
+    expected_value_type = Schema__User
+
+class List__User_Ids(Type_Safe__List):                          # List of user identifiers
+    expected_type = User_Id
+</code></pre>
+<h3 id="servicehelper-classes">Service/Helper Classes<a class="headerlink" href="#servicehelper-classes" title="Permanent link">&para;</a></h3>
+<p>Service classes contain the business logic:</p>
+<pre><code class="language-python">class User__Service(Type_Safe):                                 # User management service
+    cache: Dict__Users__By_Id                                   # In-memory user cache
+
+    @type_safe
+    def get(self, user_id: User_Id) -&gt; Schema__User:            # Retrieve user by ID
+        return self.cache.get(user_id)
+
+    @type_safe
+    def create(self, username : Safe_Str__Username,             # Create new user account
+                     email    : Safe_Str__Email   ) -&gt; Schema__User:
+        user = Schema__User(username = username,
+                            email    = email   )
+        self.cache[user.user_id] = user
+        return user
+</code></pre>
+<hr />
+<h2 id="type-annotations">Type Annotations<a class="headerlink" href="#type-annotations" title="Permanent link">&para;</a></h2>
+<h3 id="class-attribute-annotations">Class Attribute Annotations<a class="headerlink" href="#class-attribute-annotations" title="Permanent link">&para;</a></h3>
+<p>Align colons for class attributes:</p>
+<pre><code class="language-python">class Schema__Config(Type_Safe):
+    host        : Safe_Str__Host
+    port        : Safe_UInt__Port
+    ssl_enabled : bool
+    timeout     : Safe_UInt
+    endpoints   : List[Safe_Str__Url]
+</code></pre>
+<h3 id="default-values">Default Values<a class="headerlink" href="#default-values" title="Permanent link">&para;</a></h3>
+<p>Align default values with annotations:</p>
+<pre><code class="language-python">class Schema__Config(Type_Safe):
+    host        : Safe_Str__Host       = &quot;localhost&quot;
+    port        : Safe_UInt__Port      = 8080
+    ssl_enabled : bool                 = True
+    timeout     : Safe_UInt            = 30
+    max_retries : Safe_UInt            = 3
+</code></pre>
+<h3 id="complex-type-annotations">Complex Type Annotations<a class="headerlink" href="#complex-type-annotations" title="Permanent link">&para;</a></h3>
+<p>For long type annotations, keep on one line if possible:</p>
+<pre><code class="language-python">class Schema__Graph(Type_Safe):
+    nodes         : Dict__Nodes__By_Id
+    edges         : Dict__Edges__By_Id
+    node_index    : Dict[Node_Type_Id, List__Node_Ids]
+    metadata      : Dict[Safe_Str__Key, Safe_Str__Text]
+</code></pre>
+<hr />
+<h2 id="control-flow">Control Flow<a class="headerlink" href="#control-flow" title="Permanent link">&para;</a></h2>
+<h3 id="if-statements">If Statements<a class="headerlink" href="#if-statements" title="Permanent link">&para;</a></h3>
+<p>Align conditions when checking multiple related values:</p>
+<pre><code class="language-python">if file_exists(path) is False:
+    return None
+if data              is None:
+    return None
+if len(data)         == 0:
+    return None
+</code></pre>
+<h3 id="guard-clauses">Guard Clauses<a class="headerlink" href="#guard-clauses" title="Permanent link">&para;</a></h3>
+<p>Use early returns for validation:</p>
+<pre><code class="language-python">def process(self, data: dict) -&gt; Schema__Result:
+    if data is None:
+        return None
+    if 'required_field' not in data:
+        return None
+
+    # Main processing logic
+    return self.parse(data)
+</code></pre>
+<h3 id="boolean-comparisons">Boolean Comparisons<a class="headerlink" href="#boolean-comparisons" title="Permanent link">&para;</a></h3>
+<p>Use explicit <code>is True</code> / <code>is False</code> for clarity:</p>
+<pre><code class="language-python"># ✓ CORRECT - Explicit boolean check
+if file_exists(path) is False:
+    return None
+
+# ✗ AVOID - Implicit boolean
+if not file_exists(path):
+    return None
+</code></pre>
+<hr />
+<h2 id="dictionary-operations">Dictionary Operations<a class="headerlink" href="#dictionary-operations" title="Permanent link">&para;</a></h2>
+<h3 id="dict-comprehensions">Dict Comprehensions<a class="headerlink" href="#dict-comprehensions" title="Permanent link">&para;</a></h3>
+<p>Align for readability:</p>
+<pre><code class="language-python">result = {key: self.transform(value)
+          for key, value in data.items()
+          if value is not None}
+</code></pre>
+<h3 id="multi-line-dict-literals">Multi-Line Dict Literals<a class="headerlink" href="#multi-line-dict-literals" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">config = {'host'   : 'localhost',
+          'port'   : 8080       ,
+          'timeout': 30         }
+</code></pre>
+<hr />
+<h2 id="list-operations">List Operations<a class="headerlink" href="#list-operations" title="Permanent link">&para;</a></h2>
+<h3 id="list-comprehensions">List Comprehensions<a class="headerlink" href="#list-comprehensions" title="Permanent link">&para;</a></h3>
+<p>Keep simple comprehensions on one line:</p>
+<pre><code class="language-python">ids = [item.id for item in items]
+names = [user.name for user in users if user.active]
+</code></pre>
+<h3 id="multi-line-list-literals">Multi-Line List Literals<a class="headerlink" href="#multi-line-list-literals" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">endpoints = ['https://api.example.com/v1',
+             'https://api.example.com/v2',
+             'https://backup.example.com' ]
+</code></pre>
+<hr />
+<h2 id="test-code-formatting">Test Code Formatting<a class="headerlink" href="#test-code-formatting" title="Permanent link">&para;</a></h2>
+<h3 id="test-method-structure">Test Method Structure<a class="headerlink" href="#test-method-structure" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test_user_creation(self):
+    # Setup
+    service = User__Service()
+    username = Safe_Str__Username(&quot;testuser&quot;)
+    email    = Safe_Str__Email(&quot;test@example.com&quot;)
+
+    # Execute
+    user = service.create(username=username, email=email)
+
+    # Verify
+    assert type(user)          is Schema__User
+    assert user.username       == username
+    assert user.email          == email
+    assert type(user.user_id)  is User_Id
+</code></pre>
+<h3 id="aligned-assertions">Aligned Assertions<a class="headerlink" href="#aligned-assertions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">assert type(result)           is Schema__Result
+assert result.status          == &quot;success&quot;
+assert len(result.items)      == 3
+assert result.metadata        is not None
+assert result.error           is None
+</code></pre>
+<hr />
+<h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-registryservice-class">Pattern: Registry/Service Class<a class="headerlink" href="#pattern-registryservice-class" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# Ontology Registry - Central registry for ontology definitions
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class Ontology__Registry(Type_Safe):                            # Central ontology registry
+    cache: Dict__Ontologies__By_Id                              # In-memory cache
+
+    @type_safe
+    def get(self, ontology_id: Ontology_Id) -&gt; Schema__Ontology:
+        return self.cache.get(ontology_id)
+
+    @type_safe
+    def register(self, ontology: Schema__Ontology) -&gt; Schema__Ontology:
+        self.cache[ontology.ontology_id] = ontology
+        return ontology
+
+    @type_safe
+    def exists(self, ontology_id: Ontology_Id) -&gt; bool:
+        return ontology_id in self.cache
+</code></pre>
+<h3 id="pattern-parser-class">Pattern: Parser Class<a class="headerlink" href="#pattern-parser-class" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════════════════════════
+# Ontology Parser - Parses ontology definitions from JSON
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class Ontology__Parser(Type_Safe):                              # JSON to Schema parser
+
+    @type_safe
+    def parse(self, data: dict) -&gt; Schema__Ontology:            # Parse ontology from dict
+        if data is None:
+            return None
+
+        node_types = self.parse_node_types(data.get('node_types', {}))
+
+        return Schema__Ontology(ontology_id = Ontology_Id(data.get('ontology_id', '')),
+                                version     = data.get('version', '1.0.0')            ,
+                                node_types  = node_types                              )
+
+    @type_safe
+    def parse_node_types(self, data: dict) -&gt; Dict__Node_Types__By_Id:
+        node_types = Dict__Node_Types__By_Id()                  # Direct instantiation
+
+        for type_id, type_data in data.items():
+            node_type = self.parse_node_type(type_id, type_data)
+            if node_type:
+                node_types[node_type.node_type_id] = node_type
+
+        return node_types
+</code></pre>
+<h3 id="pattern-file-operations">Pattern: File Operations<a class="headerlink" href="#pattern-file-operations" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@type_safe
+def load_from_file(self, file_path: Safe_Str__File__Path) -&gt; Schema__Config:
+    if file_exists(file_path) is False:
+        return None
+
+    data = json_load_file(file_path)
+    if not data:
+        return None
+
+    return self.parse(data)
+
+@type_safe
+def save_to_file(self, config   : Schema__Config       ,
+                       file_path: Safe_Str__File__Path ) -&gt; bool:
+    data = config.json()
+    json_save_file(data, file_path)
+    return True
+</code></pre>
+<hr />
+<h2 id="anti-patterns-to-avoid">Anti-Patterns to Avoid<a class="headerlink" href="#anti-patterns-to-avoid" title="Permanent link">&para;</a></h2>
+<h3 id="avoid-docstrings">Avoid: Docstrings<a class="headerlink" href="#avoid-docstrings" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✗ WRONG
+def process(self, data: dict) -&gt; Result:
+    &quot;&quot;&quot;Process the input data and return result.&quot;&quot;&quot;
+    pass
+
+# ✓ CORRECT
+def process(self, data: dict) -&gt; Result:                        # Process input data
+    pass
+</code></pre>
+<h3 id="avoid-underscore-private-methods">Avoid: Underscore Private Methods<a class="headerlink" href="#avoid-underscore-private-methods" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✗ WRONG
+def _helper_method(self):
+    pass
+
+# ✓ CORRECT
+def helper_method(self):
+    pass
+</code></pre>
+<h3 id="avoid-line-break-before-first-parameter">Avoid: Line Break Before First Parameter<a class="headerlink" href="#avoid-line-break-before-first-parameter" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✗ WRONG
+result = SomeClass(
+    param1=value1,
+    param2=value2
+)
+
+# ✓ CORRECT
+result = SomeClass(param1 = value1,
+                   param2 = value2)
+</code></pre>
+<h3 id="avoid-methods-in-schemas">Avoid: Methods in Schemas<a class="headerlink" href="#avoid-methods-in-schemas" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✗ WRONG
+class Schema__User(Type_Safe):
+    name: str
+
+    def validate(self):                                          # NO!
+        pass
+
+# ✓ CORRECT
+class Schema__User(Type_Safe):
+    name: str
+</code></pre>
+<h3 id="avoid-implicit-boolean-checks">Avoid: Implicit Boolean Checks<a class="headerlink" href="#avoid-implicit-boolean-checks" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># ✗ WRONG
+if not data:
+    return None
+
+# ✓ CORRECT
+if data is None:
+    return None
+</code></pre>
+<hr />
+<h2 id="summary-checklist">Summary Checklist<a class="headerlink" href="#summary-checklist" title="Permanent link">&para;</a></h2>
+<p>When formatting Python code:</p>
+<ul>
+<li>[ ] File header with <code>═══</code> borders before imports</li>
+<li>[ ] Section dividers for logical method groups</li>
+<li>[ ] Aligned imports at consistent column</li>
+<li>[ ] NO docstrings - use inline comments</li>
+<li>[ ] Inline comments aligned at column 70-80</li>
+<li>[ ] Multi-parameter methods with vertical alignment</li>
+<li>[ ] Return type's first letter aligns with parameter names</li>
+<li>[ ] No line break before first parameter in calls</li>
+<li>[ ] No underscore prefix on helper methods</li>
+<li>[ ] Aligned <code>=</code> signs in related assignments</li>
+<li>[ ] Aligned comparison operators in assertions</li>
+<li>[ ] Explicit <code>is True</code> / <code>is False</code> for booleans</li>
+<li>[ ] Schemas are pure data - no methods</li>
+<li>[ ] Collection subclasses are pure type definitions - no methods</li>
+<li>[ ] Guard clauses with early returns</li>
+<li>[ ] Test methods: Setup, Execute, Verify structure</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

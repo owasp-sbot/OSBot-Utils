@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/getting-started/type_safe_round-trip_serialization/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Type_Safe Round-Trip Serialization: Complete Data Persistence &amp; Network Transport Guide - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Round-Trip Serialization: Complete Data Persistence \u0026amp; Network Transport Guide";
+        var mkdocs_page_input_path = "type_safe/getting-started/type_safe_round-trip_serialization.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/getting-started/type_safe_round-trip_serialization/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Round-Trip Serialization: Complete Data Persistence &amp; Network Transport Guide</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-round-trip-serialization-complete-data-persistence-network-transport-guide">Type_Safe Round-Trip Serialization: Complete Data Persistence &amp; Network Transport Guide<a class="headerlink" href="#type_safe-round-trip-serialization-complete-data-persistence-network-transport-guide" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Type_Safe provides <strong>complete round-trip serialization</strong> - the ability to convert complex Type_Safe objects to JSON, transmit or store them, and perfectly reconstruct the original typed objects. This maintains type safety across network boundaries, file storage, and inter-process communication.</p>
+<h2 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="what-is-round-trip-serialization">What is Round-Trip Serialization?<a class="headerlink" href="#what-is-round-trip-serialization" title="Permanent link">&para;</a></h3>
+<p>Round-trip serialization ensures that:</p>
+<pre><code>Original Object → JSON → Storage/Network → JSON → Reconstructed Object
+</code></pre>
+<p>The reconstructed object is <strong>identical</strong> to the original, with:
+- ✅ All type constraints preserved
+- ✅ Nested objects properly typed
+- ✅ Collections maintaining type safety
+- ✅ Custom types (Safe_Id, etc.) restored
+- ✅ Validation rules intact</p>
+<h2 id="basic-round-trip-examples">Basic Round-Trip Examples<a class="headerlink" href="#basic-round-trip-examples" title="Permanent link">&para;</a></h2>
+<h3 id="simple-object-serialization">Simple Object Serialization<a class="headerlink" href="#simple-object-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.Type_Safe import Type_Safe
+from typing import List, Dict, Optional
+
+class UserProfile(Type_Safe):
+    username: str
+    email: str
+    age: int
+    tags: List[str]
+    settings: Dict[str, bool]
+    bio: Optional[str] = None
+
+# Create and populate object
+original = UserProfile(
+    username=&quot;alice&quot;,
+    email=&quot;alice@example.com&quot;,
+    age=28,
+    tags=[&quot;developer&quot;, &quot;python&quot;],
+    settings={&quot;notifications&quot;: True, &quot;dark_mode&quot;: False}
+)
+
+# Serialize to JSON
+json_data = original.json()
+# Returns: {
+#     &quot;username&quot;: &quot;alice&quot;,
+#     &quot;email&quot;: &quot;alice@example.com&quot;, 
+#     &quot;age&quot;: 28,
+#     &quot;tags&quot;: [&quot;developer&quot;, &quot;python&quot;],
+#     &quot;settings&quot;: {&quot;notifications&quot;: true, &quot;dark_mode&quot;: false},
+#     &quot;bio&quot;: null
+# }
+
+# Save to file
+import json
+with open('user.json', 'w') as f:
+    json.dump(json_data, f)
+
+# Load from file and reconstruct
+with open('user.json', 'r') as f:
+    loaded_data = json.load(f)
+
+reconstructed = UserProfile.from_json(loaded_data)
+
+# Verify perfect reconstruction
+assert reconstructed.username == original.username
+assert reconstructed.age == original.age
+assert reconstructed.tags == original.tags
+assert reconstructed.settings == original.settings
+assert reconstructed.json() == original.json()  # Perfect match!
+</code></pre>
+<h3 id="nested-objects-round-trip">Nested Objects Round-Trip<a class="headerlink" href="#nested-objects-round-trip" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Address(Type_Safe):
+    street: str
+    city: str
+    state: str
+    zip_code: str
+
+class Company(Type_Safe):
+    name: str
+    founded: int
+    headquarters: Address
+    branches: List[Address]
+    employee_count: Dict[str, int]
+
+# Create complex nested structure
+original = Company(
+    name=&quot;TechCorp&quot;,
+    founded=2010,
+    headquarters=Address(
+        street=&quot;123 Main St&quot;,
+        city=&quot;Boston&quot;,
+        state=&quot;MA&quot;,
+        zip_code=&quot;02101&quot;
+    ),
+    branches=[
+        Address(street=&quot;456 Oak Ave&quot;, city=&quot;NYC&quot;, state=&quot;NY&quot;, zip_code=&quot;10001&quot;),
+        Address(street=&quot;789 Pine Rd&quot;, city=&quot;SF&quot;, state=&quot;CA&quot;, zip_code=&quot;94102&quot;)
+    ],
+    employee_count={&quot;Boston&quot;: 150, &quot;NYC&quot;: 75, &quot;SF&quot;: 50}
+)
+
+# Full serialization preserves structure
+json_data = original.json()
+
+# Save to file
+with open('company.json', 'w') as f:
+    json.dump(json_data, f, indent=2)
+
+# Reconstruct from file
+with open('company.json', 'r') as f:
+    loaded = json.load(f)
+
+reconstructed = Company.from_json(loaded)
+
+# All nested objects are properly typed
+assert isinstance(reconstructed.headquarters, Address)
+assert all(isinstance(branch, Address) for branch in reconstructed.branches)
+assert reconstructed.headquarters.city == &quot;Boston&quot;
+assert len(reconstructed.branches) == 2
+</code></pre>
+<h2 id="advanced-serialization-features">Advanced Serialization Features<a class="headerlink" href="#advanced-serialization-features" title="Permanent link">&para;</a></h2>
+<h3 id="type-safe-primitives-serialization">Type-Safe Primitives Serialization<a class="headerlink" href="#type-safe-primitives-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.type_safe.primitives.safe_str.identifiers.Safe_Id import Safe_Id
+from osbot_utils.type_safe.primitives.safe_str.identifiers.Random_Guid import Random_Guid
+
+class UserId(Safe_Id): pass
+class OrderId(Safe_Id): pass
+
+class Order(Type_Safe):
+    id: OrderId
+    user_id: UserId
+    transaction_id: Random_Guid
+    amount: float
+    items: List[str]
+
+# Create with type-safe IDs
+original = Order(
+    id=OrderId(&quot;ORD-12345&quot;),
+    user_id=UserId(&quot;USR-67890&quot;),
+    transaction_id=Random_Guid(),
+    amount=299.99,
+    items=[&quot;laptop&quot;, &quot;mouse&quot;]
+)
+
+# Serialize - IDs become strings
+json_data = original.json()
+# {
+#     &quot;id&quot;: &quot;ORD-12345&quot;,
+#     &quot;user_id&quot;: &quot;USR-67890&quot;,
+#     &quot;transaction_id&quot;: &quot;550e8400-e29b-41d4-a716-446655440000&quot;,
+#     &quot;amount&quot;: 299.99,
+#     &quot;items&quot;: [&quot;laptop&quot;, &quot;mouse&quot;]
+# }
+
+# Deserialize - strings become typed IDs again!
+reconstructed = Order.from_json(json_data)
+
+# Type safety is preserved
+assert isinstance(reconstructed.id, OrderId)
+assert isinstance(reconstructed.user_id, UserId)
+assert isinstance(reconstructed.transaction_id, Random_Guid)
+
+# Values match
+assert reconstructed.id == OrderId(&quot;ORD-12345&quot;)
+assert reconstructed.user_id == UserId(&quot;USR-67890&quot;)
+
+# Type checking still works
+try:
+    reconstructed.id = UserId(&quot;USR-99999&quot;)  # Wrong type!
+except ValueError:
+    pass  # ✓ Type safety maintained
+</code></pre>
+<h3 id="self-referential-structures">Self-Referential Structures<a class="headerlink" href="#self-referential-structures" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class TreeNode(Type_Safe):
+    value: int
+    parent: Optional['TreeNode'] = None
+    children: List['TreeNode'] = []
+
+# Create tree structure
+root = TreeNode(value=1)
+child1 = TreeNode(value=2)
+child2 = TreeNode(value=3)
+grandchild = TreeNode(value=4)
+
+# Build relationships
+root.children = [child1, child2]
+child1.children = [grandchild]
+
+# Serialize tree
+tree_json = root.json()
+# {
+#     &quot;value&quot;: 1,
+#     &quot;parent&quot;: null,
+#     &quot;children&quot;: [
+#         {
+#             &quot;value&quot;: 2,
+#             &quot;parent&quot;: null,
+#             &quot;children&quot;: [
+#                 {&quot;value&quot;: 4, &quot;parent&quot;: null, &quot;children&quot;: []}
+#             ]
+#         },
+#         {&quot;value&quot;: 3, &quot;parent&quot;: null, &quot;children&quot;: []}
+#     ]
+# }
+
+# Reconstruct tree
+reconstructed = TreeNode.from_json(tree_json)
+
+# Structure is preserved
+assert reconstructed.value == 1
+assert len(reconstructed.children) == 2
+assert reconstructed.children[0].value == 2
+assert reconstructed.children[0].children[0].value == 4
+</code></pre>
+<h3 id="type-references-serialization">Type References Serialization<a class="headerlink" href="#type-references-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from typing import Type, Dict
+
+class Schema__Node(Type_Safe):
+    node_type: Type['Schema__Node']
+    node_id: str
+    metadata: Dict[str, Any]
+
+class Schema__Edge(Type_Safe):
+    edge_type: Type['Schema__Edge']
+    from_node: str
+    to_node: str
+
+class Graph(Type_Safe):
+    nodes: Dict[str, Schema__Node]
+    edges: List[Schema__Edge]
+    graph_type: Type['Graph']
+
+# Create with type references
+graph = Graph()
+graph.graph_type = Graph
+graph.nodes = {
+    &quot;n1&quot;: Schema__Node(
+        node_type=Schema__Node,
+        node_id=&quot;n1&quot;,
+        metadata={&quot;label&quot;: &quot;Start&quot;}
+    )
+}
+
+# Type references serialize as strings
+json_data = graph.json()
+# {
+#     &quot;graph_type&quot;: &quot;Graph&quot;,
+#     &quot;nodes&quot;: {
+#         &quot;n1&quot;: {
+#             &quot;node_type&quot;: &quot;Schema__Node&quot;,
+#             &quot;node_id&quot;: &quot;n1&quot;,
+#             &quot;metadata&quot;: {&quot;label&quot;: &quot;Start&quot;}
+#         }
+#     },
+#     &quot;edges&quot;: []
+# }
+
+# Reconstruct with proper types
+reconstructed = Graph.from_json(json_data)
+assert reconstructed.graph_type == Graph
+assert reconstructed.nodes[&quot;n1&quot;].node_type == Schema__Node
+</code></pre>
+<h2 id="network-transport-patterns">Network Transport Patterns<a class="headerlink" href="#network-transport-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="rest-api-integration">REST API Integration<a class="headerlink" href="#rest-api-integration" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import requests
+import json
+
+class APIRequest(Type_Safe):
+    method: str
+    endpoint: str
+    headers: Dict[str, str]
+    params: Dict[str, Any]
+    body: Optional[Dict[str, Any]] = None
+
+class APIResponse(Type_Safe):
+    status_code: int
+    headers: Dict[str, str]
+    data: Dict[str, Any]
+    errors: List[str] = []
+
+# Client side - sending request
+request = APIRequest(
+    method=&quot;POST&quot;,
+    endpoint=&quot;/api/users&quot;,
+    headers={&quot;Content-Type&quot;: &quot;application/json&quot;},
+    params={&quot;validate&quot;: True},
+    body={&quot;username&quot;: &quot;alice&quot;, &quot;email&quot;: &quot;alice@example.com&quot;}
+)
+
+# Send over network
+response = requests.post(
+    &quot;https://api.example.com/relay&quot;,
+    json=request.json(),  # Serialize for transport
+    headers={&quot;Authorization&quot;: &quot;Bearer token&quot;}
+)
+
+# Server side - receiving and processing
+def handle_request(json_data: dict):
+    # Reconstruct typed request
+    request = APIRequest.from_json(json_data)
+
+    # Type-safe access to fields
+    if request.method == &quot;POST&quot;:
+        process_post(request.body)
+
+    # Create typed response
+    response = APIResponse(
+        status_code=200,
+        headers={&quot;Content-Type&quot;: &quot;application/json&quot;},
+        data={&quot;user_id&quot;: 12345, &quot;created&quot;: True}
+    )
+
+    # Send back as JSON
+    return response.json()
+</code></pre>
+<h3 id="message-queue-integration">Message Queue Integration<a class="headerlink" href="#message-queue-integration" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import json
+from typing import Any, Dict
+import pika  # RabbitMQ client
+
+class Message(Type_Safe):
+    id: str
+    timestamp: float
+    type: str
+    payload: Dict[str, Any]
+    metadata: Dict[str, str]
+
+class MessageProcessor:
+    def send_message(self, message: Message, queue: str):
+        # Serialize for queue
+        json_message = json.dumps(message.json())
+
+        # Send to RabbitMQ
+        connection = pika.BlockingConnection()
+        channel = connection.channel()
+        channel.basic_publish(
+            exchange='',
+            routing_key=queue,
+            body=json_message
+        )
+        connection.close()
+
+    def receive_message(self, queue: str) -&gt; Message:
+        connection = pika.BlockingConnection()
+        channel = connection.channel()
+
+        method, properties, body = channel.basic_get(queue)
+        if body:
+            # Deserialize from queue
+            json_data = json.loads(body)
+            message = Message.from_json(json_data)
+
+            # Type-safe message processing
+            if message.type == &quot;user_event&quot;:
+                process_user_event(message.payload)
+
+            return message
+
+        connection.close()
+</code></pre>
+<h3 id="websocket-communication">WebSocket Communication<a class="headerlink" href="#websocket-communication" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import asyncio
+import websockets
+import json
+
+class WebSocketMessage(Type_Safe):
+    action: str
+    data: Dict[str, Any]
+    client_id: Optional[str] = None
+    timestamp: Optional[float] = None
+
+async def client():
+    async with websockets.connect(&quot;ws://localhost:8765&quot;) as websocket:
+        # Send typed message
+        message = WebSocketMessage(
+            action=&quot;subscribe&quot;,
+            data={&quot;channel&quot;: &quot;updates&quot;, &quot;filters&quot;: [&quot;important&quot;]},
+            client_id=&quot;client-123&quot;
+        )
+
+        await websocket.send(json.dumps(message.json()))
+
+        # Receive and deserialize response
+        response_json = await websocket.recv()
+        response = WebSocketMessage.from_json(json.loads(response_json))
+
+        # Type-safe handling
+        if response.action == &quot;update&quot;:
+            handle_update(response.data)
+
+async def server(websocket, path):
+    async for message in websocket:
+        # Deserialize incoming message
+        incoming = WebSocketMessage.from_json(json.loads(message))
+
+        # Type-safe processing
+        if incoming.action == &quot;subscribe&quot;:
+            channels = incoming.data.get(&quot;channels&quot;, [])
+            # Process subscription...
+
+        # Send typed response
+        response = WebSocketMessage(
+            action=&quot;acknowledged&quot;,
+            data={&quot;status&quot;: &quot;success&quot;},
+            timestamp=time.time()
+        )
+
+        await websocket.send(json.dumps(response.json()))
+</code></pre>
+<h2 id="file-storage-patterns">File Storage Patterns<a class="headerlink" href="#file-storage-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="database-storage">Database Storage<a class="headerlink" href="#database-storage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import sqlite3
+import json
+
+class UserRecord(Type_Safe):
+    id: int
+    username: str
+    email: str
+    settings: Dict[str, Any]
+    created_at: str
+
+class UserRepository:
+    def __init__(self, db_path: str):
+        self.conn = sqlite3.connect(db_path)
+        self.conn.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY,
+                data TEXT NOT NULL
+            )
+        ''')
+
+    def save(self, user: UserRecord):
+        # Serialize to JSON for storage
+        json_data = json.dumps(user.json())
+
+        self.conn.execute(
+            &quot;INSERT OR REPLACE INTO users (id, data) VALUES (?, ?)&quot;,
+            (user.id, json_data)
+        )
+        self.conn.commit()
+
+    def load(self, user_id: int) -&gt; Optional[UserRecord]:
+        cursor = self.conn.execute(
+            &quot;SELECT data FROM users WHERE id = ?&quot;,
+            (user_id,)
+        )
+        row = cursor.fetchone()
+
+        if row:
+            # Deserialize from JSON
+            json_data = json.loads(row[0])
+            return UserRecord.from_json(json_data)
+        return None
+
+    def load_all(self) -&gt; List[UserRecord]:
+        cursor = self.conn.execute(&quot;SELECT data FROM users&quot;)
+        users = []
+
+        for row in cursor:
+            json_data = json.loads(row[0])
+            users.append(UserRecord.from_json(json_data))
+
+        return users
+
+# Usage
+repo = UserRepository(&quot;users.db&quot;)
+
+# Save user
+user = UserRecord(
+    id=1,
+    username=&quot;alice&quot;,
+    email=&quot;alice@example.com&quot;,
+    settings={&quot;theme&quot;: &quot;dark&quot;},
+    created_at=&quot;2024-01-01T10:00:00Z&quot;
+)
+repo.save(user)
+
+# Load user
+loaded_user = repo.load(1)
+assert loaded_user.username == &quot;alice&quot;
+assert isinstance(loaded_user.settings, dict)
+</code></pre>
+<h3 id="configuration-files">Configuration Files<a class="headerlink" href="#configuration-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import json
+import yaml
+from pathlib import Path
+
+class AppConfig(Type_Safe):
+    app_name: str
+    version: str
+    debug: bool = False
+    database: Dict[str, Any]
+    features: List[str]
+    limits: Dict[str, int]
+
+class ConfigManager:
+    def __init__(self, config_dir: Path):
+        self.config_dir = Path(config_dir)
+        self.config_dir.mkdir(exist_ok=True)
+
+    def save_json(self, config: AppConfig, filename: str):
+        &quot;&quot;&quot;Save configuration as JSON&quot;&quot;&quot;
+        filepath = self.config_dir / f&quot;{filename}.json&quot;
+
+        with open(filepath, 'w') as f:
+            json.dump(config.json(), f, indent=2)
+
+    def load_json(self, filename: str) -&gt; AppConfig:
+        &quot;&quot;&quot;Load configuration from JSON&quot;&quot;&quot;
+        filepath = self.config_dir / f&quot;{filename}.json&quot;
+
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+
+        return AppConfig.from_json(data)
+
+    def save_yaml(self, config: AppConfig, filename: str):
+        &quot;&quot;&quot;Save configuration as YAML&quot;&quot;&quot;
+        filepath = self.config_dir / f&quot;{filename}.yaml&quot;
+
+        with open(filepath, 'w') as f:
+            yaml.dump(config.json(), f, default_flow_style=False)
+
+    def load_yaml(self, filename: str) -&gt; AppConfig:
+        &quot;&quot;&quot;Load configuration from YAML&quot;&quot;&quot;
+        filepath = self.config_dir / f&quot;{filename}.yaml&quot;
+
+        with open(filepath, 'r') as f:
+            data = yaml.safe_load(f)
+
+        return AppConfig.from_json(data)
+
+# Usage
+config = AppConfig(
+    app_name=&quot;MyApp&quot;,
+    version=&quot;1.0.0&quot;,
+    debug=True,
+    database={
+        &quot;host&quot;: &quot;localhost&quot;,
+        &quot;port&quot;: 5432,
+        &quot;name&quot;: &quot;myapp_db&quot;
+    },
+    features=[&quot;auth&quot;, &quot;api&quot;, &quot;websocket&quot;],
+    limits={&quot;max_connections&quot;: 100, &quot;timeout&quot;: 30}
+)
+
+manager = ConfigManager(&quot;./configs&quot;)
+
+# Save in different formats
+manager.save_json(config, &quot;app_config&quot;)
+manager.save_yaml(config, &quot;app_config&quot;)
+
+# Load and verify
+loaded_json = manager.load_json(&quot;app_config&quot;)
+loaded_yaml = manager.load_yaml(&quot;app_config&quot;)
+
+assert loaded_json.json() == config.json()
+assert loaded_yaml.json() == config.json()
+</code></pre>
+<h2 id="compression-and-optimization">Compression and Optimization<a class="headerlink" href="#compression-and-optimization" title="Permanent link">&para;</a></h2>
+<h3 id="compressed-serialization">Compressed Serialization<a class="headerlink" href="#compressed-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import json
+import gzip
+import base64
+
+class DataPacket(Type_Safe):
+    id: str
+    timestamp: float
+    sensor_data: List[float]
+    metadata: Dict[str, Any]
+
+class CompressedSerializer:
+    @staticmethod
+    def compress(obj: Type_Safe) -&gt; str:
+        &quot;&quot;&quot;Compress Type_Safe object to base64 string&quot;&quot;&quot;
+        # Convert to JSON
+        json_str = json.dumps(obj.json())
+
+        # Compress with gzip
+        compressed = gzip.compress(json_str.encode('utf-8'))
+
+        # Encode as base64 for transport
+        return base64.b64encode(compressed).decode('ascii')
+
+    @staticmethod
+    def decompress(data: str, cls: Type[Type_Safe]) -&gt; Type_Safe:
+        &quot;&quot;&quot;Decompress base64 string to Type_Safe object&quot;&quot;&quot;
+        # Decode from base64
+        compressed = base64.b64decode(data.encode('ascii'))
+
+        # Decompress
+        json_str = gzip.decompress(compressed).decode('utf-8')
+
+        # Parse JSON and create object
+        json_data = json.loads(json_str)
+        return cls.from_json(json_data)
+
+# Create large data packet
+packet = DataPacket(
+    id=&quot;sensor-001&quot;,
+    timestamp=1234567890.123,
+    sensor_data=[float(i) * 0.1 for i in range(1000)],
+    metadata={&quot;location&quot;: &quot;Lab A&quot;, &quot;experiment&quot;: &quot;Test 42&quot;}
+)
+
+# Compress for storage/transport
+compressed = CompressedSerializer.compress(packet)
+print(f&quot;Compressed size: {len(compressed)} bytes&quot;)
+
+# Decompress and reconstruct
+reconstructed = CompressedSerializer.decompress(compressed, DataPacket)
+
+# Verify integrity
+assert reconstructed.id == packet.id
+assert len(reconstructed.sensor_data) == 1000
+assert reconstructed.sensor_data[500] == packet.sensor_data[500]
+</code></pre>
+<h3 id="optimized-json-compression">Optimized JSON Compression<a class="headerlink" href="#optimized-json-compression" title="Permanent link">&para;</a></h3>
+<p>Type_Safe includes built-in JSON compression for efficient serialization:</p>
+<pre><code class="language-python"># Using built-in compression
+class LargeDataset(Type_Safe):
+    records: List[Dict[str, Any]]
+    metadata: Dict[str, str]
+
+dataset = LargeDataset(
+    records=[{&quot;id&quot;: i, &quot;value&quot;: f&quot;data_{i}&quot;} for i in range(100)],
+    metadata={&quot;source&quot;: &quot;sensor&quot;, &quot;version&quot;: &quot;2.0&quot;}
+)
+
+# Compress using Type_Safe's built-in compression
+compressed_json = dataset.json__compress()
+
+# Decompress
+reconstructed = LargeDataset.from_json__compressed(compressed_json)
+
+assert len(reconstructed.records) == 100
+</code></pre>
+<h2 id="error-handling-and-validation">Error Handling and Validation<a class="headerlink" href="#error-handling-and-validation" title="Permanent link">&para;</a></h2>
+<h3 id="robust-deserialization">Robust Deserialization<a class="headerlink" href="#robust-deserialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class SafeDeserializer:
+    @staticmethod
+    def from_json_safe(
+        cls: Type[Type_Safe],
+        data: Any,
+        strict: bool = False
+    ) -&gt; Optional[Type_Safe]:
+        &quot;&quot;&quot;Safely deserialize with error handling&quot;&quot;&quot;
+
+        try:
+            # Handle different input types
+            if isinstance(data, str):
+                json_data = json.loads(data)
+            elif isinstance(data, bytes):
+                json_data = json.loads(data.decode('utf-8'))
+            elif isinstance(data, dict):
+                json_data = data
+            else:
+                raise ValueError(f&quot;Unsupported data type: {type(data)}&quot;)
+
+            # Attempt deserialization
+            return cls.from_json(json_data, raise_on_not_found=strict)
+
+        except json.JSONDecodeError as e:
+            print(f&quot;JSON parsing error: {e}&quot;)
+            return None
+        except ValueError as e:
+            print(f&quot;Validation error: {e}&quot;)
+            if strict:
+                raise
+            return None
+        except Exception as e:
+            print(f&quot;Unexpected error: {e}&quot;)
+            return None
+
+# Usage with error handling
+json_string = '{&quot;username&quot;: &quot;alice&quot;, &quot;age&quot;: &quot;not_a_number&quot;}'
+
+# Non-strict mode - returns None on error
+user = SafeDeserializer.from_json_safe(UserProfile, json_string, strict=False)
+if user is None:
+    print(&quot;Failed to deserialize user&quot;)
+
+# Strict mode - raises exception
+try:
+    user = SafeDeserializer.from_json_safe(UserProfile, json_string, strict=True)
+except ValueError as e:
+    print(f&quot;Strict validation failed: {e}&quot;)
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-version-your-schemas">1. Version Your Schemas<a class="headerlink" href="#1-version-your-schemas" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class VersionedSchema(Type_Safe):
+    version: int = 1
+    data: Dict[str, Any]
+
+    @classmethod
+    def migrate(cls, json_data: dict) -&gt; dict:
+        &quot;&quot;&quot;Migrate old versions to current&quot;&quot;&quot;
+        version = json_data.get('version', 1)
+
+        if version == 1 and cls.version == 2:
+            # Migrate from v1 to v2
+            json_data['version'] = 2
+            json_data['new_field'] = 'default_value'
+
+        return json_data
+
+    @classmethod
+    def from_json(cls, json_data: dict):
+        # Migrate if needed
+        json_data = cls.migrate(json_data)
+        return super().from_json(json_data)
+</code></pre>
+<h3 id="2-handle-partial-data">2. Handle Partial Data<a class="headerlink" href="#2-handle-partial-data" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class RobustModel(Type_Safe):
+    required_field: str
+    optional_field: Optional[str] = None
+    with_default: int = 100
+
+    @classmethod
+    def from_partial(cls, partial_data: dict):
+        &quot;&quot;&quot;Create from partial data with defaults&quot;&quot;&quot;
+        # Start with defaults
+        full_data = {
+            'required_field': partial_data.get('required_field', ''),
+            'optional_field': partial_data.get('optional_field'),
+            'with_default': partial_data.get('with_default', 100)
+        }
+
+        return cls.from_json(full_data)
+</code></pre>
+<h3 id="3-validate-before-serialization">3. Validate Before Serialization<a class="headerlink" href="#3-validate-before-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class ValidatedModel(Type_Safe):
+    email: str
+    age: int
+
+    def validate(self) -&gt; List[str]:
+        &quot;&quot;&quot;Validate before serialization&quot;&quot;&quot;
+        errors = []
+
+        if '@' not in self.email:
+            errors.append(&quot;Invalid email format&quot;)
+        if not 0 &lt;= self.age &lt;= 150:
+            errors.append(&quot;Age out of valid range&quot;)
+
+        return errors
+
+    def json_validated(self) -&gt; Optional[dict]:
+        &quot;&quot;&quot;Only serialize if valid&quot;&quot;&quot;
+        errors = self.validate()
+        if errors:
+            raise ValueError(f&quot;Validation failed: {errors}&quot;)
+        return self.json()
+</code></pre>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Type_Safe's round-trip serialization provides:</p>
+<ul>
+<li>✅ <strong>Perfect Fidelity</strong> - Objects reconstruct exactly as they were</li>
+<li>✅ <strong>Type Safety</strong> - All type constraints preserved through serialization</li>
+<li>✅ <strong>Network Ready</strong> - JSON format works with any transport</li>
+<li>✅ <strong>Storage Flexible</strong> - Save to files, databases, caches</li>
+<li>✅ <strong>Compression Support</strong> - Built-in and custom compression options</li>
+<li>✅ <strong>Error Resilient</strong> - Robust deserialization with validation</li>
+</ul>
+<p>This makes Type_Safe ideal for:
+- Distributed systems
+- Microservices communication<br />
+- Configuration management
+- Data persistence
+- Message queuing
+- API development
+- State synchronization</p>
+<p>The round-trip capability ensures your type safety extends beyond process boundaries, maintaining data integrity across your entire system architecture.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

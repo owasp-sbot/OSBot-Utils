@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_D__with_flag__skip_conversion/HYPOTHESIS_D__brief/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis D: skip_conversion Flag Implementation - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis D: skip_conversion Flag Implementation";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_D__with_flag__skip_conversion/HYPOTHESIS_D__brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_D__with_flag__skip_conversion/HYPOTHESIS_D__brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis D: skip_conversion Flag Implementation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-d-skip_conversion-flag-implementation">Hypothesis D: skip_conversion Flag Implementation<a class="headerlink" href="#hypothesis-d-skip_conversion-flag-implementation" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 7, 2026<br />
+<strong>Status</strong>: In Progress<br />
+<strong>Baseline</strong>: Type_Safe with Hypothesis C (<code>skip_validation</code> in <code>__setattr__</code>)</p>
+<hr />
+<h2 id="context-where-we-are">Context: Where We Are<a class="headerlink" href="#context-where-we-are" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Hypothesis</th>
+<th>Finding</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Thread-local config lookup costs ~350 ns</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Config presence vs None adds ~0 ns</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>C</td>
+<td><code>skip_validation</code> in <code>__setattr__</code> → 50-83% faster</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td><strong><code>skip_conversion</code> in init → skip type coercion</strong></td>
+<td>🔄 This one</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-target">The Target<a class="headerlink" href="#the-target" title="Permanent link">&para;</a></h2>
+<p>In <code>Type_Safe__Step__Init.init()</code>, user-provided kwargs go through <code>convert_value_to_type_safe_objects()</code>:</p>
+<pre><code class="language-python">def init(self, __self, __class_kwargs, **kwargs):
+
+    for (key, value) in __class_kwargs.items():      # Loop 1: Defaults - NO conversion
+        setattr(__self, key, value)
+
+    for (key, value) in kwargs.items():              # Loop 2: User kwargs
+        if value is not None:
+            value = self.convert_value_to_type_safe_objects(...)  # ← EXPENSIVE!
+            setattr(__self, key, value)
+</code></pre>
+<p>This method does ~70 lines of type conversion logic:
+- <code>list</code> → <code>Type_Safe__List</code>
+- <code>dict</code> → <code>Type_Safe__Dict</code><br />
+- <code>set</code> → <code>Type_Safe__Set</code>
+- <code>"ENUM_VALUE"</code> → <code>MyEnum.ENUM_VALUE</code>
+- <code>{"nested": "data"}</code> → <code>Nested_Type_Safe(...)</code></p>
+<hr />
+<h2 id="the-change">The Change<a class="headerlink" href="#the-change" title="Permanent link">&para;</a></h2>
+<h3 id="surgical-point">Surgical Point<a class="headerlink" href="#surgical-point" title="Permanent link">&para;</a></h3>
+<p>In <code>Type_Safe__Step__Init.init()</code>, conditionally skip conversion:</p>
+<pre><code class="language-python">def init(self, __self, __class_kwargs, **kwargs):
+    config = get_active_config()
+    skip_conversion = config and config.skip_conversion
+
+    for (key, value) in __class_kwargs.items():
+        # ... existing logic (unchanged)
+        setattr(__self, key, value)
+
+    for (key, value) in kwargs.items():
+        if hasattr(__self, key):
+            if value is not None:
+                if not skip_conversion:                              # NEW: conditional
+                    value = self.convert_value_to_type_safe_objects(__self, key, value)
+                setattr(__self, key, value)
+        else:
+            raise ValueError(...)
+</code></pre>
+<hr />
+<h2 id="what-still-works">What Still Works<a class="headerlink" href="#what-still-works" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>With <code>skip_conversion=True</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Default nested Type_Safe</td>
+<td>✅ Still created (via <code>default_value()</code>)</td>
+</tr>
+<tr>
+<td>Default collections</td>
+<td>✅ Still <code>Type_Safe__List/Dict/Set</code></td>
+</tr>
+<tr>
+<td>Kwargs with exact types</td>
+<td>✅ Works perfectly</td>
+</tr>
+<tr>
+<td>Objects with no kwargs</td>
+<td>✅ Unaffected (conversion only for kwargs)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-changes">What Changes<a class="headerlink" href="#what-changes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>With <code>skip_conversion=True</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>items=['a', 'b']</code> kwarg</td>
+<td>Stays <code>list</code>, not <code>Type_Safe__List</code></td>
+</tr>
+<tr>
+<td><code>status='ACTIVE'</code> for enum</td>
+<td>Stays <code>str</code>, not <code>MyEnum.ACTIVE</code></td>
+</tr>
+<tr>
+<td><code>child={'name': 'x'}</code> for nested</td>
+<td>Stays <code>dict</code>, not <code>Child_Type_Safe</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="why-this-is-acceptable">Why This Is Acceptable<a class="headerlink" href="#why-this-is-acceptable" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Defaults still work</strong> - Nested Type_Safe objects still created via <code>default_value()</code></li>
+<li><strong>Opt-in only</strong> - Caller explicitly requests fast mode</li>
+<li><strong>Trusted data</strong> - Used for bulk loading from validated sources</li>
+<li><strong>Type match</strong> - If you provide correct types, everything works</li>
+</ol>
+<hr />
+<h2 id="expected-impact">Expected Impact<a class="headerlink" href="#expected-impact" title="Permanent link">&para;</a></h2>
+<p>The <code>convert_value_to_type_safe_objects()</code> function is called for <strong>every kwarg</strong>. It involves:
+- <code>type_safe_annotations.obj_attribute_annotation()</code> lookup
+- <code>type_safe_annotations.extract_enum_from_annotation()</code> check
+- <code>type_safe_annotations.get_origin()</code> call
+- Multiple <code>isinstance()</code> checks
+- Potential collection iteration and recreation</p>
+<p><strong>Estimated cost</strong>: ~200-500 ns per kwarg</p>
+<p>For a class instantiated with 5 kwargs: ~1,000-2,500 ns savings.</p>
+<hr />
+<h2 id="test-strategy">Test Strategy<a class="headerlink" href="#test-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="baseline">Baseline<a class="headerlink" href="#baseline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def run_baseline_benchmarks(timing):
+    with Type_Safe__Config(skip_validation=True, skip_conversion=False):
+        timing.benchmark('A_02__with_primitives', TS__With_Primitives)
+</code></pre>
+<h3 id="hypothesis">Hypothesis<a class="headerlink" href="#hypothesis" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def run_hypothesis_benchmarks(timing):
+    with Type_Safe__Config(skip_validation=True, skip_conversion=True):
+        timing.benchmark('A_02__with_primitives', TS__With_Primitives)
+</code></pre>
+<p>Both have <code>skip_validation=True</code> to isolate the conversion cost.</p>
+<hr />
+<h2 id="success-criteria">Success Criteria<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Performance</strong>: Measurable improvement when providing kwargs</li>
+<li><strong>Functional</strong>: Default values still work correctly</li>
+<li><strong>No regressions</strong>: Classes with no kwargs should be unchanged</li>
+</ol>
+<hr />
+<h2 id="files-to-create">Files to Create<a class="headerlink" href="#files-to-create" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HYPOTHESIS_D__brief.md</code></td>
+<td>This document</td>
+</tr>
+<tr>
+<td><code>Type_Safe__Hypothesis_D.py</code></td>
+<td>Class with skip_conversion support</td>
+</tr>
+<tr>
+<td><code>test_perf__Hypothesis_D.py</code></td>
+<td>Benchmark test</td>
+</tr>
+<tr>
+<td><code>hypothesis_d_report.txt</code></td>
+<td>Results (generated)</td>
+</tr>
+<tr>
+<td><code>HYPOTHESIS_D__debrief.md</code></td>
+<td>Post-analysis (after running)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="relationship-to-production">Relationship to Production<a class="headerlink" href="#relationship-to-production" title="Permanent link">&para;</a></h2>
+<p>If successful, the change to <code>Type_Safe__Step__Init.init()</code> is minimal:</p>
+<pre><code class="language-python">def init(self, __self, __class_kwargs, **kwargs):
+    from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config import get_active_config
+    config = get_active_config()
+    skip_conversion = config and config.skip_conversion
+
+    # ... rest unchanged, just wrap convert_value_to_type_safe_objects call
+</code></pre>
+<p>Combined with Hypothesis C (<code>skip_validation</code>), this gives users fine-grained control:
+- <code>skip_validation=True</code> - Skip per-attribute type checking
+- <code>skip_conversion=True</code> - Skip kwarg type coercion
+- Both together - Maximum speed for trusted data</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_H__production_benchmarks/hypothesis_H__debrief_on_Type_Safe_changes/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Hypothesis H: Debrief on Type_Safe Fast Create Integration - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hypothesis H: Debrief on Type_Safe Fast Create Integration";
+        var mkdocs_page_input_path = "dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_H__production_benchmarks/hypothesis_H__debrief_on_Type_Safe_changes.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.68.0__hypothesis-driven__create-type-safe__fast_mode/hypothesis/hypothesis_H__production_benchmarks/hypothesis_H__debrief_on_Type_Safe_changes/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Hypothesis H: Debrief on Type_Safe Fast Create Integration</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hypothesis-h-debrief-on-type_safe-fast-create-integration">Hypothesis H: Debrief on Type_Safe Fast Create Integration<a class="headerlink" href="#hypothesis-h-debrief-on-type_safe-fast-create-integration" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: January 2026<br />
+<strong>Status</strong>: ✅ Complete<br />
+<strong>Related Hypotheses</strong>: Hypothesis C (Proof of Concept), Hypothesis G (Production Implementation)</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This document details the integration of the <code>fast_create</code> performance optimization into the production <code>Type_Safe</code> class. The optimization provides <strong>50-85% performance improvement</strong> for object creation by bypassing validation when working with trusted data sources.</p>
+<h3 id="key-changes">Key Changes<a class="headerlink" href="#key-changes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Lines Added</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Type_Safe.__init__</code></td>
+<td>~5 lines</td>
+<td>Check config, delegate to fast_create</td>
+</tr>
+<tr>
+<td><code>Type_Safe.__setattr__</code></td>
+<td>~4 lines</td>
+<td>Check config, bypass validation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="test-coverage-added">Test Coverage Added<a class="headerlink" href="#test-coverage-added" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Test File</th>
+<th>Tests</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_Type_Safe__Fast_Create__created_with_no_side_effects.py</code></td>
+<td>45</td>
+<td>Correctness verification</td>
+</tr>
+<tr>
+<td><code>test_Type_Safe__Fast_Create__created_and_cached.py</code></td>
+<td>20</td>
+<td><code>__init__</code> wiring verification</td>
+</tr>
+<tr>
+<td><code>test_Type_Safe__Fast_Create__skip_validation_wired.py</code></td>
+<td>14</td>
+<td><code>__setattr__</code> wiring verification</td>
+</tr>
+<tr>
+<td><code>test_Type_Safe__Fast_Create__fast_create_side_effects.py</code></td>
+<td>~22</td>
+<td>Document fast_create trade-offs</td>
+</tr>
+<tr>
+<td><code>test_Type_Safe__Fast_Create__skip_validation_side_effects.py</code></td>
+<td>~16</td>
+<td>Document skip_validation trade-offs</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="background-the-performance-problem">Background: The Performance Problem<a class="headerlink" href="#background-the-performance-problem" title="Permanent link">&para;</a></h2>
+<p>Type_Safe provides runtime type safety through validation in <code>__init__</code> and <code>__setattr__</code>. This validation is valuable for catching bugs early, but creates performance overhead:</p>
+<pre><code class="language-python"># Every object creation triggers:
+# 1. __cls_kwargs__() - Collect class annotations
+# 2. type_safe_step_init.init() - Validate and convert each field
+# 3. __setattr__() called for each field - Type checking
+
+obj = MyTypeSafeClass()  # Hundreds of microseconds for complex classes
+</code></pre>
+<p>For bulk operations with trusted data (database loads, JSON deserialization, API responses), this validation is redundant - the data has already been validated at the source.</p>
+<hr />
+<h2 id="evolution-hypothesis-c-hypothesis-g-hypothesis-h">Evolution: Hypothesis C → Hypothesis G → Hypothesis H<a class="headerlink" href="#evolution-hypothesis-c-hypothesis-g-hypothesis-h" title="Permanent link">&para;</a></h2>
+<h3 id="hypothesis-c-proof-of-concept">Hypothesis C: Proof of Concept<a class="headerlink" href="#hypothesis-c-proof-of-concept" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Prove that schema-based creation could work</p>
+<p><strong>Approach</strong>: Created standalone prototype classes:
+- <code>Type_Safe__Fast_Create__Schema.py</code> - Schema generation
+- <code>Type_Safe__Hypothesis_C.py</code> - Test subclass with fast_create logic</p>
+<p><strong>Key Insight</strong>: By analyzing class structure once and caching a "schema", we can:
+1. Pre-compute which fields are static (immutable defaults)
+2. Pre-compute which fields need factories (collections)
+3. Pre-compute which fields are nested Type_Safe objects
+4. Use <code>object.__new__()</code> + direct <code>__dict__</code> assignment instead of <code>__init__</code></p>
+<p><strong>Result</strong>: Proved 50-85% improvement was achievable.</p>
+<h3 id="hypothesis-g-production-ready-implementation">Hypothesis G: Production-Ready Implementation<a class="headerlink" href="#hypothesis-g-production-ready-implementation" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Refactor prototype into production-quality modules</p>
+<p><strong>Deliverables</strong>:</p>
+<pre><code>osbot_utils/type_safe/type_safe_core/fast_create/
+├── Type_Safe__Fast_Create.py           # Main create() function
+├── Type_Safe__Fast_Create__Cache.py    # Schema caching singleton
+└── schemas/
+    ├── Schema__Type_Safe__Fast_Create__Class.py   # Class schema
+    └── Schema__Type_Safe__Fast_Create__Field.py   # Field descriptor
+</code></pre>
+<p><strong>Key Classes</strong>:</p>
+<ol>
+<li><strong><code>Type_Safe__Fast_Create__Cache</code></strong> (singleton: <code>type_safe_fast_create_cache</code>)</li>
+<li><code>schema_cache: dict</code> - Maps class → schema</li>
+<li><code>generating: set</code> - Recursion guard for nested classes</li>
+<li><code>get_schema(cls)</code> - Get or create schema</li>
+<li><code>warm_cache(cls)</code> - Pre-warm for performance</li>
+<li>
+<p><code>is_generating(cls)</code> - Check recursion guard</p>
+</li>
+<li>
+<p><strong><code>Type_Safe__Fast_Create</code></strong> (singleton: <code>type_safe_fast_create</code>)</p>
+</li>
+<li>
+<p><code>create(instance, **kwargs)</code> - Main fast creation method</p>
+</li>
+<li>
+<p><strong><code>Schema__Type_Safe__Fast_Create__Class</code></strong></p>
+</li>
+<li><code>target_class</code> - The class this schema describes</li>
+<li><code>fields</code> - List of field descriptors</li>
+<li><code>static_dict</code> - Pre-computed immutable defaults</li>
+<li><code>factory_fields</code> - Fields needing fresh instances</li>
+<li>
+<p><code>nested_fields</code> - Fields that are Type_Safe objects</p>
+</li>
+<li>
+<p><strong><code>Schema__Type_Safe__Fast_Create__Field</code></strong></p>
+</li>
+<li><code>name</code> - Field name</li>
+<li><code>mode</code> - 'static' | 'factory' | 'nested'</li>
+<li><code>static_value</code> - For static fields</li>
+<li><code>factory_func</code> - For factory fields (creates fresh instance)</li>
+<li><code>nested_class</code> - For nested fields (the Type_Safe class)</li>
+</ol>
+<h3 id="hypothesis-h-integration-benchmarking">Hypothesis H: Integration &amp; Benchmarking<a class="headerlink" href="#hypothesis-h-integration-benchmarking" title="Permanent link">&para;</a></h3>
+<p><strong>Goal</strong>: Wire fast_create into production Type_Safe and benchmark</p>
+<p><strong>This Document</strong>: Details the wiring process and test coverage.</p>
+<hr />
+<h2 id="the-wiring-what-changed-in-type_safe">The Wiring: What Changed in Type_Safe<a class="headerlink" href="#the-wiring-what-changed-in-type_safe" title="Permanent link">&para;</a></h2>
+<h3 id="1-type_safeinit-changes">1. Type_Safe.<strong>init</strong> Changes<a class="headerlink" href="#1-type_safeinit-changes" title="Permanent link">&para;</a></h3>
+<p><strong>Before</strong>:</p>
+<pre><code class="language-python">class Type_Safe:
+    def __init__(self, **kwargs):
+        class_kwargs = self.__cls_kwargs__(provided_kwargs=kwargs)
+        type_safe_step_init.init(self, class_kwargs, **kwargs)
+</code></pre>
+<p><strong>After</strong>:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config import get_active_config
+from osbot_utils.type_safe.type_safe_core.fast_create.Type_Safe__Fast_Create import type_safe_fast_create
+from osbot_utils.type_safe.type_safe_core.fast_create.Type_Safe__Fast_Create__Cache import type_safe_fast_create_cache
+
+class Type_Safe:
+    def __init__(self, **kwargs):
+        config = get_active_config()
+        if config and config.fast_create:
+            if not type_safe_fast_create_cache.is_generating(type(self)):
+                type_safe_fast_create.create(self, **kwargs)
+                return
+
+        class_kwargs = self.__cls_kwargs__(provided_kwargs=kwargs)
+        type_safe_step_init.init(self, class_kwargs, **kwargs)
+</code></pre>
+<p><strong>Explanation</strong>:
+1. <code>get_active_config()</code> - Returns current <code>Type_Safe__Config</code> from context stack (or None)
+2. <code>config.fast_create</code> - Check if fast_create mode is enabled
+3. <code>is_generating()</code> - Recursion guard: during schema generation, we create instances to inspect defaults. These MUST use normal path to avoid infinite recursion.
+4. <code>type_safe_fast_create.create()</code> - Bypasses normal init, uses schema-based direct <strong>dict</strong> assignment
+5. <code>return</code> - Exit early, skip normal validation</p>
+<h3 id="2-type_safesetattr-changes">2. Type_Safe.<strong>setattr</strong> Changes<a class="headerlink" href="#2-type_safesetattr-changes" title="Permanent link">&para;</a></h3>
+<p><strong>Before</strong>:</p>
+<pre><code class="language-python">def __setattr__(self, name, value):
+    type_safe_step_set_attr.setattr(super(), self, name, value)
+</code></pre>
+<p><strong>After</strong>:</p>
+<pre><code class="language-python">def __setattr__(self, name, value):
+    config = get_active_config()
+    if config and config.skip_validation:
+        object.__setattr__(self, name, value)
+        return
+
+    type_safe_step_set_attr.setattr(super(), self, name, value)
+</code></pre>
+<p><strong>Explanation</strong>:
+1. <code>config.skip_validation</code> - Check if validation should be skipped
+2. <code>object.__setattr__()</code> - Direct assignment, bypasses all Type_Safe validation
+3. <code>return</code> - Exit early, skip normal validation path</p>
+<hr />
+<h2 id="the-config-system-type_safe__config">The Config System: Type_Safe__Config<a class="headerlink" href="#the-config-system-type_safe__config" title="Permanent link">&para;</a></h2>
+<p>The configuration uses a context manager pattern with thread-local storage:</p>
+<pre><code class="language-python">from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config import Type_Safe__Config
+
+# Usage
+with Type_Safe__Config(fast_create=True, skip_validation=True):
+    # All Type_Safe operations in this block use fast path
+    obj = MyClass()           # Uses fast_create
+    obj.field = value         # Uses skip_validation
+</code></pre>
+<p><strong>Config Options</strong>:
+| Option | Default | Effect |
+|--------|---------|--------|
+| <code>fast_create</code> | <code>False</code> | Bypass <code>__init__</code> validation, use schema-based creation |
+| <code>skip_validation</code> | <code>False</code> | Bypass <code>__setattr__</code> validation |</p>
+<p><strong>Key Implementation Details</strong>:
+- Uses <code>contextvars.ContextVar</code> for thread-safe context stack
+- Contexts can be nested (inner context takes precedence)
+- Context automatically cleans up on exit (including exceptions)</p>
+<hr />
+<h2 id="test-files-detailed-breakdown">Test Files: Detailed Breakdown<a class="headerlink" href="#test-files-detailed-breakdown" title="Permanent link">&para;</a></h2>
+<h3 id="1-test_type_safe__fast_create__created_with_no_side_effectspy">1. <code>test_Type_Safe__Fast_Create__created_with_no_side_effects.py</code><a class="headerlink" href="#1-test_type_safe__fast_create__created_with_no_side_effectspy" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Verify that objects created with fast_create are <strong>correct</strong> (have right values, types, behavior)</p>
+<p><strong>Key Property</strong>: These tests <strong>pass regardless of whether wiring is in place</strong>. If fast_create isn't wired, the normal path produces the same results.</p>
+<p><strong>Test Categories</strong>:
+- Normal mode baseline (3 tests)
+- Fast create mode: basic, kwargs, collections, nested, deep nesting (18 tests)
+- Object usability: isinstance, type, attributes, json (7 tests)
+- Skip validation in setattr (3 tests)
+- Config context behavior (3 tests)
+- Equivalence: normal vs fast_create produce identical results (6 tests)
+- Batch operations (3 tests)</p>
+<p><strong>Example Test</strong>:</p>
+<pre><code class="language-python">def test__fast_create__basic_creation(self):
+    with Type_Safe__Config(fast_create=True):
+        obj = TS__Simple()
+
+    assert type(obj)   is TS__Simple
+    assert obj.name    == ''
+    assert obj.count   == 0
+    assert obj.active  is False
+</code></pre>
+<h3 id="2-test_type_safe__fast_create__created_and_cachedpy">2. <code>test_Type_Safe__Fast_Create__created_and_cached.py</code><a class="headerlink" href="#2-test_type_safe__fast_create__created_and_cachedpy" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Verify that the fast_create <strong>mechanism</strong> is actually being invoked (cache is populated)</p>
+<p><strong>Key Property</strong>: These tests <strong>fail without wiring</strong> because the cache is never populated when fast_create path isn't taken.</p>
+<p><strong>Test Categories</strong>:
+- Basic cache population (3 tests)
+- Recursive cache population for nested classes (2 tests)
+- Cache NOT populated without fast_create=True (2 tests)
+- Multiple creations use same cached schema (2 tests)
+- Schema content verification (5 tests)
+- Cache persistence after context exit (2 tests)
+- Mixed usage patterns (2 tests)</p>
+<p><strong>Example Test</strong>:</p>
+<pre><code class="language-python">def test__fast_create__populates_cache_for_simple_class(self):
+    with Type_Safe__Config(fast_create=True):
+        obj = TS__Simple()
+
+    schema = type_safe_fast_create_cache.schema_cache.get(TS__Simple)
+    assert schema is not None                    # FAILS without wiring!
+    assert schema.target_class is TS__Simple
+</code></pre>
+<h3 id="3-test_type_safe__fast_create__skip_validation_wiredpy">3. <code>test_Type_Safe__Fast_Create__skip_validation_wired.py</code><a class="headerlink" href="#3-test_type_safe__fast_create__skip_validation_wiredpy" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Verify that skip_validation <strong>mechanism</strong> is actually being invoked</p>
+<p><strong>Key Property</strong>: These tests try to set <strong>invalid values</strong> which would normally raise errors. They <strong>fail without wiring</strong> because validation still runs.</p>
+<p><strong>Test Categories</strong>:
+- Invalid value assignment (8 tests) - string to int, int to str, etc.
+- Multiple invalid assignments (1 test)
+- Validation still works without skip_validation (2 tests)
+- Skip validation only active in context (1 test)
+- Valid values still work (1 test)</p>
+<p><strong>Example Test</strong>:</p>
+<pre><code class="language-python">def test__skip_validation__allows_wrong_type_str_to_int(self):
+    with Type_Safe__Config(fast_create=True, skip_validation=True):
+        obj = TS__Typed_Fields()
+        obj.int_field = 'not_an_int'           # Would normally raise TypeError!
+
+    assert obj.int_field == 'not_an_int'       # FAILS without wiring!
+</code></pre>
+<h3 id="4-test_type_safe__fast_create__fast_create_side_effectspy">4. <code>test_Type_Safe__Fast_Create__fast_create_side_effects.py</code><a class="headerlink" href="#4-test_type_safe__fast_create__fast_create_side_effectspy" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Document the <strong>intentional trade-offs</strong> of using fast_create=True</p>
+<p><strong>Key Property</strong>: All tests <strong>pass</strong> - they document expected behavior, not bugs.</p>
+<p><strong>Documented Side Effects</strong>:
+- kwargs with wrong types are accepted
+- kwargs are not auto-converted
+- List/Dict kwargs with wrong element types accepted
+- Nested kwarg can be dict instead of Type_Safe object
+- Unknown kwargs are accepted (added to <strong>dict</strong>)
+- Post-creation setattr still validates (unless skip_validation also set)
+- json() serializes whatever is there</p>
+<p><strong>Safe Patterns Documented</strong>:
+- Loading from trusted data sources
+- JSON roundtrip (deserializing your own data)</p>
+<h3 id="5-test_type_safe__fast_create__skip_validation_side_effectspy">5. <code>test_Type_Safe__Fast_Create__skip_validation_side_effects.py</code><a class="headerlink" href="#5-test_type_safe__fast_create__skip_validation_side_effectspy" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Document the <strong>intentional trade-offs</strong> of using skip_validation=True</p>
+<p><strong>Key Property</strong>: All tests <strong>pass</strong> - they document expected behavior, not bugs.</p>
+<p><strong>Documented Side Effects</strong>:
+- Type hints become documentation only
+- json() serializes whatever is there (handles non-serializable gracefully → None)
+- Collections can hold wrong types
+- Collections can be replaced entirely (list field = string)
+- Nested objects can be replaced with anything
+- Invalid state persists after context exits
+- Operations on wrong types may fail (e.g., <code>int.upper()</code>)</p>
+<hr />
+<h2 id="performance-benchmark-files">Performance Benchmark Files<a class="headerlink" href="#performance-benchmark-files" title="Permanent link">&para;</a></h2>
+<h3 id="test_perf__hypothesis_h__fast_createpy"><code>test_perf__Hypothesis_H__fast_create.py</code><a class="headerlink" href="#test_perf__hypothesis_h__fast_createpy" title="Permanent link">&para;</a></h3>
+<p><strong>Comparison</strong>: Default Type_Safe vs <code>fast_create=True</code></p>
+<p><strong>Benchmarks</strong>:
+- A_01-A_08: Single object creation (empty → MGraph-like)
+- B_01-B_04: Batch creation (x10 objects)</p>
+<h3 id="test_perf__hypothesis_h__skip_validationpy"><code>test_perf__Hypothesis_H__skip_validation.py</code><a class="headerlink" href="#test_perf__hypothesis_h__skip_validationpy" title="Permanent link">&para;</a></h3>
+<p><strong>Comparison</strong>: Default <code>__setattr__</code> vs <code>skip_validation=True</code></p>
+<p><strong>Benchmarks</strong>:
+- C_01-C_04: Attribute assignment patterns (x100 objects, x400 assignments)</p>
+<h3 id="test_perf__hypothesis_h__fast_create_skip_validationpy"><code>test_perf__Hypothesis_H__fast_create_skip_validation.py</code><a class="headerlink" href="#test_perf__hypothesis_h__fast_create_skip_validationpy" title="Permanent link">&para;</a></h3>
+<p><strong>Comparison</strong>: Default Type_Safe vs Maximum Speed Mode (both optimizations)</p>
+<p><strong>Benchmarks</strong>:
+- A_01-A_08: Single object creation
+- B_01-B_04: Batch creation (x10 objects)
+- D_01-D_04: Create + modify patterns (real-world usage)</p>
+<hr />
+<h2 id="when-to-use-each-mode">When to Use Each Mode<a class="headerlink" href="#when-to-use-each-mode" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Use Case</th>
+<th>Trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>User input, untrusted data</td>
+<td>Full validation, slower</td>
+</tr>
+<tr>
+<td><strong>fast_create=True</strong></td>
+<td>Bulk creation from DB/cache</td>
+<td>No <strong>init</strong> validation</td>
+</tr>
+<tr>
+<td><strong>skip_validation=True</strong></td>
+<td>Bulk updates from trusted source</td>
+<td>No <strong>setattr</strong> validation</td>
+</tr>
+<tr>
+<td><strong>Both</strong></td>
+<td>Maximum speed bulk loading</td>
+<td>No validation at all</td>
+</tr>
+</tbody>
+</table>
+<h3 id="safe-usage-pattern">Safe Usage Pattern<a class="headerlink" href="#safe-usage-pattern" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Loading from database (data already validated by DB schema)
+with Type_Safe__Config(fast_create=True, skip_validation=True):
+    records = []
+    for row in database_cursor:
+        record = MyRecord()
+        record.id   = row['id']
+        record.name = row['name']
+        record.data = row['data']
+        records.append(record)
+
+# Outside context: validation active again
+# Any new assignments are validated
+records[0].name = user_input  # This IS validated
+</code></pre>
+<hr />
+<h2 id="recursion-guard-why-is_generating-matters">Recursion Guard: Why is_generating() Matters<a class="headerlink" href="#recursion-guard-why-is_generating-matters" title="Permanent link">&para;</a></h2>
+<p>During schema generation, we create a temporary instance to inspect default values:</p>
+<pre><code class="language-python"># In Type_Safe__Fast_Create__Cache.generate_schema()
+temp_instance = target_class()  # Need defaults from a real instance
+</code></pre>
+<p>If fast_create is enabled and we're generating the schema for <code>MyClass</code>, this would cause infinite recursion:</p>
+<ol>
+<li><code>MyClass()</code> called</li>
+<li>fast_create sees config, calls <code>type_safe_fast_create.create()</code></li>
+<li><code>create()</code> needs schema, calls <code>get_schema(MyClass)</code></li>
+<li><code>get_schema()</code> generates schema, calls <code>MyClass()</code> for defaults</li>
+<li>GOTO 1 (infinite loop!)</li>
+</ol>
+<p><strong>Solution</strong>: The <code>generating</code> set tracks which classes are mid-generation:</p>
+<pre><code class="language-python">def generate_schema(self, target_class):
+    self.generating.add(target_class)      # Mark as generating
+    try:
+        temp_instance = target_class()     # Uses normal path (is_generating=True)
+        # ... build schema ...
+    finally:
+        self.generating.discard(target_class)  # Cleanup
+</code></pre>
+<p>And in <code>Type_Safe.__init__</code>:</p>
+<pre><code class="language-python">if not type_safe_fast_create_cache.is_generating(type(self)):
+    # Only use fast path if NOT generating schema
+    type_safe_fast_create.create(self, **kwargs)
+</code></pre>
+<hr />
+<h2 id="summary-complete-file-list">Summary: Complete File List<a class="headerlink" href="#summary-complete-file-list" title="Permanent link">&para;</a></h2>
+<h3 id="production-code-in-osbot_utils">Production Code (in osbot_utils)<a class="headerlink" href="#production-code-in-osbot_utils" title="Permanent link">&para;</a></h3>
+<pre><code>osbot_utils/type_safe/
+├── Type_Safe.py                          # Modified: +9 lines for wiring
+└── type_safe_core/
+    ├── config/
+    │   └── Type_Safe__Config.py          # Context manager for config
+    └── fast_create/
+        ├── Type_Safe__Fast_Create.py     # Main create() function
+        ├── Type_Safe__Fast_Create__Cache.py  # Schema caching
+        └── schemas/
+            ├── Schema__Type_Safe__Fast_Create__Class.py
+            └── Schema__Type_Safe__Fast_Create__Field.py
+</code></pre>
+<h3 id="test-files">Test Files<a class="headerlink" href="#test-files" title="Permanent link">&para;</a></h3>
+<pre><code>tests/unit/type_safe/type_safe_core/fast_create/
+├── test_Type_Safe__Fast_Create.py                              # create() method tests
+├── test_Type_Safe__Fast_Create__Cache.py                       # Cache/schema tests
+├── test_Type_Safe__Fast_Create__created_with_no_side_effects.py # Correctness tests
+├── test_Type_Safe__Fast_Create__created_and_cached.py          # __init__ wiring tests
+├── test_Type_Safe__Fast_Create__skip_validation_wired.py       # __setattr__ wiring tests
+├── test_Type_Safe__Fast_Create__fast_create_side_effects.py    # fast_create trade-offs
+├── test_Type_Safe__Fast_Create__skip_validation_side_effects.py # skip_validation trade-offs
+├── test_perf__Hypothesis_H__fast_create.py                     # Benchmark: fast_create
+├── test_perf__Hypothesis_H__skip_validation.py                 # Benchmark: skip_validation
+└── test_perf__Hypothesis_H__fast_create_skip_validation.py     # Benchmark: maximum speed
+</code></pre>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>The fast_create optimization is now fully integrated into production Type_Safe with:</p>
+<ol>
+<li><strong>Minimal code changes</strong> (~9 lines in Type_Safe.py)</li>
+<li><strong>Comprehensive test coverage</strong> (~130+ tests)</li>
+<li><strong>Documented trade-offs</strong> (side effects tests)</li>
+<li><strong>Performance benchmarks</strong> (3 comparison files)</li>
+<li><strong>Safe usage patterns</strong> (context manager scoping)</li>
+</ol>
+<p>The optimization is <strong>opt-in</strong> via <code>Type_Safe__Config</code>, maintaining full backward compatibility while providing significant performance improvements for bulk operations with trusted data.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

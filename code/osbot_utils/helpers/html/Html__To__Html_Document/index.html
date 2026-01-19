@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/code/osbot_utils/helpers/html/Html__To__Html_Document/" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>Html__To__Html_Document - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Html__To__Html_Document";
+        var mkdocs_page_input_path = "code/osbot_utils/helpers/html/Html__To__Html_Document.md";
+        var mkdocs_page_url = "/OSBot-Utils/code/osbot_utils/helpers/html/Html__To__Html_Document/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Html__To__Html_Document</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="html__to__html_document">Html__To__Html_Document<a class="headerlink" href="#html__to__html_document" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p><code>Html__To__Html_Document</code> provides a direct conversion path from HTML strings to <code>Schema__Html_Document</code> objects. It combines the parsing and schema conversion steps into a single, convenient interface.</p>
+<h2 id="class-definition">Class Definition<a class="headerlink" href="#class-definition" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">class Html__To__Html_Document(Type_Safe):
+    html          : str
+    html__dict    : dict
+    html__document: Schema__Html_Document
+</code></pre>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>This class simplifies the two-step process of:
+1. Parsing HTML to dictionary (<code>Html__To__Html_Dict</code>)
+2. Converting dictionary to schema (<code>Html_Dict__To__Html_Document</code>)</p>
+<p>Into a single operation, making it easier to work with HTML content.</p>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<h3 id="convert-schema__html_document"><code>convert() -&gt; Schema__Html_Document</code><a class="headerlink" href="#convert-schema__html_document" title="Permanent link">&para;</a></h3>
+<p>Main method that performs the complete conversion from HTML to document schema.</p>
+<pre><code class="language-python">converter = Html__To__Html_Document(html=&quot;&lt;div&gt;Hello&lt;/div&gt;&quot;)
+document = converter.convert()
+</code></pre>
+<p>The method:
+1. Parses HTML using <code>Html__To__Html_Dict</code>
+2. Converts the resulting dictionary using <code>Html_Dict__To__Html_Document</code>
+3. Returns the schema document or <code>None</code> on failure</p>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-conversion">Basic Conversion<a class="headerlink" href="#basic-conversion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from osbot_utils.helpers.html.transformers.Html__To__Html_Document import Html__To__Html_Document
+
+html = &quot;&quot;&quot;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;title&gt;My Page&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Welcome&lt;/h1&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+&quot;&quot;&quot;
+
+converter = Html__To__Html_Document(html=html)
+document = converter.convert()
+
+# Access the document structure
+print(document.root_node.tag)  # 'html'
+print(document.root_node.attrs['lang'])  # 'en'
+print(document.timestamp)  # Current timestamp
+</code></pre>
+<h3 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def safe_parse_html(html_string):
+    &quot;&quot;&quot;Safely parse HTML with error handling.&quot;&quot;&quot;
+    if not html_string:
+        return None
+
+    try:
+        converter = Html__To__Html_Document(html=html_string)
+        return converter.convert()
+    except Exception as e:
+        print(f&quot;Failed to parse HTML: {e}&quot;)
+        return None
+</code></pre>
+<h3 id="with-context-manager">With Context Manager<a class="headerlink" href="#with-context-manager" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python"># Using with statement for cleaner code
+with Html__To__Html_Document(html=html_content) as converter:
+    document = converter.convert()
+    if document:
+        process_document(document)
+</code></pre>
+<h2 id="integration-patterns">Integration Patterns<a class="headerlink" href="#integration-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="direct-to-serialization">Direct to Serialization<a class="headerlink" href="#direct-to-serialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def html_to_json(html_string):
+    &quot;&quot;&quot;Convert HTML directly to JSON.&quot;&quot;&quot;
+    converter = Html__To__Html_Document(html=html_string)
+    document = converter.convert()
+
+    if document:
+        return document.json()
+    return None
+</code></pre>
+<h3 id="batch-processing">Batch Processing<a class="headerlink" href="#batch-processing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def process_html_files(file_paths):
+    &quot;&quot;&quot;Process multiple HTML files.&quot;&quot;&quot;
+    documents = []
+
+    for path in file_paths:
+        with open(path, 'r', encoding='utf-8') as f:
+            html = f.read()
+
+        converter = Html__To__Html_Document(html=html)
+        document = converter.convert()
+
+        if document:
+            documents.append({
+                'path': path,
+                'document': document,
+                'timestamp': document.timestamp
+            })
+
+    return documents
+</code></pre>
+<h3 id="validation-pipeline">Validation Pipeline<a class="headerlink" href="#validation-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def validate_and_convert(html_string):
+    &quot;&quot;&quot;Validate HTML during conversion.&quot;&quot;&quot;
+    converter = Html__To__Html_Document(html=html_string)
+    document = converter.convert()
+
+    if not document:
+        return None, [&quot;Failed to parse HTML&quot;]
+
+    errors = []
+
+    # Check for required elements
+    if document.root_node.tag != 'html':
+        errors.append(&quot;Missing &lt;html&gt; root element&quot;)
+
+    # Check for head and body
+    head_found = False
+    body_found = False
+
+    for child in document.root_node.child_nodes:
+        if child.tag == 'head':
+            head_found = True
+        elif child.tag == 'body':
+            body_found = True
+
+    if not head_found:
+        errors.append(&quot;Missing &lt;head&gt; element&quot;)
+    if not body_found:
+        errors.append(&quot;Missing &lt;body&gt; element&quot;)
+
+    return document, errors
+</code></pre>
+<h2 id="advanced-usage">Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permanent link">&para;</a></h2>
+<h3 id="custom-processing">Custom Processing<a class="headerlink" href="#custom-processing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class HtmlProcessor:
+    def __init__(self):
+        self.processed_count = 0
+
+    def process_html(self, html):
+        &quot;&quot;&quot;Process HTML with tracking.&quot;&quot;&quot;
+        converter = Html__To__Html_Document(html=html)
+        document = converter.convert()
+
+        if document:
+            self.processed_count += 1
+            # Perform custom processing
+            self._add_metadata(document)
+            self._validate_structure(document)
+
+        return document
+
+    def _add_metadata(self, document):
+        &quot;&quot;&quot;Add processing metadata.&quot;&quot;&quot;
+        document.root_node.attrs['data-processed'] = 'true'
+        document.root_node.attrs['data-processor-version'] = '1.0'
+
+    def _validate_structure(self, document):
+        &quot;&quot;&quot;Validate document structure.&quot;&quot;&quot;
+        # Custom validation logic
+        pass
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="memory-usage">Memory Usage<a class="headerlink" href="#memory-usage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def estimate_memory_usage(html):
+    &quot;&quot;&quot;Estimate memory usage for conversion.&quot;&quot;&quot;
+    import sys
+
+    # Parse and convert
+    converter = Html__To__Html_Document(html=html)
+    document = converter.convert()
+
+    if document:
+        # Estimate sizes
+        html_size = sys.getsizeof(html)
+        dict_size = sys.getsizeof(converter.html__dict)
+        doc_size = sys.getsizeof(document)
+
+        return {
+            'html_size': html_size,
+            'dict_size': dict_size,
+            'document_size': doc_size,
+            'overhead': doc_size - html_size
+        }
+</code></pre>
+<h3 id="streaming-large-files">Streaming Large Files<a class="headerlink" href="#streaming-large-files" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def process_large_html_file(file_path, chunk_size=1024*1024):
+    &quot;&quot;&quot;Process large HTML files in chunks.&quot;&quot;&quot;
+    # Note: This is conceptual - full HTML parsing requires complete document
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+
+    # For very large files, consider:
+    # 1. Using a streaming HTML parser
+    # 2. Processing sections independently
+    # 3. Using memory-mapped files
+
+    converter = Html__To__Html_Document(html=html_content)
+    return converter.convert()
+</code></pre>
+<h2 id="error-handling-patterns">Error Handling Patterns<a class="headerlink" href="#error-handling-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="graceful-degradation">Graceful Degradation<a class="headerlink" href="#graceful-degradation" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def convert_with_fallback(html, fallback_html=&quot;&lt;html&gt;&lt;body&gt;&lt;/body&gt;&lt;/html&gt;&quot;):
+    &quot;&quot;&quot;Convert with fallback on error.&quot;&quot;&quot;
+    try:
+        converter = Html__To__Html_Document(html=html)
+        document = converter.convert()
+
+        if document:
+            return document
+    except Exception as e:
+        print(f&quot;Primary conversion failed: {e}&quot;)
+
+    # Try fallback
+    try:
+        converter = Html__To__Html_Document(html=fallback_html)
+        return converter.convert()
+    except Exception as e:
+        print(f&quot;Fallback conversion failed: {e}&quot;)
+        return None
+</code></pre>
+<h3 id="detailed-error-reporting">Detailed Error Reporting<a class="headerlink" href="#detailed-error-reporting" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def convert_with_diagnostics(html):
+    &quot;&quot;&quot;Convert with detailed diagnostics.&quot;&quot;&quot;
+    diagnostics = {
+        'success': False,
+        'errors': [],
+        'warnings': [],
+        'document': None
+    }
+
+    try:
+        converter = Html__To__Html_Document(html=html)
+
+        # Check intermediate steps
+        if not converter.html:
+            diagnostics['errors'].append(&quot;Empty HTML input&quot;)
+            return diagnostics
+
+        document = converter.convert()
+
+        if document:
+            diagnostics['success'] = True
+            diagnostics['document'] = document
+
+            # Add warnings for common issues
+            if not document.root_node.attrs.get('lang'):
+                diagnostics['warnings'].append(&quot;Missing lang attribute on &lt;html&gt;&quot;)
+        else:
+            diagnostics['errors'].append(&quot;Conversion returned None&quot;)
+
+    except Exception as e:
+        diagnostics['errors'].append(f&quot;Exception: {str(e)}&quot;)
+
+    return diagnostics
+</code></pre>
+<h2 id="testing-utilities">Testing Utilities<a class="headerlink" href="#testing-utilities" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">def create_test_document(title=&quot;Test&quot;, body_content=&quot;Test content&quot;):
+    &quot;&quot;&quot;Create a test document quickly.&quot;&quot;&quot;
+    html = f&quot;&quot;&quot;
+    &lt;!DOCTYPE html&gt;
+    &lt;html lang=&quot;en&quot;&gt;
+        &lt;head&gt;
+            &lt;title&gt;{title}&lt;/title&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+            &lt;p&gt;{body_content}&lt;/p&gt;
+        &lt;/body&gt;
+    &lt;/html&gt;
+    &quot;&quot;&quot;
+
+    converter = Html__To__Html_Document(html=html)
+    return converter.convert()
+
+def assert_valid_document(html):
+    &quot;&quot;&quot;Assert that HTML produces valid document.&quot;&quot;&quot;
+    converter = Html__To__Html_Document(html=html)
+    document = converter.convert()
+
+    assert document is not None, &quot;Failed to create document&quot;
+    assert document.root_node is not None, &quot;Missing root node&quot;
+    assert document.timestamp is not None, &quot;Missing timestamp&quot;
+
+    return document
+</code></pre>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Always Check Return</strong>: The method returns <code>None</code> on failure</li>
+<li><strong>Handle Malformed HTML</strong>: Be prepared for parsing failures</li>
+<li><strong>Validate Results</strong>: Check document structure after conversion</li>
+<li><strong>Use Type Hints</strong>: Leverage type safety in your code</li>
+<li><strong>Consider Memory</strong>: Large HTML documents consume significant memory</li>
+</ol>
+<h2 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Malformed HTML</strong>: Parser may fail or produce unexpected structure</li>
+<li><strong>Memory Limits</strong>: Very large documents may cause memory issues</li>
+<li><strong>Character Encoding</strong>: Ensure proper encoding when reading files</li>
+<li><strong>Missing Elements</strong>: Parser doesn't add missing required elements</li>
+<li><strong>Performance</strong>: Conversion has overhead compared to raw parsing</li>
+</ol>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

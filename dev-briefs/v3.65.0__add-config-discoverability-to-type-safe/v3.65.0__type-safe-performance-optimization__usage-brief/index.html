@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.65.0__type-safe-performance-optimization__usage-brief/" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Type_Safe Performance Optimization - LLM Usage Brief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Type_Safe Performance Optimization - LLM Usage Brief";
+        var mkdocs_page_input_path = "dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.65.0__type-safe-performance-optimization__usage-brief.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev-briefs/v3.65.0__add-config-discoverability-to-type-safe/v3.65.0__type-safe-performance-optimization__usage-brief/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Type_Safe Performance Optimization - LLM Usage Brief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="type_safe-performance-optimization-llm-usage-brief">Type_Safe Performance Optimization - LLM Usage Brief<a class="headerlink" href="#type_safe-performance-optimization-llm-usage-brief" title="Permanent link">&para;</a></h1>
+<p><strong>Version</strong>: v3.65.0<br />
+<strong>Status</strong>: Problem analyzed, solution designed<br />
+<strong>Purpose</strong>: Document the performance problem, analysis, and optimization strategy for Type_Safe object creation<br />
+<strong>Related</strong>: <code>type_safe_config__llm_usage_brief__v1.0.md</code> (implementation details)<br />
+<strong>Repo</strong>: https://github.com/owasp-sbot/OSBot-Utils</p>
+<hr />
+<h2 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
+<h3 id="type_safe-object-creation-is-too-slow">Type_Safe Object Creation is Too Slow<a class="headerlink" href="#type_safe-object-creation-is-too-slow" title="Permanent link">&para;</a></h3>
+<p>Type_Safe provides excellent runtime safety and developer experience, but the cost is significant:</p>
+<pre><code>Plain Python class:     ~300-500 ns per object
+Type_Safe class:        ~10,000-15,000 ns per object (20-40x slower)
+</code></pre>
+<p>For single objects, this is invisible. For bulk operations, it's crippling:</p>
+<pre><code class="language-python"># Creating 1,000 nodes for a graph
+nodes = [Schema__Node(**d) for d in data]     # 10-15 SECONDS with Type_Safe
+                                               # vs ~0.5ms with plain Python
+</code></pre>
+<h3 id="real-world-impact-mgraph">Real-World Impact: MGraph<a class="headerlink" href="#real-world-impact-mgraph" title="Permanent link">&para;</a></h3>
+<p>The MGraph library uses Type_Safe throughout. A typical graph index:</p>
+<pre><code class="language-python">class MGraph__Index(Type_Safe):
+    nodes_by_id    : Index__Nodes__By_Id
+    nodes_by_type  : Index__Nodes__By_Type
+    edges_by_id    : Index__Edges__By_Id
+    edges_by_type  : Index__Edges__By_Type
+    edges_from     : Index__Edges__From
+    edges_to       : Index__Edges__To
+</code></pre>
+<p>Each index contains nested Type_Safe objects:</p>
+<pre><code class="language-python">class Index__Nodes__By_Id(Type_Safe):
+    data: Schema__Index__Data                  # Another Type_Safe
+
+class Schema__Index__Data(Type_Safe):
+    index   : Dict[Safe_Id, Safe_Id]           # Type_Safe__Dict
+    reverse : Dict[Safe_Id, List[Safe_Id]]     # Type_Safe__Dict
+</code></pre>
+<p><strong>Result</strong>: Creating an empty <code>MGraph__Index</code> takes <strong>~1,800 μs</strong> (1.8ms) because it recursively creates ~20 nested Type_Safe objects.</p>
+<p>For <code>Html_MGraph</code> with 6 indexes: <strong>~10ms just for initialization</strong>.</p>
+<h3 id="target-performance">Target Performance<a class="headerlink" href="#target-performance" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Object Type</th>
+<th>Current</th>
+<th>Target</th>
+<th>Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simple Type_Safe</td>
+<td>~12,000 ns</td>
+<td>&lt;1,000 ns</td>
+<td>12x</td>
+</tr>
+<tr>
+<td>MGraph__Index</td>
+<td>~1,800 μs</td>
+<td>&lt;200 μs</td>
+<td>9x</td>
+</tr>
+<tr>
+<td>Html_MGraph init</td>
+<td>~10 ms</td>
+<td>&lt;1 ms</td>
+<td>10x</td>
+</tr>
+<tr>
+<td>1,000 node graph load</td>
+<td>~15 s</td>
+<td>&lt;100 ms</td>
+<td>150x</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="analysis-where-does-the-time-go">Analysis: Where Does the Time Go?<a class="headerlink" href="#analysis-where-does-the-time-go" title="Permanent link">&para;</a></h2>
+<h3 id="baseline-measurements">Baseline Measurements<a class="headerlink" href="#baseline-measurements" title="Permanent link">&para;</a></h3>
+<p>Using <code>osbot_utils.testing.performance.Performance_Measure__Session</code>:</p>
+<pre><code class="language-python">class Schema__Simple(Type_Safe):
+    name  : str
+    value : int
+
+# Measured: ~12,000 ns per object
+</code></pre>
+<h3 id="type_safeinit-breakdown">Type_Safe.<strong>init</strong> Breakdown<a class="headerlink" href="#type_safeinit-breakdown" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Operation</th>
+<th>Cost</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>MRO walk</td>
+<td>~2-3 μs</td>
+<td><code>__cls_kwargs__()</code> walks inheritance</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Default creation</td>
+<td>~1-5 μs</td>
+<td>Creates nested Type_Safe, collections</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Type conversion</td>
+<td>~1-2 μs</td>
+<td>str → Safe_Id, etc.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Validation</td>
+<td>~1-2 μs</td>
+<td>isinstance checks</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>setattr</strong></td>
+<td>~2-3 μs</td>
+<td>Per-attribute validation</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>~10-15 μs</strong></td>
+<td>Simple object</td>
+</tr>
+</tbody>
+</table>
+<p>For nested objects, steps 2-5 cascade recursively.</p>
+<h3 id="the-cascade-problem">The Cascade Problem<a class="headerlink" href="#the-cascade-problem" title="Permanent link">&para;</a></h3>
+<pre><code>MGraph__Index.__init__                         # 12 μs
+  ├─ Index__Nodes__By_Id.__init__              # 12 μs
+  │    └─ Schema__Index__Data.__init__         # 12 μs
+  │         ├─ Type_Safe__Dict.__init__        # 5 μs
+  │         └─ Type_Safe__Dict.__init__        # 5 μs
+  ├─ Index__Nodes__By_Type.__init__            # ... same pattern
+  ├─ Index__Edges__By_Id.__init__              # ... same pattern
+  └─ ... (6 indexes total)
+                                               ─────────
+                                               ~1,800 μs total
+</code></pre>
+<p>Each Type_Safe creation does full validation, even for trusted internal objects.</p>
+<hr />
+<h2 id="solution-strategy">Solution Strategy<a class="headerlink" href="#solution-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="key-insight-context-aware-behavior">Key Insight: Context-Aware Behavior<a class="headerlink" href="#key-insight-context-aware-behavior" title="Permanent link">&para;</a></h3>
+<p>Most Type_Safe overhead is <strong>validation</strong> - checking types, converting values, verifying constraints. This is valuable for:
+- User-provided data (API inputs, config files)
+- Development/debugging
+- Data boundaries (external → internal)</p>
+<p>But it's wasteful for:
+- Internal object construction
+- Bulk loading from trusted sources (databases, serialized data)
+- Performance-critical paths</p>
+<p><strong>Solution</strong>: Make validation <strong>context-dependent</strong> via stack-based configuration.</p>
+<h3 id="the-stack-variable-discovery-pattern">The Stack Variable Discovery Pattern<a class="headerlink" href="#the-stack-variable-discovery-pattern" title="Permanent link">&para;</a></h3>
+<p>Instead of per-object flags or global state, use a configuration object discoverable via stack walk:</p>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(skip_validation=True)
+with _type_safe_config_:
+    # All Type_Safe objects created here detect the config
+    # and skip expensive validation steps
+    graph = MGraph__Index()                    # ~200 μs instead of ~1,800 μs
+</code></pre>
+<p><strong>Benefits:</strong>
+- No instance attribute pollution
+- No global state
+- Automatic propagation to nested objects
+- Self-cleaning (config gone when scope exits)
+- Composable (combine multiple optimizations)</p>
+<p>See <code>type_safe_config__llm_usage_brief__v1.0.md</code> for implementation details.</p>
+<h3 id="incremental-optimization">Incremental Optimization<a class="headerlink" href="#incremental-optimization" title="Permanent link">&para;</a></h3>
+<p>Rather than one "fast mode", provide granular control over each <strong>init</strong> step:</p>
+<pre><code class="language-python"># Level 1: Just skip setattr validation
+_type_safe_config_ = Type_Safe__Config(skip_setattr=True)
+
+# Level 2: Also skip type conversion
+_type_safe_config_ = Type_Safe__Config(skip_setattr=True, skip_conversion=True)
+
+# Level 3: Also skip default creation (caller provides all)
+_type_safe_config_ = Type_Safe__Config(skip_setattr=True, skip_conversion=True, skip_defaults=True)
+
+# Level 4: Also use cached MRO (maximum speed)
+_type_safe_config_ = Type_Safe__Config(skip_setattr=True, skip_conversion=True, skip_defaults=True, skip_mro_walk=True)
+</code></pre>
+<p>This allows:
+- Profile each step independently
+- Choose the right level for each use case
+- Maintain some safety while gaining speed</p>
+<hr />
+<h2 id="use-cases">Use Cases<a class="headerlink" href="#use-cases" title="Permanent link">&para;</a></h2>
+<h3 id="use-case-1-graph-loading-from-database">Use Case 1: Graph Loading from Database<a class="headerlink" href="#use-case-1-graph-loading-from-database" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def load_graph_from_db(graph_id: str) -&gt; MGraph:
+    rows = db.query(&quot;SELECT * FROM nodes WHERE graph_id = ?&quot;, graph_id)
+
+    # Data comes from trusted source (our own database)
+    # No need for validation - just hydrate fast
+    _type_safe_config_ = Type_Safe__Config(skip_validation = True ,
+                                           skip_conversion = True )
+    with _type_safe_config_:
+        nodes = [Schema__Node(**row) for row in rows]
+
+    return MGraph(nodes=nodes)
+</code></pre>
+<p><strong>Before</strong>: 15 seconds for 1,000 nodes<br />
+<strong>After</strong>: ~100ms for 1,000 nodes</p>
+<h3 id="use-case-2-json-deserialization">Use Case 2: JSON Deserialization<a class="headerlink" href="#use-case-2-json-deserialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def from_json(json_data: dict) -&gt; MGraph:
+    # JSON data structure is known/trusted
+    _type_safe_config_ = Type_Safe__Config(skip_validation=True)
+    with _type_safe_config_:
+        return MGraph.from_json(json_data)
+</code></pre>
+<h3 id="use-case-3-index-initialization">Use Case 3: Index Initialization<a class="headerlink" href="#use-case-3-index-initialization" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class MGraph:
+    def __init__(self):
+        # Indexes are internal structure - no external data
+        _type_safe_config_ = Type_Safe__Config(skip_validation  = True ,
+                                               on_demand_nested = True )
+        with _type_safe_config_:
+            self.index = MGraph__Index()       # ~90 μs instead of ~1,800 μs
+</code></pre>
+<h3 id="use-case-4-batch-processing-pipeline">Use Case 4: Batch Processing Pipeline<a class="headerlink" href="#use-case-4-batch-processing-pipeline" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def process_documents(docs: List[dict]) -&gt; List[Schema__Document]:
+    # First pass: fast creation
+    _type_safe_config_ = Type_Safe__Config(skip_validation=True)
+    with _type_safe_config_:
+        objects = [Schema__Document(**d) for d in docs]
+
+    # Second pass: validate (optional, can be done lazily)
+    for obj in objects:
+        obj.__validate__()                     # Explicit validation if needed
+
+    return objects
+</code></pre>
+<h3 id="use-case-5-testing-with-real-data">Use Case 5: Testing with Real Data<a class="headerlink" href="#use-case-5-testing-with-real-data" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def test__large_graph_operations(self):
+    # Load test fixture fast
+    _type_safe_config_ = Type_Safe__Config(skip_validation=True)
+    with _type_safe_config_:
+        graph = MGraph.from_json(LARGE_TEST_FIXTURE)
+
+    # Now test operations (normal validation in effect)
+    graph.add_node(Schema__Node(id=&quot;new&quot;))     # Validated normally
+</code></pre>
+<hr />
+<h2 id="alternative-approaches-considered">Alternative Approaches Considered<a class="headerlink" href="#alternative-approaches-considered" title="Permanent link">&para;</a></h2>
+<h3 id="1-subclass-override-type_safe__fast_mode">1. Subclass Override (Type_Safe__Fast_Mode)<a class="headerlink" href="#1-subclass-override-type_safe__fast_mode" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">class Type_Safe__Fast_Mode(Type_Safe):
+    def __init__(self, **kwargs):
+        # Bypass validation
+        for k, v in kwargs.items():
+            object.__setattr__(self, k, v)
+</code></pre>
+<p><strong>Problems:</strong>
+- Requires changing inheritance of all classes
+- Doesn't help with nested objects (they're still Type_Safe)
+- All-or-nothing (can't mix validated and fast)</p>
+<h3 id="2-thread-local-flag">2. Thread-Local Flag<a class="headerlink" href="#2-thread-local-flag" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">_fast_mode = threading.local()
+_fast_mode.enabled = True
+</code></pre>
+<p><strong>Problems:</strong>
+- Global state that can leak
+- Requires explicit cleanup
+- Exception-safety concerns</p>
+<h3 id="3-parameter-passing">3. Parameter Passing<a class="headerlink" href="#3-parameter-passing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">def __init__(self, _skip_validation=False, **kwargs):
+    ...
+</code></pre>
+<p><strong>Problems:</strong>
+- Pollutes every constructor signature
+- Doesn't propagate to nested objects automatically
+- Breaks existing code</p>
+<h3 id="4-class-decorator">4. Class Decorator<a class="headerlink" href="#4-class-decorator" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">@fast_mode
+class Schema__Node(Type_Safe):
+    ...
+</code></pre>
+<p><strong>Problems:</strong>
+- Static (can't enable/disable at runtime)
+- All instances affected, no context control</p>
+<h3 id="why-stack-variable-discovery-wins">Why Stack Variable Discovery Wins<a class="headerlink" href="#why-stack-variable-discovery-wins" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Propagates</th>
+<th>No Global State</th>
+<th>Runtime Control</th>
+<th>Backward Compatible</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Subclass</td>
+<td>✗</td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Thread-local</td>
+<td>✓</td>
+<td>✗</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Parameter</td>
+<td>✗</td>
+<td>✓</td>
+<td>✓</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>Decorator</td>
+<td>✗</td>
+<td>✓</td>
+<td>✗</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><strong>Stack Discovery</strong></td>
+<td><strong>✓</strong></td>
+<td><strong>✓</strong></td>
+<td><strong>✓</strong></td>
+<td><strong>✓</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="on-demand-creation">On-Demand Creation<a class="headerlink" href="#on-demand-creation" title="Permanent link">&para;</a></h2>
+<h3 id="the-insight">The Insight<a class="headerlink" href="#the-insight" title="Permanent link">&para;</a></h3>
+<p>For complex indexes like <code>MGraph__Index</code>, most nested objects are <strong>never accessed</strong>:</p>
+<pre><code class="language-python">index = MGraph__Index()
+# Only uses nodes_by_id - why create all 6 indexes?
+node = index.nodes_by_id.get(some_id)
+</code></pre>
+<h3 id="solution-create-on-first-access">Solution: Create on First Access<a class="headerlink" href="#solution-create-on-first-access" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(on_demand_nested=True)
+with _type_safe_config_:
+    index = MGraph__Index()                    # Creates NOTHING yet
+
+# Later...
+node = index.nodes_by_id.get(id)               # NOW creates nodes_by_id
+</code></pre>
+<p><strong>Impact:</strong>
+- MGraph__Index: 1,800 μs → ~90 μs (20x faster)
+- Only pays for what you use
+- Combined with skip_validation for maximum speed</p>
+<p>See <code>Type_Safe__On_Demand</code> in uploads for the prototype that validates this approach.</p>
+<hr />
+<h2 id="preservation-of-type_safe-semantics">Preservation of Type_Safe Semantics<a class="headerlink" href="#preservation-of-type_safe-semantics" title="Permanent link">&para;</a></h2>
+<h3 id="what-must-be-preserved">What MUST Be Preserved<a class="headerlink" href="#what-must-be-preserved" title="Permanent link">&para;</a></h3>
+<p>Even in "fast mode", Type_Safe objects must:</p>
+<ol>
+<li><strong>Have correct structure</strong> - all annotated attributes exist</li>
+<li><strong>Support serialization</strong> - <code>.json()</code> works</li>
+<li><strong>Support comparison</strong> - <code>__eq__</code> works</li>
+<li><strong>Be inspectable</strong> - <code>__cls_kwargs__()</code> returns correct info</li>
+<li><strong>Allow normal operations after creation</strong> - validation on subsequent <code>setattr</code></li>
+</ol>
+<h3 id="what-can-be-skipped-during-creation">What CAN Be Skipped (During Creation)<a class="headerlink" href="#what-can-be-skipped-during-creation" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Type validation</strong> - isinstance checks</li>
+<li><strong>Type conversion</strong> - str → Safe_Id coercion</li>
+<li><strong>Default creation</strong> - if caller provides all values</li>
+<li><strong>MRO walking</strong> - if class-level cache exists</li>
+<li><strong><strong>setattr</strong> hooks</strong> - use object.<strong>setattr</strong></li>
+</ol>
+<h3 id="the-contract">The Contract<a class="headerlink" href="#the-contract" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">_type_safe_config_ = Type_Safe__Config(skip_validation=True)
+with _type_safe_config_:
+    obj = Schema__Node(id=&quot;abc&quot;, value=123)
+
+# Object is now normal Type_Safe
+obj.id = &quot;xyz&quot;                                 # Validated! (outside fast context)
+obj.json()                                     # Works
+obj == other                                   # Works
+</code></pre>
+<hr />
+<h2 id="expected-performance-results">Expected Performance Results<a class="headerlink" href="#expected-performance-results" title="Permanent link">&para;</a></h2>
+<h3 id="per-object-creation">Per-Object Creation<a class="headerlink" href="#per-object-creation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Time</th>
+<th>vs Baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baseline (no config)</td>
+<td>~12,000 ns</td>
+<td>1x</td>
+</tr>
+<tr>
+<td>skip_setattr only</td>
+<td>~8,000 ns</td>
+<td>1.5x</td>
+</tr>
+<tr>
+<td>+ skip_validation</td>
+<td>~6,000 ns</td>
+<td>2x</td>
+</tr>
+<tr>
+<td>+ skip_conversion</td>
+<td>~4,000 ns</td>
+<td>3x</td>
+</tr>
+<tr>
+<td>+ skip_defaults</td>
+<td>~2,000 ns</td>
+<td>6x</td>
+</tr>
+<tr>
+<td>+ skip_mro_walk (cached)</td>
+<td>~1,000 ns</td>
+<td><strong>12x</strong></td>
+</tr>
+<tr>
+<td>+ on_demand_nested</td>
+<td>~500 ns</td>
+<td><strong>24x</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="mgraph__index">MGraph__Index<a class="headerlink" href="#mgraph__index" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Time</th>
+<th>vs Baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baseline</td>
+<td>~1,800 μs</td>
+<td>1x</td>
+</tr>
+<tr>
+<td>skip_validation</td>
+<td>~400 μs</td>
+<td>4.5x</td>
+</tr>
+<tr>
+<td>+ on_demand_nested</td>
+<td>~90 μs</td>
+<td><strong>20x</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="html_mgraph-6-indexes">Html_MGraph (6 indexes)<a class="headerlink" href="#html_mgraph-6-indexes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Time</th>
+<th>vs Baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baseline</td>
+<td>~10 ms</td>
+<td>1x</td>
+</tr>
+<tr>
+<td>With optimization</td>
+<td>&lt;1 ms</td>
+<td><strong>10x</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="implementation-roadmap">Implementation Roadmap<a class="headerlink" href="#implementation-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-infrastructure">Phase 1: Infrastructure ✓<a class="headerlink" href="#phase-1-infrastructure" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] Design stack variable discovery pattern</li>
+<li>[x] Design frame injection caching</li>
+<li>[x] Design Type_Safe__Config class</li>
+<li>[x] Document in LLM briefs</li>
+</ul>
+<h3 id="phase-2-core-implementation">Phase 2: Core Implementation<a class="headerlink" href="#phase-2-core-implementation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>find_type_safe_config()</code></li>
+<li>[ ] Add config check to <code>Type_Safe.__init__</code></li>
+<li>[ ] Verify backward compatibility</li>
+</ul>
+<h3 id="phase-3-incremental-flags">Phase 3: Incremental Flags<a class="headerlink" href="#phase-3-incremental-flags" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement &amp; benchmark <code>skip_setattr</code></li>
+<li>[ ] Implement &amp; benchmark <code>skip_validation</code></li>
+<li>[ ] Implement &amp; benchmark <code>skip_conversion</code></li>
+<li>[ ] Implement &amp; benchmark <code>skip_defaults</code></li>
+<li>[ ] Implement &amp; benchmark <code>skip_mro_walk</code></li>
+</ul>
+<h3 id="phase-4-on-demand">Phase 4: On-Demand<a class="headerlink" href="#phase-4-on-demand" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement <code>on_demand_nested</code></li>
+<li>[ ] Migrate from <code>Type_Safe__On_Demand</code> class</li>
+</ul>
+<h3 id="phase-5-validation">Phase 5: Validation<a class="headerlink" href="#phase-5-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Benchmark against targets</li>
+<li>[ ] Test with MGraph use cases</li>
+<li>[ ] Test with Html_MGraph</li>
+</ul>
+<hr />
+<h2 id="key-takeaways">Key Takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Type_Safe is 20-40x slower than plain Python</strong> - acceptable for most uses, problematic for bulk operations</p>
+</li>
+<li>
+<p><strong>The cost is validation, not structure</strong> - we can skip validation while preserving Type_Safe semantics</p>
+</li>
+<li>
+<p><strong>Stack-based configuration is the cleanest solution</strong> - no global state, automatic propagation, self-cleaning</p>
+</li>
+<li>
+<p><strong>Incremental optimization allows profiling</strong> - disable one step at a time, measure impact</p>
+</li>
+<li>
+<p><strong>On-demand creation multiplies the gains</strong> - don't create what you don't use</p>
+</li>
+<li>
+<p><strong>Target: 10-20x improvement</strong> - from ~12,000 ns to ~500-1,000 ns per object</p>
+</li>
+</ol>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>type_safe_config__llm_usage_brief__v1.0.md</code> - Configuration implementation details</li>
+<li><code>stack_variable_discovery__llm_usage_brief__v1.0.md</code> - Generic stack discovery pattern</li>
+<li><code>Type_Safe__On_Demand.py</code> - Prototype for on-demand creation</li>
+<li><code>osbot_utils.testing.performance.Performance_Measure__Session</code> - Benchmarking tool</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

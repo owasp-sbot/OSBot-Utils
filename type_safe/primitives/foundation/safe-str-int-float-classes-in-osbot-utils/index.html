@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/type_safe/primitives/foundation/safe-str-int-float-classes-in-osbot-utils/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Safe_Str, Safe_Int, and Safe_Float in OSBot-Utils: Technical Debrief - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Safe_Str, Safe_Int, and Safe_Float in OSBot-Utils: Technical Debrief";
+        var mkdocs_page_input_path = "type_safe/primitives/foundation/safe-str-int-float-classes-in-osbot-utils.md";
+        var mkdocs_page_url = "/OSBot-Utils/type_safe/primitives/foundation/safe-str-int-float-classes-in-osbot-utils/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../dev/Python-code-formatting-guidelines/">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../../dev/type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Safe_Str, Safe_Int, and Safe_Float in OSBot-Utils: Technical Debrief</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="safe_str-safe_int-and-safe_float-in-osbot-utils-technical-debrief">Safe_Str, Safe_Int, and Safe_Float in OSBot-Utils: Technical Debrief<a class="headerlink" href="#safe_str-safe_int-and-safe_float-in-osbot-utils-technical-debrief" title="Permanent link">&para;</a></h1>
+<h2 id="overview-of-type_safe-architecture-and-validation-model">Overview of Type_Safe Architecture and Validation Model<a class="headerlink" href="#overview-of-type_safe-architecture-and-validation-model" title="Permanent link">&para;</a></h2>
+<p>The <em>OSBot-Utils</em> library provides a <strong>Type_Safe</strong> system that brings robust runtime type checking and validation to Python classes. Unlike standard Python type hints (which are static), <strong>Type_Safe</strong> actively enforces type constraints at runtime. This means that when you assign an attribute or pass a parameter, the Type_Safe system immediately checks that the value matches the declared type, raising errors on mismatches. It supports nested objects and collections, automatically initializing them based on type annotations. In essence, <strong>Type_Safe</strong> turns Python classes into strongly-typed data models with automatic validation.</p>
+<p><strong>How Type_Safe Works:</strong> When you subclass <code>Type_Safe</code>, you declare attributes with type annotations. The base class intercepts attribute assignments (via <code>__setattr__</code>) and ensures the value matches the annotation. It will even instantiate sub-objects for you. For example, if you declare <code>config: Config</code> (where <code>Config</code> is a Type_Safe subclass) and assign a plain dict, Type_Safe can automatically construct a <code>Config</code> instance from it. This automation simplifies initialization of complex configurations without sacrificing type safety.</p>
+<p><strong>Immutability in Type_Safe:</strong> Type_Safe also enforces that default attribute values are immutable types (int, float, str, bool, etc.), preventing the common Python pitfall of shared mutable defaults. Only immutable types (or <code>None</code>) are allowed as class-level defaults, ensuring each instance starts with a clean state. This focus on immutability carries through to the Safe_* primitives described below.</p>
+<h2 id="introducing-safe_str-safe_int-and-safe_float">Introducing Safe_Str, Safe_Int, and Safe_Float<a class="headerlink" href="#introducing-safe_str-safe_int-and-safe_float" title="Permanent link">&para;</a></h2>
+<p>The <strong>Safe_</strong><em> classes – <code>Safe_Str</code>, <code>Safe_Int</code>, and <code>Safe_Float</code> – are specialized types built on the Type_Safe philosophy. They subclass Python’s built-in <code>str</code>, <code>int</code>, and <code>float</code> respectively, adding </em><em>immutability guarantees and domain-specific validation</em><em> on top of the usual behavior. In other words, a Safe_Str </em>is* a string and can be used as such, but it comes with extra security checks; similarly Safe_Int behaves like an int with added rules, and Safe_Float like a float with controlled precision.</p>
+<h3 id="design-and-immutability">Design and Immutability<a class="headerlink" href="#design-and-immutability" title="Permanent link">&para;</a></h3>
+<p>Each Safe_<em> class inherits from its built-in counterpart (making it a subclass of <code>str</code>, <code>int</code>, or <code>float</code>). For example, <code>class Safe_Int(int)</code> defines Safe_Int as an integer subtype that enforces validation rules. Because they inherit primitive types, instances of Safe_</em> are immutable by nature – once created, their value cannot be changed. Any "modification" (like adding two Safe_Ints) actually creates a new Safe_Int object rather than altering the original, preserving immutability. This behavior aligns with Python’s design of ints, strs, and floats being immutable, but Safe_* takes it further by ensuring any new value also respects the defined constraints.</p>
+<p>Furthermore, the Safe_<em> classes override arithmetic or concatenation operators to </em><em>maintain type safety</em><em>. For example, Safe_Int overloads <code>__add__</code>, <code>__sub__</code>, etc., so that adding two Safe_Ints yields a new Safe_Int – </em>if* the result falls within the allowed domain. If the operation’s result violates the constraints (e.g. goes out of allowed range), the code gracefully falls back to returning a plain int instead. This means Safe_Int won’t silently overflow or produce an invalid Safe_Int; it will either give a valid constrained object or a basic type if the result can’t be represented safely. The same pattern is used for Safe_Float’s arithmetic to manage precision and bounds.</p>
+<h3 id="domain-specific-constraints-and-validation">Domain-Specific Constraints and Validation<a class="headerlink" href="#domain-specific-constraints-and-validation" title="Permanent link">&para;</a></h3>
+<p>The real power of Safe_Str, Safe_Int, and Safe_Float is the ability to define <strong>constraints specific to your domain</strong> (length limits, allowed characters, numeric ranges, precision, etc.) that are automatically enforced. These classes have configurable class-level attributes that govern their behavior:</p>
+<ul>
+<li>
+<p><strong>Safe_Int:</strong> You can specify <code>min_value</code> and <code>max_value</code> to constrain the numeric range. For example, you might create a subclass <code>Safe_Int__Port</code> with <code>min_value=0</code> and <code>max_value=65535</code> to represent valid network port numbers. Safe_Int also has flags like <code>allow_str</code> and <code>allow_bool</code> to control what input types are permitted. By default, <code>allow_str=True</code> and <code>allow_bool=False</code>, meaning it will <strong>accept numeric strings</strong> (converting them to int) but will not accept boolean values (even though <code>bool</code> is a subtype of int in Python). There’s also a <code>strict_type</code> flag – if <code>strict_type=True</code>, no type conversion is done at all (the value must already be an int). In normal mode (strict_type False), Safe_Int will attempt to <strong>convert strings to int</strong> automatically, raising an error only if conversion fails. This is extremely useful for processing user input: a field expected to be integer can be given a string like <code>"42"</code> and Safe_Int will parse it into the number 42 for you, while rejecting non-numeric strings. Safe_Int will also reject out-of-range values – if a value is below <code>min_value</code> or above <code>max_value</code>, a <code>ValueError</code> is raised on construction. In summary, Safe_Int can enforce that “only integers between X and Y are allowed”, catching any violation at the moment of assignment or creation.</p>
+</li>
+<li>
+<p><strong>Safe_Str:</strong> Safe_Str enables strict control over string content. You can define a regex pattern that the string must match (or characters that must <em>not</em> appear), and Safe_Str will validate against it. By default, Safe_Str can be configured to either <strong>reject or sanitize</strong> disallowed content. If <code>strict_validation</code> is enabled, any deviation from the allowed pattern causes a <code>TypeError</code> or <code>ValueError</code>. If strict mode is off, Safe_Str will instead <strong>sanitize the input by replacing illegal characters or substrings</strong> with a safe placeholder. For example, consider <code>Safe_Str__Url</code>, a subclass meant for URL strings. It might allow only URL-safe characters and encodings. If you pass an URL string containing unsafe characters, the Safe_Str__Url will automatically escape or replace them. In a unit test from the project, we see that quotes (<code>"</code>) were not allowed in a URL query parameter – the Safe_Str__Url replaced them with underscores instead of throwing an error. The test shows that:</p>
+</li>
+</ul>
+<p><code>python
+  str(Safe_Str__Url('https://example.com/search?q=test&amp;param="invalid"'))
+  # Result: 'https://example.com/search?q=test&amp;param=_invalid_'</code></p>
+<p>The <code>"</code> character was sanitized to <code>_</code>, yielding a safe result. This approach of <em>acceptable auto-sanitization</em> is incredibly useful for preventing injection attacks. It allows the system to cleanse potentially dangerous input on the fly. Safe_Str also supports constraints like maximum length (<code>max_length</code>) and exact length requirements. For instance, you might enforce that a Safe_Str representing a username is at most 20 characters. If a value exceeds the max length, Safe_Str will raise an error immediately. There’s also an <code>allow_empty</code> flag that controls whether empty string <code>""</code> is considered a valid value. If <code>allow_empty=False</code>, providing an empty string will trigger a validation error (or be transformed to a default), which can be important for required fields.</p>
+<p>You can create domain-specific Safe_Str subclasses easily. For example:</p>
+<ul>
+<li><strong>Safe_Str__Filename</strong> could only allow characters permitted in file names and forbid <code>../</code> sequences (preventing path traversal).</li>
+<li><strong>Safe_Str__HTML</strong> might allow a limited set of safe HTML tags or none at all, ensuring any <code>&lt;</code> or <code>&gt;</code> in user input is either escaped or rejected (mitigating XSS).</li>
+<li>
+<p><strong>Safe_Str__HttpHeader</strong> (indeed present in OSBot-Utils) ensures strings used in HTTP headers have no CR/LF characters, preventing header injection. The project defines classes like <code>Safe_Str__Http__ContentType</code> and <code>Safe_Str__Http__Text</code> for such purposes.</p>
+</li>
+<li>
+<p><strong>Safe_Float:</strong> Safe_Float tackles the pitfalls of floating-point precision and range. Like Safe_Int, it has <code>min_value</code>/<code>max_value</code> to bound the numeric range (e.g. ensuring a percentage is between 0.0 and 100.0). It also allows type conversion from strings or ints by default (<code>allow_str=True</code>, <code>allow_int=True</code>) for convenience. The more unique features of Safe_Float involve <strong>precision control</strong>. You can specify <code>decimal_places</code> to which values should be rounded, and even enable <code>use_decimal</code> to perform calculations using Python’s <code>Decimal</code> for exact arithmetic. For instance, OSBot-Utils provides <code>Safe_Float__Money</code>, intended for financial values, which is configured with <code>decimal_places = 2</code> and <code>use_decimal = True</code>. This means any value will be quantized to 2 decimal places using decimal arithmetic – avoiding binary floating-point issues (like 0.1 + 0.2 ≠ 0.3). Safe_Float__Money also sets <code>allow_inf = False</code> and <code>allow_nan = False</code> (disallowing special IEEE float values) and enforces a minimum of 0.0 (no negative currency). Another example is <code>Safe_Float__Percentage_Exact</code>, which ensures a value from 0.00 to 100.00 and uses Decimal to avoid precision loss in percentage calculations. Safe_Float has options like <code>round_output</code> (to automatically round the stored value to the specified decimal places) and <code>clamp_to_range</code> (to silently clamp out-of-range values instead of erroring). By default, it will raise errors if a value is out of range rather than clamping – failing fast is usually safer – but the option exists if you prefer.</p>
+</li>
+</ul>
+<p>In summary, <strong>Safe_Str, Safe_Int, and Safe_Float act as guardrails</strong> for fundamental data types. They turn basic values into self-validating objects. The classes provided in OSBot-Utils cover common needs (like safe URLs, file sizes, percentages, etc.), and you can extend them for your own needs simply by subclassing and setting class attributes (no additional code needed in many cases).</p>
+<h2 id="real-world-usage-examples">Real-World Usage Examples<a class="headerlink" href="#real-world-usage-examples" title="Permanent link">&para;</a></h2>
+<p>To appreciate these safe types, let's consider some real-world scenarios where they solve common problems:</p>
+<ul>
+<li>
+<p><strong>User Input Handling:</strong> Accepting raw input from users is a security minefield. By modeling user-provided data with Safe_* types, you get built-in sanitization and validation. For example, a web application might define a Safe_Str subclass for usernames that permits only alphanumeric characters. If a malicious user tries to supply <code>"&lt;script&gt;alert('xss')&lt;/script&gt;"</code> as a username, the Safe_Str will either reject it or escape the <code>&lt; &gt;</code> characters per the defined regex rules (thereby neutralizing a potential XSS attack). Similarly, form fields that expect numbers can use Safe_Int, which will automatically convert numeric text and throw errors for non-numeric text. This means you can take something like <code>age = Safe_Int(user_input)</code> and be confident that afterwards <code>age</code> is an integer (or an exception was raised). There is no chance of an unexpected string or <code>None</code> slipping through because Safe_Int’s constructor filters those out (with <code>allow_none</code> controlling None handling).</p>
+</li>
+<li>
+<p><strong>Configuration and File Paths:</strong> Configuration files often contain file system paths, sizes, or IDs. By using safe types, you can validate these at load time. For instance, a config class might be defined as:</p>
+</li>
+</ul>
+<p><code>python
+  class AppConfig(Type_Safe):
+      upload_dir: Safe_Str__Filename  # only safe file path names, no traversal
+      max_upload_size: Safe_Int__FileSize  # must be a non-negative int within OS limits
+      enable_feature: bool</code></p>
+<p>Here, <code>Safe_Str__Filename</code> could enforce that <code>upload_dir</code> contains no <code>..</code> or illegal characters, preventing path traversal or mischief with file names. <code>Safe_Int__FileSize</code> (provided by OSBot-Utils) is set to allow values from 0 up to <code>2^63-1</code> (roughly 9.22e18), which covers any realistic file size but disallows negatives. If someone set <code>max_upload_size</code> to <code>-1</code> (perhaps trying to indicate "unlimited" in an unsafe way), the Safe_Int would reject it. By integrating these checks, you catch configuration errors or attacks early – as soon as the config is parsed – rather than deep in your application logic.</p>
+<ul>
+<li>
+<p><strong>Financial Calculations:</strong> Financial systems demand precision and correctness. The Safe_Float types can be a boon here. Instead of using a regular float for currency (which could accumulate tiny rounding errors), you can use <code>Safe_Float__Money</code>. This class ensures all operations are done with decimal precision of 2 places, exactly representing cents. For example, adding 0.1 + 0.2 in Safe_Float__Money will actually yield 0.30 (not 0.30000000000000004) because it uses Decimal math under the hood and rounds to 2 decimal places. It also disallows nonsensical results like NaN or Infinity in your financial domain. Another variant, <code>Safe_Float__Percentage_Exact</code>, could be used for interest rates or percentages to avoid floating-point drift – it guarantees a value stays within 0-100 and maintains two decimal precision exactly. The benefit is <strong>confidence in the numeric integrity</strong>: you won't accidentally get 100.0000001% due to binary floating errors, and you won't accept 150% or -5% by mistake.</p>
+</li>
+<li>
+<p><strong>System and Network Programming:</strong> Many system parameters have specific domains: e.g., port numbers (0-65535), exit codes (0-255), process IDs, etc. Safe_Int makes it easy to model these. OSBot-Utils includes <code>Safe_Int__Port</code> which likely sets the range to 0–65535 (and perhaps even disallows ports in certain reserved ranges if you choose to configure it). Using <code>Safe_Int__Port</code> for a variable means an invalid port like 99999 will cause an immediate error on assignment rather than manifesting as a runtime bug later. The library also has a <code>Safe_Int__Byte</code> class (0–255) which is useful for any setting confined to a byte’s range – for example, an RGB color component or a percentage that you choose to store as 0-255. By using these, developers get self-documenting code (the type name indicates the expected domain) and automatic enforcement.</p>
+</li>
+<li>
+<p><strong>HTTP and API Safety:</strong> The Safe_Str classes in OSBot-Utils include several tailored for HTTP header values (e.g., ETag, Content-Type). These are critical because HTTP headers have strict format rules and security considerations. A <code>Safe_Str__Http__Header</code> can ensure no newline characters (to prevent header injection), and only valid ASCII or token characters are present. In the commit history, new Safe_Str classes were added for HTTP ETag, ContentType, LastModified, etc., likely each ensuring the value conforms to RFC specs (no illegal chars, proper length). In practice, this means if your code sets an HTTP header using a Safe_Str, you physically <strong>cannot</strong> include a malicious sequence that would break headers or exploit a vulnerability – the Safe_Str validation will reject it or strip it out. This is a proactive defense against certain web attacks.</p>
+</li>
+</ul>
+<h2 id="integration-with-type_safe-classes">Integration with Type_Safe Classes<a class="headerlink" href="#integration-with-type_safe-classes" title="Permanent link">&para;</a></h2>
+<p>One of the major benefits of these Safe_<em> classes is how neatly they integrate with </em><em>Type_Safe</em>* models. When you use Safe_Str, Safe_Int, or Safe_Float as the types of attributes in a <code>Type_Safe</code> subclass, the Type_Safe machinery handles them just like any other type – with some additional conveniences:</p>
+<ul>
+<li>
+<p><strong>Automatic Type Enforcement:</strong> If you assign a value to a Type_Safe attribute that is declared as <code>Safe_Int</code> (for example), the Type_Safe base class will check that the value is an instance of Safe_Int. If it isn’t, a TypeError is raised. This prevents accidental assignment of raw types when a safe type is expected. In practice, you will likely call the Safe_Int constructor on the value before assignment (or rely on Type_Safe to do so, as explained next).</p>
+</li>
+<li>
+<p><strong>Seamless Conversion:</strong> The Safe_<em> constructors are quite flexible in inputs (allowing e.g. int or str for Safe_Int, as discussed). This means even if Type_Safe doesn’t automatically convert types, it’s straightforward for a developer (or a wrapper function) to ensure inputs become safe. In many cases, you can pass primitive values to the <code>Type_Safe</code> initializer and it will instantiate the Safe_</em> class for you thanks to how Type_Safe handles nested objects and annotations. For example, if you have <code>class Person(Type_Safe): age: Safe_Int</code>, calling <code>Person(age= "45")</code> could under-the-hood call <code>Safe_Int("45")</code> to convert the string to a Safe_Int. Even if Type_Safe did not do it implicitly, doing <code>person.age = "45"</code> would trigger a runtime type error (since a str is not a Safe_Int), alerting you to wrap it. The key point is that <em>when used within a Type_Safe model, these safe types ensure the data entering your system is immediately validated and sanitized</em>. This is very much analogous to Pydantic’s BaseModel, but without requiring an external library – and with security-focused defaults.</p>
+</li>
+<li>
+<p><strong>Nested Safe Types:</strong> Safe_* classes are not themselves subclasses of Type_Safe (they inherit from built-ins), but Type_Safe still treats them as valid attribute types. They don’t have further nested attributes (since they are single values), but if a Type_Safe object contains, say, a <code>List[Safe_Str]</code>, then Type_Safe will enforce that every item you put in that list is a Safe_Str instance. You can therefore use safe types deeply in your data structures (e.g., a list of safe filenames, or a dictionary mapping IDs to Safe_Float values, etc.), and all inserts/updates to those collections get checked.</p>
+</li>
+<li>
+<p><strong>Serialization/Deserialization:</strong> Type_Safe provides built-in JSON serialization support, likely treating Safe_* values as primitives (since they subclass primitive types). This means you can safely serialize a Type_Safe model containing Safe_Ints or Safe_Str to JSON and get plain numbers and strings out. When deserializing (loading JSON back into a model), Type_Safe will create Safe_Int/Str objects from the raw JSON data. This ensures that even data coming from external JSON/API sources gets validated by the safe classes automatically.</p>
+</li>
+</ul>
+<p>Overall, using Safe_Str, Safe_Int, and Safe_Float within Type_Safe models provides <em>belt-and-suspenders</em> safety: Type_Safe guarantees the type itself is correct at runtime, and the Safe_<em> class guarantees the </em><em>content</em>* of that type is acceptable. This duo greatly reduces the chance of bad data propagating through your application undetected.</p>
+<h2 id="security-benefits-over-traditional-approaches">Security Benefits over Traditional Approaches<a class="headerlink" href="#security-benefits-over-traditional-approaches" title="Permanent link">&para;</a></h2>
+<p>Projects like <strong>Pydantic</strong> or <strong>attrs</strong> also offer ways to enforce types and constraints, so what makes OSBot-Utils’ Safe_* classes special, especially regarding security?</p>
+<ol>
+<li>
+<p><strong>Built-in Sanitization vs. Validation-Only:</strong> Traditional frameworks (Pydantic, attrs) are primarily geared toward validation – they’ll tell you if input is wrong (and maybe coerce types), but they typically won’t <em>sanitize</em> dangerous content unless you explicitly code a validator to do so. Safe_Str stands out by providing optional automatic sanitization of input. For instance, if an input string contains a forbidden character, Safe_Str can replace or remove it according to the security policy. This proactive neutralization means that even if a developer forgets to manually escape a string for HTML or SQL, the Safe_Str has likely already done so when the object was created. This is a big win for security because it reduces reliance on every call site remembering to sanitize. In the earlier example with <code>Safe_Str__Url</code>, the developer didn’t have to remember to strip quotes from the URL – the class did it internally. In contrast, with Pydantic you would need to write a custom validator to achieve the same effect, and it would still yield a plain <code>str</code> afterwards (meaning a developer could accidentally append unsafe data later). Safe_Str keeps the <em>safety</em> attached to the value itself.</p>
+</li>
+<li>
+<p><strong>Continuous Enforcement:</strong> After a Pydantic model is created, its fields are ordinary Python types (unless you use special Constrained types which still usually devolve to Python base types). That means if someone later directly manipulates a field, they could insert an unsafe value. With Safe_<em> classes, the “smart” type stays with the value. For example, if you have a <code>user.name</code> as Safe_Str and later in the code someone does <code>user.name = user.name + " Jr."</code>, the Safe_Str’s overridden <code>__add__</code> will ensure the result is still a Safe_Str meeting all constraints (or raise an error). This is a subtle but important point: </em><em>Safe_</em> types enforce constraints not just at initial assignment, but on every operation involving the value.*<em> They essentially carry the security policy with them. attrs and Pydantic, on the other hand, mainly check at assignment or model creation time; once you have a value, if you concatenate two strings or add two numbers, those frameworks don’t intervene – but Safe_</em> will, via Python’s operator overloading.</p>
+</li>
+<li>
+<p><strong>Fewer Footguns with Booleans and None:</strong> The Safe_Int and Safe_Float classes explicitly handle tricky cases like <code>None</code> and <code>bool</code> which can often slip through in Python. By default, Safe_Int and Safe_Float disallow bools (since <code>True</code>/<code>False</code> are instances of int, this could cause logic errors if not accounted for). They provide a clear error message if a bool is given when not allowed. Pydantic and attrs would typically accept a bool for an int field (since it <em>is</em> an int subclass), which might not be what you intend. Similarly, Safe_* can be configured to allow or disallow None in a consistent way (and for Safe_Int/Float, convert None to 0.0 or 0 if allowed). This helps prevent issues where a None sneaks in and later causes a <code>TypeError</code> in arithmetic or string ops.</p>
+</li>
+<li>
+<p><strong>Rich Domain Types Without Additional Libraries:</strong> Pydantic offers something akin to Safe_<em> via </em>Constrained Types<em> (e.g., <code>conint(le=100)</code> for an int &lt;=100). However, those are not as easily reusable or extendable as a class, and they don’t provide methods or operator overrides. OSBot’s Safe_</em> are Python classes you can import and use anywhere, even outside a model context. They can have custom methods if you choose to add any. They integrate with the rest of Python naturally (since they subclass the built-in types, you can pass a Safe_Int to any function expecting int and it will work). In essence, they give you the benefits of something like a Pydantic field constraint <strong>without locking you into a specific model framework</strong> for usage. This makes it easy to adopt Safe_* for incremental hardening of an existing codebase: you can start using Safe_Str for critical strings or Safe_Float for critical calculations without rewriting everything to use a new model class.</p>
+</li>
+<li>
+<p><strong>Preventing Specific Vulnerabilities:</strong> Let’s explicitly connect how Safe_* classes mitigate common security vulnerabilities:</p>
+</li>
+<li>
+<p><em>Cross-Site Scripting (XSS):</em> By using Safe_Str for any text that might end up in HTML output, you can strip or escape dangerous characters globally. For example, you might enforce that a Safe_Str used for UI output cannot contain <code>&lt;</code> or <code>&gt;</code> unless explicitly allowed (and perhaps replace them with safe equivalents). This means an attacker injecting a <code>&lt;script&gt;</code> tag will find their input either rejected or rendered harmless (e.g., as <code>&amp;lt;script&amp;gt;</code>) at the data model layer, long before it ever reaches a web page.</p>
+</li>
+<li><em>SQL Injection:</em> The best defense is to use parameterized queries, but occasionally developers construct SQL dynamically. If you use Safe_Str for inputs that go into SQL, you can define a very restrictive pattern (like only alphanumeric, or specific whitelisted words). Safe_Str will then ensure no quotes, semicolons, or SQL control characters are present, thus preventing classic injection. Additionally, using Safe_Int for IDs that go into queries ensures that something claiming to be an integer is truly an integer and not a malicious string fragment. It’s a form of strong typing that makes injection harder. In a sense, Safe_* can act as a first line of defense – catching obvious injection attempts by content scanning – but should be paired with proper query parametrization for complete safety.</li>
+<li><em>Path Traversal:</em> As discussed, a Safe_Str for filenames/paths can outright disallow the <code>../</code> sequence or any path separator that isn’t expected. This means user-supplied path segments can’t escape the intended directory. The Safe_Str could also enforce that a path <em>must</em> be relative (not start with <code>/</code> or <code>C:\</code> for example), eliminating absolute path injection. All these checks happen as soon as the path is assigned or created, not at the moment of file access, which makes for simpler, safer code.</li>
+<li><em>Precision Loss and Rounding Errors:</em> It might not be a security issue in the traditional sense, but in domains like finance, precision loss is a serious integrity risk. Safe_Float addresses this by allowing exact decimal arithmetic. By using Safe_Float for currency, you prevent attackers (or mistakes) from exploiting floating-point quirks – for instance, to avoid a situation where a rounding error consistently gives a slight monetary advantage to someone (think of attacks where \$0.0001 differences add up over thousands of transactions). Safe_Float also can clamp values, so you could ensure, say, an interest rate never exceeds a certain limit, preventing pathological inputs from wreaking havoc on calculations.</li>
+</ol>
+<h2 id="performance-trade-offs-and-best-practices">Performance Trade-offs and Best Practices<a class="headerlink" href="#performance-trade-offs-and-best-practices" title="Permanent link">&para;</a></h2>
+<p>All these guarantees do introduce <strong>runtime overhead</strong>. It’s important to consider performance implications and how to use Safe_* types judiciously:</p>
+<ul>
+<li>
+<p><strong>Construction and Assignment Cost:</strong> Creating a Safe_Int or Safe_Float involves extra checks (type checking, possibly regex or range comparisons) that a raw int/float wouldn’t do. For example, constructing a Safe_Int from a string goes through a conversion and validation step. Likewise, setting a Safe_Str involves running a regex search or substitution to validate content. These operations are quite fast for single values, but if you are performing them in a very tight loop (millions of times), the overhead could become noticeable.</p>
+</li>
+<li>
+<p><strong>Arithmetic Overhead:</strong> The operator overrides in Safe_Int and Safe_Float wrap the result in a Safe_* again, which means an additional function call and validation for each arithmetic operation. In numerical heavy code (like large matrix computations or intense loops), this would slow things down compared to using raw numbers. The design does try to mitigate unnecessary overhead by falling back to plain int if a result can’t be represented safely, but the check itself still has a cost.</p>
+</li>
+<li>
+<p><strong>Memory Footprint:</strong> Safe_* instances are objects of custom classes. However, since they don’t typically define <code>__slots__</code> or carry extra attributes, their memory overhead is minimal beyond the overhead of a Python object header for a different class. In practice, this is usually negligible (a few dozen bytes per object) and only matters if you are holding huge numbers of them in memory simultaneously.</p>
+</li>
+</ul>
+<p><strong>Recommended Usage Patterns:</strong></p>
+<ul>
+<li>
+<p><strong>Use at System Boundaries:</strong> A good strategy is to use Safe_<em> types at the boundaries of your system – where data is incoming from untrusted sources or leaving your control. For example, when reading user input (from HTTP requests, forms, config files, etc.), wrap it into Safe_</em> objects immediately. Internally you can then work with those safe objects or extract primitives if needed. Likewise, before sending data out (e.g., output to a web page, or to a database), ensure it’s coming from a Safe_* source. This boundary-focused usage ensures maximum security where it matters most, with minimal changes to your core logic.</p>
+</li>
+<li>
+<p><strong>Convert to Base Types for Heavy Lifting:</strong> Inside performance-critical sections (like heavy computations), you might convert Safe_<em> back to plain types after validation. For instance, if you have a list of Safe_Float values that you need to run through a large numerical algorithm, it could be faster to pull out the raw float values (which are accessible since Safe_Float </em>is<em> a float) and operate on those, rather than doing each math operation via Safe_Float’s overrides. After computing a result, you could then wrap it back into a Safe_Float for storage or output. Essentially, use Safe_</em> to check and sanitize data going in or out, but don’t feel you must use them for every internal calculation if performance is critical.</p>
+</li>
+<li>
+<p><strong>Leverage Subclassing for Clarity:</strong> Defining semantic subclasses (like Safe_Int__Port, Safe_Str__Email, Safe_Float__Money) is highly encouraged. It makes the code self-documenting and centralizes the validation logic. Each subclass can encapsulate the rules for that particular domain. The OSBot-Utils project demonstrates this by providing many ready-made subclasses (Byte, Percentage, FileSize, etc. for Safe_Int; Money, Engineering, Percentage_Exact for Safe_Float; various HttpText types for Safe_Str). You can use these as-is or as examples for creating your own. The cost to create a new safe subclass is low – often just a few class attributes – and it pays off in more maintainable code.</p>
+</li>
+<li>
+<p><strong>Understand Strict vs Lenient Modes:</strong> Decide when you want strict enforcement (reject bad input outright) versus lenient cleaning. In security-sensitive fields like usernames or IDs, you might choose to reject any disallowed characters (so attackers can’t even probe what happens if they send weird input). But in something like a search query string, you might choose to sanitize (remove or replace bad chars) to be user-friendly. The Safe_Str API gives you that choice via <code>strict_validation</code> and by overriding how the regex is interpreted. Be sure to configure these according to your needs. A good rule of thumb: if the field is something that <em>should never</em> contain certain characters (e.g., an email address should never have spaces or newlines), use strict mode and fail on bad input. If the field could reasonably have user-provided text (like a comment) and you just want to ensure safety, use a lenient mode that escapes or strips dangerous content, so the application can continue to function while still neutralizing threats.</p>
+</li>
+<li>
+<p><strong>Testing and Monitoring:</strong> Introduce Safe_<em> types gradually and test how they behave in your application. The fact that they raise errors on bad input is good – it tells you immediately if something unexpected is happening. During development, you might encounter <code>TypeError</code> or <code>ValueError</code> from Safe_</em> where you didn’t before; treat that as a positive thing (your code caught an issue it would have otherwise missed). Adjust the constraints or calling code as necessary. In production, you should rarely see these exceptions if inputs are correct – if you do, it likely means someone is misusing an API or perhaps an attacker is probing your system. You can log these incidents; they provide valuable visibility into potential issues.</p>
+</li>
+</ul>
+<h2 id="summary-and-conclusion">Summary and Conclusion<a class="headerlink" href="#summary-and-conclusion" title="Permanent link">&para;</a></h2>
+<p>The Safe_Str, Safe_Int, and Safe_Float classes in OSBot-Utils offer Python developers a powerful pattern for building security into the very types of their application. By extending Python’s primitives with immutability and validation, they help <strong>make the secure way the easy way</strong>. Developers can rely on these classes to automatically prevent a host of common errors and vulnerabilities – from type mismatches to injection attacks – without writing repetitive validation code.</p>
+<p>In practice, these Safe_* types integrate seamlessly with the Type_Safe framework to create robust, self-validating data models. They compare favorably to popular frameworks like Pydantic in scenarios where security is paramount: not only do they enforce types, but they also sanitize and constrain data in ways that reduce the chance of developer oversight. The trade-off comes in the form of additional runtime checks, but for the layers of an application dealing with untrusted input or critical values, this cost is usually justified by the significantly increased safety and clarity.</p>
+<p>By using Safe_Str, Safe_Int, and Safe_Float for your critical data – such as configuration, user inputs, financial figures, and system parameters – you effectively <strong>push the security checks to the earliest point possible</strong> in your data’s lifecycle. The result is cleaner code (since you catch issues early and universally), fewer security bugs, and more trust that “if it’s in the system, it’s already been vetted.” These classes embody the idea of <em>secure by design</em>: they bake security into the construction of objects, so developers can focus on business logic knowing the data has been checked. Adopting these patterns in production Python applications can lead to more robust, secure, and maintainable software, especially in domains where mistakes are costly.</p>
+<p><strong>References:</strong></p>
+<ul>
+<li>OSBot-Utils Type_Safe Technical Documentation</li>
+<li>OSBot-Utils Safe_Int Implementation</li>
+<li>OSBot-Utils Safe_Str and Safe_Str__Url Tests</li>
+<li>OSBot-Utils Safe_Float and Safe_Float__Money Implementation</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
