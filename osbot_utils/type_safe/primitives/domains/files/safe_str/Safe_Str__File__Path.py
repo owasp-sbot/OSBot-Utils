@@ -12,3 +12,6 @@ class Safe_Str__File__Path(Safe_Str):
     allow_empty                = True
     trim_whitespace            = True
     allow_all_replacement_char = False
+
+
+    # todo: look at how we could add a method here to help preventing or detecting path transversal issues

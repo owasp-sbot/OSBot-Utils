@@ -76,9 +76,11 @@ class test_Type_Safe__Property(TestCase):
         test_obj.tags        = None
         assert test_obj.tags is None
 
-        # Test setting None on required field
-        with pytest.raises(ValueError, match=re.escape("On NestedData, can't be set to None, to a variable that is already set. Invalid type for attribute 'name'. Expected '<class 'str'>' but got '<class 'NoneType'>'")):
-            test_obj.name = None
+        # # Test setting None on required field
+        # with pytest.raises(ValueError, match=re.escape("On NestedData, can't be set to None, to a variable that is already set. Invalid type for attribute 'name'. Expected '<class 'str'>' but got '<class 'NoneType'>'")):
+        #     test_obj.name = None
+        # DC: breaking change on 6/Apr/26 | this wasn't really adding a lot of value, since in fact None is a valid to be set (and this limitation was adding quite a bit of complexity to code that was using a Type_Safe class to hold state)
+        test_obj.name = None
 
 
     def test_invalid_paths(self):  # Tests error handling for invalid paths

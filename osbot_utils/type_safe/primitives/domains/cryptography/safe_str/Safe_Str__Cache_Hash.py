@@ -1,4 +1,8 @@
+
 import re
+import hashlib
+import uuid
+
 from osbot_utils.type_safe.primitives.core.Safe_Str                         import Safe_Str
 from osbot_utils.type_safe.primitives.core.enums.Enum__Safe_Str__Regex_Mode import Enum__Safe_Str__Regex_Mode
 
@@ -10,3 +14,8 @@ class Safe_Str__Cache_Hash(Safe_Str):               # Variable-length cache hash
     strict_validation = True
     allow_empty       = True
     trim_whitespace   = True
+
+    @staticmethod
+    def new() -> 'Safe_Str__Cache_Hash':
+        value = hashlib.sha256(uuid.uuid4().bytes).hexdigest()
+        return Safe_Str__Cache_Hash(value)

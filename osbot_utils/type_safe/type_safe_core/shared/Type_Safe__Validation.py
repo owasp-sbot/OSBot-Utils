@@ -1,6 +1,5 @@
 import collections
 import inspect
-import traceback
 import types
 import typing
 from enum                                                                     import EnumMeta
@@ -307,10 +306,11 @@ class Type_Safe__Validation:
             return True
         return False
 
-    def validate_if_value_has_been_set(self, _self, annotations, name, value):
-        if hasattr(_self, name) and annotations.get(name) :     # don't allow previously set variables to be set to None
-            if getattr(_self, name) is not None:                         # unless it is already set to None
-                raise ValueError(f"On {_self.__class__.__name__}, can't be set to None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{_self.__annotations__.get(name)}' but got '{type(value)}'")
+    # DC: breaking change on 6/Apr/26 | this wasn't really adding a lot of value, since in fact None is a valid to be set (and this limitation was adding quite a bit of complexity to code that was using a Type_Safe class to hold state)
+    # def validate_if_value_has_been_set(self, _self, annotations, name, value):
+    #     if hasattr(_self, name) and annotations.get(name) :     # don't allow previously set variables to be set to None
+    #         if getattr(_self, name) is not None:                         # unless it is already set to None
+    #             raise ValueError(f"On {_self.__class__.__name__}, can't be set to None, to a variable that is already set. Invalid type for attribute '{name}'. Expected '{_self.__annotations__.get(name)}' but got '{type(value)}'")
 
     def validate_if__types_are_compatible_for_assigment(self, _self, name, current_type, expected_type):
         if not type_safe_validation.are_types_compatible_for_assigment(current_type, expected_type):

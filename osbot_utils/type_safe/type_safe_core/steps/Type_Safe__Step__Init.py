@@ -4,7 +4,9 @@ from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Dict           
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__List           import Type_Safe__List
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Set            import Type_Safe__Set
 from osbot_utils.type_safe.type_safe_core.collections.Type_Safe__Tuple          import Type_Safe__Tuple
+from osbot_utils.type_safe.type_safe_core.config.Type_Safe__Config              import type_safe__show_detailed_errors
 from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Annotations         import type_safe_annotations
+from osbot_utils.type_safe.type_safe_core.shared.Type_Safe__Exception_Detail    import type_safe_exception_detail
 from osbot_utils.type_safe.type_safe_core.steps.Type_Safe__Step__Default_Value  import type_safe_step_default_value, get_args
 
 
@@ -29,8 +31,15 @@ class Type_Safe__Step__Init:
                     value = self.convert_value_to_type_safe_objects(__self, key, value)
                     setattr(__self, key, value)
             else:
-                raise ValueError(f"{__self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
-                                 f"Use {__self.__class__.__name__}.__default_kwargs__() see what attributes are available") from None
+                if type_safe__show_detailed_errors():
+                    raise type_safe_exception_detail.attribute_type_error(target        = __self       ,
+                                                                          name          = key          ,
+                                                                          expected_type = None         ,   # attribute does not exist
+                                                                          actual_type   = type(value)  ,
+                                                                          value         = value        ) from None
+                else:
+                    raise ValueError(f"{__self.__class__.__name__} has no attribute '{key}' and cannot be assigned the value '{value}'. "
+                                     f"Use {__self.__class__.__name__}.__default_kwargs__() see what attributes are available") from None
 
 
     def convert_dict_with_nested_collections(self, __self, annotation, value):  # Handle Dict types with nested collection values (List, Set, etc.)

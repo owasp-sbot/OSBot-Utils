@@ -7,12 +7,22 @@ from osbot_utils.utils.Files    import file_create, path_combine, temp_filename,
 from osbot_utils.utils.Misc     import random_port, random_string
 from osbot_utils.utils.Http     import port_is_open, GET
 
+# todo:
+#       - make this type_safe (the class and the params)
+#       - add option to support and capture the log messages (which we can with Stderr())
+#       - refactor config params to Type_Safe class
 
 class Temp_Web_Server:
     server        : ThreadingHTTPServer
     server_thread : Thread
 
-    def __init__(self, host: str = None, port: int = None, root_folder: str = None, server_name = None, http_handler = None, wait_for_stop=False):
+    def __init__(self,
+                 host       : str = None ,
+                 port       : int = None ,
+                 root_folder: str = None ,
+                 server_name      = None ,
+                 http_handler     = None ,
+                 wait_for_stop    = False):
         self.host          = host         or "127.0.0.1"
         self.port          = port         or random_port()
         self.root_folder   = root_folder  or "."

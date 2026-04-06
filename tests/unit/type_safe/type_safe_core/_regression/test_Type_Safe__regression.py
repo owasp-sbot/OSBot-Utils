@@ -564,6 +564,8 @@ class test_Type_Safe__regression(TestCase):
         #                          str_type    = 'builtins.str'                     ,
         #                          str_type_2  = 'from osbot_utils.type_safe.primitives.domains.identifiers.Guid.Guid'    ,)
         #assert An_Class.from_json(An_Class().json()).obj() == An_Class().obj()
+
+
     def test__regression__class_level_defaults__mutable_vs_type(self):
         class Problematic(Type_Safe):
             bad_list : list                   # FIXED: BAD: mutable default
@@ -605,11 +607,14 @@ class test_Type_Safe__regression(TestCase):
         assert obj3.json() == obj4.json()
         assert obj3.obj () == obj4.obj ()
 
+        # DC: breaking change on 6/Apr/26 | this wasn't really adding a lot of value, since in fact None is a valid to be set (and this limitation was adding quite a bit of complexity to code that was using a Type_Safe class to hold state)
         # Can't modify type objects
-        with pytest.raises(ValueError, match=re.escape("On Safe, can't be set to None, to a variable that is already set. Invalid type for attribute 'guid_type'. Expected 'typing.Type[osbot_utils.type_safe.primitives.domains.identifiers.Guid.Guid]' but got '<class 'NoneType'>'")):
-            obj3.guid_type = None                 # Can't modify type
-        with pytest.raises(ValueError, match=re.escape("On Safe, can't be set to None, to a variable that is already set. Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'NoneType'>'")):
-            obj4.str_type = None                  # Can't modify type
+        # with pytest.raises(ValueError, match=re.escape("On Safe, can't be set to None, to a variable that is already set. Invalid type for attribute 'guid_type'. Expected 'typing.Type[osbot_utils.type_safe.primitives.domains.identifiers.Guid.Guid]' but got '<class 'NoneType'>'")):
+        #     obj3.guid_type = None                 # Can't modify type
+        # with pytest.raises(ValueError, match=re.escape("On Safe, can't be set to None, to a variable that is already set. Invalid type for attribute 'str_type'. Expected 'typing.Type[str]' but got '<class 'NoneType'>'")):
+        #     obj4.str_type = None                  # Can't modify type
+        obj3.guid_type = None                 # this is now supported
+        obj4.str_type  = None                  # this is now supported
 
     def test__regression__type__with_type__not_enforced(self):
         class An_Class(Type_Safe):
