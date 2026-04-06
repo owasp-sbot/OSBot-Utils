@@ -155,10 +155,12 @@ class test_Type_Safe(TestCase):
             an_class.an_str = 42
         assert context_1.exception.args[0] == expected_message
 
-        expected_message_2 = "On An_Class, can't be set to None, to a variable that is already set. Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'NoneType'>'"
-        with self.assertRaises(Exception) as context_2:
-            an_class.an_str = None
-        assert context_2.exception.args[0] == expected_message_2
+        # DC: breaking change on 6/Apr/26 | this wasn't really adding a lot of value, since in fact None is a valid to be set (and this limitation was adding quite a bit of complexity to code that was using a Type_Safe class to hold state)
+        # expected_message_2 = "On An_Class, can't be set to None, to a variable that is already set. Invalid type for attribute 'an_str'. Expected '<class 'str'>' but got '<class 'NoneType'>'"
+        # with self.assertRaises(Exception) as context_2:
+        #     an_class.an_str = None
+        #assert context_2.exception.args[0] == expected_message_2
+        an_class.an_str = None
 
 
     # todo: move this test to __bug__ capturing the fact that the classes are not locked

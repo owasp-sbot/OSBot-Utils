@@ -148,8 +148,9 @@ class Type_Safe__Step__Set_Attr:
         if value is not None:
             value = self.resolve_value   (_self, annotations, name, value)
             value = self.handle_get_class(_self, annotations, name, value)
-        else:
-            type_safe_validation.validate_if_value_has_been_set(_self, annotations, name, value)
+        # DC: breaking change on 6/Apr/26 | this wasn't really adding a lot of value, since in fact None is a valid to be set (and this limitation was adding quite a bit of complexity to code that was using a Type_Safe class to hold state)
+        # else:
+        #     type_safe_validation.validate_if_value_has_been_set(_self, annotations, name, value)
 
         _super.__setattr__(name, value)
 

@@ -289,16 +289,40 @@ class test_Trace_Call(TestCase):
                 logger.add_memory_logger()
         assert _.calls() == expected_calls
 
-    def test_regression__previous_set_variables_can_be_set_to_none(self):
+    # DC: breaking change on 6/Apr/26 | this wasn't really adding a lot of value, since in fact None is a valid to be set (and this limitation was adding quite a bit of complexity to code that was using a Type_Safe class to hold state)
+    # def test_regression__previous_set_variables_can_be_set_to_none(self):
+    #     with Trace_Call__Config() as _:                             # create a new clean object
+    #         assert _.trace_capture_start_with == []                 # confirm variable is set
+    #         with self.assertRaises(Exception) as context:           # FIXED: after the fix
+    #             _.trace_capture_start_with = None                   # FIXED: this now raises an exception
+    #         assert str(context.exception) == ("On Trace_Call__Config, can't be set to None, to a variable that is already set. Invalid type for "
+    #                                           "attribute 'trace_capture_start_with'. "
+    #                                           "Expected '<class 'list'>' but got '<class 'NoneType'>'")
+    #         # _.trace_capture_start_with        = None               # BUG: this should not be allowed
+    #         # assert _.trace_capture_start_with is None              # BUG: this var should not have changed
+    #
+    #     class An_Class(Kwargs_To_Self):                              # create a test class to confirm behaviour
+    #         none_allowed = None                                      # we can have a None here (since the type is not defined)
+    #         an_list      : list                                      # when a list is defined, the default value will be assigned to it (in this case [] )
+    #
+    #     an_class = An_Class()                                        # create an instance of the test class
+    #     assert an_class.none_allowed is None                         # conform that the none_allowed var exists and it is None
+    #     assert an_class.an_list      == []                           # confirm that the an_list var exists and it is an empty list
+    #     with self.assertRaises(Exception) as context:                # FIXED: after the fix
+    #         an_class.an_list = None                                  # FIXED: this raises an exception
+    #     assert str(context.exception) == ("On An_Class, can't be set to None, to a variable that is already set. "
+    #                                       "Invalid type for attribute 'an_list'. Expected '<class 'list'>' but got '<class 'NoneType'>'")
+    #     #an_class.an_list = None                                     # BUG: this should not be allowed (since we know that an_list should be a list)
+    #     #assert an_class.an_list      is None                        # BUG: this var should not have changed
+
+    def test_regression__previous_set_variables_can_be_set_to_none__allowed_noe(self):
         with Trace_Call__Config() as _:                             # create a new clean object
             assert _.trace_capture_start_with == []                 # confirm variable is set
-            with self.assertRaises(Exception) as context:           # FIXED: after the fix
-                _.trace_capture_start_with = None                   # FIXED: this now raises an exception
-            assert str(context.exception) == ("On Trace_Call__Config, can't be set to None, to a variable that is already set. Invalid type for "
-                                              "attribute 'trace_capture_start_with'. "
-                                              "Expected '<class 'list'>' but got '<class 'NoneType'>'")
-            # _.trace_capture_start_with        = None               # BUG: this should not be allowed
-            # assert _.trace_capture_start_with is None              # BUG: this var should not have changed
+
+            _.trace_capture_start_with = None                       # now doesn't raise an exception
+
+            _.trace_capture_start_with        = None                # this is allowed now
+            assert _.trace_capture_start_with is None               # this var should have changed
 
         class An_Class(Kwargs_To_Self):                              # create a test class to confirm behaviour
             none_allowed = None                                      # we can have a None here (since the type is not defined)
@@ -307,12 +331,9 @@ class test_Trace_Call(TestCase):
         an_class = An_Class()                                        # create an instance of the test class
         assert an_class.none_allowed is None                         # conform that the none_allowed var exists and it is None
         assert an_class.an_list      == []                           # confirm that the an_list var exists and it is an empty list
-        with self.assertRaises(Exception) as context:                # FIXED: after the fix
-            an_class.an_list = None                                  # FIXED: this raises an exception
-        assert str(context.exception) == ("On An_Class, can't be set to None, to a variable that is already set. "
-                                          "Invalid type for attribute 'an_list'. Expected '<class 'list'>' but got '<class 'NoneType'>'")
-        #an_class.an_list = None                                     # BUG: this should not be allowed (since we know that an_list should be a list)
-        #assert an_class.an_list      is None                        # BUG: this var should not have changed
+        an_class.an_list = None                                      # this doesn't raise an exception
+        an_class.an_list = None                                      # this is not allowed (since we know that an_list should be a list)
+        assert an_class.an_list      is None                         # this is now allowed
 
     def test_bug__it_is_possible_to_change_types_of_objects_already_set(self):
         class An_Class(): pass

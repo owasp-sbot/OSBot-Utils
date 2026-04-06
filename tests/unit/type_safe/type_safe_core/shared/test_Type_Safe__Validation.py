@@ -75,9 +75,11 @@ class test_Type_Safe__Validation(TestCase):
         # Set to a valid type
         test_obj.any_type = str
 
-        # Should not be able to set back to None after setting a value
-        with self.assertRaises(ValueError):
-            test_obj.any_type = None
+        # # Should not be able to set back to None after setting a value
+        # with self.assertRaises(ValueError):
+        #     test_obj.any_type = None
+        # DC: breaking change on 6/Apr/26 | this wasn't really adding a lot of value, since in fact None is a valid to be set (and this limitation was adding quite a bit of complexity to code that was using a Type_Safe class to hold state)
+        test_obj.any_type = None
 
     def test_literal_type_validation(self):
         from typing import Literal
@@ -148,10 +150,12 @@ class test_Type_Safe__Validation(TestCase):
         mixed.mixed = True
         assert mixed.mixed is True
 
-        error_message = "On Mixed_Literals, can't be set to None, to a variable that is already set. Invalid type for attribute 'mixed'. Expected 'typing.Literal['string', 42, True, None]' but got '<class 'NoneType'>'"
-        with pytest.raises(ValueError, match=re.escape(error_message)):
-            mixed.mixed = None
-        assert mixed.mixed is True                      # value was not changed
+        # DC: breaking change on 6/Apr/26 | this wasn't really adding a lot of value, since in fact None is a valid to be set (and this limitation was adding quite a bit of complexity to code that was using a Type_Safe class to hold state)
+        # error_message = "On Mixed_Literals, can't be set to None, to a variable that is already set. Invalid type for attribute 'mixed'. Expected 'typing.Literal['string', 42, True, None]' but got '<class 'NoneType'>'"
+        # with pytest.raises(ValueError, match=re.escape(error_message)):
+        #     mixed.mixed = None
+        mixed.mixed = None
+        assert mixed.mixed is None
 
         # Test invalid values
         with pytest.raises(ValueError):
