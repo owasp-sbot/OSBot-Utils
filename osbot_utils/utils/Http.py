@@ -38,13 +38,19 @@ def is_port_open(host, port, timeout=0.5):
     return port_is_open(host=host, port=port, timeout=timeout)
 
 def port_is_open(port : int , host='0.0.0.0', timeout=1.0):
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(timeout)
-        result = sock.connect_ex((host, port))
-        return result == 0
-    except:
-        return False
+    if port is not None and host is not None:
+        for res in socket.getaddrinfo(str(host), int(port), socket.AF_UNSPEC, socket.SOCK_STREAM):
+            af, socktype, proto, _, sa = res
+            try:
+                sock = socket.socket(af, socktype, proto)
+                sock.settimeout(timeout)
+                if sock.connect_ex(sa) == 0:
+                    return True
+            except:
+                pass
+            finally:
+                sock.close()
+    return False
 
 
 def http_request(url, data=None, headers=None, method='GET', encoding ='utf-8', return_response_object=False):
@@ -92,7 +98,7 @@ def parse_cookies(cookie_header, include_empty=True):
 
 
 def port_is_not_open(port, host='0.0.0.0', timeout=1.0):
-    return port_is_open(port, host,timeout) is False
+    return port_is_open(port=port, host=host,timeout=timeout) is False
 
 def wait_for_http(url, max_attempts=20, wait_for=0.1):
     for i in range(max_attempts):

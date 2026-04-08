@@ -7,5 +7,3 @@ class Safe_UInt__Port(Safe_UInt):                         # Network port number 
 
     min_value  = TYPE_SAFE_UINT__PORT__MIN_VALUE
     max_value  = TYPE_SAFE_UINT__PORT__MAX_VALUE
-    allow_bool = False
-    allow_none = False                                  # don't allow 0 as port value since that is a really weird value for a port
