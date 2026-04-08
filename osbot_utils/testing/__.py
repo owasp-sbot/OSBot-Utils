@@ -3,6 +3,7 @@ from osbot_utils.utils.Dev  import pprint
 
 __SKIP__         = object()
 __MISSING__      = object()
+__NOT_NONE__     = object()
 __GREATER_THAN__ = lambda x: ('gt', x)
 __LESS_THAN__    = lambda x: ('lt', x)
 __BETWEEN__      = lambda min_val, max_val: ('between', min_val, max_val)
@@ -26,6 +27,17 @@ class __(SimpleNamespace):
 
             if self_val is __SKIP__ or other_val is __SKIP__:                              # Skip comparison if either value is a skip marker
                 continue
+
+            if self_val is __NOT_NONE__:
+                if other_val is None:                                                      # Skip comparison if __NOT_NONE__ is set and other_val is None
+                    return True
+                else:
+                    continue
+            if other_val is __NOT_NONE__:
+                if self_val is None:                                                       # Skip comparison if __NOT_NONE__ is set and self_val is None
+                    return True
+                else:
+                    continue
 
             # Handle comparison operators
             # if isinstance(other_val, tuple) and len(other_val) >= 2:

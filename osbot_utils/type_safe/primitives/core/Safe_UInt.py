@@ -5,4 +5,4 @@ class Safe_UInt(Safe_Int):             # Unsigned Integer - only accepts non-neg
 
     min_value  = 0       # Unsigned means >= 0
     max_value  = None    # No upper limit by default
-    allow_bool = False  # Don't allow True/False as 1/0
+    allow_bool = False   # Don't allow True/False as 1/0

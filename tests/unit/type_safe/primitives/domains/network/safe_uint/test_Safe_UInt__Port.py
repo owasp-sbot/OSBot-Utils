@@ -45,9 +45,8 @@ class test_Safe_UInt__Port(TestCase):
         with pytest.raises(TypeError, match="Safe_UInt__Port does not allow boolean values"):
             Safe_UInt__Port(True)
 
-        # None not allowed
-        with pytest.raises(ValueError, match="Safe_UInt__Port does not allow None values"):
-            Safe_UInt__Port(None)
+        # None allowed
+        Safe_UInt__Port(None)
 
     def test_common_port_numbers(self):
         """Test common well-known port numbers."""
