@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev/dev-tools/git/v3.72.1__briefing__git_worktrees/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Git Worktrees: Multiple Working Directories, One Repository - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Git Worktrees: Multiple Working Directories, One Repository";
+        var mkdocs_page_input_path = "dev/dev-tools/git/v3.72.1__briefing__git_worktrees.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev/dev-tools/git/v3.72.1__briefing__git_worktrees/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../../../Python-code-formatting-guidelines.md">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Git Worktrees: Multiple Working Directories, One Repository</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="git-worktrees-multiple-working-directories-one-repository">Git Worktrees: Multiple Working Directories, One Repository<a class="headerlink" href="#git-worktrees-multiple-working-directories-one-repository" title="Permanent link">&para;</a></h1>
+<p><strong>version</strong>: v3.72.1</p>
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p><code>git worktree</code> allows you to check out <strong>multiple branches (or commits) at the same time</strong>, each into its <strong>own directory</strong>, while sharing a <strong>single Git repository and object database</strong>.</p>
+<p>This solves a long-standing pain in Git workflows:  </p>
+<blockquote>
+<p><em>“I want to work on two branches at once without stashing, context switching, or cloning the repo again.”</em></p>
+</blockquote>
+<p>Worktrees are not a hack, a plugin, or a special mode — they are a <strong>natural extension of Git’s core architecture</strong>. Git’s distributed, content-addressed design makes this feature not only possible, but <em>clean, safe, and extremely efficient</em>.</p>
+<hr />
+<h2 id="the-problem-worktrees-solve">The Problem Worktrees Solve<a class="headerlink" href="#the-problem-worktrees-solve" title="Permanent link">&para;</a></h2>
+<p>Classic Git usage assumes:</p>
+<ul>
+<li>One repository</li>
+<li>One working directory</li>
+<li>One checked-out branch at a time</li>
+</ul>
+<p>This creates friction when you need to:</p>
+<ul>
+<li>Work on a feature while a hotfix is required</li>
+<li>Review a PR without touching your current work</li>
+<li>Maintain long-lived release branches</li>
+<li>Compare two branches side by side</li>
+<li>Avoid constant <code>git stash</code> / <code>git stash pop</code></li>
+</ul>
+<p>The usual workaround is <strong>multiple clones</strong>, which leads to:</p>
+<ul>
+<li>Duplicated disk usage</li>
+<li>Repeated network fetches</li>
+<li>Fragmented local state</li>
+<li>Higher cognitive overhead</li>
+</ul>
+<p>Git worktrees solve this <strong>without changing how Git works</strong>.</p>
+<hr />
+<h2 id="what-a-worktree-is-conceptually">What a Worktree Is (Conceptually)<a class="headerlink" href="#what-a-worktree-is-conceptually" title="Permanent link">&para;</a></h2>
+<p>A <strong>worktree</strong> is:</p>
+<ul>
+<li>A directory on disk</li>
+<li>With its own checked-out branch (or commit)</li>
+<li>Its own working files</li>
+<li>Its own staging area (index)</li>
+<li>Its own <code>HEAD</code></li>
+</ul>
+<p>All worktrees share:</p>
+<ul>
+<li>The same Git object database</li>
+<li>The same commits, trees, blobs</li>
+<li>The same refs, tags, and remotes</li>
+</ul>
+<p>In other words:</p>
+<blockquote>
+<p><strong>Multiple working directories, one Git repository.</strong></p>
+</blockquote>
+<hr />
+<h2 id="the-key-mental-model">The Key Mental Model<a class="headerlink" href="#the-key-mental-model" title="Permanent link">&para;</a></h2>
+<p>Git already separates <strong>history</strong> from <strong>working state</strong>.</p>
+<p>Worktrees simply expose this separation.</p>
+<h3 id="isolated-per-worktree">Isolated per worktree<a class="headerlink" href="#isolated-per-worktree" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Working directory files</li>
+<li>Staging area (index)</li>
+<li>Checked-out branch / HEAD</li>
+<li>Uncommitted changes</li>
+</ul>
+<h3 id="shared-across-all-worktrees">Shared across all worktrees<a class="headerlink" href="#shared-across-all-worktrees" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Commit history</li>
+<li>Object database (<code>.git/objects</code>)</li>
+<li>Tags</li>
+<li>Remote tracking branches</li>
+<li>Fetches</li>
+</ul>
+<p>This is why:
+- Uncommitted changes never leak between worktrees
+- Committed changes instantly become visible everywhere
+- Disk usage stays minimal</p>
+<hr />
+<h2 id="why-gits-architecture-makes-this-easy">Why Git’s Architecture Makes This Easy<a class="headerlink" href="#why-gits-architecture-makes-this-easy" title="Permanent link">&para;</a></h2>
+<p>Git is fundamentally:</p>
+<ul>
+<li><strong>Distributed</strong>: every clone has the full history</li>
+<li><strong>Content-addressed</strong>: commits are immutable objects</li>
+<li><strong>Decoupled</strong>: history ≠ working directory</li>
+<li><strong>Ref-based</strong>: branches are movable pointers, not containers</li>
+</ul>
+<p>Because of this:</p>
+<ul>
+<li>Commits do not belong to a working directory</li>
+<li>Branches are just refs pointing to commits</li>
+<li>A working directory is just a <em>view</em> of a commit</li>
+</ul>
+<p>Worktrees take advantage of this by allowing:
+- Multiple <code>HEAD</code>s
+- Multiple indexes
+- One shared object store</p>
+<p>No duplication. No synchronization. No special cases.</p>
+<p>This is not bolted on — it’s a <strong>direct consequence of Git’s design</strong>.</p>
+<hr />
+<h2 id="creating-and-using-a-worktree">Creating and Using a Worktree<a class="headerlink" href="#creating-and-using-a-worktree" title="Permanent link">&para;</a></h2>
+<h3 id="create-a-worktree-for-an-existing-branch">Create a worktree for an existing branch<a class="headerlink" href="#create-a-worktree-for-an-existing-branch" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">git worktree add ../feature-x feature-x
+````
+
+### Create a worktree and a new branch
+
+```bash
+git worktree add -b feature-x ../feature-x
+</code></pre>
+<h3 id="list-active-worktrees">List active worktrees<a class="headerlink" href="#list-active-worktrees" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">git worktree list
+</code></pre>
+<p>Each worktree behaves like a full repository checkout — just faster and lighter.</p>
+<hr />
+<h2 id="branch-safety-guarantees">Branch Safety Guarantees<a class="headerlink" href="#branch-safety-guarantees" title="Permanent link">&para;</a></h2>
+<p>Git enforces an important rule:</p>
+<blockquote>
+<p><strong>A branch may only be checked out in one worktree at a time</strong></p>
+</blockquote>
+<p>This prevents:</p>
+<ul>
+<li>Concurrent rebases</li>
+<li>Conflicting working states</li>
+<li>Silent corruption</li>
+</ul>
+<p>Detached HEAD worktrees <em>are</em> allowed and useful for:</p>
+<ul>
+<li>Debugging old commits</li>
+<li>Code archaeology</li>
+<li>Bisecting</li>
+</ul>
+<hr />
+<h2 id="committing-merging-and-pull-requests">Committing, Merging, and Pull Requests<a class="headerlink" href="#committing-merging-and-pull-requests" title="Permanent link">&para;</a></h2>
+<p>A branch checked out in a worktree is a <strong>normal branch</strong>.</p>
+<p>You can:</p>
+<ul>
+<li>Commit in the worktree</li>
+<li>Merge it into another branch</li>
+<li>Push it to a remote</li>
+<li>Open a Pull Request</li>
+<li>Delete it when done</li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-bash"># in the worktree
+git commit -m &quot;Implement feature&quot;
+
+# in main repo
+git checkout dev
+git merge feature-x
+</code></pre>
+<p>Or:</p>
+<pre><code class="language-bash">git push origin feature-x
+</code></pre>
+<p>From Git’s perspective, nothing unusual happened.</p>
+<hr />
+<h2 id="cleaning-up">Cleaning Up<a class="headerlink" href="#cleaning-up" title="Permanent link">&para;</a></h2>
+<p>When a worktree is no longer needed:</p>
+<pre><code class="language-bash">git worktree remove ../feature-x
+git branch -d feature-x
+</code></pre>
+<p>If directories were removed manually:</p>
+<pre><code class="language-bash">git worktree prune
+</code></pre>
+<hr />
+<h2 id="why-worktrees-are-better-than-multiple-clones">Why Worktrees Are Better Than Multiple Clones<a class="headerlink" href="#why-worktrees-are-better-than-multiple-clones" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Multiple Clones</th>
+<th>Worktrees</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Disk usage</td>
+<td>High</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td>Fetching</td>
+<td>Repeated</td>
+<td>Shared</td>
+</tr>
+<tr>
+<td>Branch safety</td>
+<td>Manual</td>
+<td>Enforced</td>
+</tr>
+<tr>
+<td>Context switching</td>
+<td>High</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Mental overhead</td>
+<td>High</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<p>Worktrees give you the benefits of multiple clones <strong>without the cost</strong>.</p>
+<hr />
+<h2 id="when-to-use-worktrees">When to Use Worktrees<a class="headerlink" href="#when-to-use-worktrees" title="Permanent link">&para;</a></h2>
+<p>Worktrees shine when you:</p>
+<ul>
+<li>Work on multiple branches in parallel</li>
+<li>Maintain release or hotfix branches</li>
+<li>Review PRs locally</li>
+<li>Want zero-friction context switching</li>
+<li>Value clean, predictable Git state</li>
+</ul>
+<p>If you only ever work on one branch at a time, they may be unnecessary — but they never get in the way.</p>
+<hr />
+<h2 id="final-takeaway">Final Takeaway<a class="headerlink" href="#final-takeaway" title="Permanent link">&para;</a></h2>
+<p><code>git worktree</code> doesn’t change Git’s model — it <strong>reveals it</strong>.</p>
+<p>By separating <em>history</em> from <em>working state</em>, Git makes it trivial to have:</p>
+<ul>
+<li>Many working directories</li>
+<li>One shared truth</li>
+<li>Zero duplication</li>
+<li>Strong safety guarantees</li>
+</ul>
+<p>Once you internalize this, worktrees stop feeling like a feature —
+they start feeling like <strong>the obvious way Git should be used</strong>.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

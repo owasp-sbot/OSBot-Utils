@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://owasp-sbot.github.io/OSBot-Utils/dev/dev-tools/claude-flow/v3.72.1__llm-debrief-multi-agent-orchestration/" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>LLM Debrief: Multi-Agent Orchestration with Claude-Flow in Docker - OSBot-Utils Documentation</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "LLM Debrief: Multi-Agent Orchestration with Claude-Flow in Docker";
+        var mkdocs_page_input_path = "dev/dev-tools/claude-flow/v3.72.1__llm-debrief-multi-agent-orchestration.md";
+        var mkdocs_page_url = "/OSBot-Utils/dev/dev-tools/claude-flow/v3.72.1__llm-debrief-multi-agent-orchestration/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> OSBot-Utils Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Code</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >OSBot Utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >Helpers</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../../../../code/osbot_utils/helpers/flows/osbot-utils-flow-system-documentation/">Flows</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Development</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../../../Python-code-formatting-guidelines.md">Coding Guidelines</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Type Safety</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../../type_safe/python-type-safety-frameworks-compared.md">Frameworks Compared</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../type_safe/type-safe-technical-documentation.md">Technical Documentation</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">OSBot-Utils Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">LLM Debrief: Multi-Agent Orchestration with Claude-Flow in Docker</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="llm-debrief-multi-agent-orchestration-with-claude-flow-in-docker">LLM Debrief: Multi-Agent Orchestration with Claude-Flow in Docker<a class="headerlink" href="#llm-debrief-multi-agent-orchestration-with-claude-flow-in-docker" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>A complete guide to implementing isolated, parallel AI agent workflows for content validation</strong></p>
+</blockquote>
+<p><strong>version</strong>: v3.72.1  </p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This document captures the design decisions, architecture, and implementation of a <strong>multi-agent orchestration system</strong> using Claude-Flow running in an isolated Docker environment. The solution addresses fundamental limitations in Claude's current consumer interfaces (Cowork/claude.ai) by enabling:</p>
+<ul>
+<li><strong>True parallel agent execution</strong> with separate contexts</li>
+<li><strong>Executor/Reviewer two-pass workflows</strong> for quality assurance</li>
+<li><strong>Complete isolation</strong> from the host development environment</li>
+<li><strong>Persistent memory</strong> across agent sessions</li>
+<li><strong>Web UI</strong> for monitoring and interaction</li>
+</ul>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#the-problem">The Problem</a></li>
+<li><a href="#why-this-matters">Why This Matters</a></li>
+<li><a href="#solution-architecture">Solution Architecture</a></li>
+<li><a href="#the-two-pass-workflow-pattern">The Two-Pass Workflow Pattern</a></li>
+<li><a href="#security--isolation-model">Security &amp; Isolation Model</a></li>
+<li><a href="#implementation-details">Implementation Details</a></li>
+<li><a href="#usage-guide">Usage Guide</a></li>
+<li><a href="#limitations--future-work">Limitations &amp; Future Work</a></li>
+<li><a href="#appendix-full-file-listings">Appendix: Full File Listings</a></li>
+</ol>
+<hr />
+<h2 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
+<h3 id="current-claude-interface-limitations">Current Claude Interface Limitations<a class="headerlink" href="#current-claude-interface-limitations" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                     CLAUDE COWORK / CLAUDE.AI                           │
+│                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────┐   │
+│   │                    SINGLE CONTEXT WINDOW                        │   │
+│   │                                                                 │   │
+│   │   User Request                                                  │   │
+│   │        │                                                        │   │
+│   │        ▼                                                        │   │
+│   │   ┌─────────┐    ┌─────────┐    ┌─────────┐                    │   │
+│   │   │ Think   │───▶│ Execute │───▶│ Respond │                    │   │
+│   │   └─────────┘    └─────────┘    └─────────┘                    │   │
+│   │        │              │              │                          │   │
+│   │        └──────────────┴──────────────┘                          │   │
+│   │                       │                                         │   │
+│   │              SAME CONTEXT FOR ALL                               │   │
+│   │              (No true separation)                               │   │
+│   │                                                                 │   │
+│   └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│   LIMITATIONS:                                                          │
+│   ✗ Cannot spawn independent sub-agents                                 │
+│   ✗ No parallel execution                                               │
+│   ✗ Same context = same biases                                          │
+│   ✗ Sequential processing only                                          │
+│   ✗ No persistent state between sessions                                │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="the-specific-use-case">The Specific Use Case<a class="headerlink" href="#the-specific-use-case" title="Permanent link">&para;</a></h3>
+<p>We needed a <strong>Reviewer agent</strong> to validate work done by an <strong>Executor agent</strong> when creating SEMANTIC-GRAPH.md files for a 2GB NotebookLM content repository. The challenge:</p>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Claude Cowork Capability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Executor creates content</td>
+<td>✅ Can do</td>
+</tr>
+<tr>
+<td>Reviewer validates content</td>
+<td>✅ Can do</td>
+</tr>
+<tr>
+<td>Reviewer has <strong>separate context</strong></td>
+<td>❌ <strong>Cannot do</strong></td>
+</tr>
+<tr>
+<td>Both run in <strong>parallel</strong></td>
+<td>❌ <strong>Cannot do</strong></td>
+</tr>
+<tr>
+<td>Reviewer doesn't know Executor's reasoning</td>
+<td>❌ <strong>Cannot do</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-separate-contexts-matter">Why Separate Contexts Matter<a class="headerlink" href="#why-separate-contexts-matter" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                     THE SELF-REVIEW BIAS PROBLEM                        │
+│                                                                         │
+│   SAME CONTEXT (Claude Cowork):                                         │
+│                                                                         │
+│   ┌─────────────────────────────────────────────────────┐               │
+│   │  &quot;I created this file. Now I'll review it.&quot;        │               │
+│   │                                                     │               │
+│   │  Executor Knowledge: &quot;I chose X because of Y&quot;      │               │
+│   │                      &quot;I skipped Z intentionally&quot;   │               │
+│   │                      &quot;The edge case doesn't apply&quot; │               │
+│   │                             │                       │               │
+│   │                             ▼                       │               │
+│   │  Reviewer sees:      ALL OF THE ABOVE              │               │
+│   │                             │                       │               │
+│   │                             ▼                       │               │
+│   │  Result:             UNCONSCIOUS BIAS TO PASS      │  ⚠️ RISK      │
+│   └─────────────────────────────────────────────────────┘               │
+│                                                                         │
+│   SEPARATE CONTEXTS (Claude-Flow):                                      │
+│                                                                         │
+│   ┌──────────────────────┐      ┌──────────────────────┐               │
+│   │  EXECUTOR CONTEXT    │      │  REVIEWER CONTEXT    │               │
+│   │                      │      │                      │               │
+│   │  Knows: Why X chosen │      │  Knows: Only the     │               │
+│   │         Why Z skipped│      │         output file  │               │
+│   │         Edge cases   │      │         + checklist  │               │
+│   │                      │      │                      │               │
+│   │  Produces: File      │─────▶│  Reviews: File only  │               │
+│   │                      │      │                      │               │
+│   └──────────────────────┘      └──────────────────────┘               │
+│                                         │                               │
+│                                         ▼                               │
+│                              GENUINE INDEPENDENT REVIEW  ✅ BETTER      │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="why-this-matters">Why This Matters<a class="headerlink" href="#why-this-matters" title="Permanent link">&para;</a></h2>
+<h3 id="the-quality-assurance-gap">The Quality Assurance Gap<a class="headerlink" href="#the-quality-assurance-gap" title="Permanent link">&para;</a></h3>
+<p>When creating structured documentation at scale (271+ assets, 2.1GB repository), quality assurance becomes critical:</p>
+<pre><code>WITHOUT TWO-PASS REVIEW:
+
+    Create File ──────────────────────────────▶ Ship It   
+         │                                          │     
+         │         (No validation step)             │     
+         │                                          ▼     
+         │                                    ┌──────────┐
+         │                                    │ ERRORS   │
+         │                                    │ SHIPPED  │
+         │                                    └──────────┘
+         │                                                
+         └──▶ Missing sections                            
+         └──▶ Broken links                                
+         └──▶ Malformed Mermaid                           
+         └──▶ Invalid Cypher                              
+         └──▶ Wrong relative paths                        
+
+
+WITH TWO-PASS REVIEW:
+
+    Create File ───▶ Validate ───▶ Fix ───▶ Ship It      
+         │              │           │           │         
+         │              ▼           │           ▼         
+         │         ┌────────┐       │     ┌──────────┐    
+         │         │CHECKLIST│──────┘     │ QUALITY  │    
+         │         │ 23 items│            │ ASSURED  │    
+         │         └────────┘            └──────────┘    
+         │              │                                 
+         │              ▼                                 
+         │         Issues Found?                          
+         │         ├── Yes ──▶ Fix Loop                   
+         │         └── No ───▶ Proceed                    
+         │                                                
+</code></pre>
+<h3 id="the-agentic-advantage">The Agentic Advantage<a class="headerlink" href="#the-agentic-advantage" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                     SINGLE AGENT vs MULTI-AGENT                         │
+├─────────────────────────────────┬───────────────────────────────────────┤
+│         SINGLE AGENT            │           MULTI-AGENT SWARM           │
+├─────────────────────────────────┼───────────────────────────────────────┤
+│                                 │                                       │
+│   Request ──▶ Agent ──▶ Done    │   Request ──┬──▶ Agent A ──┐          │
+│                                 │             ├──▶ Agent B ──┼──▶ Done  │
+│   Time: ████████████ (12 min)   │             └──▶ Agent C ──┘          │
+│                                 │                                       │
+│   Serial processing             │   Time: ████ (4 min)                  │
+│   One perspective               │                                       │
+│   No cross-checking             │   Parallel processing                 │
+│                                 │   Multiple perspectives               │
+│                                 │   Built-in validation                 │
+│                                 │                                       │
+├─────────────────────────────────┼───────────────────────────────────────┤
+│   Best for: Simple tasks        │   Best for: Complex workflows         │
+│             Quick questions     │             Quality-critical work     │
+│             Exploration         │             Batch processing          │
+│                                 │             Production content        │
+└─────────────────────────────────┴───────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="solution-architecture">Solution Architecture<a class="headerlink" href="#solution-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="high-level-overview">High-Level Overview<a class="headerlink" href="#high-level-overview" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                        YOUR LOCAL MACHINE                               │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │                     DOCKER CONTAINER                              │  │
+│  │                     (Isolated Environment)                        │  │
+│  │                                                                   │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐  │  │
+│  │  │                    CLAUDE-FLOW                              │  │  │
+│  │  │                                                             │  │  │
+│  │  │   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐   │  │  │
+│  │  │   │  CLI    │   │ Web UI  │   │  MCP    │   │ Daemon  │   │  │  │
+│  │  │   │Interface│   │ :3000   │   │ Server  │   │ Workers │   │  │  │
+│  │  │   └────┬────┘   └────┬────┘   └────┬────┘   └────┬────┘   │  │  │
+│  │  │        │             │             │             │         │  │  │
+│  │  │        └─────────────┴──────┬──────┴─────────────┘         │  │  │
+│  │  │                             │                               │  │  │
+│  │  │                             ▼                               │  │  │
+│  │  │   ┌─────────────────────────────────────────────────────┐   │  │  │
+│  │  │   │              SWARM ORCHESTRATOR                     │   │  │  │
+│  │  │   │                                                     │   │  │  │
+│  │  │   │   ┌─────────┐  ┌─────────┐  ┌─────────┐            │   │  │  │
+│  │  │   │   │Executor │  │Reviewer │  │ Coder   │  ...       │   │  │  │
+│  │  │   │   │ Agent   │  │ Agent   │  │ Agent   │            │   │  │  │
+│  │  │   │   └────┬────┘  └────┬────┘  └────┬────┘            │   │  │  │
+│  │  │   │        │            │            │                  │   │  │  │
+│  │  │   │        └────────────┴────────────┘                  │   │  │  │
+│  │  │   │                     │                               │   │  │  │
+│  │  │   │                     ▼                               │   │  │  │
+│  │  │   │   ┌─────────────────────────────────────────────┐   │   │  │  │
+│  │  │   │   │           SHARED MEMORY                     │   │   │  │  │
+│  │  │   │   │         (SQLite .swarm/memory.db)           │   │   │  │  │
+│  │  │   │   └─────────────────────────────────────────────┘   │   │  │  │
+│  │  │   └─────────────────────────────────────────────────────┘   │  │  │
+│  │  └─────────────────────────────────────────────────────────────┘  │  │
+│  │                                                                   │  │
+│  │  VOLUMES:                                                         │  │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐               │  │
+│  │  │ /workspace  │  │ /root/.swarm│  │/root/.claude│               │  │
+│  │  │ (your repo) │  │  (memory)   │  │   (config)  │               │  │
+│  │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘               │  │
+│  └─────────┼────────────────┼────────────────┼───────────────────────┘  │
+│            │                │                │                          │
+│            ▼                ▼                ▼                          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                     │
+│  │ ./workspace │  │ ./data/.swarm│ │./data/.claude│                    │
+│  │  (mounted)  │  │ (persistent) │  │ (persistent) │                    │
+│  └─────────────┘  └─────────────┘  └─────────────┘                     │
+│                                                                         │
+│  PORTS:                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  localhost:3000 ◄────────────────────────────▶ container:3000   │   │
+│  │  localhost:3008 ◄────────────────────────────▶ container:3008   │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="data-flow-architecture">Data Flow Architecture<a class="headerlink" href="#data-flow-architecture" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                         REQUEST FLOW                                    │
+│                                                                         │
+│                                                                         │
+│   YOU                                                                   │
+│    │                                                                    │
+│    │  &quot;Create SEMANTIC-GRAPH.md for folder X&quot;                          │
+│    │                                                                    │
+│    ▼                                                                    │
+│  ┌──────────────┐                                                       │
+│  │   CLI / UI   │                                                       │
+│  └──────┬───────┘                                                       │
+│         │                                                               │
+│         ▼                                                               │
+│  ┌──────────────┐     ┌──────────────────────────────────────────┐     │
+│  │    ROUTER    │────▶│  Complexity Analysis                     │     │
+│  └──────┬───────┘     │  • Simple task? → Single agent           │     │
+│         │             │  • Complex task? → Swarm                  │     │
+│         │             │  • Review needed? → Executor + Reviewer   │     │
+│         │             └──────────────────────────────────────────┘     │
+│         ▼                                                               │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      SWARM INIT                                   │  │
+│  │                                                                   │  │
+│  │   Topology: Hierarchical                                          │  │
+│  │   Max Agents: 3                                                   │  │
+│  │   Strategy: Specialized                                           │  │
+│  │                                                                   │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│         │                                                               │
+│         ├─────────────────────┬─────────────────────┐                  │
+│         ▼                     ▼                     ▼                  │
+│  ┌─────────────┐       ┌─────────────┐       ┌─────────────┐          │
+│  │ COORDINATOR │       │  EXECUTOR   │       │  REVIEWER   │          │
+│  │   Agent     │       │   Agent     │       │   Agent     │          │
+│  │             │       │             │       │             │          │
+│  │ Orchestrates│       │ Creates     │       │ Validates   │          │
+│  │ workflow    │       │ content     │       │ output      │          │
+│  └──────┬──────┘       └──────┬──────┘       └──────┬──────┘          │
+│         │                     │                     │                  │
+│         │                     │                     │                  │
+│         └─────────────────────┴─────────────────────┘                  │
+│                               │                                        │
+│                               ▼                                        │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      SHARED MEMORY                                │  │
+│  │                                                                   │  │
+│  │   task/context     → Current task details                        │  │
+│  │   executor/output  → Created file paths                          │  │
+│  │   reviewer/report  → Validation results                          │  │
+│  │   workflow/status  → Overall progress                            │  │
+│  │                                                                   │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                               │                                        │
+│                               ▼                                        │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      LLM PROVIDERS                                │  │
+│  │                                                                   │  │
+│  │   ┌─────────┐    ┌─────────┐    ┌─────────┐                      │  │
+│  │   │ Claude  │    │  WASM   │    │ Local   │                      │  │
+│  │   │  API    │    │ (free)  │    │ Models  │                      │  │
+│  │   └─────────┘    └─────────┘    └─────────┘                      │  │
+│  │                                                                   │  │
+│  │   Smart routing: Simple edits → WASM (free)                      │  │
+│  │                   Complex reasoning → Claude API                  │  │
+│  │                                                                   │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="the-two-pass-workflow-pattern">The Two-Pass Workflow Pattern<a class="headerlink" href="#the-two-pass-workflow-pattern" title="Permanent link">&para;</a></h2>
+<h3 id="conceptual-model">Conceptual Model<a class="headerlink" href="#conceptual-model" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                     TWO-PASS WORKFLOW PATTERN                           │
+│                                                                         │
+│  ═══════════════════════════════════════════════════════════════════   │
+│                                                                         │
+│   PASS 1: EXECUTOR                           PASS 2: REVIEWER           │
+│   ─────────────────                          ─────────────────          │
+│                                                                         │
+│   ┌─────────────────────┐                    ┌─────────────────────┐   │
+│   │                     │                    │                     │   │
+│   │   📝 READ           │                    │   📋 LOAD           │   │
+│   │   workflow guide    │                    │   checklist         │   │
+│   │                     │                    │                     │   │
+│   └──────────┬──────────┘                    └──────────┬──────────┘   │
+│              │                                          │              │
+│              ▼                                          ▼              │
+│   ┌─────────────────────┐                    ┌─────────────────────┐   │
+│   │                     │                    │                     │   │
+│   │   🔨 CREATE         │                    │   🔍 EXAMINE        │   │
+│   │   content           │                    │   each file         │   │
+│   │                     │                    │                     │   │
+│   └──────────┬──────────┘                    └──────────┬──────────┘   │
+│              │                                          │              │
+│              ▼                                          ▼              │
+│   ┌─────────────────────┐                    ┌─────────────────────┐   │
+│   │                     │                    │                     │   │
+│   │   📄 OUTPUT         │ ──────────────────▶│   ✓✗ CHECK         │   │
+│   │   change log        │    File Only       │   each item         │   │
+│   │                     │    (no reasoning)  │                     │   │
+│   └─────────────────────┘                    └──────────┬──────────┘   │
+│                                                         │              │
+│                                                         ▼              │
+│                                              ┌─────────────────────┐   │
+│                                              │                     │   │
+│                                              │   📊 OUTPUT         │   │
+│                                              │   review report     │   │
+│                                              │                     │   │
+│                                              └──────────┬──────────┘   │
+│                                                         │              │
+│  ═══════════════════════════════════════════════════════│══════════   │
+│                                                         │              │
+│                                                         ▼              │
+│                                              ┌─────────────────────┐   │
+│                                              │  PASS? ─────▶ DONE  │   │
+│                                              │  FAIL? ─────▶ FIX   │   │
+│                                              │               LOOP  │   │
+│                                              └─────────────────────┘   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="execution-timeline">Execution Timeline<a class="headerlink" href="#execution-timeline" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                        EXECUTION TIMELINE                               │
+│                                                                         │
+│  Time ──────────────────────────────────────────────────────────────▶  │
+│                                                                         │
+│        0s        10s       20s       30s       40s       50s      60s  │
+│        │         │         │         │         │         │         │   │
+│        │         │         │         │         │         │         │   │
+│  ┌─────┴─────────┴─────────┴─────────┴─────────┴─────────┴─────────┘   │
+│  │                                                                   │  │
+│  │  SEQUENTIAL (Cowork simulation):                                  │  │
+│  │                                                                   │  │
+│  │  ████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   │  │
+│  │  │         EXECUTOR         │         REVIEWER         │ FIX │   │  │
+│  │  │                          │                          │     │   │  │
+│  │  Total: ~55 seconds                                             │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  PARALLEL (Claude-Flow):                                          │  │
+│  │                                                                   │  │
+│  │  ████████████████████████████                                     │  │
+│  │  │         EXECUTOR         │                                     │  │
+│  │  │                          │                                     │  │
+│  │  │  ░░░░░░░░░░░░░░░░░░░░░░░░████████████████████                  │  │
+│  │  │  │   (waits for file)    │     REVIEWER     │ FIX │           │  │
+│  │  │                                              │     │           │  │
+│  │  Total: ~40 seconds (27% faster)                                  │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  BATCH PARALLEL (Claude-Flow with multiple folders):              │  │
+│  │                                                                   │  │
+│  │  ████████████  Folder 1                                           │  │
+│  │  ████████████  Folder 2                                           │  │
+│  │  ████████████  Folder 3                                           │  │
+│  │  ████████████  Folder 4                                           │  │
+│  │              ████████  Reviews                                    │  │
+│  │                                                                   │  │
+│  │  4 folders in ~25 seconds (vs ~220 seconds sequential)            │  │
+│  │  88% time reduction                                               │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="security-isolation-model">Security &amp; Isolation Model<a class="headerlink" href="#security-isolation-model" title="Permanent link">&para;</a></h2>
+<h3 id="defense-in-depth">Defense in Depth<a class="headerlink" href="#defense-in-depth" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                     SECURITY &amp; ISOLATION LAYERS                         │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │  LAYER 1: DOCKER CONTAINER ISOLATION                              │  │
+│  │  ═══════════════════════════════════════                          │  │
+│  │                                                                   │  │
+│  │  ┌─────────────────┐     ┌─────────────────┐                     │  │
+│  │  │  HOST SYSTEM    │     │   CONTAINER     │                     │  │
+│  │  │                 │     │                 │                     │  │
+│  │  │  • Your files   │  ✗  │  • claude-flow  │                     │  │
+│  │  │  • Your keys    │◄────┤  • Node.js      │                     │  │
+│  │  │  • Your configs │     │  • Agents       │                     │  │
+│  │  │                 │     │                 │                     │  │
+│  │  └─────────────────┘     └─────────────────┘                     │  │
+│  │                                                                   │  │
+│  │  Container CANNOT access host filesystem except mounted volumes   │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │  LAYER 2: EXPLICIT VOLUME MOUNTS                                  │  │
+│  │  ═══════════════════════════════════                              │  │
+│  │                                                                   │  │
+│  │  Only these paths are accessible:                                 │  │
+│  │                                                                   │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐  │  │
+│  │  │  HOST                    CONTAINER         ACCESS           │  │  │
+│  │  │  ────                    ─────────         ──────           │  │  │
+│  │  │  ./workspace      ────▶  /workspace        Read/Write       │  │  │
+│  │  │  ./data/.swarm    ────▶  /root/.swarm      Read/Write       │  │  │
+│  │  │  ./data/.claude   ────▶  /root/.claude     Read/Write       │  │  │
+│  │  │                                                              │  │  │
+│  │  │  ~/.ssh           ────▶  (not mounted)     NO ACCESS        │  │  │
+│  │  │  ~/.aws           ────▶  (not mounted)     NO ACCESS        │  │  │
+│  │  │  ~/Documents      ────▶  (not mounted)     NO ACCESS        │  │  │
+│  │  └─────────────────────────────────────────────────────────────┘  │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │  LAYER 3: NETWORK ISOLATION                                       │  │
+│  │  ══════════════════════════════                                   │  │
+│  │                                                                   │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐  │  │
+│  │  │                                                             │  │  │
+│  │  │   CONTAINER NETWORK (claude-flow-network)                   │  │  │
+│  │  │   ┌─────────────────────────────────────────────────────┐   │  │  │
+│  │  │   │                                                     │   │  │  │
+│  │  │   │  Internal services communicate freely               │   │  │  │
+│  │  │   │                                                     │   │  │  │
+│  │  │   └─────────────────────────────────────────────────────┘   │  │  │
+│  │  │          │                                                  │  │  │
+│  │  │          │ Only exposed ports:                              │  │  │
+│  │  │          │ • 3000 (Web UI)                                  │  │  │
+│  │  │          │ • 3008 (MCP WebSocket)                           │  │  │
+│  │  │          ▼                                                  │  │  │
+│  │  │   HOST NETWORK                                              │  │  │
+│  │  │                                                             │  │  │
+│  │  └─────────────────────────────────────────────────────────────┘  │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │  LAYER 4: API KEY MANAGEMENT                                      │  │
+│  │  ═══════════════════════════════                                  │  │
+│  │                                                                   │  │
+│  │  API keys stored in .env file:                                    │  │
+│  │  • NOT committed to git (.gitignore)                              │  │
+│  │  • NOT baked into Docker image                                    │  │
+│  │  • Passed as environment variables at runtime                     │  │
+│  │                                                                   │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐  │  │
+│  │  │  .env (local only, never committed)                         │  │  │
+│  │  │  ───────────────────────────────────                        │  │  │
+│  │  │  ANTHROPIC_API_KEY=sk-ant-xxxxx                             │  │  │
+│  │  └─────────────────────────────────────────────────────────────┘  │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────┐  │
+│  │  LAYER 5: RESOURCE LIMITS                                         │  │
+│  │  ════════════════════════════                                     │  │
+│  │                                                                   │  │
+│  │  Container constrained to:                                        │  │
+│  │  • Memory: 4GB max (1GB reserved)                                 │  │
+│  │  • No privileged access                                           │  │
+│  │  • No host device access                                          │  │
+│  │                                                                   │  │
+│  │  Prevents: Resource exhaustion, container escape vectors          │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="why-this-matters-for-ai-agents">Why This Matters for AI Agents<a class="headerlink" href="#why-this-matters-for-ai-agents" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                     AI AGENT ISOLATION BENEFITS                         │
+│                                                                         │
+│  WITHOUT ISOLATION (running on host):                                   │
+│  ─────────────────────────────────────                                  │
+│                                                                         │
+│  AI Agent has access to:                                                │
+│  ⚠️  ~/.ssh/           → Could read/leak SSH keys                       │
+│  ⚠️  ~/.aws/           → Could access AWS credentials                   │
+│  ⚠️  ~/.gitconfig      → Could read git credentials                     │
+│  ⚠️  All files         → Could read sensitive documents                 │
+│  ⚠️  Network           → Could make arbitrary connections               │
+│                                                                         │
+│  ─────────────────────────────────────────────────────────────────────  │
+│                                                                         │
+│  WITH DOCKER ISOLATION:                                                 │
+│  ──────────────────────                                                 │
+│                                                                         │
+│  AI Agent has access to:                                                │
+│  ✅  /workspace/       → Only your explicitly shared project            │
+│  ✅  /root/.swarm/     → Only claude-flow state                         │
+│  ✅  Anthropic API     → Only what you configure                        │
+│  ❌  Everything else   → BLOCKED                                        │
+│                                                                         │
+│  Even if an agent &quot;goes rogue&quot; or is manipulated:                       │
+│  • Cannot access your credentials                                       │
+│  • Cannot read other files                                              │
+│  • Cannot persist malware on host                                       │
+│  • Cannot make unexpected network connections                           │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
+<h3 id="file-structure">File Structure<a class="headerlink" href="#file-structure" title="Permanent link">&para;</a></h3>
+<pre><code>claude-flow-docker/
+│
+├── Dockerfile                 # Container image definition
+│   └── Base: node:20-slim
+│   └── Installs: claude-flow@alpha, poppler-utils, imagemagick
+│   └── Exposes: 3000, 3008
+│
+├── docker-compose.yml         # Container orchestration
+│   └── Volumes: workspace, data
+│   └── Ports: 3000→3000, 3008→3008
+│   └── Network: claude-flow-network
+│   └── Resources: 4GB limit, 1GB reservation
+│
+├── .env.example               # Environment template
+│   └── ANTHROPIC_API_KEY
+│   └── CLAUDE_FLOW_* settings
+│
+├── .gitignore                 # Security: excludes .env, data/
+│
+├── setup.sh                   # One-time initialization
+│
+├── scripts/
+│   ├── two-pass-workflow.sh   # Executor/Reviewer pattern
+│   ├── batch-process.sh       # Multi-folder processing
+│   └── start-ui.sh            # Web UI launcher
+│
+├── workspace/                 # Your project mount point
+│   └── .gitkeep
+│
+└── data/                      # Persistent state
+    ├── .swarm/                # SQLite memory database
+    └── .claude-flow/          # Configuration
+</code></pre>
+<h3 id="key-configuration-decisions">Key Configuration Decisions<a class="headerlink" href="#key-configuration-decisions" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>node:20-slim</code> base</td>
+<td>Minimal image size, LTS stability</td>
+</tr>
+<tr>
+<td><code>claude-flow@alpha</code></td>
+<td>Latest features including Web UI</td>
+</tr>
+<tr>
+<td><code>poppler-utils</code> included</td>
+<td>PDF processing for slide mosaics</td>
+</tr>
+<tr>
+<td><code>imagemagick</code> included</td>
+<td>Image manipulation for mosaics</td>
+</tr>
+<tr>
+<td>4GB memory limit</td>
+<td>Sufficient for swarm ops, prevents runaway</td>
+</tr>
+<tr>
+<td>Separate data volume</td>
+<td>Persistence across container rebuilds</td>
+</tr>
+<tr>
+<td>Bridge network</td>
+<td>Isolation with controlled exposure</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="usage-guide">Usage Guide<a class="headerlink" href="#usage-guide" title="Permanent link">&para;</a></h2>
+<h3 id="initial-setup">Initial Setup<a class="headerlink" href="#initial-setup" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># 1. Extract the package
+unzip claude-flow-docker.zip
+cd claude-flow-docker
+
+# 2. Run setup
+chmod +x setup.sh
+./setup.sh
+
+# 3. Configure API key
+cp .env.example .env
+nano .env  # Add your ANTHROPIC_API_KEY
+
+# 4. Link your project (optional)
+ln -sf /path/to/NotebookLM__Infographics-and-slides workspace
+
+# 5. Build and start
+docker-compose up -d --build
+</code></pre>
+<h3 id="daily-usage">Daily Usage<a class="headerlink" href="#daily-usage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Start environment
+docker-compose up -d
+
+# Enter container
+docker-compose exec claude-flow bash
+
+# Inside container:
+claude-flow init                    # First time only
+claude-flow start-ui                # Start Web UI (http://localhost:3000)
+
+# Or run workflows directly:
+./scripts/two-pass-workflow.sh &quot;folder/path&quot; &quot;Create SEMANTIC-GRAPH.md&quot;
+
+# Exit container
+exit
+
+# Stop environment
+docker-compose stop
+</code></pre>
+<h3 id="running-the-two-pass-workflow">Running the Two-Pass Workflow<a class="headerlink" href="#running-the-two-pass-workflow" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Inside the container:
+
+# Option 1: Using the helper script
+./scripts/two-pass-workflow.sh \
+    &quot;_for_linkedin/to-publish/MyFolder&quot; \
+    &quot;Create SEMANTIC-GRAPH.md&quot;
+
+# Option 2: Manual execution
+claude-flow swarm init --topology hierarchical --max-agents 3
+
+claude-flow agent spawn coder \
+    --name &quot;executor&quot; \
+    --task &quot;Create SEMANTIC-GRAPH.md for MyFolder following .claude/create-semantic-graph.md&quot;
+
+claude-flow agent spawn reviewer \
+    --name &quot;reviewer&quot; \
+    --task &quot;Validate MyFolder/SEMANTIC-GRAPH.md against .claude/review-checklists.md&quot;
+
+claude-flow swarm status
+</code></pre>
+<h3 id="web-ui-access">Web UI Access<a class="headerlink" href="#web-ui-access" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│   1. Start the container:                                               │
+│      $ docker-compose up -d                                             │
+│                                                                         │
+│   2. Enter the container:                                               │
+│      $ docker-compose exec claude-flow bash                             │
+│                                                                         │
+│   3. Initialize and start UI:                                           │
+│      # claude-flow init                                                 │
+│      # claude-flow start-ui                                             │
+│                                                                         │
+│   4. Open browser:                                                      │
+│      http://localhost:3000                                              │
+│                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────┐   │
+│   │  🌊 Claude-Flow Dashboard                              ─ □ ✕   │   │
+│   ├─────────────────────────────────────────────────────────────────┤   │
+│   │                                                                 │   │
+│   │  SWARM STATUS           AGENTS                    MEMORY        │   │
+│   │  ┌─────────────┐       ┌─────────────┐          ┌──────────┐   │   │
+│   │  │ ● Active    │       │ executor: ●  │          │ 27.3 MB  │   │   │
+│   │  │ Topology:   │       │ reviewer: ●  │          │ 65% comp │   │   │
+│   │  │ Hierarchical│       │ coordinator: │          │          │   │   │
+│   │  └─────────────┘       └─────────────┘          └──────────┘   │   │
+│   │                                                                 │   │
+│   │  TASK LOG                                                       │   │
+│   │  ────────────────────────────────────────────────────────────   │   │
+│   │  [14:32:01] Executor: Creating SEMANTIC-GRAPH.md...            │   │
+│   │  [14:32:15] Executor: File created successfully                │   │
+│   │  [14:32:16] Reviewer: Starting validation...                   │   │
+│   │  [14:32:28] Reviewer: 21/23 checks passed                      │   │
+│   │  [14:32:29] Reviewer: 2 warnings flagged                       │   │
+│   │                                                                 │   │
+│   └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="limitations-future-work">Limitations &amp; Future Work<a class="headerlink" href="#limitations-future-work" title="Permanent link">&para;</a></h2>
+<h3 id="current-limitations">Current Limitations<a class="headerlink" href="#current-limitations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Limitation</th>
+<th>Workaround</th>
+<th>Future Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLI-based swarm control</td>
+<td>Use Web UI for monitoring</td>
+<td>Full UI orchestration</td>
+</tr>
+<tr>
+<td>Manual agent spawning</td>
+<td>Helper scripts provided</td>
+<td>Workflow templates</td>
+</tr>
+<tr>
+<td>No real-time streaming</td>
+<td>Poll status periodically</td>
+<td>WebSocket integration</td>
+</tr>
+<tr>
+<td>Memory not searchable in UI</td>
+<td>Use CLI <code>memory search</code></td>
+<td>UI search interface</td>
+</tr>
+</tbody>
+</table>
+<h3 id="potential-enhancements">Potential Enhancements<a class="headerlink" href="#potential-enhancements" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                        FUTURE ENHANCEMENTS                              │
+│                                                                         │
+│  PHASE 1: Workflow Templates                                            │
+│  ───────────────────────────                                            │
+│  • YAML-defined workflows for common patterns                           │
+│  • &quot;semantic-graph-creation&quot; template                                   │
+│  • &quot;bulk-readme-update&quot; template                                        │
+│  • One-command execution                                                │
+│                                                                         │
+│  PHASE 2: Integration with NotebookLM Repo                              │
+│  ─────────────────────────────────────────                              │
+│  • .claude-flow/ folder in repo root                                    │
+│  • Pre-configured workflows for repo tasks                              │
+│  • CI/CD integration for automated processing                           │
+│                                                                         │
+│  PHASE 3: Advanced Monitoring                                           │
+│  ───────────────────────────                                            │
+│  • Slack/Discord notifications                                          │
+│  • Review report summaries                                              │
+│  • Quality metrics dashboard                                            │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="appendix-quick-reference">Appendix: Quick Reference<a class="headerlink" href="#appendix-quick-reference" title="Permanent link">&para;</a></h2>
+<h3 id="command-cheat-sheet">Command Cheat Sheet<a class="headerlink" href="#command-cheat-sheet" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Docker Commands
+docker-compose up -d              # Start
+docker-compose down               # Stop
+docker-compose logs -f            # View logs
+docker-compose exec claude-flow bash  # Enter container
+
+# Claude-Flow Commands (inside container)
+claude-flow init                  # Initialize
+claude-flow start-ui              # Start Web UI
+claude-flow status                # Check status
+claude-flow swarm init            # Initialize swarm
+claude-flow agent spawn TYPE      # Create agent
+claude-flow swarm status          # Swarm status
+claude-flow memory store K V      # Store memory
+claude-flow memory search QUERY   # Search memory
+
+# Helper Scripts
+./scripts/two-pass-workflow.sh FOLDER TASK
+./scripts/batch-process.sh PATH PATTERN
+./scripts/start-ui.sh
+</code></pre>
+<h3 id="troubleshooting-quick-reference">Troubleshooting Quick Reference<a class="headerlink" href="#troubleshooting-quick-reference" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Container won't start</td>
+<td><code>docker-compose logs claude-flow</code></td>
+</tr>
+<tr>
+<td>Web UI not accessible</td>
+<td>Ensure <code>claude-flow start-ui</code> is running inside container</td>
+</tr>
+<tr>
+<td>Permission denied on volumes</td>
+<td><code>sudo chown -R $(id -u):$(id -g) ./workspace ./data</code></td>
+</tr>
+<tr>
+<td>API key not working</td>
+<td>Check <code>.env</code> file exists and has correct key</td>
+</tr>
+<tr>
+<td>Memory not persisting</td>
+<td>Ensure <code>./data/</code> is mounted and writable</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>This implementation bridges the gap between Claude's consumer interfaces and enterprise-grade multi-agent orchestration. By running Claude-Flow in an isolated Docker environment, we achieve:</p>
+<ol>
+<li><strong>True parallel agent execution</strong> with separate contexts</li>
+<li><strong>Genuine independent review</strong> (Reviewer doesn't know Executor's reasoning)</li>
+<li><strong>Complete isolation</strong> from host system (security)</li>
+<li><strong>Persistent memory</strong> across sessions</li>
+<li><strong>Scalable batch processing</strong> for large content libraries</li>
+</ol>
+<p>The two-pass Executor/Reviewer pattern, combined with Docker isolation, provides a production-ready workflow for quality-assured content generation at scale.</p>
+<hr />
+<p><em>Document generated from Claude Cowork session, January 2026</em>
+<em>Repository: NotebookLM__Infographics-and-slides</em>
+<em>Author: Dinis Cruz with Claude</em></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
