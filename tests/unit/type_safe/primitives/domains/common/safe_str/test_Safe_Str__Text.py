@@ -1,5 +1,6 @@
 import pytest
 from unittest                                                                import TestCase
+from osbot_utils.type_safe.Type_Safe                                         import Type_Safe
 from osbot_utils.type_safe.primitives.core.Safe_Str                          import Safe_Str
 from osbot_utils.type_safe.primitives.domains.common.safe_str.Safe_Str__Text import Safe_Str__Text, TYPE_SAFE_STR__TEXT__MAX_LENGTH
 
@@ -113,3 +114,22 @@ class test_Safe_Str__Text(TestCase):
         unicode_str = Safe_Str__Text("Hello __ _")
         assert str(unicode_str)          == "Hello __ _"
         assert f"Unicode: {unicode_str}" == "Unicode: Hello __ _"
+
+    def test_from_json_preserves_field_values(self):           # GREEN <=3.13, RED on 3.14 pre-fix
+        m  = _M(plain=_P('hello'), num=5, nested=_Inner(a=_P('deep')))
+        rt = _M.from_json(m.json())
+        assert rt.json()        == m.json()                # whole-object round-trip
+        assert str(rt.plain)    == 'hello'                 # primitive survives
+        assert rt.num           == 5                        # raw field survives
+        assert rt.nested is not None and str(rt.nested.a) == 'deep'   # nested survives
+
+class _P(Safe_Str):
+    max_length = 100
+
+class _Inner(Type_Safe):
+    a : _P = None
+
+class _M(Type_Safe):
+    plain  : _P     = None
+    num    : int    = None
+    nested : _Inner = None

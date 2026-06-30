@@ -25,7 +25,8 @@ class Type_Safe__Step__From_Json:
             if hasattr(_self, key) and isinstance(getattr(_self, key), Type_Safe):
                 self.deserialize_from_dict(getattr(_self, key), value)
             else:
-                if hasattr(_self, '__annotations__'):
+                #if hasattr(_self, '__annotations__'):
+                if hasattr(type(_self), '__annotations__'):                 # to handle change of behaviour in 3.14
                     if hasattr(_self, key) is False:
                         if raise_on_not_found:
                             raise ValueError(f"Attribute '{key}' not found in '{_self.__class__.__name__}'")
